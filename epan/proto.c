@@ -241,15 +241,7 @@ proto_tree_set_uint(field_info *fi, guint32 value);
 static void
 proto_tree_set_int(field_info *fi, gint32 value);
 static void
-proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
-static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
-static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
-static guint64
-proto_tvb_get_uint64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding);
-static guint64
-proto_tvb_get_int64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding);
 static void
 proto_tree_set_eui64(field_info *fi, const guint64 value);
 static void
@@ -1287,6 +1279,74 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
  * and TRUE meaning "little-endian", we treat any non-zero value of
  * "encoding" as meaning "little-endian".
  */
+static inline guint64
+get_uint64_value(proto_tree *tree, tvbuff_t *tvb, gint offset, guint length, const guint encoding)
+{
+	guint64 value;
+	gboolean length_error;
+
+	switch (length) {
+
+	case 1:
+		value = tvb_get_guint8(tvb, offset);
+		break;
+
+	case 2:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohs(tvb, offset)
+						       : tvb_get_ntohs(tvb, offset);
+		break;
+
+	case 3:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh24(tvb, offset)
+						       : tvb_get_ntoh24(tvb, offset);
+		break;
+
+	case 4:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohl(tvb, offset)
+						       : tvb_get_ntohl(tvb, offset);
+		break;
+
+	case 5:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh40(tvb, offset)
+						       : tvb_get_ntoh40(tvb, offset);
+		break;
+
+	case 6:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh48(tvb, offset)
+						       : tvb_get_ntoh48(tvb, offset);
+		break;
+
+	case 7:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh56(tvb, offset)
+						       : tvb_get_ntoh56(tvb, offset);
+		break;
+
+	case 8:
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh64(tvb, offset)
+						       : tvb_get_ntoh64(tvb, offset);
+		break;
+
+	default:
+		if (length < 1) {
+			length_error = TRUE;
+			value = 0;
+		} else {
+			length_error = FALSE;
+			value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh64(tvb, offset)
+							       : tvb_get_ntoh64(tvb, offset);
+		}
+		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
+		break;
+	}
+	return value;
+}
+
+/*
+ * NOTE: to support code written when proto_tree_add_item() took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "encoding" as meaning "little-endian".
+ */
 static gint32
 get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
@@ -1330,6 +1390,42 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 		report_type_length_mismatch(tree, "a signed integer", length, length_error);
 		break;
 	}
+	return value;
+}
+
+/* Note: this returns an unsigned int64, but with the appropriate bit(s) set to
+ * be cast-able as a gint64. This is weird, but what the code has always done.
+ */
+static inline guint64
+get_int64_value(proto_tree *tree, tvbuff_t *tvb, gint start, guint length, const guint encoding)
+{
+	guint64 value = get_uint64_value(tree, tvb, start, length, encoding);
+
+	switch(length)
+	{
+		case 7:
+			value = ws_sign_ext64(value, 56);
+			break;
+		case 6:
+			value = ws_sign_ext64(value, 48);
+			break;
+		case 5:
+			value = ws_sign_ext64(value, 40);
+			break;
+		case 4:
+			value = ws_sign_ext64(value, 32);
+			break;
+		case 3:
+			value = ws_sign_ext64(value, 24);
+			break;
+		case 2:
+			value = ws_sign_ext64(value, 16);
+			break;
+		case 1:
+			value = ws_sign_ext64(value, 8);
+			break;
+	}
+
 	return value;
 }
 
@@ -1559,7 +1655,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				get_uint_value(tree, tvb, start, length, encoding));
 			break;
 
-		case FT_INT64:
 		case FT_UINT64:
 			/*
 			 * Map all non-zero values to little-endian for
@@ -1567,18 +1662,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			if (length < 1 || length > 8) {
-				length_error = length < 1 ? TRUE : FALSE;
-				report_type_length_mismatch(tree, "a 64-bit integer", length, length_error);
-			}
-			if (new_fi->hfinfo->type == FT_INT64)
-			{
-				proto_tree_set_int64_tvb(new_fi, tvb, start, length, encoding);
-			}
-			else
-			{
-				proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
-			}
+			proto_tree_set_uint64(new_fi,
+				get_uint64_value(tree, tvb, start, length, encoding));
 			break;
 
 		/* XXX - make these just FT_INT? */
@@ -1594,6 +1679,17 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_int(new_fi,
 				get_int_value(tree, tvb, start, length, encoding));
+			break;
+
+		case FT_INT64:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
+			proto_tree_set_uint64(new_fi,
+				get_int64_value(tree, tvb, start, length, encoding));
 			break;
 
 		case FT_IPv4:
@@ -2871,104 +2967,6 @@ static void
 proto_tree_set_uint64(field_info *fi, guint64 value)
 {
 	fvalue_set_integer64(&fi->value, value);
-}
-
-/*
- * NOTE: to support code written when proto_tree_add_item() took a
- * gboolean as its last argument, with FALSE meaning "big-endian"
- * and TRUE meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- *
- * XXX: I don't know why this has to copy the tvb with tvb_memdup(),
- * when the similar tvb_get_ntoh64() and such functions don't do that but
- * instead just call fast_ensure_contiguous(). Is this just old code?
- */
-static inline guint64
-proto_tvb_get_uint64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding)
-{
-	guint64 value = 0;
-	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
-
-	if (encoding) {
-		b += length;
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *--b;
-			case 7: value <<= 8; value += *--b;
-			case 6: value <<= 8; value += *--b;
-			case 5: value <<= 8; value += *--b;
-			case 4: value <<= 8; value += *--b;
-			case 3: value <<= 8; value += *--b;
-			case 2: value <<= 8; value += *--b;
-			case 1: value <<= 8; value += *--b;
-				break;
-		}
-	} else {
-		switch (length) {
-			default: DISSECTOR_ASSERT_NOT_REACHED();
-			case 8: value <<= 8; value += *b++;
-			case 7: value <<= 8; value += *b++;
-			case 6: value <<= 8; value += *b++;
-			case 5: value <<= 8; value += *b++;
-			case 4: value <<= 8; value += *b++;
-			case 3: value <<= 8; value += *b++;
-			case 2: value <<= 8; value += *b++;
-			case 1: value <<= 8; value += *b++;
-				break;
-		}
-	}
-
-    return value;
-}
-
-static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-			  guint length, const guint encoding)
-{
-	proto_tree_set_uint64(fi, proto_tvb_get_uint64_value(tvb, start, length, encoding));
-}
-
-/* Note: this returns an unsigned int64, but with the appropriate bit(s) set to
- * be cast-able as a gint64. This is weird, but what the code has always done.
- */
-static inline guint64
-proto_tvb_get_int64_value(tvbuff_t *tvb, gint start, guint length, const guint encoding)
-{
-    guint64 value = proto_tvb_get_uint64_value(tvb, start, length, encoding);
-
-	switch(length)
-	{
-		case 7:
-			value = ws_sign_ext64(value, 56);
-			break;
-		case 6:
-			value = ws_sign_ext64(value, 48);
-			break;
-		case 5:
-			value = ws_sign_ext64(value, 40);
-			break;
-		case 4:
-			value = ws_sign_ext64(value, 32);
-			break;
-		case 3:
-			value = ws_sign_ext64(value, 24);
-			break;
-		case 2:
-			value = ws_sign_ext64(value, 16);
-			break;
-		case 1:
-			value = ws_sign_ext64(value, 8);
-			break;
-	}
-
-    return value;
-}
-
-static void
-proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-			  guint length, const guint encoding)
-{
-	proto_tree_set_uint64(fi, proto_tvb_get_int64_value(tvb, start, length, encoding));
 }
 
 /* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
