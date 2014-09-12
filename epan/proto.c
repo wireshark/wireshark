@@ -99,7 +99,7 @@ struct ptvcursor {
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
 	   We fake FT_PROTOCOL unless some clients have requested us	\
-	   not to do so. \
+	   not to do so.						\
 	*/								\
 	if (!tree) {							\
 		free_block;						\
@@ -139,12 +139,21 @@ struct ptvcursor {
 
 /** See inlined comments.
  @param pi the created protocol item we're about to return */
-#define TRY_TO_FAKE_THIS_REPR(pi) \
+#define TRY_TO_FAKE_THIS_REPR(pi)	\
 	g_assert(pi);			\
 	if (!(PTREE_DATA(pi)->visible)) { \
 		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
 		 * items string representation */ \
 		return pi; \
+	}
+/* Same as above but returning void */
+#define TRY_TO_FAKE_THIS_REPR_VOID(pi)	\
+	if (!pi)			\
+		return;			\
+	if (!(PTREE_DATA(pi)->visible)) { \
+		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
+		 * items string representation */ \
+		return; \
 	}
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
@@ -4409,9 +4418,7 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 	field_info *fi = NULL;
 	va_list     ap;
 
-	if (pi == NULL) {
-		return;
-	}
+	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL)
@@ -4435,9 +4442,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	size_t      curlen;
 	va_list     ap;
 
-	if (pi == NULL) {
-		return;
-	}
+	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL) {
@@ -4472,9 +4477,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 	char        representation[ITEM_LABEL_LENGTH];
 	va_list     ap;
 
-	if (pi == NULL) {
-		return;
-	}
+	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL) {
@@ -4505,8 +4508,7 @@ proto_item_set_len(proto_item *pi, const gint length)
 {
 	field_info *fi;
 
-	if (pi == NULL)
-		return;
+	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL)
@@ -4536,8 +4538,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 {
 	field_info *fi;
 
-	if (pi == NULL)
-		return;
+	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
 	if (fi == NULL)
