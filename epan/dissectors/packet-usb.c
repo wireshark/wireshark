@@ -94,7 +94,9 @@ static int hf_usb_index = -1;
 static int hf_usb_length = -1;
 /* static int hf_usb_data_len = -1; */
 static int hf_usb_capdata = -1;
-static int hf_usb_wFeatureSelector = -1;
+static int hf_usb_device_wFeatureSelector = -1;
+static int hf_usb_interface_wFeatureSelector = -1;
+static int hf_usb_endpoint_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
 static int hf_usb_wStatus = -1;
 static int hf_usb_wFrameNumber = -1;
@@ -544,15 +546,46 @@ static value_string_ext std_descriptor_type_vals_ext =
 
 /*
  * Feature selectors.
+ * Per USB 3.1 spec, Table 9-7
  */
 #define USB_FS_ENDPOINT_HALT            0
+#define USB_FS_FUNCTION_SUSPEND         0 /* same as ENDPOINT_HALT */
 #define USB_FS_DEVICE_REMOTE_WAKEUP     1
 #define USB_FS_TEST_MODE                2
+#define USB_FS_B_HNP_ENABLE             3
+#define USB_FS_A_HNP_SUPPORT            4
+#define USB_FS_A_ALT_HNP_SUPPORT        5
+#define USB_FS_WUSB_DEVICE              6
+#define USB_FS_U1_ENABLE                48
+#define USB_FS_U2_ENABLE                49
+#define USB_FS_LTM_ENABLE               50
+#define USB_FS_B3_NTF_HOST_REL          51
+#define USB_FS_B3_RSP_ENABLE            52
+#define USB_FS_LDM_ENABLE               53
 
-static const value_string usb_feature_selector_vals[] = {
+static const value_string usb_endpoint_feature_selector_vals[] = {
     {USB_FS_ENDPOINT_HALT,              "ENDPOINT HALT"},
+    {0, NULL}
+};
+
+static const value_string usb_interface_feature_selector_vals[] = {
+    {USB_FS_FUNCTION_SUSPEND,           "FUNCTION SUSPEND"},
+    {0, NULL}
+};
+
+static const value_string usb_device_feature_selector_vals[] = {
     {USB_FS_DEVICE_REMOTE_WAKEUP,       "DEVICE REMOTE WAKEUP"},
     {USB_FS_TEST_MODE,                  "TEST MODE"},
+    {USB_FS_B_HNP_ENABLE,               "B HNP ENABLE"},
+    {USB_FS_A_HNP_SUPPORT,              "A HNP SUPPORT"},
+    {USB_FS_A_ALT_HNP_SUPPORT,          "A ALT HNP SUPPORT"},
+    {USB_FS_WUSB_DEVICE,                "WUSB DEVICE"},
+    {USB_FS_U1_ENABLE,                  "U1 ENABLE"},
+    {USB_FS_U2_ENABLE,                  "U2 ENABLE"},
+    {USB_FS_LTM_ENABLE,                 "LTM ENABLE"},
+    {USB_FS_B3_NTF_HOST_REL,            "B3 NTF HOST REL"},
+    {USB_FS_B3_RSP_ENABLE,              "B3 RSP ENABLE"},
+    {USB_FS_LDM_ENABLE,                 "LDM ENABLE"},
     {0, NULL}
 };
 
@@ -1205,10 +1238,30 @@ usb_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 static int
 dissect_usb_setup_clear_feature_request(packet_info *pinfo _U_, proto_tree *tree,
                                         tvbuff_t *tvb, int offset,
-                                        usb_conv_info_t  *usb_conv_info _U_)
+                                        usb_conv_info_t  *usb_conv_info)
 {
+    guint8 recip;
+    recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
+
     /* feature selector */
-    proto_tree_add_item(tree, hf_usb_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    switch (recip) {
+    case RQT_SETUP_RECIPIENT_DEVICE:
+        proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_INTERFACE:
+        proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_ENDPOINT:
+        proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_OTHER:
+    default:
+        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+    }
     offset += 2;
 
     /* zero/interface/endpoint */
@@ -2259,10 +2312,30 @@ dissect_usb_setup_set_configuration_response(packet_info *pinfo _U_, proto_tree 
 static int
 dissect_usb_setup_set_feature_request(packet_info *pinfo _U_, proto_tree *tree,
                                       tvbuff_t *tvb, int offset,
-                                      usb_conv_info_t  *usb_conv_info _U_)
+                                      usb_conv_info_t  *usb_conv_info)
 {
+    guint8 recip;
+    recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
+
     /* feature selector */
-    proto_tree_add_item(tree, hf_usb_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    switch (recip) {
+    case RQT_SETUP_RECIPIENT_DEVICE:
+        proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_INTERFACE:
+        proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_ENDPOINT:
+        proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+
+    case RQT_SETUP_RECIPIENT_OTHER:
+    default:
+        proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        break;
+    }
     offset += 2;
 
     /* zero/interface/endpoint or test selector */
@@ -3743,9 +3816,19 @@ proto_register_usb(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_wFeatureSelector,
+        { &hf_usb_device_wFeatureSelector,
           { "wFeatureSelector", "usb.setup.wFeatureSelector",
-            FT_UINT16, BASE_DEC, VALS(usb_feature_selector_vals), 0x0,
+            FT_UINT16, BASE_DEC, VALS(usb_device_feature_selector_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_interface_wFeatureSelector,
+          { "wFeatureSelector", "usb.setup.wFeatureSelector",
+            FT_UINT16, BASE_DEC, VALS(usb_interface_feature_selector_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_endpoint_wFeatureSelector,
+          { "wFeatureSelector", "usb.setup.wFeatureSelector",
+            FT_UINT16, BASE_DEC, VALS(usb_endpoint_feature_selector_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_usb_wInterface,
