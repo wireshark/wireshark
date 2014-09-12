@@ -3880,7 +3880,12 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		 * of the string", and if the tvbuff if short, we just
 		 * throw an exception.
 		 *
-		 * It's not valid for any other type of field.
+		 * It's not valid for any other type of field.  For those
+		 * fields, we treat -1 the same way we treat other
+		 * negative values - we assume the length is a Really
+		 * Big Positive Number, and throw a ReportedBoundsError
+		 * exception, under the assumption that the Really Big
+		 * Length would run past the end of the packet.
 		 */
 		switch (hfinfo->type) {
 
@@ -3916,6 +3921,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 			break;
 
 		default:
+			THROW(ReportedBoundsError);
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 		*item_length = *length;
