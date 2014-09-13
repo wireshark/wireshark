@@ -206,7 +206,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
-EXECUTABLES=wireshark-gtk.exe tshark.exe tfshark.exe rawshark.exe \
+EXECUTABLES=$(PROGRAM_NAME_GTK).exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
 	randpkt.exe reordercap.exe dumpcap.exe dftest.exe
 
@@ -1161,7 +1161,7 @@ clean_setup:
 
 
 # prepare debugging of Wireshark in INSTALL_DIR
-debug-wireshark: wireshark-gtk.exe install-generated-files
+debug-wireshark: $(PROGRAM_NAME_GTK).exe install-generated-files
 
 # prepare debugging of tshark in INSTALL_DIR
 debug-tshark: tshark.exe install-generated-files
@@ -1194,9 +1194,9 @@ install-generated-files: doc
 	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.lib" xcopy ".\wsutil\libwsutil.lib" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.pdb" xcopy ".\wsutil\libwsutil.pdb" $(INSTALL_DIR) /d
-	if exist $(PROGRAM_NAME)-gtk.exe xcopy $(PROGRAM_NAME)-gtk.exe $(INSTALL_DIR) /d
-	if exist $(PROGRAM_NAME).pdb xcopy $(PROGRAM_NAME).pdb $(INSTALL_DIR) /d
-	if exist $(PROGRAM_NAME).bsc xcopy $(PROGRAM_NAME).bsc $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME_GTK).exe xcopy $(PROGRAM_NAME_GTK).exe $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME_GTK).pdb xcopy $(PROGRAM_NAME_GTK).pdb $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME_GTK).bsc xcopy $(PROGRAM_NAME_GTK).bsc $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
