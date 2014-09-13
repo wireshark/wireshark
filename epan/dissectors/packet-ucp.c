@@ -1596,7 +1596,7 @@ add_30O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_DD);
     UcpHandleTime(hf_ucp_parm_DDT);     /* DDMMYYHHmm */
     UcpHandleTime(hf_ucp_parm_VP);      /* DDMMYYHHmm */
-    UcpHandleData(hf_ucp_data_section);
+    UcpHandleIRAString(hf_ucp_parm_AMsg);
 }
 
 static void
