@@ -1,7 +1,7 @@
 1. Plugins
 
 Writing a "plugin" dissector is not very different from writing a standard
-one.  In fact all of the functions described in README.developer can be 
+one.  In fact all of the functions described in README.dissector can be
 used in the plugins exactly as they are used in standard dissectors.
 
 (Note, however, that not all OSes on which Wireshark runs can support
@@ -52,7 +52,7 @@ with "foo".
 
 Your plugins/foo/Makefile.common should only list the main source file(s),
 which exports register_*() and handoff_*(), for your dissector in the
-DISSECTOR_SRC variable.  All other supporting source files should be 
+DISSECTOR_SRC variable.  All other supporting source files should be
 listed in the DISSECTOR_SUPPORT_SRC variable.
 The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable.  The DISSECTOR_INCLUDES variable should not
@@ -75,30 +75,30 @@ for building the plugin.  Its contents should match that in moduleinfo.h
 
 2.8 plugin.rc.in
 
-Your plugins/foo/plugin.rc.in is the Windows resource template file used 
+Your plugins/foo/plugin.rc.in is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
 No modifications are needed here.
 
 3. Changes to existing Wireshark files
 
 There are two ways to add your plugin dissector to the build, as a custom
-extension or as a permanent addition.  The custom extension is easy to 
-configure, but won't be used for inclusion in the distribution if that's 
+extension or as a permanent addition.  The custom extension is easy to
+configure, but won't be used for inclusion in the distribution if that's
 your goal.  Setting up the permanent addition is somewhat more involved.
 
 3.1 Custom extension
 
-Go to the plugins directory and copy the three Custom.*.example files to 
-Custom.*.  Now you have three files ready for building a plugin with the 
+Go to the plugins directory and copy the three Custom.*.example files to
+Custom.*.  Now you have three files ready for building a plugin with the
 name "foo".  Replace the name if you so require.
 
-If you want to add the plugin to your own Windows installer add a text 
-file named custom_plugins.txt to the packaging/nsis directory, with a 
+If you want to add the plugin to your own Windows installer add a text
+file named custom_plugins.txt to the packaging/nsis directory, with a
 "File" statement for NSIS:
 
 File "..\..\plugins\foo\foo.dll"
 
-Then open packaging/nsis/Custom.nmake and add the relative path to your 
+Then open packaging/nsis/Custom.nmake and add the relative path to your
 DLL to CUSTOM_PLUGINS:
 
 CUSTOM_PLUGINS= \
@@ -166,7 +166,7 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 
 3.2.4  Changes to the top level configure.ac
 
-You need to add your plugins Makefile (in alphbetical order) to the 
+You need to add your plugins Makefile (in alphbetical order) to the
 AC_OUTPUT rule in the configure.ac
 
 AC_OUTPUT(
@@ -180,7 +180,7 @@ AC_OUTPUT(
 
 3.2.5  Changes to epan/Makefile.am
 
-Add the relative path of all your plugin source files (in alphbetical 
+Add the relative path of all your plugin source files (in alphbetical
 order) to plugin_src:
 
 plugin_src = \
@@ -225,7 +225,7 @@ PLUGINS= \
 
 3.2.7.2  Changes to packaging/nsis/wireshark.nsi
 
-Add the relative path of your plugin DLL (in alphbetical order) to the 
+Add the relative path of your plugin DLL (in alphbetical order) to the
 list of "File" statements in the "Dissector Plugins" section:
 
 File "${STAGING_DIR}\plugins\${VERSION}\ethercat.dll"
@@ -235,7 +235,7 @@ File "${STAGING_DIR}\plugins\${VERSION}\irda.dll"
 
 3.2.7.3  Other installers
 
-The U3 and PortableApps installers build their manifests, including 
+The U3 and PortableApps installers build their manifests, including
 plugins, from wireshark.nsi via the packaging/ws-manifest.pl script.
 
 4. Development and plugins on Unix
@@ -246,7 +246,7 @@ The first thing is that you'll have to run autogen.sh and configure once
 more to setup your build environment.
 
 The good news is that if you are working on a single plugin then you will
-find recompiling the plugin MUCH faster than recompiling a dissector and 
+find recompiling the plugin MUCH faster than recompiling a dissector and
 then linking it back into Wireshark. Use "make -C plugins" to compile just
 your plugins.
 

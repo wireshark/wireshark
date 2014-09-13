@@ -29,6 +29,7 @@ You'll find additional information in the following README files:
 - README.capture        - the capture engine internals
 - README.design         - Wireshark software design - incomplete
 - README.developer      - this file
+- README.dissector      - How to dissect a packet
 - README.display_filter - Display Filter Engine
 - README.idl2wrs        - CORBA IDL converter
 - README.packaging      - how to distribute a software package containing WS

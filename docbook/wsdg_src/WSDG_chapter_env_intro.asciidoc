@@ -396,7 +396,8 @@ various other sources of information:
 .Read the README
 ====
 'README.developer' is packed full with all kinds of details relevant
-to the developer of Wireshark source code. It advices you around common
+to the developer of Wireshark source code. Its companion file
+'README.dissector' advises you around common
 pitfalls, shows you basic layout of dissector code, shows details of the
 APIs available to the dissector developer, etc.
 ====

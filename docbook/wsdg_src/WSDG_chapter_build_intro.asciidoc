@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Build Introduction -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterBuildIntro]]
 
 == Introduction
@@ -28,7 +28,7 @@ Wireshark consists of the following major parts:
 
 === Coding Style
 
-The coding style guides for Wireshark can be found in the "Code style" 
+The coding style guides for Wireshark can be found in the "Code style"
 section of the file 'doc/README.developer'.
 
 [[ChCodeGLib]]

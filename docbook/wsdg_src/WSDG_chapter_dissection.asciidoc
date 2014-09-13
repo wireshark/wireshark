@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Dissection -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterDissection]]
 
 == Packet dissection
@@ -34,9 +34,9 @@ built-in one. So starting with a plugin makes initial development simpler, while
 the finished code may make more sense as a built-in dissector.
 
 [NOTE]
-.Read README.developer
+.Read README.dissector
 ====
-The file 'doc/README.developer' contains detailed information about implementing
+The file 'doc/README.dissector' contains detailed information about implementing
 a dissector. In many cases it is more up to date than this document.
 ====
 
@@ -302,7 +302,7 @@ Now we can enhance the protocol display with some detail.
         ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
         foo_tree = proto_item_add_subtree(ti, ett_foo);
         proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, ENC_BIG_ENDIAN);
-    }   
+    }
 ----
 ====
 
@@ -432,7 +432,7 @@ static const value_string packettypenames[] = {
     { 2, "Terminate" },
     { 3, "Data" },
     { 0, NULL }
-};   
+};
 ----
 ====
 
@@ -785,7 +785,7 @@ msg_init_protocol(void)
 {
     fragment_table_init(&msg_fragment_table);
     reassembled_table_init(&msg_reassembled_table);
-}   
+}
 ----
 ====
 
@@ -1060,7 +1060,7 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
     register_foo_stat_trees();
 }
 
-#endif   
+#endif
 ----
 ====
 
@@ -1097,7 +1097,7 @@ static void foo_stats_tree_init(stats_tree* st)
 {
     st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
-}   
+}
 ----
 ====
 
@@ -1116,7 +1116,7 @@ static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissec
     stats_tree_tick_pivot(st, st_node_packet_types,
             val_to_str(pi->packet_type, msgtypevalues, "Unknown packet type (%d)"));
     return 1;
-}   
+}
 ----
 ====
 
@@ -1130,9 +1130,9 @@ us to record statistics by packet type.
 === How to use conversations
 
 Some info about how to use conversations in a dissector can be found in the file
-'doc/README.developer', chapter 2.2.
+'doc/README.dissector', chapter 2.2.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Dissection -->
 ++++++++++++++++++++++++++++++++++++++
-    
+

@@ -57,7 +57,7 @@ data you may want to keep track of from a request to a response.
 
 We also need a structure that holds persistent information for each
 conversation. A conversation is identified by SRC/DST address, protocol and
-SRC/DST port, see README.developer.
+SRC/DST port, see README.dissector, section 2.2.
 In this case we only want to have a hash table to track the actual
 transactions that occur for this unique conversation.
 Some protocols negotiate session parameters during a login phase and those
