@@ -24,7 +24,8 @@
  * Dissector of a UCP (Universal Computer Protocol) PDU, as defined for the
  * ERMES paging system in ETS 300 133-3 (2nd final draft, September 1997,
  * www.etsi.org).
- * Includes the extension of EMI-UCP interface (V4.0, May 2001, www.cmgwds.com)
+ * Includes the extension of EMI-UCP interface
+ * (V4.0, May 2001, www.advox.se/download/protocols/EMI_UCP.pdf)
  *
  * Support for statistics using the Stats Tree API added by
  * Abhik Sarkar <sarkar.abhik@gmail.com>
