@@ -4368,155 +4368,155 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
   switch(itype){
 
-		case LOGON_SAM_LOGON_RESPONSE:
-			bc = tvb_captured_length_remaining(tvb, offset);
-			/* logon server name */
-			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
-			offset +=fn_len;
+    case LOGON_SAM_LOGON_RESPONSE:
+      bc = tvb_captured_length_remaining(tvb, offset);
+      /* logon server name */
+      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+      proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
+      offset +=fn_len;
 
-			/* username */
-			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-			proto_tree_add_string(tree, hf_mscldap_username, tvb,offset, fn_len, fn);
-			offset +=fn_len;
+      /* username */
+      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+      proto_tree_add_string(tree, hf_mscldap_username, tvb,offset, fn_len, fn);
+      offset +=fn_len;
 
-			/* domain name */
-			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
-			offset +=fn_len;
+      /* domain name */
+      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+      proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
+      offset +=fn_len;
 
-			/* include the extra version 5 fields */
-			if ((version & NETLOGON_NT_VERSION_5) == NETLOGON_NT_VERSION_5){
+      /* include the extra version 5 fields */
+      if ((version & NETLOGON_NT_VERSION_5) == NETLOGON_NT_VERSION_5){
 
-				/* domain guid */
-				proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
-				offset += 16;
+        /* domain guid */
+        proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+        offset += 16;
 
-				/* domain guid part 2
-				   there is another 16 byte guid but this is alway zero, so we will skip it */
-				offset += 16;
+        /* domain guid part 2
+           there is another 16 byte guid but this is alway zero, so we will skip it */
+        offset += 16;
 
-				/* Forest */
-				old_offset=offset;
-				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-				proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+        /* Forest */
+        old_offset=offset;
+        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
 
-				/* Domain */
-				old_offset=offset;
-				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-				proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+        /* Domain */
+        old_offset=offset;
+        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
 
-				/* Hostname */
-				old_offset=offset;
-				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-				proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+        /* Hostname */
+        old_offset=offset;
+        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
-				/* DC IP Address */
-				proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, offset, 4, tvb_get_ntohl(tvb,offset));
-				offset += 4;
+        /* DC IP Address */
+        proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, offset, 4, tvb_get_ntohl(tvb,offset));
+        offset += 4;
 
-				/* Flags */
-				offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
+        /* Flags */
+        offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
 
-			}
+      }
 
-			break;
+      break;
 
-		case LOGON_SAM_LOGON_RESPONSE_EX:
-			/* MS-ADTS 7.3.1.9 */
-			offset += 2; /* Skip over "Sbz" field (MUST be set to 0) */
+    case LOGON_SAM_LOGON_RESPONSE_EX:
+      /* MS-ADTS 7.3.1.9 */
+      offset += 2; /* Skip over "Sbz" field (MUST be set to 0) */
 
-			/* Flags */
-			offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
+      /* Flags */
+      offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
 
-			/* Domain GUID */
-			proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
-			offset += 16;
+      /* Domain GUID */
+      proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+      offset += 16;
 
-			/* Forest */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+      /* Forest */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
 
-			/* Domain */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+      /* Domain */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
 
-			/* Hostname */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+      /* Hostname */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBIOS Domain */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
+      /* NetBIOS Domain */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBIOS Hostname */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
+      /* NetBIOS Hostname */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
 
-			/* User */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
+      /* User */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
 
-			/* Server Site */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
+      /* Server Site */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
 
-			/* Client Site */
-			old_offset=offset;
-			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-			proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+      /* Client Site */
+      old_offset=offset;
+      offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+      proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
 
-			/* include the extra fields for version 5 with IP s */
-			if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
-				/* The ip address is returned as a sockaddr_in structure
-				 *
-				 *  This section may need to be updated if the base Windows APIs
-				 *  are changed to support ipv6, which currently is not the case.
-				 *
-				 *  The desector assumes the length is based on ipv4 and
-				 *  ignores the length
-				 */
+      /* include the extra fields for version 5 with IP s */
+      if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
+        /* The ip address is returned as a sockaddr_in structure
+         *
+         *  This section may need to be updated if the base Windows APIs
+         *  are changed to support ipv6, which currently is not the case.
+         *
+         *  The desector assumes the length is based on ipv4 and
+         *  ignores the length
+         */
 
-				/* skip the length of the sockaddr_in */
+        /* skip the length of the sockaddr_in */
 
-				offset +=1;
+        offset +=1;
 
-				/* add IP address and desect the sockaddr_in structure */
+        /* add IP address and desect the sockaddr_in structure */
 
-				old_offset = offset + 4;
-				item = proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, tvb_get_ipv4(tvb,old_offset));
+        old_offset = offset + 4;
+        item = proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, tvb_get_ipv4(tvb,old_offset));
 
-				if (tree){
-					proto_tree *subtree;
+        if (tree){
+          proto_tree *subtree;
 
-					subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
+          subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
 
-					/* get sockaddr family */
-					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-					offset +=2;
+          /* get sockaddr family */
+          proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+          offset +=2;
 
-					/* get sockaddr port */
-					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-					offset +=2;
+          /* get sockaddr port */
+          proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+          offset +=2;
 
-					/* get IP address */
-					proto_tree_add_ipv4(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, tvb_get_ipv4(tvb,offset));
-					offset +=4;
+          /* get IP address */
+          proto_tree_add_ipv4(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, tvb_get_ipv4(tvb,offset));
+          offset +=4;
 
-					/* skip the 8 bytes of zeros in the sockaddr structure */
-					offset += 8;
-				}
+          /* skip the 8 bytes of zeros in the sockaddr structure */
+          offset += 8;
+        }
 
-			}
+      }
 
-			break;
+      break;
   }
 
 
