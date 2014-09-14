@@ -1205,7 +1205,7 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 	proto_item	  *pi;
 	header_field_info *hfinfo;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo, tvb);
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 
