@@ -8059,6 +8059,7 @@ piranha2         4601/udp # Piranha2 [Primark_Corporation] [Primark_Corporation]
 mtsserver        4602/tcp # EAX MTS Server [Pedro_A_Rodriguez] [Pedro_A_Rodriguez] 2008-08-06
 menandmice-upg   4603/tcp # Men & Mice Upgrade Agent [Eggert_Thorlacius_2] [Eggert_Thorlacius_2] 2010-01-27
 irp              4604/tcp # Identity Registration Protocol [Sixscape_Communications_Pte_Ltd] [Lawrence_E._Hughes] 2014-03-17 2014-08-26
+sixchat          4605/tcp # Direct End to End Secure Chat Protocol [Sixscape_Communications_Pte_Ltd] [Lawrence_E._Hughes] 2014-09-11
 playsta2-app     4658/tcp # PlayStation2 App Port
 playsta2-app     4658/udp # PlayStation2 App Port
 playsta2-lob     4659/tcp # PlayStation2 Lobby Port [Noam_Rimon] [Noam_Rimon] 2004-12
