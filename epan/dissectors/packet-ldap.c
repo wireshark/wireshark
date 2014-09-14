@@ -824,7 +824,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		offset=get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 		offset=get_ber_length(tvb, offset, &len, &ind);
 	} else {
-		len=tvb_captured_length_remaining(tvb,offset);
+		len=tvb_reported_length_remaining(tvb,offset);
 	}
 
 	if(len==0){
@@ -4360,16 +4360,10 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   itype = tvb_get_letohs(tvb, offset);
   offset += 2;
 
-  /* get the version number from the end of the buffer, as the
-     length is variable and the version determines what fields
-	 need to be decoded */
-
-  version = tvb_get_letohl(tvb,len-8);
-
   switch(itype){
 
     case LOGON_SAM_LOGON_RESPONSE:
-      bc = tvb_captured_length_remaining(tvb, offset);
+      bc = tvb_reported_length_remaining(tvb, offset);
       /* logon server name */
       fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
       proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
@@ -4384,6 +4378,11 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
       fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
       proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
       offset +=fn_len;
+
+      /* get the version number from the end of the buffer, as the
+         length is variable and the version determines what fields
+         need to be decoded */
+      version = tvb_get_letohl(tvb,len-8);
 
       /* include the extra version 5 fields */
       if ((version & NETLOGON_NT_VERSION_5) == NETLOGON_NT_VERSION_5){
@@ -4472,6 +4471,11 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
       old_offset=offset;
       offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
       proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+
+      /* get the version number from the end of the buffer, as the
+         length is variable and the version determines what fields
+         need to be decoded */
+      version = tvb_get_letohl(tvb,len-8);
 
       /* include the extra fields for version 5 with IP s */
       if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
@@ -4585,7 +4589,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *       proto_tree_add_oid() instead.
  */
 
-	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb), ENC_UTF_8|ENC_NA);
+	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 	if(!oid){
 		return;
 	}
@@ -4593,7 +4597,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	oidname=oid_resolved_from_string(oid);
 
 	if(oidname){
-		proto_tree_add_string_format_value(tree, hf_ldap_oid, tvb, 0, tvb_captured_length(tvb), oid, "%s (%s)",oid,oidname);
+		proto_tree_add_string_format_value(tree, hf_ldap_oid, tvb, 0, tvb_reported_length(tvb), oid, "%s (%s)",oid,oidname);
 	} else {
 		proto_tree_add_string(tree, hf_ldap_oid, tvb, 0, tvb_captured_length(tvb), oid);
 	}
@@ -4640,7 +4644,7 @@ struct access_mask_info ldap_access_mask_info = {
 static void
 dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_captured_length(tvb), &ldap_access_mask_info);
+	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_reported_length(tvb), &ldap_access_mask_info);
 }
 
 static void
@@ -4812,7 +4816,7 @@ this_was_not_normal_ldap:
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still
 	 * in clear*/
-	if ((sasl_len + 4) == (guint32)tvb_captured_length_remaining(tvb, 0))
+	if ((sasl_len + 4) == (guint32)tvb_reported_length_remaining(tvb, 0))
 		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu, data);
  end:
 	return tvb_captured_length(tvb);
@@ -5706,7 +5710,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2225 "../../asn1/ldap/packet-ldap-template.c"
+#line 2229 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5780,7 +5784,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2239 "../../asn1/ldap/packet-ldap-template.c"
+#line 2243 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5946,7 +5950,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2388 "../../asn1/ldap/packet-ldap-template.c"
+#line 2392 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
