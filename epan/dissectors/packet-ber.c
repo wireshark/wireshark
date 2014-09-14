@@ -614,6 +614,22 @@ ber_check_items (int cnt, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, prot
     }
 }
 
+/*
+ * XXX - if the specified length is less than the remaining length
+ * of data in the tvbuff, either 1) the specified length is bad and
+ * we should report that with an expert info or 2) the tvbuff is
+ * unreassembled and we should make the new tvbuff also be an
+ * unreassembled tvbuff.
+ */
+static tvbuff_t *
+ber_tvb_new_subset_length(tvbuff_t *tvb, const gint backing_offset, const gint backing_length)
+{
+    gint length_remaining;
+
+    length_remaining = tvb_reported_length_remaining(tvb, backing_offset);
+    return tvb_new_subset_length(tvb, backing_offset, (length_remaining > backing_length) ? backing_length : length_remaining);
+}
+
 int
 dissect_ber_tagged_type(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type)
 {
@@ -664,12 +680,7 @@ printf("dissect_ber_tagged_type(%s) entered\n", name);
     }
 
     if (tag_impl) {
-        gint length_remaining;
-
-        length_remaining = tvb_length_remaining(tvb, offset);
-        if (tmp_len > (guint32)length_remaining)
-            tmp_len = length_remaining;
-        next_tvb = tvb_new_subset_length(tvb, offset, tmp_len);
+        next_tvb = ber_tvb_new_subset_length(tvb, offset, tmp_len);
         type(tag_impl, next_tvb, 0, actx, tree, hf_id);
         offset += tmp_len;
     } else {
@@ -1741,9 +1752,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
         }
 
         if (out_tvb) {
-            if (len > (guint32)length_remaining)
-                len = length_remaining;
-            *out_tvb = tvb_new_subset_length(tvb, offset, len);
+            *out_tvb = ber_tvb_new_subset_length(tvb, offset, len);
         }
     }
     return end_offset;
@@ -2086,7 +2095,6 @@ dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent
     proto_item *cause;
     int         end_offset = 0;
     int         hoffset;
-    gint        length_remaining;
     tvbuff_t   *next_tvb;
 
 #ifdef DEBUG_BER
@@ -2325,21 +2333,15 @@ ber_sequence_try_again:
             /* dissect header and len for field */
             if (ind_field && (len == 2)) {
                 /* This is a Zero length field */
-                next_tvb = tvb_new_subset_length(tvb, offset, len);
+                next_tvb = ber_tvb_new_subset_length(tvb, offset, len);
                 hoffset = eoffset;
             } else {
                 hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                 hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
-                length_remaining = tvb_length_remaining(tvb, hoffset);
-                if (length_remaining > (eoffset - hoffset - (2 * ind_field)))
-                    length_remaining = eoffset - hoffset - (2 * ind_field);
-                next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
+                next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (2 * ind_field));
             }
         } else {
-            length_remaining = tvb_length_remaining(tvb, hoffset);
-            if (length_remaining > (eoffset - hoffset))
-                length_remaining = eoffset - hoffset;
-            next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
+            next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset);
         }
 
 #if 0
@@ -2453,7 +2455,6 @@ dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree
     proto_item *cause;
     int         end_offset, s_offset;
     int         hoffset;
-    gint        length_remaining;
     tvbuff_t   *next_tvb;
     guint32     mandatory_fields = 0;
     guint8      set_idx;
@@ -2587,15 +2588,9 @@ printf("SET dissect_ber_set(%s) entered\n", name);
                     /* dissect header and len for field */
                     hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                     hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
-                    length_remaining = tvb_length_remaining(tvb, hoffset);
-                    if (length_remaining > (eoffset - hoffset - (2 * ind_field)))
-                        length_remaining = eoffset - hoffset - (2 * ind_field);
-                    next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset - hoffset - (2 * ind_field));
+                    next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset - (2 * ind_field));
                 } else {
-                    length_remaining = tvb_length_remaining(tvb, hoffset);
-                    if (length_remaining > (eoffset - hoffset))
-                        length_remaining = eoffset - hoffset;
-                    next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset - hoffset);
+                    next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset - hoffset);
                 }
 
 
@@ -2737,7 +2732,7 @@ dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int
     proto_item *item = NULL;
     int         end_offset, start_offset, count;
     int         hoffset = offset;
-    gint        length, length_remaining;
+    gint        length;
     tvbuff_t   *next_tvb;
     gboolean    first_pass;
     header_field_info  *hfinfo;
@@ -2848,10 +2843,6 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
                 }
             }
 
-            length_remaining = tvb_length_remaining(tvb, hoffset);
-            if (length_remaining>length)
-                length_remaining = length;
-
 #ifdef REMOVED
             /* This is bogus and makes the OID_1.0.9506.1.1.cap file
              * in Steven J Schaeffer's email of 2005-09-12 fail to dissect
@@ -2862,11 +2853,11 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
              * God, this file is a mess and it is my fault. /ronnie
              */
             if (first_pass)
-                next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length);
+                next_tvb = ber_tvb_new_subset_length(tvb, hoffset, length);
             else
                 next_tvb = tvb; /* we didn't make selection on this class/tag so pass it on */
 #endif
-            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length);
+            next_tvb = ber_tvb_new_subset_length(tvb, hoffset, length);
 
 
 #ifdef DEBUG_BER_CHOICE
@@ -3194,7 +3185,7 @@ printf("OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered\n", name);
     }
 
     if (value_tvb)
-        *value_tvb = tvb_new_subset_length(tvb, offset, len);
+        *value_tvb = ber_tvb_new_subset_length(tvb, offset, len);
 
     return eoffset;
 }
@@ -3261,8 +3252,8 @@ dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tr
     proto_item        *item     = NULL;
     proto_item        *causex;
     int                cnt, hoffsetx, end_offset;
+    gboolean           have_cnt;
     header_field_info *hfi;
-    gint               length_remaining;
     tvbuff_t          *next_tvb;
 
 #ifdef DEBUG_BER_SQ_OF
@@ -3336,6 +3327,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
 
     /* count number of items */
     cnt = 0;
+    have_cnt = FALSE;
     hoffsetx = offset;
     /* only count the number of items IFF we have the full blob,
      * else this will just generate a [short frame] before we even start
@@ -3343,6 +3335,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
      */
     /* XXX Do we really need to count them at all ?  ronnie */
     if (tvb_length_remaining(tvb, offset) == tvb_reported_length_remaining(tvb, offset)) {
+        have_cnt = TRUE;
         while (offset < end_offset) {
             guint32 len;
             gint    s_offset;
@@ -3363,8 +3356,14 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             /* adjust end_offset if we find somthing that doesnt match */
             offset += len;
             cnt++;
-            if (offset <= s_offset)
-                THROW(ReportedBoundsError);
+            if (offset <= s_offset) {
+                /* Underflow - give up; this can happen with a very large
+                 * length.
+                 */
+                have_cnt = FALSE;
+                cnt = 0;
+                break;
+            }
         }
     }
     offset = hoffsetx;
@@ -3377,8 +3376,11 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
                 item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, ":");
             } else {
-                item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, lenx, cnt);
-                proto_item_append_text(item, (cnt == 1) ? " item" : " items");
+                if (have_cnt) {
+                    item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, lenx, cnt);
+                    proto_item_append_text(item, (cnt == 1) ? " item" : " items");
+                } else
+                    item = proto_tree_add_uint_format_value(parent_tree, hf_id, tvb, offset, lenx, cnt, "unknown number of items");
             }
             tree = proto_item_add_subtree(item, ett_id);
             ber_check_items (cnt, min_len, max_len, actx, item);
@@ -3458,10 +3460,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             /* Function has IMPLICIT TAG */
         }
 
-        length_remaining = tvb_length_remaining(tvb, hoffset);
-        if (length_remaining>eoffset-hoffset)
-            length_remaining = eoffset-hoffset;
-        next_tvb = tvb_new_subset_length(tvb, hoffset, length_remaining);
+        next_tvb = ber_tvb_new_subset_length(tvb, hoffset, eoffset-hoffset);
 
         imp_tag = FALSE;
         if (seq->flags == BER_FLAGS_IMPLTAG)
@@ -3873,11 +3872,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
             }
         }
         if (out_tvb) {
-            if (len <= (guint32)tvb_length_remaining(tvb, offset)) {
-                *out_tvb = tvb_new_subset_length(tvb, offset, len);
-            } else {
-                *out_tvb = tvb_new_subset_remaining(tvb, offset);
-            }
+            *out_tvb = ber_tvb_new_subset_length(tvb, offset, len);
         }
     }
 
