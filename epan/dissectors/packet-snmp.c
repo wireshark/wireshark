@@ -647,14 +647,12 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	seq_offset = offset;
 
 	/* first have the VarBind's sequence header */
-	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	offset = get_ber_length(tvb, offset, &seq_len, &ind);
-
-	seq_len += offset - seq_offset;
+	offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
+	offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &seq_len, &ind);
 
 	if (!pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_SEQUENCE) {
 		proto_item* pi;
-		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len + (offset - seq_offset),
 				ett_decoding_error, &pi, "VarBind must be an universal class sequence");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_not_uni_class_seq);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
@@ -662,16 +660,22 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 	if (ind) {
 		proto_item* pi;
-		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len + (offset - seq_offset),
 					ett_decoding_error, &pi, "Indicator must be clear in VarBind");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_varbind_has_indicator);
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
 
+	/* we add the varbind tree root with a dummy label we'll fill later on */
+	pt_varbind = proto_tree_add_subtree(tree,tvb,offset,seq_len,ett_varbind,&pi_varbind,"VarBind");
+	*label = '\0';
+
+	seq_len += offset - seq_offset;
+
 	/* then we have the ObjectName's header */
 
-	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	name_offset = offset = get_ber_length(tvb, offset, &name_len, &ind);
+	offset = dissect_ber_identifier(actx->pinfo, pt_varbind, tvb, offset, &ber_class, &pc, &tag);
+	name_offset = offset = dissect_ber_length(actx->pinfo, pt_varbind, tvb, offset, &name_len, &ind);
 
 	if (! ( !pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_OID) ) {
 		proto_item* pi;
@@ -689,31 +693,24 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
 
+	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,ENC_NA);
+	pt_name = proto_item_add_subtree(pi_name,ett_name);
+
 	offset += name_len;
 	value_start = offset;
-
 	/* then we have the value's header */
-	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	value_offset = get_ber_length(tvb, offset, &value_len, &ind);
+	offset = dissect_ber_identifier(actx->pinfo, pt_varbind, tvb, offset, &ber_class, &pc, &tag);
+	value_offset = dissect_ber_length(actx->pinfo, pt_varbind, tvb, offset, &value_len, &ind);
 
 	if (! (!pc) ) {
 		proto_item* pi;
-		pt = proto_tree_add_subtree(tree, tvb, seq_offset, seq_len,
+		pt = proto_tree_add_subtree(pt_varbind, tvb, value_start, value_len,
 				ett_decoding_error, &pi, "the value must be in primitive encoding");
 		expert_add_info(actx->pinfo, pi, &ei_snmp_value_not_primitive_encoding);
-		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
+		return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 	}
 
 	/* Now, we know where everithing is */
-
-
-
-	/* we add the varbind tree root with a dummy label we'll fill later on */
-	pt_varbind = proto_tree_add_subtree(tree,tvb,seq_offset,seq_len,ett_varbind,&pi_varbind,"VarBind");
-	*label = '\0';
-
-	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,ENC_NA);
-	pt_name = proto_item_add_subtree(pi_name,ett_name);
 
 	/* fetch ObjectName and its relative oid_info */
 	oid_bytes = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, name_offset, name_len);
@@ -3082,7 +3079,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1872 "../../asn1/snmp/packet-snmp-template.c"
+#line 1869 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3175,10 +3172,9 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * OK, try to read the "Sequence Of" header; this gets the total
 	 * length of the SNMP message.
 	 */
-	/* Set tree to 0 to not display internal BER fields if option used.*/
-	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &ber_class, &pc, &tag);
+	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	/*Get the total octet length of the SNMP data*/
-	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
+	offset = get_ber_length(tvb, offset, &len, &ind);
 	message_length = len + offset;
 
 	/*Get the SNMP version data*/
@@ -3907,7 +3903,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2432 "../../asn1/snmp/packet-snmp-template.c"
+#line 2428 "../../asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3947,7 +3943,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2448 "../../asn1/snmp/packet-snmp-template.c"
+#line 2444 "../../asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
