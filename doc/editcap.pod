@@ -30,6 +30,7 @@ S< B<-d> > |
 S< B<-D> E<lt>dup windowE<gt> > |
 S< B<-w> E<lt>dup time windowE<gt> >
 S<[ B<-v> ]>
+S<[ B<-I> E<lt>bytes to ignoreE<gt> ]>
 I<infile>
 I<outfile>
 
@@ -164,6 +165,13 @@ using a maximum interval of <seconds per file> each. Each output file will
 be created with a suffix -nnnnn, starting with 00000. If packets for the specified
 time interval are written to the output file, the next output file is
 opened. The default is to use a single output file.
+
+=item -I  E<lt>bytes to ignoreE<gt>
+
+Ignore the specified bytes number at the beginning of the frame during MD5 hash calculation
+Useful to remove duplicated packets taken on several routers(differents mac addresses for example)
+e.g. -I 26 in case of Ether/IP/ will ignore ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
+The default value is 0.
 
 =item -L
 

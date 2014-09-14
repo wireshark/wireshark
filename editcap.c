@@ -121,6 +121,8 @@ static fd_hash_t fd_hash[MAX_DUP_DEPTH];
 static int       dup_window    = DEFAULT_DUP_DEPTH;
 static int       cur_dup_entry = 0;
 
+static int       ignored_bytes  = 0;  /* Used with -I */
+
 #define ONE_MILLION    1000000
 #define ONE_BILLION 1000000000
 
@@ -540,13 +542,20 @@ is_duplicate(guint8* fd, guint32 len) {
     int i;
     md5_state_t ms;
 
+    /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
+    guint32 new_len;
+    guint8 *new_fd;
+
+    new_fd  = &fd[ignored_bytes];
+    new_len = len - (ignored_bytes);
+
     cur_dup_entry++;
     if (cur_dup_entry >= dup_window)
         cur_dup_entry = 0;
 
     /* Calculate our digest */
     md5_init(&ms);
-    md5_append(&ms, fd, len);
+    md5_append(&ms, new_fd, new_len);
     md5_finish(&ms, fd_hash[cur_dup_entry].digest);
 
     fd_hash[cur_dup_entry].len = len;
@@ -570,13 +579,20 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
     int i;
     md5_state_t ms;
 
+    /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
+    guint32 new_len;
+    guint8 *new_fd;
+
+    new_fd  = &fd[ignored_bytes];
+    new_len = len - (ignored_bytes);
+
     cur_dup_entry++;
     if (cur_dup_entry >= dup_window)
         cur_dup_entry = 0;
 
     /* Calculate our digest */
     md5_init(&ms);
-    md5_append(&ms, fd, len);
+    md5_append(&ms, new_fd, new_len);
     md5_finish(&ms, fd_hash[cur_dup_entry].digest);
 
     fd_hash[cur_dup_entry].len = len;
@@ -709,6 +725,14 @@ print_usage(FILE *output)
     fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
     fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
     fprintf(output, "                         (e.g. 0.000001).\n");
+    fprintf(output, "\n");
+    fprintf(output, "  -I <bytes to ignore>   ignore the specified bytes at the beginning of\n");
+    fprintf(output, "                         the frame during MD5 hash calculation\n");
+    fprintf(output, "                         Useful to remove duplicated packets taken on\n");
+    fprintf(output, "                         several routers(differents mac addresses for \n");
+    fprintf(output, "                         example)\n");
+    fprintf(output, "                         e.g. -I 26 in case of Ether/IP/ will ignore \n");
+    fprintf(output, "                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).\n");
     fprintf(output, "\n");
     fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
     fprintf(output, "           other editcap options except -v may not always work as expected.\n");
@@ -960,7 +984,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "A:B:c:C:dD:E:F:hi:I:Lrs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case 'A':
         {
@@ -1104,6 +1128,14 @@ main(int argc, char *argv[])
             if (secs_per_block <= 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n",
                         optarg);
+                exit(1);
+            }
+            break;
+
+        case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
+            ignored_bytes = atoi(optarg);
+            if(ignored_bytes <= 0) {
+                fprintf(stderr, "editcap: \"%s\" isn't a valid number of bytes to ignore\n", optarg);
                 exit(1);
             }
             break;
