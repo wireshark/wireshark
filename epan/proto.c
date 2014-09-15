@@ -5001,14 +5001,12 @@ proto_get_id(const protocol_t *protocol)
 	return protocol->proto_id;
 }
 
-int proto_get_id_by_filter_name(const gchar* filter_name)
+int
+proto_get_id_by_filter_name(const gchar *filter_name)
 {
 	const protocol_t *protocol = NULL;
 
-	if(!filter_name){
-		fprintf(stderr, "No filter name present");
-		DISSECTOR_ASSERT(filter_name);
-	}
+	DISSECTOR_ASSERT_HINT(filter_name, "No filter name present");
 
 	protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
 
@@ -5017,14 +5015,12 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 	return protocol->proto_id;
 }
 
-int proto_get_id_by_short_name(const gchar* short_name)
+int
+proto_get_id_by_short_name(const gchar *short_name)
 {
 	const protocol_t *protocol = NULL;
 
-	if(!short_name){
-		fprintf(stderr, "No short name present");
-		DISSECTOR_ASSERT(short_name);
-	}
+	DISSECTOR_ASSERT_HINT(short_name, "No short name present");
 
 	protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
 
@@ -5073,8 +5069,10 @@ proto_get_protocol_filter_name(const int proto_id)
 }
 
 void
-proto_get_frame_protocols(const wmem_list_t *layers,
-		gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp, gboolean *is_ssl) {
+proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
+			  gboolean *is_tcp, gboolean *is_udp,
+			  gboolean *is_sctp, gboolean *is_ssl)
+{
 	wmem_list_frame_t *protos = wmem_list_head(layers);
 	int	    proto_id;
 	const char *proto_name;
@@ -5627,7 +5625,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		c = wrs_check_charset(fld_abbrev_chars, hfinfo->abbrev);
 		if (c) {
 			fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
-			DISSECTOR_ASSERT(!c);
+			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 
 		/* We allow multiple hfinfo's to be registered under the same
