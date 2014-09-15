@@ -23705,8 +23705,13 @@ static const value_string lte_rrc_ReleaseCause_vals[] = {
 
 static int
 dissect_lte_rrc_ReleaseCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, FALSE, 0, NULL);
+                                     4, &value, FALSE, 0, NULL);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%s]",
+                  val_to_str(value, lte_rrc_ReleaseCause_vals, "Unknown"));
+
 
   return offset;
 }

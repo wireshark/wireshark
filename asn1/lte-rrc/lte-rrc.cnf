@@ -1638,3 +1638,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     PROTO_ITEM_SET_GENERATED(it);
   }
 
+#.FN_BODY ReleaseCause VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
+                  val_to_str(value, lte_rrc_ReleaseCause_vals, "Unknown"));
+
