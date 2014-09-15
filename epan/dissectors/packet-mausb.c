@@ -1489,7 +1489,7 @@ proto_register_mausb(void)
         /* EP Handle Subfields */
         { &hf_mausb_ep_handle_d,
             { "Direction", "mausb.ep_handle.d", FT_BOOLEAN, 16,
-              TFS(&tfs_set_notset), MAUSB_EP_HANDLE_D, NULL, HFILL
+              TFS(&tfs_endpoint_direction), MAUSB_EP_HANDLE_D, NULL, HFILL
             }
         },
         { &hf_mausb_ep_handle_ep_num,

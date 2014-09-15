@@ -198,6 +198,9 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
 
+/* 9.6.6 */
+extern const true_false_string tfs_endpoint_direction;
+
 usb_conv_info_t *
 get_usb_conv_info(conversation_t *conversation);
 

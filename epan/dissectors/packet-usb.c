@@ -1749,7 +1749,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /* 9.6.6 */
-static const true_false_string tfs_endpoint_direction = {
+const true_false_string tfs_endpoint_direction = {
     "IN Endpoint",
     "OUT Endpoint"
 };
