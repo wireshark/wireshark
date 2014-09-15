@@ -2951,7 +2951,9 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     protocol = tvb_get_guint8(tvb, offset);
     msg_len = tvb_get_letohl(tvb, offset+1);
 
-    protocol_name = try_val_to_str(protocol, edonkey_protocols);
+    protocol_name = val_to_str_const(protocol, edonkey_protocols, "Unknown");
+
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s TCP", protocol_name);
 
     /* Add edonkey message tree */
     if (edonkey_tree) {
@@ -2959,16 +2961,13 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                  offset, EDONKEY_TCP_HEADER_LENGTH + msg_len, ENC_NA);
         edonkey_msg_tree = proto_item_add_subtree(ti, ett_edonkey_message);
 
-        proto_tree_add_uint_format_value(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol,
-                                   "%s (0x%02x)", protocol_name, protocol);
+        proto_tree_add_uint(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol);
         proto_tree_add_uint(edonkey_msg_tree, hf_edonkey_message_length, tvb, offset+1, 4, msg_len);
     }
 
 
     /* Skip past the EDONKEY Header */
     offset += EDONKEY_TCP_HEADER_LENGTH;
-
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s TCP", protocol_name);
 
     msg_type = tvb_get_guint8(tvb, offset);
     switch (protocol) {
@@ -3085,8 +3084,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         ti = proto_tree_add_item(edonkey_tree, hf_edonkey_message, tvb, offset, -1, ENC_NA);
         edonkey_msg_tree = proto_item_add_subtree(ti, ett_edonkey_message);
 
-        proto_tree_add_uint_format_value(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol,
-                                    "%s (0x%02x)", protocol_name, protocol);
+        proto_tree_add_uint(edonkey_msg_tree, hf_edonkey_protocol, tvb, offset, 1, protocol);
         proto_tree_add_uint_format_value(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset+1, 1, msg_type,
                                     "%s (0x%02x)", message_name, msg_type);
 
