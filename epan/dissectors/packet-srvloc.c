@@ -1407,24 +1407,6 @@ get_srvloc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-    proto_tree	    *srvloc_tree = NULL;
-    proto_item	    *ti;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
-
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, ENC_NA);
-        srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
-    }
-    dissect_srvloc(tvb, pinfo, srvloc_tree, NULL);
-    return tvb_length(tvb);
-}
-
-static int
 dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /*
@@ -1436,7 +1418,7 @@ dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      * and we can't handle a length < 4 anyway.
      */
     tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 5, get_srvloc_pdu_len,
-                     dissect_srvloc_pdu, data);
+                     dissect_srvloc, data);
     return tvb_length(tvb);
 }
 
