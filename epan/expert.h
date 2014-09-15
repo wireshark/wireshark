@@ -36,12 +36,12 @@ extern "C" {
 
 /** only for internal and display use. */
 typedef struct expert_info_s {
-	guint32 packet_num;
-	int group;
-	int severity;
+	guint32      packet_num;
+	int          group;
+	int          severity;
 	const gchar *protocol;
-	gchar *summary;
-	proto_item *pitem;
+	gchar       *summary;
+	proto_item  *pitem;
 } expert_info_t;
 
 /* Expert Info and Display hf data */
@@ -57,17 +57,17 @@ typedef struct expert_field
 
 typedef struct expert_field_info {
 	/* ---------- set by dissector --------- */
-	const char *name;
-	int group;
-	int severity;
-	const gchar *summary;
+	const char       *name;
+	int               group;
+	int               severity;
+	const gchar      *summary;
 
 	/* ------- set by register routines (prefilled by EXPFILL macro, see below) ------ */
-	int id;
-	const gchar *protocol;
-	int orig_severity; /* Matches severity when registered, used to restore original severity
-						* if UAT severity entry is removed */
-	hf_register_info hf_info;
+	int               id;
+	const gchar      *protocol;
+	int               orig_severity; /* Matches severity when registered, used to restore original severity
+					  * if UAT severity entry is removed */
+	hf_register_info  hf_info;
 
 } expert_field_info;
 
@@ -76,7 +76,7 @@ typedef struct expert_field_info {
 
 typedef struct ei_register_info {
 	expert_field      *ids;         /**< written to by register() function */
-	expert_field_info eiinfo;      /**< the field info to be registered */
+	expert_field_info  eiinfo;      /**< the field info to be registered */
 } ei_register_info;
 
 typedef struct expert_module expert_module_t;
@@ -114,10 +114,10 @@ expert_update_comment_count(guint64 count);
  @param eiindex The registered expert info item
  */
 WS_DLL_PUBLIC void
-expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* eiindex);
+expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *eiindex);
 
 /** Add an expert info.
- Add an expert info tree to a protocol item, using registered expert info item,
+ Add an expert info tree to a protocol item using registered expert info item,
  but with a formatted message.
  @param pinfo Packet info of the currently processed packet. May be NULL if
         pi is supplied
@@ -127,16 +127,15 @@ expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* eiindex);
  */
 WS_DLL_PUBLIC void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex,
-	const char *format, ...) G_GNUC_PRINTF(4, 5);
+                       const char *format, ...) G_GNUC_PRINTF(4, 5);
 
 /** Add an expert info associated with some byte data
  Add an expert info tree to a protocol item using registered expert info item.
  This function is intended to replace places where
  proto_tree_add_text or proto_tree_add_none_format + expert_add_info
  would be used.
- @param tree Current protocol item (or NULL)
- @param pinfo Packet info of the currently processed packet. May be NULL if
-        pi is supplied
+ @param tree Current protocol tree (or NULL)
+ @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied
  @param eiindex The registered expert info item
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -144,7 +143,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex
  @return the newly created item above expert info tree
  */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiindex,
+proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
         tvbuff_t *tvb, gint start, gint length);
 
 /** Add an expert info associated with some byte data
@@ -153,7 +152,7 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiinde
  This function is intended to replace places where
  proto_tree_add_text or proto_tree_add_none_format + expert_add_info_format
  would be used.
- @param tree Current protocol item (or NULL)
+ @param tree Current protocol tree (or NULL)
  @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied
  @param eiindex The registered expert info item
  @param tvb the tv buffer of the current data
@@ -163,7 +162,7 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiinde
  @return the newly created item above expert info tree
  */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field* eiindex,
+proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
         tvbuff_t *tvb, gint start, gint length, const char *format, ...) G_GNUC_PRINTF(7, 8);
 
 /*
@@ -176,7 +175,7 @@ WS_DLL_PUBLIC expert_module_t *expert_register_protocol(int id);
  @param ei the ei_register_info array
  @param num_records the number of records in exp */
 WS_DLL_PUBLIC void
-expert_register_field_array(expert_module_t* module, ei_register_info *ei, const int num_records);
+expert_register_field_array(expert_module_t *module, ei_register_info *ei, const int num_records);
 
 #define EXPERT_CHECKSUM_DISABLED    -2
 #define EXPERT_CHECKSUM_UNKNOWN     -1
@@ -194,3 +193,16 @@ WS_DLL_PUBLIC const value_string expert_checksum_vals[];
 #endif /* __cplusplus */
 
 #endif /* __EXPERT_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
