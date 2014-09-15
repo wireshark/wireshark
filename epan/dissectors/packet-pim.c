@@ -105,9 +105,6 @@ static const value_string pimtypevals[] = {
     { 0, NULL }
 };
 
-
-#if 0
-/* PIM_TYPE_DF_ELECT (subtype) not implemented yet */
 static const value_string pimbdirdfvals[] = {
     { PIM_BDIR_DF_OFFER,    "offer"},
     { PIM_BDIR_DF_WINNER, "DF Winner"},
@@ -115,7 +112,6 @@ static const value_string pimbdirdfvals[] = {
     { PIM_BDIR_DF_PASS, "DF Pass"},
     { 0, NULL }
 };
-#endif
 
 static const value_string pim_opt_vals[] = {
     {1, "Hold Time"},
@@ -139,6 +135,8 @@ static int proto_pim = -1;
 static int hf_pim_version = -1;
 static int hf_pim_type = -1;
 static int hf_pim_code = -1;
+static int hf_pim_df_elect_subtype = -1;
+static int hf_pim_df_elect_rsvd = -1;
 static int hf_pim_cksum = -1;
 static int hf_pim_res_bytes = -1;
 /* PIM Hello options (RFC 4601, section 4.9.2 and RFC 3973, section 4.7.5) */
@@ -164,6 +162,7 @@ static int hf_pim_state_refresh_reserved = -1;
 /* Assert fields */
 static int hf_pim_rpt = -1;
 static int hf_pim_metric_pref = -1;
+static int hf_pim_df_metric_pref = -1;
 static int hf_pim_metric = -1;
 static int hf_pim_prune_indicator = -1;
 static int hf_pim_prune_now = -1;
@@ -185,10 +184,18 @@ static int hf_pim_bsr_ip4 = -1;
 static int hf_pim_bsr_ip6 = -1;
 static int hf_pim_rp_ip4 = -1;
 static int hf_pim_rp_ip6 = -1;
+static int hf_pim_bd_bo_offer_ip4 = -1;
+static int hf_pim_bd_bo_offer_ip6 = -1;
+static int hf_pim_bd_offer_metric_pref = -1;
+static int hf_pim_bd_offer_metric = -1;
+static int hf_pim_bd_offer_interval = -1;
+static int hf_pim_bd_pass_ip4 = -1;
+static int hf_pim_bd_pass_ip6 = -1;
+static int hf_pim_bd_pass_metric_pref = -1;
+static int hf_pim_bd_pass_metric = -1;
 static int hf_pim_originator_ip4 = -1;
 static int hf_pim_originator_ip6 = -1;
 static int hf_pim_group_address_ip4 = -1;
-static int hf_pim_rp_address_ip4 = -1;
 static int hf_pim_fragment_tag = -1;
 static int hf_pim_hash_mask_len = -1;
 static int hf_pim_bsr_priority = -1;
@@ -539,7 +546,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(pimopt_tree, hf_pim_group_mask_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_rp_address_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pimopt_tree, hf_pim_rp_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         offset += 2;    /* skip reserved stuff */
@@ -744,6 +751,7 @@ static void
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     guint8 pim_typever;
+    guint8 pim_bidir_subtype;
     guint length, pim_length;
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[4];
@@ -778,7 +786,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
+    if (PIM_TYPE(pim_typever) == PIM_TYPE_DF_ELECT) {
+        proto_tree_add_item(pim_tree, hf_pim_df_elect_subtype, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pim_tree, hf_pim_df_elect_rsvd, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        pim_bidir_subtype = tvb_get_guint8(tvb,offset);
+    }
+    else {
+        proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
+    }
     pim_cksum = tvb_get_ntohs(tvb, offset + 2);
     length = tvb_reported_length(tvb);
     if (PIM_VER(pim_typever) == 2) {
@@ -861,6 +876,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (PIM_VER(pim_typever) != 2)
         goto done;
+
     /* version 2 decoder */
     switch (PIM_TYPE(pim_typever)) {
     case PIM_TYPE_HELLO:     /*hello*/
@@ -1288,7 +1304,45 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     case PIM_TYPE_DF_ELECT:
     {
+        int advance;
+
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                                NULL, NULL,
+                                hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
+            break;
+        offset += advance;
+        proto_tree_add_item(pimopt_tree, hf_pim_df_metric_pref, tvb,
+                            offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
+        switch(PIM_BIDIR_SUBTYPE(pim_bidir_subtype)) {
+            case PIM_BDIR_DF_BACKOFF :
+                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                                    NULL, NULL,
+                                    hf_pim_bd_bo_offer_ip4, hf_pim_bd_bo_offer_ip6, &advance))
+                    break;
+                offset += advance;
+                proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_metric_pref, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_metric, tvb, offset, 4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_interval, tvb, offset, 2, ENC_NA);
+                offset += 2;
+                break;
+            case PIM_BDIR_DF_PASS:
+                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
+                                    NULL, NULL,
+                                    hf_pim_bd_pass_ip4, hf_pim_bd_pass_ip6, &advance))
+                    break;
+                offset += advance;
+                proto_tree_add_item(pimopt_tree, hf_pim_bd_pass_metric_pref, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(pimopt_tree, hf_pim_bd_pass_metric, tvb, offset, 4, ENC_NA);
+                offset += 4;
+                break;
+        }
     }
 
     default:
@@ -1311,6 +1365,16 @@ proto_register_pim(void)
               { "Type", "pim.type",
                 FT_UINT8, BASE_DEC, VALS(pimtypevals), 0x0f,
                 NULL, HFILL }
+            },
+            { &hf_pim_df_elect_subtype,
+              { "DF Subtype", "pim.df_elect.subtype",
+                FT_UINT8, BASE_DEC, VALS(pimbdirdfvals), 0xf0,
+                NULL, HFILL}
+            },
+            { &hf_pim_df_elect_rsvd,
+              { "DF reserved", "pim.df_elect.rsvd",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                NULL, HFILL}
             },
             { &hf_pim_code,
               { "Code", "pim.code",
@@ -1436,6 +1500,11 @@ proto_register_pim(void)
                 FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
                 NULL, HFILL }
             },
+            { &hf_pim_df_metric_pref ,
+              { "DF Metric Preference", "pim.metric_pref",
+                FT_UINT32, BASE_DEC, NULL, 0,
+                NULL, HFILL }
+            },
             { &hf_pim_metric ,
               { "Metric", "pim.metric",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1556,9 +1625,49 @@ proto_register_pim(void)
                 FT_IPv4, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
-            { &hf_pim_rp_address_ip4 ,
-              { "RP Address", "pim.rp_address",
+            { &hf_pim_bd_pass_ip4 ,
+              { "New Winner IP", "pim.bidir_winner_ip4",
                 FT_IPv4, BASE_NONE, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_pass_ip6 ,
+              { "New Winner IP", "pim.bidir_winner_ip6",
+                FT_IPv6, BASE_NONE, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_pass_metric_pref,
+              { "Winner Metric Preference", "pim.bidir_win_metric_pref",
+                FT_UINT32, BASE_DEC, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_pass_metric,
+              { "Winner Metric", "pim.bidir_win_metric",
+                FT_UINT32, BASE_DEC, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_bo_offer_ip4 ,
+              { "Offering IP", "pim.bidir_offering_ip4",
+                 FT_IPv4, BASE_NONE, NULL, 0,
+                 NULL, HFILL }
+            },
+            { &hf_pim_bd_bo_offer_ip6 ,
+              { "Offering IP", "pim.bidir_offering_ip6",
+                FT_IPv6, BASE_NONE, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_offer_metric_pref,
+              { "Offering Metric Preference", "pim.bidir_off_metric_pref",
+                FT_UINT32, BASE_DEC, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_offer_metric,
+              { "Offering Metric", "pim.bidir_off_metric",
+                FT_UINT32, BASE_DEC, NULL, 0,
+                NULL, HFILL }
+            },
+            { &hf_pim_bd_offer_interval,
+              { "Offering interval (ms)", "pim.bidir_offering_interval",
+                FT_UINT16, BASE_DEC, NULL, 0,
                 NULL, HFILL }
             },
             { &hf_pim_fragment_tag,
