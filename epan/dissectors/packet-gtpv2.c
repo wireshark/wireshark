@@ -192,6 +192,15 @@ static int hf_gtpv2_tra_info_bm_sc = -1;
 static int hf_gtpv2_tra_info_mme_sgw_ss = -1;
 static int hf_gtpv2_tra_info_mme_sgw_sr = -1;
 static int hf_gtpv2_tra_info_mme_sgw_iataud = -1;
+static int hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc = -1;
+static int hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del = -1;
+static int hf_gtpv2_tra_info_mme_sgw_ho = -1;
+static int hf_gtpv2_tra_info_sgw_pdn_con_creat = -1;
+static int hf_gtpv2_tra_info_sgw_pdn_con_term = -1;
+static int hf_gtpv2_tra_info_sgw_bearer_act_mod_del = -1;
+static int hf_gtpv2_tra_info_pgw_pdn_con_creat = -1;
+static int hf_gtpv2_tra_info_pgw_pdn_con_term = -1;
+static int hf_gtpv2_tra_info_pgw_bearer_act_mod_del = -1;
 static int hf_gtpv2_tra_info_lne_msc_s = -1;
 static int hf_gtpv2_tra_info_lne_mgw = -1;
 static int hf_gtpv2_tra_info_lne_sgsn = -1;
@@ -419,6 +428,8 @@ static gint ett_gtpv2_tra_info_trigg_sgsn = -1;
 static gint ett_gtpv2_tra_info_trigg_ggsn = -1;
 static gint ett_gtpv2_tra_info_trigg_bm_sc = -1;
 static gint ett_gtpv2_tra_info_trigg_sgw_mme = -1;
+static gint ett_gtpv2_tra_info_trigg_sgw = -1;
+static gint ett_gtpv2_tra_info_trigg_pgw = -1;
 static gint ett_gtpv2_tra_info_interfaces = -1;
 static gint ett_gtpv2_tra_info_interfaces_imsc_server = -1;
 static gint ett_gtpv2_tra_info_interfaces_lmgw = -1;
@@ -2431,7 +2442,7 @@ static void
 dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     proto_tree  *trigg_tree, *msc_server_tree, *mgw_tree, *sgsn_tree, *ggsn_tree;
-    proto_tree  *bm_sc_tree, *sgw_mme_tree, *ne_types_tree;
+    proto_tree  *bm_sc_tree, *sgw_mme_tree, *sgw_tree, *pgw_tree, *ne_types_tree;
     proto_tree  *interfaces_tree, *imsc_server_tree, *lmgw_tree, *lsgsn_tree, *lggsn_tree, *lrnc_tree;
     proto_tree  *lbm_sc_tree, *lmme_tree, *lsgw_tree, *lpdn_gw_tree, *lenb_tree;
 
@@ -2459,7 +2470,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     offset += 3;
 
     /* Triggering Events, put all into a new tree called trigging_tree */
-    trigg_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_tra_info_trigg, NULL, "Trigging Events");
+    trigg_tree = proto_tree_add_subtree(tree, tvb, offset, 9, ett_gtpv2_tra_info_trigg, NULL, "Trigging Events");
 
     /* Create all subtrees */
     msc_server_tree = proto_tree_add_subtree(trigg_tree, tvb, offset, 2, ett_gtpv2_tra_info_trigg_msc_server, NULL, "MSC Server");
@@ -2474,13 +2485,17 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
     sgw_mme_tree = proto_tree_add_subtree(trigg_tree, tvb, offset + 7, 1, ett_gtpv2_tra_info_trigg_sgw_mme, NULL, "SGW MME");
 
+    sgw_tree = proto_tree_add_subtree(trigg_tree, tvb, offset + 8, 1, ett_gtpv2_tra_info_trigg_sgw, NULL, "SGW");
+
+    pgw_tree = proto_tree_add_subtree(trigg_tree, tvb, offset + 8, 1, ett_gtpv2_tra_info_trigg_pgw, NULL, "PGW");
+
     /* MSC Server - 2 octets */
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_momt_calls,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_momt_sms,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_lu_imsi_ad,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_handovers,   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_ss,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
+    bit_offset = (offset << 3) + 5;
     proto_tree_add_bits_item(msc_server_tree, hf_gtpv2_spare_bits,          tvb, bit_offset, 3, ENC_BIG_ENDIAN);
     offset += 1;
     bit_offset = offset << 3;
@@ -2489,7 +2504,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
     /* MGW - 1 octet */
     proto_tree_add_item(mgw_tree, hf_gtpv2_tra_info_mgw_context,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
+    bit_offset = (offset << 3) + 1;
     proto_tree_add_bits_item(mgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* SGSN - 2 octets */
@@ -2497,30 +2512,43 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_momt_sms,         tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_rau_gprs_ad,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_mbms,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
+    bit_offset = (offset << 3) + 4;
     proto_tree_add_bits_item(sgsn_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_reserved,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
-    proto_tree_add_bits_item(sgsn_tree, hf_gtpv2_reserved,                  tvb, bit_offset, 8, ENC_BIG_ENDIAN);
     offset += 1;
     /* GGSN - 1 octet */
     proto_tree_add_item(ggsn_tree, hf_gtpv2_tra_info_ggsn_pdp,              tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ggsn_tree, hf_gtpv2_tra_info_ggsn_mbms,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
+    bit_offset = (offset << 3) + 2;
     proto_tree_add_bits_item(ggsn_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     offset += 1;
     /* BM-SC - 1 octet */
     proto_tree_add_item(bm_sc_tree, hf_gtpv2_tra_info_bm_sc,                tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
+    bit_offset = (offset << 3) + 1;
     proto_tree_add_bits_item(bm_sc_tree, hf_gtpv2_spare_bits,               tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* MME/SGW - 1 octet */
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ss,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_sr,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_iataud,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = offset << 3;
-    proto_tree_add_bits_item(sgw_mme_tree, hf_gtpv2_spare_bits,             tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ss,                 tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_sr,                 tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_iataud,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ho,                 tvb, offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = (offset << 3) + 6;
+    proto_tree_add_bits_item(sgw_mme_tree, hf_gtpv2_spare_bits,                     tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* PGW/SGW - 1 octet */
+    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = (offset << 3) + 3;
+    proto_tree_add_bits_item(sgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = (offset << 3) + 7;
+    proto_tree_add_bits_item(pgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Create NE Types subtree */
@@ -5774,6 +5802,51 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x04,
            "MME", HFILL}
         },
+        { &hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc,
+          {"UE initiated PDN disconnection", "gtpv2.tra_info_mme_sgw_ue_init_pdn_disc",
+           FT_UINT8, BASE_DEC, NULL, 0x08,
+           "MME", HFILL}
+        },
+        { &hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del,
+          {"Bearer Activation Modification Deletion", "gtpv2.tra_info_mme_sgw_bearer_act_mod_del",
+           FT_UINT8, BASE_DEC, NULL, 0x10,
+           "MME", HFILL}
+        },
+        { &hf_gtpv2_tra_info_mme_sgw_ho,
+          {"Handover", "gtpv2.tra_info_mme_sgw_ho",
+           FT_UINT8, BASE_DEC, NULL, 0x20,
+           "MME", HFILL}
+        },
+        { &hf_gtpv2_tra_info_sgw_pdn_con_creat,
+          {"PDN Connection creation", "gtpv2.tra_info_sgw_pdn_con_creat",
+           FT_UINT8, BASE_DEC, NULL, 0x01,
+           "SGW", HFILL}
+        },
+        { &hf_gtpv2_tra_info_sgw_pdn_con_term,
+          {"PDN connection termination", "gtpv2.tra_info_sgw_pdn_con_term",
+           FT_UINT8, BASE_DEC, NULL, 0x02,
+           "SGW", HFILL}
+        },
+        { &hf_gtpv2_tra_info_sgw_bearer_act_mod_del,
+          {"Bearer Activation Modification Deletion", "gtpv2.tra_info_sgw_bearer_act_mod_del",
+           FT_UINT8, BASE_DEC, NULL, 0x04,
+           "SGW", HFILL}
+        },
+        { &hf_gtpv2_tra_info_pgw_pdn_con_creat,
+          {"PDN Connection creation", "gtpv2.tra_info_pgw_pdn_con_creat",
+           FT_UINT8, BASE_DEC, NULL, 0x10,
+           "PGW", HFILL}
+        },
+        { &hf_gtpv2_tra_info_pgw_pdn_con_term,
+          {"PDN connection termination", "gtpv2.tra_info_pgw_pdn_con_term",
+           FT_UINT8, BASE_DEC, NULL, 0x20,
+           "PGW", HFILL}
+        },
+        { &hf_gtpv2_tra_info_pgw_bearer_act_mod_del,
+          {"Bearer Activation Modification Deletion", "gtpv2.tra_info_pgw_bearer_act_mod_del",
+           FT_UINT8, BASE_DEC, NULL, 0x40,
+           "PGW", HFILL}
+        },
         { &hf_gtpv2_tra_info_lne_msc_s,
           {"MSC-S", "gtpv2.tra_info_lne_msc_s",
            FT_UINT8, BASE_DEC, NULL, 0x01,
@@ -6966,6 +7039,8 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_tra_info_trigg_ggsn,
         &ett_gtpv2_tra_info_trigg_bm_sc,
         &ett_gtpv2_tra_info_trigg_sgw_mme,
+        &ett_gtpv2_tra_info_trigg_sgw,
+        &ett_gtpv2_tra_info_trigg_pgw,
         &ett_gtpv2_tra_info_interfaces,
         &ett_gtpv2_tra_info_interfaces_imsc_server,
         &ett_gtpv2_tra_info_interfaces_lmgw,
