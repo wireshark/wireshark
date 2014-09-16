@@ -1021,11 +1021,11 @@ BASE_VERSION=`echo "$(VERSION)" | awk -F. '{$$3 = $$3 + 0 ; printf("%d.%d.%d"), 
 PREV_VERSION=`echo "$(VERSION)" | awk -F. '{$$3 = $$3 + 0 ; if ($$3 > 0) $$3-- ; printf("%d.%d.%d"), $$1, $$2, $$3}'`
 PREV_DIR="wireshark-$(PREV_VERSION)"
 PREV_FILE="$(PREV_DIR).tar.bz2"
-PREV_URL="http://www.wireshark.org/download/src/all-versions/$(PREV_FILE)"
+PREV_URL="https://www.wireshark.org/download/src/all-versions/$(PREV_FILE)"
 
 patch-bzip2: distdir
 	if test x$(BASE_VERSION) != x$(PREV_VERSION) ; then \
-		curl -z $(PREV_FILE) -o $(PREV_FILE) $(PREV_URL) && \
+		curl --time-cond $(PREV_FILE) --location --output $(PREV_FILE) $(PREV_URL) && \
 		tar -xjf $(PREV_FILE) && \
 		diff -urN $(PREV_DIR) $(distdir) | bzip2 > patch-wireshark-$(PREV_VERSION)-to-$(VERSION).bz2 && \
 		echo "Created patch-bzip2" ; \
