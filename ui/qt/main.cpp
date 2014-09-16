@@ -235,9 +235,11 @@ print_usage(gboolean for_help_option) {
     fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
     fprintf(output, "  -p                       don't capture in promiscuous mode\n");
     fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
-    fprintf(output, "  -Q                       quit Wireshark after capturing\n");
     fprintf(output, "  -S                       update packet display when new packets are captured\n");
     fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
+#ifdef HAVE_PCAP_CREATE
+    fprintf(output, "  -I                       capture in monitor mode, if available\n");
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
@@ -256,7 +258,10 @@ print_usage(gboolean for_help_option) {
     fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
 #endif  /* HAVE_LIBPCAP */
-
+#ifdef HAVE_PCAP_REMOTE
+    fprintf(output, "RPCAP options:\n");
+    fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
+#endif
     /*fprintf(output, "\n");*/
     fprintf(output, "Input file:\n");
     fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
@@ -270,12 +275,13 @@ print_usage(gboolean for_help_option) {
     fprintf(output, "\n");
     fprintf(output, "User interface:\n");
     fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
+    fprintf(output, "  -Y <display filter>      start with the given display filter\n");
     fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
     fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
     fprintf(output, "                           filter\n");
     fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
     fprintf(output, "  -m <font>                set the font name used for most text\n");
-    fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
     fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
@@ -295,11 +301,11 @@ print_usage(gboolean for_help_option) {
 #ifndef _WIN32
     fprintf(output, "  --display=DISPLAY        X display to use\n");
 #endif
+    fprintf(output, "\nNOTE: Not all options are already implemented in the QT port.\n");
 
 #ifdef _WIN32
     destroy_console();
 #endif
-    fprintf(output, "\nNOTE: Not all options are already implemented in the QT port.\n");
 }
 
 // xxx copied from ../gtk/main.c
@@ -496,6 +502,7 @@ int main(int argc, char *argv[])
 //    gboolean             list_link_layer_types = FALSE;
     GList               *if_list;
     gchar               *err_str;
+    int                  status;
 #else
     gboolean             capture_option_specified = FALSE;
 #ifdef _WIN32
@@ -505,6 +512,7 @@ int main(int argc, char *argv[])
 #endif
 #endif
     e_prefs             *prefs_p;
+    char                 badopt;
     GLogLevelFlags       log_flags;
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
@@ -601,7 +609,7 @@ int main(int argc, char *argv[])
 #endif
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:Qr:R:St:u:vw:X:z:"
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"read-file", required_argument, NULL, 'r' },
@@ -959,8 +967,178 @@ int main(int argc, char *argv[])
     /* Now get our args */
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
+        /*** capture option specific ***/
+        case 'a':        /* autostop criteria */
+        case 'b':        /* Ringbuffer option */
+        case 'c':        /* Capture xxx packets */
+        case 'f':        /* capture filter */
+        case 'k':        /* Start capture immediately */
+        case 'H':        /* Hide capture info dialog box */
+        case 'p':        /* Don't capture in promiscuous mode */
+        case 'i':        /* Use interface x */
+#ifdef HAVE_PCAP_CREATE
+        case 'I':        /* Capture in monitor mode, if available */
+#endif
+#ifdef HAVE_PCAP_REMOTE
+        case 'A':        /* Authentication */
+#endif
+        case 's':        /* Set the snapshot (capture) length */
+        case 'S':        /* "Sync" mode: used for following file ala tail -f */
+        case 'w':        /* Write to capture file xxx */
+        case 'y':        /* Set the pcap data link type */
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        case 'B':        /* Buffer size */
+#endif /* _WIN32 or HAVE_PCAP_CREATE */
+#ifdef HAVE_LIBPCAP
+            status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
+                                          &start_capture);
+            if(status != 0) {
+                exit(status);
+            }
+#else
+            capture_option_specified = TRUE;
+            arg_error = TRUE;
+#endif
+            break;
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+        case 'K':        /* Kerberos keytab file */
+                read_keytab_file(optarg);
+            break;
+#endif
+        case 'C':
+            /* Configuration profile settings were already processed just ignore them this time*/
+            break;
+        case 'j':        /* Search backwards for a matching packet from filter in option J */
+            /* Not supported yet */
+            break;
+        case 'g':        /* Go to packet with the given packet number */
+            /* Not supported yet */
+            break;
+        case 'J':        /* Jump to the first packet which matches the filter criteria */
+            /* Not supported yet */
+            break;
+        case 'l':        /* Automatic scrolling in live capture mode */
+            /* Not supported yet */
+            break;
+        case 'L':        /* Print list of link-layer types and exit */
+            /* Not supported yet */
+            break;
+        case 'm':        /* Fixed-width font for the display */
+            /* Not supported yet */
+            break;
+        case 'n':        /* No name resolution */
+            gbl_resolv_flags.mac_name = FALSE;
+            gbl_resolv_flags.network_name = FALSE;
+            gbl_resolv_flags.transport_name = FALSE;
+            gbl_resolv_flags.concurrent_dns = FALSE;
+            break;
+        case 'N':        /* Select what types of addresses/port #s to resolve */
+            badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
+            if (badopt != '\0') {
+                cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+                           badopt);
+                exit(1);
+            }
+            break;
+        case 'o':        /* Override preference from command line */
+            switch (prefs_set_pref(optarg)) {
+                case PREFS_SET_OK:
+                    break;
+                case PREFS_SET_SYNTAX_ERR:
+                    cmdarg_err("Invalid -o flag \"%s\"", optarg);
+                    exit(1);
+                    break;
+                case PREFS_SET_NO_SUCH_PREF:
+                /* not a preference, might be a recent setting */
+                    switch (recent_set_arg(optarg)) {
+                        case PREFS_SET_OK:
+                            break;
+                        case PREFS_SET_SYNTAX_ERR:
+                            /* shouldn't happen, checked already above */
+                            cmdarg_err("Invalid -o flag \"%s\"", optarg);
+                            exit(1);
+                            break;
+                        case PREFS_SET_NO_SUCH_PREF:
+                        case PREFS_SET_OBSOLETE:
+                            cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
+                                       optarg);
+                            exit(1);
+                            break;
+                        default:
+                            g_assert_not_reached();
+                    }
+                    break;
+                case PREFS_SET_OBSOLETE:
+                    cmdarg_err("-o flag \"%s\" specifies obsolete preference",
+                               optarg);
+                    exit(1);
+                    break;
+                default:
+                    g_assert_not_reached();
+            }
+            break;
+        case 'P':
+            /* Path settings were already processed just ignore them this time*/
+            break;
         case 'r':
             cf_name = new QString(optarg);
+            break;
+        case 'R':        /* Read file filter */
+            /* Not supported yet */
+            break;
+        case 't':        /* Time stamp type */
+            if (strcmp(optarg, "r") == 0)
+                timestamp_set_type(TS_RELATIVE);
+            else if (strcmp(optarg, "a") == 0)
+                timestamp_set_type(TS_ABSOLUTE);
+            else if (strcmp(optarg, "ad") == 0)
+                timestamp_set_type(TS_ABSOLUTE_WITH_YMD);
+            else if (strcmp(optarg, "adoy") == 0)
+                timestamp_set_type(TS_ABSOLUTE_WITH_YDOY);
+            else if (strcmp(optarg, "d") == 0)
+                timestamp_set_type(TS_DELTA);
+            else if (strcmp(optarg, "dd") == 0)
+                timestamp_set_type(TS_DELTA_DIS);
+            else if (strcmp(optarg, "e") == 0)
+                timestamp_set_type(TS_EPOCH);
+            else if (strcmp(optarg, "u") == 0)
+                timestamp_set_type(TS_UTC);
+            else if (strcmp(optarg, "ud") == 0)
+                timestamp_set_type(TS_UTC_WITH_YMD);
+            else if (strcmp(optarg, "udoy") == 0)
+                timestamp_set_type(TS_UTC_WITH_YDOY);
+            else {
+                cmdarg_err("Invalid time stamp type \"%s\"", optarg);
+                cmdarg_err_cont(
+"It must be \"a\" for absolute, \"ad\" for absolute with YYYY-MM-DD date,");
+                cmdarg_err_cont(
+"\"adoy\" for absolute with YYYY/DOY date, \"d\" for delta,");
+                cmdarg_err_cont(
+"\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative,");
+                cmdarg_err_cont(
+"\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
+                cmdarg_err_cont(
+"or \"udoy\" for absolute UTC with YYYY/DOY date.");
+                exit(1);
+            }
+            break;
+        case 'u':        /* Seconds type */
+            if (strcmp(optarg, "s") == 0)
+                timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+            else if (strcmp(optarg, "hms") == 0)
+                timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
+            else {
+                cmdarg_err("Invalid seconds type \"%s\"", optarg);
+                cmdarg_err_cont(
+"It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
+                exit(1);
+            }
+            break;
+        case 'X':
+            /* ext ops were already processed just ignore them this time*/
+            break;
+        case 'Y':
+            /* Not supported yet */
             break;
         case 'z':
             /* We won't call the init function for the stat this soon
