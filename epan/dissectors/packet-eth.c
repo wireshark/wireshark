@@ -422,7 +422,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
     }
 
-    /* if IP is not referenced from any filters we dont need to worry about
+    /* if IP is not referenced from any filters we don't need to worry about
        generating any tree items.  We must do this after we created the actual
        protocol above so that proto hier stat still works though.
     */

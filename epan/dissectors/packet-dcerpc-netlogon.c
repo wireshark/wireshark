@@ -1023,7 +1023,7 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
                                         hf_netlogon_workstation, 0);
 
 #ifdef REMOVED
-    /* NetMon does not recognize these bytes. Ill comment them out until someone complains */
+    /* NetMon does not recognize these bytes. I'll comment them out until someone complains */
     /* XXX 8 extra bytes here */
     /* there were 8 extra bytes, either here or in NETWORK_INFO that does not match
        the idl file. Could be a bug in either the NETLOGON implementation or in the
@@ -4837,7 +4837,7 @@ netlogon_dissect_netrgetanydcname_reply(tvbuff_t *tvb, int offset,
  * According to muddle this is what CONTROL_DATA_INFORMATION is supposed
  * to look like. However NetMon does not recognize any such informationlevels.
  *
- * Ill leave it as CONTROL_DATA_INFORMATION with no informationlevels
+ * I'll leave it as CONTROL_DATA_INFORMATION with no informationlevels
  * until someone has any source of better authority to call upon.
  */
 static int

@@ -2638,7 +2638,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset += 2;
 
 		if(!trp){
-			return FALSE; /* cant dissect this request */
+			return FALSE; /* can't dissect this request */
 		}
 
 		/*
@@ -3294,7 +3294,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			 */
 			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
 
-			/* no this didnt look like something we know */
+			/* no this didn't look like something we know */
 			if(!result){
 				goto clean_up_and_exit;
 			}
@@ -3360,14 +3360,14 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	fd_head=fragment_add_check(&dcerpc_reassembly_table,
 	    d_tvb, 0, pinfo, fid, NULL, 0, 0, TRUE);
 	if(!fd_head){
-		/* we didnt find it, try any of the heuristic dissectors
+		/* we didn't find it, try any of the heuristic dissectors
 		   and bail out
 		*/
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
 		goto clean_up_and_exit;
 	}
 	if(!(fd_head->flags&FD_DEFRAGMENTED)){
-		/* we dont have a fully reassembled frame */
+		/* we don't have a fully reassembled frame */
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
 		goto clean_up_and_exit;
 	}

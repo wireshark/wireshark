@@ -1045,7 +1045,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	/* find which request we correspond to */
 	nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if (!nns) {
-		/* oops couldnt find matching request, bail out */
+		/* oops couldn't find matching request, bail out */
 		return;
 	}
 

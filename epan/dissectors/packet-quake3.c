@@ -343,7 +343,7 @@ dissect_quake3_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree)
 {
 	/* It is totally forbidden to decode this any further,
-	I wont do it. */
+	I won't do it. */
 	call_dissector(data_handle,tvb, pinfo, tree);
 }
 

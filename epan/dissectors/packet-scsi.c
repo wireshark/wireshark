@@ -6026,7 +6026,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    /* If we dont know the CDB opcode there is no point in trying to
+    /* If we don't know the CDB opcode there is no point in trying to
      * dissect the data.
      */
     if ( !itlq->first_exchange_frame ) {
@@ -6046,7 +6046,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    /* If we dont have the entire PDU there is no point in even trying
+    /* If we don't have the entire PDU there is no point in even trying
      * reassembly
      */
     if (tvb_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
@@ -6072,7 +6072,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expected_length = itlq->data_length;
     }
 
-    /* If this PDU already contains all the expected data we dont have to do
+    /* If this PDU already contains all the expected data we don't have to do
      * reassembly.
      */
     if ( (!relative_offset) && ((guint32)tvb_length_remaining(tvb, offset) == expected_length) ) {
@@ -6105,7 +6105,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 dissect_the_payload:
     if (!next_tvb) {
-        /* reassembly has not yet finished so we dont have a tvb yet */
+        /* reassembly has not yet finished so we don't have a tvb yet */
         goto end_of_payload;
     }
     if (tree == NULL) {
@@ -6133,7 +6133,7 @@ dissect_the_payload:
         } else if (spc[opcode].func) {
             spc[opcode].func(next_tvb, pinfo, scsi_tree, offset,
                              isreq, FALSE, payload_len, cdata);
-        } else { /* dont know this CDB */
+        } else { /* don't know this CDB */
             call_dissector(data_handle, next_tvb, pinfo, scsi_tree);
         }
     }

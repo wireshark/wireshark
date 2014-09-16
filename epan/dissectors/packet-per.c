@@ -477,7 +477,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 
 
 /* this function reads a GeneralString */
-/* currently based on pure guesswork since RFC2833 didnt tell me much
+/* currently based on pure guesswork since RFC2833 didn't tell me much
    i guess that the PER encoding for this is a normally-small-whole-number
    followed by a ascii string.
 

@@ -258,7 +258,7 @@ typedef struct _sid_strings {
 /* Dissect a NT SID.  Label it with 'name' and return a string version
  * of the SID in the 'sid_str' parameter which has a packet lifetime
  * scope and should NOT be freed by the caller. hf_sid can be -1 if
- * the caller doesnt care what name is used and then "nt.sid" will be
+ * the caller doesn't care what name is used and then "nt.sid" will be
  * the default instead. If the caller wants a more appropriate hf
  * field, it will just pass a FT_STRING hf field here
  */

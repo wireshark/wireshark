@@ -588,7 +588,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (mtype != ANCP_MTYPE_ADJ) {
         /* Dissect common header */
         proto_tree_add_item(ancp_tree, hf_ancp_result, tvb, offset, 1,
-                            ENC_BIG_ENDIAN); /* treat as 1B, but dont change offset */
+                            ENC_BIG_ENDIAN); /* treat as 1B, but don't change offset */
 
         proto_tree_add_item(ancp_tree, hf_ancp_code, tvb, offset, 2,
                             ENC_BIG_ENDIAN);
@@ -603,7 +603,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset += 3;
 
         proto_tree_add_item(ancp_tree, hf_ancp_i_flag, tvb, offset, 1,
-                            ENC_BIG_ENDIAN); /* treat as 1B, but dont change offset */
+                            ENC_BIG_ENDIAN); /* treat as 1B, but don't change offset */
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_submsg_num, tvb,
                                   offset, 2, ENC_BIG_ENDIAN);

@@ -258,7 +258,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     control = dissect_xdlc_control(tvb, 1, pinfo, lapdm_tree, hf_lapdm_control,
-              ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesnt support extended */, NULL, NULL,
+              ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesn't support extended */, NULL, NULL,
               is_response, FALSE, FALSE);
 
     if (tree) {

@@ -3002,7 +3002,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         thisData->received_time = pinfo->fd->abs_ts;
     }
     else {
-        /* Not first time, so just set whats already stored in result */
+        /* Not first time, so just set what's already stored in result */
         result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
     }
 
@@ -3153,7 +3153,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         thisData->received_time = pinfo->fd->abs_ts;
     }
     else {
-        /* Not first time, so just get whats already stored in result */
+        /* Not first time, so just get what's already stored in result */
         result = (ULHARQResult *)g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
     }
 

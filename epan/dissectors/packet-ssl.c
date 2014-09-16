@@ -1218,7 +1218,7 @@ again:
         pinfo->can_desegment=2;
         /* we also have to prevent the dissector from changing the
          * PROTOCOL and INFO colums since what follows may be an
-         * incomplete PDU and we dont want it be changed back from
+         * incomplete PDU and we don't want it be changed back from
          *  <Protocol>   to <TCP>
          * XXX There is no good way to block the PROTOCOL column
          * from being changed yet so we set the entire row unwritable.

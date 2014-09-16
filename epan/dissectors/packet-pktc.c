@@ -192,7 +192,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
     switch(doi){
     case DOI_SNMPv3:
         switch(kmmid){
-        /* we dont distinguish between manager and agent engineid.
+        /* we don't distinguish between manager and agent engineid.
            feel free to add separation for this if it is imporant enough
            for you. */
         case KMMID_AP_REQUEST:
@@ -228,12 +228,12 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
             break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
-            THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
+            THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
         };
         break;
     case DOI_IPSEC:
         switch(kmmid){
-        /* we dont distinguish between SPIs for inbound Security Associations
+        /* we don't distinguish between SPIs for inbound Security Associations
 	   of the client (AP-REQ) vs. server (AP-REP, REKEY). Feel free to add
 	   separation for this if it is imporant enough for you. */
         case KMMID_AP_REQUEST:
@@ -246,12 +246,12 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
 	    break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
-            THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
+            THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
         };
 	break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
-        THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
+        THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);
@@ -307,7 +307,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
-	    THROW(ReportedBoundsError); /* bail out and inform user we cant dissect the packet */
+	    THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);

@@ -728,7 +728,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
          if (flags & PPI_VECTOR_VFLAGS_DEFINES_FORWARD)
             proto_item_append_text(vector_line, " (Forward)");
 
-        /* Intentionally dont upset offset, length_remaining. This is taken care of in the normal vflags parser below*/
+        /* Intentionally don't upset offset, length_remaining. This is taken care of in the normal vflags parser below*/
     }
     else /* No vflags means vlfags defaults to zero. RelativeTo: Forward */
     {
@@ -747,7 +747,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
    {
         /* Mark the most interesting characteristics on the vector dropdown line */
         annotate_vector_chars(chars, vector_line);
-        /* Intentionally dont update offset, length_remaining. This is taken care of in the normal vchars parser below*/
+        /* Intentionally don't update offset, length_remaining. This is taken care of in the normal vchars parser below*/
     }
 
     /* Now all of the fixed length, fixed location stuff is over. Loop over the bits */

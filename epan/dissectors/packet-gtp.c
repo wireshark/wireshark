@@ -3085,7 +3085,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             if (gcrp) {
                 g_hash_table_remove(gtp_info->unmatched, gcrp);
             }
-            /* if we cant reuse the old one, grab a new chunk */
+            /* if we can't reuse the old one, grab a new chunk */
             if (!gcrp) {
                 gcrp = wmem_new(wmem_file_scope(), gtp_msg_hash_t);
             }

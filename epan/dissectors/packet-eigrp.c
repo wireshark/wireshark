@@ -149,7 +149,7 @@
  * External routes originate from some other protocol - these are them
  */
 #define NULL_PROTID     0       /*!< unknown protocol */
-#define IGRP1_PROTID    1       /*!< IGRP.. whos your daddy! */
+#define IGRP1_PROTID    1       /*!< IGRP.. who's your daddy! */
 #define IGRP2_PROTID    2       /*!< EIGRP - Just flat out the best */
 #define STATIC_PROTID   3       /*!< Staticly configured source */
 #define RIP_PROTID      4       /*!< Routing Information Protocol */
@@ -2557,7 +2557,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
  *
  * @usage
  *      you can not have the function name inside a comment or else Wireshark
- *      will fail with "duplicate protocol" error.  Dont you hate it when tools
+ *      will fail with "duplicate protocol" error.  Don't you hate it when tools
  *      try to be to smart :(
  *
  * @par

@@ -188,7 +188,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		switch (bvlc_function) {
 		case 0x00: /* BVLC-Result */
 			bvlc_result = tvb_get_ntohs(tvb, offset);
-			/* I dont know why the result code is encoded in 4 nibbles,
+			/* I don't know why the result code is encoded in 4 nibbles,
 			 * but only using one: 0x00r0. Shifting left 4 bits.
 			 */
 			/* We should bitmask the result correctly when we have a

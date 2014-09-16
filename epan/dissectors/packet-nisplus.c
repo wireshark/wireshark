@@ -720,7 +720,7 @@ dissect_nisplus_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	return offset;
 }
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	end of nis object, thats right, all this was the definition of
+	end of nis object, that's right, all this was the definition of
 	ONE SINGLE struct.
 */
 

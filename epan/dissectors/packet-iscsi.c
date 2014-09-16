@@ -545,7 +545,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
                 *pgt++ = 0;
             }
 
-            /* cant handle ipv6 yet */
+            /* can't handle ipv6 yet */
         }
     } else {
         /* This is either a ipv4 address or a dns name */
@@ -1616,7 +1616,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdb_tvb=tvb_new_subset(tvb, cdb_offset, tvb_len, tvb_rlen);
         }
         dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
-        /* we dont want the immediata below to overwrite our CDB info */
+        /* we don't want the immediata below to overwrite our CDB info */
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         /* where there any ImmediateData ? */
@@ -2377,7 +2377,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             case ISCSI_DIGEST_NONE:
                 break;
             case ISCSI_DIGEST_AUTO:
-                /* oops we didnt know what digest is used yet */
+                /* oops we don't yet know what digest is used */
                 /* here we should use some default */
                 break;
             default:

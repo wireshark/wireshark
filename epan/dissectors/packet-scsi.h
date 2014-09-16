@@ -283,8 +283,8 @@ extern value_string_ext scsi_asc_val_ext;
 		} else {						\
 			/* We probably tried to dissect beyond the end	\
 			 * of the alloc len reported in the data	\
-			 * pdu. This is not an error so dont flag it as	\
-			 * one						\
+			 * pdu. This is not an error so don't flag it	\
+			 * as one					\
 			 * it is the alloc_len in the CDB that is the	\
 			 * important one				\
 			 */						\

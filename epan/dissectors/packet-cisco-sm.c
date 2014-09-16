@@ -344,7 +344,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = offset + 2;
             proto_item_set_len(ti, 8);
 
-            /* This should be the EISUP dissector but we havent got one
+            /* This should be the EISUP dissector but we haven't got one
              * right now - so decode it as data for now ... */
             next_tvb = tvb_new_subset_length(tvb, offset, length);
             call_dissector(data_handle, next_tvb, pinfo, sm_tree);

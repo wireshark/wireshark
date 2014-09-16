@@ -3399,7 +3399,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
                 sac_payload_len), ENC_NA);
 
     /* we call this function also to dissect exported SAC messages,
-        dont' try to export them a second time */
+        don't try to export them a second time */
     if (!exported && is_exportable && have_tap_listener(exported_pdu_tap)) {
 
         tvbuff_t       *clear_sac_msg_tvb;

@@ -1435,7 +1435,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     /*Location for decrypted data*/
     out = g_malloc( tvb_length(tvb) );
 
-    /*Build data input but dont send the header*/
+    /*Build data input but don't send the header*/
     for(i = 0; i< tvb_length(tvb)-header_size; i++ ){
         out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
     }
@@ -1513,7 +1513,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
     /*Ciphering info singled in RRC by securitymodecommands */
     c_inf =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
 
-    /*TODO: This doesnt really work for all packets..*/
+    /*TODO: This doesn't really work for all packets..*/
     /*Check if we have ciphering info and that this frame is ciphered*/
     if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
                      (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
@@ -1552,7 +1552,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
         /*Update the maximal COUNTER value seen so far*/
         max_counter = MAX(max_counter,((ps_counter[rlcinf->rbid[pos]][indx]) | seq) >> hfn_shift);
 
-    /*XXX:Since RBID in umts isnt configured properly..*/
+    /*XXX: Since RBID in umts isn't configured properly..*/
         if(rlcinf->rbid[pos] == 9 ){
             if(tree){
                 guint32 frame_num[3];

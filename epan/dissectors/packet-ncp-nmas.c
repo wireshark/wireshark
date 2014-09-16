@@ -305,7 +305,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             break;
         }
         foffset += 4;
-        foffset += 4; /* Dont know what this is */
+        foffset += 4; /* Don't know what this is */
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset += 4;

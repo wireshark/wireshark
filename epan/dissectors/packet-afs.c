@@ -1961,7 +1961,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 
 	if (sscanf(GETSTR, "%d %n", &pos, &n) != 1) {
 		/* does not matter what we return, if this fails,
-		 * we cant dissect anything else in the packet either.
+		 * we can't dissect anything else in the packet either.
 		 */
 		return offset;
 	}

@@ -170,7 +170,7 @@ get_next_fcip_header_offset (tvbuff_t *tvb, packet_info *pinfo, gint offset)
      * c)  Replication of encapsulation word 0 in word 1 (1 test);
      * d)  Reserved field and its ones complement (2 tests);
      * e)  Flags field and its ones complement (2 tests);
-     *    f)  CRC field is equal to zero (1 test); (DONT DO THIS TEST!)
+     *    f)  CRC field is equal to zero (1 test); (DON'T DO THIS TEST!)
      * g)  SOF fields and ones complement fields (4 tests);
      * h)  Format and values of FC header (1 test);
      * i)  CRC of FC Frame (2 tests);
@@ -270,7 +270,7 @@ NXT_BYTE: while (bytes_remaining) {
 
 
         /* Test f
-         * We dont test this since some implementations actually provide
+         * We don't test this since some implementations actually provide
          * a CRC here.
          */
 

@@ -747,7 +747,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 (p_fp_info->chan_tf_size[chan] > 0)) {
                 tvbuff_t *next_tvb;
                 proto_item *item;
-                /* If this is DL we should not care about crci bits (since they dont exists)*/
+                /* If this is DL we should not care about crci bits (since they don't exists)*/
                 if(p_fp_info->is_uplink){
 
 
@@ -2800,7 +2800,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 ((bit_offset % 8) + size + 7) / 8, -1);
 
 
-                        /*This was all previously stored in [0] rather than [macd_idx] and cur_tb wasnt updated!*/
+                        /*This was all previously stored in [0] rather than [macd_idx] and cur_tb wasn't updated!*/
                         /*Set up information needed for MAC and lower layers*/
                         macinf->content[macd_idx] = lchId_type_table[lchid];     /*Set the proper Content type for the mac layer.*/
                         macinf->lchid[macd_idx] = lchid;
@@ -3169,7 +3169,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*Configure the pdus*/
         for(i=0;i<number_of_pdus; i++){
             macinf->content[i] = hsdsch_macdflow_id_mac_content_map[p_fp_info->hsdsch_macflowd_id]; /*MAC_CONTENT_PS_DTCH;*/
-            macinf->lchid[i] = fake_lchid_macd_flow[p_fp_info->hsdsch_macflowd_id];/*Faked logical channel id 255 used as a mark it doesnt exists...*/
+            macinf->lchid[i] = fake_lchid_macd_flow[p_fp_info->hsdsch_macflowd_id];/*Faked logical channel id 255 used as a mark if it doesn't exist...*/
             macinf->fake_chid[i] = TRUE;    /**/
             macinf->macdflow_id[i] = p_fp_info->hsdsch_macflowd_id;    /*Save the flow ID (+1 to make it human readable (it's zero indexed!))*/
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
@@ -4215,7 +4215,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (p_conv) {
-         /*Find correct conversation, basically find the on thats closest to this frame*/
+         /*Find correct conversation, basically find the one that's closest to this frame*/
          /*while(p_conv->next != NULL && p_conv->next->setup_frame < pinfo->fd->num){
             p_conv = p_conv->next;
          }*/

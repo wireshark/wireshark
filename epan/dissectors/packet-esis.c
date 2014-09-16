@@ -133,7 +133,7 @@ static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
  *   that we make sure we don't go off the end of the bleedin packet here!
  *
  *   This is just a copy of isis.c and isis.h, so I keep the stuff also
- *   and adapt the names to cover possible protocol errors! Ive really no
+ *   and adapt the names to cover possible protocol errors! I've really no
  *   idea whether I need this or not.
  *
  * Input

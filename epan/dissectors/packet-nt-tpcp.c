@@ -41,7 +41,7 @@ typedef struct _tpcppdu_t {
 	guint8	type;	     /* PDU type: 1=request, 2=reply, 3=add filter, 4=rem  filter */
 	                     /* Version 2 adds 5=add session 6= remove session */
 	guint16	flags;	     /* 0x0001: 0=UDP, 1=TCP*/
-	                     /* 0x0002: 0=NONE, 1=DONT REDIRECT */
+	                     /* 0x0002: 0=NONE, 1=DONT_REDIRECT */
 	                     /* 0x0004: 0=NONE, 1=Xon */
 	                     /* 0x0008: 0=NONE, 1=Xoff */
 	guint16	id;	     /* request/response identification or TTL */

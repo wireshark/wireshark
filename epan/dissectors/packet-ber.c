@@ -2421,7 +2421,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
         seq++;
     }
 
-    /* if we didnt end up at exactly offset, then we ate too many bytes */
+    /* if we didn't end up at exactly offset, then we ate too many bytes */
     if (offset != end_offset) {
         tvb_ensure_bytes_exist(tvb, offset-2, 2);
         cause = proto_tree_add_string_format_value(
@@ -2693,7 +2693,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
         }
     }
 
-    /* if we didnt end up at exactly offset, then we ate too many bytes */
+    /* if we didn't end up at exactly offset, then we ate too many bytes */
     if (offset != end_offset) {
         tvb_ensure_bytes_exist(tvb, offset-2, 2);
         cause = proto_tree_add_string_format_value(
@@ -2936,7 +2936,7 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n", name);
     /*XXX here we should have another flag to the CHOICE to distinguish
      * between the case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
 
-    /* oops no more entries and we still havent found
+    /* oops no more entries and we still haven't found
      * our guy :-(
      */
     item = proto_tree_add_string_format_value(
@@ -3353,7 +3353,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
             offset = get_ber_length(tvb, offset, &len, &ind);
             /* best place to get real length of implicit sequence of or set of is here... */
-            /* adjust end_offset if we find somthing that doesnt match */
+            /* adjust end_offset if we find somthing that doesn't match */
             offset += len;
             cnt++;
             if (offset <= s_offset) {
@@ -3468,13 +3468,13 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
         /* call the dissector for this field */
         seq->func(imp_tag, next_tvb, 0, actx, tree, *seq->p_id);
         /* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
-           doesnt match the next item, thus this implicit sequence is over, return the number of bytes
+           doesn't match the next item, thus this implicit sequence is over, return the number of bytes
            we have eaten to allow the possible upper sequence continue... */
         cnt++; /* rubbish*/
         offset = eoffset;
     }
 
-    /* if we didnt end up at exactly offset, then we ate too many bytes */
+    /* if we didn't end up at exactly offset, then we ate too many bytes */
     if (offset != end_offset) {
         tvb_ensure_bytes_exist(tvb, offset-2, 2);
         causex = proto_tree_add_string_format_value(

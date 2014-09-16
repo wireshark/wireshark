@@ -6857,7 +6857,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	   the first two bytes of the payload is the length of the data.
 	   Assume that all WriteAndX PDUs that have MESSAGE_START set to
 	   be over the IPC$ share and thus they all transport DCERPC.
-	   (if we didnt already know that from the TreeConnect call)
+	   (if we didn't already know that from the TreeConnect call)
 	*/
 	if (mode&WRITE_MODE_MESSAGE_START) {
 		if (mode&WRITE_MODE_RAW) {
@@ -7039,7 +7039,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	if (!ntlmssp_tap_id) {
 		GString *error_string;
-		/* We dont specify any callbacks at all.
+		/* We don't specify any callbacks at all.
 		 * Instead we manually fetch the tapped data after the
 		 * security blob has been fully dissected and before
 		 * we exit from this dissector.
@@ -7449,7 +7449,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		proto_item *blob_item;
 
 		/* security blob */
-		/* dont try to eat too much of we might get an exception on
+		/* don't try to eat too much of we might get an exception on
 		 * short frames and then we will not see anything at all
 		 * of the security blob.
 		 */
@@ -8630,7 +8630,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	}
 
-	/* ooops there were data we didnt know how to process */
+	/* ooops there were data we didn't know how to process */
 	if ((offset-old_offset) < bc) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset,
 		    bc - (offset-old_offset), ENC_NA);
@@ -11265,7 +11265,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	}
 
-	/* ooops there were data we didnt know how to process */
+	/* ooops there were data we didn't know how to process */
 	if (bc != 0) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, bc, ENC_NA);
 		offset += bc;
@@ -13513,13 +13513,13 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	switch(subcmd) {
 	case 0x0000:	/*TRANS2_OPEN2*/
-		/* XXX dont know how to decode FEAList */
+		/* XXX don't know how to decode FEAList */
 		break;
 	case 0x0001:	/*TRANS2_FIND_FIRST2*/
-		/* XXX dont know how to decode FEAList */
+		/* XXX don't know how to decode FEAList */
 		break;
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
-		/* XXX dont know how to decode FEAList */
+		/* XXX don't know how to decode FEAList */
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
@@ -13560,7 +13560,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_spi_loi_vals(tvb, pinfo, tree, item, offset, &dc, si);
 		break;
 	case 0x0009:	/*TRANS2_FSCTL*/
-		/*XXX dont know how to decode this yet */
+		/*XXX don't know how to decode this yet */
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13571,7 +13571,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000a:	/*TRANS2_IOCTL2*/
-		/*XXX dont know how to decode this yet */
+		/*XXX don't know how to decode this yet */
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13582,7 +13582,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000b:	/*TRANS2_FIND_NOTIFY_FIRST*/
-		/*XXX dont know how to decode this yet */
+		/*XXX don't know how to decode this yet */
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13592,7 +13592,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
-		/*XXX dont know how to decode this yet */
+		/*XXX don't know how to decode this yet */
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13605,7 +13605,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX optional FEAList, unknown what FEAList looks like*/
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
-		/*XXX dont know how to decode this yet */
+		/*XXX don't know how to decode this yet */
 		break;
 	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
 		/* no data field in this request */
@@ -13615,7 +13615,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	}
 
-	/* ooops there were data we didnt know how to process */
+	/* ooops there were data we didn't know how to process */
 	if (dc != 0) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
 		offset += dc;
@@ -16009,7 +16009,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* no data in this response */
 		break;
 	case 0x0009:	/*TRANS2_FSCTL*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16021,7 +16021,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000a:	/*TRANS2_IOCTL2*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16033,7 +16033,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000b:	/*TRANS2_FIND_NOTIFY_FIRST*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16044,7 +16044,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16058,7 +16058,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* no data in this response */
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 		break;
 	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
 		offset = dissect_get_dfs_referral_data(tvb, pinfo, tree, offset, &dc, si->unicode);
@@ -16076,7 +16076,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	}
 
-	/* ooops there were data we didnt know how to process */
+	/* ooops there were data we didn't know how to process */
 	if (dc != 0) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
 		offset += dc;
@@ -16256,7 +16256,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 		break;
 	case 0x09:	/*TRANS2_FSCTL*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16268,7 +16268,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		 */
 		break;
 	case 0x0a:	/*TRANS2_IOCTL2*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -16318,13 +16318,13 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 		break;
 	case 0x0e:	/*TRANS2_SESSION_SETUP*/
-		/* XXX dont know how to dissect this one (yet)*/
+		/* XXX don't know how to dissect this one (yet)*/
 		break;
 	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
-		/* XXX dont know how to dissect this one (yet) see SNIA doc*/
+		/* XXX don't know how to dissect this one (yet) see SNIA doc*/
 		break;
 	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
-		/* XXX dont know how to dissect this one (yet) see SNIA doc*/
+		/* XXX don't know how to dissect this one (yet) see SNIA doc*/
 		break;
 	case -1:
 		/*
@@ -16335,7 +16335,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		break;
 	}
 
-	/* ooops there were data we didnt know how to process */
+	/* ooops there were data we didn't know how to process */
 	if (offset < pc) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-offset, ENC_NA);
 		offset += pc-offset;
@@ -16644,7 +16644,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
 
-	/* from now on, everything is in separate tvbuffs so we dont count
+	/* from now on, everything is in separate tvbuffs so we don't count
 	   the bytes with COUNT_BYTES any more.
 	   neither do we reference offset any more (which by now points to the
 	   first byte AFTER this PDU */
@@ -17623,7 +17623,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    &&  (si->pid == 0)
 	    &&  (si->tid == 0) ) {
 		/* this is a broadcast SMB packet, there will not be a reply.
-		   We dont need to do anything
+		   We don't need to do anything
 		*/
 		si->unidir = TRUE;
 	} else if ( (si->cmd == SMB_COM_NT_CANCEL)                  /* NT Cancel */
@@ -17644,16 +17644,16 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		   The only thing we do in this case is trying to find which original
 		   request we match with and insert an entry for this "special"
 		   request for later reference. We continue to reference the original
-		   requests smb_saved_info_t but we dont touch it or change anything
+		   requests smb_saved_info_t but we don't touch it or change anything
 		   in it.
 		*/
 
-		si->unidir = TRUE;  /*we dont expect an answer to this one*/
+		si->unidir = TRUE;  /*we don't expect an answer to this one*/
 
 		if (!pinfo->fd->flags.visited) {
 			/* try to find which original call we match and if we
-			   find it add us to the matched table. Dont touch
-			   anything else since we dont want this one to mess
+			   find it add us to the matched table. Don't touch
+			   anything else since we don't want this one to mess
 			   up the request/response matching. We still consider
 			   the initial call the real request and this is only
 			   some sort of continuation.
@@ -17807,7 +17807,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						 * 2, <- Response MID:5
 						 * 3, -> Request  MID:5 (missing from capture)
 						 * 4, <- Response MID:5
-						 * We DONT want #4 to be presented as a response to #1
+						 * We DON'T want #4 to be presented as a response to #1
 						 */
 						g_hash_table_remove(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 					} else {

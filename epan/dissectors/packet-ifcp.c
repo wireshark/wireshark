@@ -150,7 +150,7 @@ static dissector_handle_t fc_handle=NULL;
 
 
 /* This function checks the first 16 bytes of the "header" that it looks sane
- * and returns TRUE if this looks like iFCP and FALSE if it doesnt.
+ * and returns TRUE if this looks like iFCP and FALSE if it doesn't.
  */
 static gboolean
 ifcp_header_test(tvbuff_t *tvb, int offset)
@@ -183,7 +183,7 @@ ifcp_header_test(tvbuff_t *tvb, int offset)
 	* c)  Replication of encapsulation word 0 in word 1 (1 test);
 	* d)  Reserved field and its ones complement (2 tests);
 	* e)  Flags field and its ones complement (2 tests);
-	*    f)  CRC field is equal to zero (1 test); (DONT DO THIS TEST!)
+	*    f)  CRC field is equal to zero (1 test); (DON'T DO THIS TEST!)
 	* g)  SOF fields and ones complement fields (4 tests);
 	* h)  Format and values of FC header (1 test);
 	* i)  CRC of FC Frame (2 tests);
@@ -535,7 +535,7 @@ dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		conversation_t* ifcp_conv;
 
 		ifcp_conv=find_or_create_conversation(pinfo);
-		/* XXX why does this not work? it doesnt result in dissect_ifcp_handle being called    look into later*/
+		/* XXX why does this not work? it doesn't result in dissect_ifcp_handle being called    look into later*/
 		conversation_set_dissector(ifcp_conv, ifcp_handle);
 	}
 

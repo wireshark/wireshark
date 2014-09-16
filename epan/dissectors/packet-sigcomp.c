@@ -436,7 +436,7 @@ try_again:
         octet = tvb_get_guint8(tvb,offset);
         if ( octet == 0xff ){
             if ( offset +1 >= length ){
-                /* if the tvb is short dont check for the second escape digit */
+                /* if the tvb is short don't check for the second escape digit */
                 offset++;
                 continue;
             }
@@ -475,7 +475,7 @@ try_again:
             proto_tree_add_text(sigcomp_tree, tvb, offset, octet,
                         "              Copying %u bytes literally",octet);
             if( offset+octet >= length)
-                /* if the tvb is short dont copy further than the end */
+                /* if the tvb is short don't copy further than the end */
                 octet = length - offset;
             for ( n=0; n < octet; n++ ){
                 buff[i] = tvb_get_guint8(tvb, offset);

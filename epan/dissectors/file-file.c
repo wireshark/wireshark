@@ -101,7 +101,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	pinfo->current_proto = "File";
 
-	/* if FILE is not referenced from any filters we dont need to worry about
+	/* if FILE is not referenced from any filters we don't need to worry about
 	   generating any tree items.  */
 	if(!proto_field_is_referenced(tree, proto_file)) {
 		tree=NULL;

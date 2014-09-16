@@ -217,7 +217,7 @@ typedef struct {
 #define TRANSACTION_MAILSLOT	1
 
 /* these are defines used to represent different types of TIDs.
-   dont use the value 0 for any of these */
+   don't use the value 0 for any of these */
 #define TID_NORMAL	1
 #define TID_IPC		2
 

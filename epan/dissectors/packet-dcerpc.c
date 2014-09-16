@@ -2400,7 +2400,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
                 }
             }
         } else {
-            /* if we haven't seen the request bail out since we cant
+            /* if we haven't seen the request bail out since we can't
                know whether this is the first non-NULL instance
                or not */
             if (value->req_frame == 0) {

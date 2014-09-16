@@ -636,7 +636,7 @@ wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
 {
 	tvbuff_t *result;
 
-	/* we need a full auth and a full data tvb or else we cant
+	/* we need a full auth and a full data tvb or else we can't
 	   decrypt anything
 	*/
 	if((!auth_tvb)||(!data_tvb)){

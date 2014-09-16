@@ -1479,7 +1479,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 				ENC_NA);
 
 
-	/* cant decrypt if we dont have SPNEGO */
+	/* can't decrypt if we don't have SPNEGO */
 	if (!spnego_krb5_wrap_handle) {
 		offset += length;
 		return offset;
@@ -1921,7 +1921,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return FALSE;
 		}
 
-		/* XID can be anything, so dont check it.
+		/* XID can be anything, so don't check it.
 		   We already have the message type.
 		   Check whether an RPC version number of 2 is in the
 		   location where it would be, and that an RPC program

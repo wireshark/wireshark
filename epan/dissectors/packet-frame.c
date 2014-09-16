@@ -263,7 +263,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	}
 
-	/* if FRAME is not referenced from any filters we dont need to worry about
+	/* if FRAME is not referenced from any filters we don't need to worry about
 	   generating any tree items.  */
 	if(!proto_field_is_referenced(tree, proto_frame)) {
 		tree=NULL;

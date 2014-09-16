@@ -587,7 +587,7 @@ smb2_saved_info_hash_matched(gconstpointer k)
    tid.
    qqq
    We might need to refine this if it occurs that tids are reused on a single
-   conversation.   we dont worry about that yet for simplicity
+   conversation.   we don't worry about that yet for simplicity
 */
 static gint
 smb2_tid_info_equal(gconstpointer k1, gconstpointer k2)
@@ -611,7 +611,7 @@ smb2_tid_info_hash(gconstpointer k)
    uid.
    qqq
    We might need to refine this if it occurs that uids are reused on a single
-   conversation.   we dont worry about that yet for simplicity
+   conversation.   we don't worry about that yet for simplicity
 */
 static gint
 smb2_sesid_info_equal(gconstpointer k1, gconstpointer k2)
@@ -839,7 +839,7 @@ static int dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, pro
  *
  * This function is called twice, first to decode the offset/length and
  * second time to dissect the actual string.
- * It is done this way since there is no guarantee that we have the full packet and we dont
+ * It is done this way since there is no guarantee that we have the full packet and we don't
  * want to abort dissection too early if the packet ends somewhere between the
  * length/offset and the actual buffer.
  *
@@ -1007,7 +1007,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		return;
 	}
 
-	/* if we dont want/need a subtree */
+	/* if we don't want/need a subtree */
 	if (olb->hfindex == -1) {
 		sub_item = parent_tree;
 		sub_tree = parent_tree;
@@ -2427,7 +2427,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	if (!ntlmssp_tap_id) {
 		GString *error_string;
-		/* We dont specify any callbacks at all.
+		/* We don't specify any callbacks at all.
 		 * Instead we manually fetch the tapped data after the
 		 * security blob has been fully dissected and before
 		 * we exit from this dissector.
@@ -3549,7 +3549,7 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	case SMB2_CLASS_FILE_INFO:
 		switch (si->saved->infolevel) {
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
@@ -3557,7 +3557,7 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	case SMB2_CLASS_FS_INFO:
 		switch (si->saved->infolevel) {
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
@@ -3568,13 +3568,13 @@ dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 			dissect_security_information_mask(tvb, tree, offset+8);
 			break;
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
 		break;
 	default:
-		/* we dont handle this class yet */
+		/* we don't handle this class yet */
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
 		offset += tvb_length_remaining(tvb, offset);
 	}
@@ -3747,7 +3747,7 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			offset = dissect_smb2_file_attribute_tag_info(tvb, pinfo, tree, offset, si);
 			break;
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
@@ -3776,7 +3776,7 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			offset = dissect_smb2_FS_OBJECTID_INFO(tvb, pinfo, tree, offset, si);
 			break;
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
@@ -3787,13 +3787,13 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			offset = dissect_smb2_sec_info_00(tvb, pinfo, tree, offset, si);
 			break;
 		default:
-			/* we dont handle this infolevel yet */
+			/* we don't handle this infolevel yet */
 			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 			offset += tvb_length_remaining(tvb, offset);
 		}
 		break;
 	default:
-		/* we dont handle this class yet */
+		/* we don't handle this class yet */
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 		offset += tvb_length_remaining(tvb, offset);
 	}
@@ -5715,7 +5715,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &e_olb);
 
-	/* free si->saved->extra_info   we dont need it any more */
+	/* free si->saved->extra_info   we don't need it any more */
 	if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 		g_free(si->saved->extra_info);
 		si->saved->extra_info = NULL;
@@ -6975,7 +6975,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				}
 
 				if (!ssi) {
-					/* no we couldnt find it, so just add it then
+					/* no we couldn't find it, so just add it then
 					* if was a request we are decoding
 					*/
 					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
@@ -6997,7 +6997,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		} else {
 			/* see if we can find this msg_id in the matched table */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->matched, &ssi_key);
-			/* if we couldnt find it in the matched table, it might still
+			/* if we couldn't find it in the matched table, it might still
 			* be in the unmatched table
 			*/
 			if (!ssi) {
@@ -7045,7 +7045,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				}
 			}
 		}
-		/* if we dont have ssi yet we must fake it */
+		/* if we don't have ssi yet we must fake it */
 		/*qqq*/
 		si->saved = ssi;
 

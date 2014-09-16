@@ -349,7 +349,7 @@ sid_snooping_init(void)
 
 
 /* this code needs to be rewritten from scratch
-   disabling it now so that it wont cause wireshark to abort due to
+   disabling it now so that it won't cause wireshark to abort due to
    unknown hf fields
  */
 sid_name_snooping=0;

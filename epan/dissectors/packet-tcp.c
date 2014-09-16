@@ -923,7 +923,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 
 /* This is called for SYN and SYN+ACK packets and the purpose is to verify
  * that we have seen window scaling in both directions.
- * If we cant find window scaling being set in both directions
+ * If we can't find window scaling being set in both directions
  * that means it was present in the SYN but not in the SYN+ACK
  * (or the SYN was missing) and then we disable the window scaling
  * for this tcp session.

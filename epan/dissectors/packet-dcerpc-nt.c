@@ -1071,7 +1071,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      param&PIDL_POLHND_OPEN, param&PIDL_POLHND_CLOSE,
 		      HND_TYPE_CTX_HANDLE);
 
-	/* If this was an open/create and we dont yet have a policy name
+	/* If this was an open/create and we don't yet have a policy name
 	 * then create one.
 	 * XXX We do not yet have the infrastructure to know the name of the
 	 * actual object  so just show it as <...> for the time being.
@@ -1365,7 +1365,7 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	newoffset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
 				hf_nt_domain_sid);
-	/* The dissected stuff cant be more than 28 bytes */
+	/* The dissected stuff can't be more than 28 bytes */
 	if ((newoffset - offset) > 28) {
 		item = proto_tree_get_parent(tree->last_child);
 		expert_add_info(pinfo, item, &ei_dcerpc_nt_badsid);

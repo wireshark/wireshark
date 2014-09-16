@@ -1041,7 +1041,7 @@ static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, co
   entry->reqid     = reqid;
   entry->subh      = sh;
   entry->operation = wmem_strdup(wmem_file_scope(), op); /* duplicate operation for storage */
-  entry->repoid    = NULL;      /* dont have yet */
+  entry->repoid    = NULL;      /* don't have yet */
 
   return g_list_append (list, entry); /* append */
 }
@@ -2068,7 +2068,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
 /* Take in an array of char and create a new ephemeral string.
  * Replace non-printable characters with periods.
  *
- * The array may contain \0's so dont use strdup
+ * The array may contain \0's so don't use strdup
  * The string is \0 terminated, and thus longer than
  * the initial sequence.
  */
@@ -3646,7 +3646,7 @@ guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean 
   *seq = NULL; /* set in case GIOP 1.2 length is 0 */
 
   /* get length, same for all GIOP versions,
-   * although for 1.2 CORBA doesnt say, so assume.
+   * although for 1.2 CORBA doesn't say, so assume.
    */
   slength = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
 
@@ -3818,7 +3818,7 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree,
     return;
 
   /*
-   * Decode sequence according to vendor ServiceId, but I dont
+   * Decode sequence according to vendor ServiceId, but I don't
    * have that yet, so just dump it as data.
    */
 

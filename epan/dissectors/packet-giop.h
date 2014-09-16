@@ -536,7 +536,7 @@ WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *
 /* Take in an array of char and create a new ephemeral string.
  * Replace non-printable characters with periods.
  *
- * The array may contain \0's so dont use strdup
+ * The array may contain \0's so don't use strdup
  * The string is \0 terminated, and thus longer than
  * the initial sequence.
  */

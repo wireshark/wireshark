@@ -160,7 +160,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	/*FIXME dont know how to handle this checksum, skipping it */
+	/*FIXME don't know how to handle this checksum, skipping it */
 	offset += 4;
 
 	/* sequrityindex : 1 byte */
@@ -372,16 +372,16 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 		offset += 1;
 	}
 
-	/* Some implementations adds some extra fields.
+	/* Some implementations add some extra fields.
 	 * As far as I can see, these first add 3 padding bytes and then
 	 * up to 4 32-bit values. (0,3,4 have been witnessed)
 	 *
-	 * RX as a protocol seems to be completely nondefined and seems to lack
+	 * RX as a protocol seems to be completely undefined and seems to lack
 	 * any sort of documentation other than "read the source of any of the
 	 * (compatible?) implementations.
 	 */
 	if (tvb_length_remaining(tvb, offset)>3) {
-		offset += 3;	/* guess. some implementations adds 3 bytes */
+		offset += 3;	/* guess. some implementations add 3 bytes */
 
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
 			proto_tree_add_item(tree, hf_rx_maxmtu, tvb, offset, 4,
@@ -535,8 +535,8 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	switch (type) {
 	case RX_PACKET_TYPE_ACK:
 		/*dissect_rx_acks(tvb, pinfo, parent_tree, offset,
-			cant create it in a parallell tree, then ett seasrch
-			wont work */
+			can't create it in a parallel tree, then ett search
+			won't work */
 		dissect_rx_acks(tvb, pinfo, tree, offset,
 			seq, callnumber);
 		break;

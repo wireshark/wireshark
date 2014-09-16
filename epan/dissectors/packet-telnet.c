@@ -1099,7 +1099,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
   switch(acmd){
   case TN_AC_REPLY:
   case TN_AC_IS:
-    /* XXX here we shouldnt just assume it is krb5 */
+    /* XXX here we shouldn't just assume it is krb5 */
     dissect_krb5_authentication_data(pinfo, tvb, offset, len, tree, acmd);
     break;
   case TN_AC_SEND:

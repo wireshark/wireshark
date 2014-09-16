@@ -2231,7 +2231,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         guint8 thinning = 0;
         /*gboolean valid = TRUE;*/
 
-        /* Create a subtree for this block, dont know the length yet*/
+        /* Create a subtree for this block, don't know the length yet*/
         proto_item *block;
         proto_tree *xr_block_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_xr_block, &block, "Block %u", block_num);
         proto_tree *content_tree;
