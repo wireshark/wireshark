@@ -22,6 +22,7 @@ MEGACO dissector infinite loop.
 // Fixed in master-1.12: g6295e53
 // Fixed in master-1.10: gfeed72f
 (ws-buglink:10333[])
+cve-idlink:2014-6423[]
 
 * ws-salink:2014-14[]
 +
@@ -30,6 +31,7 @@ Netflow dissector crash.
 // Fixed in master-1.12: g2035d31
 // Fixed in master-1.10: g6e67016
 (ws-buglink:10370[])
+cve-idlink:2014-6424[]
 
 * ws-salink:2014-15[]
 +
@@ -37,12 +39,14 @@ CUPS dissector crash.
 // Fixed in master: gc10396d
 // Fixed in master-1.12: g2035d31
 (ws-buglink:10353[])
+cve-idlink:2014-6425[]
 
 * ws-salink:2014-16[]
 +
 HIP dissector infinite loop.
 // Fixed in master: gd9e5021
 // Fixed in master-1.12: g9069d7b
+cve-idlink:2014-6426[]
 
 * ws-salink:2014-17[]
 +
@@ -51,6 +55,7 @@ RTSP dissector crash.
 // Fixed in master-1.12: g949cca0
 // Fixed in master-1.10: gd762bd3
 (ws-buglink:10381[])
+cve-idlink:2014-6427[]
 
 * ws-salink:2014-18[]
 +
@@ -59,6 +64,7 @@ SES dissector crash.
 // Fixed in master-1.12: g0942b2c
 // Fixed in master-1.10: g6763e8d
 (ws-buglink:10454[])
+cve-idlink:2014-6428[]
 
 * ws-salink:2014-19[]
 +
@@ -67,6 +73,10 @@ Sniffer file parser crash.
 // Fixed in master-1.12: g4413725
 // Fixed in master-1.10: g9a7abcc
 (ws-buglink:10461[])
+cve-idlink:2014-6429[]
+cve-idlink:2014-6430[]
+cve-idlink:2014-6431[]
+cve-idlink:2014-6432[]
 
 
 The following bugs have been fixed:
