@@ -60,6 +60,8 @@ static int hf_coap_opt_end_marker	= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_max_age		= -1;
 static int hf_coap_opt_proxy_uri	= -1;
+static int hf_coap_opt_proxy_scheme	= -1;
+static int hf_coap_opt_size1		= -1;
 static int hf_coap_opt_etag		= -1;
 static int hf_coap_opt_uri_host 	= -1;
 static int hf_coap_opt_location_path	= -1;
@@ -173,12 +175,14 @@ static const value_string vals_code[] = {
 #define COAP_OPT_CONTENT_TYPE	12
 #define COAP_OPT_MAX_AGE	14
 #define COAP_OPT_URI_QUERY	15
-#define COAP_OPT_ACCEPT		16
+#define COAP_OPT_ACCEPT		17
 #define COAP_OPT_LOCATION_QUERY	20
 #define COAP_OPT_BLOCK2		23	/* core-block-10 */
 #define COAP_OPT_BLOCK_SIZE	28	/* core-block-10 */
 #define COAP_OPT_BLOCK1		27	/* core-block-10 */
 #define COAP_OPT_PROXY_URI	35
+#define COAP_OPT_PROXY_SCHEME	39
+#define COAP_OPT_SIZE1		60
 
 static const value_string vals_opt_type[] = {
 	{ COAP_OPT_IF_MATCH,       "If-Match" },
@@ -194,6 +198,8 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_ACCEPT,         "Accept" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
+	{ COAP_OPT_PROXY_SCHEME,   "Proxy-Scheme" },
+	{ COAP_OPT_SIZE1,          "Size1" },
 	{ COAP_OPT_OBSERVE,        "Observe" },
 	{ COAP_OPT_BLOCK2,         "Block2" },
 	{ COAP_OPT_BLOCK1,         "Block1" },
@@ -219,6 +225,8 @@ struct coap_option_range_t {
 	{ COAP_OPT_ACCEPT,         0,   2 },
 	{ COAP_OPT_LOCATION_QUERY, 0, 255 },
 	{ COAP_OPT_PROXY_URI,      1,1034 },
+	{ COAP_OPT_PROXY_SCHEME,   1, 255 },
+	{ COAP_OPT_SIZE1,          0,   4 },
 	{ COAP_OPT_OBSERVE,        0,   2 },
 	{ COAP_OPT_BLOCK2,         0,   3 },
 	{ COAP_OPT_BLOCK1,         0,   3 },
@@ -441,6 +449,23 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *sub
 	}
 
 	proto_tree_add_string(subtree, hf_coap_opt_proxy_uri, tvb, offset, opt_length, str);
+
+	/* add info to the head of the packet detail */
+	proto_item_append_text(head_item, ": %s", str);
+}
+
+static void
+dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
+{
+	const guint8 *str = NULL;
+
+	if (opt_length == 0) {
+		str = nullstr;
+	} else {
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
+	}
+
+	proto_tree_add_string(subtree, hf_coap_opt_proxy_scheme, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -674,6 +699,14 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	case COAP_OPT_PROXY_URI:
 		dissect_coap_opt_proxy_uri(tvb, item, subtree, offset,
 		    opt_length);
+		break;
+	case COAP_OPT_PROXY_SCHEME:
+		dissect_coap_opt_proxy_scheme(tvb, item, subtree, offset,
+		    opt_length);
+		break;
+	case COAP_OPT_SIZE1:
+		dissect_coap_opt_uint(tvb, item, subtree, offset,
+		    opt_length, hf_coap_opt_size1);
 		break;
 	case COAP_OPT_ETAG:
 		dissect_coap_opt_hex_string(tvb, item, subtree, offset,
@@ -989,6 +1022,16 @@ proto_register_coap(void)
 		{ &hf_coap_opt_proxy_uri,
 		  { "Proxy-Uri", "coap.opt.proxy_uri",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_proxy_scheme,
+		  { "Proxy-Scheme", "coap.opt.proxy_scheme",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_opt_size1,
+		  { "Size1", "coap.opt.size1",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_etag,
