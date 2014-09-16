@@ -118,8 +118,8 @@ struct search_user_data {
 static void
 search_for_if_cb(gpointer data, gpointer user_data)
 {
-	struct search_user_data *search_user_data = user_data;
-	if_info_t *if_info = data;
+	struct search_user_data *search_user_data = (struct search_user_data*)user_data;
+	if_info_t *if_info = (if_info_t *)data;
 
 	if (strcmp(if_info->name, search_user_data->name) == 0)
 		search_user_data->if_info = if_info;
@@ -159,7 +159,7 @@ get_interface_list(int *err, char **err_str)
 	lastlen = 0;
 	len = 100 * sizeof(struct ifreq);
 	for ( ; ; ) {
-		buf = g_malloc(len);
+		buf = (char *)g_malloc(len);
 		ifc.ifc_len = len;
 		ifc.ifc_buf = buf;
 		memset (buf, 0, len);
