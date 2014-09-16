@@ -4473,8 +4473,7 @@ ssl_compile_keyfile_regexes(GRegex ***regexes_out)
     GError *gerr = NULL;
 
     if (!regexes) {
-        regexes = (GRegex**) wmem_alloc(wmem_file_scope(),
-                array_length(patterns) * sizeof(GRegex *));
+        regexes = (GRegex**) g_malloc(array_length(patterns) * sizeof(GRegex *));
         for (i = 0; i < array_length(patterns); i++) {
             regexes[i] = g_regex_new(patterns[i], G_REGEX_OPTIMIZE,
                     G_REGEX_MATCH_ANCHORED, &gerr);
@@ -4485,6 +4484,8 @@ ssl_compile_keyfile_regexes(GRegex ***regexes_out)
                 /* failed to compile some regexes, free resources and fail */
                 while (i-- > 0)
                     g_regex_unref(regexes[i]);
+                g_free(regexes);
+                regexes = NULL;
                 return 0;
             }
         }
