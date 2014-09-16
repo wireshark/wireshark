@@ -2521,7 +2521,7 @@ plus a propos de Wireshark</translation>
     <message>
         <location filename="main_window.ui" line="945"/>
         <source>Description</source>
-        <translation>Déscription</translation>
+        <translation>Description</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="948"/>
