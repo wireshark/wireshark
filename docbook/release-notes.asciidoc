@@ -13,63 +13,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2014-12[]
+* ws-salink:2014-20[]
 +
-RTP dissector crash.
-// Fixed in master: g04c05a2
-// Fixed in master-1.12: [ Predates 1.12. Same as master. ]
-// Fixed in master-1.10: g81c4eee
-(ws-buglink:9920[])
-cve-idlink:2014-6421[]
-cve-idlink:2014-6422[]
-
-* ws-salink:2014-13[]
-+
-MEGACO dissector infinite loop.
-// Fixed in master: g9112a09
-// Fixed in master-1.12: g6295e53
-// Fixed in master-1.10: gfeed72f
-(ws-buglink:10333[])
-cve-idlink:2014-6423[]
-
-* ws-salink:2014-14[]
-+
-Netflow dissector crash.
-// Fixed in master: g4469825
-// Fixed in master-1.12: g2035d31
-// Fixed in master-1.10: g6e67016
-(ws-buglink:10370[])
-cve-idlink:2014-6424[]
-
-* ws-salink:2014-17[]
-+
-RTSP dissector crash.
-// Fixed in master: g7395915
-// Fixed in master-1.12: g949cca0
-// Fixed in master-1.10: gd762bd3
-(ws-buglink:10381[])
-cve-idlink:2014-6427[]
-
-* ws-salink:2014-18[]
-+
-SES dissector crash.
-// Fixed in master: g433a444
-// Fixed in master-1.12: g0942b2c
-// Fixed in master-1.10: g6763e8d
-(ws-buglink:10454[])
-cve-idlink:2014-6428[]
-
-* ws-salink:2014-19[]
-+
-Sniffer file parser crash.
-// Fixed in master: g47c5929
-// Fixed in master-1.12: g4413725
-// Fixed in master-1.10: g9a7abcc
-(ws-buglink:10461[])
-cve-idlink:2014-6429[]
-cve-idlink:2014-6430[]
-cve-idlink:2014-6431[]
-cve-idlink:2014-6432[]
+A dissector went awry.
+// Fixed in master: gXXX
+// Fixed in master-1.12: gXXX
+// Fixed in master-1.10: gXXX
+(ws-buglink:XXX[])
+//cve-idlink:2014-XXX[]
 
 
 The following bugs have been fixed:
@@ -77,31 +28,6 @@ The following bugs have been fixed:
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying
 //  to sleep. (ws-buglink:0000[])
-
-* Wireshark can crash during remote capture (rpcap) configuration.
-  (ws-buglink:3554[], ws-buglink:6922[], ws-buglink:7021)
-
-* MIPv6 Service Selection Identifier parse error. (ws-buglink:10323[])
-
-* 802.11 BA sequence number decode is broken. (ws-buglink:10334[])
-
-* TRILL NLPID 0xc0 unknown to Wireshark. (ws-buglink:10382[])
-
-* Wrong decoding of RPKI RTR End of Data PDU. (ws-buglink:10411[])
-
-* Misparsed NTP control assignments with empty values. (ws-buglink:10417[])
-
-* 6LoWPAN multicast address decompression problems. (ws-buglink:10426[])
-
-* GUI Hangs when Selecting Path to GeoIP Files. (ws-buglink:10434[])
-
-* 6LoWPAN context handling not working. (ws-buglink:10443[])
-
-* SIP: When export to a CSV, Info is changed to differ. (ws-buglink:10453[])
-
-* Typo in packet-netflow.c. (ws-buglink:10458[])
-
-* UCP dissector bug of operation 30 - data not decoded. (ws-buglink:10464[])
 
 === New and Updated Features
 
@@ -114,27 +40,11 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-DVB-CI
-IEEE 802.11
-MEGACO
-MIPv6
-Netflow
-NTP
-OSI
-RPKI RTR
-RTP
-RTSP
-SES
-SIP
-UCP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
-DOS Sniffer
-NetScaler
 --sort-and-group--
 
 == Getting Wireshark
