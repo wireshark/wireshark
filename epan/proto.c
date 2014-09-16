@@ -88,12 +88,12 @@ struct ptvcursor {
  @param free_block a code block to call to free resources if this returns
  @return the header field matching 'hfinfo' */
 #define TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfindex, hfinfo, free_block) \
-	/* If this item is not referenced we dont have to do much work	\
+	/* If this item is not referenced we don't have to do much work	\
 	   at all but we should still return a node so that field items	\
 	   below this node (think proto_item_add_subtree()) will still	\
 	   have somewhere to attach to or else filtering will not work	\
 	   (they would be ignored since tree would be NULL).		\
-	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
+	   DON'T try to fake a node where PTREE_FINFO(tree) is NULL	\
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
 	   We fake FT_PROTOCOL unless some clients have requested us	\

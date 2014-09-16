@@ -825,7 +825,7 @@ emem_alloc_chunk(size_t size, emem_pool_t *mem)
 	}
 #endif
 
-	/* make sure we dont try to allocate too much (arbitrary limit) */
+	/* make sure we don't try to allocate too much (arbitrary limit) */
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	if (!mem->free_list)

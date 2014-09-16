@@ -368,7 +368,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     if(isInvoke) {
       /* this a a request - add it to the unmatched list */
 
-      /* check that we dont already have one of those in the
+      /* check that we don't already have one of those in the
 	 unmatched list and if so remove it */
 
       rcr.invokeId=invokeId;
@@ -379,7 +379,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	g_hash_table_remove(ros_info->unmatched, rcrp);
       }
 
-      /* if we cant reuse the old one, grab a new chunk */
+      /* if we can't reuse the old one, grab a new chunk */
       if(!rcrp){
 	rcrp=wmem_new(wmem_file_scope(), ros_call_response_t);
       }

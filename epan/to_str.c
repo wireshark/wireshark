@@ -1048,7 +1048,7 @@ decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
 	char *p;
 	int shift = 0;
 
-	buf=(char *)ep_alloc(1025); /* isnt this a bit overkill? */
+	buf=(char *)ep_alloc(1025); /* isn't this a bit overkill? */
 	/* Compute the number of bits we have to shift the bitfield right
 	   to extract its value. */
 	while ((mask & (1<<shift)) == 0)

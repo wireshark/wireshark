@@ -3987,7 +3987,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Do some sanity checking here,
 		 * All krb5 packets start with a TAG class that is BER_CLASS_APP
 		 * and a tag value that is either of the values below:
-		 * If it doesnt look like kerberos, return 0 and let someone else have
+		 * If it doesn't look like kerberos, return 0 and let someone else have
 		 * a go at it.
 		 */
 		gint8 tmp_class;
@@ -4941,7 +4941,7 @@ void proto_register_kerberos(void) {
 
 	static ei_register_info ei[] = {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
-		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I dont know how to parse this type of address yet", EXPFILL }},
+		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
 	};
 

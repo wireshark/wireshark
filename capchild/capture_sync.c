@@ -615,7 +615,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
 #if defined(_WIN32)
     /* needs first a check if NULL *
-     * otherwise wouldnt work with non extcap interfaces */
+     * otherwise wouldn't work with non extcap interfaces */
     if(interface_opts.extcap_fifo != NULL)
     {
        if(strncmp(interface_opts.extcap_fifo,"\\\\.\\pipe\\",9)== 0)

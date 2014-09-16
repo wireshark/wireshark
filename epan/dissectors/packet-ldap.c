@@ -838,7 +838,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 	 * Special case these attributes and decode them more nicely.
 	 *
 	 * Add more special cases as required to prettify further
-	 * (there cant be that many ones that are truly interesting)
+	 * (there can't be that many ones that are truly interesting)
 	 */
 	if(attributedesc_string && !strncmp("DomainSid", attributedesc_string, 9)){
 		tvbuff_t *sid_tvb;
@@ -894,7 +894,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 	 * for LDAP, and using that to determine how to display
 	 * attribute values and assertion values?
 	 *
-	 * -- I dont think there are full schemas available that describe the
+	 * -- I don't think there are full schemas available that describe the
 	 *  interesting cases i.e. AD -- ronnie
 	 */
 	str=tvb_get_ptr(tvb, offset, len);
@@ -1028,7 +1028,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 		/* this a a request - add it to the unmatched list */
 
-        /* check that we dont already have one of those in the
+        /* check that we don't already have one of those in the
            unmatched list and if so remove it */
 
         lcr.messageId=messageId;
@@ -1036,7 +1036,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         if(lcrp){
           g_hash_table_remove(ldap_info->unmatched, lcrp);
         }
-        /* if we cant reuse the old one, grab a new chunk */
+        /* if we can't reuse the old one, grab a new chunk */
         if(!lcrp){
           lcrp=wmem_new0(wmem_file_scope(), ldap_call_response_t);
         }
@@ -4745,7 +4745,7 @@ this_was_not_sasl:
 	/* check that length makes sense */
 	get_ber_length(tvb, 1, &ldap_len, &ind);
 
-	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
+	/* don't check ind since indefinite length is never used for ldap (famous last words)*/
 	if(ldap_len<2){
 		goto this_was_not_normal_ldap;
 	}

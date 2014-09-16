@@ -1423,7 +1423,7 @@ dialog_graph_draw(user_data_t* user_data)
 				y_pos = draw_height - 1 - (val*draw_height)/max_y + top_y_border;
 			}
 
-			/* dont need to draw anything if the segment
+			/* don't need to draw anything if the segment
 			 * is entirely above the top of the graph
 			 */
 			if ( (prev_y_pos == 0) && (y_pos == 0) ) {

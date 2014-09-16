@@ -303,7 +303,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	ncpstat_t *ss=(ncpstat_t *)pss;
     const ncp_req_hash_value *request_val=(const ncp_req_hash_value *)prv;
 
-	/* if we havent seen the request, just ignore it */
+	/* if we haven't seen the request, just ignore it */
 	if(!request_val || request_val->ncp_rec==0){
 		return 0;
 	}

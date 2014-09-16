@@ -996,7 +996,7 @@ decrypt_arcfour(packet_info *pinfo,
 	datalen -= padlen;
     }
 
-    /* dont know what the checksum looks like for dce style gssapi */
+    /* don't know what the checksum looks like for dce style gssapi */
     if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
 	ret = arcfour_mic_cksum(key_value, key_size,
 			    KRB5_KU_USAGE_SEAL,
@@ -1036,7 +1036,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff
 	length=tvb_captured_length(pinfo->gssapi_encrypted_tvb);
 	original_data=tvb_get_ptr(pinfo->gssapi_encrypted_tvb, 0, length);
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 /*
 	if(!krb_decrypt){
 		return;
@@ -1146,7 +1146,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 	int datalen;
 	tvbuff_t *next_tvb;
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return;
 	}
@@ -1283,7 +1283,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			len=tvb_reported_length_remaining(tvb,offset);
 			if(len>tvb_captured_length_remaining(tvb, offset)){
 				/* no point in trying to decrypt,
-				   we dont have the full pdu.
+				   we don't have the full pdu.
 				*/
 				return offset;
 			}
@@ -1526,7 +1526,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			len=tvb_reported_length_remaining(tvb,offset);
 			if(len>tvb_captured_length_remaining(tvb, offset)){
 				/* no point in trying to decrypt,
-				   we dont have the full pdu.
+				   we don't have the full pdu.
 				*/
 				return offset;
 			}

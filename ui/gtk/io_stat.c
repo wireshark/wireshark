@@ -977,7 +977,7 @@ io_stat_draw(io_stat_t *io)
 
                 switch (io->graphs[i].plot_style) {
                 case PLOT_STYLE_LINE:
-                    /* Dont draw anything if the segment entirely above the top of the graph
+                    /* Don't draw anything if the segment entirely above the top of the graph
                     */
                     if ( (prev_y_pos != 0) || (y_pos != 0) ) {
                         cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);

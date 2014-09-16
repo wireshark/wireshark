@@ -69,11 +69,11 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		return 0;
 	}
 	if(!ri->call_data->req_frame){
-		/* we have not seen the request so we dont know the delta*/
+		/* we have not seen the request so we don't know the delta*/
 		return 0;
 	}
 	if(ri->call_data->opnum>=rs->num_procedures){
-		/* dont handle this since its outside of known table */
+		/* don't handle this since its outside of known table */
 		return 0;
 	}
 

@@ -594,7 +594,7 @@ add_conversation_table_data_with_conv_id(
         port1 = dst_port;
     }
 
-    /* if we dont have any entries at all yet */
+    /* if we don't have any entries at all yet */
     if (ch->conv_array == NULL) {
         ch->conv_array = g_array_sized_new(FALSE, FALSE, sizeof(conv_item_t), 10000);
 
@@ -617,7 +617,7 @@ add_conversation_table_data_with_conv_id(
         }
     }
 
-    /* if we still dont know what conversation this is it has to be a new one
+    /* if we still don't know what conversation this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
     if (conv_item == NULL) {
         conv_key_t *new_key;
@@ -722,7 +722,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
 
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
-    /* if we dont have any entries at all yet */
+    /* if we don't have any entries at all yet */
     if(ch->conv_array==NULL){
         ch->conv_array=g_array_sized_new(FALSE, FALSE, sizeof(hostlist_talker_t), 10000);
         ch->hashtable = g_hash_table_new_full(host_hash,
@@ -742,7 +742,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         }
     }
 
-    /* if we still dont know what talker this is it has to be a new one
+    /* if we still don't know what talker this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
     if(talker==NULL){
         host_key_t *new_key;

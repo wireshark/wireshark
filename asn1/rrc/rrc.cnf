@@ -724,7 +724,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
-                /*If it doesnt exists, insert it*/
+                /*If it doesn't exists, insert it*/
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
@@ -760,7 +760,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
                 expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
-                /*If it doesnt exists, insert it*/
+                /*If it doesn't exists, insert it*/
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));

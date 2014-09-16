@@ -379,7 +379,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * until the end of the tcp session, unless there
 			 * is a keepalive header present in which case we
 			 * assume there is no message body at all and thus
-			 * we wont do any reassembly.
+			 * we won't do any reassembly.
 			 * Set up tcp reassembly until the end of this session.
 			 */
 			length_remaining = tvb_captured_length_remaining(tvb, next_offset);
@@ -394,7 +394,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 
 			if (keepalive_found) {
 				/* We have a keep-alive but no content-length.
-				 * Assume there is no message body and dont
+				 * Assume there is no message body and don't
 				 * do any reassembly.
 				 */
 				return TRUE;

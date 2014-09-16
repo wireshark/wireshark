@@ -2245,7 +2245,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 	/* Process until we've consumed all the input */
 	while (pin < pin_end)
 	{
-		/* Shift down the bit mask we use to see whats encoded */
+		/* Shift down the bit mask we use to see what's encoded */
 		bit_mask = bit_mask >> 1;
 
 		/* If there are no bits left, time to get another 16 bits */

@@ -1021,7 +1021,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 
 
 	if( !(fd_head->flags & FD_DATALEN_SET) ){
-		/* if we dont know the datalen, there are still missing
+		/* if we don't know the datalen, there are still missing
 		 * packets. Cheaper than the check below.
 		 */
 		return FALSE;
@@ -1737,7 +1737,7 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 
 
 	if( !(fd_head->flags & FD_DATALEN_SET) ){
-		/* if we dont know the sequence number of the last fragment,
+		/* if we don't know the sequence number of the last fragment,
 		 * there are definitely still missing packets. Cheaper than
 		 * the check below.
 		 */

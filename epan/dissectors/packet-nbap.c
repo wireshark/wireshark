@@ -28814,7 +28814,7 @@ BindingID_port = 0;
             &null_addr, PT_UDP, BindingID_port,
             0, NO_ADDR_B|NO_PORT_B);
 
-        /* We must also check if this port is about to be overriden, if thats the case we
+        /* We must also check if this port is about to be overriden, if that's the case we
          * might already have a DCH entry on this port which should be overwritten
          */
         if (conversation == NULL || ((umts_fp_conversation_info_t*)conversation_get_proto_data(conversation, proto_fp))->channel == CHANNEL_DCH) {

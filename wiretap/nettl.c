@@ -509,8 +509,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	    break;
 
 	case NETTL_SUBSYS_NS_LS_DRIVER :
-	    /* XXX we dont know how to identify this as ethernet frames, so
-	       we assumes everything is. We will crash and burn for anything else */
+	    /* XXX we don't know how to identify this as ethernet frames, so
+	       we assume everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
 	    bytes_read = file_read(&drv_eth_hdr, NS_LS_DRV_ETH_HDR_LEN, fh);

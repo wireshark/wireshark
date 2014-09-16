@@ -128,7 +128,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	rpc_procedure_t *rp;
 
 	if(ri->proc>=rs->num_procedures){
-		/* dont handle this since its outside of known table */
+		/* don't handle this since its outside of known table */
 		return 0;
 	}
 	/* we are only interested in reply packets */

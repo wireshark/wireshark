@@ -1313,8 +1313,8 @@ void proto_reg_handoff_x509af(void) {
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
 #line 127 "../../asn1/x509af/packet-x509af-template.c"
 
-	/*XXX these should really go to a better place but since that
-	  I have not that ITU standard, ill put it here for the time
+	/*XXX these should really go to a better place but since
+	  I have not that ITU standard, I'll put it here for the time
 	  being.
 	  Only implemented those algorithms that take no parameters
 	  for the time being,   ronnie

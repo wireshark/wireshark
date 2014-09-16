@@ -2196,7 +2196,7 @@ ref_time_packets(capture_file *cf)
     if ( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ) {
         /* This frame either passed the display filter list or is marked as
         a time reference frame.  All time reference frames are displayed
-        even if they dont pass the display filter */
+        even if they don't pass the display filter */
         if (fdata->flags.ref_time) {
             /* if this was a TIME REF frame we should reset the cum_bytes field */
             cf->cum_bytes = fdata->pkt_len;

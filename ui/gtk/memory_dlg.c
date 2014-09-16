@@ -386,7 +386,7 @@ io_stat_draw(io_stat_t *io)
                         top_y_border);
                 }
 
-                    /* Dont draw anything if the segment entirely above the top of the graph
+                    /* Don't draw anything if the segment entirely above the top of the graph
                     */
                     if ( (prev_y_pos != 0) || (y_pos != 0) ) {
                         static GdkRGBA red_color = {1.0, 0.0, 0.1, 1.0};

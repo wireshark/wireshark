@@ -411,7 +411,7 @@ static int __ws80211_get_iface_info(const char *name, struct __iface_info *iface
 	if (nl80211_do_cmd(msg, cb))
 		return -1;
 
-	/* Old kernels cant get the current freq via netlink. Try WEXT too :( */
+	/* Old kernels can't get the current freq via netlink. Try WEXT too :( */
 	if (iface_info->pub->current_freq == -1)
 		iface_info->pub->current_freq = get_freq_wext(name);
 	return 0;
