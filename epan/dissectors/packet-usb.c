@@ -1466,6 +1466,13 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(tree, hf_usb_bMaxPacketSize0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
+    /* if request was only for the first 8 bytes */
+    /* per 5.5.3 of USB2.0 Spec */
+    if (8 == usb_conv_info->usb_trans_info->setup.wLength) {
+        proto_item_set_len(item, offset-old_offset);
+        return offset;
+    }
+
     /* idVendor */
     proto_tree_add_item(tree, hf_usb_idVendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     vendor_id = tvb_get_letohs(tvb, offset);
