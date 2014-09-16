@@ -2403,7 +2403,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 
-	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), (start == 0 ? tvb : tvb_new_subset(tvb, start, length, length)));
+	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), (start == 0 ? tvb : tvb_new_subset_length(tvb, start, length)));
 
 	TRY_TO_FAKE_THIS_REPR(pi);
 
