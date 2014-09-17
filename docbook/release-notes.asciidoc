@@ -156,14 +156,14 @@ use Lua.
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from
-http://www.wireshark.org/download.html.
+https://www.wireshark.org/download.html.
 
 === Vendor-supplied Packages
 
 Most Linux and Unix vendors supply their own Wireshark packages. You can
 usually install or upgrade Wireshark using the package management system
 specific to that platform. A list of third-party packages can be found
-on the http://www.wireshark.org/download.html#thirdparty[download page]
+on the https://www.wireshark.org/download.html#thirdparty[download page]
 on the Wireshark web site.
 
 == File Locations
@@ -215,7 +215,7 @@ The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 (ws-buglink:9242[])
 Community support is available on http://ask.wireshark.org/[Wireshark's
 Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark's mailing lists can be
-found on http://www.wireshark.org/lists/[the web site].
+found on https://www.wireshark.org/lists/[the web site].
 
 Official Wireshark training and certification are available from
 http://www.wiresharktraining.com/[Wireshark University].
@@ -223,4 +223,4 @@ http://www.wiresharktraining.com/[Wireshark University].
 == Frequently Asked Questions
 
 A complete FAQ is available on the
-http://www.wireshark.org/faq.html[Wireshark web site].
+https://www.wireshark.org/faq.html[Wireshark web site].

@@ -284,7 +284,7 @@ be spent on more interesting tasks.
 
 * "Up to date" binary packages are available. After a change was committed to
   the repository, a binary package / installer is usually available within a few
-  hours at: http://www.wireshark.org/download/automated/[]. This can be quite
+  hours at: https://www.wireshark.org/download/automated/[]. This can be quite
   helpful, e.g. a bug reporter can easily verify a bugfix by installing a recent
   build.
 
@@ -565,9 +565,9 @@ mailto:wireshark-dev-list-email:[][wireshark-dev mailing list], or attach it to 
 
 You can download Windows debugging symbol files (.pdb) from the following locations:
 
-* 32-bit Windows: http://www.wireshark.org/download/win32/all-versions/
+* 32-bit Windows: https://www.wireshark.org/download/win32/all-versions/
 
-* 64-bit Windows: http://www.wireshark.org/download/win64/all-versions/
+* 64-bit Windows: https://www.wireshark.org/download/win64/all-versions/
 
 Files are named "Wireshark-pdb-win__bits__-_x_._y_._z_.zip" to match their
 corresponding "Wireshark-win__bits__-_x_._y_._z_.exe" installer packages.

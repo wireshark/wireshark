@@ -28,7 +28,7 @@
       <programlisting>
 TShark 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Dump and analyze network traffic.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Copyright 1998-2014 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
@@ -184,7 +184,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
       <programlisting>
 Dumpcap 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Capture network packets and dump them into a pcapng file.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: dumpcap [options] ...
 
@@ -262,7 +262,7 @@ Use Ctrl-C to stop capturing at any time.
       <programlisting>
 Capinfos 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Prints various information (infos) about capture files.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: capinfos [options] &lt;infile&gt; ...
 
@@ -336,7 +336,7 @@ output format.
       <programlisting>
 Rawshark 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Dump and analyze network traffic.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Copyright 1998-2014 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
@@ -390,7 +390,7 @@ Miscellaneous:
       <programlisting>
 Editcap 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Edit and/or translate the format of capture files.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: editcap [options] ... &lt;infile&gt; &lt;outfile&gt; [ &lt;packet#&gt;[-&lt;packet#&gt;] ... ]
 
@@ -498,7 +498,7 @@ editcap: The available capture file types for the "-F" flag are:
     ngwsniffer_1_1 - NetXray, Sniffer (Windows) 1.1
     ngwsniffer_2_0 - Sniffer (Windows) 2.00x
     niobserver - Network Instruments Observer
-    nokialibpcap - Nokia tcpdump - libpcap 
+    nokialibpcap - Nokia tcpdump - libpcap
     nseclibpcap - Wireshark - nanosecond libpcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
@@ -771,7 +771,7 @@ editcap: The available encapsulation types for the "-T" flag are:
       <programlisting>
 Mergecap 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Merge two or more capture files into one.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: mergecap [options] -w &lt;outfile&gt;|- &lt;infile&gt; [&lt;infile&gt; ...]
 
@@ -875,7 +875,7 @@ Miscellaneous:
       <programlisting>
 Text2pcap 1.99.0 (v1.99.0-rc1-448-gd344a38 from master)
 Generate a capture file from an ASCII hexdump of packets.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: text2pcap [options] &lt;infile&gt; &lt;outfile&gt;
 
@@ -1198,7 +1198,7 @@ CLEAN_DISSECTOR_SRC = \
       <programlisting>
 Reordercap 1.99.0
 Reorder timestamps of input file frames into output file.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: reordercap [options] &lt;infile&gt; &lt;outfile&gt;
 

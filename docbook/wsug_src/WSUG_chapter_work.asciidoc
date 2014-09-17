@@ -321,7 +321,7 @@ Classless InterDomain Routing (CIDR) notation can be used to test if an IPv4 add
 
 ip.addr == 129.111.0.0/16
 |IPv6 address|ipv6.addr == ::1
-|String (text)|http.request.uri == "http://www.wireshark.org/"
+|String (text)|http.request.uri == "https://www.wireshark.org/"
 |===============
 
 ==== Combining expressions
