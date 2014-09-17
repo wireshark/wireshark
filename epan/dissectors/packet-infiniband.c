@@ -1578,7 +1578,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0 };
+    struct infinibandinfo info = { 0, FALSE };
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
