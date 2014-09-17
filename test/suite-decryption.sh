@@ -44,6 +44,7 @@ UAT_FILES="
 	dtlsdecrypttablefile
 	ssl_keys
 	c1222_decryption_table
+	ikev1_decryption_table
 "
 
 TEST_KEYS_DIR="$TESTS_DIR/keys/"
@@ -169,6 +170,21 @@ decryption_step_dvb_ci() {
 	test_step_ok
 }
 
+# IKEv1 (ISAKMP) with certificates
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7951
+decryption_step_ikev1_certs() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e x509sat.printableString \
+		-r "$CAPTURE_DIR/ikev1-certs.pcap" \
+		| grep "OpenSwan" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt IKEv1"
+		return
+	fi
+	test_step_ok
+}
+
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
@@ -178,6 +194,7 @@ tshark_decryption_suite() {
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
+	test_step_add "IKEv1 Decryption (certificates)" decryption_step_ikev1_certs
 }
 
 decryption_cleanup_step() {
