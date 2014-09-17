@@ -639,7 +639,7 @@ struct header_field_info {
     enum ftenum     type;
     int             display;
     const void      *strings;
-    guint32         bitmask;
+    guint64         bitmask;
     const char      *blurb;
     .....
 };
@@ -1774,7 +1774,7 @@ proto_tree_add_bitmask() et al.
 These functions provide easy to use and convenient dissection of many types of common
 bitmasks into individual fields.
 
-header is an integer type and must be of type FT_[U]INT{8|16|24|32} and
+header is an integer type and must be of type FT_[U]INT{8|16|24|32|64} and
 represents the entire dissectable width of the bitmask.
 
 'header' and 'ett' are the hf fields and ett field respectively to create an

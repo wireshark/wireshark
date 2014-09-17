@@ -477,7 +477,7 @@ struct _header_field_info {
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the
 				                      associated protocol_t structure */
-	guint32			 bitmask;        /**< [BITMASK] bitmask of interesting bits */
+	guint64			 bitmask;        /**< [BITMASK] bitmask of interesting bits */
 	const char		*blurb;          /**< [FIELDDESCR] Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */

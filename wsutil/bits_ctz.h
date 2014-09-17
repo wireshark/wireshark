@@ -25,14 +25,16 @@
 
 #include <glib.h>
 
-static inline int
-ws_ctz(guint32 x)
-{
 #if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-	g_assert(x != 0);
-
-	return __builtin_ctz(x);
+static inline int
+ws_ctz(guint64 x)
+{
+	return __builtin_ctzll(x);
+}
 #else
+static inline int
+__ws_ctz32(guint32 x)
+{
 	/* From http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup */
 	static const int table[32] = {
 		0,   1, 28,  2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17,  4, 8,
@@ -40,7 +42,19 @@ ws_ctz(guint32 x)
 	};
 
 	return table[((guint32)((x & -(gint32)x) * 0x077CB531U)) >> 27];
-#endif
 }
+
+static inline int
+ws_ctz(guint64 x)
+{
+	guint32 hi = x >> 32;
+	guint32 lo = (guint32) x;
+
+	if (lo == 0)
+		return 32 + __ws_ctz32(hi);
+	else
+		return __ws_ctz32(lo);
+}
+#endif
 
 #endif /* __WSUTIL_BITS_CTZ_H__ */

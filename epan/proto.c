@@ -239,7 +239,7 @@ proto_tree_set_system_id(field_info *fi, const guint8* value_ptr, gint length);
 static void
 proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
-proto_tree_set_boolean(field_info *fi, guint32 value);
+proto_tree_set_boolean(field_info *fi, guint64 value);
 static void
 proto_tree_set_float(field_info *fi, float value);
 static void
@@ -1645,7 +1645,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_boolean(new_fi,
-				get_uint_value(tree, tvb, start, length, encoding));
+				get_uint64_value(tree, tvb, start, length, encoding));
 			break;
 
 		/* XXX - make these just FT_UINT? */
@@ -2974,7 +2974,25 @@ proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint len
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value)
 {
-	fvalue_set_integer64(&fi->value, value);
+	header_field_info *hfinfo;
+	guint64		   integer;
+	gint		   no_of_bits;
+
+	hfinfo = fi->hfinfo;
+	integer = value;
+
+	if (hfinfo->bitmask) {
+		/* Mask out irrelevant portions */
+		integer &= hfinfo->bitmask;
+
+		/* Shift bits */
+		integer >>= hfinfo_bitshift(hfinfo);
+
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
+		integer = ws_sign_ext64(integer, no_of_bits);
+	}
+
+	fvalue_set_integer64(&fi->value, integer);
 }
 
 /* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
@@ -3281,9 +3299,9 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 /* Set the FT_BOOLEAN value */
 static void
-proto_tree_set_boolean(field_info *fi, guint32 value)
+proto_tree_set_boolean(field_info *fi, guint64 value)
 {
-	proto_tree_set_uint(fi, value);
+	proto_tree_set_uint64(fi, value);
 }
 
 /* Add a FT_FLOAT to a proto_tree */
@@ -4011,10 +4029,14 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 
 		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
-			guint32 val;
+			guint64 val;
 			char *p;
 
-			val = fvalue_get_uinteger(&fi->value);
+			if (IS_FT_UINT(hf->type))
+				val = fvalue_get_uinteger(&fi->value);
+			else
+				val = fvalue_get_integer64(&fi->value);
+
 			val <<= hfinfo_bitshift(hf);
 
 			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_bitwidth(hf));
@@ -6004,8 +6026,8 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 {
 	char	*p                    = label_str;
 	int      bitfield_byte_length = 0, bitwidth;
-	guint32  unshifted_value;
-	guint32  value;
+	guint64  unshifted_value;
+	guint64  value;
 
 	header_field_info	*hfinfo   = fi->hfinfo;
 	const true_false_string	*tfstring = (const true_false_string *)&tfs_true_false;
@@ -6014,7 +6036,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 		tfstring = (const struct true_false_string*) hfinfo->strings;
 	}
 
-	value = fvalue_get_uinteger(&fi->value);
+	value = fvalue_get_integer64(&fi->value);
 	if (hfinfo->bitmask) {
 		/* Figure out the bit width */
 		bitwidth = hfinfo_bitwidth(hfinfo);
@@ -7006,9 +7028,10 @@ proto_registrar_dump_fields(void)
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
 
-			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%x\t%s\n",
+			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%llx\t%s\n",
 				hfinfo->name, hfinfo->abbrev, enum_name,
-				parent_hfinfo->abbrev, base_name, hfinfo->bitmask, blurb);
+				parent_hfinfo->abbrev, base_name,
+				(unsigned long long) hfinfo->bitmask, blurb);
 		}
 	}
 }
@@ -7344,9 +7367,9 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const guint encoding, const int flags,
 			    gboolean first)
 {
-	guint32            value = 0;
-	guint32            available_bits = 0;
-	guint32            tmpval;
+	guint64            value = 0;
+	guint64            available_bits = 0;
+	guint64            tmpval;
 	proto_tree        *tree  = NULL;
 	header_field_info *hf;
 
@@ -7370,13 +7393,18 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			tvb_get_ntohl(tvb, offset);
 			available_bits = 0xFFFFFFFF;
 			break;
+		case 8:
+			value = encoding ? tvb_get_letoh64(tvb, offset) :
+			tvb_get_ntoh64(tvb, offset);
+			available_bits = 0xFFFFFFFFFFFFFFFF;
+			break;
 		default:
 			g_assert_not_reached();
 	}
 
 	tree = proto_item_add_subtree(item, ett);
 	while (*fields) {
-		guint32 present_bits;
+		guint64 present_bits;
 		PROTO_REGISTRAR_GET_NTH(**fields,hf);
 		DISSECTOR_ASSERT(hf->bitmask != 0);
 
@@ -7408,14 +7436,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hf->strings;
 
 				DISSECTOR_ASSERT(fmtfunc);
-				fmtfunc(lbl, tmpval);
+				fmtfunc(lbl, (guint32) tmpval);
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, lbl);
 				first = FALSE;
 			}
 			else if (hf->strings) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-						       hf->name, hf_try_val_to_str_const(tmpval, hf, "Unknown"));
+						       hf->name, hf_try_val_to_str_const((guint32) tmpval, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
@@ -7426,7 +7454,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 					proto_item_append_text(item, ", ");
 				}
 
-				out = hfinfo_number_value_format(hf, buf, tmpval);
+				out = hfinfo_number_value_format(hf, buf, (guint32) tmpval);
 				proto_item_append_text(item, "%s: %s", hf->name, out);
 				first = FALSE;
 			}
@@ -7691,7 +7719,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
 			bf_str, hf_field->name,
-			(guint32)value ? tfstring->true_string : tfstring->false_string);
+			(guint64)value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_UINT8:
@@ -7852,7 +7880,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 						     tvb, octet_offset, octet_length, (guint32)value,
 						     "%s = %s: %s",
 						     bf_str, hf_field->name,
-						     (guint32)value ? tfstring->true_string : tfstring->false_string);
+						     (guint64)value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_UINT8:

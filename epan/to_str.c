@@ -996,15 +996,15 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
    Return a pointer to the character after that string. */
 /*XXX this needs a buf_len check */
 char *
-other_decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const int width)
+other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
 {
 	int i;
-	guint32 bit;
+	guint64 bit;
 	char *p;
 
 	i = 0;
 	p = buf;
-	bit = 1 << (width - 1);
+	bit = 1ULL << (width - 1);
 	for (;;) {
 		if (mask & bit) {
 			/* This bit is part of the field.  Show its value. */
@@ -1028,7 +1028,7 @@ other_decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, co
 }
 
 char *
-decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const int width)
+decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
 {
 	char *p;
 
@@ -1041,7 +1041,7 @@ decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const in
 /* Generate a string describing a numeric bitfield (an N-bit field whose
    value is just a number). */
 const char *
-decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
+decode_numeric_bitfield(const guint64 val, const guint64 mask, const int width,
 		const char *fmt)
 {
 	char *buf;
@@ -1051,7 +1051,7 @@ decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
 	buf=(char *)ep_alloc(1025); /* isn't this a bit overkill? */
 	/* Compute the number of bits we have to shift the bitfield right
 	   to extract its value. */
-	while ((mask & (1<<shift)) == 0)
+	while ((mask & (1ULL << shift)) == 0)
 		shift++;
 
 	p = decode_bitfield_value(buf, val, mask, width);

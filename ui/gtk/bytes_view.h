@@ -41,7 +41,7 @@ void bytes_view_set_encoding(BytesView *bv, int enc);
 void bytes_view_set_format(BytesView *bv, int format);
 void bytes_view_set_highlight_style(BytesView *bv, gboolean bold);
 
-void bytes_view_set_highlight(BytesView *bv, int start, int end, guint32 mask, int maskle);
+void bytes_view_set_highlight(BytesView *bv, int start, int end, guint64 mask, int maskle);
 void bytes_view_set_highlight_extra(BytesView *bv, int id, int start, int end);
 
 void bytes_view_refresh(BytesView *bv);

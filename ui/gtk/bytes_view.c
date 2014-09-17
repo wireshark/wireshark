@@ -1458,7 +1458,7 @@ bytes_view_set_highlight_style(BytesView *bv, gboolean inverse)
 }
 
 void
-bytes_view_set_highlight(BytesView *bv, int start, int end, guint32 mask _U_, int maskle _U_)
+bytes_view_set_highlight(BytesView *bv, int start, int end, guint64 mask _U_, int maskle _U_)
 {
 	bv->start[0] = start;
 	bv->end[0] = end;

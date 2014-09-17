@@ -85,7 +85,8 @@
 #define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
-#define E_BYTE_VIEW_MASK_KEY      "byte_view_mask"
+#define E_BYTE_VIEW_MASK_LO_KEY   "byte_view_mask_lo"
+#define E_BYTE_VIEW_MASK_HI_KEY   "byte_view_mask_hi"
 #define E_BYTE_VIEW_MASKLE_KEY    "byte_view_mask_le"
 #define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
@@ -838,7 +839,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 static void
 packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
-                  int bend, guint32 bmask, int bmask_le,
+                  int bend, guint64 bmask, int bmask_le,
                   int astart, int aend,
                   int pstart, int pend,
                   int encoding)
@@ -899,7 +900,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     /* to redraw the display if preferences change.             */
 
     int bstart = -1, bend = -1, blen = -1;
-    guint32 bmask = 0x00; int bmask_le = 0;
+    guint64 bmask = 0x00; int bmask_le = 0;
     int astart = -1, aend = -1, alen = -1;
     int pstart = -1, pend = -1, plen = -1;
 
@@ -960,7 +961,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
             /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
             if (bitt > 0 && bitt < 32) {
 
-                bmask = ((1 << bitc) - 1) << ((8-bitt) & 7);
+                bmask = ((1ULL << bitc) - 1) << ((8-bitt) & 7);
                 bmask_le = 0; /* ? */
             }
         }
@@ -991,7 +992,8 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     /* should we save the fd & finfo pointers instead ?? */
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
-    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_LO_KEY, GINT_TO_POINTER((guint32) bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER(bmask >> 32));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
@@ -1013,7 +1015,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     /* to redraw the display if preferences change.             */
 
     int bstart = offset, bend = (bstart != -1) ? offset+1 : -1;
-    guint32 bmask=0; int bmask_le = 0;
+    guint64 bmask=0; int bmask_le = 0;
     int astart = -1, aend = -1;
     int pstart = -1, pend = -1;
 
@@ -1023,7 +1025,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
         break;
 
     case BYTES_BITS:
-        bmask = (1 << (7-bitoffset));
+        bmask = (1ULL << (7-bitoffset));
         break;
 
     default:
@@ -1034,7 +1036,8 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     /* save the information needed to redraw the text */
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
-    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_LO_KEY, GINT_TO_POINTER((guint32) bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY, GINT_TO_POINTER(bmask >> 32));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
@@ -1053,15 +1056,17 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
 void
 packet_hex_reprint(GtkWidget *bv)
 {
-    int start, end, mask, mask_le, encoding;
+    int start, end, mask_le, encoding;
     int astart, aend;
     int pstart, pend;
+    guint64 mask;
     const guint8 *data;
     guint len = 0;
 
     start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
     end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-    mask = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY));
+    mask = (guint64) GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_HI_KEY)) << 32 |
+                     GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_LO_KEY));
     mask_le = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY));
     astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
     aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));

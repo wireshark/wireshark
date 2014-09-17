@@ -302,7 +302,7 @@ finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 	int finfo_length = finfo->length;
 
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
-		guint32 u_mask = hfinfo->bitmask;
+		guint64 u_mask = hfinfo->bitmask;
 
 		while (finfo_length--) {
 			guint8 *ptr = (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) ?

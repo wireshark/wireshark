@@ -1077,7 +1077,7 @@ ftype_register_integers(void)
 		0,				/* wire_size */
 		boolean_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
-		uint32_from_unparsed,		/* val_from_unparsed */
+		uint64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		boolean_to_repr,		/* val_to_string_repr */
 		boolean_repr_len,		/* len_string_repr */
@@ -1090,13 +1090,13 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		set_integer64,			/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,			/* get_value_uinteger */
+		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		get_integer64,			/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		bool_eq,			/* cmp_eq */
