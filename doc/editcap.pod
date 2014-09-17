@@ -59,7 +59,7 @@ are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension; the file
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
-L<http://www.wireshark.org/docs/man-pages/wireshark.html>
+L<https://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
 the same way B<Editcap> handles this.
 
@@ -385,10 +385,10 @@ text2pcap(1), od(1), pcap-filter(7) or tcpdump(8)
 =head1 NOTES
 
 B<Editcap> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<http://www.wireshark.org>.
+of B<Wireshark> can be found at L<https://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-L<http://www.wireshark.org/docs/man-pages>.
+L<https://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 

@@ -70,7 +70,7 @@ getopts('e');
 
 if ($opt_e) {
 	$proto_abbrev{'Unable to generate filter documentation'} =
-		'Please refer to http://www.wireshark.org/docs/dfref/';
+		'Please refer to https://www.wireshark.org/docs/dfref/';
 	printf STDERR "Creating empty filter list.\n";
 } else {
 	# Read all the data into memory

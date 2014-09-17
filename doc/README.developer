@@ -19,7 +19,7 @@ build toolkit".
 
 How to setup such an environment is platform dependent; detailed information
 about these steps can be found in the "Developer's Guide" (available from:
-http://www.wireshark.org) and in the INSTALL and README files of the sources
+https://www.wireshark.org) and in the INSTALL and README files of the sources
 root dir.
 
 0.1. General README files.
@@ -715,7 +715,7 @@ The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

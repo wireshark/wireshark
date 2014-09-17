@@ -551,10 +551,10 @@ text2pcap(1), pcap-filter(7) or tcpdump(8)
 =head1 NOTES
 
 B<Rawshark> is part of the B<Wireshark> distribution. The latest version of
-B<Wireshark> can be found at L<http://www.wireshark.org>.
+B<Wireshark> can be found at L<https://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-L<http://www.wireshark.org/docs/man-pages>.
+L<https://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 

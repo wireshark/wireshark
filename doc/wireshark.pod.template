@@ -1822,7 +1822,7 @@ Display locally installed HTML versions of these manual pages in a web browser.
 =item Help:Wireshark Online
 
 Various links to online resources to be open in a web browser, like
-L<http://www.wireshark.org>.
+L<https://www.wireshark.org>.
 
 =item Help:About Wireshark
 
@@ -2879,10 +2879,10 @@ text2pcap(1), pcap-filter(7) or tcpdump(8)
 =head1 NOTES
 
 The latest version of B<Wireshark> can be found at
-L<http://www.wireshark.org>.
+L<https://www.wireshark.org>.
 
 HTML versions of the Wireshark project man pages are available at:
-L<http://www.wireshark.org/docs/man-pages>.
+L<https://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
 
