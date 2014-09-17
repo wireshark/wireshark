@@ -92,7 +92,7 @@ actual dissector.
 	/*
 	 * Do we already have a state structure for this conv
 	 */
-	pana_info = conversation_get_proto_data(conversation, proto_pana);
+	pana_info = (pana_conv_info_t *)conversation_get_proto_data(conversation, proto_pana);
 	if (!pana_info) {
 		/*
                  * No.  Attach that information to the conversation, and add
