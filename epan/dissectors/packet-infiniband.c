@@ -45,8 +45,7 @@
 void proto_register_infiniband(void);
 void proto_reg_handoff_infiniband(void);
 
-/*Default RRoce UDP port*/
-#define DEFAULT_RROCE_UDP_PORT    0
+#define PROTO_TAG_INFINIBAND    "Infiniband"
 
 /* Wireshark ID */
 static int proto_infiniband = -1;
@@ -132,22 +131,15 @@ typedef struct {
     char data[232];
 } MAD_Data;
 
-typedef enum {
-    IB_PACKET_STARTS_WITH_LRH, /* Regular IB packet */
-    IB_PACKET_STARTS_WITH_GRH, /* ROCE packet */
-    IB_PACKET_STARTS_WITH_BTH  /* RROCE packet */
-} ib_packet_start_header;
-
 /* Forward-declarations */
 
 static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ib_packet_start_header starts_with);
+static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh);
 static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint32 find_next_header_sequence(struct infinibandinfo* ibInfo);
 static gboolean contains(guint32 value, guint32* arr, int length);
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, ib_packet_start_header starts_with);
+static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh);
 
 /* Parsing Methods for specific IB headers. */
 
@@ -1470,7 +1462,6 @@ static guint32 opCode_PAYLD[] = {
 /* settings to be set by the user via the preferences dialog */
 static gboolean pref_dissect_eoib = TRUE;
 static gboolean pref_identify_iba_payload = TRUE;
-static guint pref_rroce_udp_port = DEFAULT_RROCE_UDP_PORT;
 
 /* saves information about connections that have been/are in the process of being
    negotiated via ConnectionManagement packets */
@@ -1517,15 +1508,6 @@ static void table_destroy_notify(gpointer data) {
 }
 
 /* --------------------------------------------------------------------------------------------------------*/
-/* Helper dissector for correctly dissecting RRoCE packets (encapsulated within an IP */
-/* frame). The only difference from regular IB packets is that RRoCE packets do not contain */
-/* a LRH, and always start with a BTH.                                                      */
-static void
-dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    /* this is a RRoCE packet, so signal the IB dissector not to look for LRH/GRH */
-    dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_BTH);
-}
 
 /* Helper dissector for correctly dissecting RoCE packets (encapsulated within an Ethernet */
 /* frame). The only difference from regular IB packets is that RoCE packets do not contain */
@@ -1534,13 +1516,13 @@ static void
 dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* this is a RoCE packet, so signal the IB dissector not to look for LRH */
-    dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_GRH);
+    dissect_infiniband_common(tvb, pinfo, tree, TRUE);
 }
 
 static void
 dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_LRH);
+    dissect_infiniband_common(tvb, pinfo, tree, FALSE);
 }
 
 /* Common Dissector for both InfiniBand and RoCE packets
@@ -1548,14 +1530,13 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *       tvb - The tvbbuff of packet data
  *       pinfo - The packet info structure with column information
  *       tree - The tree structure under which field nodes are to be added
- *       starts_with - regular IB packet starts with LRH, ROCE starts with GRH and RROCE starts with BTH,
- *                     this tells the parser what headers of (LRH/GRH) to skip.
+ *       starts_with_grh - If true this packets start with a GRH header (RoCE), otherwise with LRH as usual
  * Notes:
  * 1.) Floating "offset+=" statements should probably be "functionized" but they are inline
  * Offset is only passed by reference in specific places, so do not be confused when following code
  * In any code path, adding up "offset+=" statements will tell you what byte you are at */
 static void
-dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ib_packet_start_header starts_with)
+dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh)
 {
     /* Top Level Item */
     proto_item *infiniband_packet;
@@ -1607,18 +1588,12 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* Headers Level Tree */
     all_headers_tree = proto_item_add_subtree(infiniband_packet, ett_all_headers);
 
-    if (starts_with == IB_PACKET_STARTS_WITH_GRH) {
+    if (starts_with_grh) {
         /* this is a RoCE packet, skip LRH parsing */
         lnh_val = IBA_GLOBAL;
         packetLength = tvb_get_ntohs(tvb, 4);   /* since we have no LRH to get PktLen from, use that of the GRH */
         goto skip_lrh;
     }
-     else if (starts_with == IB_PACKET_STARTS_WITH_BTH) {
-         /* this is a RRoCE packet, skip LRH/GRH parsing and go directly to BTH */
-         lnh_val = IBA_LOCAL;
-         packetLength = tvb_reported_length_remaining(tvb, offset);
-         goto skip_lrh;
-     }
 
     /* Local Route Header Subtree */
     local_route_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_LRH, tvb, offset, 8, ENC_NA);
@@ -2042,7 +2017,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
 
     /* Assigns column values */
-    dissect_general_info(tvb, offset, pinfo, IB_PACKET_STARTS_WITH_LRH);
+    dissect_general_info(tvb, offset, pinfo, FALSE);
 
     /* Top Level Packet */
     infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, ENC_NA);
@@ -4934,9 +4909,8 @@ static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       pinfo - The packet info structure with column information
-*       starts_with - regular IB packet starts with LRH, ROCE starts with GRH and RROCE starts with BTH,
-*                     this tells the parser what headers of (LRH/GRH) to skip. */
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, ib_packet_start_header starts_with)
+*       starts_with_grh - If true this packets start with a GRH header, otherwise with LRH  */
+static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh)
 {
     guint8            lnh_val            = 0; /* The Link Next Header Value.  Tells us which headers are coming */
     gboolean          bthFollows         = FALSE; /* Tracks if we are parsing a BTH.  This is a significant decision point */
@@ -4954,14 +4928,9 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
 
-    if (starts_with == IB_PACKET_STARTS_WITH_GRH) {
+    if (starts_with_grh) {
         /* this is a RoCE packet, skip LRH parsing */
         lnh_val = IBA_GLOBAL;
-        goto skip_lrh;
-    }
-    else if (starts_with == IB_PACKET_STARTS_WITH_BTH) {
-        /* this is a RRoCE packet, skip LRH/GRH parsing and go directly to BTH */
-        lnh_val = IBA_LOCAL;
         goto skip_lrh;
     }
 
@@ -7450,18 +7419,18 @@ void proto_register_infiniband(void)
         &ett_link
     };
 
-    proto_infiniband = proto_register_protocol("Infiniband", "IB", "infiniband");
+    proto_infiniband = proto_register_protocol("InfiniBand", "InfiniBand", "infiniband");
     ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* register the subdissector tables */
-    register_heur_dissector_list("infiniband_mlnx.payload", &heur_dissectors_payload);
-    register_heur_dissector_list("infiniband_mlnx.mad.cm.private", &heur_dissectors_cm_private);
+    register_heur_dissector_list("infiniband.payload", &heur_dissectors_payload);
+    register_heur_dissector_list("infiniband.mad.cm.private", &heur_dissectors_cm_private);
 
     /* register dissection preferences */
-    infiniband_module = prefs_register_protocol(proto_infiniband, proto_reg_handoff_infiniband);
+    infiniband_module = prefs_register_protocol(proto_infiniband, NULL);
 
     prefs_register_bool_preference(infiniband_module, "identify_payload",
                                    "Attempt to identify and parse encapsulated IBA payloads",
@@ -7473,9 +7442,6 @@ void proto_register_infiniband(void)
                                    "When set, dissector will attempt to identify and parse "
                                    "Mellanox Ethernet-over-InfiniBand packets",
                                    &pref_dissect_eoib);
-    prefs_register_uint_preference(infiniband_module, "rroce.port", "RRoce UDP Port(Default 1021)", "when set "
-                                   "the Analyser will consider this as RRoce UDP Port and parse it accordingly",
-                                    10, &pref_rroce_udp_port);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
     ib_link_handle = register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
@@ -7491,9 +7457,7 @@ void proto_register_infiniband(void)
 /* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */
 void proto_reg_handoff_infiniband(void)
 {
-    static gboolean initialized = FALSE;
-    static guint prev_rroce_udp_port;
-    dissector_handle_t roce_handle, rroce_handle;
+    dissector_handle_t roce_handle;
 
     ipv6_handle               = find_dissector("ipv6");
     data_handle               = find_dissector("data");
@@ -7509,21 +7473,6 @@ void proto_reg_handoff_infiniband(void)
     /* create and announce an anonymous RoCE dissector */
     roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
     dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
-
-    /* create and announce an anonymous RRoCE dissector */
-    rroce_handle = create_dissector_handle(dissect_rroce, proto_infiniband);
-    if (!initialized)
-    {
-        initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint("udp.port", prev_rroce_udp_port, rroce_handle);
-    }
-    /*we are saving the previous value of rroce udp port so we will be able to remove the dissector
-     * the next time user pref is updated and we get called back to proto_reg_handoff_infiniband.*/
-    prev_rroce_udp_port = pref_rroce_udp_port;
-    dissector_add_uint("udp.port", pref_rroce_udp_port, rroce_handle);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
 }
