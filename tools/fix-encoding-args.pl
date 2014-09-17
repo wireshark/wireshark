@@ -449,8 +449,9 @@ sub find_hf_array_entries {
             # just match for <fcn_name>() statements which have an encoding arg matching one of the
             #   keys in the searchReplace hash.
             # Escape any "|" characters in the keys
-            #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
-            $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}gx; $_ } keys %$searchReplaceHRef;
+            #  and then create "alternatives" string containing all the resulting key strings. Ex: "(A|B|C\|D|..."
+            #  (Note 'r' modifier in the following causes s{}{} to return a (modified) *copy* of $_)
+            $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}grx } keys %$searchReplaceHRef;
         } elsif ($subFlag == 3) {
             # match for <fcn_name>() statements for any value of the encoding parameter
             # IOW: find all the <fcn_name> statements
@@ -548,16 +549,18 @@ sub find_hf_array_entries {
             # just match for <fcn_name>() statements which have an encoding arg matching one of the
             #   keys in the searchReplace hash.
             # Escape any "|" characters in the keys
-            #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
-            $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}gx; $_ } keys %$searchReplaceHRef;
+            #  and then create "alternatives" string containing all the resulting key strings. Ex: "A|B|C\|D|..."
+            #  (Note 'r' modifier in the following causes s{}{} to return a (modified) *copy* of $_)
+            $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}grx } keys %$searchReplaceHRef;
         } elsif ($subFlag == 2) {
             # Find all the <fcn_name>() statements wherein the encoding arg is a value other than
             #      one of the "replace" values.
             #  Uses zero-length negative-lookahead to find <fcn_name>() statements for which the encoding
             #    arg is something other than one of the the provided replace values.
             # Escape any "|" characters in the values to be matched
-            #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
-            my $match_str = join "|",  map { s{ ( \| ) }{\\$1}gx; $_ } values %$searchReplaceHRef;
+            #  and then create "alternatives" string containing all the value strings. Ex: "A|B|C\|D|..."
+            #  (Note 'r' modifier in the following causes s{}{} to return a (modified) *copy* of $_)
+            my $match_str = join "|",  map { s{ ( \| ) }{\\$1}grx } values %$searchReplaceHRef;
             $encArgPat = qr /
                                 (?!                  # negative zero-length look-ahead
                                     \s*
