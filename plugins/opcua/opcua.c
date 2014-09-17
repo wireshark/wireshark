@@ -394,38 +394,17 @@ void proto_register_opcua(void)
 
     static hf_register_info hf[] =
     {
-        {&hf_opcua_fragments,
-            {"Message fragments", "opcua.fragments",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment,
-            {"Message fragment", "opcua.fragment",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_overlap,
-            {"Message fragment overlap", "opcua.fragment.overlap",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_overlap_conflicts,
-            {"Message fragment overlapping with conflicting data",
-            "opcua.fragment.overlap.conflicts",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_multiple_tails,
-            {"Message has multiple tail fragments",
-            "opcua.fragment.multiple_tails",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_too_long_fragment,
-            {"Message fragment too long", "opcua.fragment.too_long_fragment",
-            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_error,
-            {"Message defragmentation error", "opcua.fragment.error",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_fragment_count,
-            {"Message fragment count", "opcua.fragment.count",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_reassembled_in,
-            {"Reassembled in", "opcua.reassembled.in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        {&hf_opcua_reassembled_length,
-            {"Reassembled length", "opcua.reassembled.length",
-            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
+        /* id                                    full name                                              abbreviation                        type            display     strings bitmask blurb HFILL */
+        {&hf_opcua_fragments,                   {"Message fragments",                                   "opcua.fragments",                  FT_NONE,        BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment,                    {"Message fragment",                                    "opcua.fragment",                   FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_overlap,            {"Message fragment overlap",                            "opcua.fragment.overlap",           FT_BOOLEAN,     0,          NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_overlap_conflicts,  {"Message fragment overlapping with conflicting data",  "opcua.fragment.overlap.conflicts", FT_BOOLEAN,     0,          NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_multiple_tails,     {"Message has multiple tail fragments",                 "opcua.fragment.multiple_tails",    FT_BOOLEAN,     0,          NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_too_long_fragment,  {"Message fragment too long",                           "opcua.fragment.too_long_fragment", FT_BOOLEAN,     0,          NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_error,              {"Message defragmentation error",                       "opcua.fragment.error",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_fragment_count,              {"Message fragment count",                              "opcua.fragment.count",             FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_reassembled_in,              {"Reassembled in",                                      "opcua.reassembled.in",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+        {&hf_opcua_reassembled_length,          {"Reassembled length",                                  "opcua.reassembled.length",         FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}}
     };
 
     /** Setup protocol subtree array */
