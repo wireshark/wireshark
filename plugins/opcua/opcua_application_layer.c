@@ -51,9 +51,9 @@ void registerApplicationLayerTypes(int proto)
     static hf_register_info hf[] =
     {
         /* id                               full name                    abbreviation                       type       display   strings               bitmask blurb HFILL */
-        {&hf_opcua_nodeid_encodingmask,    {"NodeId EncodingMask",       "application.nodeid.encodingmask", FT_UINT8,  BASE_HEX, VALS(g_nodeidmasks),  0x0,    NULL, HFILL}},
-        {&hf_opcua_app_nsid,               {"NodeId EncodingMask",       "application.nodeid.nsid",         FT_UINT8,  BASE_DEC, NULL,                 0x0,    NULL, HFILL}},
-        {&hf_opcua_app_numeric,            {"NodeId Identifier Numeric", "application.nodeid.numeric",      FT_UINT32, BASE_DEC, VALS(g_requesttypes), 0x0,    NULL, HFILL}}
+        {&hf_opcua_nodeid_encodingmask,    {"NodeId EncodingMask",       "opcua.servicenodeid.encodingmask", FT_UINT8,  BASE_HEX, VALS(g_nodeidmasks),  0x0,    NULL, HFILL}},
+        {&hf_opcua_app_nsid,               {"NodeId EncodingMask",       "opcua.servicenodeid.nsid",         FT_UINT8,  BASE_DEC, NULL,                 0x0,    NULL, HFILL}},
+        {&hf_opcua_app_numeric,            {"NodeId Identifier Numeric", "opcua.servicenodeid.numeric",      FT_UINT32, BASE_DEC, VALS(g_requesttypes), 0x0,    NULL, HFILL}}
     };
 
     proto_register_field_array(proto, hf, array_length(hf));

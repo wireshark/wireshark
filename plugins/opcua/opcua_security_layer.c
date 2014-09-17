@@ -36,10 +36,10 @@ void registerSecurityLayerTypes(int proto)
 {
     static hf_register_info hf[] =
     {
-        /* id                           full name                   abbreviation        type       display   strings bitmask blurb HFILL */
-        {&hf_opcua_security_tokenid,   {"Security Token Id",        "security.tokenid", FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}},
-        {&hf_opcua_security_seq,       {"Security Sequence Number", "security.seq",     FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}},
-        {&hf_opcua_security_rqid,      {"Security RequestId",       "security.rqid",    FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}}
+        /* id                           full name                   abbreviation              type       display   strings bitmask blurb HFILL */
+        {&hf_opcua_security_tokenid,   {"Security Token Id",        "opcua.security.tokenid", FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}},
+        {&hf_opcua_security_seq,       {"Security Sequence Number", "opcua.security.seq",     FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}},
+        {&hf_opcua_security_rqid,      {"Security RequestId",       "opcua.security.rqid",    FT_UINT32, BASE_DEC, NULL,   0x0,    NULL, HFILL}}
     };
     proto_register_field_array(proto, hf, array_length(hf));
 }
