@@ -469,7 +469,7 @@ void proto_register_opcua(void)
     opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);
     prefs_register_range_preference(opcua_module, "tcp_ports",
 				 "OPC UA TCP Ports",
-				 "The TCP ports for the OPC UA TCP Binary Protocol",
+				 "The TCP ports for the OPC UA TCP Binary Protocol (comma separated list)",
 				 &global_tcp_ports_opcua, 65535);
 
 }
