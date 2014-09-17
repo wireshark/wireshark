@@ -27,17 +27,6 @@
 #include "opcua_simpletypes.h"
 #include "opcua_security_layer.h"
 
-#if 0
-/** NodeClass enum table */
-static const value_string g_SecSigTable[] = {
-  { 0, "GetSecurityPolcies" },
-  { 1, "OpenSecureChannel" },
-  { 2, "CloseSecureChannel" },
-  { 3, "Message" },
-  { 0, NULL }
-};
-#endif
-
 static int hf_opcua_security_tokenid = -1;
 static int hf_opcua_security_seq = -1;
 static int hf_opcua_security_rqid = -1;

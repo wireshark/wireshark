@@ -34,7 +34,6 @@ static int hf_opcua_transport_chunk = -1;
 static int hf_opcua_transport_size = -1;
 static int hf_opcua_transport_ver = -1;
 static int hf_opcua_transport_scid = -1;
-/* static int hf_opcua_transport_lifetime = -1; */
 static int hf_opcua_transport_rbs = -1;
 static int hf_opcua_transport_sbs = -1;
 static int hf_opcua_transport_mms = -1;
@@ -73,11 +72,6 @@ void registerTransportLayerTypes(int proto)
         { &hf_opcua_transport_scid,
         {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    NULL,    HFILL }
         },
-#if 0
-        { &hf_opcua_transport_lifetime,
-        {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
-        },
-#endif
         { &hf_opcua_transport_rbs,
         {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
@@ -99,9 +93,6 @@ void registerTransportLayerTypes(int proto)
         { &hf_opcua_transport_reason,
         {  "Reason",              "transport.reason",   FT_STRING, BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
-    /*    { &hf_opcua_transport_spul,
-        {  "SecurityPolicyUriLength", "transport.spul", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-        },*/
         { &hf_opcua_transport_spu,
         {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
