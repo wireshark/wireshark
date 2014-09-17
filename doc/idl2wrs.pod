@@ -81,7 +81,7 @@ wireshark(1), tshark(1)
 
 B<idl2wrs> (including B<wireshark_be.py> and B<wireshark_gen.py>) are part of
 the B<Wireshark> distribution.  The latest version of B<Wireshark> can
-be found at L<http://www.wireshark.org>.
+be found at L<https://www.wireshark.org>.
 
 B<idl2wrs> uses B<omniidl>, an IDL parser, and can be found at
 L<http://omniorb.sourceforge.net/>

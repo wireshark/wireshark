@@ -248,7 +248,7 @@ editcap(1), strptime(3), pcap-filter(7) or tcpdump(8)
 =head1 NOTES
 
 B<Text2pcap> is part of the B<Wireshark> distribution.  The latest version
-of B<Wireshark> can be found at L<http://www.wireshark.org>.
+of B<Wireshark> can be found at L<https://www.wireshark.org>.
 
 =head1 AUTHORS
 

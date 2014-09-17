@@ -18,7 +18,7 @@ build toolkit".
 
 How to setup such an environment is platform dependent; detailed information
 about these steps can be found in the "Developer's Guide" (available from:
-http://www.wireshark.org) and in the INSTALL and README files of the sources
+https://www.wireshark.org) and in the INSTALL and README files of the sources
 root dir.
 
 0.1. Dissector related README files.
@@ -2066,7 +2066,7 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
 1.9 Using the git source code tree.
 
-  See <http://www.wireshark.org/develop.html>
+  See <https://www.wireshark.org/develop.html>
 
 
 1.10 Submitting code for your new dissector.
@@ -2094,7 +2094,7 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
   - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
-    <http://www.wireshark.org/lists/>.
+    <https://www.wireshark.org/lists/>.
 
   - 'git diff' to verify all your changes look good.
 
@@ -3160,7 +3160,7 @@ correctly, building or updating whatever state information is
 necessary, in either case.
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

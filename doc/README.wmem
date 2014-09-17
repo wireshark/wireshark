@@ -350,7 +350,7 @@ The test suite could potentially use a clean-up by someone more
 intimately familiar with Glib's testing framework, but it does the job.
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4
