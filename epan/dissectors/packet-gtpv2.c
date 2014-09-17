@@ -2466,7 +2466,6 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 #if 0
     guint8      *trace_id = NULL;
 #endif
-    guint8      tdl;
     guint16     tid;
     guint32     bit_offset;
 
@@ -2520,7 +2519,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_lu_imsi_ad,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_handovers,   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msc_server_tree, hf_gtpv2_tra_info_msc_ss,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 5;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(msc_server_tree, hf_gtpv2_spare_bits,          tvb, bit_offset, 3, ENC_BIG_ENDIAN);
     offset += 1;
     bit_offset = offset << 3;
@@ -2529,7 +2528,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
     /* MGW - 1 octet */
     proto_tree_add_item(mgw_tree, hf_gtpv2_tra_info_mgw_context,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 1;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(mgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* SGSN - 2 octets */
@@ -2537,7 +2536,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_momt_sms,         tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_rau_gprs_ad,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_mbms,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 4;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(sgsn_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(sgsn_tree, hf_gtpv2_tra_info_sgsn_reserved,         tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2545,12 +2544,12 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     /* GGSN - 1 octet */
     proto_tree_add_item(ggsn_tree, hf_gtpv2_tra_info_ggsn_pdp,              tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ggsn_tree, hf_gtpv2_tra_info_ggsn_mbms,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 2;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(ggsn_tree, hf_gtpv2_spare_bits,                tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     offset += 1;
     /* BM-SC - 1 octet */
     proto_tree_add_item(bm_sc_tree, hf_gtpv2_tra_info_bm_sc,                tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 1;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(bm_sc_tree, hf_gtpv2_spare_bits,               tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     offset += 1;
     /* MME/SGW - 1 octet */
@@ -2560,19 +2559,19 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ue_init_pdn_disc,   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgw_mme_tree, hf_gtpv2_tra_info_mme_sgw_ho,                 tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 6;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(sgw_mme_tree, hf_gtpv2_spare_bits,                     tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     offset += 1;
     /* PGW/SGW - 1 octet */
     proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sgw_tree, hf_gtpv2_tra_info_sgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 3;
+    bit_offset = (offset << 3) + 4;
     proto_tree_add_bits_item(sgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_creat,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_pdn_con_term,       tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pgw_tree, hf_gtpv2_tra_info_pgw_bearer_act_mod_del, tvb, offset, 1, ENC_BIG_ENDIAN);
-    bit_offset = (offset << 3) + 7;
+    bit_offset = offset << 3;
     proto_tree_add_bits_item(pgw_tree, hf_gtpv2_spare_bits,                 tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -2598,16 +2597,8 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     offset += 1;
 
     /* Trace Depth Length */
-    tdl = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_tra_info_tdl,                    tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-
-    /* Trace Depth List
-     * Will be displayed if length of Trace Depth Length is > 0
-     * The list will only contains UTF8String, RAW DATA
-     */
-    proto_tree_add_text(tree, tvb, offset, tdl, "Trace Depth List: %s", tvb_bytes_to_ep_str(tvb, offset, tdl));
-    offset += tdl;
 
     /* Set up subtree interfaces and put all interfaces under it */
     interfaces = proto_tree_add_text(tree, tvb, offset, 12, "List of Interfaces");
