@@ -105,6 +105,8 @@ Requires(pre):	shadow-utils
 BuildRequires:	rpm >= 4.7.0
 %endif
 
+# NOTE: the below description has been copied to wireshark.appdata.xml (in the
+# top-level directory).
 %description
 Wireshark allows you to examine protocol data stored in files or as it is
 captured from wired or wireless (WiFi or Bluetooth) networks, USB devices,
@@ -370,6 +372,7 @@ fi
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
+%{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
 %{_datadir}/mime/packages/wireshark.xml
@@ -382,6 +385,7 @@ fi
 %files gnome
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
+%{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
 %{_datadir}/mime/packages/wireshark.xml
@@ -391,6 +395,9 @@ fi
 %endif
 
 %changelog
+* Thu Jan 22 2015 Jeff Morriss
+- Add appdata file.
+
 * Tue Jan 20 2015 Jeff Morriss
 - Make the license tag more specific: Wireshark is GPLv2+.
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
+
+<application>
+    <id type="desktop">wireshark.desktop</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-2.0</project_license>
+    <!-- NOTE: the below description was copied from packaging/rpm/SPECS/wireshark.spec.in -->
+    <description>
+    <p>
+	Wireshark is the world's foremost protocol analyzer.
+    </p>
+    <p>
+	Wireshark allows you to examine protocol data stored in files or as it
+	is captured from wired or wireless (WiFi or Bluetooth) networks, USB
+	devices, and many other sources.  It supports dozens of protocol
+	capture file formats and understands more than a thousand protocols.
+    </p>
+    <p>
+	It has many powerful features including a rich display filter language
+	and the ability to reassemble multiple protocol packets in order to,
+	for example, view a complete TCP stream, save the contents of a file
+	which was transferred over HTTP or CIFS, or play back an RTP audio
+	stream.
+    </p>
+    <p xml:lang="fr">
+	Wireshark est le principal analyseur de protocole au monde.
+    </p>
+    <p xml:lang="fr">
+	Wireshark vous permet d’examiner les données enregistrées dans des
+	fichiers ou en temps réel sur un réseau câblé ou sans fil (WiFi ou
+	Bluetooth), à partir d’équipement USB et de bien d’autres sources.
+	Il supporte des dizaines de formats de fichiers de capture de
+	protocoles et comprend plus d’un millier de protocoles.
+    </p>
+    <p xml:lang="fr">
+	Il dispose de nombreuses fonctionnalités puissantes dont un riche
+	langage de filtre d’affichage et la capacité de ré-assembler de
+	multiples paquets de protocoles, afin par exemple, de visualiser
+	un flux TCP, de sauvegarder le contenu d’un fichier transféré par
+	HTTP ou CIFS, ou de re-jouer un flux audio RTP.
+    </p>
+    </description>
+    <url type="homepage">https://www.wireshark.org</url>
+    <screenshots>
+	<screenshot type="default">http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
+	<screenshot>http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
+    </screenshots>
+    <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
+</application>

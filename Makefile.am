@@ -1209,6 +1209,7 @@ EXTRA_DIST = \
 	services		\
 	wireshark.desktop	\
 	wireshark-mime-package.xml \
+	wireshark.appdata.xml	\
 	wireshark.pc.in		\
 	wka.tmpl		\
 	CMakeLists.txt		\
@@ -1425,6 +1426,8 @@ if BUILDING_WIRESHARK
 if NOT_OS_X
 	mkdir -p $(DESTDIR)$(datadir)/mime/packages
 	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	mkdir -p $(DESTDIR)$(datadir)/appdata
+	install -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	mkdir -p $(DESTDIR)$(datadir)/applications
 	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
 		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop; \
