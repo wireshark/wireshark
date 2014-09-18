@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-include(CMakeListsCustom.txt)
+ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(WIRESHARK_GTK_SRC
 	about_dlg.c

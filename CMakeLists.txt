@@ -35,6 +35,9 @@ cmake_policy(SET CMP0015 NEW)
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+include(UseCustomIncludes)
+ADD_CUSTOM_CMAKE_INCLUDE()
+
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
 	set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -772,7 +775,6 @@ ADD_CUSTOM_COMMAND(
 )
 
 if(ENABLE_PLUGINS)
-	include(plugins/CMakeListsCustom.txt)
 	set(HAVE_PLUGINS 1)
 	set(PLUGIN_DIR "${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
 	set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
