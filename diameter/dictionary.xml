@@ -6599,6 +6599,7 @@
 	-->
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
+	<application id="16777219"	name="3GPP Wx"	uri="http://www.3GPP.org/ftp/Specs/html-info/29234.htm"></application>
 	<application id="16777229"	name="3GPP Rx Release 6" 	uri="http://www.3GPP.org/ftp/Specs/html-info/29211.htm"></application>
 	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
