@@ -199,7 +199,7 @@ dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, guint offset,
         len = tvb_get_guint8(tvb, offset);
           /* FT_UINT_STRING with 1 leading len byte */
           proto_tree_add_item(tree, hf_dvb_ait_descr_app_name_name,
-              tvb, offset, 1, ENC_ASCII|ENC_NA);
+              tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
           offset += 1+len;
     }
 
@@ -251,7 +251,7 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
             url_base_len = tvb_get_guint8(tvb, offset);
             /* FT_UINT_STRING with one leading length byte */
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_base,
-                tvb, offset, 1, ENC_ASCII|ENC_NA);
+                tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
             offset += 1+url_base_len;
 
             url_ext_cnt = tvb_get_guint8(tvb, offset);
@@ -262,7 +262,7 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
             for (i=0; i<url_ext_cnt; i++) {
                 url_ext_len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_ext,
-                        tvb, offset, 1, ENC_ASCII|ENC_NA);
+                        tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                 offset += 1+url_ext_len;
             }
         }

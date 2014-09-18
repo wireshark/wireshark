@@ -3483,7 +3483,7 @@ dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		}
 	}
 	if (size) {
-	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_NA);
+	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
 	}
 	else {
 	    proto_tree_add_item(tree, hf_afp_unknown, tvb, offset, len, ENC_NA);
@@ -3521,7 +3521,7 @@ dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		len = tvb_get_guint8(tvb, offset);
 		break;
 	}
-	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
 	offset += len +size;
 
 	return offset;
@@ -4232,7 +4232,7 @@ static const char *spotlight_get_cpx_qtype_string(guint64 cpx_query_type)
 
 static gint
 spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-                             guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
+			     guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
 {
 	gint i, j;
 	gint subquery_count;
@@ -4546,7 +4546,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	toc_entries -= 1;
 	sub_tree_toc = proto_tree_add_subtree_format(tree, tvb, offset,
 				       (gint)querylen - (gint)toc_offset,
-                       ett_afp_spotlight_toc, NULL,
+				       ett_afp_spotlight_toc, NULL,
 				       "Complex types ToC (%u entries)",
 				       toc_entries);
 	proto_tree_add_text(sub_tree_toc, tvb, offset, 2, "Number of entries (%u)", toc_entries);
@@ -4939,7 +4939,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	offset = AFPSTATUS_PRELEN;
 	server_name_len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_server_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_afp_server_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 	offset += 1 + server_name_len;	/* 1 for the length byte */
 
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
@@ -4986,7 +4986,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset = tvb_get_ntohs(tvb, AFPSTATUS_MACHOFF);
 	if (offset) {
 		if (offset >= variable_data_offset) {
-			proto_tree_add_item(tree, hf_afp_server_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_afp_server_type, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 		}
 	}
 
@@ -4999,7 +4999,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 			offset++;
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(sub_tree, hf_afp_server_vers, tvb, offset, 1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(sub_tree, hf_afp_server_vers, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 				offset += len + 1;
 			}
 		}
@@ -5014,7 +5014,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 			offset++;
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(sub_tree, hf_afp_server_uams, tvb, offset, 1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(sub_tree, hf_afp_server_uams, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 				offset += len + 1;
 			}
 		}
@@ -5144,7 +5144,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 			offset++;
 			for (i = 0; i < nbe; i++) {
 				len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(sub_tree, hf_afp_server_directory, tvb, offset, 1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(sub_tree, hf_afp_server_directory, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 				offset += len + 1;
 			}
 		}
@@ -7315,3 +7315,16 @@ proto_reg_handoff_afp(void)
 /* -------------------------------
 	end
 */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -2655,11 +2655,11 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         offset += 2;
 
         str_len_byte = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_prov_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_prov_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += 1+str_len_byte;
 
         str_len_byte = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += 1+str_len_byte;
     }
     else if (tag==CIPLUS_DESC_TAG_PROT) {
@@ -4346,7 +4346,6 @@ proto_register_mpeg_descriptor(void)
     proto_register_subtree_array(ett, array_length(ett));
 
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

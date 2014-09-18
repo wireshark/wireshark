@@ -4008,7 +4008,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           offset += 3;
           /* hf_dvbci_prof_name is an FT_UINT_STRING, one leading len byte */
           proto_tree_add_item(tree, hf_dvbci_prof_name,
-              tvb, offset, 1, ENC_ASCII|ENC_NA);
+              tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
           break;
         case T_OPERATOR_SEARCH_START:
           proto_tree_add_item(tree, hf_dvbci_unattended,

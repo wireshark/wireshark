@@ -204,7 +204,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 					2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(sub_tree, hf_eiss_irl_string, tvb, offset, 2,
-					ENC_ASCII|ENC_NA);
+					ENC_ASCII|ENC_BIG_ENDIAN);
 		return (2+total_length);
 	} else if (0xe1 == tag) {
 		sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
@@ -583,3 +583,15 @@ proto_reg_handoff_eiss(void)
 	data_handle = find_dissector("data");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

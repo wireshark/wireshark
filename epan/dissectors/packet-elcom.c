@@ -50,9 +50,11 @@
 #define SUFFIX_LEN  2
 #define TOTAL_LEN (LOWADR_LEN + SUFFIX_LEN + 2)
 
+#if 0 /* ??? */
 #define ELCOM_UNKNOWN_ENDIAN 0
 #define ELCOM_LITTLE_ENDIAN  1
 #define ELCOM_BIG_ENDIAN     2
+#endif
 
 void proto_register_elcom(void);
 void proto_reg_handoff_elcom(void);
@@ -217,7 +219,8 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 
         /* SUFFIX */
         suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len2, ENC_ASCII);
-        ti = proto_tree_add_item(tree, hf_suff, tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
+        /* hf_suff FIELDTYPE must be FT_UINT_STRING */
+        ti = proto_tree_add_item(tree, hf_suff, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len2+1;
 
         if (!(suffix[0] == 'A' || suffix[0] == 'B')) {
@@ -384,7 +387,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
                         break;
                 if (tvb_length_remaining(tvb, offset+oidlen+1) <= 0)
                         return offset;
-                proto_tree_add_item(tree, hf_elcom_datarequest_oid, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_elcom_datarequest_oid, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                 offset += oidlen+1;
         }
         offset += 1;             /* the loop exited at the 0 length byte */

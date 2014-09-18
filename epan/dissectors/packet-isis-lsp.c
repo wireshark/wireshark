@@ -825,7 +825,7 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
                     offset++;
                     len--;
 
-                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_group_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_group_address, tvb, offset, 16, ENC_NA);
 
                     length -= 16;
                     offset += 16;
@@ -833,7 +833,7 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
 
 
                     while((len > 0) && (source_num > 0)) {
-                        proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_source_address, tvb, offset, 16, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(rt_tree, hf_isis_lsp_grp_ipv6addr_source_address, tvb, offset, 16, ENC_NA);
 
                         length -= 16;
                         offset += 16;

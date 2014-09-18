@@ -1286,11 +1286,11 @@ static int dissect_spdy_header_payload(
 
       /* Add header name. */
       proto_tree_add_item(header_tree, hf_spdy_header_name, header_tvb,
-                          header_name_offset, 4, ENC_NA);
+                          header_name_offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
 
       /* Add header value. */
       proto_tree_add_item(header_tree, hf_spdy_header_value, header_tvb,
-                          header_value_offset, 4, ENC_NA);
+                          header_value_offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
     }
 
     /*

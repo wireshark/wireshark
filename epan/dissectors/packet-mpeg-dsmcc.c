@@ -493,7 +493,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset +=1;
         if (0 < module_info_len) {
             proto_tree_add_item(mod_tree, hf_etv_module_abs_path, tvb, offset, 1,
-                ENC_ASCII|ENC_NA);
+                ENC_ASCII|ENC_BIG_ENDIAN);
             offset += module_info_len;
         }
     }
@@ -504,7 +504,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (0 < private_data_len) {
         proto_tree_add_item(tree, hf_etv_dii_authority, tvb, offset, 1,
-            ENC_ASCII|ENC_NA);
+            ENC_ASCII|ENC_BIG_ENDIAN);
         /*offset += private_data_len;*/
     }
 }

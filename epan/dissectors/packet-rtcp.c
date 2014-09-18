@@ -1618,7 +1618,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 item_len = tvb_get_guint8( tvb, offset );
                 /* Item len of 1 because it's an FT_UINT_STRING... */
                 proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_sip_uri,
-                                    tvb, offset, 1, ENC_ASCII|ENC_NA );
+                                    tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN );
                 offset++;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
@@ -1649,7 +1649,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                     item_len = tvb_get_guint8( tvb, offset );
                     /* Item len of 1 because it's an FT_UINT_STRING... */
                     proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
-                                        tvb, offset, 1, ENC_ASCII|ENC_NA);
+                                        tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                     offset++;
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
@@ -1727,7 +1727,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 /* Reason phrase */
                 item_len = tvb_get_guint8( tvb, offset );
                 if ( item_len != 0 )
-                    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, ENC_ASCII|ENC_NA );
+                    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN );
 
                 offset     += (item_len+1);
                 packet_len -= (item_len+1);
@@ -6523,3 +6523,16 @@ proto_reg_handoff_rtcp(void)
     heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp);
         heur_dissector_add("stun", dissect_rtcp_heur, proto_rtcp);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
