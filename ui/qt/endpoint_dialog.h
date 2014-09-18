@@ -86,8 +86,8 @@ private:
 private slots:
 #ifdef HAVE_GEOIP
     void tabChanged();
-#endif
     void createMap();
+#endif
     void on_buttonBox_helpRequested();
 };
 

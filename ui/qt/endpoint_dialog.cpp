@@ -77,7 +77,9 @@ EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_
 
     fillTypeMenu(endp_protos);
 
+#ifdef HAVE_GEOIP
     tabChanged();
+#endif
     itemSelectionChanged();
 
     if (cap_file_) {
@@ -176,7 +178,6 @@ void EndpointDialog::tabChanged()
     EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
     map_bt_->setEnabled(cur_tree->hasGeoIPData());
 }
-#endif
 
 void EndpointDialog::createMap()
 {
@@ -194,6 +195,7 @@ void EndpointDialog::createMap()
     }
     QDesktopServices::openUrl(QUrl::fromLocalFile(gchar_free_to_qstring(map_path)));
 }
+#endif
 
 void EndpointDialog::on_buttonBox_helpRequested()
 {
