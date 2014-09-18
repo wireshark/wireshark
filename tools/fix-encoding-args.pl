@@ -18,6 +18,7 @@
 #   - ptvcursor_add_no_advance
 #   - ptvcursor_add_with_subtree   !! ToDo: encoding arg not last arg
 #
+# ToDo: Rework program so that it can better be used to *validate* encoding-args
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -56,14 +57,15 @@ my $searchReplaceFalseTrueHRef =
 
 my $searchReplaceEncNAHRef =
    {
-    "FALSE"             => "ENC_NA",
-    "0"                 => "ENC_NA",
-    "TRUE"              => "ENC_NA",
-    "1"                 => "ENC_NA",
-    "ENC_LITTLE_ENDIAN" => "ENC_NA",
-    "ENC_BIG_ENDIAN"    => "ENC_NA"
+    "FALSE"              => "ENC_NA",
+    "0"                  => "ENC_NA",
+    "TRUE"               => "ENC_NA",
+    "1"                  => "ENC_NA",
+    "ENC_LITTLE_ENDIAN"  => "ENC_NA",
+    "ENC_BIG_ENDIAN"     => "ENC_NA",
+    "ENC_ASCII|ENC_NA"   => "ENC_NA",
+    "ENC_ASCII | ENC_NA" => "ENC_NA"
    };
-
 
 # ---------------------------------------------------------------------
 # Conversion "request" structure
@@ -286,6 +288,7 @@ while (my $fileName = $ARGV[0]) {
 
     # delete leading './'
     $fileName =~ s{ ^ \. / } {}xo;
+    ##print "$fileName\n";
 
     # Read in the file (ouch, but it's easier that way)
     open(FCI, "<", $fileName) || die("Couldn't open $fileName");
@@ -463,17 +466,21 @@ sub find_hf_array_entries {
 
         # build the complete pattern
         my $patRegEx = qr /
-                              ( # part 1: $1
+                              # part 1: $1
+                              (
                                   (?:^|=)            # don't try to handle fcn_name call when arg of another fcn call
                                   \s*
                                   $fcn_name \s* \(
                                   [^;]+?             # a bit dangerous
                                   ,\s*
                               )
-                              ( # part 2: $2
-                                  $encArgPat
-                              )
-                              ( # part 3: $3
+
+                              # part 2: $2
+                              #  exact match of pattern (including spaces)
+                              ((?-x)$encArgPat)
+
+                              # part 3: $3
+                              (
                                   \s* \)
                                   \s* ;
                               )
@@ -591,7 +598,8 @@ sub find_hf_array_entries {
 
             # build the complete pattern
             my $patRegEx = qr /
-                                  ( # part 1: $1
+                                  # part 1: $1
+                                  (
                                       $fcn_name \s* \(
                                       [^;]+?
                                       ,\s*
@@ -600,16 +608,20 @@ sub find_hf_array_entries {
                                       [^;]+
                                       ,\s*
                                   )
-                                  ( # part 2: $2
-                                      $encArgPat
-                                  )
-                                  ( # part 3: $3
+
+                                  # part 2: $2
+                                  #  exact match of pattern (including spaces)
+                                  ((?-x)$encArgPat)
+
+                                  # part 3: $3
+                                  (
                                       \s* \)
                                       \s* ;
                                   )
                               /xs;
 
             ##print "\n$hf_index_name $hf_field_type\n";
+            ##print "\n$patRegEx\n";
 
             ## Match and substitute as specified
             $$fileContentsRef =~ s/ $patRegEx /patsub($1,$2,$3)/xges;
