@@ -127,6 +127,9 @@ my @types_UINT_STRING =
     "1"                       => "ENC_ASCII|ENC_LITTLE_ENDIAN",
     "ENC_BIG_ENDIAN"          => "ENC_ASCII|ENC_BIG_ENDIAN",
     "ENC_LITTLE_ENDIAN"       => "ENC_ASCII|ENC_LITTLE_ENDIAN",
+    "ENC_ASCII|ENC_NA"        => "ENC_ASCII|ENC_BIG_ENDIAN",
+    "ENC_ASCII"               => "ENC_ASCII|ENC_BIG_ENDIAN",
+    "ENC_NA"                  => "ENC_ASCII|ENC_BIG_ENDIAN"
    }
   );
 
