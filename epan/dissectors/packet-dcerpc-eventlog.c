@@ -36,98 +36,98 @@ static gint ett_eventlog_eventlog_ChangeUnknown0 = -1;
 
 
 /* Header field declarations */
-static gint hf_eventlog_eventlog_RegisterEventSourceW_handle = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_MinorVersion = -1;
-static gint hf_eventlog_Record = -1;
-static gint hf_eventlog_eventlog_OpenBackupEventLogW_unknown0 = -1;
-static gint hf_eventlog_eventlog_GetLogIntormation_handle = -1;
-static gint hf_eventlog_Record_source_name = -1;
-static gint hf_eventlog_eventlog_ChangeNotify_unknown3 = -1;
-static gint hf_eventlog_eventlog_ReportEventW_num_of_strings = -1;
-static gint hf_eventlog_eventlog_ReportEventW_data_length = -1;
-static gint hf_eventlog_eventlog_Record_reserved = -1;
-static gint hf_eventlog_eventlog_GetLogIntormation_cbBufSize = -1;
-static gint hf_eventlog_eventlog_GetNumRecords_handle = -1;
-static gint hf_eventlog_Record_computer_name = -1;
-static gint hf_eventlog_opnum = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_Module = -1;
-static gint hf_eventlog_eventlog_Record_strings = -1;
-static gint hf_eventlog_eventlog_RegisterEventSourceW_servername = -1;
-static gint hf_eventlog_eventlog_Record_time_written = -1;
-static gint hf_eventlog_eventlog_Record_reserved_flags = -1;
-static gint hf_eventlog_eventlog_BackupEventLogW_backupfilename = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE = -1;
-static gint hf_eventlog_eventlog_ReportEventW_event_id = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE = -1;
-static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown3 = -1;
-static gint hf_eventlog_eventlog_ReadEventLogW_handle = -1;
-static gint hf_eventlog_eventlog_ReportEventW_computer_name = -1;
-static gint hf_eventlog_eventlog_ReportEventW_event_category = -1;
-static gint hf_eventlog_eventlog_OpenBackupEventLogW_handle = -1;
-static gint hf_eventlog_eventlog_ChangeUnknown0_unknown0 = -1;
-static gint hf_eventlog_eventlog_ReadEventLogW_number_of_bytes = -1;
-static gint hf_eventlog_eventlog_GetOldestRecord_handle = -1;
-static gint hf_eventlog_eventlog_Record_event_id = -1;
-static gint hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ = -1;
-static gint hf_eventlog_eventlog_FlushEventLog_handle = -1;
-static gint hf_eventlog_eventlog_Record_data_length = -1;
-static gint hf_eventlog_eventlog_ReadEventLogW_offset = -1;
-static gint hf_eventlog_eventlog_DeregisterEventSource_handle = -1;
-static gint hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ = -1;
-static gint hf_eventlog_eventlog_ChangeNotify_handle = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE = -1;
-static gint hf_eventlog_eventlog_ChangeNotify_unknown2 = -1;
 static gint hf_eventlog_eventlog_Record_sid_offset = -1;
-static gint hf_eventlog_eventlog_Record_num_of_strings = -1;
-static gint hf_eventlog_eventlog_GetLogIntormation_lpBuffer = -1;
-static gint hf_eventlog_eventlog_OpenUnknown0_unknown1 = -1;
-static gint hf_eventlog_eventlog_Record_computer_name = -1;
-static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown0 = -1;
-static gint hf_eventlog_eventlog_ClearEventLogW_backupfilename = -1;
-static gint hf_eventlog_eventlog_ReportEventW_handle = -1;
-static gint hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_unknown0 = -1;
-static gint hf_eventlog_eventlog_Record_size = -1;
-static gint hf_eventlog_status = -1;
-static gint hf_eventlog_eventlog_Record_data_offset = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_handle = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_RegModuleName = -1;
+static gint hf_eventlog_eventlog_GetLogIntormation_handle = -1;
+static gint hf_eventlog_opnum = -1;
 static gint hf_eventlog_eventlog_ReportEventW_Type = -1;
+static gint hf_eventlog_eventlog_Record_event_category = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE = -1;
+static gint hf_eventlog_eventlog_ChangeUnknown0_unknown0 = -1;
+static gint hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded = -1;
+static gint hf_eventlog_eventlog_ReadEventLogW_sent_size = -1;
 static gint hf_eventlog_eventlog_ReadEventLogW_real_size = -1;
+static gint hf_eventlog_eventlog_Record_raw_data = -1;
+static gint hf_eventlog_eventlog_Record_time_written = -1;
+static gint hf_eventlog_eventlog_OpenUnknown0_unknown1 = -1;
+static gint hf_eventlog_eventlog_GetNumRecords_number = -1;
+static gint hf_eventlog_Record_source_name = -1;
+static gint hf_eventlog_eventlog_Record_source_name = -1;
+static gint hf_eventlog_eventlog_Record_size = -1;
+static gint hf_eventlog_eventlog_Record_closing_record_number = -1;
+static gint hf_eventlog_eventlog_ReadEventLogW_number_of_bytes = -1;
 static gint hf_eventlog_eventlog_OpenBackupEventLogW_unknown3 = -1;
 static gint hf_eventlog_eventlog_OpenUnknown0_unknown0 = -1;
-static gint hf_eventlog_eventlog_Record_source_name = -1;
-static gint hf_eventlog_eventlog_Record_record_number = -1;
-static gint hf_eventlog_eventlog_Record_event_category = -1;
-static gint hf_eventlog_eventlog_Record_raw_data = -1;
-static gint hf_eventlog_eventlog_OpenBackupEventLogW_logname = -1;
-static gint hf_eventlog_eventlog_Record_sid_length = -1;
-static gint hf_eventlog_eventlog_Record_time_generated = -1;
-static gint hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ = -1;
-static gint hf_eventlog_eventlog_ClearEventLogW_handle = -1;
-static gint hf_eventlog_eventlog_BackupEventLogW_handle = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE = -1;
-static gint hf_eventlog_eventlog_ReportEventW_time = -1;
+static gint hf_eventlog_eventlog_Record_strings = -1;
 static gint hf_eventlog_Record_length = -1;
-static gint hf_eventlog_eventlog_Record_closing_record_number = -1;
-static gint hf_eventlog_eventlog_OpenBackupEventLogW_unknown2 = -1;
+static gint hf_eventlog_eventlog_ReadEventLogW_offset = -1;
+static gint hf_eventlog_eventlog_GetNumRecords_handle = -1;
 static gint hf_eventlog_eventlog_Record_event_type = -1;
-static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown2 = -1;
-static gint hf_eventlog_eventlog_ReadEventLogW_flags = -1;
-static gint hf_eventlog_eventlog_RegisterEventSourceW_logname = -1;
-static gint hf_eventlog_eventlog_OpenEventLogW_MajorVersion = -1;
-static gint hf_eventlog_eventlog_GetNumRecords_number = -1;
-static gint hf_eventlog_eventlog_ChangeUnknown0_unknown1 = -1;
-static gint hf_eventlog_Record_string = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS = -1;
-static gint hf_eventlog_eventlog_ReadEventLogW_sent_size = -1;
-static gint hf_eventlog_eventlog_Record_stringoffset = -1;
-static gint hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded = -1;
-static gint hf_eventlog_eventlog_GetOldestRecord_oldest = -1;
+static gint hf_eventlog_eventlog_Record_data_offset = -1;
+static gint hf_eventlog_eventlog_Record_num_of_strings = -1;
+static gint hf_eventlog_eventlog_FlushEventLog_handle = -1;
+static gint hf_eventlog_eventlog_Record_record_number = -1;
+static gint hf_eventlog_eventlog_ReportEventW_data_length = -1;
+static gint hf_eventlog_eventlog_ChangeNotify_handle = -1;
 static gint hf_eventlog_eventlog_CloseEventLog_handle = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_unknown0 = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_RegModuleName = -1;
+static gint hf_eventlog_eventlog_BackupEventLogW_backupfilename = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_Module = -1;
+static gint hf_eventlog_eventlog_ChangeUnknown0_unknown1 = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS = -1;
+static gint hf_eventlog_eventlog_OpenBackupEventLogW_unknown0 = -1;
+static gint hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ = -1;
+static gint hf_eventlog_eventlog_Record_data_length = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown3 = -1;
+static gint hf_eventlog_eventlog_ClearEventLogW_backupfilename = -1;
+static gint hf_eventlog_eventlog_DeregisterEventSource_handle = -1;
+static gint hf_eventlog_eventlog_GetLogIntormation_lpBuffer = -1;
+static gint hf_eventlog_eventlog_ReportEventW_computer_name = -1;
+static gint hf_eventlog_eventlog_BackupEventLogW_handle = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE = -1;
+static gint hf_eventlog_Record = -1;
+static gint hf_eventlog_Record_string = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_handle = -1;
+static gint hf_eventlog_eventlog_Record_stringoffset = -1;
+static gint hf_eventlog_eventlog_ReadEventLogW_flags = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_logname = -1;
+static gint hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ = -1;
 static gint hf_eventlog_eventlog_GetLogIntormation_dwInfoLevel = -1;
+static gint hf_eventlog_eventlog_ReportEventW_num_of_strings = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_servername = -1;
+static gint hf_eventlog_eventlog_GetOldestRecord_handle = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown2 = -1;
 static gint hf_eventlog_eventlog_ReadEventLogW_data = -1;
+static gint hf_eventlog_eventlog_Record_computer_name = -1;
+static gint hf_eventlog_eventlog_Record_sid_length = -1;
+static gint hf_eventlog_eventlog_ChangeNotify_unknown3 = -1;
+static gint hf_eventlog_status = -1;
+static gint hf_eventlog_eventlog_ReportEventW_time = -1;
+static gint hf_eventlog_eventlog_OpenBackupEventLogW_logname = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_handle = -1;
+static gint hf_eventlog_eventlog_ClearEventLogW_handle = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_MajorVersion = -1;
+static gint hf_eventlog_eventlog_OpenBackupEventLogW_handle = -1;
+static gint hf_eventlog_Record_computer_name = -1;
+static gint hf_eventlog_eventlog_ReportEventW_handle = -1;
+static gint hf_eventlog_eventlog_OpenEventLogW_MinorVersion = -1;
+static gint hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ = -1;
+static gint hf_eventlog_eventlog_Record_time_generated = -1;
+static gint hf_eventlog_eventlog_GetLogIntormation_cbBufSize = -1;
+static gint hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ = -1;
+static gint hf_eventlog_eventlog_GetOldestRecord_oldest = -1;
+static gint hf_eventlog_eventlog_Record_reserved = -1;
+static gint hf_eventlog_eventlog_OpenBackupEventLogW_unknown2 = -1;
+static gint hf_eventlog_eventlog_RegisterEventSourceW_unknown0 = -1;
+static gint hf_eventlog_eventlog_ReportEventW_event_id = -1;
+static gint hf_eventlog_eventlog_Record_event_id = -1;
+static gint hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE = -1;
+static gint hf_eventlog_eventlog_Record_reserved_flags = -1;
+static gint hf_eventlog_eventlog_ReportEventW_event_category = -1;
+static gint hf_eventlog_eventlog_ReadEventLogW_handle = -1;
+static gint hf_eventlog_eventlog_ChangeNotify_unknown2 = -1;
 
 static gint proto_dcerpc_eventlog = -1;
 /* Version information */
@@ -883,7 +883,7 @@ eventlog_dissect_element_ClearEventLogW_backupfilename_(tvbuff_t *tvb _U_, int o
 
 /* IDL: NTSTATUS eventlog_ClearEventLogW( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] [unique(1)] lsa_String *backupfilename */
+/* IDL: [unique(1)] [in] lsa_String *backupfilename */
 /* IDL: ); */
 
 static int
@@ -990,7 +990,7 @@ eventlog_dissect_element_CloseEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: NTSTATUS eventlog_CloseEventLog( */
-/* IDL: [ref] [out] [in] policy_handle *handle */
+/* IDL: [out] [ref] [in] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -1036,7 +1036,7 @@ eventlog_dissect_element_DeregisterEventSource_handle_(tvbuff_t *tvb _U_, int of
 }
 
 /* IDL: NTSTATUS eventlog_DeregisterEventSource( */
-/* IDL: [in] [out] [ref] policy_handle *handle */
+/* IDL: [in] [ref] [out] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -1232,8 +1232,8 @@ eventlog_dissect_element_ChangeNotify_unknown3(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: NTSTATUS eventlog_ChangeNotify( */
-/* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [ref] [in] eventlog_ChangeUnknown0 *unknown2, */
+/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] eventlog_ChangeUnknown0 *unknown2, */
 /* IDL: [in] uint32 unknown3 */
 /* IDL: ); */
 
@@ -1329,7 +1329,7 @@ eventlog_dissect_element_OpenEventLogW_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: NTSTATUS eventlog_OpenEventLogW( */
-/* IDL: [unique(1)] [in] eventlog_OpenUnknown0 *unknown0, */
+/* IDL: [in] [unique(1)] eventlog_OpenUnknown0 *unknown0, */
 /* IDL: [in] lsa_String Module, */
 /* IDL: [in] lsa_String RegModuleName, */
 /* IDL: [in] uint32 MajorVersion, */
@@ -1441,7 +1441,7 @@ eventlog_dissect_element_RegisterEventSourceW_handle_(tvbuff_t *tvb _U_, int off
 /* IDL: [in] lsa_String servername, */
 /* IDL: [in] uint32 unknown2, */
 /* IDL: [in] uint32 unknown3, */
-/* IDL: [ref] [out] policy_handle *handle */
+/* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -1535,7 +1535,7 @@ eventlog_dissect_element_OpenBackupEventLogW_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 /* IDL: NTSTATUS eventlog_OpenBackupEventLogW( */
-/* IDL: [unique(1)] [in] eventlog_OpenUnknown0 *unknown0, */
+/* IDL: [in] [unique(1)] eventlog_OpenUnknown0 *unknown0, */
 /* IDL: [in] lsa_String logname, */
 /* IDL: [in] uint32 unknown2, */
 /* IDL: [in] uint32 unknown3, */
@@ -1663,11 +1663,11 @@ eventlog_dissect_element_ReadEventLogW_real_size_(tvbuff_t *tvb _U_, int offset 
 }
 
 /* IDL: NTSTATUS eventlog_ReadEventLogW( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] eventlogReadFlags flags, */
 /* IDL: [in] uint32 offset, */
 /* IDL: [in] uint32 number_of_bytes, */
-/* IDL: [out] [size_is(number_of_bytes)] [ref] uint8 *data, */
+/* IDL: [ref] [out] [size_is(number_of_bytes)] uint8 *data, */
 /* IDL: [out] [ref] uint32 *sent_size, */
 /* IDL: [out] [ref] uint32 *real_size */
 /* IDL: ); */
@@ -1783,7 +1783,7 @@ eventlog_dissect_element_ReportEventW_computer_name(tvbuff_t *tvb _U_, int offse
 }
 
 /* IDL: NTSTATUS eventlog_ReportEventW( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 time, */
 /* IDL: [in] eventlogEventTypes Type, */
 /* IDL: [in] uint16 event_category, */
@@ -2145,9 +2145,9 @@ eventlog_dissect_element_GetLogIntormation_cbBytesNeeded_(tvbuff_t *tvb _U_, int
 }
 
 /* IDL: NTSTATUS eventlog_GetLogIntormation( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 dwInfoLevel, */
-/* IDL: [out] [size_is(cbBufSize)] uint8 lpBuffer[*], */
+/* IDL: [size_is(cbBufSize)] [out] uint8 lpBuffer[*], */
 /* IDL: [in] uint32 cbBufSize, */
 /* IDL: [out] [ref] int32 *cbBytesNeeded */
 /* IDL: ); */
@@ -2202,7 +2202,7 @@ eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: NTSTATUS eventlog_FlushEventLog( */
-/* IDL: [in] [ref] policy_handle *handle */
+/* IDL: [ref] [in] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -2284,190 +2284,190 @@ static dcerpc_sub_dissector eventlog_dissectors[] = {
 void proto_register_dcerpc_eventlog(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_handle,
-	  { "Handle", "eventlog.eventlog_RegisterEventSourceW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_MinorVersion,
-	  { "Minorversion", "eventlog.eventlog_OpenEventLogW.MinorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_Record,
-	  { "Record", "eventlog.Record", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown0,
-	  { "Unknown0", "eventlog.eventlog_OpenBackupEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetLogIntormation_handle,
-	  { "Handle", "eventlog.eventlog_GetLogIntormation.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_Record_source_name,
-	  { "Source Name", "eventlog.Record.source_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ChangeNotify_unknown3,
-	  { "Unknown3", "eventlog.eventlog_ChangeNotify.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_num_of_strings,
-	  { "Num Of Strings", "eventlog.eventlog_ReportEventW.num_of_strings", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_data_length,
-	  { "Data Length", "eventlog.eventlog_ReportEventW.data_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_reserved,
-	  { "Reserved", "eventlog.eventlog_Record.reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetLogIntormation_cbBufSize,
-	  { "Cbbufsize", "eventlog.eventlog_GetLogIntormation.cbBufSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetNumRecords_handle,
-	  { "Handle", "eventlog.eventlog_GetNumRecords.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_Record_computer_name,
-	  { "Computer Name", "eventlog.Record.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_opnum,
-	  { "Operation", "eventlog.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_Module,
-	  { "Module", "eventlog.eventlog_OpenEventLogW.Module", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_strings,
-	  { "Strings", "eventlog.eventlog_Record.strings", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_servername,
-	  { "Servername", "eventlog.eventlog_RegisterEventSourceW.servername", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_time_written,
-	  { "Time Written", "eventlog.eventlog_Record.time_written", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_reserved_flags,
-	  { "Reserved Flags", "eventlog.eventlog_Record.reserved_flags", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_BackupEventLogW_backupfilename,
-	  { "Backupfilename", "eventlog.eventlog_BackupEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
-	  { "Eventlog Information Type", "eventlog.eventlogEventTypes.EVENTLOG_INFORMATION_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_INFORMATION_TYPE_tfs), ( 0x0004 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_event_id,
-	  { "Event Id", "eventlog.eventlog_ReportEventW.event_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS,
-	  { "Eventlog Success", "eventlog.eventlogEventTypes.EVENTLOG_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_SUCCESS_tfs), ( 0x0000 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
-	  { "Eventlog Error Type", "eventlog.eventlogEventTypes.EVENTLOG_ERROR_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs), ( 0x0001 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown3,
-	  { "Unknown3", "eventlog.eventlog_RegisterEventSourceW.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReadEventLogW_handle,
-	  { "Handle", "eventlog.eventlog_ReadEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_computer_name,
-	  { "Computer Name", "eventlog.eventlog_ReportEventW.computer_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_event_category,
-	  { "Event Category", "eventlog.eventlog_ReportEventW.event_category", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenBackupEventLogW_handle,
-	  { "Handle", "eventlog.eventlog_OpenBackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ChangeUnknown0_unknown0,
-	  { "Unknown0", "eventlog.eventlog_ChangeUnknown0.unknown0", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReadEventLogW_number_of_bytes,
-	  { "Number Of Bytes", "eventlog.eventlog_ReadEventLogW.number_of_bytes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetOldestRecord_handle,
-	  { "Handle", "eventlog.eventlog_GetOldestRecord.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_event_id,
-	  { "Event Id", "eventlog.eventlog_Record.event_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
-	  { "Eventlog Seek Read", "eventlog.eventlogReadFlags.EVENTLOG_SEEK_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEEK_READ_tfs), ( 0x0002 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_FlushEventLog_handle,
-	  { "Handle", "eventlog.eventlog_FlushEventLog.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_data_length,
-	  { "Data Length", "eventlog.eventlog_Record.data_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReadEventLogW_offset,
-	  { "Offset", "eventlog.eventlog_ReadEventLogW.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_DeregisterEventSource_handle,
-	  { "Handle", "eventlog.eventlog_DeregisterEventSource.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
-	  { "Eventlog Sequential Read", "eventlog.eventlogReadFlags.EVENTLOG_SEQUENTIAL_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ_tfs), ( 0x0001 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ChangeNotify_handle,
-	  { "Handle", "eventlog.eventlog_ChangeNotify.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE,
-	  { "Eventlog Audit Failure", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_FAILURE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_FAILURE_tfs), ( 0x0010 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ChangeNotify_unknown2,
-	  { "Unknown2", "eventlog.eventlog_ChangeNotify.unknown2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_sid_offset,
 	  { "Sid Offset", "eventlog.eventlog_Record.sid_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_num_of_strings,
-	  { "Num Of Strings", "eventlog.eventlog_Record.num_of_strings", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetLogIntormation_lpBuffer,
-	  { "Lpbuffer", "eventlog.eventlog_GetLogIntormation.lpBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenUnknown0_unknown1,
-	  { "Unknown1", "eventlog.eventlog_OpenUnknown0.unknown1", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_computer_name,
-	  { "Computer Name", "eventlog.eventlog_Record.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown0,
-	  { "Unknown0", "eventlog.eventlog_RegisterEventSourceW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ClearEventLogW_backupfilename,
-	  { "Backupfilename", "eventlog.eventlog_ClearEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_handle,
-	  { "Handle", "eventlog.eventlog_ReportEventW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
-	  { "Eventlog Forwards Read", "eventlog.eventlogReadFlags.EVENTLOG_FORWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_FORWARDS_READ_tfs), ( 0x0004 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_unknown0,
-	  { "Unknown0", "eventlog.eventlog_OpenEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_size,
-	  { "Size", "eventlog.eventlog_Record.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_status,
-	  { "NT Error", "eventlog.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_data_offset,
-	  { "Data Offset", "eventlog.eventlog_Record.data_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_handle,
-	  { "Handle", "eventlog.eventlog_OpenEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_RegModuleName,
-	  { "Regmodulename", "eventlog.eventlog_OpenEventLogW.RegModuleName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetLogIntormation_handle,
+	  { "Handle", "eventlog.eventlog_GetLogIntormation.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_opnum,
+	  { "Operation", "eventlog.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReportEventW_Type,
 	  { "Type", "eventlog.eventlog_ReportEventW.Type", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_event_category,
+	  { "Event Category", "eventlog.eventlog_Record.event_category", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE,
+	  { "Eventlog Audit Failure", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_FAILURE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_FAILURE_tfs), ( 0x0010 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ChangeUnknown0_unknown0,
+	  { "Unknown0", "eventlog.eventlog_ChangeUnknown0.unknown0", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded,
+	  { "Cbbytesneeded", "eventlog.eventlog_GetLogIntormation.cbBytesNeeded", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReadEventLogW_sent_size,
+	  { "Sent Size", "eventlog.eventlog_ReadEventLogW.sent_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReadEventLogW_real_size,
 	  { "Real Size", "eventlog.eventlog_ReadEventLogW.real_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_raw_data,
+	  { "Raw Data", "eventlog.eventlog_Record.raw_data", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_time_written,
+	  { "Time Written", "eventlog.eventlog_Record.time_written", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenUnknown0_unknown1,
+	  { "Unknown1", "eventlog.eventlog_OpenUnknown0.unknown1", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetNumRecords_number,
+	  { "Number", "eventlog.eventlog_GetNumRecords.number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_Record_source_name,
+	  { "Source Name", "eventlog.Record.source_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_source_name,
+	  { "Source Name", "eventlog.eventlog_Record.source_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_size,
+	  { "Size", "eventlog.eventlog_Record.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_closing_record_number,
+	  { "Closing Record Number", "eventlog.eventlog_Record.closing_record_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReadEventLogW_number_of_bytes,
+	  { "Number Of Bytes", "eventlog.eventlog_ReadEventLogW.number_of_bytes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown3,
 	  { "Unknown3", "eventlog.eventlog_OpenBackupEventLogW.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_OpenUnknown0_unknown0,
 	  { "Unknown0", "eventlog.eventlog_OpenUnknown0.unknown0", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_source_name,
-	  { "Source Name", "eventlog.eventlog_Record.source_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_record_number,
-	  { "Record Number", "eventlog.eventlog_Record.record_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_event_category,
-	  { "Event Category", "eventlog.eventlog_Record.event_category", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_raw_data,
-	  { "Raw Data", "eventlog.eventlog_Record.raw_data", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenBackupEventLogW_logname,
-	  { "Logname", "eventlog.eventlog_OpenBackupEventLogW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_sid_length,
-	  { "Sid Length", "eventlog.eventlog_Record.sid_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_time_generated,
-	  { "Time Generated", "eventlog.eventlog_Record.time_generated", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,
-	  { "Eventlog Backwards Read", "eventlog.eventlogReadFlags.EVENTLOG_BACKWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_BACKWARDS_READ_tfs), ( 0x0008 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ClearEventLogW_handle,
-	  { "Handle", "eventlog.eventlog_ClearEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_BackupEventLogW_handle,
-	  { "Handle", "eventlog.eventlog_BackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
-	  { "Eventlog Warning Type", "eventlog.eventlogEventTypes.EVENTLOG_WARNING_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_WARNING_TYPE_tfs), ( 0x0002 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReportEventW_time,
-	  { "Time", "eventlog.eventlog_ReportEventW.time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_strings,
+	  { "Strings", "eventlog.eventlog_Record.strings", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_Record_length,
 	  { "Record Length", "eventlog.Record.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_closing_record_number,
-	  { "Closing Record Number", "eventlog.eventlog_Record.closing_record_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown2,
-	  { "Unknown2", "eventlog.eventlog_OpenBackupEventLogW.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReadEventLogW_offset,
+	  { "Offset", "eventlog.eventlog_ReadEventLogW.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetNumRecords_handle,
+	  { "Handle", "eventlog.eventlog_GetNumRecords.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_Record_event_type,
 	  { "Event Type", "eventlog.eventlog_Record.event_type", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown2,
-	  { "Unknown2", "eventlog.eventlog_RegisterEventSourceW.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReadEventLogW_flags,
-	  { "Flags", "eventlog.eventlog_ReadEventLogW.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_RegisterEventSourceW_logname,
-	  { "Logname", "eventlog.eventlog_RegisterEventSourceW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_OpenEventLogW_MajorVersion,
-	  { "Majorversion", "eventlog.eventlog_OpenEventLogW.MajorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetNumRecords_number,
-	  { "Number", "eventlog.eventlog_GetNumRecords.number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ChangeUnknown0_unknown1,
-	  { "Unknown1", "eventlog.eventlog_ChangeUnknown0.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_Record_string,
-	  { "string", "eventlog.Record.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS,
-	  { "Eventlog Audit Success", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS_tfs), ( 0x0008 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlog_ReadEventLogW_sent_size,
-	  { "Sent Size", "eventlog.eventlog_ReadEventLogW.sent_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_Record_stringoffset,
-	  { "Stringoffset", "eventlog.eventlog_Record.stringoffset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded,
-	  { "Cbbytesneeded", "eventlog.eventlog_GetLogIntormation.cbBytesNeeded", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_eventlog_eventlog_GetOldestRecord_oldest,
-	  { "Oldest", "eventlog.eventlog_GetOldestRecord.oldest", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_data_offset,
+	  { "Data Offset", "eventlog.eventlog_Record.data_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_num_of_strings,
+	  { "Num Of Strings", "eventlog.eventlog_Record.num_of_strings", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_FlushEventLog_handle,
+	  { "Handle", "eventlog.eventlog_FlushEventLog.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_record_number,
+	  { "Record Number", "eventlog.eventlog_Record.record_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_data_length,
+	  { "Data Length", "eventlog.eventlog_ReportEventW.data_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ChangeNotify_handle,
+	  { "Handle", "eventlog.eventlog_ChangeNotify.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_CloseEventLog_handle,
 	  { "Handle", "eventlog.eventlog_CloseEventLog.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_unknown0,
+	  { "Unknown0", "eventlog.eventlog_OpenEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_RegModuleName,
+	  { "Regmodulename", "eventlog.eventlog_OpenEventLogW.RegModuleName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_BackupEventLogW_backupfilename,
+	  { "Backupfilename", "eventlog.eventlog_BackupEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_Module,
+	  { "Module", "eventlog.eventlog_OpenEventLogW.Module", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ChangeUnknown0_unknown1,
+	  { "Unknown1", "eventlog.eventlog_ChangeUnknown0.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS,
+	  { "Eventlog Success", "eventlog.eventlogEventTypes.EVENTLOG_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_SUCCESS_tfs), ( 0x0000 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown0,
+	  { "Unknown0", "eventlog.eventlog_OpenBackupEventLogW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,
+	  { "Eventlog Backwards Read", "eventlog.eventlogReadFlags.EVENTLOG_BACKWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_BACKWARDS_READ_tfs), ( 0x0008 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_data_length,
+	  { "Data Length", "eventlog.eventlog_Record.data_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown3,
+	  { "Unknown3", "eventlog.eventlog_RegisterEventSourceW.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ClearEventLogW_backupfilename,
+	  { "Backupfilename", "eventlog.eventlog_ClearEventLogW.backupfilename", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_DeregisterEventSource_handle,
+	  { "Handle", "eventlog.eventlog_DeregisterEventSource.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetLogIntormation_lpBuffer,
+	  { "Lpbuffer", "eventlog.eventlog_GetLogIntormation.lpBuffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_computer_name,
+	  { "Computer Name", "eventlog.eventlog_ReportEventW.computer_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_BackupEventLogW_handle,
+	  { "Handle", "eventlog.eventlog_BackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
+	  { "Eventlog Information Type", "eventlog.eventlogEventTypes.EVENTLOG_INFORMATION_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_INFORMATION_TYPE_tfs), ( 0x0004 ), NULL, HFILL }},
+	{ &hf_eventlog_Record,
+	  { "Record", "eventlog.Record", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_Record_string,
+	  { "string", "eventlog.Record.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_handle,
+	  { "Handle", "eventlog.eventlog_OpenEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_stringoffset,
+	  { "Stringoffset", "eventlog.eventlog_Record.stringoffset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReadEventLogW_flags,
+	  { "Flags", "eventlog.eventlog_ReadEventLogW.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS,
+	  { "Eventlog Audit Success", "eventlog.eventlogEventTypes.EVENTLOG_AUDIT_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS_tfs), ( 0x0008 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_logname,
+	  { "Logname", "eventlog.eventlog_RegisterEventSourceW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEEK_READ,
+	  { "Eventlog Seek Read", "eventlog.eventlogReadFlags.EVENTLOG_SEEK_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEEK_READ_tfs), ( 0x0002 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlog_GetLogIntormation_dwInfoLevel,
 	  { "Dwinfolevel", "eventlog.eventlog_GetLogIntormation.dwInfoLevel", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_num_of_strings,
+	  { "Num Of Strings", "eventlog.eventlog_ReportEventW.num_of_strings", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
+	  { "Eventlog Error Type", "eventlog.eventlogEventTypes.EVENTLOG_ERROR_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs), ( 0x0001 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_servername,
+	  { "Servername", "eventlog.eventlog_RegisterEventSourceW.servername", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetOldestRecord_handle,
+	  { "Handle", "eventlog.eventlog_GetOldestRecord.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown2,
+	  { "Unknown2", "eventlog.eventlog_RegisterEventSourceW.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_eventlog_eventlog_ReadEventLogW_data,
 	  { "Data", "eventlog.eventlog_ReadEventLogW.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_computer_name,
+	  { "Computer Name", "eventlog.eventlog_Record.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_sid_length,
+	  { "Sid Length", "eventlog.eventlog_Record.sid_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ChangeNotify_unknown3,
+	  { "Unknown3", "eventlog.eventlog_ChangeNotify.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_status,
+	  { "NT Error", "eventlog.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_time,
+	  { "Time", "eventlog.eventlog_ReportEventW.time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenBackupEventLogW_logname,
+	  { "Logname", "eventlog.eventlog_OpenBackupEventLogW.logname", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_handle,
+	  { "Handle", "eventlog.eventlog_RegisterEventSourceW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ClearEventLogW_handle,
+	  { "Handle", "eventlog.eventlog_ClearEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_MajorVersion,
+	  { "Majorversion", "eventlog.eventlog_OpenEventLogW.MajorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenBackupEventLogW_handle,
+	  { "Handle", "eventlog.eventlog_OpenBackupEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_Record_computer_name,
+	  { "Computer Name", "eventlog.Record.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_handle,
+	  { "Handle", "eventlog.eventlog_ReportEventW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenEventLogW_MinorVersion,
+	  { "Minorversion", "eventlog.eventlog_OpenEventLogW.MinorVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ,
+	  { "Eventlog Sequential Read", "eventlog.eventlogReadFlags.EVENTLOG_SEQUENTIAL_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_SEQUENTIAL_READ_tfs), ( 0x0001 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_time_generated,
+	  { "Time Generated", "eventlog.eventlog_Record.time_generated", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetLogIntormation_cbBufSize,
+	  { "Cbbufsize", "eventlog.eventlog_GetLogIntormation.cbBufSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ,
+	  { "Eventlog Forwards Read", "eventlog.eventlogReadFlags.EVENTLOG_FORWARDS_READ", FT_BOOLEAN, 32, TFS(&eventlogReadFlags_EVENTLOG_FORWARDS_READ_tfs), ( 0x0004 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_GetOldestRecord_oldest,
+	  { "Oldest", "eventlog.eventlog_GetOldestRecord.oldest", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_reserved,
+	  { "Reserved", "eventlog.eventlog_Record.reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_OpenBackupEventLogW_unknown2,
+	  { "Unknown2", "eventlog.eventlog_OpenBackupEventLogW.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_RegisterEventSourceW_unknown0,
+	  { "Unknown0", "eventlog.eventlog_RegisterEventSourceW.unknown0", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_event_id,
+	  { "Event Id", "eventlog.eventlog_ReportEventW.event_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_event_id,
+	  { "Event Id", "eventlog.eventlog_Record.event_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
+	  { "Eventlog Warning Type", "eventlog.eventlogEventTypes.EVENTLOG_WARNING_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_WARNING_TYPE_tfs), ( 0x0002 ), NULL, HFILL }},
+	{ &hf_eventlog_eventlog_Record_reserved_flags,
+	  { "Reserved Flags", "eventlog.eventlog_Record.reserved_flags", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReportEventW_event_category,
+	  { "Event Category", "eventlog.eventlog_ReportEventW.event_category", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ReadEventLogW_handle,
+	  { "Handle", "eventlog.eventlog_ReadEventLogW.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_eventlog_eventlog_ChangeNotify_unknown2,
+	  { "Unknown2", "eventlog.eventlog_ChangeNotify.unknown2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
 

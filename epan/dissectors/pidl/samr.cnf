@@ -164,7 +164,7 @@ TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);"
 
 TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
-TYPE security_secinfo "offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE security_secinfo "offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
 #
 # ConnectX access masks
@@ -380,7 +380,6 @@ static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint64 len;
-	dcerpc_info *di = NULL;
 	e_ctx_hnd *polhnd = NULL;
 	dcerpc_call_value *dcv = NULL;
 	guint32 type=0;

@@ -65,7 +65,7 @@ NOEMIT GetReceiveFolderTable_repl
 
 NOEMIT NOTIFKEY
 
-TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
 
 
 CODE START
@@ -82,7 +82,7 @@ cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 /**
  * Analyze mapi_request MAPI Handles
  */
-static int mapi_dissect_element_request_handles(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	gint		reported_len;
 	gint		i;

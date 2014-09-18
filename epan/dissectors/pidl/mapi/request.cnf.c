@@ -150,7 +150,7 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = mapi_dissect_element_EcDoRpc_request__(decrypted_tvb, 0, pinfo, tr, di, drep);
 
 	/* analyze mapi handles */
-	offset = mapi_dissect_element_request_handles(decrypted_tvb, offset, pinfo, tr, di, drep);
+	offset = mapi_dissect_element_request_handles_cnf(decrypted_tvb, offset, pinfo, tr, di, drep);
 
 	/* append ptr size (4) */
 	return start_offset + offset + 4;
@@ -168,7 +168,7 @@ static int mapi_dissect_element_EcDoRpc_request__(tvbuff_t *tvb _U_, int offset 
 	offset += 2;
 
 	while (offset < length) {
-	      	offset = mapi_dissect_struct_EcDoRpc_MAPI_REQ(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_request_mapi_req, length - offset);
+	      	offset = mapi_dissect_struct_EcDoRpc_MAPI_REQ(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_request_mapi_req, length - offset);
 	}
 
 	return offset;
@@ -195,7 +195,7 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 /*************************/
 /* EcDoRpc Function 0x2  */
 static int
-mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenFolder(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenFolder(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;
@@ -236,7 +236,7 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenFolder(tvbuff_t *tvb _U_, int of
 /*************************/
 /* EcDoRpc Function 0x7  */
 static int
-mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_GetProps(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_GetProps(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;
@@ -281,7 +281,7 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_GetProps(tvbuff_t *tvb _U_, int offs
 /*************************/
 /* EcDoRpc Function 0xFE */
 static int
-mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_)
+mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;

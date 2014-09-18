@@ -1579,7 +1579,7 @@
 	} mapi_response;
 	
 
-	[public,flag(NDR_NOALIGN)] MAPISTATUS  EcDoRpc(
+	[public] MAPISTATUS  EcDoRpc(
 		[in,out]	policy_handle	*handle,
 		[in,out]	uint32 size,
 		[in,out]	uint32 offset,
