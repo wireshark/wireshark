@@ -336,8 +336,8 @@ private slots:
     void on_goToCancel_clicked();
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
-    void on_actionStartCapture_triggered();
-    void on_actionStopCapture_triggered();
+    void on_actionCaptureStart_triggered();
+    void on_actionCaptureStop_triggered();
 
     void on_actionSummary_triggered();
     void on_actionStatisticsFlowGraph_triggered();

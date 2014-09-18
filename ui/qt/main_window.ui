@@ -177,8 +177,8 @@
      <string>&amp;Capture</string>
     </property>
     <addaction name="actionCaptureOptions"/>
-    <addaction name="actionStartCapture"/>
-    <addaction name="actionStopCapture"/>
+    <addaction name="actionCaptureStart"/>
+    <addaction name="actionCaptureStop"/>
     <addaction name="actionCaptureRestart"/>
     <addaction name="actionCaptureCaptureFilters"/>
     <addaction name="actionCaptureRefreshInterfaces"/>
@@ -462,15 +462,12 @@
     <string>Main Toolbar</string>
    </property>
    <property name="movable">
-    <bool>true</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::BottomToolBarArea|Qt::TopToolBarArea</set>
+    <bool>false</bool>
    </property>
    <property name="iconSize">
     <size>
-     <width>24</width>
-     <height>24</height>
+     <width>32</width>
+     <height>32</height>
     </size>
    </property>
    <property name="toolButtonStyle">
@@ -482,12 +479,23 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionStartCapture"/>
-   <addaction name="actionStopCapture"/>
+   <addaction name="actionCaptureStart"/>
+   <addaction name="actionCaptureStop"/>
+   <addaction name="actionCaptureRestart"/>
+   <addaction name="actionCaptureOptions"/>
    <addaction name="separator"/>
    <addaction name="actionFileOpen"/>
    <addaction name="actionFileSave"/>
    <addaction name="actionFileClose"/>
+   <addaction name="actionViewReload"/>
+   <addaction name="separator"/>
+   <addaction name="actionEditFindPacket"/>
+   <addaction name="actionGoPreviousPacket"/>
+   <addaction name="actionGoNextPacket"/>
+   <addaction name="actionGoGoToPacket"/>
+   <addaction name="actionGoFirstPacket"/>
+   <addaction name="actionGoLastPacket"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
@@ -529,26 +537,9 @@
     <enum>QAction::QuitRole</enum>
    </property>
   </action>
-  <action name="actionCaptureInterfaces">
-   <property name="text">
-    <string>&amp;Interfaces...</string>
-   </property>
-   <property name="toolTip">
-    <string>Show interface details</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
-   </property>
-  </action>
-  <action name="actionStartCapture">
+  <action name="actionCaptureStart">
    <property name="checkable">
     <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/toolbar/main/capture_start_24.png</normaloff>
-     <normalon>:/toolbar/main/capture_start_active_24.png</normalon>
-     <disabledon>:/toolbar/main/capture_start_active_24.png</disabledon>:/toolbar/main/capture_start_24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Start</string>
@@ -560,11 +551,7 @@
     <string>Ctrl+E</string>
    </property>
   </action>
-  <action name="actionStopCapture">
-   <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/toolbar/main/capture_stop_24.png</normaloff>:/toolbar/main/capture_stop_24.png</iconset>
-   </property>
+  <action name="actionCaptureStop">
    <property name="text">
     <string>S&amp;top</string>
    </property>
@@ -580,7 +567,7 @@
     <string>Close</string>
    </property>
    <property name="toolTip">
-    <string>Close the current capture file</string>
+    <string>Close this capture file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -816,15 +803,11 @@
    </property>
   </action>
   <action name="actionFileSave">
-   <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
    <property name="toolTip">
-    <string>Save the current file</string>
+    <string>Save this capture file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -832,7 +815,7 @@
   </action>
   <action name="actionFileSaveAs">
    <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
+    <iconset>
      <normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</iconset>
    </property>
    <property name="text">
@@ -894,7 +877,7 @@
     <string>&amp;Reload</string>
    </property>
    <property name="toolTip">
-    <string>Reload the current file</string>
+    <string>Reload this file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>

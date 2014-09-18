@@ -580,7 +580,6 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(layout);
     Q_INIT_RESOURCE(status);
     Q_INIT_RESOURCE(toolbar);
-    Q_INIT_RESOURCE(welcome);
 
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */

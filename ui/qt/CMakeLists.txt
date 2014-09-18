@@ -107,6 +107,7 @@ file(GLOB EXTA_QT_HEADERS
 	qt_ui_utils.h
 	related_packet_delegate.h
 	sparkline_delegate.h
+	stock_icon.h
 )
 
 set(WIRESHARK_QT_SRC
@@ -182,6 +183,7 @@ set(WIRESHARK_QT_SRC
 	simple_dialog_qt.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp
+	stock_icon.cpp
 	summary_dialog.cpp
 	syntax_line_edit.cpp
 	tcp_stream_dialog.cpp
@@ -264,7 +266,6 @@ set(WIRESHARK_QT_QRC
 	../../image/status.qrc
 	../../image/toolbar.qrc
 	i18n.qrc
-	welcome.qrc
 )
 
 set(WIRESHARK_QT_TS

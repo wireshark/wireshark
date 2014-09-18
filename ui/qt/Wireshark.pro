@@ -500,7 +500,6 @@ RESOURCES += \
     ../../image/status.qrc \
     ../../image/toolbar.qrc \
     i18n.qrc \
-    welcome.qrc \
 
 
 # wireshark_en should be pluralonly.
@@ -658,6 +657,7 @@ SOURCES += \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \
+    stock_icon.cpp \
     summary_dialog.cpp \
     syntax_line_edit.cpp \
     tcp_stream_dialog.cpp \

@@ -1406,6 +1406,7 @@ AC_SUBST(QT_MIN_VERSION)
 # 5.0.0:  19 Dec 2012
 # 5.1.0:  03 Jul 2013
 # 5.2.0:  12 Dec 2013
+# 5.3.0:  20 May 2014
 
 have_qt=no
 have_gtk=no

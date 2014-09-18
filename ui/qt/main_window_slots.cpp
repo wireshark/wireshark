@@ -1158,9 +1158,9 @@ void MainWindow::interfaceSelectionChanged()
     // XXX This doesn't disable the toolbar button when using
     // QtMacExtras.
     if (global_capture_opts.num_selected > 0 && capture_filter_valid_) {
-        main_ui_->actionStartCapture->setEnabled(true);
+        main_ui_->actionCaptureStart->setEnabled(true);
     } else {
-        main_ui_->actionStartCapture->setEnabled(false);
+        main_ui_->actionCaptureStart->setEnabled(false);
     }
 #endif // HAVE_LIBPCAP
 }
@@ -2326,7 +2326,7 @@ void MainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
-void MainWindow::on_actionStartCapture_triggered()
+void MainWindow::on_actionCaptureStart_triggered()
 {
 //#ifdef HAVE_AIRPCAP
 //  airpcap_if_active = airpcap_if_selected;
@@ -2368,7 +2368,7 @@ void MainWindow::on_actionStartCapture_triggered()
 #endif // HAVE_LIBPCAP
 }
 
-void MainWindow::on_actionStopCapture_triggered()
+void MainWindow::on_actionCaptureStop_triggered()
 {
     stopCapture();
 }

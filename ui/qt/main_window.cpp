@@ -44,12 +44,13 @@
 #include "ui/recent.h"
 #include "ui/util.h"
 
-#include "wireshark_application.h"
-#include "proto_tree.h"
 #include "byte_view_tab.h"
 #include "display_filter_edit.h"
-#include "import_text_dialog.h"
 #include "export_dissection_dialog.h"
+#include "import_text_dialog.h"
+#include "proto_tree.h"
+#include "stock_icon.h"
+#include "wireshark_application.h"
 
 #include "qt_ui_utils.h"
 
@@ -136,13 +137,37 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
-    // http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
-    // http://qt-project.org/doc/qt-4.8/qstyle.html#StandardPixmap-enum
-    main_ui_->actionFileOpen->setIcon(
-                QIcon().fromTheme("document-open", style()->standardIcon(QStyle::SP_DirIcon)));
-    // main_ui_->actionFileSave set in main_window.ui
-    main_ui_->actionFileClose->setIcon(
-                QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_DialogCloseButton)));
+#if defined(Q_OS_MAC)
+    // XXX Force icons to 24x24 for now, otherwise actionFileOpen looks wonky on OS X.
+    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
+#elif defined(Q_OS_WIN)
+    // Current GTK+ and other Windows app behavior.
+    main_ui_->mainToolBar->setIconSize(QSize(16, 16));
+#endif
+
+    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
+    main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
+    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
+    main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
+
+    main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
+    main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
+    main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
+    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+
+    main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
+    main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
+    main_ui_->actionGoNextPacket->setIcon(StockIcon("go-next"));
+    main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
+    main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
+    main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
+
+//    main_ui_->actionViewColorizePackets->setIcon(StockIcon("x-colorize-packets"));
+//    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
+
+//    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
+//    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
+//    main_ui_->actionViewZoomOriginal->setIcon(StockIcon("zoom-original"));
 
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
@@ -1484,9 +1509,9 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 #ifdef HAVE_LIBPCAP
     main_ui_->actionCaptureOptions->setEnabled(!capture_in_progress);
-    main_ui_->actionStartCapture->setEnabled(!capture_in_progress);
-    main_ui_->actionStartCapture->setChecked(capture_in_progress);
-    main_ui_->actionStopCapture->setEnabled(capture_in_progress);
+    main_ui_->actionCaptureStart->setEnabled(!capture_in_progress);
+    main_ui_->actionCaptureStart->setChecked(capture_in_progress);
+    main_ui_->actionCaptureStop->setEnabled(capture_in_progress);
     main_ui_->actionCaptureRestart->setEnabled(capture_in_progress);
 #endif /* HAVE_LIBPCAP */
 
@@ -1496,8 +1521,8 @@ void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
     main_ui_->actionSummary->setEnabled(false);
 #ifdef HAVE_LIBPCAP
-    main_ui_->actionStartCapture->setChecked(false);
-    main_ui_->actionStopCapture->setEnabled(false);
+    main_ui_->actionCaptureStart->setChecked(false);
+    main_ui_->actionCaptureStop->setEnabled(false);
     main_ui_->actionCaptureRestart->setEnabled(false);
 #endif /* HAVE_LIBPCAP */
 }

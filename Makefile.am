@@ -840,9 +840,6 @@ EXTRA_DIST = \
 	image/capture_comment_add.png	\
 	image/capture_comment_disabled.png	\
 	image/capture_comment_update.png	\
-	image/capture_start_24.png		\
-	image/capture_start_active_24.png	\
-	image/capture_stop_24.png		\
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
 	image/copy-8.png			\
@@ -904,6 +901,93 @@ EXTRA_DIST = \
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in			\
 	image/tfshark.rc.in			\
+	image/toolbar/16x16/edit-find.png	\
+	image/toolbar/16x16/edit-find.svg	\
+	image/toolbar/16x16/go-first.png		\
+	image/toolbar/16x16/go-first.svg		\
+	image/toolbar/16x16/go-jump.png		\
+	image/toolbar/16x16/go-jump.svg		\
+	image/toolbar/16x16/go-last.png		\
+	image/toolbar/16x16/go-last.svg		\
+	image/toolbar/16x16/go-next.png		\
+	image/toolbar/16x16/go-next.svg		\
+	image/toolbar/16x16/go-next.svg.png		\
+	image/toolbar/16x16/go-previous.png		\
+	image/toolbar/16x16/go-previous.svg		\
+	image/toolbar/16x16/x-capture-file-close.png		\
+	image/toolbar/16x16/x-capture-file-close.svg		\
+	image/toolbar/16x16/x-capture-file-reload.png		\
+	image/toolbar/16x16/x-capture-file-reload.svg		\
+	image/toolbar/16x16/x-capture-file-save.png		\
+	image/toolbar/16x16/x-capture-options-gear.svg		\
+	image/toolbar/16x16/x-capture-options-wrench.svg	\
+	image/toolbar/16x16/x-capture-options.png		\
+	image/toolbar/16x16/x-capture-restart-fin.svg		\
+	image/toolbar/16x16/x-capture-restart-triangle1.svg	\
+	image/toolbar/16x16/x-capture-restart-triangle2.svg	\
+	image/toolbar/16x16/x-capture-restart-turn1.svg		\
+	image/toolbar/16x16/x-capture-restart-turn2.svg		\
+	image/toolbar/16x16/x-capture-restart.png		\
+	image/toolbar/16x16/x-capture-start.png			\
+	image/toolbar/16x16/x-capture-start.svg			\
+	image/toolbar/16x16/x-capture-stop-red.svg		\
+	image/toolbar/16x16/x-capture-stop-white.svg		\
+	image/toolbar/16x16/x-capture-stop.png			\
+	image/toolbar/16x16/x-colorize-packets.png	\
+	image/toolbar/16x16/x-colorize-packets.svg	\
+	image/toolbar/16x16/x-resize-columns.png	\
+	image/toolbar/16x16/x-resize-columns.svg	\
+	image/toolbar/16x16/x-stay-last.png		\
+	image/toolbar/16x16/x-stay-last.svg		\
+	image/toolbar/16x16/zoom-in.png			\
+	image/toolbar/16x16/zoom-in.svg			\
+	image/toolbar/16x16/zoom-original.png		\
+	image/toolbar/16x16/zoom-original.svg		\
+	image/toolbar/16x16/zoom-out.png		\
+	image/toolbar/16x16/zoom-out.svg		\
+	image/toolbar/24x24/edit-find.png	\
+	image/toolbar/24x24/edit-find.svg	\
+	image/toolbar/24x24/go-first.png		\
+	image/toolbar/24x24/go-first.svg		\
+	image/toolbar/24x24/go-jump.png		\
+	image/toolbar/24x24/go-jump.svg		\
+	image/toolbar/24x24/go-last.png		\
+	image/toolbar/24x24/go-last.svg		\
+	image/toolbar/24x24/go-next.png		\
+	image/toolbar/24x24/go-next.svg		\
+	image/toolbar/24x24/go-previous.png		\
+	image/toolbar/24x24/go-previous.svg		\
+	image/toolbar/24x24/x-capture-file-close.png		\
+	image/toolbar/24x24/x-capture-file-close.svg		\
+	image/toolbar/24x24/x-capture-file-reload.png		\
+	image/toolbar/24x24/x-capture-file-reload.svg		\
+	image/toolbar/24x24/x-capture-file-save.png		\
+	image/toolbar/24x24/x-capture-options-gear.svg		\
+	image/toolbar/24x24/x-capture-options-wrench.svg	\
+	image/toolbar/24x24/x-capture-options.png		\
+	image/toolbar/24x24/x-capture-restart-fin.svg		\
+	image/toolbar/24x24/x-capture-restart-triangle1.svg	\
+	image/toolbar/24x24/x-capture-restart-triangle2.svg	\
+	image/toolbar/24x24/x-capture-restart-turn1.svg		\
+	image/toolbar/24x24/x-capture-restart-turn2.svg		\
+	image/toolbar/24x24/x-capture-restart.png		\
+	image/toolbar/24x24/x-capture-start.png			\
+	image/toolbar/24x24/x-capture-start.svg			\
+	image/toolbar/24x24/x-capture-stop-red.svg		\
+	image/toolbar/24x24/x-capture-stop-white.svg		\
+	image/toolbar/24x24/x-capture-stop.png			\
+	image/toolbar/24x24/x-colorize-packets.png	\
+	image/toolbar/24x24/x-colorize-packets.svg	\
+	image/toolbar/24x24/x-resize-columns.png	\
+	image/toolbar/24x24/x-resize-columns.svg	\
+	image/toolbar/24x24/x-stay-last.png		\
+	image/toolbar/24x24/x-stay-last.svg		\
+	image/toolbar/24x24/zoom-in.png			\
+	image/toolbar/24x24/zoom-in.svg			\
+	image/toolbar/24x24/zoom-original.png		\
+	image/toolbar/24x24/zoom-original.svg		\
+	image/toolbar/24x24/zoom-out.png		\
+	image/toolbar/24x24/zoom-out.svg		\
 	image/toolbar.qrc			\
 	image/toolbar/analyze_24.xpm 		\
 	image/toolbar/audio_player_24.xpm	\
@@ -916,15 +1000,7 @@ EXTRA_DIST = \
 	image/toolbar/capture_filter_24.xpm	\
 	image/toolbar/capture_interfaces_16.png	\
 	image/toolbar/capture_interfaces_24.png	\
-	image/toolbar/capture_options_16.png	\
-	image/toolbar/capture_options_24.png	\
 	image/toolbar/capture_prepare_16.xpm	\
-	image/toolbar/capture_restart_16.png	\
-	image/toolbar/capture_restart_24.png	\
-	image/toolbar/capture_start_16.png	\
-	image/toolbar/capture_start_24.png	\
-	image/toolbar/capture_stop_16.png	\
-	image/toolbar/capture_stop_24.png	\
 	image/toolbar/checkbox_16.xpm		\
 	image/toolbar/colorize_24.xpm		\
 	image/toolbar/conversations_16.xpm	\
@@ -967,8 +1043,6 @@ EXTRA_DIST = \
 	image/toolbar/telephone_16.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
-	image/toolbar/toolbar_wireshark_file_16.png	\
-	image/toolbar/toolbar_wireshark_file_24.png	\
 	image/toolbar/voip_flow_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \

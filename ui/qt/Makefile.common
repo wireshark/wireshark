@@ -263,8 +263,7 @@ QRC_FILES =	\
 	../../image/layout.qrc	\
 	../../image/status.qrc	\
 	../../image/toolbar.qrc	\
-	i18n.qrc	\
-	welcome.qrc
+	i18n.qrc
 
 #
 # .ts files.
@@ -374,9 +373,10 @@ WIRESHARK_QT_SRC =	\
 	sequence_dialog.cpp	\
 	simple_dialog_qt.cpp	\
 	sparkline_delegate.cpp	\
-	stats_tree_dialog.cpp	\
-	summary_dialog.cpp	\
 	splash_overlay.cpp	\
+	stats_tree_dialog.cpp	\
+	stock_icon.cpp		\
+	summary_dialog.cpp	\
 	syntax_line_edit.cpp	\
 	tcp_stream_dialog.cpp	\
 	time_shift_dialog.cpp	\
@@ -392,4 +392,5 @@ noinst_HEADERS =	\
 	packet_list_record.h	\
 	qcustomplot.h	\
 	qt_ui_utils.h	\
+	stock_icon.h	\
 	tango_colors.h
