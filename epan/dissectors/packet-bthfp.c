@@ -1491,8 +1491,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, guint32 role, gint command_number)
 {
     proto_item      *pitem;
-    proto_tree      *command_item;
-    proto_item      *command_tree;
+    proto_tree      *command_item = NULL;
+    proto_item      *command_tree = NULL;
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
     guint8          *col_str = NULL;
@@ -1526,6 +1526,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     at_stream = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
     tvb_memcpy(tvb, at_stream, offset, length);
     at_stream[length] = '\0';
+
     while (at_stream[i_char]) {
         at_stream[i_char] = g_ascii_toupper(at_stream[i_char]);
         if (!command_number) {
@@ -1535,10 +1536,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_char += 1;
     }
 
-    command_item = proto_tree_add_none_format(tree, hf_command, tvb,
-            offset, 0, "Command %u", command_number);
-    command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
-
     if (!command_number) col_append_fstr(pinfo->cinfo, COL_INFO, "%s", col_str);
 
     if (role == ROLE_HS) {
@@ -1547,10 +1544,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             i_char = 0;
         } else {
             at_command = g_strstr_len(at_stream, length, "AT");
-
             if (at_command) {
-                i_char = (guint) (at_command - at_stream);
+                command_item = proto_tree_add_none_format(tree, hf_command, tvb,
+                        offset, 0, "Command %u", command_number);
+                command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
 
+                i_char = (guint) (at_command - at_stream);
                 if (i_char) {
                     proto_tree_add_item(command_tree, hf_at_ignored, tvb, offset,
                         i_char, ENC_NA | ENC_ASCII);
@@ -1562,14 +1561,17 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
                 i_char += 2;
                 at_command = at_stream;
-
                 at_command += i_char;
                 length -= i_char;
                 i_char_fix += i_char;
                 i_char = 0;
             }
         }
-    } else {
+    } else if (at_stream[0] == '\r' && at_stream[1] == '\n') {
+        command_item = proto_tree_add_none_format(tree, hf_command, tvb,
+                offset, 0, "Command %u", command_number);
+        command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
+
         at_command = at_stream;
         i_char = 0;
         while (i_char <= length &&
@@ -1757,7 +1759,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length = tvb_length_remaining(tvb, offset);
         if (length < 0)
             length = 0;
-        proto_item_set_len(command_item, length);
         offset += length;
     }
 
@@ -2061,7 +2062,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         i_fragment->data[1] == '\n') {
                     fragment->reassemble_state = REASSEMBLE_DONE;
                 } else if (role == ROLE_HS) {
-                    fragment->reassemble_state = REASSEMBLE_PARTIALLY;
+/* XXX: Temporary disable reassembling of partial message, it seems to be broken */
+/*                    fragment->reassemble_state = REASSEMBLE_PARTIALLY;*/
                 }
                 fragment->reassemble_start_offset = reassemble_start_offset;
                 fragment->reassemble_end_offset = reassemble_end_offset;
@@ -2108,9 +2110,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         i_fragment = fragment;
 
         if (i_fragment && i_fragment->reassemble_state == REASSEMBLE_PARTIALLY) {
-                i_data_offset -= i_fragment->reassemble_end_offset;
-                memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->reassemble_end_offset);
-
+            i_data_offset -= i_fragment->reassemble_end_offset;
+            memcpy(at_data + i_data_offset, i_fragment->data, i_fragment->reassemble_end_offset);
             i_fragment = i_fragment->previous_fragment;
         }
 
@@ -2148,6 +2149,8 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         pinfo, main_tree, reassembled_offset, role, command_number);
                 command_number += 1;
             }
+
+            offset = tvb_captured_length(tvb);
         } else {
             while (tvb_length(tvb) > (guint) offset) {
                 offset = dissect_at_command(tvb, pinfo, main_tree, offset, role, command_number);
@@ -2156,11 +2159,12 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment: %s",
-                tvb_format_text_wsp(tvb, offset, tvb_length_remaining(tvb, offset)));
+                tvb_format_text_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset)));
         pitem = proto_tree_add_item(main_tree, hf_fragmented, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
         proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
-                tvb_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
+                tvb_captured_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
+        offset = tvb_captured_length(tvb);
     }
 
     return offset;
