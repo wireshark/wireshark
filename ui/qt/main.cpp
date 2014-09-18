@@ -817,6 +817,7 @@ int main(int argc, char *argv[])
             "Could not open recent file\n\"%s\": %s.",
             rf_path, g_strerror(rf_open_errno));
     }
+    wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
