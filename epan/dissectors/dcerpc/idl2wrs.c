@@ -2256,8 +2256,7 @@ static void parsetypedefunion(int pass)
 		}
 		FPRINTF(eth_code, "    old_offset=offset;\n");
 		FPRINTF(eth_code, "    if(parent_tree){\n");
-		FPRINTF(eth_code, " 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, \"%s\");\n", union_name);
-		FPRINTF(eth_code, " 	   tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, union_name);
+		FPRINTF(eth_code, " 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_%s_%s, &item, \"%s\");\n", ifname, union_name, union_name);
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 		switch(tag_alignment){

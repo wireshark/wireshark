@@ -96,67 +96,9 @@ release, a copy of pidl is located in tools/pidl.
 
 Not compiling idl
 =================
-As of November 23, 2013, the following idl have issues when generating
+As of September 18, 2014, the following idl have issues when generating
 and compiling:
 
-pidl generates declarations and definitions of functions that take a
-dcerpc_info * argument, but calls to those functions that don't:
-
-	frsrpc.idl
-
-pidl generates code that refers to a type just named "g", perhaps
-because the NDR type is an empty string (not set?) and it's prepending
-"g" to the NDR type:
-
-	dfs.idl
-
-pidl generates code that, after declaring a guint1632 variable, has, on
-the next line, a declaration that has a blank, a letter, and a
-semicolon.  It can't handle, for example:
-
-	typedef enum {
-		FRSTRANS_RDC_FILTER_GENERIC	= 0x0000,
-		FRSTRANS_RDC_FILTER_MAX		= 0x0001,
-		FRSTRANS_RDC_FILTER_POINT	= 0x0002,
-		FRSTRANS_RDC_MAX_ALGORITHM	= 0x0003
-	} frstrans_RdcChunckerAlgorithm;
-
-		...
-
-	typedef [switch_type(frstrans_RdcChunckerAlgorithm)] union {
-		[case(FRSTRANS_RDC_FILTER_GENERIC)]
-			frstrans_RdcParameterGeneric filter_generic;
-		[case(FRSTRANS_RDC_FILTER_MAX)]
-			frstrans_RdcParameterFilterMax filter_max;
-		[case(FRSTRANS_RDC_FILTER_POINT)]
-			frstrans_RdcParameterFilterPoint filter_point;
-	} frstrans_RdcParameterUnion;
-
-	typedef struct {
-		frstrans_RdcChunckerAlgorithm rdc_chunker_algorithm;
-		[switch_is(rdc_chunker_algorithm)] frstrans_RdcParameterUnion u;
-	} frstrans_RdcParameters;
-
-but there's no reason for it to bother to generate a C variable
-corresponding to that union in the first place - it'd be unused.
-
-Samba bug 10291:
-
-	https://bugzilla.samba.org/show_bug.cgi?id=10291
-
-has been filed on this.
-
-	dfs.idl
-	frstrans.idl
-
-pidl generates code that passes "*0" rather than "0" as the last
-argument in calls:
-
-	dfs.idl
-	dnsserver.idl
-	dssetup.idl
-	lsa.idl
-	samr.idl
 
 pidl generates possibly-incorrect code for these - this needs checking:
 
@@ -166,5 +108,3 @@ pidl rejects these with errors:
 
 	srvsvc.idl
 	wkssvc.cnf
-	mapi/mapi.idl
-	nspi/nspi.idl

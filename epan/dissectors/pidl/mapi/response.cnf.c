@@ -158,7 +158,7 @@ mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet
 	/* Analyze contents */
 	offset = mapi_dissect_element_EcDoRpc_response__(decrypted_tvb, 0, pinfo, tr, drep);
 	/* Analyze mapi handles */
-	offset = mapi_dissect_element_request_handles(decrypted_tvb, offset, pinfo, tr, drep);
+	offset = mapi_dissect_element_request_handles_cnf(decrypted_tvb, offset, pinfo, tr, di, drep);
 
 	return start_offset + offset + 4;
 }

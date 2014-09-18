@@ -150,7 +150,7 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = mapi_dissect_element_EcDoRpc_request__(decrypted_tvb, 0, pinfo, tr, di, drep);
 
 	/* analyze mapi handles */
-	offset = mapi_dissect_element_request_handles(decrypted_tvb, offset, pinfo, tr, di, drep);
+	offset = mapi_dissect_element_request_handles_cnf(decrypted_tvb, offset, pinfo, tr, di, drep);
 
 	/* append ptr size (4) */
 	return start_offset + offset + 4;

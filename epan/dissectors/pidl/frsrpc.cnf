@@ -17,7 +17,7 @@ frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, in
 	int conformant = di->conformant_run;
 
 	if (!conformant) {
-		guint32 soffset = dissect_null_term_wstring(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_CommPktChangeOrderCommand_file_name, 0);
+		guint32 soffset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_frsrpc_CommPktChangeOrderCommand_file_name, 0);
 		/* The difference has to be 4 due to the uint16 of the length  + null terminator utf16*/
 		DISSECTOR_ASSERT(soffset - offset < 261);
 		offset += 261;
