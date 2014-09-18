@@ -237,7 +237,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     p_add_proto_data(pinfo->pool, pinfo, proto_rtacser, 0, GUINT_TO_POINTER(global_rtacser_payload_proto));
 
-    if (tvb_reported_length_remaining(tvb, RTACSER_HEADER_LEN) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
         if (!dissector_try_uint(subdissector_table, global_rtacser_payload_proto, payload_tvb, pinfo, tree)){
             call_dissector(data_handle, payload_tvb, pinfo, tree);
