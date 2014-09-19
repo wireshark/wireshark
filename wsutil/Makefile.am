@@ -60,7 +60,7 @@ endif
 
 lib_LTLIBRARIES = libwsutil.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwsutil_la_LDFLAGS = -version-info 4:0:0 @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 5:0:1 @LDFLAGS_SHAREDLIB@
 
 AM_CPPFLAGS = -I$(srcdir)/.. \
 	$(LIBGCRYPT_CFLAGS) \
