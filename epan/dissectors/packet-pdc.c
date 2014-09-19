@@ -191,13 +191,13 @@ static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint
 				break;
 			case PARAM_CODE_REFERENCES:
 				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len,     tvb, offset + bytesProcessed,     1, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFSRC,  tvb, offset + bytesProcessed + 1, 2, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFDEST, tvb, offset + bytesProcessed + 3, 2, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFSRC,  tvb, offset + bytesProcessed + 1, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFDEST, tvb, offset + bytesProcessed + 3, 2, ENC_BIG_ENDIAN);
 				bytesProcessed += 5;
 				break;
 			case PARAM_CODE_TRANSPORT:
 				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len,     tvb, offset + bytesProcessed,     1, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_TSEL,    tvb, offset + bytesProcessed + 1, 2, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_TSEL,    tvb, offset + bytesProcessed + 1, 2, ENC_BIG_ENDIAN);
 				bytesProcessed += 3;
 				break;
 			}

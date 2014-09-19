@@ -5873,7 +5873,7 @@ static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint o
         offset = dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvb, tree, offset);
         break;
     default:
-        proto_tree_add_item(tree, hf_dis_str_data, tvb, offset, 15, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_dis_str_data, tvb, offset, 15, ENC_NA);
         offset += 15;
         break;
     }

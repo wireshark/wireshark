@@ -1664,7 +1664,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         count = tvb_get_guint8(tvb, *offset);
         (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port,   tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port,   tvb, *offset, 2, ENC_BIG_ENDIAN);
         (*offset) += 2;
 
         if(flags & ISAT_S) {
@@ -1814,7 +1814,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
             (*offset) += 4;
 
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
             (*offset) += 2;
         }
 
@@ -1822,7 +1822,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
             (*offset) += 4;
 
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
             (*offset) += 2;
         }
 
@@ -1830,7 +1830,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv6, tvb, *offset, 16, ENC_NA);
             (*offset) += 16;
 
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
             (*offset) += 2;
         }
 
@@ -1838,7 +1838,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv6, tvb, *offset, 16, ENC_NA);
             (*offset) += 16;
 
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
             (*offset) += 2;
         }
 

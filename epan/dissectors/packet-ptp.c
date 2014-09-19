@@ -2643,7 +2643,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                 tvb,
                                                                 PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_RESERVED_OFFSET,
                                                                 2,
-                                                                ENC_NA);
+                                                                ENC_BIG_ENDIAN);
                                             break;
                                         }
                                         default:

@@ -302,7 +302,7 @@ append_pduval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset
                         "Pattern set %d, sequence %d", ((val >> 6) & 3) + 1, (val & 31) + 1);
             }
             else
-                proto_tree_add_item(tree, hf_iapp_pdu_uint, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(tree, hf_iapp_pdu_uint, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case IAPP_PDU_OUIIDENT:
             proto_tree_add_item(tree, hf_iapp_pdu_oui_ident, tvb, offset, 3, ENC_BIG_ENDIAN);

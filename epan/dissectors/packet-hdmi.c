@@ -154,7 +154,7 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
     proto_item_append_text(yi, " (year %d)", 1990+year);
     offset += 1;
 
-    proto_tree_add_item(edid_tree, hf_hdmi_edid_version, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(edid_tree, hf_hdmi_edid_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* XXX dissect the parts following the EDID header */
 

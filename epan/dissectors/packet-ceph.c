@@ -6161,7 +6161,7 @@ guint c_dissect_msg_client_caps(proto_tree *root,
 	off += 4;
 
 	proto_tree_add_item(tree, hf_msg_client_caps_snap_follows,
-	                    tvb, off, 8, ENC_NA);
+	                    tvb, off, 8, ENC_BIG_ENDIAN);
 	off += 8;
 
 	snap_trace_len = tvb_get_letohl(tvb, off);

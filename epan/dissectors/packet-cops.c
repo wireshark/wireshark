@@ -4643,7 +4643,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
     info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
     offset += 1;
 
-    proto_tree_add_item(stt, hf_cops_reserved24, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(stt, hf_cops_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* Authorized Envelope */

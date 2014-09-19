@@ -2660,7 +2660,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         value = tvb_get_ntohs(tvb, list_offset);
                         wmem_strbuf_append_printf(info_buf, "Lang ID: %s", val_to_str_ext_const(value, &usb_langid_vals_ext, "Unknown"));
                         proto_item_append_text(entry_item, ": Lang ID: %s", val_to_str_ext_const(value, &usb_langid_vals_ext, "Unknown"));
-                        proto_tree_add_item(last_tree, hf_sdp_lang_id, tvb, list_offset, entry_length, ENC_ASCII | ENC_NA);
+                        proto_tree_add_item(last_tree, hf_sdp_lang_id, tvb, list_offset, entry_length, ENC_BIG_ENDIAN);
                         list_offset += entry_length;
 
                         dissect_data_element(sub_tree, &last_tree, pinfo, tvb, list_offset);
@@ -2892,7 +2892,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x352:
-                    proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_NA);
                     new_str = tvb_bytes_to_ep_str(tvb, offset, size);
                     wmem_strbuf_append(info_buf, new_str);
                     break;

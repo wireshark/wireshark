@@ -2210,7 +2210,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         itr_afi = tvb_get_ntohs(tvb, offset);
         tir = proto_tree_add_item(lisp_tree, hf_lisp_mreq_itr_rloc, tvb, offset, 2, ENC_NA);
         lisp_itr_tree = proto_item_add_subtree(tir, ett_lisp_itr);
-        proto_tree_add_item(lisp_itr_tree, hf_lisp_mreq_itr_rloc_afi, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(lisp_itr_tree, hf_lisp_mreq_itr_rloc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         switch (itr_afi) {
@@ -2269,7 +2269,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_length, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_afi, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         switch (prefix_afi) {

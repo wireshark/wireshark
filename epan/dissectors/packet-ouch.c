@@ -1256,7 +1256,7 @@ dissect_ouch(
             /* Unknown */
             proto_tree_add_item(tree,
                                 hf_ouch_message,
-                                tvb, offset, -1, ENC_ASCII|ENC_NA);
+                                tvb, offset, -1, ENC_NA);
             offset += reported_len - 1;
             break;
         }

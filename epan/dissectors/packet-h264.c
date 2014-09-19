@@ -2105,7 +2105,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
     while (tvb_reported_length_remaining(tvb, offset) > 0 && !error)
     {
         nal_unit_size = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         if (nal_unit_size == 0 || nal_unit_size > tvb_reported_length_remaining(tvb, offset))
@@ -2141,14 +2141,14 @@ dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
     /* If it is a STAP-B then the Decoder Order Number if present before the NAL Units */
     if (nal_type == H264_STAP_B)
     {
-        proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         /* Get the size of the NAL unit and display */
-        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         nal_unit_size = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
@@ -2185,12 +2185,12 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
     proto_item  *item;
 
     /* Get the DON base value for type MTAP16 & MTAP24 */
-    proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         nal_unit_size = tvb_get_ntohs(tvb, offset);
         size_offset = offset;
         offset += 2;
@@ -2200,13 +2200,13 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
         if (nal_type == H264_MTAP16)
         {
             /* Get the 16 bit DOND value */
-            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         }
         else
         {
             /* Get the 24 bit DOND value */
-            proto_tree_add_item(tree, hf_h264_ts_offset24, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_h264_ts_offset24, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 3;
         }
 
@@ -2263,16 +2263,16 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         while (tvb_reported_length_remaining(tvb, offset) > 0)
         {
             proto_tree_add_text(tree, tvb, offset, 1, "NI-MTAP Unit %d", unit++);
-            proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
             nal_unit_size = tvb_get_ntohs(tvb, offset);
             size_offset = offset;
             offset += 2;
-            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             /* If J flag is set then DON is present in packet */
             if (j_flag)
             {
-                proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)

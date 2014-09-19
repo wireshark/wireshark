@@ -347,7 +347,7 @@ proto_register_fdp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_fdp_holdtime,
-		{ "Holdtime",	"fdp.holdtime", FT_UINT16, BASE_DEC, NULL,
+		{ "Holdtime",	"fdp.holdtime", FT_UINT8, BASE_DEC, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_fdp_checksum,

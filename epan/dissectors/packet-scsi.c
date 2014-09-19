@@ -3323,7 +3323,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                }
                offset += 1;
 
-               proto_tree_add_item(tree, hf_scsi_reserved_64, tvb, offset, 8, ENC_NA);
+               proto_tree_add_item(tree, hf_scsi_reserved_64, tvb, offset, 8, ENC_BIG_ENDIAN);
                offset += 8;
                proto_tree_add_item(tree, hf_scsi_spc_xcopy_param_list_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                /*param_list_len = tvb_get_ntohl(tvb, offset); */
@@ -3350,7 +3350,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                         proto_tree_add_item(tree, hf_scsi_spc_xcopy_cscd_desc_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
                         cscd_desc_list_len = tvb_get_ntohs(tvb, offset);
                         offset += 2;
-                        proto_tree_add_item(tree, hf_scsi_reserved_32, tvb, offset, 4, ENC_NA);
+                        proto_tree_add_item(tree, hf_scsi_reserved_32, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         proto_tree_add_item(tree, hf_scsi_spc_xcopy_seg_desc_list_len, tvb, offset, 4, ENC_BIG_ENDIAN);
                         seg_desc_list_len = tvb_get_ntohl(tvb, offset);
@@ -3428,15 +3428,15 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         offset += 1;
                                         proto_tree_add_text(seg_tree, tvb, offset, 2, "Segment descriptor length (bytes): %u", seg_desc_len);
                                         offset += 2;
-                                        proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_src_desc_id, tvb, offset, 2, ENC_NA);
+                                        proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_src_desc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
-                                        proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_dest_desc_id, tvb, offset, 2, ENC_NA);
+                                        proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_dest_desc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
                                         seg_param_tree = proto_tree_add_subtree(seg_tree, tvb, offset, seg_desc_len - 4,
                                                             ett_scsi_xcopy_seg_param, NULL, "Segment descriptor parameters");
                                         seg_desc_list_len -= (seg_desc_len + 4);
                                         if (seg_type == BLOCK_TO_BLOCK) {
-                                                proto_tree_add_item(seg_param_tree, hf_scsi_reserved_16, tvb, offset, 2, ENC_NA);
+                                                proto_tree_add_item(seg_param_tree, hf_scsi_reserved_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                                                 offset += 2;
                                                 proto_tree_add_item(seg_param_tree, hf_scsi_spc_xcopy_num_of_blocks, tvb, offset, 2, ENC_BIG_ENDIAN);
                                                 offset += 2;
@@ -3482,7 +3482,7 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                         cdata->itlq->flags = serv_action;
                 }
                 offset += 1;
-                proto_tree_add_item(tree, hf_scsi_reserved_64, tvb, offset, 8, ENC_NA);
+                proto_tree_add_item(tree, hf_scsi_reserved_64, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
                 proto_tree_add_item(tree, hf_scsi_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
@@ -3504,7 +3504,7 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                         offset += 4;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_snlid, tvb, offset, 1, ENC_NA);
                         offset += 1;
-                        proto_tree_add_item(tree, hf_scsi_reserved_24, tvb, offset, 3, ENC_NA);
+                        proto_tree_add_item(tree, hf_scsi_reserved_24, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_max_cscd_desc_count, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3520,7 +3520,7 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                         offset += 4;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_max_stream_dev_trans_size, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
-                        proto_tree_add_item(tree, hf_scsi_reserved_16, tvb, offset, 2, ENC_NA);
+                        proto_tree_add_item(tree, hf_scsi_reserved_16, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_total_con_copies, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3532,7 +3532,7 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                         offset += 1;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_held_data_gran, tvb, offset, 1, ENC_NA);
                         offset += 1;
-                        proto_tree_add_item(tree, hf_scsi_reserved_24, tvb, offset, 3, ENC_NA);
+                        proto_tree_add_item(tree, hf_scsi_reserved_24, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
                         proto_tree_add_item(tree, hf_scsi_recv_copy_implemented_desc_list_len, tvb, offset, 1, ENC_NA);
                         imp_desc_list_len = tvb_get_guint8(tvb, offset);
@@ -4888,9 +4888,9 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                                    hf_scsi_persresvout_control, ett_persresv_control,
                                    persresv_fields, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_persresvout_rel_tpi, tvb,
-                                offset+18, 2, ENC_NA);
+                                offset+18, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_persresvout_transportid_len, tvb,
-                                offset+20, 4, ENC_NA);
+                                offset+20, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_persresvout_transportid, tvb,
                                 offset+24, tid_len, ENC_NA);
         }

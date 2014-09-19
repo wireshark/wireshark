@@ -334,7 +334,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 vect_offset += vect_attr_len; /* Move to next Vector Attribute, if there is one */
             } /* Multiple VectorAttribute while() */
 
-            proto_tree_add_item(attr_list_tree, hf_mmrp_end_mark, tvb, offset, 2, ENC_NA); /* VectorAttribute EndMark */
+            proto_tree_add_item(attr_list_tree, hf_mmrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
 
             proto_item_set_len(attr_list_ti, vect_offset); /*without an endmark*/
             msg_offset += vect_offset + 2; /*  + endmark; Move to next Message, if there is one */
@@ -342,7 +342,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         } /* Multiple Message while() */
 
-        proto_tree_add_item(mmrp_tree, hf_mmrp_end_mark, tvb, offset+2, 2, ENC_NA); /* Message EndMark */
+        proto_tree_add_item(mmrp_tree, hf_mmrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
     }
 }
 

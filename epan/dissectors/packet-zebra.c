@@ -452,7 +452,7 @@ zebra_nexthop_lookup(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 len,
 				    ENC_BIG_ENDIAN);
 		offset += 4;
 	}
-	proto_tree_add_item(tree, hf_zebra_metric,tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_zebra_metric,tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset = zebra_route_nexthop(tree, tvb, offset, len);
 	return offset;

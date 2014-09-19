@@ -2509,8 +2509,7 @@ void rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tv
     return;
   }
 
-  proto_tree_add_item(tree, hf_id, tvb, offset+4, seq_length,
-                      little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_id, tvb, offset+4, seq_length, ENC_NA);
 }
 
 
@@ -4098,7 +4097,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_PAD:
       if (param_length > 0) {
         proto_tree_add_item(rtps_parameter_tree, hf_rtps_parameter_data, tvb,
-                        offset, param_length, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        offset, param_length, ENC_NA);
       }
       break;
 
@@ -4441,7 +4440,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
             pStatusInfo, vendor_id)) {
               if (param_length > 0) {
                 proto_tree_add_item(rtps_parameter_tree, hf_rtps_parameter_data, tvb,
-                        offset, param_length, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        offset, param_length, ENC_NA);
               }
           }
       }
@@ -4636,7 +4635,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
     case ENCAPSULATION_CDR_LE:
     case ENCAPSULATION_CDR_BE:
           proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_issue_data, tvb,
-                        offset, size, encapsulation_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        offset, size, ENC_NA);
           break;
 
     case ENCAPSULATION_PL_CDR_LE:
@@ -4651,7 +4650,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
 
     default:
     proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_data_serialize_data, tvb,
-                        offset, size, encapsulation_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        offset, size, ENC_NA);
   }
 }
 
@@ -5067,7 +5066,7 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
     } else {
       proto_tree_add_item(tree, hf_rtps_issue_data, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        ENC_NA);
     }
   }
 }
@@ -5464,7 +5463,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   if ((version < 0x0200) && (flags & FLAG_NOKEY_DATA_D) == 0) {
     proto_tree_add_item(tree, hf_rtps_issue_data, tvb, offset,
                          octets_to_next_header - (offset - old_offset) + 4,
-                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+                        ENC_NA);
   }
 
   if ((version >= 0x0200) && (flags & FLAG_DATA_D_v2) != 0) {

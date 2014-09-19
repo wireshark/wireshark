@@ -2740,10 +2740,10 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
                       val_to_str_const(extension_type, rtcp_ms_profile_extension_vals, "Unknown"));
 
         proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_type, tvb, offset,
-                2, ENC_NA);
+                2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(pse_tree, hf_rtcp_profile_specific_extension_length, tvb, offset,
-                2, ENC_NA);
+                2, ENC_BIG_ENDIAN);
         offset += 2;
 
         switch (extension_type)

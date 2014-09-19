@@ -1664,9 +1664,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                     if (master_key_length != 0) {
                         proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
                         proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key,
-                            key_salt_tvb, 0, master_key_length, ENC_UTF_8|ENC_NA);
+                            key_salt_tvb, 0, master_key_length, ENC_NA);
                         proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt,
-                            key_salt_tvb, master_key_length, master_salt_length, ENC_UTF_8|ENC_NA);
+                            key_salt_tvb, master_key_length, master_salt_length, ENC_NA);
                     } else {
                         proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
                     }

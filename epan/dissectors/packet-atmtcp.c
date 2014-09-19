@@ -71,21 +71,21 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         atmtcp_tree = proto_item_add_subtree(ti, ett_atmtcp);
 
         /* VPI */
-        proto_tree_add_item(atmtcp_tree, hf_atmtcp_vpi, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(atmtcp_tree, hf_atmtcp_vpi, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     offset += 2;
 
 
     if (tree) {
         /* VCI */
-        proto_tree_add_item(atmtcp_tree, hf_atmtcp_vci, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(atmtcp_tree, hf_atmtcp_vci, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     offset += 2;
 
 
     if (tree) {
         /* Length  */
-        proto_tree_add_item(atmtcp_tree, hf_atmtcp_length, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(atmtcp_tree, hf_atmtcp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     length = tvb_get_ntohl(tvb, offset);
     if(length == ATMTCP_HDR_MAGIC)

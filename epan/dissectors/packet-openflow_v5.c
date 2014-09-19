@@ -1914,7 +1914,7 @@ dissect_openflow_switch_features_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree *cap_tree;
 
     /* uint64_t datapath_id; */
-    proto_tree_add_item(tree, hf_openflow_v5_switch_features_datapath_id, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v5_switch_features_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
 
     /* uint32_t n_buffers; */
@@ -1930,7 +1930,7 @@ dissect_openflow_switch_features_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset++;
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_v5_switch_features_pad, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v5_switch_features_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint32_t capabilities; */
@@ -1947,7 +1947,7 @@ dissect_openflow_switch_features_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset+=4;
 
     /* uint32_t reserved; */
-    proto_tree_add_item(tree, hf_openflow_v5_switch_features_reserved, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v5_switch_features_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     /*offset+=4;*/
 }
 
@@ -3030,7 +3030,7 @@ dissect_openflow_flowmod_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset+=2;
 
     /* uint16_t importance; */
-    proto_tree_add_item(tree, hf_openflow_v5_flowmod_importance, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v5_flowmod_importance, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* struct ofp_match match; */
@@ -3749,7 +3749,7 @@ dissect_openflow_table_features_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=8;
 
     /* uint32_t capabilities; */
-    ti = proto_tree_add_item(feat_tree, hf_openflow_v5_table_features_capabilities, tvb, offset, 4, ENC_NA);
+    ti = proto_tree_add_item(feat_tree, hf_openflow_v5_table_features_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
     caps_tree = proto_item_add_subtree(ti, ett_openflow_v5_table_features_capabilities);
 
     proto_tree_add_item(caps_tree, hf_openflow_v5_table_features_capabilities_eviction, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3929,7 +3929,7 @@ dissect_openflow_flow_monitor_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset+=4;
 
     /* uint16_t flags; */
-    ti = proto_tree_add_item(tree, hf_openflow_v5_flow_monitor_request_flags, tvb, offset, 2, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_openflow_v5_flow_monitor_request_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     flags_tree = proto_item_add_subtree(ti, ett_openflow_v5_flow_monitor_request_flags);
 
     proto_tree_add_item(flags_tree, hf_openflow_v5_flow_monitor_request_flags_initial, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4182,7 +4182,7 @@ dissect_openflow_flow_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=2;
 
     /* uint16_t importance; */
-    proto_tree_add_item(stats_tree, hf_openflow_v5_flow_stats_importance, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(stats_tree, hf_openflow_v5_flow_stats_importance, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint8_t pad2[2]; */

@@ -3334,7 +3334,7 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_icmp_rr_pointer,
 		  { "Pointer", "batadv.icmp.rr_pointer",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_batadv_icmp_rr_ether,

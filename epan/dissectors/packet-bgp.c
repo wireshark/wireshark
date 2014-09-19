@@ -2495,7 +2495,7 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_source_as, tvb,
-                                offset, 4, ENC_NA);
+                                offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
@@ -2599,7 +2599,7 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
     while ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
 
         label_entry = tvb_get_ntoh24(tvb, indx);
-        label_item = proto_tree_add_item(labels_tree, hf_bgp_update_mpls_label_value, tvb, indx, 3, ENC_NA);
+        label_item = proto_tree_add_item(labels_tree, hf_bgp_update_mpls_label_value, tvb, indx, 3, ENC_BIG_ENDIAN);
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
         if((indx == offset)&&(label_entry==0||label_entry==0x800000)) {
             proto_item_append_text(labels_item, " (withdrawn)");
@@ -2825,7 +2825,7 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, gint
                                          BGP_NLRI_TLV_LEN_AUTONOMOUS_SYSTEM, sub_length);
                   break;
               }
-              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_autonomous_system_id, tvb, offset + 4, 4, ENC_NA);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_autonomous_system_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
           break;
           case BGP_NLRI_TLV_BGP_LS_IDENTIFIER:
               tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_bgp_ls_identifier, tvb, offset, sub_length+4, ENC_NA);
@@ -2838,7 +2838,7 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, gint
                                          BGP_NLRI_TLV_LEN_BGP_LS_IDENTIFIER, sub_length);
                   break;
               }
-              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_ls_identifier_id, tvb, offset + 4, 4, ENC_NA);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_ls_identifier_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
           break;
           case BGP_NLRI_TLV_AREA_ID:
               tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_area_id, tvb, offset, sub_length+4, ENC_NA);
@@ -2851,7 +2851,7 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, gint
                                          BGP_NLRI_TLV_LEN_AREA_ID, sub_length);
                   break;
               }
-              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_area_id_id, tvb, offset + 4, 4, ENC_NA);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_area_id_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
           break;
           case BGP_NLRI_TLV_IGP_ROUTER_ID:
               tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_igp_router, tvb, offset, sub_length+4, ENC_NA);
@@ -3703,7 +3703,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                             10, ENC_NA);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
-                                   4, ENC_NA);
+                                   4, ENC_BIG_ENDIAN);
 
         stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
         labnum = decode_MPLS_stack(tvb, offset + 24,
@@ -3743,7 +3743,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                             10, ENC_NA);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_maclen, tvb, start_offset+24,
                             1, ENC_NA);
@@ -3800,7 +3800,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 */
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+10,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
 
         ip_len = tvb_get_guint8(tvb, offset + 14) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+14,
@@ -5385,8 +5385,8 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_F_RED: /* Flow spec redirect [RFC5575] */
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_NA);
-                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_NA);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(community_item, " RT %u:%u", tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb,offset+4));
                         break;
 
@@ -5421,7 +5421,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_fs_ip4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_NA);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_NA);
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(community_item, " %s %s: %s%s%u",
                                         val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
                                         val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_ip4, "Unknown"),
@@ -5431,8 +5431,8 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
             case BGP_EXT_COM_TYPE_HIGH_TR_EXP_FSAS4:
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_fs_as4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as4, tvb, offset+2, 4, ENC_NA);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_NA);
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(community_item, " %s %s: %u.%u(%u):%u",
                                         val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
                                         val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_exp_fs_as4, "Unknown"),
@@ -6218,8 +6218,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                              ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)",
                              val_to_str_const(encaps_tunnel_type, bgp_attr_tunnel_type, "Unknown"), encaps_tunnel_len + 4);
 
-                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_NA);
-                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_NA);
+                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_BIG_ENDIAN);
 
                         subtree5 = proto_tree_add_subtree(subtree4, tvb, q + 4, encaps_tunnel_len, ett_bgp_tunnel_subtlv, NULL, "Sub-TLV Encodings");
 

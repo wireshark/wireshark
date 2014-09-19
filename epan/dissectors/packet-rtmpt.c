@@ -2487,7 +2487,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                 headers_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_headers, NULL, "Headers");
                 for (i = 0; i < header_count; i++) {
                         string_length = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(headers_tree, hf_amf_header_name, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        proto_tree_add_item(headers_tree, hf_amf_header_name, tvb, offset, 2, ENC_UTF_8|ENC_BIG_ENDIAN);
                         offset += 2 + string_length;
                         proto_tree_add_item(headers_tree, hf_amf_header_must_understand, tvb, offset, 1, ENC_NA);
                         offset += 1;
@@ -2510,10 +2510,10 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                 messages_tree = proto_tree_add_subtree(amf_tree, tvb, offset, -1, ett_amf_messages, NULL, "Messages");
                 for (i = 0; i < message_count; i++) {
                         string_length = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(messages_tree, hf_amf_message_target_uri, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        proto_tree_add_item(messages_tree, hf_amf_message_target_uri, tvb, offset, 2, ENC_UTF_8|ENC_BIG_ENDIAN);
                         offset += 2 + string_length;
                         string_length = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(messages_tree, hf_amf_message_response_uri, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        proto_tree_add_item(messages_tree, hf_amf_message_response_uri, tvb, offset, 2, ENC_UTF_8|ENC_BIG_ENDIAN);
                         offset += 2 + string_length;
                         message_length = tvb_get_ntohl(tvb, offset);
                         if (message_length == 0xFFFFFFFF)

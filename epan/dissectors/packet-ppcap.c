@@ -323,7 +323,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 	else if (key1 == 4)
 
 	{
-		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_BIG_ENDIAN|ENC_ASCII);
+		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
 		TVB_SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, tvb, offset, msg_len);
 		COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 	}
@@ -499,7 +499,7 @@ dissect_ppcap_tcp_sip_msg(tvbuff_t *tvb,proto_tree * ppcap_tree1, int offset)
 {
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_tcp_sip_type, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_ASCII);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_tcp_sip_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	offset += 4;
 	return offset;
 }

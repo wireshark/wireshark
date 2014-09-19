@@ -366,7 +366,7 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Loop through all timestamps and add them to the timestamp tree. */
                 for (j = 0; j < (datalen / IEEE_1722A_CRF_TIMESTAMP_SIZE); j++)
                 {
-                    proto_tree_add_item(timestamp_tree, hf_1722a_crf_timestamp_data, tvb, offset, IEEE_1722A_CRF_TIMESTAMP_SIZE, ENC_NA);
+                    proto_tree_add_item(timestamp_tree, hf_1722a_crf_timestamp_data, tvb, offset, IEEE_1722A_CRF_TIMESTAMP_SIZE, ENC_BIG_ENDIAN);
                     offset += IEEE_1722A_CRF_TIMESTAMP_SIZE;
                 }
             }

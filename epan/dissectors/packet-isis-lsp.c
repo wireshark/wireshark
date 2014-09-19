@@ -342,7 +342,7 @@ static void
 dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 
-    proto_tree_add_item(tree, hf_isis_lsp_mt_id_reserved, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_mt_id_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_isis_lsp_mt_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 

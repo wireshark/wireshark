@@ -2239,12 +2239,12 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_index, tvb,
-                      offset, 2, ENC_NA);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   length = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tree, hf_artnet_diag_data_length, tvb,
-                      offset, 2, ENC_NA);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset+=2;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_data, tvb,
@@ -2323,7 +2323,7 @@ dissect_artnet_directory(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_directory_file, tvb,
-                      offset, 2, ENC_NA);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   return offset;
@@ -2342,7 +2342,7 @@ dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_file, tvb,
-                      offset, 2, ENC_NA);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_name, tvb,
@@ -2354,7 +2354,7 @@ dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 64;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_length, tvb,
-                      offset, 8, ENC_NA);
+                      offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_data, tvb,
@@ -2395,7 +2395,7 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_length, tvb,
-                      offset, 4, ENC_NA);
+                      offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_name, tvb,
@@ -2403,7 +2403,7 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 14;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_checksum, tvb,
-                      offset, 2, ENC_NA);
+                      offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_spare, tvb,

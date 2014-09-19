@@ -1717,7 +1717,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
         off += 4;
-        proto_tree_add_item(subtree, hf_remoteid_enterprise_id, tvb, off, optlen - 4, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_remoteid_enterprise_id, tvb, off, optlen - 4, ENC_NA);
         break;
     case OPTION_SUBSCRIBER_ID:
         if (optlen == 0) {

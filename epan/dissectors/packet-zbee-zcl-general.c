@@ -2028,10 +2028,10 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
     file_version = tvb_get_ntohl(tvb, *offset);
     ti = proto_tree_add_text(tree, tvb, *offset, 4, "File Version: 0x%08x", file_version);
     sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ota_file_version);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_release, tvb, *offset, 4, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_build, tvb, *offset, 4, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_release, tvb, *offset, 4, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_build, tvb, *offset, 4, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_release, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_build, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_release, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_build, tvb, *offset, 4, ENC_BIG_ENDIAN);
     *offset += 4;
 } /*dissect_zcl_ota_file_version_field*/
 
@@ -2783,7 +2783,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_query_jitter,
-            { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_seconds,
+            { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT8, BASE_CUSTOM, decode_zcl_time_in_seconds,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_manufacturer_code,

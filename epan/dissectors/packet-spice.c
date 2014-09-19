@@ -2526,7 +2526,7 @@ dissect_spice_usbredir_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     switch (message_type) {
         case SPICE_MSGC_SPICEVMC_DATA:
-            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_NA);
             offset += message_size;
             break;
         default:
@@ -2541,7 +2541,7 @@ dissect_spice_usbredir_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     switch (message_type) {
         case SPICE_MSG_SPICEVMC_DATA:
-            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_NA);
             offset += message_size;
             break;
         default:
@@ -2556,7 +2556,7 @@ dissect_spice_port_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
 {
     switch (message_type) {
         case SPICE_MSGC_SPICEVMC_DATA:
-            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_NA);
             offset += message_size;
             break;
         case SPICE_MSGC_PORT_EVENT:
@@ -2575,7 +2575,7 @@ dissect_spice_port_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
 {
     switch (message_type) {
         case SPICE_MSG_SPICEVMC_DATA:
-            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_raw_data, tvb, offset, message_size, ENC_NA);
             offset += message_size;
             break;
         case SPICE_MSG_PORT_INIT:

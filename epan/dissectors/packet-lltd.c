@@ -637,7 +637,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 func_subtree = proto_tree_add_subtree(func_tree, tvb, offset+16+loop_offset, 20,
                                                     ett_recvee_descs_item, NULL, "RecveeDescs Item");
 
-                proto_tree_add_item(func_subtree, hf_lltd_queryresp_type, tvb, offset+16+loop_offset, 2, ENC_NA);
+                proto_tree_add_item(func_subtree, hf_lltd_queryresp_type, tvb, offset+16+loop_offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(func_subtree, hf_lltd_queryresp_real_src_addr, tvb, offset+16+loop_offset+2, 6, ENC_NA);
                 proto_tree_add_item(func_subtree, hf_lltd_queryresp_ethernet_src_addr, tvb, offset+16+loop_offset+8, 6, ENC_NA);
                 proto_tree_add_item(func_subtree, hf_lltd_queryresp_ethernet_dest_addr, tvb, offset+16+loop_offset+14, 6, ENC_NA);

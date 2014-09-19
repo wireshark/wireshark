@@ -1152,7 +1152,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case OSPF_VERSION_2:
         /* Authentication is only valid for OSPFv2 */
-        proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_type, tvb, 14, 2, ENC_NA);
+        proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_type, tvb, 14, 2, ENC_BIG_ENDIAN);
         auth_type = tvb_get_ntohs(tvb, 14);
         switch (auth_type) {
         case OSPF_AUTH_NONE:

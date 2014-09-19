@@ -124,13 +124,13 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(tci_tree, hf_macsec_TCI_C, tvb, sectag_offset, 1, ENC_NA);
         proto_tree_add_item(tci_tree, hf_macsec_AN, tvb, sectag_offset, 1, ENC_NA);
         proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, sectag_offset + 1, 1, ENC_NA);
-        proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, sectag_offset + 2, 4, ENC_NA);
+        proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, sectag_offset + 2, 4, ENC_BIG_ENDIAN);
 
         if (sectag_length == 14) {
             proto_tree_add_item(macsec_tree, hf_macsec_SCI_System_identifier,
                     tvb, sectag_offset + 6, 6, ENC_NA);
             proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_number, tvb,
-                    sectag_offset + 12, 2, ENC_NA);
+                    sectag_offset + 12, 2, ENC_BIG_ENDIAN);
         }
 
         call_dissector(data_handle, next_tvb, pinfo, tree);

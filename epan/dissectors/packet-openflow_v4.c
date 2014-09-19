@@ -1687,7 +1687,7 @@ dissect_openflow_switch_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree *cap_tree;
 
     /* uint64_t datapath_id; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_features_datapath_id, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
 
     /* uint32_t n_buffers; */
@@ -1703,7 +1703,7 @@ dissect_openflow_switch_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset++;
 
     /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_features_pad, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint32_t capabilities; */
@@ -1720,7 +1720,7 @@ dissect_openflow_switch_features_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     offset+=4;
 
     /* uint32_t reserved; */
-    proto_tree_add_item(tree, hf_openflow_v4_switch_features_reserved, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v4_switch_features_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     /*offset+=4;*/
 }
 

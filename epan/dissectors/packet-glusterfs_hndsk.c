@@ -121,7 +121,7 @@ gluster_hndsk_2_getspec_call(tvbuff_t *tvb, int offset,
 {
 	if (tree)
 		proto_tree_add_item(tree, hf_gluster_hndsk_flags, tvb, offset,
-								4, ENC_NA);
+								4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_key, offset,
 								NULL);

@@ -378,13 +378,13 @@ static guint dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
     const char *name = val_to_str_ext(type, &pp_pid_vals_ext, TYPE_UNKNOWN);
     proto_item_append_text(ti, " : %s", name);
 
-    proto_tree_add_item(tlv_tree, hf_pp_pid_type, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tlv_tree, hf_pp_pid_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     len = tvb_get_ntohs(tvb, offset);
     proto_item_set_len(ti, 4 + len);
 
-    proto_tree_add_item(tlv_tree, hf_pp_pid_len, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tlv_tree, hf_pp_pid_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tlv_tree, hf_pp_pid_value, tvb, offset, len, ENC_NA);
@@ -418,7 +418,7 @@ dissect_multiple_get_pids(tvbuff_t *tvb, proto_item *tree, guint offset, guint l
 
     while(offset < end)
     {
-        proto_tree_add_item(tree, hf_pp_get_type, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pp_get_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
     return len;
@@ -435,16 +435,16 @@ dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
     {
         proto_item *ti;
         proto_tree *data_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_pp_data, &ti, "xDMX Data: ");
-        proto_tree_add_item(data_tree, hf_pp_data_encoding, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(data_tree, hf_pp_data_encoding, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         blklen = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(data_tree, hf_pp_data_len, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(data_tree, hf_pp_data_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(data_tree, hf_pp_reserved, tvb, offset++, 1, ENC_NA);
         stc = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(data_tree, hf_pp_data_start_code, tvb, offset++, 1, ENC_NA);
         xdmx = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(data_tree, hf_pp_data_dst, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(data_tree, hf_pp_data_dst, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(data_tree, hf_pp_data_levels, tvb, offset, blklen, ENC_NA);
         proto_item_append_text(ti, "%d Channels at xDMX %d (Univ %d.%d) StartCode: %d ", blklen, xdmx,  xdmx / 512 + 1, xdmx % 512,  stc);
@@ -456,7 +456,7 @@ dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
 static guint
 dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, guint offset, guint len)
 {
-    proto_tree_add_item(tree, hf_pp_arp_id,     tvb, offset,   4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_id,     tvb, offset,   4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_pp_arp_ip,     tvb, offset,   4, ENC_NA);
     offset += 4;
@@ -480,13 +480,13 @@ dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
     proto_item_append_text(ti, " : %s", name);
 
-    proto_tree_add_item(pdu_tree, hf_pp_pdu_type, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(pdu_tree, hf_pp_pdu_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     len = tvb_get_ntohs(tvb, offset);
     proto_item_set_len(ti, 4 + len);
 
-    proto_tree_add_item(pdu_tree, hf_pp_pdu_len, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(pdu_tree, hf_pp_pdu_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     switch(type)
@@ -529,17 +529,17 @@ dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 {
     proto_tree *tree = proto_tree_add_subtree(parent, tvb, offset, PATHPORT_HEADER_LENGTH, ett_pathport, NULL, "Header");
 
-    proto_tree_add_item(tree, hf_pp_prot,     tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_prot,     tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_pp_version,  tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_version,  tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_pp_seq,      tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_seq,      tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_pp_reserved, tvb, offset, 6, ENC_NA);
     offset += 6;
-    proto_tree_add_item(tree, hf_pp_src,      tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_src,      tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_dst,      tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_dst,      tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     return offset;
 }

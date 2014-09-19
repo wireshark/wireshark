@@ -2012,7 +2012,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Revision */
                proto_tree_add_item(item_tree, hf_enip_lir_revision,
-                     tvb, offset+30, 2, ENC_NA );
+                     tvb, offset+30, 2, ENC_BIG_ENDIAN );
 
                /* Status */
                proto_tree_add_item(item_tree, hf_enip_lir_status,

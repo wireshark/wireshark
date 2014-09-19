@@ -187,14 +187,14 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Assigned Port */
       proto_tree_add_item(macctrl_tree, hf_reg_port, tvb,
-                          6, 2, ENC_NA);
+                          6, 2, ENC_BIG_ENDIAN);
 
       /* Flags */
       proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
                           8, 1, ENC_NA);
       /* Synch Time */
       proto_tree_add_item(macctrl_tree, hf_reg_time, tvb,
-                          9, 2, ENC_NA);
+                          9, 2, ENC_BIG_ENDIAN);
 
       /* Echoed Pending Grants */
       proto_tree_add_item(macctrl_tree, hf_reg_grants, tvb,
@@ -209,11 +209,11 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Echoed Assigned Port */
       proto_tree_add_item(macctrl_tree, hf_reg_ack_port, tvb,
-                          7, 2, ENC_NA);
+                          7, 2, ENC_BIG_ENDIAN);
 
       /* Echoed Synch Time */
       proto_tree_add_item(macctrl_tree, hf_reg_ack_time, tvb,
-                          9, 2, ENC_NA);
+                          9, 2, ENC_BIG_ENDIAN);
       break;
 
     case MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE:

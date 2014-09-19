@@ -980,7 +980,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		int length;
 
 		lenfle = tvb_get_fle(tvb, offset, &connattrs_length, NULL);
-		tf = proto_tree_add_item(login_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_ASCII|ENC_NA);
+		tf = proto_tree_add_item(login_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_NA);
 		connattrs_tree = proto_item_add_subtree(tf, ett_connattrs);
 		proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_length, tvb, offset, lenfle, connattrs_length);
 		offset += lenfle;
@@ -1308,7 +1308,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 			int length;
 
 			lenfle = tvb_get_fle(tvb, offset, &connattrs_length, NULL);
-			tf = proto_tree_add_item(req_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_ASCII|ENC_NA);
+			tf = proto_tree_add_item(req_tree, hf_mysql_connattrs, tvb, offset, (guint32)connattrs_length, ENC_NA);
 			connattrs_tree = proto_item_add_subtree(tf, ett_connattrs);
 			proto_tree_add_uint64(connattrs_tree, hf_mysql_connattrs_length, tvb, offset, lenfle, connattrs_length);
 			offset += lenfle;
@@ -1447,7 +1447,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_binlog_position, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_binlog_flags, tvb, offset, 2, ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(req_tree, hf_mysql_binlog_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);

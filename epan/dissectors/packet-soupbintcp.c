@@ -396,7 +396,7 @@ dissect_soupbintcp_common(
             /* Unknown */
             proto_tree_add_item(tree,
                                 hf_soupbintcp_message,
-                                tvb, offset, -1, ENC_ASCII|ENC_NA);
+                                tvb, offset, -1, ENC_NA);
             break;
         }
     }
@@ -439,7 +439,7 @@ dissect_soupbintcp_common(
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_message,
                                 sub_tvb, 0, -1,
-                                ENC_ASCII|ENC_NA);
+                                ENC_NA);
         }
     }
 }

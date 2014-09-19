@@ -1048,7 +1048,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		default:
 			strPtr = tvb_bytes_to_ep_str(tvb, offset, (dataLen-2));
-			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-2), ENC_ASCII|ENC_NA);
+			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-2), ENC_NA);
 
 			break;
 		}
@@ -1089,7 +1089,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		}
 
-		proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-1), ENC_ASCII|ENC_NA);
+		proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-1), ENC_NA);
 
 		offset += (dataLen - 1);
 		break;
