@@ -110,12 +110,12 @@ static const int *macctrl_cbfc_pause_times_list[] = {
 #define MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE 0x0101
 
 static const value_string opcode_vals[] = {
-  { MACCTRL_PAUSE, "MPCP Pause" },
-  { MACCTRL_GATE, "MPCP Gate" },
-  { MACCTRL_REPORT, "MPCP Report" },
-  { MACCTRL_REGISTER_REQ, "MPCP Register Req" },
-  { MACCTRL_REGISTER, "MPCP Register" },
-  { MACCTRL_REGISTER_ACK, "MPCP Register Ack" },
+  { MACCTRL_PAUSE,                        "MPCP Pause" },
+  { MACCTRL_GATE,                         "MPCP Gate" },
+  { MACCTRL_REPORT,                       "MPCP Report" },
+  { MACCTRL_REGISTER_REQ,                 "MPCP Register Req" },
+  { MACCTRL_REGISTER,                     "MPCP Register" },
+  { MACCTRL_REGISTER_ACK,                 "MPCP Register Ack" },
   { MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE, "Class Based Flow Control [CBFC] Pause" },
   { 0, NULL }
 };
@@ -381,3 +381,16 @@ proto_reg_handoff_macctrl(void)
   macctrl_handle = create_dissector_handle(dissect_macctrl, proto_macctrl);
   dissector_add_uint("ethertype", ETHERTYPE_MAC_CONTROL, macctrl_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

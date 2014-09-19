@@ -3158,8 +3158,8 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static void batadv_init_routine(void)
 {
-        reassembly_table_init(&msg_reassembly_table,
-                              &addresses_reassembly_table_functions);
+	reassembly_table_init(&msg_reassembly_table,
+			      &addresses_reassembly_table_functions);
 }
 
 void proto_register_batadv(void)
@@ -3711,3 +3711,16 @@ void proto_reg_handoff_batadv(void)
 	old_batadv_ethertype = batadv_ethertype;
 	dissector_add_uint("ethertype", batadv_ethertype, batman_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

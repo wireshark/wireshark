@@ -428,7 +428,7 @@ proto_register_fdp(void)
 		{ "Unknown",	"fdp.tag.unknown", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
-        };
+	};
 	static gint *ett[] = {
 		&ett_fdp,
 		&ett_fdp_tlv_header,
@@ -474,3 +474,16 @@ proto_register_foundry_oui(void)
 
 	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "LLC Foundry OUI PID", hf);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
