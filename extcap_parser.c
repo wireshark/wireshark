@@ -342,6 +342,8 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
 			tv->param_type = EXTCAP_PARAM_NAME;
 		} else if (g_ascii_strcasecmp(tv->arg, "enabled") == 0) {
 			tv->param_type = EXTCAP_PARAM_ENABLED;
+		} else if (g_ascii_strcasecmp(tv->arg, "parent") == 0) {
+			tv->param_type = EXTCAP_PARAM_PARENT;
 		} else {
 			tv->param_type = EXTCAP_PARAM_UNKNOWN;
 		}
@@ -681,6 +683,7 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
 		value->enabled = FALSE;
 		value->is_default = FALSE;
 		value->arg_num = tint;
+		value->parent = NULL;
 
 		if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_VALUE))
 				== NULL) {
@@ -697,6 +700,11 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
 			return NULL ;
 		}
 		value->display = g_strdup(v->value);
+
+		if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_PARENT))
+				!= NULL) {
+			value->parent = g_strdup(v->value);
+		}
 
 		if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_DEFAULT))
 				!= NULL) {

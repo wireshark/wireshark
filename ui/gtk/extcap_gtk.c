@@ -33,6 +33,87 @@
 #include <extcap_parser.h>
 #include "extcap_gtk.h"
 
+#include "log.h"
+
+static gboolean extcap_gtk_count_tree_elements(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	int *ptr_count = (int*)data;
+	gboolean multi_enabled;
+	(void)path;
+
+	g_assert(ptr_count != NULL);
+
+	gtk_tree_model_get(model, iter,
+			EXTCAP_GTK_MULTI_COL_CHECK, &multi_enabled, -1);
+
+	if (multi_enabled)
+	{
+		++(*ptr_count);
+	}
+
+	return FALSE; /* Continue iteration. */
+}
+
+typedef struct _extcap_gtk_multi_fill_cb_data
+{
+	gchar **list;
+	int num;
+	int max;
+} extcap_gtk_multi_fill_cb_data;
+
+static gboolean extcap_gtk_fill_multi_list(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	extcap_gtk_multi_fill_cb_data *ptr_data = (extcap_gtk_multi_fill_cb_data*)data;
+	gboolean multi_enabled;
+	extcap_value *value;
+	(void)path;
+
+	g_assert(ptr_data != NULL);
+
+	gtk_tree_model_get(model, iter,
+			EXTCAP_GTK_MULTI_COL_CHECK, &multi_enabled,
+			EXTCAP_GTK_MULTI_COL_VALUE, &value, -1);
+
+	if (multi_enabled)
+	{
+		g_assert(ptr_data->num < ptr_data->max);
+
+		if (ptr_data->num < ptr_data->max)
+		{
+			ptr_data->list[ptr_data->num] = g_strdup(value->call);
+			ptr_data->num++;
+		}
+	}
+
+	return FALSE; /* Continue iteration. */
+}
+
+typedef struct _extcap_gtk_multi_find_cb_data
+{
+	gchar *parent;
+	GtkTreeIter *parent_iter;
+} extcap_gtk_multi_find_cb_data;
+
+static gboolean extcap_gtk_find_parent_in_multi_list(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	extcap_gtk_multi_find_cb_data *ptr_data = (extcap_gtk_multi_find_cb_data*)data;
+	extcap_value *value;
+	(void)path;
+
+	g_assert(ptr_data != NULL);
+
+	gtk_tree_model_get(model, iter,
+			EXTCAP_GTK_MULTI_COL_VALUE, &value, -1);
+
+	if (0 == g_strcmp0(ptr_data->parent, value->call))
+	{
+		ptr_data->parent_iter = gtk_tree_iter_copy(iter);
+		return TRUE; /* Stop iteration. */
+	}
+
+	return FALSE; /* Continue iteration. */
+}
+
 GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
 	GSList *widget_list, *widget_iter;
 	GSList *radio_list = NULL, *radio_iter = NULL;
@@ -51,9 +132,9 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
 
 	gchar *call_string = NULL;
 
-	gchar **multi_list = NULL;
+	extcap_gtk_multi_fill_cb_data multi_data = { NULL, 0, 0 };
+
 	int multi_num = 0;
-	gboolean multi_valid, multi_enabled;
 
 	widget_list = (GSList *) g_object_get_data(G_OBJECT(widget),
 	EXTCAP_GTK_DATA_KEY_WIDGETLIST);
@@ -173,40 +254,32 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
 			multi_num = 0;
 
 			/* Count the # of items enabled */
-			multi_valid = gtk_tree_model_get_iter_first(treemodel, &treeiter);
-			while (multi_valid) {
-				gtk_tree_model_get(treemodel, &treeiter,
-						EXTCAP_GTK_MULTI_COL_CHECK, &multi_enabled, -1);
+			gtk_tree_model_foreach(treemodel, extcap_gtk_count_tree_elements,
+					&multi_num);
 
-				if (multi_enabled)
-					multi_num++;
+			if (multi_num > 0)
+			{
+				multi_data.list = g_new(gchar *, multi_num + 1);
+				multi_data.num = 0;
+				multi_data.max = multi_num;
 
-				multi_valid = gtk_tree_model_iter_next(treemodel, &treeiter);
+				multi_num = 0;
+
+				/* Get values list of items enabled */
+				gtk_tree_model_foreach(treemodel, extcap_gtk_fill_multi_list,
+						&multi_data);
+
+				multi_data.list[multi_data.max] = NULL;
+
+				call_string = g_strjoinv(",", multi_data.list);
+
+				g_strfreev(multi_data.list);
 			}
-
-			multi_list = g_new(gchar *, multi_num + 1);
-
-			multi_num = 0;
-
-			/* Count the # of items enabled */
-			multi_valid = gtk_tree_model_get_iter_first(treemodel, &treeiter);
-			while (multi_valid) {
-				gtk_tree_model_get(treemodel, &treeiter,
-						EXTCAP_GTK_MULTI_COL_CHECK, &multi_enabled,
-						EXTCAP_GTK_MULTI_COL_VALUE, &value, -1);
-
-				if (multi_enabled) {
-					multi_list[multi_num] = g_strdup(value->call);
-					multi_num++;
-				}
-
-				multi_valid = gtk_tree_model_iter_next(treemodel, &treeiter);
+			else
+			{
+				/* There are no enabled items. Skip this argument from command line. */
+				continue;
 			}
-			multi_list[multi_num] = NULL;
-
-			call_string = g_strjoinv(",", multi_list);
-
-			g_strfreev(multi_list);
 
 			break;
 		default:
@@ -422,7 +495,7 @@ static void extcap_gtk_multicheck_toggled(GtkCellRendererToggle *cell _U_,
 
 	enabled ^= 1;
 
-	gtk_list_store_set(GTK_LIST_STORE(model), &iter, EXTCAP_GTK_MULTI_COL_CHECK,
+	gtk_tree_store_set(GTK_TREE_STORE(model), &iter, EXTCAP_GTK_MULTI_COL_CHECK,
 			enabled, -1);
 
 	gtk_tree_path_free(path);
@@ -541,7 +614,7 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 	GtkCellRenderer *renderer, *togglerenderer;
 	GtkTreeModel *model;
 	GtkWidget *view, *retview;
-	GtkListStore *store;
+	GtkTreeStore *store;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
 	extcap_value *v = NULL;
@@ -549,6 +622,7 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 	gchar *prev_item = NULL;
 	gchar **prev_list = NULL, **prev_iter = NULL;
 	gboolean prev_value, prev_matched;
+	extcap_gtk_multi_find_cb_data find_data;
 
 	if (g_list_length(argument->values) == 0)
 		return NULL ;
@@ -557,8 +631,8 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 
-	store = gtk_list_store_new(EXTCAP_GTK_MULTI_NUM_COLS, G_TYPE_BOOLEAN,
-			G_TYPE_STRING, G_TYPE_POINTER);
+	store = gtk_tree_store_new(EXTCAP_GTK_MULTI_NUM_COLS, G_TYPE_BOOLEAN,
+			G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_BOOLEAN);
 
 	model = GTK_TREE_MODEL(store);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
@@ -576,9 +650,30 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 		if (v->display == NULL)
 			break;
 
+		find_data.parent = v->parent;
+		find_data.parent_iter = NULL;
+
+		if (find_data.parent != NULL)
+		{
+			gtk_tree_model_foreach(model, extcap_gtk_find_parent_in_multi_list,
+					&find_data);
+			if (find_data.parent_iter == NULL)
+			{
+				g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+					"Extcap parent %s not found for value %s (%s)",
+					v->parent, v->call, argument->call);
+			}
+		}
+
 		prev_value = FALSE;
 		prev_matched = FALSE;
-		gtk_list_store_append(store, &iter);
+		gtk_tree_store_append(store, &iter, find_data.parent_iter);
+
+		if (find_data.parent_iter != NULL)
+		{
+			gtk_tree_iter_free(find_data.parent_iter);
+			find_data.parent_iter = NULL;
+		}
 
 		if (prev_list != NULL) {
 			prev_matched = FALSE;
@@ -593,14 +688,23 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 
 				prev_iter++;
 			}
+
+			if (prev_matched == FALSE)
+				prev_value = v->enabled;
+		}
+		else
+		{
+			/* Use default value if there is no information about previously selected items. */
+			prev_value = v->is_default;
 		}
 
-		if (prev_matched == FALSE)
-			prev_value = v->enabled;
 
-		gtk_list_store_set(store, &iter, EXTCAP_GTK_MULTI_COL_CHECK, prev_value,
+		/* v->is_default is set when there was {default=true} for this value. */
+		/* v->enabled is false for non-clickable tree items ({enabled=false}). */
+		gtk_tree_store_set(store, &iter, EXTCAP_GTK_MULTI_COL_CHECK, prev_value,
 				EXTCAP_GTK_MULTI_COL_DISPLAY, v->display,
-				EXTCAP_GTK_MULTI_COL_VALUE, v, -1);
+				EXTCAP_GTK_MULTI_COL_VALUE, v,
+				EXTCAP_GTK_MULTI_COL_ACTIVATABLE, v->enabled, -1);
 	}
 
 	if (prev_list != NULL)
@@ -612,6 +716,8 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
 			G_CALLBACK(extcap_gtk_multicheck_toggled), model);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), -1,
 			"Enabled", togglerenderer, "active", EXTCAP_GTK_MULTI_COL_CHECK,
+			"activatable", EXTCAP_GTK_MULTI_COL_ACTIVATABLE,
+			"visible", EXTCAP_GTK_MULTI_COL_ACTIVATABLE,
 			NULL);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), -1, "Name",
 			renderer, "text", EXTCAP_GTK_MULTI_COL_DISPLAY,

@@ -67,7 +67,8 @@ typedef enum {
 	EXTCAP_PARAM_TOOLTIP,
 	EXTCAP_PARAM_NAME,
 	EXTCAP_PARAM_ENABLED,
-	EXTCAP_PARAM_FILE_MUSTEXIST
+	EXTCAP_PARAM_FILE_MUSTEXIST,
+	EXTCAP_PARAM_PARENT
 } extcap_param_type;
 
 /* Values for a given sentence; values are all stored as a call
@@ -80,6 +81,7 @@ typedef struct _extcap_value {
 	gchar *display;
 	gboolean enabled;
 	gboolean is_default;
+	gchar *parent;
 } extcap_value;
 
 /* Complex-ish struct for storing complex values */
