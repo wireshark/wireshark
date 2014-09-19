@@ -112,16 +112,16 @@ problems.
 [[ChSetupQt]]
 
 
-==== Install Qt (optional but recommended)
+==== Install Qt
 
-If you wish to build QtShark (The Wireshark GUI using the Qt windowing
-toolkit), http://qt-project.org/downloads[download] and install the appropriate
-Qt libraries.
+The main Wireshark application uses the Qt windowing toolkit. The installation
+package is quite large and you must currently
+http://qt-project.org/downloads[download] and install it separately.
 
 Note that the Qt package also includes the Qt Creator IDE, which may be useful
-for designing graphical components, and includes an interactive debugger.
+for designing graphical components and includes an interactive debugger.
 You'll need to build wireshark using nmake before you'll be able to build the
-QtShark project (ui/qt/QtShark.pro), however.
+Wireshark project (ui/qt/Wireshark.pro), however.
 
 [WARNING]
 .Don't use the default full-package Qt installer
@@ -132,14 +132,6 @@ Windows and so will not work.  Instead, you will want to use the installer for
 the toolchain you are using (e.g. Qt <version> for Windows 32-bit (VS 2013,
 OpenGL) if you are using the toolchain set up by these quick-start
 instructions).
-====
-
-[TIP]
-.Qt migration
-====
-As the GTK+ version of Wireshark is being deprecated in favor of the Qt
-version, it is a good idea to build QtShark and ensure that any features that
-you've added work in that version.
 ====
 
 
@@ -566,7 +558,9 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while.
 
-. Run `C:\wireshark\wireshark-gtk2\wireshark.exe` and make sure it starts. s
+. Run `C:\wireshark\wireshark-qt-release\wireshark.exe` and make sure it starts. s
+
+//. Run `C:\wireshark\wireshark-gtk2\wireshark-gtk.exe` and make sure it starts. s
 
 . Open 'Help -> About'. If it shows your "private" program
 version, e.g.: Version wireshark-major-minor-version:[].x-myprotocol123
