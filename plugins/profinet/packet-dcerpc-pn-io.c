@@ -6660,7 +6660,8 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
     guint64  u64LocaltimeStamp;
     e_uuid_t aruuid;
     guint32  u32EntryDetail;
-
+	dcerpc_info        di; /* fake dcerpc_info struct */
+	dcerpc_call_value  call_data;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -6668,8 +6669,14 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
         return offset;
     }
 
+	di.conformant_run = 0;
+	/* we need di->call_data->flags.NDR64 == 0 */
+    call_data.flags = 0;
+	di.call_data = &call_data;
+    di.dcerpc_procedure_name = "";
+
     /* ActualLocalTimeStamp */
-    offset = dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep,
+    offset = dissect_dcerpc_uint64(tvb, offset, pinfo, tree, &di, drep,
                     hf_pn_io_actual_local_time_stamp, &u64ActualLocaltimeStamp);
     /* NumberOfLogEntries */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -6677,7 +6684,7 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
 
     while (u16NumberOfLogEntries--) {
         /* LocalTimeStamp */
-        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, tree, &di, drep,
                         hf_pn_io_local_time_stamp, &u64LocaltimeStamp);
         /* ARUUID */
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,

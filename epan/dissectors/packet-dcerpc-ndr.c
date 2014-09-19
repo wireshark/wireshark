@@ -355,7 +355,7 @@ dissect_ndr_duint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_uint64(tvb, offset, pinfo,
-                                 tree, drep, hfindex, pdata);
+                                 tree, di, drep, hfindex, pdata);
 }
 
 /* uint64 : hyper
@@ -383,7 +383,7 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset += padding;
     }
     return dissect_dcerpc_uint64(tvb, offset, pinfo,
-                                 tree, drep, hfindex, pdata);
+                                 tree, di, drep, hfindex, pdata);
 }
 
 int
@@ -402,7 +402,7 @@ PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset += 8 - (offset % 8);
     }
     offset = dissect_dcerpc_uint64(tvb, offset, pinfo,
-                                   tree, drep, hfindex, &val);
+                                   tree, di, drep, hfindex, &val);
 
     if (param&PIDL_SET_COL_INFO) {
         header_field_info *hf_info;
