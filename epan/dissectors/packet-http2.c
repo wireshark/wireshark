@@ -840,7 +840,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 4, ENC_NA);
     proto_tree_add_item(http2_tree, hf_http2_push_promise_promised_stream_id, tvb,
                         offset, 4, ENC_NA);
     offset += 4;
