@@ -571,7 +571,8 @@ static int hf_dcerpc_array_max_count = -1;
 static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
 static int hf_dcerpc_op = -1;
-static int hf_dcerpc_referent_id = -1;
+static int hf_dcerpc_referent_id32 = -1;
+static int hf_dcerpc_referent_id64 = -1;
 static int hf_dcerpc_fragments = -1;
 static int hf_dcerpc_fragment = -1;
 static int hf_dcerpc_fragment_overlap = -1;
@@ -1557,7 +1558,7 @@ dissect_dcerpc_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 int
 dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, guint8 *drep,
+                      proto_tree *tree, dcerpc_info *di, guint8 *drep,
                       int hfindex, guint64 *pdata)
 {
     guint64 data;
@@ -1583,7 +1584,9 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             proto_tree_add_int64(tree, hfindex, tvb, offset, 8, data);
             break;
         default:
-            DISSECTOR_ASSERT(data <= G_MAXUINT32);
+            /* The value is truncated to 32bits.  64bit values have only been
+               seen on fuzz-tested files */
+            DISSECTOR_ASSERT((di->call_data->flags & DCERPC_IS_NDR64) || (data <= G_MAXUINT32));
             proto_tree_add_uint(tree, hfindex, tvb, offset, 8, (guint32)data);
         }
     }
@@ -1980,7 +1983,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, di, drep,
                                   hf_dcerpc_array_actual_count, &len);
 
-    DISSECTOR_ASSERT(len <= G_MAXUINT32);
+    /* The value is truncated to 32bits.  64bit values have only been
+       seen on fuzztested files */
     buffer_len = size_is * (guint32)len;
 
     /* Adjust offset */
@@ -2523,8 +2527,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             goto after_ref_id;
         }
 
-        /* see if we have seen this pointer before */
-        DISSECTOR_ASSERT(id <= G_MAXUINT32);
+        /* see if we have seen this pointer before
+           The value is truncated to 32bits.  64bit values have only been
+           seen on fuzz-tested files */
         idx = find_pointer_index((guint32)id);
 
         /* we have seen this pointer before */
@@ -2540,8 +2545,13 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    pointer_size,
                                    "%s", text);
         tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-        proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-                            offset-pointer_size, pointer_size, (guint32)id);
+        if (di->call_data->flags & DCERPC_IS_NDR64) {
+            proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
+                                offset-pointer_size, pointer_size, id);
+        } else {
+            proto_tree_add_uint(tr, hf_dcerpc_referent_id32, tvb,
+                                offset-pointer_size, pointer_size, (guint32)id);
+        }
         add_pointer_to_list(pinfo, tr, item, di, fnct, (guint32)id, hf_index,
                             callback, callback_args);
         goto after_ref_id;
@@ -2565,13 +2575,17 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         /* new pointer */
-        DISSECTOR_ASSERT(id <= G_MAXUINT32);
         item = proto_tree_add_text(tree, tvb, offset-pointer_size,
                                    pointer_size,
                                    "%s", text);
         tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-        proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+        if (di->call_data->flags & DCERPC_IS_NDR64) {
+            proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
+                            offset-pointer_size, pointer_size, id);
+        } else {
+            proto_tree_add_uint(tr, hf_dcerpc_referent_id32, tvb,
                             offset-pointer_size, pointer_size, (guint32)id);
+        }
         add_pointer_to_list(pinfo, tr, item, di, fnct, 0xffffffff,
                             hf_index, callback, callback_args);
         goto after_ref_id;
@@ -2592,9 +2606,13 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                  pointer_size,
                                  "%s",text);
         tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-        DISSECTOR_ASSERT(id <= G_MAXUINT32);
-        proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+        if (di->call_data->flags & DCERPC_IS_NDR64) {
+            proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
+                            offset-pointer_size, pointer_size, id);
+        } else {
+            proto_tree_add_uint(tr, hf_dcerpc_referent_id32, tvb,
                             offset-pointer_size, pointer_size, (guint32)id);
+        }
         add_pointer_to_list(pinfo, tr, item, di, fnct, 0xffffffff,
                             hf_index, callback, callback_args);
         goto after_ref_id;
@@ -2623,9 +2641,13 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    pointer_size,
                                    "%s",text);
         tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-        DISSECTOR_ASSERT(id <= G_MAXUINT32);
-        proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+        if (di->call_data->flags & DCERPC_IS_NDR64) {
+            proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
+                            offset-pointer_size, pointer_size, id);
+        } else {
+            proto_tree_add_uint(tr, hf_dcerpc_referent_id32, tvb,
                             offset-pointer_size, pointer_size, (guint32)id);
+        }
         add_pointer_to_list(pinfo, tr, item, di, fnct, 0xffffffff,
                             hf_index, callback, callback_args);
         goto after_ref_id;
@@ -2650,8 +2672,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             goto after_ref_id;
         }
 
-        /* see if we have seen this pointer before */
-        DISSECTOR_ASSERT(id <= G_MAXUINT32);
+        /* see if we have seen this pointer before
+           The value is truncated to 32bits.  64bit values have only been
+           seen on fuzztested files */
         idx = find_pointer_index((guint32)id);
 
         /* we have seen this pointer before */
@@ -2667,8 +2690,13 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    pointer_size,
                                    "%s", text);
         tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-        proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+        if (di->call_data->flags & DCERPC_IS_NDR64) {
+            proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
+                            offset-pointer_size, pointer_size, id);
+        } else {
+            proto_tree_add_uint(tr, hf_dcerpc_referent_id32, tvb,
                             offset-pointer_size, pointer_size, (guint32)id);
+        }
         add_pointer_to_list(pinfo, tr, item, di, fnct, (guint32)id, hf_index,
                             callback, callback_args);
         goto after_ref_id;
@@ -5931,8 +5959,11 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_response_in,
           { "Response in frame", "dcerpc.response_in", FT_FRAMENUM, BASE_NONE,
             NULL, 0, "This packet will be responded in the packet with this number", HFILL }},
-        { &hf_dcerpc_referent_id,
+        { &hf_dcerpc_referent_id32,
           { "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
+            NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
+        { &hf_dcerpc_referent_id64,
+          { "Referent ID", "dcerpc.referent_id", FT_UINT64, BASE_HEX,
             NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
         { &hf_dcerpc_ver,
           { "Version", "dcerpc.ver", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

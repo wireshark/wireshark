@@ -217,7 +217,7 @@ int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            int hfindex, guint32 *pdata);
 WS_DLL_PUBLIC
 int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, guint8 *drep,
+                           proto_tree *tree, dcerpc_info *di, guint8 *drep,
                            int hfindex, guint64 *pdata);
 int dissect_dcerpc_float  (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep,

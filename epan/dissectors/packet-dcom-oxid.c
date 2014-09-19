@@ -259,13 +259,13 @@ dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, di, drep, &u16VersionMajor, &u16VersionMinor);
 
     /* XXX - understand what those 8 bytes mean! don't skip'em!*/
-    dissect_dcerpc_uint64(tvb , offset, pinfo, tree, drep, hf_oxid_Unknown1, NULL);
+    dissect_dcerpc_uint64(tvb, offset, pinfo, tree, di, drep, hf_oxid_Unknown1, NULL);
     offset += 8;
 
     offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, di, drep, hf_oxid_ds_array, NULL);
 
     /* unknown field 2 */
-    dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_oxid_Unknown2, NULL);
+    dissect_dcerpc_uint64(tvb, offset, pinfo, tree, di, drep, hf_oxid_Unknown2, NULL);
     offset += 8;
     return offset;
 }
