@@ -103,6 +103,7 @@ libwsutil.so.4 libwsutil4 #MINVER#
  nstime_to_sec@Base 1.12.0~rc1
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_descriptions@Base 1.12.0~rc1
+ printable_char_or_period@Base 1.12.2
  profile_exists@Base 1.12.0~rc1
  profile_store_persconffiles@Base 1.12.0~rc1
  relinquish_special_privs_perm@Base 1.10.0
