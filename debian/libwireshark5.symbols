@@ -214,6 +214,8 @@ libwireshark.so.5 libwireshark5 #MINVER#
  decode_dcerpc_add_show_list@Base 1.12.0~rc1
  decode_dcerpc_reset_all@Base 1.12.0~rc1
  decode_numeric_bitfield@Base 1.9.1
+ decode_tcp_ports@Base 1.12.0
+ decode_udp_ports@Base 1.12.0
  delete_itu_tcap_subdissector@Base 1.9.1
  destroy_print_stream@Base 1.12.0~rc1
  dfilter_apply_edt@Base 1.9.1
@@ -306,6 +308,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  dissect_ndr_uint8@Base 1.9.1
  dissect_ndr_uuid_t@Base 1.9.1
  dissect_nt_64bit_time@Base 1.9.1
+ dissect_nt_64bit_time_ex@Base 1.12.0
  dissect_nt_sid@Base 1.9.1
  dissect_per_BMPString@Base 1.9.1
  dissect_per_GeneralString@Base 1.9.1
@@ -360,6 +363,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  dissect_rpc_string@Base 1.9.1
  dissect_rpc_uint32@Base 1.9.1
  dissect_rpc_uint64@Base 1.9.1
+ dissect_tcp_payload@Base 1.12.0
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
@@ -628,6 +632,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  get_ebcdic_string@Base 1.12.0~rc1
  get_eth_hashtable@Base 1.12.0~rc1
  get_ether_name@Base 1.9.1
+ get_export_pdu_tap_list@Base 1.12.0
  get_follow_tcp_index@Base 1.12.0~rc1
  get_host_ipaddr6@Base 1.9.1
  get_host_ipaddr@Base 1.9.1
@@ -644,6 +649,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  get_rose_ctx@Base 1.9.1
  get_serv_port_hashtable@Base 1.12.0~rc1
  get_tap_names@Base 1.12.0~rc1
+ get_tcp_conversation_data@Base 1.12.0
  get_tcp_stream_count@Base 1.12.0~rc1
  get_token_len@Base 1.9.1
  get_ts_23_038_7bits_string@Base 1.12.0~rc1
@@ -773,6 +779,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  output_fields_new@Base 1.12.0~rc1
  output_fields_num_fields@Base 1.12.0~rc1
  output_fields_set_option@Base 1.12.0~rc1
+ output_fields_valid@Base 1.12.0
  output_only_tables@Base 1.12.0~rc1
  p_add_proto_data@Base 1.9.1
  p_get_proto_data@Base 1.9.1
@@ -1021,6 +1028,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  register_dissector@Base 1.9.1
  register_dissector_filter@Base 1.9.1
  register_dissector_table@Base 1.9.1
+ register_export_pdu_tap@Base 1.12.0
  register_final_registration_routine@Base 1.9.1
  register_giop_user@Base 1.9.1
  register_giop_user_module@Base 1.9.1
@@ -1195,6 +1203,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  tfs_high_low@Base 1.9.1
  tfs_implemented_not_implemented@Base 1.9.1
  tfs_inuse_not_inuse@Base 1.9.1
+ tfs_invalid_valid@Base 1.12.0
  tfs_more_nomore@Base 1.9.1
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1

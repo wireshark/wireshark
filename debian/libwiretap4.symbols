@@ -1,9 +1,4 @@
 libwiretap.so.4 libwiretap4 #MINVER#
- buffer_append@Base 1.9.1
- buffer_assure_space@Base 1.9.1
- buffer_free@Base 1.9.1
- buffer_init@Base 1.9.1
- buffer_remove_start@Base 1.9.1
  file_eof@Base 1.9.1
  file_error@Base 1.9.1
  file_getc@Base 1.9.1
@@ -23,6 +18,7 @@ libwiretap.so.4 libwiretap4 #MINVER#
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
  register_all_wiretap_modules@Base 1.12.0~rc1
+ register_pcapng_block_type_handler@Base 1.12.0
  wtap_buf_ptr@Base 1.9.1
  wtap_cleareof@Base 1.9.1
  wtap_close@Base 1.9.1
