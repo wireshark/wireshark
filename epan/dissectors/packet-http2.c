@@ -910,7 +910,7 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 f
     if(flags & HTTP2_FLAGS_PRIORITY)
     {
         proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 4, ENC_NA);
-        proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_NA);
         weight = tvb_get_guint8(tvb, offset);
@@ -934,7 +934,7 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     datalen = tvb_reported_length_remaining(tvb, offset) - padding;
-    proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, datalen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, datalen, ENC_NA);
     offset += datalen;
 
     proto_tree_add_item(http2_tree, hf_http2_data_padding, tvb, offset, padding, ENC_NA);
@@ -958,7 +958,7 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
     offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
 
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
-    proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_NA);
 
     /* decompress the header block */
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
@@ -987,7 +987,7 @@ static int
 dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
 {
 
-    proto_tree_add_item(http2_tree, hf_http2_rst_stream_error, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_rst_stream_error, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -1022,7 +1022,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
         switch(settingsid){
             case HTTP2_SETTINGS_HEADER_TABLE_SIZE:
-                proto_tree_add_item(settings_tree, hf_http2_settings_header_table_size, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_header_table_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 
                 /* We only care the last header table size in SETTINGS */
                 header_table_size_found = 1;
@@ -1032,22 +1032,22 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
                 }
             break;
             case HTTP2_SETTINGS_ENABLE_PUSH:
-                proto_tree_add_item(settings_tree, hf_http2_settings_enable_push, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_enable_push, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             case HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS:
-                proto_tree_add_item(settings_tree, hf_http2_settings_max_concurrent_streams, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_max_concurrent_streams, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
-                proto_tree_add_item(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             case HTTP2_SETTINGS_MAX_FRAME_SIZE:
-                proto_tree_add_item(settings_tree, hf_http2_settings_max_frame_size, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_max_frame_size, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             case HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE:
-                proto_tree_add_item(settings_tree, hf_http2_settings_max_header_list_size, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_max_header_list_size, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
             default:
-                proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         }
         proto_item_append_text(ti_settings, " : %u", tvb_get_ntohl(tvb, offset));
@@ -1089,9 +1089,9 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(http2_tree, hf_http2_push_promise_promised_stream_id, tvb,
-                        offset, 4, ENC_NA);
+                        offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
@@ -1132,11 +1132,11 @@ static int
 dissect_http2_goaway(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
 {
 
-    proto_tree_add_item(http2_tree, hf_http2_goaway_r, tvb, offset, 4, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_goaway_last_stream_id, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_goaway_r, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(http2_tree, hf_http2_goaway_last_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(http2_tree, hf_http2_goaway_error, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_goaway_error, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     if(tvb_reported_length_remaining(tvb, offset) > 0)
     {
@@ -1151,8 +1151,8 @@ static int
 dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
 {
 
-    proto_tree_add_item(http2_tree, hf_http2_window_update_r, tvb, offset, 4, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_window_update_r, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -1193,10 +1193,10 @@ dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
     guint8 hostlen;
     int remain;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_maxage, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_maxage, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_port, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(http2_tree, hf_http2_altsvc_proto_len, tvb, offset, 1, ENC_NA);
@@ -1285,7 +1285,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         return MAGIC_FRAME_LENGTH;
     }
 
-    proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_length, tvb, offset, 3, ENC_BIG_ENDIAN);
     length = tvb_get_ntoh24(tvb, offset);
     offset += 3;
 
@@ -1298,8 +1298,8 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     flags = dissect_http2_header_flags(tvb, pinfo, http2_tree, offset, type);
     offset += 1;
 
-    proto_tree_add_item(http2_tree, hf_http2_r, tvb, offset, 4, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_streamid, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_r, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(http2_tree, hf_http2_streamid, tvb, offset, 4, ENC_BIG_ENDIAN);
     streamid = tvb_get_ntohl(tvb, offset) & MASK_HTTP2_STREAMID;
     proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid, length);
     offset += 4;
