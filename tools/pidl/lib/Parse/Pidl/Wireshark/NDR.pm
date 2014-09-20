@@ -27,7 +27,7 @@ use Parse::Pidl::Util qw(has_property property_matches make_str);
 use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpType DumpFunction);
 use Parse::Pidl::Wireshark::Conformance qw(ReadConformance);
-use File::Basename;	
+use File::Basename;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -234,7 +234,7 @@ sub Bitmap($$$$)
 		my $filtername = "$ifname\.$name\.$en";
 
 		$self->{hf_used}->{$hf_bitname} = 1;
-		
+
 		$self->register_hf_field($hf_bitname, field2name($en), $filtername, "FT_BOOLEAN", $e->{ALIGN} * 8, "TFS(&$name\_$en\_tfs)", $ev, "");
 
 		$self->pidl_def("static const true_false_string $name\_$en\_tfs = {");
@@ -315,7 +315,7 @@ sub ElementLevel($$$$$$$$)
 
 
 			($bs = 1) if (property_matches($e, "flag", ".*LIBNDR_FLAG_STR_ASCII.*"));
-			
+
 			if (property_matches($e, "flag", ".*LIBNDR_FLAG_STR_SIZE4.*") and property_matches($e, "flag", ".*LIBNDR_FLAG_STR_LEN4.*")) {
 				$self->pidl_code("char *data;\n");
 				$self->pidl_code("offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, $bs, $hf, FALSE, &data);");
@@ -339,7 +339,7 @@ sub ElementLevel($$$$$$$$)
 			my $call;
 
 			if ($self->{conformance}->{imports}->{$l->{DATA_TYPE}}) {
-				$call = $self->{conformance}->{imports}->{$l->{DATA_TYPE}}->{DATA};	
+				$call = $self->{conformance}->{imports}->{$l->{DATA_TYPE}}->{DATA};
 				$self->{conformance}->{imports}->{$l->{DATA_TYPE}}->{USED} = 1;
 				} elsif (defined($self->{conformance}->{imports}->{"$pn.$e->{NAME}"})) {
 					$call = $self->{conformance}->{imports}->{"$pn.$e->{NAME}"}->{DATA};
@@ -517,7 +517,7 @@ sub Function($$$)
 	foreach (@{$fn->{ELEMENTS}}) {
 	    $dissectornames{$_->{NAME}} = $self->Element($_, $fn->{NAME}, $ifname, undef, undef) if not defined($dissectornames{$_->{NAME}});
 	}
-	
+
 	my $fn_name = $_->{NAME};
 	$fn_name =~ s/^${ifname}_//;
 
@@ -709,7 +709,7 @@ sub Union($$$$)
 	my $dissectorname = "$ifname\_dissect_".StripPrefixes($name, $self->{conformance}->{strip_prefixes});
 
 	return if (defined($self->{conformance}->{noemit}->{StripPrefixes($name, $self->{conformance}->{strip_prefixes})}));
-	
+
 	$self->register_ett("ett_$ifname\_$name");
 
 	my $res = "";
@@ -781,7 +781,7 @@ sub Union($$$$)
 sub Const($$$)
 {
 	my ($self,$const,$ifname) = @_;
-	
+
 	if (!defined($const->{ARRAY_LEN}[0])) {
 		$self->pidl_hdr("#define $const->{NAME}\t( $const->{VALUE} )\n");
 	} else {
@@ -822,7 +822,7 @@ sub RegisterInterface($$)
 
 	$self->{res}->{code}.=$self->DumpHfList()."\n";
 	$self->{res}->{code}.="\n".DumpEttList($self->{ett})."\n";
-	
+
 	if (defined($x->{UUID})) {
 		# These can be changed to non-pidl_code names if the old dissectors
 		# in epan/dissctors are deleted.
@@ -997,7 +997,7 @@ sub Initialize($$)
 	};
 
 	ReadConformance($cnf_file, $self->{conformance}) or print STDERR "warning: No conformance file `$cnf_file'\n";
-	
+
 	foreach my $bytes (qw(1 2 4 8)) {
 		my $bits = $bytes * 8;
 		$self->register_type("uint$bits", "offset = PIDL_dissect_uint$bits(tvb, offset, pinfo, tree, di, drep, \@HF\@, \@PARAM\@);", "FT_UINT$bits", "BASE_DEC", 0, "NULL", $bytes);
