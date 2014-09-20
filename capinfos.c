@@ -1418,6 +1418,7 @@ main(int argc, char *argv[])
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNSUPPORTED_ENCAP:
         case WTAP_ERR_BAD_FILE:
+        case WTAP_ERR_DECOMPRESS:
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
           break;
