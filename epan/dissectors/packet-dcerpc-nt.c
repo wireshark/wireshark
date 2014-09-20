@@ -84,10 +84,8 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint3264 len;
 	proto_tree *subtree;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nt_data_blob, &item,
 			proto_registrar_get_name(hf_index));
-
-	subtree = proto_item_add_subtree(item, ett_nt_data_blob);
 
 	if (use_remaining_space) {
 		len = tvb_length_remaining (tvb, offset);
@@ -185,11 +183,9 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 
 	if (add_subtree) {
 
-		item = proto_tree_add_text(
-			tree, tvb, offset, 0, "%s",
+		subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_nt_counted_string, &item,
 			proto_registrar_get_name(hf_index));
-
-		subtree = proto_item_add_subtree(item, ett_nt_counted_string);
 	}
 
 	/*
@@ -250,10 +246,8 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nt_counted_byte_array, &item,
 		proto_registrar_get_name(hf_index));
-
-	subtree = proto_item_add_subtree(item, ett_nt_counted_byte_array);
 
 	/*
 	   struct {
@@ -358,10 +352,8 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nt_counted_ascii_string, &item,
 		proto_registrar_get_name(hf_index));
-
-	subtree = proto_item_add_subtree(item, ett_nt_counted_ascii_string);
 
 	/*
 	   struct {
@@ -431,8 +423,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	hf_info=proto_registrar_get_nth(hfindex);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
-		tree = proto_item_add_subtree(item, ett_lsa_String);
+		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
 	}
 
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsa_String_name_len, 0);
@@ -962,19 +953,15 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	switch(type){
 	case HND_TYPE_CTX_HANDLE:
-		item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
-					   "Policy Handle");
-
-		subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, sizeof(e_ctx_hnd),
+					   ett_nt_policy_hnd, &item, "Policy Handle");
 
 		offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, di, drep,
 					     hfindex, &hnd);
 		break;
 	case HND_TYPE_GUID:
-		item = proto_tree_add_text(tree, tvb, offset, 16,
-					   "GUID handle");
-
-		subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, 16,
+					   ett_nt_policy_hnd, &item, "GUID handle");
 
 		hnd.attributes=0;
 		offset=dissect_ndr_uuid_t(tvb, offset, pinfo, subtree, di, drep, hfindex, &hnd.uuid);
@@ -1509,9 +1496,8 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 	int old_offset=offset;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"SID pointer:");
-		tree = proto_item_add_subtree(item, ett_nt_sid_pointer);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			ett_nt_sid_pointer, &item, "SID pointer:");
 	}
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
@@ -1649,9 +1635,8 @@ dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 	int old_offset=offset;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"LOGON_HOURS:");
-		tree = proto_item_add_subtree(item, ett_nt_logon_hours_hours);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			ett_nt_logon_hours_hours, &item, "LOGON_HOURS:");
 	}
 
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep,
@@ -1676,9 +1661,8 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"LOGON_HOURS:");
-		tree = proto_item_add_subtree(item, ett_nt_logon_hours);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			ett_nt_logon_hours, &item, "LOGON_HOURS:");
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
@@ -1727,9 +1711,8 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 	int old_offset=offset;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"SID array:");
-		tree = proto_item_add_subtree(item, ett_nt_sid_array);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			ett_nt_sid_array, &item, "SID array:");
 	}
 
 	ALIGN_TO_5_BYTES;
@@ -1761,9 +1744,8 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 	proto_tree *tree=NULL;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"SID_AND_ATTRIBUTES:");
-		tree = proto_item_add_subtree(item, ett_nt_sid_and_attributes);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+			ett_nt_sid_and_attributes, &item, "SID_AND_ATTRIBUTES:");
 	}
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
@@ -1786,9 +1768,8 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 	int old_offset=offset;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"SID_AND_ATTRIBUTES array:");
-		tree = proto_item_add_subtree(item, ett_nt_sid_and_attributes_array);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+			ett_nt_sid_and_attributes_array, &item, "SID_AND_ATTRIBUTES array:");
 	}
 
 	/*offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,

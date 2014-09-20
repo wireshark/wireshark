@@ -1144,8 +1144,7 @@ drsuapi_dissect_union_DsBindInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsBindInfo");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsBindInfo);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsBindInfo, &item, "DsBindInfo");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -1821,8 +1820,7 @@ drsuapi_dissect_union_DsReplicaSyncRequest(tvbuff_t *tvb, int offset, packet_inf
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsReplicaSyncRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaSyncRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsReplicaSyncRequest, &item, "DsReplicaSyncRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -2556,8 +2554,7 @@ drsuapi_dissect_union_DsGetNCChangesRequest(tvbuff_t *tvb, int offset, packet_in
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetNCChangesRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsGetNCChangesRequest, &item, "DsGetNCChangesRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -2940,8 +2937,7 @@ drsuapi_dissect_union_DsGetNCChangesCtr(tvbuff_t *tvb, int offset, packet_info *
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetNCChangesCtr");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsGetNCChangesCtr);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsGetNCChangesCtr, &item, "DsGetNCChangesCtr");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -3221,8 +3217,7 @@ drsuapi_dissect_union_DsReplicaUpdateRefsRequest(tvbuff_t *tvb, int offset, pack
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsReplicaUpdateRefsRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaUpdateRefsRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsReplicaUpdateRefsRequest, &item, "DsReplicaUpdateRefsRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -3776,8 +3771,7 @@ drsuapi_dissect_union_DsNameRequest(tvbuff_t *tvb, int offset, packet_info *pinf
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsNameRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsNameRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsNameRequest, &item, "DsNameRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -3941,8 +3935,7 @@ drsuapi_dissect_union_DsNameCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsNameCtr");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsNameCtr);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsNameCtr, &item, "DsNameCtr");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -4157,8 +4150,7 @@ drsuapi_dissect_union_DsWriteAccountSpnRequest(tvbuff_t *tvb, int offset, packet
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsWriteAccountSpnRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsWriteAccountSpnRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsWriteAccountSpnRequest, &item, "DsWriteAccountSpnRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -4237,8 +4229,7 @@ drsuapi_dissect_union_DsWriteAccountSpnResult(tvbuff_t *tvb, int offset, packet_
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsWriteAccountSpnResult");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsWriteAccountSpnResult);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsWriteAccountSpnResult, &item, "DsWriteAccountSpnResult");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -4426,8 +4417,7 @@ drsuapi_dissect_union_DsGetDCInfoRequest(tvbuff_t *tvb, int offset, packet_info 
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetDCInfoRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsGetDCInfoRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsGetDCInfoRequest, &item, "DsGetDCInfoRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -5090,8 +5080,7 @@ drsuapi_dissect_union_DsGetDCInfoCtr(tvbuff_t *tvb, int offset, packet_info *pin
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsGetDCInfoCtr");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsGetDCInfoCtr);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsGetDCInfoCtr, &item, "DsGetDCInfoCtr");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -5459,8 +5448,7 @@ drsuapi_dissect_union_DsReplicaGetInfoRequest(tvbuff_t *tvb, int offset, packet_
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsReplicaGetInfoRequest");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaGetInfoRequest);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsReplicaGetInfoRequest, &item, "DsReplicaGetInfoRequest");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
@@ -6170,8 +6158,7 @@ drsuapi_dissect_union_DsRplicaOpOptions(tvbuff_t *tvb, int offset, packet_info *
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsRplicaOpOptions");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsRplicaOpOptions);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsRplicaOpOptions, &item, "DsRplicaOpOptions");
     }
 
     offset=dissect_ndr_uint16(tvb, offset, pinfo, tree,
@@ -7800,8 +7787,7 @@ drsuapi_dissect_union_DsReplicaInfo(tvbuff_t *tvb, int offset, packet_info *pinf
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsReplicaInfo");
- 	   tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaInfo);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_drsuapi_DsReplicaInfo, &item, "DsReplicaInfo");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,

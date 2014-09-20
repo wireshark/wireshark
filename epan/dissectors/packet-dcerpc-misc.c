@@ -36,24 +36,24 @@ static gint ett_misc_winreg_Data = -1;
 
 
 /* Header field declarations */
-static gint hf_misc_policy_handle_handle_type = -1;
-static gint hf_misc_GUID_time_low = -1;
+static gint hf_misc_winreg_Data_string = -1;
 static gint hf_misc_ndr_syntax_id_if_version = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_ntstatus = -1;
-static gint hf_misc_GUID_clock_seq = -1;
+static gint hf_misc_winreg_Data_value = -1;
+static gint hf_misc_winreg_Data_data = -1;
+static gint hf_misc_winreg_Data_string_array = -1;
+static gint hf_misc_policy_handle_handle_type = -1;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1 = -1;
+static gint hf_misc_winreg_Data_binary = -1;
 static gint hf_misc_opnum = -1;
 static gint hf_misc_GUID_time_hi_and_version = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1 = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown2 = -1;
-static gint hf_misc_winreg_Data_binary = -1;
-static gint hf_misc_winreg_Data_string = -1;
-static gint hf_misc_policy_handle_uuid = -1;
-static gint hf_misc_winreg_Data_string_array = -1;
 static gint hf_misc_GUID_time_mid = -1;
-static gint hf_misc_winreg_Data_data = -1;
-static gint hf_misc_ndr_syntax_id_uuid = -1;
 static gint hf_misc_GUID_node = -1;
-static gint hf_misc_winreg_Data_value = -1;
+static gint hf_misc_GUID_time_low = -1;
+static gint hf_misc_policy_handle_uuid = -1;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown2 = -1;
+static gint hf_misc_ndr_syntax_id_uuid = -1;
+static gint hf_misc_KRB5_EDATA_NTSTATUS_ntstatus = -1;
+static gint hf_misc_GUID_clock_seq = -1;
 
 static gint proto_dcerpc_misc = -1;
 /* Version information */
@@ -464,14 +464,14 @@ misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 
-/* IDL: [flag(LIBNDR_FLAG_LITTLE_ENDIAN)] [nodiscriminant(1)] [public(1)] union { */
+/* IDL: [public(1)] [flag(LIBNDR_FLAG_LITTLE_ENDIAN)] [nodiscriminant(1)] union { */
 /* IDL: [case(REG_NONE)] [case(REG_NONE)] EMPTY ; */
 /* IDL: [case(REG_SZ)] [flag(LIBNDR_FLAG_STR_NULLTERM)] [case(REG_SZ)] string string; */
-/* IDL: [case(REG_EXPAND_SZ)] [flag(LIBNDR_FLAG_STR_NULLTERM)] [case(REG_EXPAND_SZ)] string string; */
-/* IDL: [case(REG_BINARY)] [flag(LIBNDR_FLAG_REMAINING)] [case(REG_BINARY)] DATA_BLOB binary; */
+/* IDL: [case(REG_EXPAND_SZ)] [case(REG_EXPAND_SZ)] [flag(LIBNDR_FLAG_STR_NULLTERM)] string string; */
+/* IDL: [case(REG_BINARY)] [case(REG_BINARY)] [flag(LIBNDR_FLAG_REMAINING)] DATA_BLOB binary; */
 /* IDL: [case(REG_DWORD)] [case(REG_DWORD)] uint32 value; */
-/* IDL: [case(REG_DWORD_BIG_ENDIAN)] [flag(LIBNDR_FLAG_BIGENDIAN)] [case(REG_DWORD_BIG_ENDIAN)] uint32 value; */
-/* IDL: [case(REG_MULTI_SZ)] [flag(LIBNDR_FLAG_STR_NULLTERM)] [case(REG_MULTI_SZ)] string_array string_array; */
+/* IDL: [case(REG_DWORD_BIG_ENDIAN)] [case(REG_DWORD_BIG_ENDIAN)] [flag(LIBNDR_FLAG_BIGENDIAN)] uint32 value; */
+/* IDL: [case(REG_MULTI_SZ)] [case(REG_MULTI_SZ)] [flag(LIBNDR_FLAG_STR_NULLTERM)] string_array string_array; */
 /* IDL: [default] ; */
 /* IDL: } */
 
@@ -509,8 +509,7 @@ misc_dissect_winreg_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "winreg_Data");
-		tree = proto_item_add_subtree(item, ett_misc_winreg_Data);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_misc_winreg_Data, &item, "winreg_Data");
 	}
 
 	switch(level) {
@@ -558,42 +557,42 @@ static dcerpc_sub_dissector misc_dissectors[] = {
 void proto_register_dcerpc_misc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_misc_policy_handle_handle_type,
-	  { "Handle Type", "misc.policy_handle.handle_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_GUID_time_low,
-	  { "Time Low", "misc.GUID.time_low", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_ndr_syntax_id_if_version,
-	  { "If Version", "misc.ndr_syntax_id.if_version", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_KRB5_EDATA_NTSTATUS_ntstatus,
-	  { "Ntstatus", "misc.KRB5_EDATA_NTSTATUS.ntstatus", FT_UINT32, BASE_DEC, VALS(NT_errors), 0, NULL, HFILL }},
-	{ &hf_misc_GUID_clock_seq,
-	  { "Clock Seq", "misc.GUID.clock_seq", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_opnum,
-	  { "Operation", "misc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_GUID_time_hi_and_version,
-	  { "Time Hi And Version", "misc.GUID.time_hi_and_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown1,
-	  { "Unknown1", "misc.KRB5_EDATA_NTSTATUS.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown2,
-	  { "Unknown2", "misc.KRB5_EDATA_NTSTATUS.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_binary,
-	  { "Binary", "misc.winreg_Data.binary", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_winreg_Data_string,
-	  { "String", "misc.winreg_Data.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_policy_handle_uuid,
-	  { "Uuid", "misc.policy_handle.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_string_array,
-	  { "String Array", "misc.winreg_Data.string_array", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_GUID_time_mid,
-	  { "Time Mid", "misc.GUID.time_mid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_data,
-	  { "Data", "misc.winreg_Data.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_ndr_syntax_id_uuid,
-	  { "Uuid", "misc.ndr_syntax_id.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_GUID_node,
-	  { "Node", "misc.GUID.node", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "String", "misc.winreg_Data.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_ndr_syntax_id_if_version,
+		{ "If Version", "misc.ndr_syntax_id.if_version", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_winreg_Data_value,
-	  { "Value", "misc.winreg_Data.value", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Value", "misc.winreg_Data.value", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_winreg_Data_data,
+		{ "Data", "misc.winreg_Data.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_winreg_Data_string_array,
+		{ "String Array", "misc.winreg_Data.string_array", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_policy_handle_handle_type,
+		{ "Handle Type", "misc.policy_handle.handle_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown1,
+		{ "Unknown1", "misc.KRB5_EDATA_NTSTATUS.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_winreg_Data_binary,
+		{ "Binary", "misc.winreg_Data.binary", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_opnum,
+		{ "Operation", "misc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_GUID_time_hi_and_version,
+		{ "Time Hi And Version", "misc.GUID.time_hi_and_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_GUID_time_mid,
+		{ "Time Mid", "misc.GUID.time_mid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_GUID_node,
+		{ "Node", "misc.GUID.node", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_GUID_time_low,
+		{ "Time Low", "misc.GUID.time_low", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_policy_handle_uuid,
+		{ "Uuid", "misc.policy_handle.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown2,
+		{ "Unknown2", "misc.KRB5_EDATA_NTSTATUS.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_ndr_syntax_id_uuid,
+		{ "Uuid", "misc.ndr_syntax_id.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_KRB5_EDATA_NTSTATUS_ntstatus,
+		{ "Ntstatus", "misc.KRB5_EDATA_NTSTATUS.ntstatus", FT_UINT32, BASE_DEC, VALS(NT_errors), 0, NULL, HFILL }},
+	{ &hf_misc_GUID_clock_seq,
+		{ "Clock Seq", "misc.GUID.clock_seq", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 

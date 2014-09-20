@@ -347,8 +347,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsFid:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsFid);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsFid, &item, "afsFid:");
     }
 
 
@@ -410,10 +409,9 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item =
-	proto_tree_add_text (parent_tree, tvb, offset, -1,
-			     "afsConnParams_t:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsConnParams);
+      tree =
+	proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			     ett_fileexp_afsConnParams, &item, "afsConnParams_t:");
     }
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -566,10 +564,9 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 
   if (parent_tree)
     {
-      item =
-	proto_tree_add_text (parent_tree, tvb, offset, -1,
-			     "afsNameString_t:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsNameString_t);
+      tree =
+	proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+			     ett_fileexp_afsNameString_t, &item, "afsNameString_t:");
     }
 
  offset =
@@ -619,9 +616,8 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsNetAddr:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsNetAddr);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsNetAddr, &item, "afsNetAddr:");
     }
 
 
@@ -699,9 +695,8 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item =
-	proto_tree_add_text (parent_tree, tvb, offset, -1, "afsNetData:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsNetData);
+      tree =
+	proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fileexp_afsNetData, &item, "afsNetData:");
     }
 
 
@@ -741,9 +736,8 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item =
-	proto_tree_add_text (parent_tree, tvb, offset, -1, "afsTaggedPath");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsTaggedPath);
+      tree =
+	proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fileexp_afsTaggedPath, &item, "afsTaggedPath");
     }
 
 
@@ -790,8 +784,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsAcl");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsAcl);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsAcl, &item, "afsAcl");
     }
 
 
@@ -848,9 +841,8 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsErrorStatus");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsErrorStatus);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsErrorStatus, &item, "afsErrorStatus");
     }
 
   offset =
@@ -895,9 +887,8 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsRecordLock:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsRecordLock);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsRecordLock, &item, "afsRecordLock:");
     }
 
   offset =
@@ -980,9 +971,8 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsStoreStatus:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsstorestatus);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsstorestatus, &item, "afsStoreStatus:");
     }
 
   offset =
@@ -1154,8 +1144,7 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsToken:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afstoken);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afstoken, &item, "afsToken:");
     }
 
   offset =
@@ -1297,9 +1286,8 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsTaggedName:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afstaggedname);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afstaggedname, &item, "afsTaggedName:");
     }
 
   offset =
@@ -1348,9 +1336,8 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "FidTaggedName:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsfidtaggedname);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsfidtaggedname, &item, "FidTaggedName:");
     }
   offset = dissect_afsFid (tvb, offset, pinfo, tree, di, drep);
   offset = dissect_afstaggedname (tvb, offset, pinfo, tree, di, drep);
@@ -1382,8 +1369,7 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "minVVp:");
-      tree = proto_item_add_subtree (item, ett_fileexp_minvvp);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_minvvp,  &item, "minVVp:");
     }
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -1424,8 +1410,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsUUID:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsuuid);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsuuid, &item, "afsUUID:");
     }
 
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fileexp_afsuuid_uuid, &uuid1);
@@ -1459,8 +1444,7 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "minVVp:");
-      tree = proto_item_add_subtree (item, ett_fileexp_offsetp);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_offsetp, &item, "minVVp:");
     }
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -1500,8 +1484,7 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "returnTokenIDp:");
-      tree = proto_item_add_subtree (item, ett_fileexp_returntokenidp);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_returntokenidp, &item, "returnTokenIDp:");
     }
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -1548,9 +1531,8 @@ dissect_volsync (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "AfsVolSync:");
-      tree = proto_item_add_subtree (item, ett_fileexp_volsync);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_volsync, &item, "AfsVolSync:");
     }
 
   offset =
@@ -1612,8 +1594,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "AfsFlags:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsflags);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsflags, &item, "AfsFlags:");
     }
 
   offset =
@@ -1769,9 +1750,8 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "FetchStatus:");
-      tree = proto_item_add_subtree (item, ett_fileexp_fetchstatus);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_fetchstatus, &item, "FetchStatus:");
     }
 
   offset =
@@ -1928,9 +1908,8 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsReturnDesc:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsReturnDesc);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fileexp_afsReturnDesc, &item, "afsReturnDesc:");
     }
 
 
@@ -2003,8 +1982,7 @@ dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsbundled_stat:");
-      tree = proto_item_add_subtree (item, ett_fileexp_afsbundled_stat);
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsbundled_stat, &item, "afsbundled_stat:");
     }
 
 /*  bundled_stat

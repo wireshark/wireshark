@@ -212,8 +212,7 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	hf_info=proto_registrar_get_nth(hfindex);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
-		tree = proto_item_add_subtree(item, ett_winreg_winreg_String);
+		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_winreg_winreg_String, &item, "%s: ", hf_info->name);
 	}
 	
 	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, di, drep);

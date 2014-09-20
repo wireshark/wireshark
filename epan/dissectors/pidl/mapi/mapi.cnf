@@ -89,15 +89,13 @@ static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offse
 	gint		handles_cnt = 0;
 	int		old_offset;
 	guint32		value;
-	proto_item	*it = NULL;
-	proto_tree	*tr = NULL;
+	proto_tree	*tr;
 
 	reported_len = tvb_reported_length_remaining(tvb, offset);
 
 	handles_cnt = reported_len / 4;
 
-	it = proto_tree_add_text(tree, tvb, offset, reported_len, "MAPI Handles: %d", handles_cnt);
-	tr = proto_item_add_subtree(it, ett_mapi_mapi_request);
+	tr = proto_tree_add_subtree_format(tree, tvb, offset, reported_len, ett_mapi_mapi_request, NULL, "MAPI Handles: %d", handles_cnt);
 
 	for (i = 0; i < handles_cnt; i++) {
 	    old_offset = offset;

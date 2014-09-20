@@ -250,9 +250,8 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsNetAddr:");
-      tree = proto_item_add_subtree (item, ett_fldb_afsnetaddr);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fldb_afsnetaddr, &item, "afsNetAddr:");
     }
 
 /*                 unsigned16 type;
@@ -334,9 +333,8 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "vlconf_cell:");
-      tree = proto_item_add_subtree (item, ett_fldb_vlconf_cell);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fldb_vlconf_cell, &item, "vlconf_cell:");
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
@@ -445,10 +443,8 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "afsNameString_t:");
-      tree = proto_item_add_subtree (item, ett_fldb_afsNameString_t);
-    }
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+				  ett_fldb_afsNameString_t, &item, "afsNameString_t:");    }
 
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			       hf_fldb_afsNameString_t_principalName_size,
@@ -488,8 +484,7 @@ dissect_afsflags (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsFlags:");
-      tree = proto_item_add_subtree (item, ett_fldb_afsflags);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_afsflags, &item, "afsFlags:");
     }
 
   offset =
@@ -601,8 +596,7 @@ dissect_siteflags (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "SiteFlags:");
-      tree = proto_item_add_subtree (item, ett_fldb_siteflags);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_siteflags, &item, "SiteFlags:");
     }
 
   offset =
@@ -676,8 +670,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   if (parent_tree)
     {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1, "vldbentry:");
-      tree = proto_item_add_subtree (item, ett_fldb_vldbentry);
+      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_vldbentry, &item, "vldbentry:");
     }
 
 /*    byte            name[114];      Volume name  */

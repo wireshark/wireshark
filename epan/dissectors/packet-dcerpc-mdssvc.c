@@ -32,43 +32,43 @@ static gint ett_mdssvc_mdssvc_blob = -1;
 
 
 /* Header field declarations */
-static gint hf_mdssvc_mdssvc_open_unkn2 = -1;
-static gint hf_mdssvc_mdssvc_cmd_max_fragment_size2 = -1;
-static gint hf_mdssvc_mdssvc_cmd_status = -1;
-static gint hf_mdssvc_mdssvc_open_share_mount_path = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn4 = -1;
-static gint hf_mdssvc_mdssvc_cmd_share_handle = -1;
-static gint hf_mdssvc_mdssvc_unknown1_device_id = -1;
-static gint hf_mdssvc_mdssvc_unknown1_unkn4 = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn3 = -1;
-static gint hf_mdssvc_mdssvc_unknown1_unkn5 = -1;
-static gint hf_mdssvc_mdssvc_open_device_id = -1;
 static gint hf_mdssvc_mdssvc_cmd_max_fragment_size1 = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn7 = -1;
-static gint hf_mdssvc_mdssvc_unknown1_unkn3 = -1;
-static gint hf_mdssvc_mdssvc_blob_length = -1;
+static gint hf_mdssvc_mdssvc_open_share_path = -1;
+static gint hf_mdssvc_mdssvc_open_share_name = -1;
+static gint hf_mdssvc_mdssvc_unknown1_device_id = -1;
+static gint hf_mdssvc_mdssvc_blob_spotlight_blob = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn8 = -1;
 static gint hf_mdssvc_mdssvc_blob_size = -1;
+static gint hf_mdssvc_mdssvc_unknown1_unkn4 = -1;
+static gint hf_mdssvc_mdssvc_unknown1_flags = -1;
 static gint hf_mdssvc_mdssvc_unknown1_unkn6 = -1;
 static gint hf_mdssvc_mdssvc_cmd_request_blob = -1;
-static gint hf_mdssvc_opnum = -1;
-static gint hf_mdssvc_mdssvc_unknown1_flags = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn5 = -1;
-static gint hf_mdssvc_mdssvc_open_share_path = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn6 = -1;
-static gint hf_mdssvc_mdssvc_unknown1_unkn7 = -1;
-static gint hf_mdssvc_mdssvc_unknown1_unkn1 = -1;
-static gint hf_mdssvc_mdssvc_cmd_response_blob = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn1 = -1;
-static gint hf_mdssvc_mdssvc_open_unkn3 = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn7 = -1;
 static gint hf_mdssvc_mdssvc_cmd_device_id = -1;
-static gint hf_mdssvc_mdssvc_open_share_handle = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn8 = -1;
+static gint hf_mdssvc_mdssvc_cmd_response_blob = -1;
 static gint hf_mdssvc_mdssvc_cmd_flags = -1;
-static gint hf_mdssvc_mdssvc_cmd_unkn9 = -1;
+static gint hf_mdssvc_mdssvc_open_unkn2 = -1;
 static gint hf_mdssvc_mdssvc_unknown1_status = -1;
-static gint hf_mdssvc_mdssvc_open_share_name = -1;
+static gint hf_mdssvc_mdssvc_blob_length = -1;
+static gint hf_mdssvc_mdssvc_unknown1_unkn7 = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn6 = -1;
+static gint hf_mdssvc_mdssvc_cmd_status = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn9 = -1;
+static gint hf_mdssvc_mdssvc_unknown1_unkn3 = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn5 = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn3 = -1;
+static gint hf_mdssvc_mdssvc_cmd_max_fragment_size2 = -1;
+static gint hf_mdssvc_mdssvc_open_share_handle = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn4 = -1;
+static gint hf_mdssvc_mdssvc_cmd_unkn1 = -1;
+static gint hf_mdssvc_mdssvc_open_share_mount_path = -1;
+static gint hf_mdssvc_mdssvc_open_device_id = -1;
+static gint hf_mdssvc_mdssvc_unknown1_unkn5 = -1;
+static gint hf_mdssvc_opnum = -1;
+static gint hf_mdssvc_mdssvc_unknown1_unkn1 = -1;
+static gint hf_mdssvc_mdssvc_cmd_share_handle = -1;
 static gint hf_mdssvc_mdssvc_unknown1_share_handle = -1;
-static gint hf_mdssvc_mdssvc_blob_spotlight_blob = -1;
+static gint hf_mdssvc_mdssvc_open_unkn3 = -1;
 
 static gint proto_dcerpc_mdssvc = -1;
 /* Version information */
@@ -149,7 +149,7 @@ mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: struct { */
 /* IDL: 	uint32 length; */
 /* IDL: 	uint32 size; */
-/* IDL: 	[size_is(size)] [length_is(length)] [unique(1)] uint8 *spotlight_blob; */
+/* IDL: 	[length_is(length)] [size_is(size)] [unique(1)] uint8 *spotlight_blob; */
 /* IDL: } */
 
 static int
@@ -315,13 +315,13 @@ mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 /* IDL: void mdssvc_open( */
-/* IDL: [ref] [in] [out] uint32 *device_id, */
-/* IDL: [in] [ref] [out] uint32 *unkn2, */
+/* IDL: [in] [out] [ref] uint32 *device_id, */
+/* IDL: [ref] [out] [in] uint32 *unkn2, */
 /* IDL: [out] [in] [ref] uint32 *unkn3, */
 /* IDL: [charset(UTF8)] [in] uint8 share_mount_path[*], */
 /* IDL: [in] [charset(UTF8)] uint8 share_name[*], */
-/* IDL: [charset(UTF8)] [size_is(1025)] [out] uint8 share_path[*], */
-/* IDL: [out] [ref] policy_handle *share_handle */
+/* IDL: [size_is(1025)] [charset(UTF8)] [out] uint8 share_path[*], */
+/* IDL: [ref] [out] policy_handle *share_handle */
 /* IDL: ); */
 
 static int
@@ -475,7 +475,7 @@ mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: [in] uint32 unkn4, */
 /* IDL: [in] uint32 unkn5, */
 /* IDL: [in] uint32 unkn6, */
-/* IDL: [out] [ref] uint32 *status, */
+/* IDL: [ref] [out] uint32 *status, */
 /* IDL: [ref] [out] uint32 *flags, */
 /* IDL: [ref] [out] uint32 *unkn7 */
 /* IDL: ); */
@@ -683,9 +683,9 @@ mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: [in] uint32 max_fragment_size2, */
 /* IDL: [in] uint32 unkn7, */
 /* IDL: [in] uint32 unkn8, */
-/* IDL: [out] [ref] uint32 *status, */
+/* IDL: [ref] [out] uint32 *status, */
 /* IDL: [out] [ref] mdssvc_blob *response_blob, */
-/* IDL: [ref] [out] uint32 *unkn9 */
+/* IDL: [out] [ref] uint32 *unkn9 */
 /* IDL: ); */
 
 static int
@@ -751,80 +751,80 @@ static dcerpc_sub_dissector mdssvc_dissectors[] = {
 void proto_register_dcerpc_mdssvc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_mdssvc_mdssvc_open_unkn2,
-	  { "Unkn2", "mdssvc.mdssvc_open.unkn2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_max_fragment_size2,
-	  { "Max Fragment Size2", "mdssvc.mdssvc_cmd.max_fragment_size2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_status,
-	  { "Status", "mdssvc.mdssvc_cmd.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_open_share_mount_path,
-	  { "Share Mount Path", "mdssvc.mdssvc_open.share_mount_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn4,
-	  { "Unkn4", "mdssvc.mdssvc_cmd.unkn4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_share_handle,
-	  { "Share Handle", "mdssvc.mdssvc_cmd.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_device_id,
-	  { "Device Id", "mdssvc.mdssvc_unknown1.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn4,
-	  { "Unkn4", "mdssvc.mdssvc_unknown1.unkn4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn3,
-	  { "Unkn3", "mdssvc.mdssvc_cmd.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn5,
-	  { "Unkn5", "mdssvc.mdssvc_unknown1.unkn5", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_open_device_id,
-	  { "Device Id", "mdssvc.mdssvc_open.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mdssvc_mdssvc_cmd_max_fragment_size1,
-	  { "Max Fragment Size1", "mdssvc.mdssvc_cmd.max_fragment_size1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn7,
-	  { "Unkn7", "mdssvc.mdssvc_cmd.unkn7", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn3,
-	  { "Unkn3", "mdssvc.mdssvc_unknown1.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_blob_length,
-	  { "Length", "mdssvc.mdssvc_blob.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_blob_size,
-	  { "Size", "mdssvc.mdssvc_blob.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn6,
-	  { "Unkn6", "mdssvc.mdssvc_unknown1.unkn6", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_request_blob,
-	  { "Request Blob", "mdssvc.mdssvc_cmd.request_blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_opnum,
-	  { "Operation", "mdssvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_flags,
-	  { "Flags", "mdssvc.mdssvc_unknown1.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn5,
-	  { "Unkn5", "mdssvc.mdssvc_cmd.unkn5", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Max Fragment Size1", "mdssvc.mdssvc_cmd.max_fragment_size1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mdssvc_mdssvc_open_share_path,
-	  { "Share Path", "mdssvc.mdssvc_open.share_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn6,
-	  { "Unkn6", "mdssvc.mdssvc_cmd.unkn6", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn7,
-	  { "Unkn7", "mdssvc.mdssvc_unknown1.unkn7", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_unkn1,
-	  { "Unkn1", "mdssvc.mdssvc_unknown1.unkn1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_response_blob,
-	  { "Response Blob", "mdssvc.mdssvc_cmd.response_blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn1,
-	  { "Unkn1", "mdssvc.mdssvc_cmd.unkn1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_open_unkn3,
-	  { "Unkn3", "mdssvc.mdssvc_open.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_device_id,
-	  { "Device Id", "mdssvc.mdssvc_cmd.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_open_share_handle,
-	  { "Share Handle", "mdssvc.mdssvc_open.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn8,
-	  { "Unkn8", "mdssvc.mdssvc_cmd.unkn8", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_flags,
-	  { "Flags", "mdssvc.mdssvc_cmd.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_cmd_unkn9,
-	  { "Unkn9", "mdssvc.mdssvc_cmd.unkn9", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_status,
-	  { "Status", "mdssvc.mdssvc_unknown1.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Share Path", "mdssvc.mdssvc_open.share_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mdssvc_mdssvc_open_share_name,
-	  { "Share Name", "mdssvc.mdssvc_open.share_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mdssvc_mdssvc_unknown1_share_handle,
-	  { "Share Handle", "mdssvc.mdssvc_unknown1.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Share Name", "mdssvc.mdssvc_open.share_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_device_id,
+		{ "Device Id", "mdssvc.mdssvc_unknown1.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mdssvc_mdssvc_blob_spotlight_blob,
-	  { "Spotlight Blob", "mdssvc.mdssvc_blob.spotlight_blob", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Spotlight Blob", "mdssvc.mdssvc_blob.spotlight_blob", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn8,
+		{ "Unkn8", "mdssvc.mdssvc_cmd.unkn8", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_blob_size,
+		{ "Size", "mdssvc.mdssvc_blob.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn4,
+		{ "Unkn4", "mdssvc.mdssvc_unknown1.unkn4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_flags,
+		{ "Flags", "mdssvc.mdssvc_unknown1.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn6,
+		{ "Unkn6", "mdssvc.mdssvc_unknown1.unkn6", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_request_blob,
+		{ "Request Blob", "mdssvc.mdssvc_cmd.request_blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn7,
+		{ "Unkn7", "mdssvc.mdssvc_cmd.unkn7", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_device_id,
+		{ "Device Id", "mdssvc.mdssvc_cmd.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_response_blob,
+		{ "Response Blob", "mdssvc.mdssvc_cmd.response_blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_flags,
+		{ "Flags", "mdssvc.mdssvc_cmd.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_open_unkn2,
+		{ "Unkn2", "mdssvc.mdssvc_open.unkn2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_status,
+		{ "Status", "mdssvc.mdssvc_unknown1.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_blob_length,
+		{ "Length", "mdssvc.mdssvc_blob.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn7,
+		{ "Unkn7", "mdssvc.mdssvc_unknown1.unkn7", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn6,
+		{ "Unkn6", "mdssvc.mdssvc_cmd.unkn6", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_status,
+		{ "Status", "mdssvc.mdssvc_cmd.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn9,
+		{ "Unkn9", "mdssvc.mdssvc_cmd.unkn9", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn3,
+		{ "Unkn3", "mdssvc.mdssvc_unknown1.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn5,
+		{ "Unkn5", "mdssvc.mdssvc_cmd.unkn5", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn3,
+		{ "Unkn3", "mdssvc.mdssvc_cmd.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_max_fragment_size2,
+		{ "Max Fragment Size2", "mdssvc.mdssvc_cmd.max_fragment_size2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_open_share_handle,
+		{ "Share Handle", "mdssvc.mdssvc_open.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn4,
+		{ "Unkn4", "mdssvc.mdssvc_cmd.unkn4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_unkn1,
+		{ "Unkn1", "mdssvc.mdssvc_cmd.unkn1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_open_share_mount_path,
+		{ "Share Mount Path", "mdssvc.mdssvc_open.share_mount_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_open_device_id,
+		{ "Device Id", "mdssvc.mdssvc_open.device_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn5,
+		{ "Unkn5", "mdssvc.mdssvc_unknown1.unkn5", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_opnum,
+		{ "Operation", "mdssvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_unkn1,
+		{ "Unkn1", "mdssvc.mdssvc_unknown1.unkn1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_cmd_share_handle,
+		{ "Share Handle", "mdssvc.mdssvc_cmd.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_unknown1_share_handle,
+		{ "Share Handle", "mdssvc.mdssvc_unknown1.share_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mdssvc_mdssvc_open_unkn3,
+		{ "Unkn3", "mdssvc.mdssvc_open.unkn3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 

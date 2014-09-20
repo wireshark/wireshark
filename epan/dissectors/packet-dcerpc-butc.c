@@ -1480,8 +1480,7 @@ butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *p
 
     old_offset=offset;
     if(parent_tree){
- 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "tc_statusInfoSwitch");
- 	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitch);
+ 	   tree=proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_butc_tc_statusInfoSwitch, &item, "tc_statusInfoSwitch");
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,

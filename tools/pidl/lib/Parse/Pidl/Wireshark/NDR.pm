@@ -750,8 +750,7 @@ sub Union($$$$)
 	$self->pidl_code("old_offset = offset;");
 	$self->pidl_code("if (parent_tree) {");
 	$self->indent;
-	$self->pidl_code("item = proto_tree_add_text(parent_tree, tvb, offset, -1, \"$name\");");
-	$self->pidl_code("tree = proto_item_add_subtree(item, ett_$ifname\_$name);");
+	$self->pidl_code("tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_$ifname\_$name, &item, \"$name\");");
 	$self->deindent;
 	$self->pidl_code("}");
 

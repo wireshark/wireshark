@@ -101,427 +101,427 @@ static gint ett_lsarpc_lsa_ForestTrustInformation = -1;
 
 
 /* Header field declarations */
-static gint hf_lsarpc_lsa_LookupPrivValue_luid = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level = -1;
-static gint hf_lsarpc_lsa_LookupPrivName_handle = -1;
-static gint hf_lsarpc_opnum = -1;
-static gint hf_lsarpc_lsa_ForestTrustInformation_count = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomainByName_handle = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy2_handle = -1;
-static gint hf_lsarpc_lsa_CreateTrustedDomain_info = -1;
-static gint hf_lsarpc_lsa_DomainListEx_count = -1;
-static gint hf_lsarpc_lsa_AuditFullQueryInfo_shutdown_on_full = -1;
-static gint hf_lsarpc_lsa_LookupSids3_unknown2 = -1;
-static gint hf_lsarpc_lsa_LookupNames_sids = -1;
-static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES = -1;
-static gint hf_lsarpc_lsa_AsciiStringLarge_length = -1;
-static gint hf_lsarpc_lsa_TranslatedSid3_sid = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_count = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_max_wss = -1;
+static gint hf_lsarpc_lsa_LookupSids2_sids = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_unknown = -1;
 static gint hf_lsarpc_lsa_OpenPolicy_attr = -1;
-static gint hf_lsarpc_lsa_DATA_BUF_PTR_buf = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_secret_type = -1;
-static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_info = -1;
-static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS = -1;
-static gint hf_lsarpc_lsa_LookupSids2_unknown1 = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level = -1;
-static gint hf_lsarpc_lsa_DomainInfoEfs_blob_size = -1;
-static gint hf_lsarpc_lsa_AsciiStringLarge_string = -1;
-static gint hf_lsarpc_lsa_DomainList_domains = -1;
-static gint hf_lsarpc_lsa_QuerySecret_new_val = -1;
-static gint hf_lsarpc_lsa_DATA_BUF2_size = -1;
-static gint hf_lsarpc_lsa_LookupNames_count = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoPassword_old_password = -1;
-static gint hf_lsarpc_lsa_OpenPolicy_system_name = -1;
-static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_sids = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_auth_info = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN = -1;
-static gint hf_lsarpc_lsa_LUIDAttribute_attribute = -1;
-static gint hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_percent_full = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_unknown6 = -1;
-static gint hf_lsarpc_lsa_AddPrivilegesToAccount_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames_num_names = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info = -1;
-static gint hf_lsarpc_lsa_LookupSids2_count = -1;
-static gint hf_lsarpc_lsa_PrivEntry_name = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoBasic_sid = -1;
-static gint hf_lsarpc_lsa_TransNameArray_names = -1;
-static gint hf_lsarpc_lsa_DATA_BUF_size = -1;
-static gint hf_lsarpc_lsa_CreateAccount_acct_handle = -1;
-static gint hf_lsarpc_lsa_EnumTrustDom_handle = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy_level = -1;
-static gint hf_lsarpc_lsa_CreateSecret_sec_handle = -1;
-static gint hf_lsarpc_lsa_LookupPrivValue_name = -1;
-static gint hf_lsarpc_lsa_EnumPrivs_privs = -1;
-static gint hf_lsarpc_lsa_LookupNames2_unknown2 = -1;
-static gint hf_lsarpc_lsa_LookupNames4_unknown1 = -1;
-static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX = -1;
-static gint hf_lsarpc_lsa_LookupNames3_count = -1;
-static gint hf_lsarpc_secret_access_mask = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex = -1;
-static gint hf_lsarpc_lsa_LookupSids3_domains = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION = -1;
-static gint hf_lsarpc_lsa_LookupSids3_level = -1;
-static gint hf_lsarpc_lsa_LookupNames4_unknown2 = -1;
-static gint hf_lsarpc_lsa_AddAccountRights_sid = -1;
-static gint hf_lsarpc_lsa_Strings_names = -1;
-static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_domains = -1;
-static gint hf_lsarpc_lsa_RightSet_count = -1;
-static gint hf_lsarpc_lsa_TranslatedName2_sid_type = -1;
-static gint hf_lsarpc_lsa_EnumPrivsAccount_privs = -1;
-static gint hf_lsarpc_lsa_DATA_BUF_data = -1;
-static gint hf_lsarpc_lsa_CreateAccount_handle = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_pagefile = -1;
-static gint hf_lsarpc_lsa_PDAccountInfo_name = -1;
-static gint hf_lsarpc_lsa_StringLarge_size = -1;
-static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_max_size = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_data1 = -1;
-static gint hf_lsarpc_lsa_EnumAccounts_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames_level = -1;
-static gint hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name = -1;
-static gint hf_lsarpc_lsa_PrivArray_privs = -1;
-static gint hf_lsarpc_lsa_TranslatedSid_sid_type = -1;
-static gint hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE = -1;
-static gint hf_lsarpc_lsa_TranslatedName_sid_index = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomain_access_mask = -1;
-static gint hf_lsarpc_lsa_LookupPrivName_luid = -1;
-static gint hf_lsarpc_domain_access_mask = -1;
-static gint hf_lsarpc_lsa_LookupSids_handle = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_role = -1;
-static gint hf_lsarpc_lsa_CreateTrustedDomain_access_mask = -1;
-static gint hf_lsarpc_lsa_TranslatedSid2_sid_index = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_pd = -1;
-static gint hf_lsarpc_lsa_DeleteTrustedDomain_handle = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_info11 = -1;
-static gint hf_lsarpc_lsa_SetDomainInformationPolicy_info = -1;
-static gint hf_lsarpc_lsa_LookupPrivName_name = -1;
-static gint hf_lsarpc_lsa_DomainListEx_domains = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_db = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_retention_time = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy2_info = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_audit_events = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_direction = -1;
 static gint hf_lsarpc_lsa_String_size = -1;
-static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle = -1;
-static gint hf_lsarpc_lsa_AuditEventsInfo_auditing_mode = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_password = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress = -1;
-static gint hf_lsarpc_lsa_String_string = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_info_ex = -1;
-static gint hf_lsarpc_lsa_CloseTrustedDomainEx_handle = -1;
-static gint hf_lsarpc_lsa_EnumTrustDom_resume_handle = -1;
+static gint hf_lsarpc_lsa_TransNameArray2_count = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid = -1;
+static gint hf_lsarpc_efs_blob_len = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_auth_info = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy2_handle = -1;
+static gint hf_lsarpc_lsa_TransNameArray2_names = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid = -1;
+static gint hf_lsarpc_lsa_DomainList_count = -1;
+static gint hf_lsarpc_lsa_DeleteTrustedDomain_handle = -1;
+static gint hf_lsarpc_lsa_OpenPolicy2_access_mask = -1;
+static gint hf_lsarpc_lsa_LookupNames4_unknown2 = -1;
+static gint hf_lsarpc_lsa_LookupNames_sids = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_posix_offset = -1;
+static gint hf_lsarpc_lsa_Close_handle = -1;
+static gint hf_lsarpc_status = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_info_all = -1;
+static gint hf_lsarpc_lsa_OpenPolicy_system_name = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy2_info = -1;
+static gint hf_lsarpc_lsa_QuerySecurity_sdbuf = -1;
+static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_trusted_domain = -1;
+static gint hf_lsarpc_lsa_AddPrivilegesToAccount_privs = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle = -1;
+static gint hf_lsarpc_String_name = -1;
+static gint hf_lsarpc_lsa_LookupPrivDisplayName_disp_name = -1;
+static gint hf_lsarpc_lsa_TranslatedName_name = -1;
+static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_domains = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy_handle = -1;
+static gint hf_lsarpc_lsa_LookupSids3_sids = -1;
+static gint hf_lsarpc_lsa_DATA_BUF_size = -1;
+static gint hf_lsarpc_lsa_LookupNames2_count = -1;
+static gint hf_lsarpc_lsa_EnumAccounts_resume_handle = -1;
+static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_level = -1;
+static gint hf_lsarpc_lsa_ForestTrustBinaryData_length = -1;
+static gint hf_lsarpc_lsa_GetUserName_system_name = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoPassword_password = -1;
+static gint hf_lsarpc_lsa_TranslatedName2_unknown = -1;
+static gint hf_lsarpc_lsa_TransNameArray_count = -1;
+static gint hf_lsarpc_lsa_TranslatedSid_rid = -1;
+static gint hf_lsarpc_lsa_SidPtr_sid = -1;
+static gint hf_lsarpc_lsa_RefDomainList_max_size = -1;
+static gint hf_lsarpc_lsa_CreateSecret_access_mask = -1;
+static gint hf_lsarpc_lsa_DATA_BUF2_size = -1;
+static gint hf_lsarpc_domain_access_mask = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE = -1;
+static gint hf_lsarpc_lsa_EnumAccounts_handle = -1;
+static gint hf_lsarpc_lsa_OpenPolicy_access_mask = -1;
+static gint hf_lsarpc_lsa_QosInfo_effective_only = -1;
+static gint hf_lsarpc_lsa_DnsDomainInfo_sid = -1;
+static gint hf_lsarpc_lsa_TranslatedSid_sid_index = -1;
+static gint hf_lsarpc_lsa_TranslatedSid3_unknown = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_attributes = -1;
+static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_pagefile = -1;
+static gint hf_lsarpc_lsa_LookupNames2_sids = -1;
 static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_db = -1;
+static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_unknown = -1;
+static gint hf_lsarpc_lsa_AddAccountRights_sid = -1;
+static gint hf_lsarpc_lsa_LookupNames4_unknown1 = -1;
+static gint hf_lsarpc_lsa_LookupNames3_num_names = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_quota = -1;
+static gint hf_lsarpc_lsa_String_length = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoPassword_old_password = -1;
+static gint hf_lsarpc_lsa_LookupNames4_sids = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_object_name = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_percent_full = -1;
+static gint hf_lsarpc_lsa_DomainInformationPolicy_kerberos_info = -1;
+static gint hf_lsarpc_lsa_StringPointer_string = -1;
+static gint hf_lsarpc_lsa_CreateTrustedDomain_info = -1;
+static gint hf_lsarpc_lsa_TranslatedSid2_sid_type = -1;
+static gint hf_lsarpc_lsa_OpenPolicy_handle = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy_handle = -1;
+static gint hf_lsarpc_lsa_CreateSecret_name = -1;
+static gint hf_lsarpc_lsa_LookupPrivDisplayName_handle = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN = -1;
+static gint hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name = -1;
+static gint hf_lsarpc_lsa_AuditEventsInfo_count = -1;
+static gint hf_lsarpc_lsa_LookupNames2_names = -1;
+static gint hf_lsarpc_lsa_SidArray_sids = -1;
+static gint hf_lsarpc_lsa_QuerySecret_old_val = -1;
+static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level = -1;
+static gint hf_lsarpc_lsa_PrivEntry_name = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfo11_data1 = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_info = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_name = -1;
+static gint hf_lsarpc_lsa_RemoveAccountRights_sid = -1;
+static gint hf_lsarpc_lsa_LookupPrivValue_luid = -1;
+static gint hf_lsarpc_lsa_LookupSids_names = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy_level = -1;
+static gint hf_lsarpc_lsa_PrivArray_privs = -1;
+static gint hf_lsarpc_lsa_DomainListEx_domains = -1;
+static gint hf_lsarpc_lsa_AddAccountRights_handle = -1;
+static gint hf_lsarpc_lsa_LookupNames2_unknown2 = -1;
+static gint hf_lsarpc_lsa_ForestTrustInformation_entries = -1;
+static gint hf_lsarpc_lsa_AuditEventsInfo_auditing_mode = -1;
+static gint hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE = -1;
+static gint hf_lsarpc_lsa_LookupNames3_unknown1 = -1;
+static gint hf_lsarpc_lsa_LookupSids_count = -1;
+static gint hf_lsarpc_lsa_LookupNames_num_names = -1;
+static gint hf_lsarpc_lsa_AddAccountRights_rights = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION = -1;
+static gint hf_lsarpc_lsa_EnumPrivs_resume_handle = -1;
+static gint hf_lsarpc_lsa_TranslatedName2_name = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy_info = -1;
+static gint hf_lsarpc_lsa_OpenAccount_access_mask = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_count = -1;
+static gint hf_lsarpc_lsa_TransSidArray2_sids = -1;
+static gint hf_lsarpc_lsa_DATA_BUF_PTR_buf = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_password = -1;
+static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW = -1;
+static gint hf_lsarpc_lsa_CloseTrustedDomainEx_handle = -1;
+static gint hf_lsarpc_lsa_DomainInfo_name = -1;
+static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_remove_all = -1;
+static gint hf_lsarpc_lsa_StringLarge_length = -1;
+static gint hf_lsarpc_lsa_EnumAccountRights_sid = -1;
 static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_auditfullset = -1;
-static gint hf_lsarpc_lsa_LookupSids_domains = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_non_paged_pool = -1;
-static gint hf_lsarpc_lsa_LookupNames4_count = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_replica = -1;
+static gint hf_lsarpc_lsa_LookupSids2_names = -1;
+static gint hf_lsarpc_lsa_LookupPrivName_name = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info = -1;
+static gint hf_lsarpc_lsa_TranslatedSid3_sid = -1;
+static gint hf_lsarpc_lsa_LookupSids2_unknown1 = -1;
+static gint hf_lsarpc_lsa_StringLarge_size = -1;
+static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS = -1;
+static gint hf_lsarpc_lsa_TranslatedSid2_unknown = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_audit_log = -1;
+static gint hf_lsarpc_lsa_LookupPrivName_luid = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_sec_desc = -1;
+static gint hf_lsarpc_lsa_OpenSecret_access_mask = -1;
+static gint hf_lsarpc_lsa_LUID_high = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_attributes = -1;
+static gint hf_lsarpc_lsa_RefDomainList_count = -1;
+static gint hf_lsarpc_lsa_LookupNames4_level = -1;
+static gint hf_lsarpc_lsa_LookupSids3_unknown2 = -1;
+static gint hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_unknown = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_info11 = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info = -1;
+static gint hf_lsarpc_lsa_LookupNames2_level = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT = -1;
+static gint hf_lsarpc_lsa_TranslatedSid2_rid = -1;
+static gint hf_lsarpc_lsa_AsciiString_length = -1;
+static gint hf_lsarpc_lsa_AsciiStringLarge_length = -1;
+static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_level = -1;
+static gint hf_lsarpc_lsa_AsciiString_string = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy2_info = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomainByName_handle = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_paged_pool = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle = -1;
+static gint hf_lsarpc_lsa_LUIDAttribute_attribute = -1;
+static gint hf_lsarpc_lsa_RemoveAccountRights_handle = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress = -1;
+static gint hf_lsarpc_lsa_GetUserName_account_name = -1;
+static gint hf_lsarpc_lsa_QuerySecret_new_val = -1;
+static gint hf_lsarpc_lsa_CreateAccount_access_mask = -1;
+static gint hf_lsarpc_lsa_CreateTrustedDomain_handle = -1;
+static gint hf_lsarpc_lsa_LookupNames2_handle = -1;
+static gint hf_lsarpc_lsa_LookupSids_level = -1;
+static gint hf_lsarpc_lsa_OpenPolicy2_system_name = -1;
+static gint hf_lsarpc_lsa_LookupNames2_num_names = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info = -1;
+static gint hf_lsarpc_lsa_DomainListEx_count = -1;
+static gint hf_lsarpc_lsa_Strings_count = -1;
+static gint hf_lsarpc_lsa_RightSet_names = -1;
+static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_max_size = -1;
+static gint hf_lsarpc_lsa_SetDomainInformationPolicy_handle = -1;
+static gint hf_lsarpc_lsa_RightAttribute_name = -1;
+static gint hf_lsarpc_lsa_ForestTrustRecord_flags = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_netbios_name = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_info_ex = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_retention_time = -1;
+static gint hf_lsarpc_lsa_ForestTrustRecord_unknown = -1;
+static gint hf_lsarpc_lsa_EnumPrivs_handle = -1;
+static gint hf_lsarpc_lsa_TranslatedName2_sid_index = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy_info = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_full_info = -1;
+static gint hf_lsarpc_lsa_TranslatedSid3_sid_index = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS = -1;
+static gint hf_lsarpc_lsa_LookupNames3_count = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle = -1;
+static gint hf_lsarpc_lsa_DomainInfoEfs_efs_blob = -1;
+static gint hf_lsarpc_lsa_OpenAccount_handle = -1;
+static gint hf_lsarpc_lsa_PrivilegeSet_set = -1;
+static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle = -1;
+static gint hf_lsarpc_lsa_LookupSids2_handle = -1;
+static gint hf_lsarpc_lsa_QuerySecret_sec_handle = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_auditfullquery = -1;
+static gint hf_lsarpc_lsa_ForestTrustInformation_count = -1;
+static gint hf_lsarpc_lsa_StringLarge_string = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX = -1;
+static gint hf_lsarpc_lsa_TransNameArray_names = -1;
+static gint hf_lsarpc_lsa_DATA_BUF_length = -1;
+static gint hf_lsarpc_lsa_EnumAccounts_num_entries = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_posix_offset = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy2_handle = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_type = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_pd = -1;
+static gint hf_lsarpc_lsa_PrivilegeSet_count = -1;
+static gint hf_lsarpc_lsa_DATA_BUF2_data = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_domain = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_data1 = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_log_size = -1;
+static gint hf_lsarpc_lsa_AsciiStringLarge_size = -1;
+static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_info = -1;
+static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_handle = -1;
+static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_sids = -1;
+static gint hf_lsarpc_lsa_LookupSids2_domains = -1;
+static gint hf_lsarpc_lsa_AuditFullSetInfo_shutdown_on_full = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_dns = -1;
+static gint hf_lsarpc_lsa_Delete_handle = -1;
+static gint hf_lsarpc_lsa_CreateAccount_handle = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN = -1;
+static gint hf_lsarpc_lsa_LookupNames_domains = -1;
 static gint hf_lsarpc_names = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime = -1;
+static gint hf_lsarpc_lsa_EnumPrivsAccount_handle = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_data = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_next_audit_record = -1;
+static gint hf_lsarpc_lsa_DomainInfo_sid = -1;
+static gint hf_lsarpc_lsa_LookupSids3_domains = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_enforce_restrictions = -1;
+static gint hf_lsarpc_lsa_TranslatedName2_sid_type = -1;
+static gint hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION = -1;
+static gint hf_lsarpc_lsa_EnumAccountRights_handle = -1;
+static gint hf_lsarpc_lsa_ForestTrustDomainInfo_netbios_domain_name = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level = -1;
+static gint hf_lsarpc_lsa_CreateSecret_handle = -1;
+static gint hf_lsarpc_lsa_OpenAccount_acct_handle = -1;
 static gint hf_lsarpc_lsa_LookupNames3_domains = -1;
 static gint hf_lsarpc_account_access_mask = -1;
-static gint hf_lsarpc_lsa_DomainInformationPolicy_efs_info = -1;
-static gint hf_lsarpc_lsa_CreateSecret_name = -1;
-static gint hf_lsarpc_lsa_ServerRole_role = -1;
-static gint hf_lsarpc_lsa_ForestTrustDomainInfo_netbios_domain_name = -1;
-static gint hf_lsarpc_lsa_TranslatedName2_name = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoPassword_password = -1;
-static gint hf_lsarpc_lsa_PrivilegeSet_count = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_trusted_domain = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfo11_info_ex = -1;
-static gint hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid = -1;
-static gint hf_lsarpc_lsa_ForestTrustData_top_level_name = -1;
-static gint hf_lsarpc_lsa_PrivArray_count = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS = -1;
-static gint hf_lsarpc_lsa_OpenPolicy_handle = -1;
-static gint hf_lsarpc_lsa_SetSecret_sec_handle = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_root_dir = -1;
-static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle = -1;
-static gint hf_lsarpc_lsa_OpenSecret_sec_handle = -1;
-static gint hf_lsarpc_lsa_DnsDomainInfo_sid = -1;
-static gint hf_lsarpc_lsa_EnumAccountRights_sid = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_posix_offset = -1;
-static gint hf_lsarpc_lsa_LookupPrivDisplayName_language_id = -1;
-static gint hf_lsarpc_lsa_LookupNames3_num_names = -1;
-static gint hf_lsarpc_lsa_QuerySecret_sec_handle = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomainByName_name = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_clock_skew = -1;
-static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_handle = -1;
-static gint hf_lsarpc_lsa_TranslatedSid3_unknown = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_object_name = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy2_info = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy_level = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_attributes = -1;
-static gint hf_lsarpc_lsa_AsciiStringLarge_size = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_posix_offset = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_auth_info = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name = -1;
-static gint hf_lsarpc_lsa_LookupNames4_sids = -1;
-static gint hf_lsarpc_lsa_TranslatedName_sid_type = -1;
-static gint hf_lsarpc_lsa_OpenPolicy2_system_name = -1;
-static gint hf_lsarpc_lsa_LookupSids3_unknown1 = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_sec_desc = -1;
-static gint hf_lsarpc_lsa_DomainInfo_sid = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown = -1;
-static gint hf_lsarpc_lsa_RefDomainList_max_size = -1;
-static gint hf_lsarpc_lsa_RemoveAccountRights_rights = -1;
-static gint hf_lsarpc_lsa_GetUserName_authority_name = -1;
-static gint hf_lsarpc_lsa_TransSidArray2_sids = -1;
-static gint hf_lsarpc_lsa_TranslatedName_name = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_auth_info = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE = -1;
-static gint hf_lsarpc_lsa_EnumPrivs_resume_handle = -1;
-static gint hf_lsarpc_lsa_ForestTrustInformation_entries = -1;
-static gint hf_lsarpc_lsa_SidPtr_sid = -1;
-static gint hf_lsarpc_lsa_LookupNames2_sids = -1;
-static gint hf_lsarpc_lsa_LookupSids3_names = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoPosixOffset_posix_offset = -1;
-static gint hf_lsarpc_lsa_LookupPrivDisplayName_handle = -1;
-static gint hf_lsarpc_lsa_Close_handle = -1;
-static gint hf_lsarpc_lsa_LookupPrivValue_handle = -1;
-static gint hf_lsarpc_lsa_LookupPrivDisplayName_name = -1;
-static gint hf_lsarpc_lsa_RemoveAccountRights_handle = -1;
-static gint hf_lsarpc_lsa_LookupSids3_sids = -1;
-static gint hf_lsarpc_lsa_EnumAccounts_sids = -1;
-static gint hf_lsarpc_lsa_EnumTrustDom_domains = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_account_domain = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_paged_pool = -1;
-static gint hf_lsarpc_lsa_LookupPrivDisplayName_unknown = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_count = -1;
-static gint hf_lsarpc_lsa_DnsDomainInfo_domain_guid = -1;
-static gint hf_lsarpc_lsa_LookupNames3_unknown1 = -1;
-static gint hf_lsarpc_lsa_LookupSids_level = -1;
-static gint hf_lsarpc_lsa_TranslatedSid_sid_index = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_info_ex = -1;
-static gint hf_lsarpc_lsa_EnumAccounts_resume_handle = -1;
-static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_level = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_full_info = -1;
-static gint hf_lsarpc_lsa_DATA_BUF_length = -1;
-static gint hf_lsarpc_lsa_LookupNames4_domains = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle = -1;
-static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_level = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT = -1;
-static gint hf_lsarpc_lsa_OpenSecret_access_mask = -1;
-static gint hf_lsarpc_lsa_TransSidArray2_count = -1;
-static gint hf_lsarpc_lsa_AsciiString_size = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_quota = -1;
-static gint hf_lsarpc_lsa_AddAccountRights_rights = -1;
-static gint hf_lsarpc_lsa_ForestTrustData_top_level_name_ex = -1;
-static gint hf_lsarpc_lsa_Strings_count = -1;
-static gint hf_lsarpc_lsa_ForestTrustData_data = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_type = -1;
-static gint hf_lsarpc_lsa_DATA_BUF2_data = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy_info = -1;
-static gint hf_lsarpc_lsa_SetSecret_new_val = -1;
-static gint hf_lsarpc_lsa_TranslatedSid3_sid_index = -1;
-static gint hf_lsarpc_lsa_TransNameArray2_count = -1;
-static gint hf_lsarpc_lsa_Delete_handle = -1;
-static gint hf_lsarpc_lsa_EnumPrivs_max_count = -1;
-static gint hf_lsarpc_lsa_CreateSecret_access_mask = -1;
-static gint hf_lsarpc_status = -1;
-static gint hf_lsarpc_lsa_ForestTrustRecord_forest_trust_data = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle = -1;
-static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_sec_qos = -1;
-static gint hf_lsarpc_lsa_LookupSids2_sids = -1;
-static gint hf_lsarpc_lsa_DnsDomainInfo_dns_domain = -1;
-static gint hf_lsarpc_lsa_SetDomainInformationPolicy_handle = -1;
-static gint hf_lsarpc_lsa_PrivilegeSet_unknown = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime = -1;
-static gint hf_lsarpc_lsa_StringLarge_length = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomain_sid = -1;
-static gint hf_lsarpc_lsa_QuerySecurity_sdbuf = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomainByName_access_mask = -1;
-static gint hf_lsarpc_lsa_DomainInfo_name = -1;
-static gint hf_lsarpc_lsa_ModificationInfo_db_create_time = -1;
-static gint hf_lsarpc_lsa_LookupSids_sids = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info = -1;
-static gint hf_lsarpc_lsa_LookupNames_names = -1;
-static gint hf_lsarpc_lsa_ForestTrustBinaryData_data = -1;
-static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames3_sids = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_log_size = -1;
-static gint hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle = -1;
-static gint hf_lsarpc_lsa_DnsDomainInfo_name = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_len = -1;
-static gint hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle = -1;
-static gint hf_lsarpc_sec_desc_buf_len = -1;
-static gint hf_lsarpc_efs_blob_len = -1;
-static gint hf_lsarpc_lsa_DomainInformationPolicy_kerberos_info = -1;
-static gint hf_lsarpc_lsa_CreateAccount_access_mask = -1;
-static gint hf_lsarpc_lsa_StringPointer_string = -1;
-static gint hf_lsarpc_lsa_AuditEventsInfo_count = -1;
-static gint hf_lsarpc_lsa_ObjectAttribute_attributes = -1;
-static gint hf_lsarpc_lsa_PrivEntry_luid = -1;
-static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_info = -1;
-static gint hf_lsarpc_lsa_QosInfo_impersonation_level = -1;
-static gint hf_lsarpc_lsa_CreateTrustedDomain_handle = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_info = -1;
-static gint hf_lsarpc_lsa_AuditEventsInfo_settings = -1;
-static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time = -1;
-static gint hf_lsarpc_lsa_LookupNames2_level = -1;
-static gint hf_lsarpc_lsa_QuerySecurity_handle = -1;
-static gint hf_lsarpc_lsa_LUID_low = -1;
-static gint hf_lsarpc_lsa_EnumPrivsAccount_handle = -1;
-static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_remove_all = -1;
-static gint hf_lsarpc_lsa_TranslatedName2_sid_index = -1;
-static gint hf_lsarpc_lsa_DomainInfoKerberos_enforce_restrictions = -1;
-static gint hf_lsarpc_lsa_QosInfo_context_mode = -1;
-static gint hf_lsarpc_lsa_EnumPrivs_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames3_names = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_unknown = -1;
-static gint hf_lsarpc_lsa_AddPrivilegesToAccount_privs = -1;
-static gint hf_lsarpc_lsa_ForestTrustRecord_unknown = -1;
-static gint hf_lsarpc_lsa_TranslatedSid_rid = -1;
-static gint hf_lsarpc_lsa_AddAccountRights_handle = -1;
-static gint hf_lsarpc_lsa_TransSidArray_sids = -1;
-static gint hf_lsarpc_lsa_LUID_high = -1;
-static gint hf_lsarpc_lsa_ReplicaSourceInfo_source = -1;
-static gint hf_lsarpc_lsa_LookupNames4_names = -1;
-static gint hf_lsarpc_lsa_LookupSids2_unknown2 = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid = -1;
-static gint hf_lsarpc_lsa_LookupNames_domains = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_min_wss = -1;
-static gint hf_lsarpc_lsa_TransNameArray_count = -1;
-static gint hf_lsarpc_lsa_ForestTrustBinaryData_length = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_info_all = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoName_netbios_name = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info = -1;
-static gint hf_lsarpc_lsa_CreateSecret_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames2_handle = -1;
-static gint hf_lsarpc_lsa_DomainList_count = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_name = -1;
-static gint hf_lsarpc_lsa_LookupSids2_level = -1;
-static gint hf_lsarpc_lsa_SetDomainInformationPolicy_level = -1;
-static gint hf_lsarpc_lsa_EnumAccounts_num_entries = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name = -1;
-static gint hf_lsarpc_lsa_LookupNames2_domains = -1;
-static gint hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE = -1;
-static gint hf_lsarpc_lsa_RightAttribute_name = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_replica = -1;
-static gint hf_lsarpc_lsa_AsciiString_length = -1;
-static gint hf_lsarpc_lsa_OpenAccount_handle = -1;
-static gint hf_lsarpc_lsa_CreateAccount_sid = -1;
-static gint hf_lsarpc_lsa_String_length = -1;
-static gint hf_lsarpc_lsa_GetUserName_account_name = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy2_level = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_dns = -1;
-static gint hf_lsarpc_lsa_LookupNames3_unknown2 = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_direction = -1;
-static gint hf_lsarpc_lsa_LookupSids3_count = -1;
-static gint hf_lsarpc_lsa_TransSidArray3_sids = -1;
-static gint hf_lsarpc_lsa_SetSecret_old_val = -1;
-static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_unknown = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_audit_log = -1;
-static gint hf_lsarpc_lsa_TransSidArray3_count = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME = -1;
-static gint hf_lsarpc_lsa_GetUserName_system_name = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy_handle = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_info_basic = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH = -1;
-static gint hf_lsarpc_lsa_SidArray_sids = -1;
-static gint hf_lsarpc_lsa_LookupSids2_names = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle = -1;
-static gint hf_lsarpc_lsa_LookupSids2_domains = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy_handle = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION = -1;
-static gint hf_lsarpc_lsa_RightSet_names = -1;
-static gint hf_lsarpc_lsa_QuerySecurity_sec_info = -1;
-static gint hf_lsarpc_lsa_DnsDomainInfo_dns_forest = -1;
-static gint hf_lsarpc_lsa_QuerySecret_new_mtime = -1;
-static gint hf_lsarpc_lsa_TranslatedSid2_sid_type = -1;
-static gint hf_lsarpc_lsa_SidArray_num_sids = -1;
-static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_name = -1;
-static gint hf_lsarpc_lsa_AuditFullQueryInfo_log_is_full = -1;
-static gint hf_lsarpc_lsa_SetInfoPolicy2_level = -1;
-static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_handle = -1;
-static gint hf_lsarpc_lsa_RemoveAccountRights_unknown = -1;
-static gint hf_lsarpc_lsa_TranslatedSid2_unknown = -1;
-static gint hf_lsarpc_lsa_TransSidArray_count = -1;
-static gint hf_lsarpc_lsa_StringLarge_string = -1;
-static gint hf_lsarpc_lsa_OpenAccount_acct_handle = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_unknown = -1;
-static gint hf_lsarpc_lsa_TransNameArray2_names = -1;
-static gint hf_lsarpc_lsa_ReplicaSourceInfo_account = -1;
-static gint hf_lsarpc_lsa_LookupSids_names = -1;
-static gint hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid = -1;
-static gint hf_lsarpc_lsa_EnumAccountRights_rights = -1;
-static gint hf_lsarpc_lsa_TranslatedSid3_sid_type = -1;
-static gint hf_lsarpc_lsa_QuerySecret_old_val = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfo11_data1 = -1;
-static gint hf_lsarpc_lsa_OpenSecret_handle = -1;
-static gint hf_lsarpc_lsa_AuditFullSetInfo_shutdown_on_full = -1;
-static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_handle = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy_info = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX = -1;
-static gint hf_lsarpc_lsa_OpenPolicy2_attr = -1;
-static gint hf_lsarpc_lsa_LookupNames2_unknown1 = -1;
-static gint hf_lsarpc_policy_access_mask = -1;
-static gint hf_lsarpc_lsa_EnumAccountRights_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames3_level = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH = -1;
-static gint hf_lsarpc_lsa_RemoveAccountRights_sid = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_auditfullquery = -1;
-static gint hf_lsarpc_lsa_AuditFullQueryInfo_unknown = -1;
-static gint hf_lsarpc_lsa_AsciiString_string = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_data = -1;
-static gint hf_lsarpc_lsa_PrivilegeSet_set = -1;
-static gint hf_lsarpc_lsa_DomainInfoEfs_efs_blob = -1;
-static gint hf_lsarpc_lsa_LUIDAttribute_luid = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION = -1;
-static gint hf_lsarpc_lsa_ForestTrustRecord_flags = -1;
-static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_trusted_domain = -1;
-static gint hf_lsarpc_lsa_LookupSids_count = -1;
-static gint hf_lsarpc_lsa_OpenAccount_access_mask = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info = -1;
-static gint hf_lsarpc_lsa_TranslatedSid2_rid = -1;
-static gint hf_lsarpc_lsa_LookupNames4_num_names = -1;
-static gint hf_lsarpc_lsa_LookupNames2_names = -1;
-static gint hf_lsarpc_lsa_ForestTrustRecord_level = -1;
-static gint hf_lsarpc_lsa_RefDomainList_count = -1;
-static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS = -1;
-static gint hf_lsarpc_lsa_TrustedDomainInfo_posix_offset = -1;
-static gint hf_lsarpc_lsa_OpenPolicy_access_mask = -1;
-static gint hf_lsarpc_lsa_TranslatedName2_unknown = -1;
-static gint hf_lsarpc_lsa_QosInfo_effective_only = -1;
-static gint hf_lsarpc_lsa_AuditLogInfo_next_audit_record = -1;
-static gint hf_lsarpc_lsa_QosInfo_len = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info = -1;
-static gint hf_lsarpc_lsa_ForestTrustData_domain_info = -1;
-static gint hf_lsarpc_lsa_QuerySecret_old_mtime = -1;
-static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_level = -1;
-static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION = -1;
-static gint hf_lsarpc_lsa_QueryInfoPolicy2_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames4_level = -1;
-static gint hf_lsarpc_lsa_LookupSids2_handle = -1;
-static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_netbios_name = -1;
+static gint hf_lsarpc_lsa_LookupNames_level = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_auth_info = -1;
 static gint hf_lsarpc_lsa_OpenAccount_sid = -1;
-static gint hf_lsarpc_lsa_RefDomainList_domains = -1;
-static gint hf_lsarpc_String_name = -1;
-static gint hf_lsarpc_lsa_LookupNames2_count = -1;
-static gint hf_lsarpc_lsa_PolicyInformation_domain = -1;
-static gint hf_lsarpc_lsa_OpenPolicy2_handle = -1;
-static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name = -1;
-static gint hf_lsarpc_lsa_LookupPrivDisplayName_disp_name = -1;
+static gint hf_lsarpc_lsa_LookupNames3_unknown2 = -1;
+static gint hf_lsarpc_lsa_LookupPrivValue_name = -1;
+static gint hf_lsarpc_lsa_String_string = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN = -1;
+static gint hf_lsarpc_lsa_EnumTrustDom_handle = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomain_access_mask = -1;
 static gint hf_lsarpc_lsa_LookupNames3_handle = -1;
-static gint hf_lsarpc_lsa_OpenSecret_name = -1;
-static gint hf_lsarpc_lsa_LookupNames_handle = -1;
-static gint hf_lsarpc_lsa_LookupNames2_num_names = -1;
-static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS = -1;
-static gint hf_lsarpc_lsa_DefaultQuotaInfo_max_wss = -1;
-static gint hf_lsarpc_lsa_ModificationInfo_modified_id = -1;
+static gint hf_lsarpc_sec_desc_buf_len = -1;
+static gint hf_lsarpc_lsa_EnumPrivsAccount_privs = -1;
+static gint hf_lsarpc_lsa_TranslatedSid_sid_type = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name = -1;
+static gint hf_lsarpc_lsa_EnumTrustDom_domains = -1;
+static gint hf_lsarpc_lsa_EnumAccountRights_rights = -1;
+static gint hf_lsarpc_lsa_LookupSids_handle = -1;
+static gint hf_lsarpc_lsa_TranslatedName_sid_index = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_root_dir = -1;
+static gint hf_lsarpc_lsa_LookupSids3_level = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfo11_info_ex = -1;
+static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_name = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_auditfullset = -1;
+static gint hf_lsarpc_lsa_TransSidArray3_sids = -1;
+static gint hf_lsarpc_lsa_LookupPrivName_handle = -1;
+static gint hf_lsarpc_lsa_OpenPolicy2_attr = -1;
+static gint hf_lsarpc_lsa_TransSidArray3_count = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfo_level = -1;
+static gint hf_lsarpc_lsa_DomainInfoEfs_blob_size = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_role = -1;
+static gint hf_lsarpc_lsa_LookupSids3_unknown1 = -1;
+static gint hf_lsarpc_lsa_RightSet_count = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime = -1;
+static gint hf_lsarpc_lsa_LookupPrivDisplayName_name = -1;
+static gint hf_lsarpc_lsa_ForestTrustData_data = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name = -1;
+static gint hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid = -1;
+static gint hf_lsarpc_lsa_SetSecret_old_val = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_sec_qos = -1;
+static gint hf_lsarpc_lsa_LookupNames_names = -1;
+static gint hf_lsarpc_lsa_LookupNames_count = -1;
+static gint hf_lsarpc_lsa_TranslatedName_sid_type = -1;
+static gint hf_lsarpc_lsa_QuerySecret_new_mtime = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_info_basic = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy2_level = -1;
+static gint hf_lsarpc_lsa_ForestTrustData_top_level_name = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoName_netbios_name = -1;
+static gint hf_lsarpc_lsa_QosInfo_impersonation_level = -1;
 static gint hf_lsarpc_lsa_EnumTrustDom_max_size = -1;
+static gint hf_lsarpc_lsa_LookupNames4_count = -1;
+static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle = -1;
+static gint hf_lsarpc_lsa_ReplicaSourceInfo_account = -1;
+static gint hf_lsarpc_lsa_CreateTrustedDomain_access_mask = -1;
+static gint hf_lsarpc_lsa_DATA_BUF_data = -1;
+static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_info = -1;
+static gint hf_lsarpc_lsa_CreateSecret_sec_handle = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_account_domain = -1;
+static gint hf_lsarpc_lsa_EnumAccountsWithUserRight_handle = -1;
+static gint hf_lsarpc_lsa_OpenSecret_handle = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_min_wss = -1;
+static gint hf_lsarpc_lsa_QueryDomainInformationPolicy_handle = -1;
+static gint hf_lsarpc_lsa_LookupSids2_count = -1;
+static gint hf_lsarpc_lsa_RemoveAccountRights_unknown = -1;
+static gint hf_lsarpc_lsa_LUID_low = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_unknown6 = -1;
+static gint hf_lsarpc_lsa_LookupSids2_level = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex = -1;
+static gint hf_lsarpc_lsa_LookupSids_sids = -1;
+static gint hf_lsarpc_lsa_ForestTrustRecord_forest_trust_data = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_trusted_domain = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoPosixOffset_posix_offset = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION = -1;
+static gint hf_lsarpc_lsa_LookupPrivDisplayName_unknown = -1;
+static gint hf_lsarpc_lsa_DefaultQuotaInfo_non_paged_pool = -1;
+static gint hf_lsarpc_lsa_GetUserName_authority_name = -1;
+static gint hf_lsarpc_lsa_EnumTrustDom_resume_handle = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info = -1;
+static gint hf_lsarpc_lsa_EnumPrivs_max_count = -1;
+static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle = -1;
+static gint hf_lsarpc_lsa_LookupSids3_count = -1;
+static gint hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION = -1;
+static gint hf_lsarpc_lsa_CreateAccount_sid = -1;
+static gint hf_lsarpc_lsa_EnumPrivs_privs = -1;
+static gint hf_lsarpc_lsa_AuditFullQueryInfo_log_is_full = -1;
+static gint hf_lsarpc_lsa_SidArray_num_sids = -1;
+static gint hf_lsarpc_lsa_PolicyInformation_audit_events = -1;
+static gint hf_lsarpc_lsa_ForestTrustRecord_level = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoBasic_sid = -1;
+static gint hf_lsarpc_lsa_LookupNames4_names = -1;
+static gint hf_lsarpc_lsa_AddPrivilegesToAccount_handle = -1;
+static gint hf_lsarpc_lsa_LookupPrivValue_handle = -1;
+static gint hf_lsarpc_lsa_TrustedDomainInfo_posix_offset = -1;
 static gint hf_lsarpc_lsa_OpenTrustedDomain_handle = -1;
-static gint hf_lsarpc_lsa_OpenPolicy2_access_mask = -1;
+static gint hf_lsarpc_lsa_ModificationInfo_modified_id = -1;
+static gint hf_lsarpc_lsa_OpenSecret_sec_handle = -1;
+static gint hf_lsarpc_lsa_ModificationInfo_db_create_time = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoBuffer_secret_type = -1;
+static gint hf_lsarpc_lsa_LUIDAttribute_luid = -1;
+static gint hf_lsarpc_lsa_PDAccountInfo_name = -1;
+static gint hf_lsarpc_lsa_LookupPrivDisplayName_language_id = -1;
+static gint hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs = -1;
+static gint hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid = -1;
+static gint hf_lsarpc_lsa_TranslatedSid3_sid_type = -1;
+static gint hf_lsarpc_lsa_QuerySecret_old_mtime = -1;
+static gint hf_lsarpc_lsa_LookupSids2_unknown2 = -1;
+static gint hf_lsarpc_lsa_LookupNames3_names = -1;
+static gint hf_lsarpc_lsa_DnsDomainInfo_dns_forest = -1;
+static gint hf_lsarpc_lsa_QuerySecurity_sec_info = -1;
+static gint hf_lsarpc_secret_access_mask = -1;
+static gint hf_lsarpc_lsa_TranslatedSid2_sid_index = -1;
+static gint hf_lsarpc_lsa_LookupNames2_domains = -1;
+static gint hf_lsarpc_lsa_DomainList_domains = -1;
+static gint hf_lsarpc_lsa_AsciiStringLarge_string = -1;
+static gint hf_lsarpc_lsa_AuditFullQueryInfo_unknown = -1;
+static gint hf_lsarpc_lsa_SetSecret_sec_handle = -1;
+static gint hf_lsarpc_lsa_OpenPolicy2_handle = -1;
+static gint hf_lsarpc_lsa_DnsDomainInfo_name = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS = -1;
+static gint hf_lsarpc_lsa_LookupNames3_level = -1;
+static gint hf_lsarpc_lsa_LookupNames4_domains = -1;
+static gint hf_lsarpc_lsa_LookupNames4_num_names = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoFullInfo_auth_info = -1;
+static gint hf_lsarpc_lsa_QuerySecurity_handle = -1;
+static gint hf_lsarpc_lsa_ForestTrustData_top_level_name_ex = -1;
+static gint hf_lsarpc_lsa_ServerRole_role = -1;
+static gint hf_lsarpc_lsa_SetInfoPolicy2_level = -1;
+static gint hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomain_sid = -1;
+static gint hf_lsarpc_lsa_LookupNames_handle = -1;
+static gint hf_lsarpc_lsa_LookupNames2_unknown1 = -1;
+static gint hf_lsarpc_lsa_ReplicaSourceInfo_source = -1;
+static gint hf_lsarpc_lsa_SetSecret_new_val = -1;
+static gint hf_lsarpc_lsa_QosInfo_len = -1;
+static gint hf_lsarpc_lsa_AuditFullQueryInfo_shutdown_on_full = -1;
+static gint hf_lsarpc_lsa_CreateAccount_acct_handle = -1;
+static gint hf_lsarpc_lsa_ForestTrustData_domain_info = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomainByName_name = -1;
+static gint hf_lsarpc_lsa_DnsDomainInfo_domain_guid = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info = -1;
+static gint hf_lsarpc_lsa_ObjectAttribute_len = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_clock_skew = -1;
+static gint hf_lsarpc_opnum = -1;
+static gint hf_lsarpc_lsa_TransSidArray_sids = -1;
+static gint hf_lsarpc_lsa_AsciiString_size = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_count = -1;
+static gint hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime = -1;
+static gint hf_lsarpc_lsa_EnumAccounts_sids = -1;
+static gint hf_lsarpc_lsa_DomainInformationPolicy_efs_info = -1;
+static gint hf_lsarpc_lsa_SetDomainInformationPolicy_level = -1;
+static gint hf_lsarpc_lsa_PrivEntry_luid = -1;
+static gint hf_lsarpc_lsa_RefDomainList_domains = -1;
+static gint hf_lsarpc_lsa_RemoveAccountRights_rights = -1;
+static gint hf_lsarpc_lsa_TrustDomainInfoInfoAll_info_ex = -1;
+static gint hf_lsarpc_lsa_TransSidArray_count = -1;
+static gint hf_lsarpc_lsa_QosInfo_context_mode = -1;
+static gint hf_lsarpc_lsa_LookupSids_domains = -1;
+static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name = -1;
+static gint hf_lsarpc_lsa_LookupNames3_sids = -1;
+static gint hf_lsarpc_lsa_LookupSids3_names = -1;
+static gint hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info = -1;
+static gint hf_lsarpc_lsa_SetDomainInformationPolicy_info = -1;
+static gint hf_lsarpc_lsa_PrivArray_count = -1;
+static gint hf_lsarpc_lsa_OpenTrustedDomainByName_access_mask = -1;
+static gint hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE = -1;
+static gint hf_lsarpc_policy_access_mask = -1;
+static gint hf_lsarpc_lsa_AuditEventsInfo_settings = -1;
+static gint hf_lsarpc_lsa_PrivilegeSet_unknown = -1;
+static gint hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS = -1;
+static gint hf_lsarpc_lsa_QueryInfoPolicy_level = -1;
+static gint hf_lsarpc_lsa_TransSidArray2_count = -1;
+static gint hf_lsarpc_lsa_DnsDomainInfo_dns_domain = -1;
+static gint hf_lsarpc_lsa_Strings_names = -1;
+static gint hf_lsarpc_lsa_OpenSecret_name = -1;
+static gint hf_lsarpc_lsa_ForestTrustBinaryData_data = -1;
+static gint hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH = -1;
 
 static gint proto_dcerpc_lsarpc = -1;
 /* Version information */
@@ -1663,7 +1663,7 @@ lsarpc_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: struct { */
 /* IDL: 	[value(2*strlen_m(string))] uint16 length; */
 /* IDL: 	[value(2*strlen_m(string))] uint16 size; */
-/* IDL: 	[size_is(size/2)] [charset(UTF16)] [length_is(length/2)] [unique(1)] uint16 *string; */
+/* IDL: 	[unique(1)] [charset(UTF16)] [size_is(size/2)] [length_is(length/2)] uint16 *string; */
 /* IDL: } */
 
 static int
@@ -1727,7 +1727,7 @@ lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: struct { */
 /* IDL: 	[value(2*strlen_m(string))] uint16 length; */
 /* IDL: 	[value(2*strlen_m_term(string))] uint16 size; */
-/* IDL: 	[size_is(size/2)] [charset(UTF16)] [length_is(length/2)] [unique(1)] uint16 *string; */
+/* IDL: 	[unique(1)] [size_is(size/2)] [charset(UTF16)] [length_is(length/2)] uint16 *string; */
 /* IDL: } */
 
 static int
@@ -1860,7 +1860,7 @@ lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: struct { */
 /* IDL: 	[value(strlen_m(string))] uint16 length; */
 /* IDL: 	[value(strlen_m(string))] uint16 size; */
-/* IDL: 	[unique(1)] [length_is(length)] [charset(DOS)] [size_is(size)] uint8 *string; */
+/* IDL: 	[unique(1)] [size_is(size)] [charset(DOS)] [length_is(length)] uint8 *string; */
 /* IDL: } */
 
 static int
@@ -1940,7 +1940,7 @@ lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: struct { */
 /* IDL: 	[value(strlen_m(string))] uint16 length; */
 /* IDL: 	[value(strlen_m_term(string))] uint16 size; */
-/* IDL: 	[length_is(length)] [unique(1)] [size_is(size)] [charset(DOS)] uint8 *string; */
+/* IDL: 	[unique(1)] [charset(DOS)] [size_is(size)] [length_is(length)] uint8 *string; */
 /* IDL: } */
 
 static int
@@ -2581,7 +2581,7 @@ lsarpc_dissect_enum_lsa_PolicyAuditEventType(tvbuff_t *tvb _U_, int offset _U_, 
 
 /* IDL: struct { */
 /* IDL: 	uint32 auditing_mode; */
-/* IDL: 	[size_is(count)] [unique(1)] lsa_PolicyAuditPolicy *settings; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_PolicyAuditPolicy *settings; */
 /* IDL: 	uint32 count; */
 /* IDL: } */
 
@@ -3375,8 +3375,7 @@ lsarpc_dissect_lsa_PolicyInformation(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "lsa_PolicyInformation");
-		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_PolicyInformation);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_lsarpc_lsa_PolicyInformation, &item, "lsa_PolicyInformation");
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -3489,7 +3488,7 @@ lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 /* IDL: struct { */
 /* IDL: 	[range(0,1000)] uint32 num_sids; */
-/* IDL: 	[unique(1)] [size_is(num_sids)] lsa_SidPtr *sids; */
+/* IDL: 	[size_is(num_sids)] [unique(1)] lsa_SidPtr *sids; */
 /* IDL: } */
 
 static int
@@ -3558,7 +3557,7 @@ lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 /* IDL: struct { */
 /* IDL: 	uint32 count; */
-/* IDL: 	[unique(1)] [size_is(count)] lsa_DomainInfo *domains; */
+/* IDL: 	[size_is(count)] [unique(1)] lsa_DomainInfo *domains; */
 /* IDL: } */
 
 static int
@@ -3788,7 +3787,7 @@ lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packe
 
 /* IDL: struct { */
 /* IDL: 	[range(0,1000)] uint32 count; */
-/* IDL: 	[unique(1)] [size_is(count)] lsa_DomainInfo *domains; */
+/* IDL: 	[size_is(count)] [unique(1)] lsa_DomainInfo *domains; */
 /* IDL: 	uint32 max_size; */
 /* IDL: } */
 
@@ -4151,7 +4150,7 @@ lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: struct { */
 /* IDL: 	uint32 length; */
 /* IDL: 	uint32 size; */
-/* IDL: 	[unique(1)] [length_is(length)] [size_is(size)] uint8 *data; */
+/* IDL: 	[size_is(size)] [length_is(length)] [unique(1)] uint8 *data; */
 /* IDL: } */
 
 static int
@@ -4230,7 +4229,7 @@ lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 /* IDL: struct { */
 /* IDL: 	[range(0,65536)] uint32 size; */
-/* IDL: 	[unique(1)] [size_is(size)] uint8 *data; */
+/* IDL: 	[size_is(size)] [unique(1)] uint8 *data; */
 /* IDL: } */
 
 static int
@@ -5123,8 +5122,7 @@ lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "lsa_TrustedDomainInfo");
-		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustedDomainInfo);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_lsarpc_lsa_TrustedDomainInfo, &item, "lsa_TrustedDomainInfo");
 	}
 
 	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -5224,7 +5222,7 @@ lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 /* IDL: struct { */
-/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *name; */
+/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *name; */
 /* IDL: } */
 
 static int
@@ -5278,7 +5276,7 @@ lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, pack
 
 /* IDL: struct { */
 /* IDL: 	uint32 count; */
-/* IDL: 	[size_is(count)] [unique(1)] lsa_StringLarge *names; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_StringLarge *names; */
 /* IDL: } */
 
 static int
@@ -5397,7 +5395,7 @@ lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packe
 
 /* IDL: struct { */
 /* IDL: 	uint32 count; */
-/* IDL: 	[size_is(count)] [unique(1)] lsa_TrustDomainInfoInfoEx *domains; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_TrustDomainInfoInfoEx *domains; */
 /* IDL: } */
 
 static int
@@ -5674,8 +5672,7 @@ lsarpc_dissect_lsa_DomainInformationPolicy(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "lsa_DomainInformationPolicy");
-		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainInformationPolicy);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_lsarpc_lsa_DomainInformationPolicy, &item, "lsa_DomainInformationPolicy");
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -5917,7 +5914,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, pack
 
 /* IDL: struct { */
 /* IDL: 	[range(0,1000)] uint32 count; */
-/* IDL: 	[size_is(count)] [unique(1)] lsa_TranslatedSid2 *sids; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_TranslatedSid2 *sids; */
 /* IDL: } */
 
 static int
@@ -6069,7 +6066,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, pack
 
 /* IDL: struct { */
 /* IDL: 	[range(0,1000)] uint32 count; */
-/* IDL: 	[size_is(count)] [unique(1)] lsa_TranslatedSid3 *sids; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_TranslatedSid3 *sids; */
 /* IDL: } */
 
 static int
@@ -6326,8 +6323,7 @@ lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "lsa_ForestTrustData");
-		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ForestTrustData);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_lsarpc_lsa_ForestTrustData, &item, "lsa_ForestTrustData");
 	}
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -6547,7 +6543,7 @@ lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 /* IDL: NTSTATUS lsa_Close( */
-/* IDL: [out] [in] [ref] policy_handle *handle */
+/* IDL: [in] [ref] [out] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -6677,7 +6673,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb _U_, int offset _U_, p
 
 /* IDL: NTSTATUS lsa_EnumPrivs( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [out] [in] [ref] uint32 *resume_handle, */
+/* IDL: [out] [ref] [in] uint32 *resume_handle, */
 /* IDL: [in] uint32 max_count, */
 /* IDL: [ref] [out] lsa_PrivArray *privs */
 /* IDL: ); */
@@ -6758,7 +6754,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_QuerySecurity( */
 /* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] security_secinfo sec_info, */
-/* IDL: [out] [unique(1)] sec_desc_buf *sdbuf */
+/* IDL: [unique(1)] [out] sec_desc_buf *sdbuf */
 /* IDL: ); */
 
 static int
@@ -6897,7 +6893,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_,
 
 /* IDL: NTSTATUS lsa_OpenPolicy( */
 /* IDL: [unique(1)] [in] uint16 *system_name, */
-/* IDL: [in] [ref] lsa_ObjectAttribute *attr, */
+/* IDL: [ref] [in] lsa_ObjectAttribute *attr, */
 /* IDL: [in] lsa_PolicyAccessMask access_mask, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
@@ -6973,9 +6969,9 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _
 }
 
 /* IDL: NTSTATUS lsa_QueryInfoPolicy( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] lsa_PolicyInformation *info */
+/* IDL: [unique(1)] [switch_is(level)] [out] lsa_PolicyInformation *info */
 /* IDL: ); */
 
 static int
@@ -7047,9 +7043,9 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: NTSTATUS lsa_SetInfoPolicy( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [switch_is(level)] [ref] [in] lsa_PolicyInformation *info */
+/* IDL: [switch_is(level)] [in] [ref] lsa_PolicyInformation *info */
 /* IDL: ); */
 
 static int
@@ -7161,10 +7157,10 @@ lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb _U_, int off
 }
 
 /* IDL: NTSTATUS lsa_CreateAccount( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] [ref] dom_sid2 *sid, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] dom_sid2 *sid, */
 /* IDL: [in] lsa_AccountAccessMask access_mask, */
-/* IDL: [out] [ref] policy_handle *acct_handle */
+/* IDL: [ref] [out] policy_handle *acct_handle */
 /* IDL: ); */
 
 static int
@@ -7255,9 +7251,9 @@ lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb _U_, int offset _U_,
 
 /* IDL: NTSTATUS lsa_EnumAccounts( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [ref] [in] [out] uint32 *resume_handle, */
-/* IDL: [range(0,8192)] [in] uint32 num_entries, */
-/* IDL: [out] [ref] lsa_SidArray *sids */
+/* IDL: [out] [ref] [in] uint32 *resume_handle, */
+/* IDL: [in] [range(0,8192)] uint32 num_entries, */
+/* IDL: [ref] [out] lsa_SidArray *sids */
 /* IDL: ); */
 
 static int
@@ -7350,10 +7346,10 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U
 }
 
 /* IDL: NTSTATUS lsa_CreateTrustedDomain( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] [ref] lsa_DomainInfo *info, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] lsa_DomainInfo *info, */
 /* IDL: [in] lsa_DomainAccessMask access_mask, */
-/* IDL: [out] [ref] policy_handle *trustdom_handle */
+/* IDL: [ref] [out] policy_handle *trustdom_handle */
 /* IDL: ); */
 
 static int
@@ -7444,7 +7440,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb _U_, int offset _
 
 /* IDL: NTSTATUS lsa_EnumTrustDom( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [ref] [in] [out] uint32 *resume_handle, */
+/* IDL: [out] [ref] [in] uint32 *resume_handle, */
 /* IDL: [in] uint32 max_size, */
 /* IDL: [out] [ref] lsa_DomainList *domains */
 /* IDL: ); */
@@ -7573,11 +7569,11 @@ lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: NTSTATUS lsa_LookupNames( */
 /* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [range(0,1000)] [in] uint32 num_names, */
-/* IDL: [size_is(num_names)] [in] lsa_String names[*], */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
-/* IDL: [out] [in] [ref] lsa_TransSidArray *sids, */
+/* IDL: [in] [size_is(num_names)] lsa_String names[*], */
+/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] [in] lsa_TransSidArray *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
-/* IDL: [ref] [out] [in] uint32 *count */
+/* IDL: [out] [ref] [in] uint32 *count */
 /* IDL: ); */
 
 static int
@@ -7714,9 +7710,9 @@ lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
 /* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
-/* IDL: [ref] [out] [in] lsa_TransNameArray *names, */
+/* IDL: [in] [ref] [out] lsa_TransNameArray *names, */
 /* IDL: [in] uint16 level, */
-/* IDL: [out] [in] [ref] uint32 *count */
+/* IDL: [in] [ref] [out] uint32 *count */
 /* IDL: ); */
 
 static int
@@ -7811,7 +7807,7 @@ lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb _U_, int offse
 /* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] lsa_String name, */
 /* IDL: [in] lsa_SecretAccessMask access_mask, */
-/* IDL: [ref] [out] policy_handle *sec_handle */
+/* IDL: [out] [ref] policy_handle *sec_handle */
 /* IDL: ); */
 
 static int
@@ -7901,10 +7897,10 @@ lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 /* IDL: NTSTATUS lsa_OpenAccount( */
-/* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [in] [ref] dom_sid2 *sid, */
+/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [ref] [in] dom_sid2 *sid, */
 /* IDL: [in] lsa_AccountAccessMask access_mask, */
-/* IDL: [out] [ref] policy_handle *acct_handle */
+/* IDL: [ref] [out] policy_handle *acct_handle */
 /* IDL: ); */
 
 static int
@@ -7971,7 +7967,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset
 
 /* IDL: NTSTATUS lsa_EnumPrivsAccount( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [unique(1)] [out] lsa_PrivilegeSet *privs */
+/* IDL: [out] [unique(1)] lsa_PrivilegeSet *privs */
 /* IDL: ); */
 
 static int
@@ -8033,8 +8029,8 @@ lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb _U_, int 
 }
 
 /* IDL: NTSTATUS lsa_AddPrivilegesToAccount( */
-/* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [ref] [in] lsa_PrivilegeSet *privs */
+/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] lsa_PrivilegeSet *privs */
 /* IDL: ); */
 
 static int
@@ -8105,7 +8101,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb _U_,
 /* IDL: NTSTATUS lsa_RemovePrivilegesFromAccount( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint8 remove_all, */
-/* IDL: [unique(1)] [in] lsa_PrivilegeSet *privs */
+/* IDL: [in] [unique(1)] lsa_PrivilegeSet *privs */
 /* IDL: ); */
 
 static int
@@ -8295,7 +8291,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_,
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [ref] [in] dom_sid2 *sid, */
 /* IDL: [in] lsa_DomainAccessMask access_mask, */
-/* IDL: [out] [ref] policy_handle *trustdom_handle */
+/* IDL: [ref] [out] policy_handle *trustdom_handle */
 /* IDL: ); */
 
 static int
@@ -8371,7 +8367,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int o
 /* IDL: NTSTATUS lsa_QueryTrustedDomainInfo( */
 /* IDL: [ref] [in] policy_handle *trustdom_handle, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] lsa_TrustedDomainInfo *info */
+/* IDL: [unique(1)] [switch_is(level)] [out] lsa_TrustedDomainInfo *info */
 /* IDL: ); */
 
 static int
@@ -8476,7 +8472,7 @@ lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 /* IDL: NTSTATUS lsa_OpenSecret( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] lsa_String name, */
 /* IDL: [in] lsa_SecretAccessMask access_mask, */
 /* IDL: [out] [ref] policy_handle *sec_handle */
@@ -8562,7 +8558,7 @@ lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb _U_, int offset _U_,
 
 /* IDL: NTSTATUS lsa_SetSecret( */
 /* IDL: [in] [ref] policy_handle *sec_handle, */
-/* IDL: [unique(1)] [in] lsa_DATA_BUF *new_val, */
+/* IDL: [in] [unique(1)] lsa_DATA_BUF *new_val, */
 /* IDL: [unique(1)] [in] lsa_DATA_BUF *old_val */
 /* IDL: ); */
 
@@ -8674,10 +8670,10 @@ lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb _U_, int offset 
 }
 
 /* IDL: NTSTATUS lsa_QuerySecret( */
-/* IDL: [ref] [in] policy_handle *sec_handle, */
-/* IDL: [unique(1)] [out] [in] lsa_DATA_BUF_PTR *new_val, */
-/* IDL: [in] [out] [unique(1)] NTTIME_hyper *new_mtime, */
-/* IDL: [in] [out] [unique(1)] lsa_DATA_BUF_PTR *old_val, */
+/* IDL: [in] [ref] policy_handle *sec_handle, */
+/* IDL: [out] [in] [unique(1)] lsa_DATA_BUF_PTR *new_val, */
+/* IDL: [out] [in] [unique(1)] NTTIME_hyper *new_mtime, */
+/* IDL: [unique(1)] [out] [in] lsa_DATA_BUF_PTR *old_val, */
 /* IDL: [unique(1)] [out] [in] NTTIME_hyper *old_mtime */
 /* IDL: ); */
 
@@ -8773,8 +8769,8 @@ lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb _U_, int offset _
 }
 
 /* IDL: NTSTATUS lsa_LookupPrivValue( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [ref] [in] lsa_String *name, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [in] [ref] lsa_String *name, */
 /* IDL: [ref] [out] lsa_LUID *luid */
 /* IDL: ); */
 
@@ -8855,8 +8851,8 @@ lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U
 }
 
 /* IDL: NTSTATUS lsa_LookupPrivName( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [ref] [in] lsa_LUID *luid, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [in] [ref] lsa_LUID *luid, */
 /* IDL: [unique(1)] [out] lsa_StringLarge *name */
 /* IDL: ); */
 
@@ -8961,10 +8957,10 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int 
 }
 
 /* IDL: NTSTATUS lsa_LookupPrivDisplayName( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_String *name, */
 /* IDL: [unique(1)] [out] lsa_StringLarge *disp_name, */
-/* IDL: [ref] [out] [in] uint16 *language_id, */
+/* IDL: [out] [ref] [in] uint16 *language_id, */
 /* IDL: [in] uint16 unknown */
 /* IDL: ); */
 
@@ -9079,7 +9075,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb _U_, in
 /* IDL: NTSTATUS lsa_EnumAccountsWithUserRight( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [unique(1)] [in] lsa_String *name, */
-/* IDL: [out] [ref] lsa_SidArray *sids */
+/* IDL: [ref] [out] lsa_SidArray *sids */
 /* IDL: ); */
 
 static int
@@ -9159,8 +9155,8 @@ lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb _U_, int offs
 }
 
 /* IDL: NTSTATUS lsa_EnumAccountRights( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] [ref] dom_sid2 *sid, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] dom_sid2 *sid, */
 /* IDL: [ref] [out] lsa_RightSet *rights */
 /* IDL: ); */
 
@@ -9242,8 +9238,8 @@ lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb _U_, int offse
 
 /* IDL: NTSTATUS lsa_AddAccountRights( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] [ref] dom_sid2 *sid, */
-/* IDL: [ref] [in] lsa_RightSet *rights */
+/* IDL: [ref] [in] dom_sid2 *sid, */
+/* IDL: [in] [ref] lsa_RightSet *rights */
 /* IDL: ); */
 
 static int
@@ -9333,7 +9329,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb _U_, int of
 /* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [ref] [in] dom_sid2 *sid, */
 /* IDL: [in] uint32 unknown, */
-/* IDL: [ref] [in] lsa_RightSet *rights */
+/* IDL: [in] [ref] lsa_RightSet *rights */
 /* IDL: ); */
 
 static int
@@ -9425,7 +9421,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, 
 /* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] [ref] dom_sid2 *dom_sid, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [unique(1)] [out] [switch_is(level)] lsa_TrustedDomainInfo *info */
+/* IDL: [out] [switch_is(level)] [unique(1)] lsa_TrustedDomainInfo *info */
 /* IDL: ); */
 
 static int
@@ -9516,7 +9512,7 @@ lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb _U_, int o
 }
 
 /* IDL: NTSTATUS lsa_DeleteTrustedDomain( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [ref] [in] dom_sid2 *dom_sid */
 /* IDL: ); */
 
@@ -9656,9 +9652,9 @@ lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_
 
 /* IDL: NTSTATUS lsa_OpenPolicy2( */
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *system_name, */
-/* IDL: [ref] [in] lsa_ObjectAttribute *attr, */
+/* IDL: [in] [ref] lsa_ObjectAttribute *attr, */
 /* IDL: [in] lsa_PolicyAccessMask access_mask, */
-/* IDL: [ref] [out] policy_handle *handle */
+/* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -9743,8 +9739,8 @@ lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb _U_, int of
 }
 
 /* IDL: NTSTATUS lsa_GetUserName( */
-/* IDL: [in] [unique(1)] [charset(UTF16)] uint16 *system_name, */
-/* IDL: [out] [unique(1)] [in] lsa_String *account_name, */
+/* IDL: [in] [charset(UTF16)] [unique(1)] uint16 *system_name, */
+/* IDL: [unique(1)] [out] [in] lsa_String *account_name, */
 /* IDL: [out] [in] [unique(1)] lsa_StringPointer *authority_name */
 /* IDL: ); */
 
@@ -9824,7 +9820,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset 
 /* IDL: NTSTATUS lsa_QueryInfoPolicy2( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [switch_is(level)] [unique(1)] [out] lsa_PolicyInformation *info */
+/* IDL: [out] [unique(1)] [switch_is(level)] lsa_PolicyInformation *info */
 /* IDL: ); */
 
 static int
@@ -9898,7 +9894,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_SetInfoPolicy2( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [switch_is(level)] [ref] [in] lsa_PolicyInformation *info */
+/* IDL: [in] [ref] [switch_is(level)] lsa_PolicyInformation *info */
 /* IDL: ); */
 
 static int
@@ -9977,10 +9973,10 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_,
 }
 
 /* IDL: NTSTATUS lsa_QueryTrustedDomainInfoByName( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_String trusted_domain, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] lsa_TrustedDomainInfo *info */
+/* IDL: [switch_is(level)] [unique(1)] [out] lsa_TrustedDomainInfo *info */
 /* IDL: ); */
 
 static int
@@ -10062,10 +10058,10 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, i
 }
 
 /* IDL: NTSTATUS lsa_SetTrustedDomainInfoByName( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_String trusted_domain, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [switch_is(level)] [in] [unique(1)] lsa_TrustedDomainInfo *info */
+/* IDL: [unique(1)] [switch_is(level)] [in] lsa_TrustedDomainInfo *info */
 /* IDL: ); */
 
 static int
@@ -10154,9 +10150,9 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb _U_, int 
 }
 
 /* IDL: NTSTATUS lsa_EnumTrustedDomainsEx( */
-/* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [out] [in] [ref] uint32 *resume_handle, */
-/* IDL: [out] [ref] lsa_DomainListEx *domains, */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [out] [ref] [in] uint32 *resume_handle, */
+/* IDL: [ref] [out] lsa_DomainListEx *domains, */
 /* IDL: [in] uint32 max_size */
 /* IDL: ); */
 
@@ -10235,7 +10231,7 @@ lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb _U_, int o
 }
 
 /* IDL: NTSTATUS lsa_CloseTrustedDomainEx( */
-/* IDL: [out] [in] [ref] policy_handle *handle */
+/* IDL: [out] [ref] [in] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -10305,9 +10301,9 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_,
 }
 
 /* IDL: NTSTATUS lsa_QueryDomainInformationPolicy( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_DomainInfoEnum level, */
-/* IDL: [unique(1)] [out] [switch_is(level)] lsa_DomainInformationPolicy *info */
+/* IDL: [out] [unique(1)] [switch_is(level)] lsa_DomainInformationPolicy *info */
 /* IDL: ); */
 
 static int
@@ -10379,9 +10375,9 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb _U_, i
 }
 
 /* IDL: NTSTATUS lsa_SetDomainInformationPolicy( */
-/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [ref] [in] policy_handle *handle, */
 /* IDL: [in] lsa_DomainInfoEnum level, */
-/* IDL: [switch_is(level)] [unique(1)] [in] lsa_DomainInformationPolicy *info */
+/* IDL: [in] [switch_is(level)] [unique(1)] lsa_DomainInformationPolicy *info */
 /* IDL: ); */
 
 static int
@@ -10460,10 +10456,10 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tv
 }
 
 /* IDL: NTSTATUS lsa_OpenTrustedDomainByName( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_String name, */
 /* IDL: [in] lsa_DomainAccessMask access_mask, */
-/* IDL: [out] [ref] policy_handle *trustdom_handle */
+/* IDL: [ref] [out] policy_handle *trustdom_handle */
 /* IDL: ); */
 
 static int
@@ -10628,10 +10624,10 @@ lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_LookupSids2( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
-/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
-/* IDL: [ref] [out] [in] lsa_TransNameArray2 *names, */
+/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [in] [ref] [out] lsa_TransNameArray2 *names, */
 /* IDL: [in] uint16 level, */
-/* IDL: [out] [in] [ref] uint32 *count, */
+/* IDL: [in] [ref] [out] uint32 *count, */
 /* IDL: [in] uint32 unknown1, */
 /* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
@@ -10785,13 +10781,13 @@ lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb _U_, int offset _
 }
 
 /* IDL: NTSTATUS lsa_LookupNames2( */
-/* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [range(0,1000)] [in] uint32 num_names, */
+/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [range(0,1000)] uint32 num_names, */
 /* IDL: [size_is(num_names)] [in] lsa_String names[*], */
-/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
-/* IDL: [ref] [out] [in] lsa_TransSidArray2 *sids, */
+/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [in] [ref] [out] lsa_TransSidArray2 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
-/* IDL: [out] [in] [ref] uint32 *count, */
+/* IDL: [out] [ref] [in] uint32 *count, */
 /* IDL: [in] uint32 unknown1, */
 /* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
@@ -11174,11 +11170,11 @@ lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: NTSTATUS lsa_LookupNames3( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [range(0,1000)] [in] uint32 num_names, */
-/* IDL: [in] [size_is(num_names)] lsa_String names[*], */
-/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
-/* IDL: [in] [out] [ref] lsa_TransSidArray3 *sids, */
+/* IDL: [size_is(num_names)] [in] lsa_String names[*], */
+/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [in] [ref] [out] lsa_TransSidArray3 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
-/* IDL: [out] [in] [ref] uint32 *count, */
+/* IDL: [out] [ref] [in] uint32 *count, */
 /* IDL: [in] uint32 unknown1, */
 /* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
@@ -11395,9 +11391,9 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(t
 
 /* IDL: NTSTATUS lsa_lsaRQueryForestTrustInformation( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [ref] [in] lsa_String *trusted_domain_name, */
+/* IDL: [in] [ref] lsa_String *trusted_domain_name, */
 /* IDL: [in] uint16 unknown, */
-/* IDL: [ref] [out] lsa_ForestTrustInformation **forest_trust_info */
+/* IDL: [out] [ref] lsa_ForestTrustInformation **forest_trust_info */
 /* IDL: ); */
 
 static int
@@ -11570,10 +11566,10 @@ lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb _U_, int offset _U
 
 /* IDL: NTSTATUS lsa_LookupSids3( */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
-/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
-/* IDL: [ref] [out] [in] lsa_TransNameArray2 *names, */
+/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [in] [ref] [out] lsa_TransNameArray2 *names, */
 /* IDL: [in] uint16 level, */
-/* IDL: [ref] [in] [out] uint32 *count, */
+/* IDL: [in] [ref] [out] uint32 *count, */
 /* IDL: [in] uint32 unknown1, */
 /* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
@@ -11711,10 +11707,10 @@ lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: NTSTATUS lsa_LookupNames4( */
 /* IDL: [range(0,1000)] [in] uint32 num_names, */
 /* IDL: [size_is(num_names)] [in] lsa_String names[*], */
-/* IDL: [unique(1)] [out] lsa_RefDomainList *domains, */
-/* IDL: [in] [out] [ref] lsa_TransSidArray3 *sids, */
+/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [in] [ref] [out] lsa_TransSidArray3 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
-/* IDL: [ref] [out] [in] uint32 *count, */
+/* IDL: [out] [ref] [in] uint32 *count, */
 /* IDL: [in] uint32 unknown1, */
 /* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
@@ -12035,848 +12031,848 @@ static dcerpc_sub_dissector lsarpc_dissectors[] = {
 void proto_register_dcerpc_lsarpc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_lsarpc_lsa_LookupPrivValue_luid,
-	  { "Luid", "lsarpc.lsa_LookupPrivValue.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level,
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoBySid.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivName_handle,
-	  { "Handle", "lsarpc.lsa_LookupPrivName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_opnum,
-	  { "Operation", "lsarpc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustInformation_count,
-	  { "Count", "lsarpc.lsa_ForestTrustInformation.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_handle,
-	  { "Handle", "lsarpc.lsa_OpenTrustedDomainByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy2_handle,
-	  { "Handle", "lsarpc.lsa_SetInfoPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateTrustedDomain_info,
-	  { "Info", "lsarpc.lsa_CreateTrustedDomain.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainListEx_count,
-	  { "Count", "lsarpc.lsa_DomainListEx.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditFullQueryInfo_shutdown_on_full,
-	  { "Shutdown On Full", "lsarpc.lsa_AuditFullQueryInfo.shutdown_on_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_unknown2,
-	  { "Unknown2", "lsarpc.lsa_LookupSids3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_sids,
-	  { "Sids", "lsarpc.lsa_LookupNames.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
-	  { "Lsa Account Adjust Privileges", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_PRIVILEGES", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiStringLarge_length,
-	  { "Length", "lsarpc.lsa_AsciiStringLarge.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid3_sid,
-	  { "Sid", "lsarpc.lsa_TranslatedSid3.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET,
-	  { "Lsa Policy Create Secret", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_SECRET", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_count,
-	  { "Incoming Count", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy_attr,
-	  { "Attr", "lsarpc.lsa_OpenPolicy.attr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF_PTR_buf,
-	  { "Buf", "lsarpc.lsa_DATA_BUF_PTR.buf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_secret_type,
-	  { "Secret Type", "lsarpc.lsa_TrustDomainInfoBuffer.secret_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_info,
-	  { "Info", "lsarpc.lsa_QueryDomainInformationPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS,
-	  { "Lsa Account Adjust System Access", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_unknown1,
-	  { "Unknown1", "lsarpc.lsa_LookupSids2.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level,
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoEfs_blob_size,
-	  { "Blob Size", "lsarpc.lsa_DomainInfoEfs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiStringLarge_string,
-	  { "String", "lsarpc.lsa_AsciiStringLarge.string", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainList_domains,
-	  { "Domains", "lsarpc.lsa_DomainList.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecret_new_val,
-	  { "New Val", "lsarpc.lsa_QuerySecret.new_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF2_size,
-	  { "Size", "lsarpc.lsa_DATA_BUF2.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_count,
-	  { "Count", "lsarpc.lsa_LookupNames.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoPassword_old_password,
-	  { "Old Password", "lsarpc.lsa_TrustDomainInfoPassword.old_password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy_system_name,
-	  { "System Name", "lsarpc.lsa_OpenPolicy.system_name", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_sids,
-	  { "Sids", "lsarpc.lsa_EnumAccountsWithUserRight.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_auth_info,
-	  { "Auth Info", "lsarpc.lsa_TrustDomainInfoInfoAll.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN,
-	  { "Lsa Policy Server Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SERVER_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN_tfs), ( 0x00000400 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LUIDAttribute_attribute,
-	  { "Attribute", "lsarpc.lsa_LUIDAttribute.attribute", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle,
-	  { "Trustdom Handle", "lsarpc.lsa_CreateTrustedDomain.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_percent_full,
-	  { "Percent Full", "lsarpc.lsa_AuditLogInfo.percent_full", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS,
-	  { "Lsa Policy Set Audit Requirements", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SET_AUDIT_REQUIREMENTS", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS_tfs), ( 0x00000100 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_unknown6,
-	  { "Unknown6", "lsarpc.lsa_DomainInfoKerberos.unknown6", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AddPrivilegesToAccount_handle,
-	  { "Handle", "lsarpc.lsa_AddPrivilegesToAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_num_names,
-	  { "Num Names", "lsarpc.lsa_LookupNames.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info,
-	  { "Incoming Current Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_current_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_count,
-	  { "Count", "lsarpc.lsa_LookupSids2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivEntry_name,
-	  { "Name", "lsarpc.lsa_PrivEntry.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoBasic_sid,
-	  { "Sid", "lsarpc.lsa_TrustDomainInfoBasic.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransNameArray_names,
-	  { "Names", "lsarpc.lsa_TransNameArray.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF_size,
-	  { "Size", "lsarpc.lsa_DATA_BUF.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateAccount_acct_handle,
-	  { "Acct Handle", "lsarpc.lsa_CreateAccount.acct_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustDom_handle,
-	  { "Handle", "lsarpc.lsa_EnumTrustDom.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy_level,
-	  { "Level", "lsarpc.lsa_SetInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateSecret_sec_handle,
-	  { "Sec Handle", "lsarpc.lsa_CreateSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivValue_name,
-	  { "Name", "lsarpc.lsa_LookupPrivValue.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivs_privs,
-	  { "Privs", "lsarpc.lsa_EnumPrivs.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_unknown2,
-	  { "Unknown2", "lsarpc.lsa_LookupNames2.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_unknown1,
-	  { "Unknown1", "lsarpc.lsa_LookupNames4.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs,
-	  { "Privs", "lsarpc.lsa_RemovePrivilegesFromAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX,
-	  { "Lsa Domain Query Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_count,
-	  { "Count", "lsarpc.lsa_LookupNames3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_secret_access_mask,
-	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex,
-	  { "Info Ex", "lsarpc.lsa_TrustDomainInfoFullInfo.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_domains,
-	  { "Domains", "lsarpc.lsa_LookupSids3.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION,
-	  { "Lsa Policy View Local Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_VIEW_LOCAL_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_level,
-	  { "Level", "lsarpc.lsa_LookupSids3.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_unknown2,
-	  { "Unknown2", "lsarpc.lsa_LookupNames4.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AddAccountRights_sid,
-	  { "Sid", "lsarpc.lsa_AddAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_Strings_names,
-	  { "Names", "lsarpc.lsa_Strings.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_domains,
-	  { "Domains", "lsarpc.lsa_EnumTrustedDomainsEx.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RightSet_count,
-	  { "Count", "lsarpc.lsa_RightSet.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName2_sid_type,
-	  { "Sid Type", "lsarpc.lsa_TranslatedName2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivsAccount_privs,
-	  { "Privs", "lsarpc.lsa_EnumPrivsAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF_data,
-	  { "Data", "lsarpc.lsa_DATA_BUF.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateAccount_handle,
-	  { "Handle", "lsarpc.lsa_CreateAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DefaultQuotaInfo_pagefile,
-	  { "Pagefile", "lsarpc.lsa_DefaultQuotaInfo.pagefile", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PDAccountInfo_name,
-	  { "Name", "lsarpc.lsa_PDAccountInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_StringLarge_size,
-	  { "Size", "lsarpc.lsa_StringLarge.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_max_size,
-	  { "Max Size", "lsarpc.lsa_EnumTrustedDomainsEx.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_data1,
-	  { "Data1", "lsarpc.lsa_TrustDomainInfoInfoAll.data1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccounts_handle,
-	  { "Handle", "lsarpc.lsa_EnumAccounts.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_level,
-	  { "Level", "lsarpc.lsa_LookupNames.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name,
-	  { "Dns Domain Name", "lsarpc.lsa_ForestTrustDomainInfo.dns_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivArray_privs,
-	  { "Privs", "lsarpc.lsa_PrivArray.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid_sid_type,
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE,
-	  { "Lsa Secret Set Value", "lsarpc.lsa_SecretAccessMask.LSA_SECRET_SET_VALUE", FT_BOOLEAN, 32, TFS(&lsa_SecretAccessMask_LSA_SECRET_SET_VALUE_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName_sid_index,
-	  { "Sid Index", "lsarpc.lsa_TranslatedName.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomain_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenTrustedDomain.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivName_luid,
-	  { "Luid", "lsarpc.lsa_LookupPrivName.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_domain_access_mask,
-	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_handle,
-	  { "Handle", "lsarpc.lsa_LookupSids.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_role,
-	  { "Role", "lsarpc.lsa_PolicyInformation.role", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateTrustedDomain_access_mask,
-	  { "Access Mask", "lsarpc.lsa_CreateTrustedDomain.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid2_sid_index,
-	  { "Sid Index", "lsarpc.lsa_TranslatedSid2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_pd,
-	  { "Pd", "lsarpc.lsa_PolicyInformation.pd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DeleteTrustedDomain_handle,
-	  { "Handle", "lsarpc.lsa_DeleteTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_info11,
-	  { "Info11", "lsarpc.lsa_TrustedDomainInfo.info11", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_info,
-	  { "Info", "lsarpc.lsa_SetDomainInformationPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivName_name,
-	  { "Name", "lsarpc.lsa_LookupPrivName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainListEx_domains,
-	  { "Domains", "lsarpc.lsa_DomainListEx.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_db,
-	  { "Db", "lsarpc.lsa_PolicyInformation.db", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_retention_time,
-	  { "Retention Time", "lsarpc.lsa_AuditLogInfo.retention_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy2_info,
-	  { "Info", "lsarpc.lsa_QueryInfoPolicy2.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_audit_events,
-	  { "Audit Events", "lsarpc.lsa_PolicyInformation.audit_events", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid,
-	  { "Sid", "lsarpc.lsa_TrustDomainInfoInfoEx.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_String_size,
-	  { "Size", "lsarpc.lsa_String.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle,
-	  { "Handle", "lsarpc.lsa_RemovePrivilegesFromAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditEventsInfo_auditing_mode,
-	  { "Auditing Mode", "lsarpc.lsa_AuditEventsInfo.auditing_mode", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_password,
-	  { "Password", "lsarpc.lsa_TrustedDomainInfo.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress,
-	  { "Shutdown In Progress", "lsarpc.lsa_AuditLogInfo.shutdown_in_progress", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_String_string,
-	  { "String", "lsarpc.lsa_String.string", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_info_ex,
-	  { "Info Ex", "lsarpc.lsa_TrustDomainInfoInfoAll.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CloseTrustedDomainEx_handle,
-	  { "Handle", "lsarpc.lsa_CloseTrustedDomainEx.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustDom_resume_handle,
-	  { "Resume Handle", "lsarpc.lsa_EnumTrustDom.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle,
-	  { "Handle", "lsarpc.lsa_QueryTrustedDomainInfoBySid.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES,
-	  { "Lsa Policy Lookup Names", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_LOOKUP_NAMES", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES_tfs), ( 0x00000800 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_auditfullset,
-	  { "Auditfullset", "lsarpc.lsa_PolicyInformation.auditfullset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_domains,
-	  { "Domains", "lsarpc.lsa_LookupSids.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DefaultQuotaInfo_non_paged_pool,
-	  { "Non Paged Pool", "lsarpc.lsa_DefaultQuotaInfo.non_paged_pool", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_count,
-	  { "Count", "lsarpc.lsa_LookupNames4.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_names,
-	  { "Names", "lsarpc.lookup.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime,
-	  { "User Tkt Renewaltime", "lsarpc.lsa_DomainInfoKerberos.user_tkt_renewaltime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_domains,
-	  { "Domains", "lsarpc.lsa_LookupNames3.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_account_access_mask,
-	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInformationPolicy_efs_info,
-	  { "Efs Info", "lsarpc.lsa_DomainInformationPolicy.efs_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateSecret_name,
-	  { "Name", "lsarpc.lsa_CreateSecret.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ServerRole_role,
-	  { "Role", "lsarpc.lsa_ServerRole.role", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyServerRole_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_netbios_domain_name,
-	  { "Netbios Domain Name", "lsarpc.lsa_ForestTrustDomainInfo.netbios_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName2_name,
-	  { "Name", "lsarpc.lsa_TranslatedName2.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoPassword_password,
-	  { "Password", "lsarpc.lsa_TrustDomainInfoPassword.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivilegeSet_count,
-	  { "Count", "lsarpc.lsa_PrivilegeSet.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_trusted_domain,
-	  { "Trusted Domain", "lsarpc.lsa_QueryTrustedDomainInfoByName.trusted_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfo11_info_ex,
-	  { "Info Ex", "lsarpc.lsa_TrustDomainInfo11.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid,
-	  { "Dom Sid", "lsarpc.lsa_DeleteTrustedDomain.dom_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustData_top_level_name,
-	  { "Top Level Name", "lsarpc.lsa_ForestTrustData.top_level_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivArray_count,
-	  { "Count", "lsarpc.lsa_PrivArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS,
-	  { "Lsa Policy Set Default Quota Limits", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS_tfs), ( 0x00000080 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy_handle,
-	  { "Handle", "lsarpc.lsa_OpenPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetSecret_sec_handle,
-	  { "Sec Handle", "lsarpc.lsa_SetSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_root_dir,
-	  { "Root Dir", "lsarpc.lsa_ObjectAttribute.root_dir", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle,
-	  { "Handle", "lsarpc.lsa_SetTrustedDomainInfoByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenSecret_sec_handle,
-	  { "Sec Handle", "lsarpc.lsa_OpenSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DnsDomainInfo_sid,
-	  { "Sid", "lsarpc.lsa_DnsDomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountRights_sid,
-	  { "Sid", "lsarpc.lsa_EnumAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_posix_offset,
-	  { "Posix Offset", "lsarpc.lsa_TrustDomainInfoInfoAll.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivDisplayName_language_id,
-	  { "Language Id", "lsarpc.lsa_LookupPrivDisplayName.language_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_num_names,
-	  { "Num Names", "lsarpc.lsa_LookupNames3.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecret_sec_handle,
-	  { "Sec Handle", "lsarpc.lsa_QuerySecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_name,
-	  { "Name", "lsarpc.lsa_OpenTrustedDomainByName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_clock_skew,
-	  { "Clock Skew", "lsarpc.lsa_DomainInfoKerberos.clock_skew", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_handle,
-	  { "Handle", "lsarpc.lsa_EnumTrustedDomainsEx.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid3_unknown,
-	  { "Unknown", "lsarpc.lsa_TranslatedSid3.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_object_name,
-	  { "Object Name", "lsarpc.lsa_ObjectAttribute.object_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy2_info,
-	  { "Info", "lsarpc.lsa_SetInfoPolicy2.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy_level,
-	  { "Level", "lsarpc.lsa_QueryInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_attributes,
-	  { "Trust Attributes", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiStringLarge_size,
-	  { "Size", "lsarpc.lsa_AsciiStringLarge.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime,
-	  { "User Tkt Lifetime", "lsarpc.lsa_DomainInfoKerberos.user_tkt_lifetime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_posix_offset,
-	  { "Posix Offset", "lsarpc.lsa_TrustDomainInfoFullInfo.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_auth_info,
-	  { "Auth Info", "lsarpc.lsa_TrustedDomainInfo.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name,
-	  { "Domain Name", "lsarpc.lsa_TrustDomainInfoInfoEx.domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_sids,
-	  { "Sids", "lsarpc.lsa_LookupNames4.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName_sid_type,
-	  { "Sid Type", "lsarpc.lsa_TranslatedName.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy2_system_name,
-	  { "System Name", "lsarpc.lsa_OpenPolicy2.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_unknown1,
-	  { "Unknown1", "lsarpc.lsa_LookupSids3.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_sec_desc,
-	  { "Sec Desc", "lsarpc.lsa_ObjectAttribute.sec_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfo_sid,
-	  { "Sid", "lsarpc.lsa_DomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown,
-	  { "Time To Shutdown", "lsarpc.lsa_AuditLogInfo.time_to_shutdown", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RefDomainList_max_size,
-	  { "Max Size", "lsarpc.lsa_RefDomainList.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemoveAccountRights_rights,
-	  { "Rights", "lsarpc.lsa_RemoveAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_GetUserName_authority_name,
-	  { "Authority Name", "lsarpc.lsa_GetUserName.authority_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray2_sids,
-	  { "Sids", "lsarpc.lsa_TransSidArray2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName_name,
-	  { "Name", "lsarpc.lsa_TranslatedName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS,
-	  { "Lsa Domain Query Controllers", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_CONTROLLERS", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_auth_info,
-	  { "Auth Info", "lsarpc.lsa_TrustDomainInfoFullInfo.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE,
-	  { "Lsa Policy Create Privilege", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_PRIVILEGE", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE_tfs), ( 0x00000040 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivs_resume_handle,
-	  { "Resume Handle", "lsarpc.lsa_EnumPrivs.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustInformation_entries,
-	  { "Entries", "lsarpc.lsa_ForestTrustInformation.entries", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SidPtr_sid,
-	  { "Sid", "lsarpc.lsa_SidPtr.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_sids,
-	  { "Sids", "lsarpc.lsa_LookupNames2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_names,
-	  { "Names", "lsarpc.lsa_LookupSids3.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoPosixOffset_posix_offset,
-	  { "Posix Offset", "lsarpc.lsa_TrustDomainInfoPosixOffset.posix_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivDisplayName_handle,
-	  { "Handle", "lsarpc.lsa_LookupPrivDisplayName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_Close_handle,
-	  { "Handle", "lsarpc.lsa_Close.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivValue_handle,
-	  { "Handle", "lsarpc.lsa_LookupPrivValue.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivDisplayName_name,
-	  { "Name", "lsarpc.lsa_LookupPrivDisplayName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemoveAccountRights_handle,
-	  { "Handle", "lsarpc.lsa_RemoveAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_sids,
-	  { "Sids", "lsarpc.lsa_LookupSids3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccounts_sids,
-	  { "Sids", "lsarpc.lsa_EnumAccounts.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustDom_domains,
-	  { "Domains", "lsarpc.lsa_EnumTrustDom.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN,
-	  { "Lsa Policy Audit Log Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_AUDIT_LOG_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_account_domain,
-	  { "Account Domain", "lsarpc.lsa_PolicyInformation.account_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DefaultQuotaInfo_paged_pool,
-	  { "Paged Pool", "lsarpc.lsa_DefaultQuotaInfo.paged_pool", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivDisplayName_unknown,
-	  { "Unknown", "lsarpc.lsa_LookupPrivDisplayName.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_count,
-	  { "Outgoing Count", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DnsDomainInfo_domain_guid,
-	  { "Domain Guid", "lsarpc.lsa_DnsDomainInfo.domain_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_unknown1,
-	  { "Unknown1", "lsarpc.lsa_LookupNames3.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_level,
-	  { "Level", "lsarpc.lsa_LookupSids.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid_sid_index,
-	  { "Sid Index", "lsarpc.lsa_TranslatedSid.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_ex,
-	  { "Info Ex", "lsarpc.lsa_TrustedDomainInfo.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccounts_resume_handle,
-	  { "Resume Handle", "lsarpc.lsa_EnumAccounts.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_level,
-	  { "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_full_info,
-	  { "Full Info", "lsarpc.lsa_TrustedDomainInfo.full_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF_length,
-	  { "Length", "lsarpc.lsa_DATA_BUF.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_domains,
-	  { "Domains", "lsarpc.lsa_LookupNames4.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle,
-	  { "Trustdom Handle", "lsarpc.lsa_QueryTrustedDomainInfo.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_level,
-	  { "Level", "lsarpc.lsa_SetTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT,
-	  { "Lsa Policy Create Account", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_ACCOUNT", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenSecret_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenSecret.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray2_count,
-	  { "Count", "lsarpc.lsa_TransSidArray2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiString_size,
-	  { "Size", "lsarpc.lsa_AsciiString.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_quota,
-	  { "Quota", "lsarpc.lsa_PolicyInformation.quota", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AddAccountRights_rights,
-	  { "Rights", "lsarpc.lsa_AddAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustData_top_level_name_ex,
-	  { "Top Level Name Ex", "lsarpc.lsa_ForestTrustData.top_level_name_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_Strings_count,
-	  { "Count", "lsarpc.lsa_Strings.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustData_data,
-	  { "Data", "lsarpc.lsa_ForestTrustData.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_type,
-	  { "Trust Type", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DATA_BUF2_data,
-	  { "Data", "lsarpc.lsa_DATA_BUF2.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy_info,
-	  { "Info", "lsarpc.lsa_SetInfoPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetSecret_new_val,
-	  { "New Val", "lsarpc.lsa_SetSecret.new_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid3_sid_index,
-	  { "Sid Index", "lsarpc.lsa_TranslatedSid3.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransNameArray2_count,
-	  { "Count", "lsarpc.lsa_TransNameArray2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_Delete_handle,
-	  { "Handle", "lsarpc.lsa_Delete.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivs_max_count,
-	  { "Max Count", "lsarpc.lsa_EnumPrivs.max_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateSecret_access_mask,
-	  { "Access Mask", "lsarpc.lsa_CreateSecret.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_status,
-	  { "NT Error", "lsarpc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustRecord_forest_trust_data,
-	  { "Forest Trust Data", "lsarpc.lsa_ForestTrustRecord.forest_trust_data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle,
-	  { "Trustdom Handle", "lsarpc.lsa_OpenTrustedDomain.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info,
-	  { "Forest Trust Info", "lsarpc.lsa_lsaRQueryForestTrustInformation.forest_trust_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN,
-	  { "Lsa Policy Trust Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_TRUST_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_sec_qos,
-	  { "Sec Qos", "lsarpc.lsa_ObjectAttribute.sec_qos", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_sids,
-	  { "Sids", "lsarpc.lsa_LookupSids2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DnsDomainInfo_dns_domain,
-	  { "Dns Domain", "lsarpc.lsa_DnsDomainInfo.dns_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_handle,
-	  { "Handle", "lsarpc.lsa_SetDomainInformationPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivilegeSet_unknown,
-	  { "Unknown", "lsarpc.lsa_PrivilegeSet.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime,
-	  { "Service Tkt Lifetime", "lsarpc.lsa_DomainInfoKerberos.service_tkt_lifetime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_StringLarge_length,
-	  { "Length", "lsarpc.lsa_StringLarge.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomain_sid,
-	  { "Sid", "lsarpc.lsa_OpenTrustedDomain.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecurity_sdbuf,
-	  { "Sdbuf", "lsarpc.lsa_QuerySecurity.sdbuf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenTrustedDomainByName.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfo_name,
-	  { "Name", "lsarpc.lsa_DomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ModificationInfo_db_create_time,
-	  { "Db Create Time", "lsarpc.lsa_ModificationInfo.db_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_sids,
-	  { "Sids", "lsarpc.lsa_LookupSids.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info,
-	  { "Outgoing Current Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_current_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_names,
-	  { "Names", "lsarpc.lsa_LookupNames.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustBinaryData_data,
-	  { "Data", "lsarpc.lsa_ForestTrustBinaryData.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle,
-	  { "Handle", "lsarpc.lsa_lsaRQueryForestTrustInformation.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_sids,
-	  { "Sids", "lsarpc.lsa_LookupNames3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_log_size,
-	  { "Log Size", "lsarpc.lsa_AuditLogInfo.log_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle,
-	  { "Trustdom Handle", "lsarpc.lsa_OpenTrustedDomainByName.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DnsDomainInfo_name,
-	  { "Name", "lsarpc.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_len,
-	  { "Len", "lsarpc.lsa_ObjectAttribute.len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle,
-	  { "Resume Handle", "lsarpc.lsa_EnumTrustedDomainsEx.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_sec_desc_buf_len,
-	  { "Sec Desc Buf Len", "lsarpc.sec_desc_buf_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_efs_blob_len,
-	  { "EFS blob size", "lsarpc.efs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInformationPolicy_kerberos_info,
-	  { "Kerberos Info", "lsarpc.lsa_DomainInformationPolicy.kerberos_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateAccount_access_mask,
-	  { "Access Mask", "lsarpc.lsa_CreateAccount.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_StringPointer_string,
-	  { "String", "lsarpc.lsa_StringPointer.string", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditEventsInfo_count,
-	  { "Count", "lsarpc.lsa_AuditEventsInfo.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ObjectAttribute_attributes,
-	  { "Attributes", "lsarpc.lsa_ObjectAttribute.attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivEntry_luid,
-	  { "Luid", "lsarpc.lsa_PrivEntry.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_info,
-	  { "Info", "lsarpc.lsa_SetTrustedDomainInfoByName.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QosInfo_impersonation_level,
-	  { "Impersonation Level", "lsarpc.lsa_QosInfo.impersonation_level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SecurityImpersonationLevel_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateTrustedDomain_handle,
-	  { "Handle", "lsarpc.lsa_CreateTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_info,
-	  { "Info", "lsarpc.lsa_QueryTrustedDomainInfo.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditEventsInfo_settings,
-	  { "Settings", "lsarpc.lsa_AuditEventsInfo.settings", FT_UINT32, BASE_DEC, VALS(lsarpc_lsa_PolicyAuditPolicy_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW,
-	  { "Lsa Account View", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_VIEW", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_VIEW_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time,
-	  { "Last Update Time", "lsarpc.lsa_TrustDomainInfoBuffer.last_update_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_level,
-	  { "Level", "lsarpc.lsa_LookupNames2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecurity_handle,
-	  { "Handle", "lsarpc.lsa_QuerySecurity.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LUID_low,
-	  { "Low", "lsarpc.lsa_LUID.low", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivsAccount_handle,
-	  { "Handle", "lsarpc.lsa_EnumPrivsAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_remove_all,
-	  { "Remove All", "lsarpc.lsa_RemovePrivilegesFromAccount.remove_all", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName2_sid_index,
-	  { "Sid Index", "lsarpc.lsa_TranslatedName2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoKerberos_enforce_restrictions,
-	  { "Enforce Restrictions", "lsarpc.lsa_DomainInfoKerberos.enforce_restrictions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QosInfo_context_mode,
-	  { "Context Mode", "lsarpc.lsa_QosInfo.context_mode", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumPrivs_handle,
-	  { "Handle", "lsarpc.lsa_EnumPrivs.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_names,
-	  { "Names", "lsarpc.lsa_LookupNames3.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_unknown,
-	  { "Unknown", "lsarpc.lsa_AuditLogInfo.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AddPrivilegesToAccount_privs,
-	  { "Privs", "lsarpc.lsa_AddPrivilegesToAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustRecord_unknown,
-	  { "Unknown", "lsarpc.lsa_ForestTrustRecord.unknown", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid_rid,
-	  { "Rid", "lsarpc.lsa_TranslatedSid.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AddAccountRights_handle,
-	  { "Handle", "lsarpc.lsa_AddAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray_sids,
-	  { "Sids", "lsarpc.lsa_TransSidArray.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LUID_high,
-	  { "High", "lsarpc.lsa_LUID.high", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ReplicaSourceInfo_source,
-	  { "Source", "lsarpc.lsa_ReplicaSourceInfo.source", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_names,
-	  { "Names", "lsarpc.lsa_LookupNames4.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_unknown2,
-	  { "Unknown2", "lsarpc.lsa_LookupSids2.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid,
-	  { "Dom Sid", "lsarpc.lsa_QueryTrustedDomainInfoBySid.dom_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_domains,
-	  { "Domains", "lsarpc.lsa_LookupNames.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DefaultQuotaInfo_min_wss,
-	  { "Min Wss", "lsarpc.lsa_DefaultQuotaInfo.min_wss", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransNameArray_count,
-	  { "Count", "lsarpc.lsa_TransNameArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustBinaryData_length,
-	  { "Length", "lsarpc.lsa_ForestTrustBinaryData.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_all,
-	  { "Info All", "lsarpc.lsa_TrustedDomainInfo.info_all", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoName_netbios_name,
-	  { "Netbios Name", "lsarpc.lsa_TrustDomainInfoName.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info,
-	  { "Info", "lsarpc.lsa_QueryTrustedDomainInfoBySid.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateSecret_handle,
-	  { "Handle", "lsarpc.lsa_CreateSecret.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_handle,
-	  { "Handle", "lsarpc.lsa_LookupNames2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainList_count,
-	  { "Count", "lsarpc.lsa_DomainList.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_name,
-	  { "Name", "lsarpc.lsa_TrustedDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_level,
-	  { "Level", "lsarpc.lsa_LookupSids2.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_level,
-	  { "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccounts_num_entries,
-	  { "Num Entries", "lsarpc.lsa_EnumAccounts.num_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info,
-	  { "Incoming Previous Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_previous_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name,
-	  { "Netbios Name", "lsarpc.lsa_TrustDomainInfoBasic.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_domains,
-	  { "Domains", "lsarpc.lsa_LookupNames2.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE,
-	  { "Lsa Secret Query Value", "lsarpc.lsa_SecretAccessMask.LSA_SECRET_QUERY_VALUE", FT_BOOLEAN, 32, TFS(&lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RightAttribute_name,
-	  { "Name", "lsarpc.lsa_RightAttribute.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_replica,
-	  { "Replica", "lsarpc.lsa_PolicyInformation.replica", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiString_length,
-	  { "Length", "lsarpc.lsa_AsciiString.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenAccount_handle,
-	  { "Handle", "lsarpc.lsa_OpenAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_CreateAccount_sid,
-	  { "Sid", "lsarpc.lsa_CreateAccount.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_String_length,
-	  { "Length", "lsarpc.lsa_String.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_GetUserName_account_name,
-	  { "Account Name", "lsarpc.lsa_GetUserName.account_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy2_level,
-	  { "Level", "lsarpc.lsa_QueryInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_dns,
-	  { "Dns", "lsarpc.lsa_PolicyInformation.dns", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_unknown2,
-	  { "Unknown2", "lsarpc.lsa_LookupNames3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_direction,
-	  { "Trust Direction", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_direction", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids3_count,
-	  { "Count", "lsarpc.lsa_LookupSids3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray3_sids,
-	  { "Sids", "lsarpc.lsa_TransSidArray3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetSecret_old_val,
-	  { "Old Val", "lsarpc.lsa_SetSecret.old_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_unknown,
-	  { "Unknown", "lsarpc.lsa_lsaRQueryForestTrustInformation.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_audit_log,
-	  { "Audit Log", "lsarpc.lsa_PolicyInformation.audit_log", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray3_count,
-	  { "Count", "lsarpc.lsa_TransSidArray3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME,
-	  { "Lsa Domain Query Domain Name", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_DOMAIN_NAME", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_GetUserName_system_name,
-	  { "System Name", "lsarpc.lsa_GetUserName.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy_handle,
-	  { "Handle", "lsarpc.lsa_SetInfoPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_basic,
-	  { "Info Basic", "lsarpc.lsa_TrustedDomainInfo.info_basic", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH,
-	  { "Lsa Domain Set Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SidArray_sids,
-	  { "Sids", "lsarpc.lsa_SidArray.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_names,
-	  { "Names", "lsarpc.lsa_LookupSids2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle,
-	  { "Handle", "lsarpc.lsa_QueryTrustedDomainInfoByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_domains,
-	  { "Domains", "lsarpc.lsa_LookupSids2.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy_handle,
-	  { "Handle", "lsarpc.lsa_QueryInfoPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION,
-	  { "Lsa Policy Get Private Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_GET_PRIVATE_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RightSet_names,
-	  { "Names", "lsarpc.lsa_RightSet.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecurity_sec_info,
-	  { "Sec Info", "lsarpc.lsa_QuerySecurity.sec_info", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DnsDomainInfo_dns_forest,
-	  { "Dns Forest", "lsarpc.lsa_DnsDomainInfo.dns_forest", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecret_new_mtime,
-	  { "New Mtime", "lsarpc.lsa_QuerySecret.new_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid2_sid_type,
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SidArray_num_sids,
-	  { "Num Sids", "lsarpc.lsa_SidArray.num_sids", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_name,
-	  { "Name", "lsarpc.lsa_EnumAccountsWithUserRight.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditFullQueryInfo_log_is_full,
-	  { "Log Is Full", "lsarpc.lsa_AuditFullQueryInfo.log_is_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetInfoPolicy2_level,
-	  { "Level", "lsarpc.lsa_SetInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_handle,
-	  { "Handle", "lsarpc.lsa_EnumAccountsWithUserRight.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemoveAccountRights_unknown,
-	  { "Unknown", "lsarpc.lsa_RemoveAccountRights.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid2_unknown,
-	  { "Unknown", "lsarpc.lsa_TranslatedSid2.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransSidArray_count,
-	  { "Count", "lsarpc.lsa_TransSidArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_StringLarge_string,
-	  { "String", "lsarpc.lsa_StringLarge.string", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenAccount_acct_handle,
-	  { "Acct Handle", "lsarpc.lsa_OpenAccount.acct_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DefaultQuotaInfo_unknown,
-	  { "Unknown", "lsarpc.lsa_DefaultQuotaInfo.unknown", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TransNameArray2_names,
-	  { "Names", "lsarpc.lsa_TransNameArray2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ReplicaSourceInfo_account,
-	  { "Account", "lsarpc.lsa_ReplicaSourceInfo.account", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_names,
-	  { "Names", "lsarpc.lsa_LookupSids.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid,
-	  { "Domain Sid", "lsarpc.lsa_ForestTrustDomainInfo.domain_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountRights_rights,
-	  { "Rights", "lsarpc.lsa_EnumAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid3_sid_type,
-	  { "Sid Type", "lsarpc.lsa_TranslatedSid3.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecret_old_val,
-	  { "Old Val", "lsarpc.lsa_QuerySecret.old_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfo11_data1,
-	  { "Data1", "lsarpc.lsa_TrustDomainInfo11.data1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenSecret_handle,
-	  { "Handle", "lsarpc.lsa_OpenSecret.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditFullSetInfo_shutdown_on_full,
-	  { "Shutdown On Full", "lsarpc.lsa_AuditFullSetInfo.shutdown_on_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_handle,
-	  { "Handle", "lsarpc.lsa_QueryDomainInformationPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy_info,
-	  { "Info", "lsarpc.lsa_QueryInfoPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX,
-	  { "Lsa Domain Set Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy2_attr,
-	  { "Attr", "lsarpc.lsa_OpenPolicy2.attr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_unknown1,
-	  { "Unknown1", "lsarpc.lsa_LookupNames2.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_policy_access_mask,
-	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumAccountRights_handle,
-	  { "Handle", "lsarpc.lsa_EnumAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_level,
-	  { "Level", "lsarpc.lsa_LookupNames3.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH,
-	  { "Lsa Domain Query Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH_tfs), ( 0x00000040 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RemoveAccountRights_sid,
-	  { "Sid", "lsarpc.lsa_RemoveAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_auditfullquery,
-	  { "Auditfullquery", "lsarpc.lsa_PolicyInformation.auditfullquery", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditFullQueryInfo_unknown,
-	  { "Unknown", "lsarpc.lsa_AuditFullQueryInfo.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AsciiString_string,
-	  { "String", "lsarpc.lsa_AsciiString.string", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_data,
-	  { "Data", "lsarpc.lsa_TrustDomainInfoBuffer.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PrivilegeSet_set,
-	  { "Set", "lsarpc.lsa_PrivilegeSet.set", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainInfoEfs_efs_blob,
-	  { "Efs Blob", "lsarpc.lsa_DomainInfoEfs.efs_blob", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LUIDAttribute_luid,
-	  { "Luid", "lsarpc.lsa_LUIDAttribute.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION,
-	  { "Lsa Policy View Audit Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_VIEW_AUDIT_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustRecord_flags,
-	  { "Flags", "lsarpc.lsa_ForestTrustRecord.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_trusted_domain,
-	  { "Trusted Domain", "lsarpc.lsa_SetTrustedDomainInfoByName.trusted_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids_count,
-	  { "Count", "lsarpc.lsa_LookupSids.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenAccount_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenAccount.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info,
-	  { "Outgoing Previous Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_previous_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedSid2_rid,
-	  { "Rid", "lsarpc.lsa_TranslatedSid2.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_num_names,
-	  { "Num Names", "lsarpc.lsa_LookupNames4.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_names,
-	  { "Names", "lsarpc.lsa_LookupNames2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustRecord_level,
-	  { "Level", "lsarpc.lsa_ForestTrustRecord.level", FT_UINT32, BASE_DEC, VALS(lsarpc_lsa_ForestTrustRecordType_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RefDomainList_count,
-	  { "Count", "lsarpc.lsa_RefDomainList.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS,
-	  { "Lsa Domain Set Controllers", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_CONTROLLERS", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustedDomainInfo_posix_offset,
-	  { "Posix Offset", "lsarpc.lsa_TrustedDomainInfo.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenPolicy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TranslatedName2_unknown,
-	  { "Unknown", "lsarpc.lsa_TranslatedName2.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QosInfo_effective_only,
-	  { "Effective Only", "lsarpc.lsa_QosInfo.effective_only", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AuditLogInfo_next_audit_record,
-	  { "Next Audit Record", "lsarpc.lsa_AuditLogInfo.next_audit_record", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QosInfo_len,
-	  { "Len", "lsarpc.lsa_QosInfo.len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info,
-	  { "Info", "lsarpc.lsa_QueryTrustedDomainInfoByName.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ForestTrustData_domain_info,
-	  { "Domain Info", "lsarpc.lsa_ForestTrustData.domain_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QuerySecret_old_mtime,
-	  { "Old Mtime", "lsarpc.lsa_QuerySecret.old_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_level,
-	  { "Level", "lsarpc.lsa_QueryTrustedDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION,
-	  { "Lsa Policy Notification", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_NOTIFICATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION_tfs), ( 0x00001000 ), NULL, HFILL }},
-	{ &hf_lsarpc_lsa_QueryInfoPolicy2_handle,
-	  { "Handle", "lsarpc.lsa_QueryInfoPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames4_level,
-	  { "Level", "lsarpc.lsa_LookupNames4.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupSids2_handle,
-	  { "Handle", "lsarpc.lsa_LookupSids2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_netbios_name,
-	  { "Netbios Name", "lsarpc.lsa_TrustDomainInfoInfoEx.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenAccount_sid,
-	  { "Sid", "lsarpc.lsa_OpenAccount.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_RefDomainList_domains,
-	  { "Domains", "lsarpc.lsa_RefDomainList.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_String_name,
-	  { "String", "lsarpc.lsa.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_count,
-	  { "Count", "lsarpc.lsa_LookupNames2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_PolicyInformation_domain,
-	  { "Domain", "lsarpc.lsa_PolicyInformation.domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenPolicy2_handle,
-	  { "Handle", "lsarpc.lsa_OpenPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name,
-	  { "Trusted Domain Name", "lsarpc.lsa_lsaRQueryForestTrustInformation.trusted_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupPrivDisplayName_disp_name,
-	  { "Disp Name", "lsarpc.lsa_LookupPrivDisplayName.disp_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames3_handle,
-	  { "Handle", "lsarpc.lsa_LookupNames3.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenSecret_name,
-	  { "Name", "lsarpc.lsa_OpenSecret.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames_handle,
-	  { "Handle", "lsarpc.lsa_LookupNames.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_LookupNames2_num_names,
-	  { "Num Names", "lsarpc.lsa_LookupNames2.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS,
-	  { "Lsa Account Adjust Quotas", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_QUOTAS", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_lsarpc_lsa_DefaultQuotaInfo_max_wss,
-	  { "Max Wss", "lsarpc.lsa_DefaultQuotaInfo.max_wss", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_ModificationInfo_modified_id,
-	  { "Modified Id", "lsarpc.lsa_ModificationInfo.modified_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_EnumTrustDom_max_size,
-	  { "Max Size", "lsarpc.lsa_EnumTrustDom.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_lsa_OpenTrustedDomain_handle,
-	  { "Handle", "lsarpc.lsa_OpenTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ "Max Wss", "lsarpc.lsa_DefaultQuotaInfo.max_wss", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_sids,
+		{ "Sids", "lsarpc.lsa_LookupSids2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DefaultQuotaInfo_unknown,
+		{ "Unknown", "lsarpc.lsa_DefaultQuotaInfo.unknown", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy_attr,
+		{ "Attr", "lsarpc.lsa_OpenPolicy.attr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_direction,
+		{ "Trust Direction", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_direction", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_String_size,
+		{ "Size", "lsarpc.lsa_String.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransNameArray2_count,
+		{ "Count", "lsarpc.lsa_TransNameArray2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid,
+		{ "Dom Sid", "lsarpc.lsa_QueryTrustedDomainInfoBySid.dom_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_efs_blob_len,
+		{ "EFS blob size", "lsarpc.efs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_auth_info,
+		{ "Auth Info", "lsarpc.lsa_TrustedDomainInfo.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy2_handle,
+		{ "Handle", "lsarpc.lsa_SetInfoPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransNameArray2_names,
+		{ "Names", "lsarpc.lsa_TransNameArray2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid,
+		{ "Sid", "lsarpc.lsa_TrustDomainInfoInfoEx.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainList_count,
+		{ "Count", "lsarpc.lsa_DomainList.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DeleteTrustedDomain_handle,
+		{ "Handle", "lsarpc.lsa_DeleteTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_OpenPolicy2_access_mask,
-	  { "Access Mask", "lsarpc.lsa_OpenPolicy2.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ "Access Mask", "lsarpc.lsa_OpenPolicy2.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_unknown2,
+		{ "Unknown2", "lsarpc.lsa_LookupNames4.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_sids,
+		{ "Sids", "lsarpc.lsa_LookupNames.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_posix_offset,
+		{ "Posix Offset", "lsarpc.lsa_TrustDomainInfoFullInfo.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_Close_handle,
+		{ "Handle", "lsarpc.lsa_Close.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_status,
+		{ "NT Error", "lsarpc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_all,
+		{ "Info All", "lsarpc.lsa_TrustedDomainInfo.info_all", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy_system_name,
+		{ "System Name", "lsarpc.lsa_OpenPolicy.system_name", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME,
+		{ "Lsa Domain Query Domain Name", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_DOMAIN_NAME", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_DOMAIN_NAME_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy2_info,
+		{ "Info", "lsarpc.lsa_SetInfoPolicy2.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecurity_sdbuf,
+		{ "Sdbuf", "lsarpc.lsa_QuerySecurity.sdbuf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_trusted_domain,
+		{ "Trusted Domain", "lsarpc.lsa_SetTrustedDomainInfoByName.trusted_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AddPrivilegesToAccount_privs,
+		{ "Privs", "lsarpc.lsa_AddPrivilegesToAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle,
+		{ "Trustdom Handle", "lsarpc.lsa_QueryTrustedDomainInfo.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_String_name,
+		{ "String", "lsarpc.lsa.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivDisplayName_disp_name,
+		{ "Disp Name", "lsarpc.lsa_LookupPrivDisplayName.disp_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName_name,
+		{ "Name", "lsarpc.lsa_TranslatedName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_domains,
+		{ "Domains", "lsarpc.lsa_EnumTrustedDomainsEx.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy_handle,
+		{ "Handle", "lsarpc.lsa_QueryInfoPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_sids,
+		{ "Sids", "lsarpc.lsa_LookupSids3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF_size,
+		{ "Size", "lsarpc.lsa_DATA_BUF.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_count,
+		{ "Count", "lsarpc.lsa_LookupNames2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccounts_resume_handle,
+		{ "Resume Handle", "lsarpc.lsa_EnumAccounts.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_level,
+		{ "Level", "lsarpc.lsa_SetTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustBinaryData_length,
+		{ "Length", "lsarpc.lsa_ForestTrustBinaryData.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_GetUserName_system_name,
+		{ "System Name", "lsarpc.lsa_GetUserName.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoPassword_password,
+		{ "Password", "lsarpc.lsa_TrustDomainInfoPassword.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName2_unknown,
+		{ "Unknown", "lsarpc.lsa_TranslatedName2.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransNameArray_count,
+		{ "Count", "lsarpc.lsa_TransNameArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid_rid,
+		{ "Rid", "lsarpc.lsa_TranslatedSid.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SidPtr_sid,
+		{ "Sid", "lsarpc.lsa_SidPtr.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RefDomainList_max_size,
+		{ "Max Size", "lsarpc.lsa_RefDomainList.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateSecret_access_mask,
+		{ "Access Mask", "lsarpc.lsa_CreateSecret.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF2_size,
+		{ "Size", "lsarpc.lsa_DATA_BUF2.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_domain_access_mask,
+		{ "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE,
+		{ "Lsa Policy Create Privilege", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_PRIVILEGE", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_PRIVILEGE_tfs), ( 0x00000040 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccounts_handle,
+		{ "Handle", "lsarpc.lsa_EnumAccounts.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy_access_mask,
+		{ "Access Mask", "lsarpc.lsa_OpenPolicy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QosInfo_effective_only,
+		{ "Effective Only", "lsarpc.lsa_QosInfo.effective_only", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DnsDomainInfo_sid,
+		{ "Sid", "lsarpc.lsa_DnsDomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid_sid_index,
+		{ "Sid Index", "lsarpc.lsa_TranslatedSid.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid3_unknown,
+		{ "Unknown", "lsarpc.lsa_TranslatedSid3.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_attributes,
+		{ "Attributes", "lsarpc.lsa_ObjectAttribute.attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle,
+		{ "Handle", "lsarpc.lsa_SetTrustedDomainInfoByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DefaultQuotaInfo_pagefile,
+		{ "Pagefile", "lsarpc.lsa_DefaultQuotaInfo.pagefile", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_sids,
+		{ "Sids", "lsarpc.lsa_LookupNames2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle,
+		{ "Handle", "lsarpc.lsa_QueryTrustedDomainInfoBySid.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_db,
+		{ "Db", "lsarpc.lsa_PolicyInformation.db", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_unknown,
+		{ "Unknown", "lsarpc.lsa_lsaRQueryForestTrustInformation.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AddAccountRights_sid,
+		{ "Sid", "lsarpc.lsa_AddAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_unknown1,
+		{ "Unknown1", "lsarpc.lsa_LookupNames4.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_num_names,
+		{ "Num Names", "lsarpc.lsa_LookupNames3.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_quota,
+		{ "Quota", "lsarpc.lsa_PolicyInformation.quota", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_String_length,
+		{ "Length", "lsarpc.lsa_String.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoPassword_old_password,
+		{ "Old Password", "lsarpc.lsa_TrustDomainInfoPassword.old_password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_sids,
+		{ "Sids", "lsarpc.lsa_LookupNames4.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_object_name,
+		{ "Object Name", "lsarpc.lsa_ObjectAttribute.object_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_percent_full,
+		{ "Percent Full", "lsarpc.lsa_AuditLogInfo.percent_full", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInformationPolicy_kerberos_info,
+		{ "Kerberos Info", "lsarpc.lsa_DomainInformationPolicy.kerberos_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_StringPointer_string,
+		{ "String", "lsarpc.lsa_StringPointer.string", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateTrustedDomain_info,
+		{ "Info", "lsarpc.lsa_CreateTrustedDomain.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid2_sid_type,
+		{ "Sid Type", "lsarpc.lsa_TranslatedSid2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy_handle,
+		{ "Handle", "lsarpc.lsa_OpenPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy_handle,
+		{ "Handle", "lsarpc.lsa_SetInfoPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateSecret_name,
+		{ "Name", "lsarpc.lsa_CreateSecret.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivDisplayName_handle,
+		{ "Handle", "lsarpc.lsa_LookupPrivDisplayName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime,
+		{ "User Tkt Lifetime", "lsarpc.lsa_DomainInfoKerberos.user_tkt_lifetime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN,
+		{ "Lsa Policy Server Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SERVER_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SERVER_ADMIN_tfs), ( 0x00000400 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name,
+		{ "Dns Domain Name", "lsarpc.lsa_ForestTrustDomainInfo.dns_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditEventsInfo_count,
+		{ "Count", "lsarpc.lsa_AuditEventsInfo.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_names,
+		{ "Names", "lsarpc.lsa_LookupNames2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SidArray_sids,
+		{ "Sids", "lsarpc.lsa_SidArray.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecret_old_val,
+		{ "Old Val", "lsarpc.lsa_QuerySecret.old_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
+		{ "Lsa Account Adjust Privileges", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_PRIVILEGES", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level,
+		{ "Level", "lsarpc.lsa_QueryTrustedDomainInfoBySid.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivEntry_name,
+		{ "Name", "lsarpc.lsa_PrivEntry.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfo11_data1,
+		{ "Data1", "lsarpc.lsa_TrustDomainInfo11.data1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_info,
+		{ "Info", "lsarpc.lsa_QueryTrustedDomainInfo.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_name,
+		{ "Name", "lsarpc.lsa_TrustedDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemoveAccountRights_sid,
+		{ "Sid", "lsarpc.lsa_RemoveAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivValue_luid,
+		{ "Luid", "lsarpc.lsa_LookupPrivValue.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_names,
+		{ "Names", "lsarpc.lsa_LookupSids.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy_level,
+		{ "Level", "lsarpc.lsa_SetInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivArray_privs,
+		{ "Privs", "lsarpc.lsa_PrivArray.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainListEx_domains,
+		{ "Domains", "lsarpc.lsa_DomainListEx.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AddAccountRights_handle,
+		{ "Handle", "lsarpc.lsa_AddAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_unknown2,
+		{ "Unknown2", "lsarpc.lsa_LookupNames2.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustInformation_entries,
+		{ "Entries", "lsarpc.lsa_ForestTrustInformation.entries", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditEventsInfo_auditing_mode,
+		{ "Auditing Mode", "lsarpc.lsa_AuditEventsInfo.auditing_mode", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE,
+		{ "Lsa Secret Set Value", "lsarpc.lsa_SecretAccessMask.LSA_SECRET_SET_VALUE", FT_BOOLEAN, 32, TFS(&lsa_SecretAccessMask_LSA_SECRET_SET_VALUE_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_unknown1,
+		{ "Unknown1", "lsarpc.lsa_LookupNames3.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_count,
+		{ "Count", "lsarpc.lsa_LookupSids.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_num_names,
+		{ "Num Names", "lsarpc.lsa_LookupNames.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AddAccountRights_rights,
+		{ "Rights", "lsarpc.lsa_AddAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION,
+		{ "Lsa Policy Get Private Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_GET_PRIVATE_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_GET_PRIVATE_INFORMATION_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivs_resume_handle,
+		{ "Resume Handle", "lsarpc.lsa_EnumPrivs.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName2_name,
+		{ "Name", "lsarpc.lsa_TranslatedName2.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy_info,
+		{ "Info", "lsarpc.lsa_SetInfoPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenAccount_access_mask,
+		{ "Access Mask", "lsarpc.lsa_OpenAccount.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_count,
+		{ "Outgoing Count", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray2_sids,
+		{ "Sids", "lsarpc.lsa_TransSidArray2.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF_PTR_buf,
+		{ "Buf", "lsarpc.lsa_DATA_BUF_PTR.buf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_password,
+		{ "Password", "lsarpc.lsa_TrustedDomainInfo.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW,
+		{ "Lsa Account View", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_VIEW", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_VIEW_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CloseTrustedDomainEx_handle,
+		{ "Handle", "lsarpc.lsa_CloseTrustedDomainEx.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfo_name,
+		{ "Name", "lsarpc.lsa_DomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_remove_all,
+		{ "Remove All", "lsarpc.lsa_RemovePrivilegesFromAccount.remove_all", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_StringLarge_length,
+		{ "Length", "lsarpc.lsa_StringLarge.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountRights_sid,
+		{ "Sid", "lsarpc.lsa_EnumAccountRights.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES,
+		{ "Lsa Policy Lookup Names", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_LOOKUP_NAMES", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES_tfs), ( 0x00000800 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_replica,
+		{ "Replica", "lsarpc.lsa_PolicyInformation.replica", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_names,
+		{ "Names", "lsarpc.lsa_LookupSids2.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivName_name,
+		{ "Name", "lsarpc.lsa_LookupPrivName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info,
+		{ "Info", "lsarpc.lsa_QueryTrustedDomainInfoBySid.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid3_sid,
+		{ "Sid", "lsarpc.lsa_TranslatedSid3.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_unknown1,
+		{ "Unknown1", "lsarpc.lsa_LookupSids2.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_StringLarge_size,
+		{ "Size", "lsarpc.lsa_StringLarge.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS,
+		{ "Lsa Account Adjust System Access", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid2_unknown,
+		{ "Unknown", "lsarpc.lsa_TranslatedSid2.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_audit_log,
+		{ "Audit Log", "lsarpc.lsa_PolicyInformation.audit_log", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivName_luid,
+		{ "Luid", "lsarpc.lsa_LookupPrivName.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_sec_desc,
+		{ "Sec Desc", "lsarpc.lsa_ObjectAttribute.sec_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenSecret_access_mask,
+		{ "Access Mask", "lsarpc.lsa_OpenSecret.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LUID_high,
+		{ "High", "lsarpc.lsa_LUID.high", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_attributes,
+		{ "Trust Attributes", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RefDomainList_count,
+		{ "Count", "lsarpc.lsa_RefDomainList.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_level,
+		{ "Level", "lsarpc.lsa_LookupNames4.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_unknown2,
+		{ "Unknown2", "lsarpc.lsa_LookupSids3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle,
+		{ "Trustdom Handle", "lsarpc.lsa_CreateTrustedDomain.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_unknown,
+		{ "Unknown", "lsarpc.lsa_AuditLogInfo.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_info11,
+		{ "Info11", "lsarpc.lsa_TrustedDomainInfo.info11", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info,
+		{ "Outgoing Current Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_current_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_level,
+		{ "Level", "lsarpc.lsa_LookupNames2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET,
+		{ "Lsa Policy Create Secret", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_SECRET", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_SECRET_tfs), ( 0x00000020 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT,
+		{ "Lsa Policy Create Account", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_CREATE_ACCOUNT", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_CREATE_ACCOUNT_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid2_rid,
+		{ "Rid", "lsarpc.lsa_TranslatedSid2.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiString_length,
+		{ "Length", "lsarpc.lsa_AsciiString.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiStringLarge_length,
+		{ "Length", "lsarpc.lsa_AsciiStringLarge.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_level,
+		{ "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiString_string,
+		{ "String", "lsarpc.lsa_AsciiString.string", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS,
+		{ "Lsa Policy Set Audit Requirements", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SET_AUDIT_REQUIREMENTS", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SET_AUDIT_REQUIREMENTS_tfs), ( 0x00000100 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy2_info,
+		{ "Info", "lsarpc.lsa_QueryInfoPolicy2.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_handle,
+		{ "Handle", "lsarpc.lsa_OpenTrustedDomainByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DefaultQuotaInfo_paged_pool,
+		{ "Paged Pool", "lsarpc.lsa_DefaultQuotaInfo.paged_pool", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle,
+		{ "Trustdom Handle", "lsarpc.lsa_OpenTrustedDomainByName.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LUIDAttribute_attribute,
+		{ "Attribute", "lsarpc.lsa_LUIDAttribute.attribute", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemoveAccountRights_handle,
+		{ "Handle", "lsarpc.lsa_RemoveAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress,
+		{ "Shutdown In Progress", "lsarpc.lsa_AuditLogInfo.shutdown_in_progress", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_GetUserName_account_name,
+		{ "Account Name", "lsarpc.lsa_GetUserName.account_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecret_new_val,
+		{ "New Val", "lsarpc.lsa_QuerySecret.new_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateAccount_access_mask,
+		{ "Access Mask", "lsarpc.lsa_CreateAccount.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateTrustedDomain_handle,
+		{ "Handle", "lsarpc.lsa_CreateTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_handle,
+		{ "Handle", "lsarpc.lsa_LookupNames2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_level,
+		{ "Level", "lsarpc.lsa_LookupSids.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy2_system_name,
+		{ "System Name", "lsarpc.lsa_OpenPolicy2.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_num_names,
+		{ "Num Names", "lsarpc.lsa_LookupNames2.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info,
+		{ "Info", "lsarpc.lsa_QueryTrustedDomainInfoByName.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainListEx_count,
+		{ "Count", "lsarpc.lsa_DomainListEx.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_Strings_count,
+		{ "Count", "lsarpc.lsa_Strings.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RightSet_names,
+		{ "Names", "lsarpc.lsa_RightSet.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_max_size,
+		{ "Max Size", "lsarpc.lsa_EnumTrustedDomainsEx.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_handle,
+		{ "Handle", "lsarpc.lsa_SetDomainInformationPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RightAttribute_name,
+		{ "Name", "lsarpc.lsa_RightAttribute.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustRecord_flags,
+		{ "Flags", "lsarpc.lsa_ForestTrustRecord.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_netbios_name,
+		{ "Netbios Name", "lsarpc.lsa_TrustDomainInfoInfoEx.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_ex,
+		{ "Info Ex", "lsarpc.lsa_TrustedDomainInfo.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_retention_time,
+		{ "Retention Time", "lsarpc.lsa_AuditLogInfo.retention_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustRecord_unknown,
+		{ "Unknown", "lsarpc.lsa_ForestTrustRecord.unknown", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivs_handle,
+		{ "Handle", "lsarpc.lsa_EnumPrivs.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName2_sid_index,
+		{ "Sid Index", "lsarpc.lsa_TranslatedName2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy_info,
+		{ "Info", "lsarpc.lsa_QueryInfoPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_full_info,
+		{ "Full Info", "lsarpc.lsa_TrustedDomainInfo.full_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid3_sid_index,
+		{ "Sid Index", "lsarpc.lsa_TranslatedSid3.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS,
+		{ "Lsa Domain Set Controllers", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_CONTROLLERS", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_CONTROLLERS_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_count,
+		{ "Count", "lsarpc.lsa_LookupNames3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle,
+		{ "Trustdom Handle", "lsarpc.lsa_OpenTrustedDomain.trustdom_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoEfs_efs_blob,
+		{ "Efs Blob", "lsarpc.lsa_DomainInfoEfs.efs_blob", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenAccount_handle,
+		{ "Handle", "lsarpc.lsa_OpenAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivilegeSet_set,
+		{ "Set", "lsarpc.lsa_PrivilegeSet.set", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle,
+		{ "Resume Handle", "lsarpc.lsa_EnumTrustedDomainsEx.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_handle,
+		{ "Handle", "lsarpc.lsa_LookupSids2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecret_sec_handle,
+		{ "Sec Handle", "lsarpc.lsa_QuerySecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_auditfullquery,
+		{ "Auditfullquery", "lsarpc.lsa_PolicyInformation.auditfullquery", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustInformation_count,
+		{ "Count", "lsarpc.lsa_ForestTrustInformation.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_StringLarge_string,
+		{ "String", "lsarpc.lsa_StringLarge.string", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX,
+		{ "Lsa Domain Query Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_POSIX_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransNameArray_names,
+		{ "Names", "lsarpc.lsa_TransNameArray.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF_length,
+		{ "Length", "lsarpc.lsa_DATA_BUF.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccounts_num_entries,
+		{ "Num Entries", "lsarpc.lsa_EnumAccounts.num_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_posix_offset,
+		{ "Posix Offset", "lsarpc.lsa_TrustDomainInfoInfoAll.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time,
+		{ "Last Update Time", "lsarpc.lsa_TrustDomainInfoBuffer.last_update_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy2_handle,
+		{ "Handle", "lsarpc.lsa_QueryInfoPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_type,
+		{ "Trust Type", "lsarpc.lsa_TrustDomainInfoInfoEx.trust_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_pd,
+		{ "Pd", "lsarpc.lsa_PolicyInformation.pd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivilegeSet_count,
+		{ "Count", "lsarpc.lsa_PrivilegeSet.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF2_data,
+		{ "Data", "lsarpc.lsa_DATA_BUF2.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_domain,
+		{ "Domain", "lsarpc.lsa_PolicyInformation.domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_data1,
+		{ "Data1", "lsarpc.lsa_TrustDomainInfoInfoAll.data1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_log_size,
+		{ "Log Size", "lsarpc.lsa_AuditLogInfo.log_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiStringLarge_size,
+		{ "Size", "lsarpc.lsa_AsciiStringLarge.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_info,
+		{ "Info", "lsarpc.lsa_SetTrustedDomainInfoByName.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustedDomainsEx_handle,
+		{ "Handle", "lsarpc.lsa_EnumTrustedDomainsEx.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_sids,
+		{ "Sids", "lsarpc.lsa_EnumAccountsWithUserRight.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_domains,
+		{ "Domains", "lsarpc.lsa_LookupSids2.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditFullSetInfo_shutdown_on_full,
+		{ "Shutdown On Full", "lsarpc.lsa_AuditFullSetInfo.shutdown_on_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_dns,
+		{ "Dns", "lsarpc.lsa_PolicyInformation.dns", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_Delete_handle,
+		{ "Handle", "lsarpc.lsa_Delete.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateAccount_handle,
+		{ "Handle", "lsarpc.lsa_CreateAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info,
+		{ "Incoming Current Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_current_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN,
+		{ "Lsa Policy Trust Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_TRUST_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_TRUST_ADMIN_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_domains,
+		{ "Domains", "lsarpc.lsa_LookupNames.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_names,
+		{ "Names", "lsarpc.lookup.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivsAccount_handle,
+		{ "Handle", "lsarpc.lsa_EnumPrivsAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_data,
+		{ "Data", "lsarpc.lsa_TrustDomainInfoBuffer.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_next_audit_record,
+		{ "Next Audit Record", "lsarpc.lsa_AuditLogInfo.next_audit_record", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfo_sid,
+		{ "Sid", "lsarpc.lsa_DomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_domains,
+		{ "Domains", "lsarpc.lsa_LookupSids3.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_enforce_restrictions,
+		{ "Enforce Restrictions", "lsarpc.lsa_DomainInfoKerberos.enforce_restrictions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName2_sid_type,
+		{ "Sid Type", "lsarpc.lsa_TranslatedName2.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown,
+		{ "Time To Shutdown", "lsarpc.lsa_AuditLogInfo.time_to_shutdown", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION,
+		{ "Lsa Policy View Local Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_VIEW_LOCAL_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountRights_handle,
+		{ "Handle", "lsarpc.lsa_EnumAccountRights.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_netbios_domain_name,
+		{ "Netbios Domain Name", "lsarpc.lsa_ForestTrustDomainInfo.netbios_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level,
+		{ "Level", "lsarpc.lsa_QueryTrustedDomainInfoByName.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateSecret_handle,
+		{ "Handle", "lsarpc.lsa_CreateSecret.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenAccount_acct_handle,
+		{ "Acct Handle", "lsarpc.lsa_OpenAccount.acct_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_domains,
+		{ "Domains", "lsarpc.lsa_LookupNames3.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_account_access_mask,
+		{ "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_level,
+		{ "Level", "lsarpc.lsa_LookupNames.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_auth_info,
+		{ "Auth Info", "lsarpc.lsa_TrustDomainInfoInfoAll.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenAccount_sid,
+		{ "Sid", "lsarpc.lsa_OpenAccount.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_unknown2,
+		{ "Unknown2", "lsarpc.lsa_LookupNames3.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivValue_name,
+		{ "Name", "lsarpc.lsa_LookupPrivValue.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_String_string,
+		{ "String", "lsarpc.lsa_String.string", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN,
+		{ "Lsa Policy Audit Log Admin", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_AUDIT_LOG_ADMIN", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_AUDIT_LOG_ADMIN_tfs), ( 0x00000200 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustDom_handle,
+		{ "Handle", "lsarpc.lsa_EnumTrustDom.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomain_access_mask,
+		{ "Access Mask", "lsarpc.lsa_OpenTrustedDomain.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_handle,
+		{ "Handle", "lsarpc.lsa_LookupNames3.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_sec_desc_buf_len,
+		{ "Sec Desc Buf Len", "lsarpc.sec_desc_buf_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivsAccount_privs,
+		{ "Privs", "lsarpc.lsa_EnumPrivsAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid_sid_type,
+		{ "Sid Type", "lsarpc.lsa_TranslatedSid.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name,
+		{ "Domain Name", "lsarpc.lsa_TrustDomainInfoInfoEx.domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustDom_domains,
+		{ "Domains", "lsarpc.lsa_EnumTrustDom.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountRights_rights,
+		{ "Rights", "lsarpc.lsa_EnumAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_handle,
+		{ "Handle", "lsarpc.lsa_LookupSids.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName_sid_index,
+		{ "Sid Index", "lsarpc.lsa_TranslatedName.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX,
+		{ "Lsa Domain Set Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_root_dir,
+		{ "Root Dir", "lsarpc.lsa_ObjectAttribute.root_dir", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_level,
+		{ "Level", "lsarpc.lsa_LookupSids3.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfo11_info_ex,
+		{ "Info Ex", "lsarpc.lsa_TrustDomainInfo11.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_name,
+		{ "Name", "lsarpc.lsa_EnumAccountsWithUserRight.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_auditfullset,
+		{ "Auditfullset", "lsarpc.lsa_PolicyInformation.auditfullset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray3_sids,
+		{ "Sids", "lsarpc.lsa_TransSidArray3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivName_handle,
+		{ "Handle", "lsarpc.lsa_LookupPrivName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy2_attr,
+		{ "Attr", "lsarpc.lsa_OpenPolicy2.attr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray3_count,
+		{ "Count", "lsarpc.lsa_TransSidArray3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfo_level,
+		{ "Level", "lsarpc.lsa_QueryTrustedDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_TrustDomInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoEfs_blob_size,
+		{ "Blob Size", "lsarpc.lsa_DomainInfoEfs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_role,
+		{ "Role", "lsarpc.lsa_PolicyInformation.role", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_unknown1,
+		{ "Unknown1", "lsarpc.lsa_LookupSids3.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RightSet_count,
+		{ "Count", "lsarpc.lsa_RightSet.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime,
+		{ "Service Tkt Lifetime", "lsarpc.lsa_DomainInfoKerberos.service_tkt_lifetime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivDisplayName_name,
+		{ "Name", "lsarpc.lsa_LookupPrivDisplayName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustData_data,
+		{ "Data", "lsarpc.lsa_ForestTrustData.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name,
+		{ "Netbios Name", "lsarpc.lsa_TrustDomainInfoBasic.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid,
+		{ "Dom Sid", "lsarpc.lsa_DeleteTrustedDomain.dom_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetSecret_old_val,
+		{ "Old Val", "lsarpc.lsa_SetSecret.old_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_sec_qos,
+		{ "Sec Qos", "lsarpc.lsa_ObjectAttribute.sec_qos", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_names,
+		{ "Names", "lsarpc.lsa_LookupNames.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_count,
+		{ "Count", "lsarpc.lsa_LookupNames.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedName_sid_type,
+		{ "Sid Type", "lsarpc.lsa_TranslatedName.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecret_new_mtime,
+		{ "New Mtime", "lsarpc.lsa_QuerySecret.new_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_info_basic,
+		{ "Info Basic", "lsarpc.lsa_TrustedDomainInfo.info_basic", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS,
+		{ "Lsa Policy Set Default Quota Limits", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_SET_DEFAULT_QUOTA_LIMITS_tfs), ( 0x00000080 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy2_level,
+		{ "Level", "lsarpc.lsa_QueryInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustData_top_level_name,
+		{ "Top Level Name", "lsarpc.lsa_ForestTrustData.top_level_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoName_netbios_name,
+		{ "Netbios Name", "lsarpc.lsa_TrustDomainInfoName.netbios_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QosInfo_impersonation_level,
+		{ "Impersonation Level", "lsarpc.lsa_QosInfo.impersonation_level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SecurityImpersonationLevel_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustDom_max_size,
+		{ "Max Size", "lsarpc.lsa_EnumTrustDom.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_count,
+		{ "Count", "lsarpc.lsa_LookupNames4.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle,
+		{ "Handle", "lsarpc.lsa_lsaRQueryForestTrustInformation.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ReplicaSourceInfo_account,
+		{ "Account", "lsarpc.lsa_ReplicaSourceInfo.account", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateTrustedDomain_access_mask,
+		{ "Access Mask", "lsarpc.lsa_CreateTrustedDomain.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DATA_BUF_data,
+		{ "Data", "lsarpc.lsa_DATA_BUF.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_info,
+		{ "Info", "lsarpc.lsa_QueryDomainInformationPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateSecret_sec_handle,
+		{ "Sec Handle", "lsarpc.lsa_CreateSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH,
+		{ "Lsa Domain Query Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH_tfs), ( 0x00000040 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_account_domain,
+		{ "Account Domain", "lsarpc.lsa_PolicyInformation.account_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccountsWithUserRight_handle,
+		{ "Handle", "lsarpc.lsa_EnumAccountsWithUserRight.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenSecret_handle,
+		{ "Handle", "lsarpc.lsa_OpenSecret.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DefaultQuotaInfo_min_wss,
+		{ "Min Wss", "lsarpc.lsa_DefaultQuotaInfo.min_wss", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_handle,
+		{ "Handle", "lsarpc.lsa_QueryDomainInformationPolicy.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_count,
+		{ "Count", "lsarpc.lsa_LookupSids2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemoveAccountRights_unknown,
+		{ "Unknown", "lsarpc.lsa_RemoveAccountRights.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LUID_low,
+		{ "Low", "lsarpc.lsa_LUID.low", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_unknown6,
+		{ "Unknown6", "lsarpc.lsa_DomainInfoKerberos.unknown6", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_level,
+		{ "Level", "lsarpc.lsa_LookupSids2.level", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex,
+		{ "Info Ex", "lsarpc.lsa_TrustDomainInfoFullInfo.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_sids,
+		{ "Sids", "lsarpc.lsa_LookupSids.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustRecord_forest_trust_data,
+		{ "Forest Trust Data", "lsarpc.lsa_ForestTrustRecord.forest_trust_data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_trusted_domain,
+		{ "Trusted Domain", "lsarpc.lsa_QueryTrustedDomainInfoByName.trusted_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoPosixOffset_posix_offset,
+		{ "Posix Offset", "lsarpc.lsa_TrustDomainInfoPosixOffset.posix_offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION,
+		{ "Lsa Policy Notification", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_NOTIFICATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivDisplayName_unknown,
+		{ "Unknown", "lsarpc.lsa_LookupPrivDisplayName.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DefaultQuotaInfo_non_paged_pool,
+		{ "Non Paged Pool", "lsarpc.lsa_DefaultQuotaInfo.non_paged_pool", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_GetUserName_authority_name,
+		{ "Authority Name", "lsarpc.lsa_GetUserName.authority_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumTrustDom_resume_handle,
+		{ "Resume Handle", "lsarpc.lsa_EnumTrustDom.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info,
+		{ "Outgoing Previous Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.outgoing_previous_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivs_max_count,
+		{ "Max Count", "lsarpc.lsa_EnumPrivs.max_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle,
+		{ "Handle", "lsarpc.lsa_RemovePrivilegesFromAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_count,
+		{ "Count", "lsarpc.lsa_LookupSids3.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION,
+		{ "Lsa Policy View Audit Information", "lsarpc.lsa_PolicyAccessMask.LSA_POLICY_VIEW_AUDIT_INFORMATION", FT_BOOLEAN, 32, TFS(&lsa_PolicyAccessMask_LSA_POLICY_VIEW_AUDIT_INFORMATION_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateAccount_sid,
+		{ "Sid", "lsarpc.lsa_CreateAccount.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumPrivs_privs,
+		{ "Privs", "lsarpc.lsa_EnumPrivs.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditFullQueryInfo_log_is_full,
+		{ "Log Is Full", "lsarpc.lsa_AuditFullQueryInfo.log_is_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SidArray_num_sids,
+		{ "Num Sids", "lsarpc.lsa_SidArray.num_sids", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PolicyInformation_audit_events,
+		{ "Audit Events", "lsarpc.lsa_PolicyInformation.audit_events", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustRecord_level,
+		{ "Level", "lsarpc.lsa_ForestTrustRecord.level", FT_UINT32, BASE_DEC, VALS(lsarpc_lsa_ForestTrustRecordType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoBasic_sid,
+		{ "Sid", "lsarpc.lsa_TrustDomainInfoBasic.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_names,
+		{ "Names", "lsarpc.lsa_LookupNames4.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AddPrivilegesToAccount_handle,
+		{ "Handle", "lsarpc.lsa_AddPrivilegesToAccount.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivValue_handle,
+		{ "Handle", "lsarpc.lsa_LookupPrivValue.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustedDomainInfo_posix_offset,
+		{ "Posix Offset", "lsarpc.lsa_TrustedDomainInfo.posix_offset", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomain_handle,
+		{ "Handle", "lsarpc.lsa_OpenTrustedDomain.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ModificationInfo_modified_id,
+		{ "Modified Id", "lsarpc.lsa_ModificationInfo.modified_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenSecret_sec_handle,
+		{ "Sec Handle", "lsarpc.lsa_OpenSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ModificationInfo_db_create_time,
+		{ "Db Create Time", "lsarpc.lsa_ModificationInfo.db_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoBuffer_secret_type,
+		{ "Secret Type", "lsarpc.lsa_TrustDomainInfoBuffer.secret_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LUIDAttribute_luid,
+		{ "Luid", "lsarpc.lsa_LUIDAttribute.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PDAccountInfo_name,
+		{ "Name", "lsarpc.lsa_PDAccountInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupPrivDisplayName_language_id,
+		{ "Language Id", "lsarpc.lsa_LookupPrivDisplayName.language_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs,
+		{ "Privs", "lsarpc.lsa_RemovePrivilegesFromAccount.privs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid,
+		{ "Domain Sid", "lsarpc.lsa_ForestTrustDomainInfo.domain_sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid3_sid_type,
+		{ "Sid Type", "lsarpc.lsa_TranslatedSid3.sid_type", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecret_old_mtime,
+		{ "Old Mtime", "lsarpc.lsa_QuerySecret.old_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids2_unknown2,
+		{ "Unknown2", "lsarpc.lsa_LookupSids2.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_names,
+		{ "Names", "lsarpc.lsa_LookupNames3.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DnsDomainInfo_dns_forest,
+		{ "Dns Forest", "lsarpc.lsa_DnsDomainInfo.dns_forest", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecurity_sec_info,
+		{ "Sec Info", "lsarpc.lsa_QuerySecurity.sec_info", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_secret_access_mask,
+		{ "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TranslatedSid2_sid_index,
+		{ "Sid Index", "lsarpc.lsa_TranslatedSid2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_domains,
+		{ "Domains", "lsarpc.lsa_LookupNames2.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainList_domains,
+		{ "Domains", "lsarpc.lsa_DomainList.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiStringLarge_string,
+		{ "String", "lsarpc.lsa_AsciiStringLarge.string", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditFullQueryInfo_unknown,
+		{ "Unknown", "lsarpc.lsa_AuditFullQueryInfo.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetSecret_sec_handle,
+		{ "Sec Handle", "lsarpc.lsa_SetSecret.sec_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenPolicy2_handle,
+		{ "Handle", "lsarpc.lsa_OpenPolicy2.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DnsDomainInfo_name,
+		{ "Name", "lsarpc.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS,
+		{ "Lsa Domain Query Controllers", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_QUERY_CONTROLLERS", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_QUERY_CONTROLLERS_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_level,
+		{ "Level", "lsarpc.lsa_LookupNames3.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_LookupNamesLevel_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_domains,
+		{ "Domains", "lsarpc.lsa_LookupNames4.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames4_num_names,
+		{ "Num Names", "lsarpc.lsa_LookupNames4.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoFullInfo_auth_info,
+		{ "Auth Info", "lsarpc.lsa_TrustDomainInfoFullInfo.auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QuerySecurity_handle,
+		{ "Handle", "lsarpc.lsa_QuerySecurity.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustData_top_level_name_ex,
+		{ "Top Level Name Ex", "lsarpc.lsa_ForestTrustData.top_level_name_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ServerRole_role,
+		{ "Role", "lsarpc.lsa_ServerRole.role", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyServerRole_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetInfoPolicy2_level,
+		{ "Level", "lsarpc.lsa_SetInfoPolicy2.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle,
+		{ "Handle", "lsarpc.lsa_QueryTrustedDomainInfoByName.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomain_sid,
+		{ "Sid", "lsarpc.lsa_OpenTrustedDomain.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames_handle,
+		{ "Handle", "lsarpc.lsa_LookupNames.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames2_unknown1,
+		{ "Unknown1", "lsarpc.lsa_LookupNames2.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ReplicaSourceInfo_source,
+		{ "Source", "lsarpc.lsa_ReplicaSourceInfo.source", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetSecret_new_val,
+		{ "New Val", "lsarpc.lsa_SetSecret.new_val", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QosInfo_len,
+		{ "Len", "lsarpc.lsa_QosInfo.len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditFullQueryInfo_shutdown_on_full,
+		{ "Shutdown On Full", "lsarpc.lsa_AuditFullQueryInfo.shutdown_on_full", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_CreateAccount_acct_handle,
+		{ "Acct Handle", "lsarpc.lsa_CreateAccount.acct_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustData_domain_info,
+		{ "Domain Info", "lsarpc.lsa_ForestTrustData.domain_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_name,
+		{ "Name", "lsarpc.lsa_OpenTrustedDomainByName.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DnsDomainInfo_domain_guid,
+		{ "Domain Guid", "lsarpc.lsa_DnsDomainInfo.domain_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info,
+		{ "Incoming Previous Auth Info", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_previous_auth_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ObjectAttribute_len,
+		{ "Len", "lsarpc.lsa_ObjectAttribute.len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_clock_skew,
+		{ "Clock Skew", "lsarpc.lsa_DomainInfoKerberos.clock_skew", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_opnum,
+		{ "Operation", "lsarpc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray_sids,
+		{ "Sids", "lsarpc.lsa_TransSidArray.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AsciiString_size,
+		{ "Size", "lsarpc.lsa_AsciiString.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_count,
+		{ "Incoming Count", "lsarpc.lsa_TrustDomainInfoAuthInfo.incoming_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime,
+		{ "User Tkt Renewaltime", "lsarpc.lsa_DomainInfoKerberos.user_tkt_renewaltime", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_EnumAccounts_sids,
+		{ "Sids", "lsarpc.lsa_EnumAccounts.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainInformationPolicy_efs_info,
+		{ "Efs Info", "lsarpc.lsa_DomainInformationPolicy.efs_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_level,
+		{ "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivEntry_luid,
+		{ "Luid", "lsarpc.lsa_PrivEntry.luid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RefDomainList_domains,
+		{ "Domains", "lsarpc.lsa_RefDomainList.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_RemoveAccountRights_rights,
+		{ "Rights", "lsarpc.lsa_RemoveAccountRights.rights", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TrustDomainInfoInfoAll_info_ex,
+		{ "Info Ex", "lsarpc.lsa_TrustDomainInfoInfoAll.info_ex", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray_count,
+		{ "Count", "lsarpc.lsa_TransSidArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QosInfo_context_mode,
+		{ "Context Mode", "lsarpc.lsa_QosInfo.context_mode", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids_domains,
+		{ "Domains", "lsarpc.lsa_LookupSids.domains", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name,
+		{ "Trusted Domain Name", "lsarpc.lsa_lsaRQueryForestTrustInformation.trusted_domain_name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupNames3_sids,
+		{ "Sids", "lsarpc.lsa_LookupNames3.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LookupSids3_names,
+		{ "Names", "lsarpc.lsa_LookupSids3.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info,
+		{ "Forest Trust Info", "lsarpc.lsa_lsaRQueryForestTrustInformation.forest_trust_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_info,
+		{ "Info", "lsarpc.lsa_SetDomainInformationPolicy.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivArray_count,
+		{ "Count", "lsarpc.lsa_PrivArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenTrustedDomainByName_access_mask,
+		{ "Access Mask", "lsarpc.lsa_OpenTrustedDomainByName.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE,
+		{ "Lsa Secret Query Value", "lsarpc.lsa_SecretAccessMask.LSA_SECRET_QUERY_VALUE", FT_BOOLEAN, 32, TFS(&lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_lsarpc_policy_access_mask,
+		{ "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AuditEventsInfo_settings,
+		{ "Settings", "lsarpc.lsa_AuditEventsInfo.settings", FT_UINT32, BASE_DEC, VALS(lsarpc_lsa_PolicyAuditPolicy_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_PrivilegeSet_unknown,
+		{ "Unknown", "lsarpc.lsa_PrivilegeSet.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS,
+		{ "Lsa Account Adjust Quotas", "lsarpc.lsa_AccountAccessMask.LSA_ACCOUNT_ADJUST_QUOTAS", FT_BOOLEAN, 32, TFS(&lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_lsarpc_lsa_QueryInfoPolicy_level,
+		{ "Level", "lsarpc.lsa_QueryInfoPolicy.level", FT_UINT1632, BASE_DEC, VALS(lsarpc_lsa_PolicyInfo_vals), 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_TransSidArray2_count,
+		{ "Count", "lsarpc.lsa_TransSidArray2.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DnsDomainInfo_dns_domain,
+		{ "Dns Domain", "lsarpc.lsa_DnsDomainInfo.dns_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_Strings_names,
+		{ "Names", "lsarpc.lsa_Strings.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_OpenSecret_name,
+		{ "Name", "lsarpc.lsa_OpenSecret.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_ForestTrustBinaryData_data,
+		{ "Data", "lsarpc.lsa_ForestTrustBinaryData.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH,
+		{ "Lsa Domain Set Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH_tfs), ( 0x00000020 ), NULL, HFILL }},
 	};
 
 

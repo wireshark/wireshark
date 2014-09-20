@@ -560,8 +560,7 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *str;
 
 	if (add_subtree) {
-		item = proto_tree_add_text(tree, tvb, offset, 16, "%s", name);
-		subtree = proto_item_add_subtree(item, ett_SYSTEM_TIME);
+		subtree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_SYSTEM_TIME, &item, name);
 	}
 
 	offset = dissect_ndr_uint16(
@@ -680,9 +679,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 	proto_tree *subtree;
 	guint32 size;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Data");
-
-	subtree = proto_item_add_subtree(item, ett_printerdata_data);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_printerdata_data, &item, "Data");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_printerdata_size, &size);
@@ -1535,8 +1532,7 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Devicemode");
-	subtree = proto_item_add_subtree(item, ett_DEVMODE);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_DEVMODE, &item, "Devicemode");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_devmode_size,
@@ -1711,14 +1707,11 @@ static int
 dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 size;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Devicemode container");
-
-	subtree = proto_item_add_subtree(item, ett_DEVMODE_CTR);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DEVMODE_CTR, NULL, "Devicemode container");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 				    hf_devmodectr_size, &size);
@@ -2551,17 +2544,14 @@ dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 level;
 
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "User level container");
-
-	subtree = proto_item_add_subtree(item, ett_USER_LEVEL_CTR);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_USER_LEVEL_CTR, NULL, "User level container");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, &level);
@@ -2837,9 +2827,7 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 type;
 	guint32 count;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Notify Option");
-
-	subtree = proto_item_add_subtree(item, ett_NOTIFY_OPTION);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_NOTIFY_OPTION, &item, "Notify Option");
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, di, drep,
 				    hf_notify_option_type, &type);
@@ -3440,7 +3428,6 @@ static int
 dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 len;
 
@@ -3450,10 +3437,8 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   dissect_nt_cvstring() passes back a char * where it really
 	   should pass back a tvb. */
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Security descriptor buffer");
-
-	subtree = proto_item_add_subtree(item, ett_SEC_DESC_BUF);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_SEC_DESC_BUF, NULL, "Security descriptor buffer");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep,
@@ -3491,14 +3476,11 @@ static int
 dissect_SPOOL_PRINTER_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 level;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Spool printer info level");
-
-	subtree = proto_item_add_subtree(item, ett_SPOOL_PRINTER_INFO_LEVEL);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_SPOOL_PRINTER_INFO_LEVEL, NULL, "Spool printer info level");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, &level);
@@ -3620,9 +3602,7 @@ dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int item_start = offset;
 	char *name = NULL;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Form");
-
-	subtree = proto_item_add_subtree(item, ett_FORM_REL);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_FORM_REL, &item, "Form");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_form_flags, &flags);
@@ -3890,10 +3870,7 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	value_item = proto_tree_add_text(tree, tvb, offset, 0, "Value");
-
-	value_subtree = proto_item_add_subtree(
-		value_item, ett_printerdata_value);
+	value_subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_printerdata_value, &value_item, "Value");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, value_subtree, di, drep,
@@ -4127,13 +4104,10 @@ static int
 dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 flags;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Form level 1");
-
-	subtree = proto_item_add_subtree(item, ett_FORM_1);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_FORM_1, NULL, "Form level 1");
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, di, drep, NDR_POINTER_UNIQUE,
@@ -4191,13 +4165,10 @@ dissect_FORM_CTR(tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, proto_tree *tree,
 			    dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 level;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Form container");
-
-	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_FORM_CTR, NULL, "Form container");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_form_level, &level);
@@ -4511,9 +4482,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int struct_start = offset;
 	char *document_name;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Job info level 1");
-
-	subtree = proto_item_add_subtree(item, ett_JOB_INFO_1);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_JOB_INFO_1, &item, "Job info level 1");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 				    hf_job_id, NULL);
@@ -4584,9 +4553,7 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *document_name;
 	guint32 devmode_offset, secdesc_offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Job info level 2");
-
-	subtree = proto_item_add_subtree(item, ett_JOB_INFO_2);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_JOB_INFO_2, &item, "Job info level 2");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 				    hf_job_id, NULL);
@@ -5007,13 +4974,10 @@ static int
 dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Document info level 1");
-
-	subtree = proto_item_add_subtree(item, ett_DOC_INFO_1);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DOC_INFO_1, NULL, "Document info level 1");
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, di, drep, NDR_POINTER_UNIQUE,
@@ -5050,14 +5014,11 @@ static int
 dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	guint32 level;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Document info");
-
-	subtree = proto_item_add_subtree(item, ett_DOC_INFO);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DOC_INFO, NULL, "Document info");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, &level);
@@ -5080,13 +5041,10 @@ static int
 dissect_spoolss_doc_info_ctr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Document info container");
-
-	subtree = proto_item_add_subtree(item, ett_DOC_INFO_CTR);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DOC_INFO_CTR, NULL, "Document info container");
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, di, drep, hf_level, NULL);
@@ -5221,9 +5179,7 @@ SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %d bytes", size);
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Buffer");
-
-	subtree = proto_item_add_subtree(item, ett_writeprinter_buffer);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_writeprinter_buffer, &item, "Buffer");
 
 	offset = dissect_ndr_uint8s(tvb, offset, pinfo, subtree, di, drep,
 				    hf_buffer_data, size, NULL);
@@ -5318,14 +5274,11 @@ dissect_DRIVER_INFO_1(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	int struct_start = offset;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Driver info level 1");
-
-	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_1);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DRIVER_INFO_1, NULL, "Driver info level 1");
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, subtree, di, drep, hf_drivername,
@@ -5353,14 +5306,11 @@ dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
 	 packet_info *pinfo, proto_tree *tree,
 	 dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	int struct_start = offset;
 
-	item = proto_tree_add_text(
-			tree, tvb, offset, 0, "Driver info level 2");
-
-	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_2);
+	subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_DRIVER_INFO_2, NULL, "Driver info level 2");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 			hf_driverinfo_cversion, NULL);
@@ -5399,14 +5349,11 @@ dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	int struct_start = offset;
 
-	item = proto_tree_add_text(
-		tree, tvb, offset, 0, "Driver info level 3");
-
-	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_3);
+	subtree = proto_tree_add_subtree(
+		tree, tvb, offset, 0, ett_DRIVER_INFO_3, NULL, "Driver info level 3");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 				    hf_driverinfo_cversion, NULL);
@@ -5462,14 +5409,11 @@ dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	int struct_start = offset;
 
-	item = proto_tree_add_text(
-			tree, tvb, offset, 0, "Driver info level 6");
-
-	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_6);
+	subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_DRIVER_INFO_6, NULL, "Driver info level 6");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 			hf_driverinfo_cversion, NULL);
@@ -5557,14 +5501,11 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
 	proto_tree *subtree;
 	int struct_start = offset;
 
-	item = proto_tree_add_text(
-			tree, tvb, offset, 0, "Driver info level 101");
-
-	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_101);
+	subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_DRIVER_INFO_101, NULL, "Driver info level 101");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, di, drep,
 			hf_driverinfo_cversion, NULL);
@@ -6226,9 +6167,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 type, field;
 	const char *field_string;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "%s", "");
-
-	subtree = proto_item_add_subtree(item, ett_NOTIFY_INFO_DATA);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_NOTIFY_INFO_DATA, &item, "");
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, di, drep,
@@ -6674,9 +6613,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		tvb, start_offset + name_offset, pinfo, NULL, drep,
 		&name, "Name");
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Name: ");
-
-	subtree = proto_item_add_subtree(item, ett_printer_enumdataex_value);
+	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_printer_enumdataex_value, &item, "Name: ");
 
 	proto_item_append_text(item, "%s", name);
 
@@ -6802,15 +6739,12 @@ SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 		&num_values);
 
 	if (size) {
-		proto_item *item;
 		proto_tree *subtree;
 		int offset2 = offset;
 		guint32 i;
 
-		item = proto_tree_add_text(
-			tree, tvb, offset, 0, "Printer data");
-
-		subtree = proto_item_add_subtree(item, ett_PRINTER_DATA_CTR);
+		subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_PRINTER_DATA_CTR, NULL, "Printer data");
 
 		for (i=0; i < num_values; i++)
 			offset2 = dissect_spoolss_printer_enum_values(

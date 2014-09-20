@@ -1964,9 +1964,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (add_subtree) {
-        string_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+        string_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dcerpc_string, &string_item,
                                           proto_registrar_get_name(hfindex));
-        string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
     } else {
         string_item = NULL;
         string_tree = tree;
@@ -2150,9 +2149,8 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (add_subtree) {
-        string_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+        string_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dcerpc_string, &string_item,
                                           proto_registrar_get_name(hfindex));
-        string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
     } else {
         string_item = NULL;
         string_tree = tree;
@@ -2499,9 +2497,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_item *item;
 
         /* we must find out a nice way to do the length here */
-        item = proto_tree_add_text(tree, tvb, offset, 0,
-                                   "%s", text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+        tr = proto_tree_add_subtree(tree, tvb, offset, 0,
+                                   ett_dcerpc_pointer_data, &item, text);
 
         add_pointer_to_list(pinfo, tr, item, di, fnct, 0xffffffff,
                             hf_index, callback, callback_args);
@@ -2541,10 +2538,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         /* new pointer */
-        item = proto_tree_add_text(tree, tvb, offset-pointer_size,
-                                   pointer_size,
-                                   "%s", text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+        tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
+                                   pointer_size, ett_dcerpc_pointer_data, &item, text);
         if (di->call_data->flags & DCERPC_IS_NDR64) {
             proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
                                 offset-pointer_size, pointer_size, id);
@@ -2575,10 +2570,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         /* new pointer */
-        item = proto_tree_add_text(tree, tvb, offset-pointer_size,
+        tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
                                    pointer_size,
-                                   "%s", text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+                                   ett_dcerpc_pointer_data, &item, text);
         if (di->call_data->flags & DCERPC_IS_NDR64) {
             proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
                             offset-pointer_size, pointer_size, id);
@@ -2602,10 +2596,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* new pointer */
-        item = proto_tree_add_text(tree, tvb, offset-pointer_size,
+        tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
                                  pointer_size,
-                                 "%s",text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+                                 ett_dcerpc_pointer_data,&item,text);
         if (di->call_data->flags & DCERPC_IS_NDR64) {
             proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
                             offset-pointer_size, pointer_size, id);
@@ -2637,10 +2630,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         /* new pointer */
-        item = proto_tree_add_text(tree, tvb, offset-pointer_size,
+        tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
                                    pointer_size,
-                                   "%s",text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+                                   ett_dcerpc_pointer_data,&item,text);
         if (di->call_data->flags & DCERPC_IS_NDR64) {
             proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
                             offset-pointer_size, pointer_size, id);
@@ -2686,10 +2678,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         /* new pointer */
-        item = proto_tree_add_text(tree, tvb, offset-pointer_size,
+        tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
                                    pointer_size,
-                                   "%s", text);
-        tr = proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+                                   ett_dcerpc_pointer_data, &item, text);
         if (di->call_data->flags & DCERPC_IS_NDR64) {
             proto_tree_add_uint64(tr, hf_dcerpc_referent_id64, tvb,
                             offset-pointer_size, pointer_size, id);
@@ -3477,8 +3468,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_item *ctx_item = NULL;
 
         if (dcerpc_tree) {
-            ctx_item = proto_tree_add_text(dcerpc_tree, tvb, offset, 24, "Ctx Item[%u]:", i+1);
-            ctx_tree = proto_item_add_subtree(ctx_item, ett_dcerpc_cn_ctx);
+            ctx_tree = proto_tree_add_subtree_format(dcerpc_tree, tvb, offset, 24, ett_dcerpc_cn_ctx, &ctx_item, "Ctx Item[%u]:", i+1);
         }
 
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ctx_tree,
@@ -4407,8 +4397,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_rts_commands_nb, &commands_nb);
 
     /* Create the RTS PDU tree - we do not yet know its name */
-    tf = proto_tree_add_text(dcerpc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "RTS PDU: %u commands", commands_nb);
-    cn_rts_pdu_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_pdu);
+    cn_rts_pdu_tree = proto_tree_add_subtree_format(dcerpc_tree, tvb, offset, -1, ett_dcerpc_cn_rts_pdu, &tf, "RTS PDU: %u commands", commands_nb);
 
     cmd = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof (guint32) * (commands_nb + 1));
 
@@ -5114,7 +5103,6 @@ static void
 dissect_dcerpc_dg_auth(tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
                        e_dce_dg_common_hdr_t *hdr, int *auth_level_p)
 {
-    proto_item *ti        = NULL;
     proto_tree *auth_tree = NULL;
     guint8      protection_level;
 
@@ -5138,8 +5126,7 @@ dissect_dcerpc_dg_auth(tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
         switch (hdr->auth_proto) {
 
         case DCE_C_RPC_AUTHN_PROTOCOL_KRB5:
-            ti = proto_tree_add_text(dcerpc_tree, tvb, offset, -1, "Kerberos authentication verifier");
-            auth_tree = proto_item_add_subtree(ti, ett_dcerpc_krb5_auth_verf);
+            auth_tree = proto_tree_add_subtree(dcerpc_tree, tvb, offset, -1, ett_dcerpc_krb5_auth_verf, NULL, "Kerberos authentication verifier");
             protection_level = tvb_get_guint8(tvb, offset);
             if (auth_level_p != NULL)
                 *auth_level_p = protection_level;

@@ -59,129 +59,129 @@ static gint ett_mapi_mapi_response = -1;
 
 
 /* Header field declarations */
-static gint hf_mapi_property_types = -1;
-static gint hf_mapi_mapi_response_mapi_len = -1;
-static gint hf_mapi_EcDoRpc_max_data = -1;
-static gint hf_mapi_EcDoRpc_mapi_response_ = -1;
-static gint hf_mapi_handle = -1;
-static gint hf_mapi_OpenMessage_recipients_recipients_headers = -1;
-static gint hf_mapi_SPropValue_CTR_d = -1;
-static gint hf_mapi_ulEventType_fnevCriticalError = -1;
-static gint hf_mapi_mapi_request_handles = -1;
-static gint hf_mapi_DATA_BLOB_data = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_u = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_GetProps = -1;
-static gint hf_mapi_ulEventType_fnevReservedForMapi = -1;
-static gint hf_mapi_EcDoConnect_org_group = -1;
-static gint hf_mapi_SPropValue_CTR_i = -1;
-static gint hf_mapi_mapi_request_length = -1;
-static gint hf_mapi_EcDoConnect_store_version = -1;
-static gint hf_mapi_mapi_response_length = -1;
-static gint hf_mapi_EcDoRpc_length = -1;
-static gint hf_mapi_SPropValue_CTR_ft = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_OpenFolder = -1;
-static gint hf_mapi_EcDoConnect_unknown1 = -1;
-static gint hf_mapi_recipient_type_SMTP = -1;
-static gint hf_mapi_FILETIME_dwHighDateTime = -1;
-static gint hf_mapi_OpenMessage_recipients_recipients_headers_ = -1;
-static gint hf_mapi_EcRRegisterPushNotification_sockaddr_len = -1;
-static gint hf_mapi_OpenFolder_req_folder_id = -1;
-static gint hf_mapi_EcRRegisterPushNotification_sockaddr = -1;
-static gint hf_mapi_SPropValue_CTR_err = -1;
 static gint hf_mapi_ulEventType_fnevStatusObjectModified = -1;
-static gint hf_mapi_ulEventType_fnevObjectCopied = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_u = -1;
-static gint hf_mapi_SPropValue_CTR_lpszA = -1;
-static gint hf_mapi_EcDoRpc_offset = -1;
-static gint hf_mapi_EcDoRpc_mapi_response = -1;
-static gint hf_mapi_OpenMessage_recipients_RecipClass = -1;
-static gint hf_mapi_FILETIME_dwLowDateTime = -1;
-static gint hf_mapi_GetProps_req_properties = -1;
-static gint hf_mapi_EcRRegisterPushNotification_ulEventMask = -1;
-static gint hf_mapi_OpenMessage_req_message_id = -1;
-static gint hf_mapi_SPropValue_CTR_l = -1;
-static gint hf_mapi_input_locale_language = -1;
-static gint hf_mapi_OpenFolder_req_unknown = -1;
-static gint hf_mapi_SPropValue_CTR_lpguid = -1;
-static gint hf_mapi_EcDoConnect_unknown3 = -1;
-static gint hf_mapi_recipients_headers_prop_count = -1;
-static gint hf_mapi_OpenMessage_req_folder_handle_idx = -1;
-static gint hf_mapi_OpenMsgStore_req_padding = -1;
-static gint hf_mapi_GetProps_req_unknown = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_mapi_flags = -1;
-static gint hf_mapi_EcRRegisterPushNotification_notifkey = -1;
-static gint hf_mapi_mapi_request_mapi_req = -1;
-static gint hf_mapi_OpenMsgStore_req_codepage = -1;
-static gint hf_mapi_EcDoConnect_code_page = -1;
-static gint hf_mapi_recipients_headers_username = -1;
-static gint hf_mapi_OpenMessage_req_max_data = -1;
-static gint hf_mapi_OpenMsgStore_req_mailbox = -1;
-static gint hf_mapi_EcDoConnect_emsmdb_client_version = -1;
-static gint hf_mapi_GetProps_repl_layout = -1;
-static gint hf_mapi_EcDoRpc_mapi_request_ = -1;
-static gint hf_mapi_EcDoConnect_unknown4 = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_error_code = -1;
-static gint hf_mapi_opnum = -1;
-static gint hf_mapi_recipients_headers_bitmask = -1;
-static gint hf_mapi_mapi_response_handles = -1;
-static gint hf_mapi_OpenFolder_req_handle_idx = -1;
-static gint hf_mapi_EcDoConnect_name = -1;
-static gint hf_mapi_EcDoConnect_user = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_GetProps = -1;
-static gint hf_mapi_SPropValue_CTR_dbl = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_Release = -1;
-static gint hf_mapi_EcDoRpc_size = -1;
-static gint hf_mapi_ulEventType_fnevObjectDeleted = -1;
-static gint hf_mapi_EcDoConnect_unknown2 = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_Release = -1;
-static gint hf_mapi_OpenMessage_recipients_codepage = -1;
-static gint hf_mapi_recipients_headers_prop_values = -1;
-static gint hf_mapi_pdu_len = -1;
-static gint hf_mapi_OpenFolder_repl_unknown = -1;
+static gint hf_mapi_SPropValue_CTR_i = -1;
 static gint hf_mapi_RecipExchange_organization_length = -1;
-static gint hf_mapi_DATA_BLOB_length = -1;
-static gint hf_mapi_EcRRegisterPushNotification_notif_len = -1;
+static gint hf_mapi_OpenMessage_req_max_data = -1;
+static gint hf_mapi_DATA_BLOB_data = -1;
+static gint hf_mapi_OpenMessage_recipients_recipients_headers_ = -1;
+static gint hf_mapi_EcDoRpc_length = -1;
+static gint hf_mapi_OpenFolder_req_folder_id = -1;
+static gint hf_mapi_mapi_request_length = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_OpenFolder = -1;
+static gint hf_mapi_ulEventType_fnevNewMail = -1;
+static gint hf_mapi_SPropValue_CTR_lpguid = -1;
+static gint hf_mapi_GetProps_req_properties = -1;
+static gint hf_mapi_EcDoRpc_max_data = -1;
+static gint hf_mapi_OpenMessage_req_folder_handle_idx = -1;
+static gint hf_mapi_SPropValue_CTR_ft = -1;
+static gint hf_mapi_recipients_headers_username = -1;
+static gint hf_mapi_ulEventType_fnevObjectModified = -1;
+static gint hf_mapi_EcDoConnect_emsmdb_client_version = -1;
+static gint hf_mapi_SPropValue_CTR_b = -1;
+static gint hf_mapi_mapi_request_mapi_len = -1;
+static gint hf_mapi_EcRRegisterPushNotification_ulEventMask = -1;
+static gint hf_mapi_recipient_displayname_7bit_lpszA = -1;
+static gint hf_mapi_GetProps_req_unknown = -1;
+static gint hf_mapi_EcRRegisterPushNotification_sockaddr_len = -1;
 static gint hf_mapi_GetProps_repl_prop_data = -1;
-static gint hf_mapi_EcRUnregisterPushNotification_unknown = -1;
-static gint hf_mapi_ulEventType_fnevObjectCreated = -1;
+static gint hf_mapi_mapi_response_handles = -1;
+static gint hf_mapi_DATA_BLOB_length = -1;
+static gint hf_mapi_OpenFolder_repl_unknown = -1;
+static gint hf_mapi_EcRRegisterPushNotification_notif_len = -1;
+static gint hf_mapi_recipients_headers_layout = -1;
+static gint hf_mapi_EcDoConnect_unknown1 = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_u = -1;
+static gint hf_mapi_SPropValue_CTR_lpszW = -1;
+static gint hf_mapi_handle = -1;
+static gint hf_mapi_SPropValue_CTR_lpszA = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_GetProps = -1;
+static gint hf_mapi_EcDoConnect_name = -1;
+static gint hf_mapi_OpenFolder_req_unknown = -1;
+static gint hf_mapi_input_locale_language = -1;
+static gint hf_mapi_recipients_headers_prop_values = -1;
+static gint hf_mapi_OpenMessage_recipients_recipients_headers = -1;
+static gint hf_mapi_opnum = -1;
+static gint hf_mapi_EcRRegisterPushNotification_retval = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_Release = -1;
+static gint hf_mapi_decrypted_data = -1;
+static gint hf_mapi_mapi_request_mapi_req = -1;
+static gint hf_mapi_RecipExchange_addr_type = -1;
+static gint hf_mapi_SPropValue_CTR_dbl = -1;
+static gint hf_mapi_OpenMsgStore_req_mailbox = -1;
+static gint hf_mapi_EcDoRpc_mapi_response = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_error_code = -1;
 static gint hf_mapi_OpenMessage_req_message_permissions = -1;
+static gint hf_mapi_ulEventType_fnevSearchComplete = -1;
+static gint hf_mapi_EcDoRpc_size = -1;
+static gint hf_mapi_recipient_type_SMTP = -1;
+static gint hf_mapi_OpenMessage_req_folder_id = -1;
+static gint hf_mapi_SPropValue_ulPropTag = -1;
+static gint hf_mapi_mapi_response_mapi_repl = -1;
+static gint hf_mapi_EcDoConnect_org_group = -1;
+static gint hf_mapi_EcDoRpc_mapi_response_ = -1;
+static gint hf_mapi_mapi_response_length = -1;
+static gint hf_mapi_recipient_type = -1;
+static gint hf_mapi_EcRRegisterPushNotification_notifkey = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_u = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenFolder = -1;
+static gint hf_mapi_recipients_headers_prop_count = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_GetProps = -1;
+static gint hf_mapi_mapi_request_handles = -1;
 static gint hf_mapi_EcDoConnect_input_locale = -1;
 static gint hf_mapi_GetProps_req_prop_count = -1;
-static gint hf_mapi_RecipExchange_addr_type = -1;
-static gint hf_mapi_EcRRegisterPushNotification_unknown2 = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_opnum = -1;
-static gint hf_mapi_SPropValue_CTR_lpszW = -1;
-static gint hf_mapi_ulEventType_fnevTableModified = -1;
-static gint hf_mapi_SPropValue_ulPropTag = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenMsgStore = -1;
-static gint hf_mapi_SPropValue_CTR_b = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REPL_handle_idx = -1;
-static gint hf_mapi_ulEventType_fnevNewMail = -1;
-static gint hf_mapi_input_locale_method = -1;
-static gint hf_mapi_ulEventType_fnevSearchComplete = -1;
-static gint hf_mapi_MAPI_OPNUM = -1;
-static gint hf_mapi_EcDoConnect_alloc_space = -1;
-static gint hf_mapi_EcRRegisterPushNotification_retval = -1;
-static gint hf_mapi_OpenMsgStore_req_mailbox_str_size = -1;
-static gint hf_mapi_decrypted_data = -1;
-static gint hf_mapi_OpenMessage_req_folder_id = -1;
-static gint hf_mapi_recipient_displayname_7bit_lpszA = -1;
-static gint hf_mapi_ulEventType_fnevObjectMoved = -1;
-static gint hf_mapi_mapi_request_mapi_len = -1;
-static gint hf_mapi_ulEventType_fnevObjectModified = -1;
-static gint hf_mapi_MAPISTATUS_status = -1;
-static gint hf_mapi_recipient_type_EXCHANGE = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_handle_idx = -1;
-static gint hf_mapi_mapi_response_mapi_repl = -1;
-static gint hf_mapi_EcDoRpc_mapi_request = -1;
+static gint hf_mapi_ulEventType_fnevReservedForMapi = -1;
+static gint hf_mapi_OpenMsgStore_req_codepage = -1;
 static gint hf_mapi_LPSTR_lppszA = -1;
-static gint hf_mapi_recipient_type = -1;
-static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenFolder = -1;
+static gint hf_mapi_EcDoRpc_mapi_request_ = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_handle_idx = -1;
+static gint hf_mapi_EcRRegisterPushNotification_unknown2 = -1;
+static gint hf_mapi_SPropValue_CTR_err = -1;
+static gint hf_mapi_EcRRegisterPushNotification_sockaddr = -1;
+static gint hf_mapi_recipient_type_EXCHANGE = -1;
+static gint hf_mapi_OpenFolder_req_handle_idx = -1;
+static gint hf_mapi_SPropValue_CTR_d = -1;
+static gint hf_mapi_EcDoConnect_unknown2 = -1;
+static gint hf_mapi_ulEventType_fnevObjectMoved = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_Release = -1;
+static gint hf_mapi_mapi_response_mapi_len = -1;
+static gint hf_mapi_ulEventType_fnevObjectCopied = -1;
+static gint hf_mapi_ulEventType_fnevCriticalError = -1;
+static gint hf_mapi_FILETIME_dwHighDateTime = -1;
+static gint hf_mapi_EcDoConnect_alloc_space = -1;
+static gint hf_mapi_property_types = -1;
+static gint hf_mapi_OpenMsgStore_req_mailbox_str_size = -1;
+static gint hf_mapi_OpenMessage_recipients_RecipClass = -1;
 static gint hf_mapi_EcDoConnect_session_nb = -1;
-static gint hf_mapi_ulEventType_fnevExtended = -1;
-static gint hf_mapi_OpenMsgStore_req_row = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_handle_idx = -1;
+static gint hf_mapi_ulEventType_fnevTableModified = -1;
+static gint hf_mapi_OpenMsgStore_req_padding = -1;
+static gint hf_mapi_GetProps_repl_layout = -1;
+static gint hf_mapi_EcDoConnect_code_page = -1;
+static gint hf_mapi_EcDoConnect_unknown3 = -1;
+static gint hf_mapi_OpenMessage_req_message_id = -1;
+static gint hf_mapi_OpenMessage_recipients_codepage = -1;
+static gint hf_mapi_EcRUnregisterPushNotification_unknown = -1;
+static gint hf_mapi_EcDoRpc_mapi_request = -1;
+static gint hf_mapi_ulEventType_fnevObjectCreated = -1;
+static gint hf_mapi_EcDoConnect_store_version = -1;
+static gint hf_mapi_EcDoRpc_offset = -1;
 static gint hf_mapi_SRow_ulRowFlags = -1;
-static gint hf_mapi_recipients_headers_layout = -1;
+static gint hf_mapi_MAPI_OPNUM = -1;
+static gint hf_mapi_ulEventType_fnevExtended = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REPL_opnum = -1;
+static gint hf_mapi_ulEventType_fnevObjectDeleted = -1;
+static gint hf_mapi_FILETIME_dwLowDateTime = -1;
+static gint hf_mapi_OpenMsgStore_req_row = -1;
+static gint hf_mapi_pdu_len = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenMsgStore = -1;
+static gint hf_mapi_input_locale_method = -1;
+static gint hf_mapi_SPropValue_CTR_l = -1;
+static gint hf_mapi_recipients_headers_bitmask = -1;
+static gint hf_mapi_EcDoConnect_user = -1;
+static gint hf_mapi_EcDoConnect_unknown4 = -1;
+static gint hf_mapi_EcDoRpc_MAPI_REQ_mapi_flags = -1;
+static gint hf_mapi_MAPISTATUS_status = -1;
 
 static gint proto_dcerpc_mapi = -1;
 /* Version information */
@@ -4030,12 +4030,10 @@ static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offse
 	gint		handles_cnt = 0;
 	int		old_offset;
 	guint32		value;
-	proto_item	*it = NULL;
 	proto_tree	*tr = NULL;
 	reported_len = tvb_reported_length_remaining(tvb, offset);
 	handles_cnt = reported_len / 4;
-	it = proto_tree_add_text(tree, tvb, offset, reported_len, "MAPI Handles: %d", handles_cnt);
-	tr = proto_item_add_subtree(it, ett_mapi_mapi_request);
+	tr = proto_tree_add_subtree_format(tree, tvb, offset, reported_len, ett_mapi_mapi_request, NULL, "MAPI Handles: %d", handles_cnt);
 	for (i = 0; i < handles_cnt; i++) {
 	    old_offset = offset;
 	    value = tvb_get_letohl(tvb, offset);
@@ -7962,15 +7960,15 @@ mapi_dissect_enum_property_types(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 
-/* IDL: [flag(LIBNDR_FLAG_NOALIGN)] [switch_type(property_types)] union { */
+/* IDL: [switch_type(property_types)] [flag(LIBNDR_FLAG_NOALIGN)] union { */
 /* IDL: [case(PT_I2)] [case(PT_I2)] uint16 i; */
 /* IDL: [case(PT_LONG)] [case(PT_LONG)] uint32 l; */
 /* IDL: [case(PT_DOUBLE)] [case(PT_DOUBLE)] dlong dbl; */
 /* IDL: [case(PT_ERROR)] [case(PT_ERROR)] uint32 err; */
 /* IDL: [case(PT_BOOLEAN)] [case(PT_BOOLEAN)] uint8 b; */
 /* IDL: [case(PT_I8)] [case(PT_I8)] dlong d; */
-/* IDL: [case(PT_STRING8)] [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [case(PT_STRING8)] string lpszA; */
-/* IDL: [case(PT_UNICODE)] [case(PT_UNICODE)] [flag(LIBNDR_FLAG_STR_NULLTERM)] string lpszW; */
+/* IDL: [case(PT_STRING8)] [case(PT_STRING8)] [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] string lpszA; */
+/* IDL: [case(PT_UNICODE)] [flag(LIBNDR_FLAG_STR_NULLTERM)] [case(PT_UNICODE)] string lpszW; */
 /* IDL: [case(PT_SYSTIME)] [case(PT_SYSTIME)] FILETIME ft; */
 /* IDL: [case(PT_CLSID)] [case(PT_CLSID)] GUID lpguid; */
 /* IDL: } */
@@ -8065,8 +8063,7 @@ mapi_dissect_SPropValue_CTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "SPropValue_CTR");
-		tree = proto_item_add_subtree(item, ett_mapi_SPropValue_CTR);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_mapi_SPropValue_CTR, &item, "SPropValue_CTR");
 	}
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -8650,7 +8647,7 @@ mapi_dissect_enum_OM_recipient_type(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 
-/* IDL: [flag(LIBNDR_FLAG_NOALIGN)] [switch_type(OM_recipient_type)] union { */
+/* IDL: [switch_type(OM_recipient_type)] [flag(LIBNDR_FLAG_NOALIGN)] union { */
 /* IDL: [case(0x0)] [case(0x0)] RecipExchange EXCHANGE; */
 /* IDL: [case(0xA)] [case(0xA)] RecipSMTP SMTP; */
 /* IDL: [default] ; */
@@ -8682,8 +8679,7 @@ mapi_dissect_recipient_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "recipient_type");
-		tree = proto_item_add_subtree(item, ett_mapi_recipient_type);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_mapi_recipient_type, &item, "recipient_type");
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -8724,8 +8720,8 @@ mapi_dissect_enum_OM_recipient_displayname_7bit(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-/* IDL: [switch_type(OM_recipient_displayname_7bit)] [flag(LIBNDR_FLAG_NOALIGN)] union { */
-/* IDL: [case(0x400)] [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [case(0x400)] string lpszA; */
+/* IDL: [flag(LIBNDR_FLAG_NOALIGN)] [switch_type(OM_recipient_displayname_7bit)] union { */
+/* IDL: [case(0x400)] [case(0x400)] [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] string lpszA; */
 /* IDL: [default] ; */
 /* IDL: } */
 
@@ -8747,8 +8743,7 @@ mapi_dissect_recipient_displayname_7bit(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "recipient_displayname_7bit");
-		tree = proto_item_add_subtree(item, ett_mapi_recipient_displayname_7bit);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_mapi_recipient_displayname_7bit, &item, "recipient_displayname_7bit");
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -9221,7 +9216,7 @@ mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	uint32 padding; */
 /* IDL: 	uint8 row; */
 /* IDL: 	uint16 mailbox_str_size; */
-/* IDL: 	[unique(1)] [charset(DOS)] uint8 *mailbox; */
+/* IDL: 	[charset(DOS)] [unique(1)] uint8 *mailbox; */
 /* IDL: } */
 
 static int
@@ -9361,8 +9356,7 @@ mapi_dissect_EcDoRpc_MAPI_REQ_UNION(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "EcDoRpc_MAPI_REQ_UNION");
-		tree = proto_item_add_subtree(item, ett_mapi_EcDoRpc_MAPI_REQ_UNION);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_mapi_EcDoRpc_MAPI_REQ_UNION, &item, "EcDoRpc_MAPI_REQ_UNION");
 	}
 
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -9391,7 +9385,7 @@ mapi_dissect_EcDoRpc_MAPI_REQ_UNION(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	return offset;
 }
 
-/* IDL: [switch_type(MAPI_OPNUM)] [public(1)] union { */
+/* IDL: [public(1)] [switch_type(MAPI_OPNUM)] union { */
 /* IDL: [case(op_MAPI_Release)] [case(op_MAPI_Release)] Release_repl mapi_Release; */
 /* IDL: [case(op_MAPI_OpenFolder)] [case(op_MAPI_OpenFolder)] OpenFolder_repl mapi_OpenFolder; */
 /* IDL: [case(op_MAPI_GetProps)] [case(op_MAPI_GetProps)] GetProps_repl mapi_GetProps; */
@@ -9431,8 +9425,7 @@ mapi_dissect_EcDoRpc_MAPI_REPL_UNION(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "EcDoRpc_MAPI_REPL_UNION");
-		tree = proto_item_add_subtree(item, ett_mapi_EcDoRpc_MAPI_REPL_UNION);
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_mapi_EcDoRpc_MAPI_REPL_UNION, &item, "EcDoRpc_MAPI_REPL_UNION");
 	}
 
 	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
@@ -10004,12 +9997,12 @@ mapi_dissect_element_EcDoConnect_alloc_space_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: [in] uint32 unknown2, */
 /* IDL: [in] uint16 unknown3, */
 /* IDL: [out] uint32 unknown4[3], */
-/* IDL: [out] [ref] uint16 *session_nb, */
-/* IDL: [unique(1)] [out] uint8 *org_group, */
+/* IDL: [ref] [out] uint16 *session_nb, */
+/* IDL: [out] [unique(1)] uint8 *org_group, */
 /* IDL: [out] [unique(1)] uint8 *user, */
 /* IDL: [out] uint16 store_version[3], */
 /* IDL: [out] [in] uint16 emsmdb_client_version[3], */
-/* IDL: [in] [ref] [out] uint32 *alloc_space */
+/* IDL: [ref] [in] [out] uint32 *alloc_space */
 /* IDL: ); */
 
 static int
@@ -10089,7 +10082,7 @@ mapi_dissect_element_EcDoDisconnect_handle_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 /* IDL: MAPISTATUS EcDoDisconnect( */
-/* IDL: [ref] [out] [in] policy_handle *handle */
+/* IDL: [out] [in] [ref] policy_handle *handle */
 /* IDL: ); */
 
 static int
@@ -10246,12 +10239,12 @@ mapi_dissect_element_EcDoRpc_max_data(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 /* IDL: MAPISTATUS EcDoRpc( */
-/* IDL: [in] [ref] [out] policy_handle *handle, */
+/* IDL: [out] [ref] [in] policy_handle *handle, */
 /* IDL: [in] [out] uint32 size, */
 /* IDL: [in] [out] uint32 offset, */
-/* IDL: [ref] [flag(LIBNDR_FLAG_REMAINING|LIBNDR_FLAG_NOALIGN)] [in] [subcontext(4)] mapi_request *mapi_request, */
-/* IDL: [flag(LIBNDR_FLAG_REMAINING|LIBNDR_FLAG_NOALIGN)] [subcontext(4)] [out] [ref] mapi_response *mapi_response, */
-/* IDL: [in] [ref] [out] uint16 *length, */
+/* IDL: [flag(LIBNDR_FLAG_REMAINING|LIBNDR_FLAG_NOALIGN)] [in] [ref] [subcontext(4)] mapi_request *mapi_request, */
+/* IDL: [subcontext(4)] [out] [ref] [flag(LIBNDR_FLAG_REMAINING|LIBNDR_FLAG_NOALIGN)] mapi_response *mapi_response, */
+/* IDL: [out] [in] [ref] uint16 *length, */
 /* IDL: [in] uint16 max_data */
 /* IDL: ); */
 
@@ -10417,14 +10410,14 @@ mapi_dissect_element_EcRRegisterPushNotification_retval_(tvbuff_t *tvb _U_, int 
 }
 
 /* IDL: MAPISTATUS EcRRegisterPushNotification( */
-/* IDL: [in] [out] [ref] policy_handle *handle, */
+/* IDL: [in] [ref] [out] policy_handle *handle, */
 /* IDL: [in] ulEventType ulEventMask, */
-/* IDL: [in] [size_is(notif_len)] uint8 notifkey[*], */
+/* IDL: [size_is(notif_len)] [in] uint8 notifkey[*], */
 /* IDL: [in] uint16 notif_len, */
 /* IDL: [in] uint32 unknown2, */
 /* IDL: [size_is(sockaddr_len)] [in] uint8 sockaddr[*], */
 /* IDL: [in] uint16 sockaddr_len, */
-/* IDL: [out] [ref] uint32 *retval */
+/* IDL: [ref] [out] uint32 *retval */
 /* IDL: ); */
 
 static int
@@ -10502,7 +10495,7 @@ mapi_dissect_element_EcRUnregisterPushNotification_unknown_(tvbuff_t *tvb _U_, i
 }
 
 /* IDL: MAPISTATUS EcRUnregisterPushNotification( */
-/* IDL: [ref] [out] [in] policy_handle *handle, */
+/* IDL: [in] [ref] [out] policy_handle *handle, */
 /* IDL: [in] uint32 unknown[2] */
 /* IDL: ); */
 
@@ -10633,252 +10626,252 @@ static dcerpc_sub_dissector mapi_dissectors[] = {
 void proto_register_dcerpc_mapi(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_mapi_property_types,
-	  { "Value", "mapi.SPropValue.value", FT_UINT32, BASE_HEX, VALS(mapi_property_types_vals), 0, "NULL", HFILL }},
-	{ &hf_mapi_mapi_response_mapi_len,
-	  { "Mapi Len", "mapi.mapi_response.mapi_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_max_data,
-	  { "Max Data", "mapi.EcDoRpc.max_data", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_mapi_response_,
-	  { "Subcontext length", "mapi.EcDoRpc.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_handle,
-	  { "Handle", "mapi.handle", FT_BYTES, BASE_NONE, NULL, 0, "NULL", HFILL }},
-	{ &hf_mapi_OpenMessage_recipients_recipients_headers,
-	  { "Recipients Headers", "mapi.OpenMessage_recipients.recipients_headers", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_d,
-	  { "D", "mapi.SPropValue_CTR.d", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevCriticalError,
-	  { "Fnevcriticalerror", "mapi.ulEventType.fnevCriticalError", FT_BOOLEAN, 16, TFS(&ulEventType_fnevCriticalError_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_mapi_mapi_request_handles,
-	  { "Handles", "mapi.mapi_request.handles", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_DATA_BLOB_data,
-	  { "Data", "mapi.DATA_BLOB.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_u,
-	  { "U", "mapi.EcDoRpc_MAPI_REQ.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_GetProps,
-	  { "Mapi Getprops", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_GetProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevReservedForMapi,
-	  { "Fnevreservedformapi", "mapi.ulEventType.fnevReservedForMapi", FT_BOOLEAN, 16, TFS(&ulEventType_fnevReservedForMapi_tfs), ( 0x40000000 ), NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_org_group,
-	  { "Org Group", "mapi.EcDoConnect.org_group", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_i,
-	  { "I", "mapi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_mapi_request_length,
-	  { "Length", "mapi.mapi_request.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_store_version,
-	  { "Store Version", "mapi.EcDoConnect.store_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_mapi_response_length,
-	  { "Length", "mapi.mapi_response.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_length,
-	  { "Length", "mapi.EcDoRpc.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_ft,
-	  { "Ft", "mapi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_OpenFolder,
-	  { "Mapi Openfolder", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_OpenFolder", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_unknown1,
-	  { "Unknown1", "mapi.EcDoConnect.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipient_type_SMTP,
-	  { "Smtp", "mapi.recipient_type.SMTP", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_FILETIME_dwHighDateTime,
-	  { "Dwhighdatetime", "mapi.FILETIME.dwHighDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_recipients_recipients_headers_,
-	  { "Subcontext length", "mapi.OpenMessage_recipients.subcontext", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_sockaddr_len,
-	  { "Sockaddr Len", "mapi.EcRRegisterPushNotification.sockaddr_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenFolder_req_folder_id,
-	  { "Folder Id", "mapi.OpenFolder_req.folder_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_sockaddr,
-	  { "Sockaddr", "mapi.EcRRegisterPushNotification.sockaddr", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_err,
-	  { "Err", "mapi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_ulEventType_fnevStatusObjectModified,
-	  { "Fnevstatusobjectmodified", "mapi.ulEventType.fnevStatusObjectModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevStatusObjectModified_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevObjectCopied,
-	  { "Fnevobjectcopied", "mapi.ulEventType.fnevObjectCopied", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectCopied_tfs), ( 0x00000040 ), NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_u,
-	  { "U", "mapi.EcDoRpc_MAPI_REPL.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_lpszA,
-	  { "Lpsza", "mapi.SPropValue_CTR.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_offset,
-	  { "Offset", "mapi.EcDoRpc.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_mapi_response,
-	  { "Mapi Response", "mapi.EcDoRpc.mapi_response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_recipients_RecipClass,
-	  { "Recipclass", "mapi.OpenMessage_recipients.RecipClass", FT_UINT8, BASE_DEC, VALS(mapi_ulRecipClass_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_FILETIME_dwLowDateTime,
-	  { "Dwlowdatetime", "mapi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_GetProps_req_properties,
-	  { "Properties", "mapi.GetProps_req.properties", FT_UINT32, BASE_DEC, VALS(mapi_MAPITAGS_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_ulEventMask,
-	  { "Uleventmask", "mapi.EcRRegisterPushNotification.ulEventMask", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_req_message_id,
-	  { "Message Id", "mapi.OpenMessage_req.message_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_l,
-	  { "L", "mapi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_input_locale_language,
-	  { "Language", "mapi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenFolder_req_unknown,
-	  { "Unknown", "mapi.OpenFolder_req.unknown", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_lpguid,
-	  { "Lpguid", "mapi.SPropValue_CTR.lpguid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_unknown3,
-	  { "Unknown3", "mapi.EcDoConnect.unknown3", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipients_headers_prop_count,
-	  { "Prop Count", "mapi.recipients_headers.prop_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_req_folder_handle_idx,
-	  { "Folder Handle Idx", "mapi.OpenMessage_req.folder_handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMsgStore_req_padding,
-	  { "Padding", "mapi.OpenMsgStore_req.padding", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_GetProps_req_unknown,
-	  { "Unknown", "mapi.GetProps_req.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_mapi_flags,
-	  { "Mapi Flags", "mapi.EcDoRpc_MAPI_REQ.mapi_flags", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_notifkey,
-	  { "Notifkey", "mapi.EcRRegisterPushNotification.notifkey", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_mapi_request_mapi_req,
-	  { "Mapi Req", "mapi.mapi_request.mapi_req", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMsgStore_req_codepage,
-	  { "Codepage", "mapi.OpenMsgStore_req.codepage", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_code_page,
-	  { "Code Page", "mapi.EcDoConnect.code_page", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipients_headers_username,
-	  { "Username", "mapi.recipients_headers.username", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_req_max_data,
-	  { "Max Data", "mapi.OpenMessage_req.max_data", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMsgStore_req_mailbox,
-	  { "Mailbox", "mapi.OpenMsgStore_req.mailbox", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_emsmdb_client_version,
-	  { "Emsmdb Client Version", "mapi.EcDoConnect.emsmdb_client_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_GetProps_repl_layout,
-	  { "Layout", "mapi.GetProps_repl.layout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_mapi_request_,
-	  { "Subcontext length", "mapi.EcDoRpc.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_unknown4,
-	  { "Unknown4", "mapi.EcDoConnect.unknown4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_error_code,
-	  { "Error Code", "mapi.EcDoRpc_MAPI_REPL.error_code", FT_UINT32, BASE_DEC, VALS(mapi_MAPISTATUS_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_opnum,
-	  { "Operation", "mapi.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipients_headers_bitmask,
-	  { "Bitmask", "mapi.recipients_headers.bitmask", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_mapi_response_handles,
-	  { "Handles", "mapi.mapi_response.handles", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenFolder_req_handle_idx,
-	  { "Handle Idx", "mapi.OpenFolder_req.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_name,
-	  { "Name", "mapi.EcDoConnect.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_user,
-	  { "User", "mapi.EcDoConnect.user", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_GetProps,
-	  { "Mapi Getprops", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_GetProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_dbl,
-	  { "Dbl", "mapi.SPropValue_CTR.dbl", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_Release,
-	  { "Mapi Release", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_Release", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_size,
-	  { "Size", "mapi.EcDoRpc.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevObjectDeleted,
-	  { "Fnevobjectdeleted", "mapi.ulEventType.fnevObjectDeleted", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectDeleted_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_unknown2,
-	  { "Unknown2", "mapi.EcDoConnect.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_Release,
-	  { "Mapi Release", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_Release", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_recipients_codepage,
-	  { "Codepage", "mapi.OpenMessage_recipients.codepage", FT_UINT32, BASE_DEC, VALS(mapi_CODEPAGEID_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_recipients_headers_prop_values,
-	  { "Prop Values", "mapi.recipients_headers.prop_values", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_pdu_len,
-	  { "Length", "mapi.pdu.len", FT_UINT16, BASE_HEX, NULL, 0x0, "Size of the command PDU", HFILL }},
-	{ &hf_mapi_OpenFolder_repl_unknown,
-	  { "Unknown", "mapi.OpenFolder_repl.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Fnevstatusobjectmodified", "mapi.ulEventType.fnevStatusObjectModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevStatusObjectModified_tfs), ( 0x00000200 ), NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_i,
+		{ "I", "mapi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_RecipExchange_organization_length,
-	  { "Organization Length", "mapi.RecipExchange.organization_length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_DATA_BLOB_length,
-	  { "Length", "mapi.DATA_BLOB.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_notif_len,
-	  { "Notif Len", "mapi.EcRRegisterPushNotification.notif_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_GetProps_repl_prop_data,
-	  { "Prop Data", "mapi.GetProps_repl.prop_data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRUnregisterPushNotification_unknown,
-	  { "Unknown", "mapi.EcRUnregisterPushNotification.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevObjectCreated,
-	  { "Fnevobjectcreated", "mapi.ulEventType.fnevObjectCreated", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectCreated_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_mapi_OpenMessage_req_message_permissions,
-	  { "Message Permissions", "mapi.OpenMessage_req.message_permissions", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_input_locale,
-	  { "Input Locale", "mapi.EcDoConnect.input_locale", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_GetProps_req_prop_count,
-	  { "Prop Count", "mapi.GetProps_req.prop_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_RecipExchange_addr_type,
-	  { "Addr Type", "mapi.RecipExchange.addr_type", FT_UINT8, BASE_DEC, VALS(mapi_addr_type_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_unknown2,
-	  { "Unknown2", "mapi.EcRRegisterPushNotification.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_opnum,
-	  { "Opnum", "mapi.EcDoRpc_MAPI_REPL.opnum", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_lpszW,
-	  { "Lpszw", "mapi.SPropValue_CTR.lpszW", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevTableModified,
-	  { "Fnevtablemodified", "mapi.ulEventType.fnevTableModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevTableModified_tfs), ( 0x00000100 ), NULL, HFILL }},
-	{ &hf_mapi_SPropValue_ulPropTag,
-	  { "Ulproptag", "mapi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(mapi_MAPITAGS_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenMsgStore,
-	  { "Mapi Openmsgstore", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_OpenMsgStore", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SPropValue_CTR_b,
-	  { "B", "mapi.SPropValue_CTR.b", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REPL_handle_idx,
-	  { "Handle Idx", "mapi.EcDoRpc_MAPI_REPL.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Organization Length", "mapi.RecipExchange.organization_length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_req_max_data,
+		{ "Max Data", "mapi.OpenMessage_req.max_data", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_DATA_BLOB_data,
+		{ "Data", "mapi.DATA_BLOB.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_recipients_recipients_headers_,
+		{ "Subcontext length", "mapi.OpenMessage_recipients.subcontext", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_length,
+		{ "Length", "mapi.EcDoRpc.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenFolder_req_folder_id,
+		{ "Folder Id", "mapi.OpenFolder_req.folder_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_request_length,
+		{ "Length", "mapi.mapi_request.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_OpenFolder,
+		{ "Mapi Openfolder", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_OpenFolder", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_ulEventType_fnevNewMail,
-	  { "Fnevnewmail", "mapi.ulEventType.fnevNewMail", FT_BOOLEAN, 16, TFS(&ulEventType_fnevNewMail_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_mapi_input_locale_method,
-	  { "Method", "mapi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevSearchComplete,
-	  { "Fnevsearchcomplete", "mapi.ulEventType.fnevSearchComplete", FT_BOOLEAN, 16, TFS(&ulEventType_fnevSearchComplete_tfs), ( 0x00000080 ), NULL, HFILL }},
-	{ &hf_mapi_MAPI_OPNUM,
-	  { "Opnum", "mapi.EcDoRpc_MAPI_REQ.opnum", FT_UINT8, BASE_HEX, VALS(mapi_MAPI_OPNUM_vals), 0, "NULL", HFILL }},
-	{ &hf_mapi_EcDoConnect_alloc_space,
-	  { "Alloc Space", "mapi.EcDoConnect.alloc_space", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcRRegisterPushNotification_retval,
-	  { "Retval", "mapi.EcRRegisterPushNotification.retval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_OpenMsgStore_req_mailbox_str_size,
-	  { "Mailbox Str Size", "mapi.OpenMsgStore_req.mailbox_str_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_decrypted_data,
-	  { "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_NONE, NULL, 0, "NULL", HFILL }},
-	{ &hf_mapi_OpenMessage_req_folder_id,
-	  { "Folder Id", "mapi.OpenMessage_req.folder_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipient_displayname_7bit_lpszA,
-	  { "Lpsza", "mapi.recipient_displayname_7bit.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevObjectMoved,
-	  { "Fnevobjectmoved", "mapi.ulEventType.fnevObjectMoved", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectMoved_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_mapi_mapi_request_mapi_len,
-	  { "Mapi Len", "mapi.mapi_request.mapi_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Fnevnewmail", "mapi.ulEventType.fnevNewMail", FT_BOOLEAN, 16, TFS(&ulEventType_fnevNewMail_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_lpguid,
+		{ "Lpguid", "mapi.SPropValue_CTR.lpguid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_GetProps_req_properties,
+		{ "Properties", "mapi.GetProps_req.properties", FT_UINT32, BASE_DEC, VALS(mapi_MAPITAGS_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_max_data,
+		{ "Max Data", "mapi.EcDoRpc.max_data", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_req_folder_handle_idx,
+		{ "Folder Handle Idx", "mapi.OpenMessage_req.folder_handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_ft,
+		{ "Ft", "mapi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipients_headers_username,
+		{ "Username", "mapi.recipients_headers.username", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_ulEventType_fnevObjectModified,
-	  { "Fnevobjectmodified", "mapi.ulEventType.fnevObjectModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectModified_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_mapi_MAPISTATUS_status,
-	  { "MAPISTATUS", "mapi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(mapi_MAPISTATUS_vals), 0, NULL, HFILL }},
-	{ &hf_mapi_recipient_type_EXCHANGE,
-	  { "Exchange", "mapi.recipient_type.EXCHANGE", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_handle_idx,
-	  { "Handle Idx", "mapi.EcDoRpc_MAPI_REQ.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_mapi_response_mapi_repl,
-	  { "Mapi Repl", "mapi.mapi_response.mapi_repl", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoRpc_mapi_request,
-	  { "Mapi Request", "mapi.EcDoRpc.mapi_request", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_LPSTR_lppszA,
-	  { "Lppsza", "mapi.LPSTR.lppszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_recipient_type,
-	  { "Recipient Type", "mapi.recipients_headers.type", FT_UINT16, BASE_HEX, VALS(mapi_OM_recipient_type_vals), 0, "NULL", HFILL }},
-	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenFolder,
-	  { "Mapi Openfolder", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_OpenFolder", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_EcDoConnect_session_nb,
-	  { "Session Nb", "mapi.EcDoConnect.session_nb", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_ulEventType_fnevExtended,
-	  { "Fnevextended", "mapi.ulEventType.fnevExtended", FT_BOOLEAN, 16, TFS(&ulEventType_fnevExtended_tfs), ( 0x80000000 ), NULL, HFILL }},
-	{ &hf_mapi_OpenMsgStore_req_row,
-	  { "Row", "mapi.OpenMsgStore_req.row", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_mapi_SRow_ulRowFlags,
-	  { "Ulrowflags", "mapi.SRow.ulRowFlags", FT_UINT8, BASE_DEC, VALS(mapi_ulRowFlags_vals), 0, NULL, HFILL }},
+		{ "Fnevobjectmodified", "mapi.ulEventType.fnevObjectModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectModified_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_emsmdb_client_version,
+		{ "Emsmdb Client Version", "mapi.EcDoConnect.emsmdb_client_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_b,
+		{ "B", "mapi.SPropValue_CTR.b", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_request_mapi_len,
+		{ "Mapi Len", "mapi.mapi_request.mapi_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_ulEventMask,
+		{ "Uleventmask", "mapi.EcRRegisterPushNotification.ulEventMask", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipient_displayname_7bit_lpszA,
+		{ "Lpsza", "mapi.recipient_displayname_7bit.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_GetProps_req_unknown,
+		{ "Unknown", "mapi.GetProps_req.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_sockaddr_len,
+		{ "Sockaddr Len", "mapi.EcRRegisterPushNotification.sockaddr_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_GetProps_repl_prop_data,
+		{ "Prop Data", "mapi.GetProps_repl.prop_data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_response_handles,
+		{ "Handles", "mapi.mapi_response.handles", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_DATA_BLOB_length,
+		{ "Length", "mapi.DATA_BLOB.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenFolder_repl_unknown,
+		{ "Unknown", "mapi.OpenFolder_repl.unknown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_notif_len,
+		{ "Notif Len", "mapi.EcRRegisterPushNotification.notif_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_recipients_headers_layout,
-	  { "Layout", "mapi.recipients_headers.layout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Layout", "mapi.recipients_headers.layout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_unknown1,
+		{ "Unknown1", "mapi.EcDoConnect.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_u,
+		{ "U", "mapi.EcDoRpc_MAPI_REPL.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_lpszW,
+		{ "Lpszw", "mapi.SPropValue_CTR.lpszW", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_handle,
+		{ "Handle", "mapi.handle", FT_BYTES, BASE_NONE, NULL, 0, "NULL", HFILL }},
+	{ &hf_mapi_SPropValue_CTR_lpszA,
+		{ "Lpsza", "mapi.SPropValue_CTR.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_GetProps,
+		{ "Mapi Getprops", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_GetProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_name,
+		{ "Name", "mapi.EcDoConnect.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenFolder_req_unknown,
+		{ "Unknown", "mapi.OpenFolder_req.unknown", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_input_locale_language,
+		{ "Language", "mapi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipients_headers_prop_values,
+		{ "Prop Values", "mapi.recipients_headers.prop_values", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_recipients_recipients_headers,
+		{ "Recipients Headers", "mapi.OpenMessage_recipients.recipients_headers", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_opnum,
+		{ "Operation", "mapi.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_retval,
+		{ "Retval", "mapi.EcRRegisterPushNotification.retval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_Release,
+		{ "Mapi Release", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_Release", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_decrypted_data,
+		{ "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_NONE, NULL, 0, "NULL", HFILL }},
+	{ &hf_mapi_mapi_request_mapi_req,
+		{ "Mapi Req", "mapi.mapi_request.mapi_req", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_RecipExchange_addr_type,
+		{ "Addr Type", "mapi.RecipExchange.addr_type", FT_UINT8, BASE_DEC, VALS(mapi_addr_type_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_dbl,
+		{ "Dbl", "mapi.SPropValue_CTR.dbl", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMsgStore_req_mailbox,
+		{ "Mailbox", "mapi.OpenMsgStore_req.mailbox", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_mapi_response,
+		{ "Mapi Response", "mapi.EcDoRpc.mapi_response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_error_code,
+		{ "Error Code", "mapi.EcDoRpc_MAPI_REPL.error_code", FT_UINT32, BASE_DEC, VALS(mapi_MAPISTATUS_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_req_message_permissions,
+		{ "Message Permissions", "mapi.OpenMessage_req.message_permissions", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevSearchComplete,
+		{ "Fnevsearchcomplete", "mapi.ulEventType.fnevSearchComplete", FT_BOOLEAN, 16, TFS(&ulEventType_fnevSearchComplete_tfs), ( 0x00000080 ), NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_size,
+		{ "Size", "mapi.EcDoRpc.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipient_type_SMTP,
+		{ "Smtp", "mapi.recipient_type.SMTP", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_req_folder_id,
+		{ "Folder Id", "mapi.OpenMessage_req.folder_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_ulPropTag,
+		{ "Ulproptag", "mapi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(mapi_MAPITAGS_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_response_mapi_repl,
+		{ "Mapi Repl", "mapi.mapi_response.mapi_repl", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_org_group,
+		{ "Org Group", "mapi.EcDoConnect.org_group", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_mapi_response_,
+		{ "Subcontext length", "mapi.EcDoRpc.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_response_length,
+		{ "Length", "mapi.mapi_response.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipient_type,
+		{ "Recipient Type", "mapi.recipients_headers.type", FT_UINT16, BASE_HEX, VALS(mapi_OM_recipient_type_vals), 0, "NULL", HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_notifkey,
+		{ "Notifkey", "mapi.EcRRegisterPushNotification.notifkey", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_u,
+		{ "U", "mapi.EcDoRpc_MAPI_REQ.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenFolder,
+		{ "Mapi Openfolder", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_OpenFolder", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipients_headers_prop_count,
+		{ "Prop Count", "mapi.recipients_headers.prop_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_GetProps,
+		{ "Mapi Getprops", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_GetProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_request_handles,
+		{ "Handles", "mapi.mapi_request.handles", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_input_locale,
+		{ "Input Locale", "mapi.EcDoConnect.input_locale", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_GetProps_req_prop_count,
+		{ "Prop Count", "mapi.GetProps_req.prop_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevReservedForMapi,
+		{ "Fnevreservedformapi", "mapi.ulEventType.fnevReservedForMapi", FT_BOOLEAN, 16, TFS(&ulEventType_fnevReservedForMapi_tfs), ( 0x40000000 ), NULL, HFILL }},
+	{ &hf_mapi_OpenMsgStore_req_codepage,
+		{ "Codepage", "mapi.OpenMsgStore_req.codepage", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_LPSTR_lppszA,
+		{ "Lppsza", "mapi.LPSTR.lppszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_mapi_request_,
+		{ "Subcontext length", "mapi.EcDoRpc.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_handle_idx,
+		{ "Handle Idx", "mapi.EcDoRpc_MAPI_REPL.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_unknown2,
+		{ "Unknown2", "mapi.EcRRegisterPushNotification.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_err,
+		{ "Err", "mapi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcRRegisterPushNotification_sockaddr,
+		{ "Sockaddr", "mapi.EcRRegisterPushNotification.sockaddr", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipient_type_EXCHANGE,
+		{ "Exchange", "mapi.recipient_type.EXCHANGE", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenFolder_req_handle_idx,
+		{ "Handle Idx", "mapi.OpenFolder_req.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_d,
+		{ "D", "mapi.SPropValue_CTR.d", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_unknown2,
+		{ "Unknown2", "mapi.EcDoConnect.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevObjectMoved,
+		{ "Fnevobjectmoved", "mapi.ulEventType.fnevObjectMoved", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectMoved_tfs), ( 0x00000020 ), NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_UNION_mapi_Release,
+		{ "Mapi Release", "mapi.EcDoRpc_MAPI_REPL_UNION.mapi_Release", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_mapi_response_mapi_len,
+		{ "Mapi Len", "mapi.mapi_response.mapi_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevObjectCopied,
+		{ "Fnevobjectcopied", "mapi.ulEventType.fnevObjectCopied", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectCopied_tfs), ( 0x00000040 ), NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevCriticalError,
+		{ "Fnevcriticalerror", "mapi.ulEventType.fnevCriticalError", FT_BOOLEAN, 16, TFS(&ulEventType_fnevCriticalError_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_mapi_FILETIME_dwHighDateTime,
+		{ "Dwhighdatetime", "mapi.FILETIME.dwHighDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_alloc_space,
+		{ "Alloc Space", "mapi.EcDoConnect.alloc_space", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_property_types,
+		{ "Value", "mapi.SPropValue.value", FT_UINT32, BASE_HEX, VALS(mapi_property_types_vals), 0, "NULL", HFILL }},
+	{ &hf_mapi_OpenMsgStore_req_mailbox_str_size,
+		{ "Mailbox Str Size", "mapi.OpenMsgStore_req.mailbox_str_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_recipients_RecipClass,
+		{ "Recipclass", "mapi.OpenMessage_recipients.RecipClass", FT_UINT8, BASE_DEC, VALS(mapi_ulRecipClass_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_session_nb,
+		{ "Session Nb", "mapi.EcDoConnect.session_nb", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_handle_idx,
+		{ "Handle Idx", "mapi.EcDoRpc_MAPI_REQ.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevTableModified,
+		{ "Fnevtablemodified", "mapi.ulEventType.fnevTableModified", FT_BOOLEAN, 16, TFS(&ulEventType_fnevTableModified_tfs), ( 0x00000100 ), NULL, HFILL }},
+	{ &hf_mapi_OpenMsgStore_req_padding,
+		{ "Padding", "mapi.OpenMsgStore_req.padding", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_GetProps_repl_layout,
+		{ "Layout", "mapi.GetProps_repl.layout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_code_page,
+		{ "Code Page", "mapi.EcDoConnect.code_page", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_unknown3,
+		{ "Unknown3", "mapi.EcDoConnect.unknown3", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_req_message_id,
+		{ "Message Id", "mapi.OpenMessage_req.message_id", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMessage_recipients_codepage,
+		{ "Codepage", "mapi.OpenMessage_recipients.codepage", FT_UINT32, BASE_DEC, VALS(mapi_CODEPAGEID_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_EcRUnregisterPushNotification_unknown,
+		{ "Unknown", "mapi.EcRUnregisterPushNotification.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_mapi_request,
+		{ "Mapi Request", "mapi.EcDoRpc.mapi_request", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevObjectCreated,
+		{ "Fnevobjectcreated", "mapi.ulEventType.fnevObjectCreated", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectCreated_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_store_version,
+		{ "Store Version", "mapi.EcDoConnect.store_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_offset,
+		{ "Offset", "mapi.EcDoRpc.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SRow_ulRowFlags,
+		{ "Ulrowflags", "mapi.SRow.ulRowFlags", FT_UINT8, BASE_DEC, VALS(mapi_ulRowFlags_vals), 0, NULL, HFILL }},
+	{ &hf_mapi_MAPI_OPNUM,
+		{ "Opnum", "mapi.EcDoRpc_MAPI_REQ.opnum", FT_UINT8, BASE_HEX, VALS(mapi_MAPI_OPNUM_vals), 0, "NULL", HFILL }},
+	{ &hf_mapi_ulEventType_fnevExtended,
+		{ "Fnevextended", "mapi.ulEventType.fnevExtended", FT_BOOLEAN, 16, TFS(&ulEventType_fnevExtended_tfs), ( 0x80000000 ), NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REPL_opnum,
+		{ "Opnum", "mapi.EcDoRpc_MAPI_REPL.opnum", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_ulEventType_fnevObjectDeleted,
+		{ "Fnevobjectdeleted", "mapi.ulEventType.fnevObjectDeleted", FT_BOOLEAN, 16, TFS(&ulEventType_fnevObjectDeleted_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_mapi_FILETIME_dwLowDateTime,
+		{ "Dwlowdatetime", "mapi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_OpenMsgStore_req_row,
+		{ "Row", "mapi.OpenMsgStore_req.row", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_pdu_len,
+		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_HEX, NULL, 0x0, "Size of the command PDU", HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenMsgStore,
+		{ "Mapi Openmsgstore", "mapi.EcDoRpc_MAPI_REQ_UNION.mapi_OpenMsgStore", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_input_locale_method,
+		{ "Method", "mapi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_SPropValue_CTR_l,
+		{ "L", "mapi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_recipients_headers_bitmask,
+		{ "Bitmask", "mapi.recipients_headers.bitmask", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_user,
+		{ "User", "mapi.EcDoConnect.user", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoConnect_unknown4,
+		{ "Unknown4", "mapi.EcDoConnect.unknown4", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_EcDoRpc_MAPI_REQ_mapi_flags,
+		{ "Mapi Flags", "mapi.EcDoRpc_MAPI_REQ.mapi_flags", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_mapi_MAPISTATUS_status,
+		{ "MAPISTATUS", "mapi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(mapi_MAPISTATUS_vals), 0, NULL, HFILL }},
 	};
 
 

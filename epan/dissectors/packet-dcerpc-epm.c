@@ -165,8 +165,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     }
 
     if(parent_tree){
-        item = proto_tree_add_text(parent_tree, tvb, offset, -1, "Entry:");
-        tree = proto_item_add_subtree(item, ett_epm_entry);
+        tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_epm_entry, &item, "Entry:");
     }
 
     offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
@@ -335,8 +334,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         e_uuid_t uuid;
         proto_item *pi;
 
-        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d ", ii+1);
-        tr = proto_item_add_subtree(it, ett_epm_tower_floor);
+        tr = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_epm_tower_floor, &it, "Floor %d ", ii+1);
 
         len = tvb_get_letohs(tvb, offset);
         proto_tree_add_uint(tr, hf_epm_tower_lhs_len, tvb, offset, 2, len);
