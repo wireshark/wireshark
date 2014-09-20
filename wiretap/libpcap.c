@@ -61,7 +61,7 @@ typedef enum {
 	BAD_READ,		/* the file is probably not valid */
 	OTHER_FORMAT		/* the file may be valid, but not in this format */
 } libpcap_try_t;
-static libpcap_try_t libpcap_try(wtap *wth, int *err);
+static libpcap_try_t libpcap_try(wtap *wth, int *err, gchar **err_info);
 
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
@@ -354,7 +354,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029;
 		first_packet_offset = file_tell(wth->fh);
-		switch (libpcap_try(wth, err)) {
+		switch (libpcap_try(wth, err, err_info)) {
 
 		case BAD_READ:
 			/*
@@ -403,7 +403,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 		}
 		first_packet_offset = file_tell(wth->fh);
-		switch (libpcap_try(wth, err)) {
+		switch (libpcap_try(wth, err, err_info)) {
 
 		case BAD_READ:
 			/*
@@ -439,7 +439,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			return -1;
 		}
-		switch (libpcap_try(wth, err)) {
+		switch (libpcap_try(wth, err, err_info)) {
 
 		case BAD_READ:
 			/*
@@ -502,7 +502,7 @@ done:
 }
 
 /* Try to read the first two records of the capture file. */
-static libpcap_try_t libpcap_try(wtap *wth, int *err)
+static libpcap_try_t libpcap_try(wtap *wth, int *err, gchar **err_info)
 {
 	/*
 	 * pcaprec_ss990915_hdr is the largest header type.
@@ -513,7 +513,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	/*
 	 * Attempt to read the first record's header.
 	 */
-	if (libpcap_read_header(wth, wth->fh, err, NULL, &first_rec_hdr) == -1) {
+	if (libpcap_read_header(wth, wth->fh, err, err_info, &first_rec_hdr) == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
 			 * EOF or short read - assume the file is in this
@@ -552,7 +552,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	/*
 	 * Now attempt to read the second record's header.
 	 */
-	if (libpcap_read_header(wth, wth->fh, err, NULL, &second_rec_hdr) == -1) {
+	if (libpcap_read_header(wth, wth->fh, err, err_info, &second_rec_hdr) == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
 			 * EOF or short read - assume the file is in this
