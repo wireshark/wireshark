@@ -3465,6 +3465,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     case WTAP_ERR_DECOMPRESS:
       cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n"
                  "(%s)", cf->filename, err_info);
+      g_free(err_info);
       break;
 
     default:
