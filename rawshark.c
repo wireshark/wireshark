@@ -156,7 +156,7 @@ static print_format_e print_format = PR_FMT_TEXT;
 static gboolean want_pcap_pkthdr;
 
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
-static int load_cap_file(capture_file *cf);
+static gboolean load_cap_file(capture_file *cf);
 static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
                                struct wtap_pkthdr *whdr, const guchar *pd);
 static void show_print_file_io_error(int err);
@@ -455,7 +455,6 @@ main(int argc, char *argv[])
     int                  pf_open_errno, pf_read_errno;
     int                  gdp_open_errno, gdp_read_errno;
     int                  dp_open_errno, dp_read_errno;
-    int                  err;
     gchar               *pipe_name = NULL;
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
@@ -904,9 +903,7 @@ main(int argc, char *argv[])
 #endif
 
         /* Process the packets in the file */
-        err = load_cap_file(&cfile);
-
-        if (err != 0) {
+        if (!load_cap_file(&cfile)) {
             epan_free(cfile.epan);
             epan_cleanup();
             exit(2);
@@ -1013,7 +1010,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     return TRUE;
 }
 
-static int
+static gboolean
 load_cap_file(capture_file *cf)
 {
     int          err;
@@ -1068,9 +1065,10 @@ load_cap_file(capture_file *cf)
                            cf->filename, wtap_strerror(err));
                 break;
         }
+        return FALSE;
     }
 
-    return err;
+    return TRUE;
 }
 
 static gboolean
