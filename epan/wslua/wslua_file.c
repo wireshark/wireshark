@@ -1653,7 +1653,7 @@ wslua_filehandler_sequential_close(wtap *wth);
  * field in the "struct wtap" to the type of the file.
  */
 static int
-wslua_filehandler_open(wtap *wth, int *err _U_, gchar **err_info)
+wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = 0;
@@ -1708,9 +1708,19 @@ wslua_filehandler_open(wtap *wth, int *err _U_, gchar **err_info)
 
         wth->file_type_subtype = fh->file_type;
     }
-    else {
+    else if (retval == -1) {
+        /* open error - we *must* return an error code! */
+        *err = WTAP_ERR_CANT_OPEN;
+    }
+    else if (retval == 0) {
         /* not our file type */
         remove_wth_priv(L, wth);
+    }
+    else {
+        /* not a valid return type */
+        g_warning("FileHandler read_open routine returned %d", retval);
+        *err = WTAP_ERR_INTERNAL;
+        retval = -1;
     }
 
     lua_settop(L,0);
