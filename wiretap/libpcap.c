@@ -56,7 +56,7 @@ typedef struct {
 #endif
 
 /* Try to read the first two records of the capture file. */
-static int libpcap_try(wtap *wth, int *err);
+static int libpcap_try(wtap *wth, int *err, gchar **err_info);
 static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 
@@ -394,7 +394,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	first_packet_offset = file_tell(wth->fh);
 	for (i = 0; i < n_subtypes; i++) {
 		wth->file_type_subtype = subtypes[i];
-		figures_of_merit[i] = libpcap_try(wth, err);
+		figures_of_merit[i] = libpcap_try(wth, err, err_info);
 		if (figures_of_merit[i] == -1) {
 			/*
 			 * Well, we couldn't even read it.
@@ -464,7 +464,7 @@ done:
 }
 
 /* Try to read the first two records of the capture file. */
-static int libpcap_try(wtap *wth, int *err)
+static int libpcap_try(wtap *wth, int *err, gchar **err_info)
 {
 	int ret;
 
@@ -477,7 +477,7 @@ static int libpcap_try(wtap *wth, int *err)
 	/*
 	 * Attempt to read the first record's header.
 	 */
-	ret = libpcap_try_header(wth, wth->fh, err, NULL, &first_rec_hdr);
+	ret = libpcap_try_header(wth, wth->fh, err, err_info, &first_rec_hdr);
 	if (ret == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
@@ -510,7 +510,7 @@ static int libpcap_try(wtap *wth, int *err)
 	/*
 	 * Now attempt to read the second record's header.
 	 */
-	ret = libpcap_try_header(wth, wth->fh, err, NULL, &second_rec_hdr);
+	ret = libpcap_try_header(wth, wth->fh, err, err_info, &second_rec_hdr);
 	if (ret == -1) {
 		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
 			/*
