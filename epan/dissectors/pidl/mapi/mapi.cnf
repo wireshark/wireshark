@@ -28,6 +28,7 @@ HF_RENAME hf_mapi_EcDoRpc_MAPI_REQ_opnum hf_mapi_MAPI_OPNUM
 
 HF_FIELD hf_mapi_pdu_len "Length" "mapi.pdu.len" FT_UINT16 BASE_HEX NULL 0x0 "Size of the command PDU" HFILL
 HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_NONE NULL 0 NULL HFILL
+HF_FIELD hf_mapi_MAPI_handle "MAPI handle" "mapi.mapi_handle" FT_UINT32 BASE_HEX NULL 0 NULL HFILL
 
 NOEMIT SBinary_short
 NOEMIT MV_LONG_STRUCT
@@ -87,9 +88,8 @@ static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offse
 	gint		reported_len;
 	gint		i;
 	gint		handles_cnt = 0;
-	int		old_offset;
 	guint32		value;
-	proto_tree	*tr;
+	proto_tree	*tr = NULL;
 
 	reported_len = tvb_reported_length_remaining(tvb, offset);
 
@@ -98,10 +98,9 @@ static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offse
 	tr = proto_tree_add_subtree_format(tree, tvb, offset, reported_len, ett_mapi_mapi_request, NULL, "MAPI Handles: %d", handles_cnt);
 
 	for (i = 0; i < handles_cnt; i++) {
-	    old_offset = offset;
-	    value = tvb_get_letohl(tvb, offset);
-	    offset += 4;
-	    proto_tree_add_text(tr, tvb, old_offset, offset - old_offset, "[%.2d] MAPI handle: 0x%.8x", i, value);
+		value = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint_format(tr, hf_mapi_MAPI_handle, tvb, offset, 4, value, "[%.2d] MAPI handle: 0x%.8x", i, value);
+		offset += 4;
 	}
 
 	return offset;
