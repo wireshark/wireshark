@@ -240,6 +240,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     /* read the first header to take a guess at the file encap */
     bytes_read = file_read(dummy, 4, wth->fh);
     if (bytes_read != 4) {
+	*err = file_error(wth->fh, err_info);
         if (*err != 0) {
             return -1;
         }
@@ -661,6 +662,7 @@ nettl_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
             bytes_to_read = length;
         bytes_read = file_read(pd, bytes_to_read, fh);
         if (bytes_read != bytes_to_read) {
+            *err = file_error(wth->fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -677,6 +679,7 @@ nettl_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
                 bytes_to_read = length;
             bytes_read = file_read(dummy, bytes_to_read, fh);
             if (bytes_read != bytes_to_read) {
+                *err = file_error(wth->fh, err_info);
                 if (*err == 0)
                     *err = WTAP_ERR_SHORT_READ;
                 return FALSE;
