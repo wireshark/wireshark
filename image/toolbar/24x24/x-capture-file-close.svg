@@ -37,15 +37,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="21.416667"
-     inkscape:cx="12"
+     inkscape:cx="13.757393"
      inkscape:cy="12"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="931"
-     inkscape:window-height="683"
-     inkscape:window-x="0"
-     inkscape:window-y="774"
+     inkscape:window-width="1055"
+     inkscape:window-height="786"
+     inkscape:window-x="264"
+     inkscape:window-y="96"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -73,27 +73,25 @@
      id="layer1"
      transform="translate(0,-1028.3622)">
     <image
-       sodipodi:absref="/Users/gcombs/Development/wireshark/image/toolbar/24x24/x-capture-file-save.png"
+       sodipodi:absref="/Users/gerald/Development/wireshark/image/toolbar/24x24/x-capture-file-save.png"
        xlink:href="x-capture-file-save.png"
-       y="1028.3622"
-       x="26"
-       id="image3836"
-       height="24"
+       style="fill:#2e3436;stroke:#2e3436"
        width="24"
-       style="fill:#2e3436;stroke:#2e3436" />
-    <g
-       id="g4612"
-       transform="matrix(0.91304348,0,0,0.91304348,1.0434783,90.466278)">
-      <path
-         style="fill:none;stroke:#2e3436;stroke-width:2.19047618;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="m 22.5,1050.8622 -21,-21"
-         id="path3840"
-         inkscape:connector-curvature="0" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path3066"
-         d="m 1.5,1050.8622 21,-21"
-         style="fill:none;stroke:#2e3436;stroke-width:2.19047618;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    </g>
+       height="24"
+       id="image3836"
+       x="0"
+       y="1028.3622" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3771"
+       d="m 18,1046.3622 -12,-12"
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 6,1046.3622 12,-12"
+       id="path3791"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>

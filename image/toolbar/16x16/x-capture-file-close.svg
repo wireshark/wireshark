@@ -37,15 +37,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="32.125"
-     inkscape:cx="8"
+     inkscape:cx="8.6038579"
      inkscape:cy="8"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="931"
-     inkscape:window-height="683"
-     inkscape:window-x="0"
-     inkscape:window-y="774"
+     inkscape:window-width="1200"
+     inkscape:window-height="742"
+     inkscape:window-x="484"
+     inkscape:window-y="196"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -73,26 +73,24 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <image
-       sodipodi:absref="/Users/gcombs/Development/wireshark/image/toolbar/16x16/x-capture-file-save.png"
+       sodipodi:absref="/Users/gerald/Development/wireshark/image/toolbar/16x16/x-capture-file-save.png"
        xlink:href="x-capture-file-save.png"
-       width="16"
-       height="16"
+       y="1036.3622"
+       x="0"
        id="image3882"
-       x="18"
-       y="1036.3622" />
-    <g
-       id="g4616"
-       transform="matrix(0.86666667,0,0,0.86666667,1.0666667,139.24829)">
-      <path
-         style="fill:none;stroke:#2e3436;stroke-width:1.15384614;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="m 15,1051.3622 -14,-14"
-         id="path3840"
-         inkscape:connector-curvature="0" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path3066"
-         d="m 1,1051.3622 14,-14"
-         style="fill:none;stroke:#2e3436;stroke-width:1.15384614;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    </g>
+       height="16"
+       width="16" />
+    <path
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 3,1049.3622 10,-10"
+       id="path3769"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3771"
+       d="m 13,1049.3622 -10,-10"
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
   </g>
 </svg>
