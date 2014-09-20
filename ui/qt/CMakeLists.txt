@@ -79,8 +79,6 @@ set(WIRESHARK_QT_HEADERS
 	proto_tree.h
 	qcustomplot.h
 	recent_file_status.h
-	remote_capture_dialog.h
-	remote_settings_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
 	sctp_chunk_statistics_dialog.h
@@ -101,6 +99,14 @@ set(WIRESHARK_QT_HEADERS
 	uat_dialog.h
 	wireshark_application.h
 )
+
+if(HAVE_PCAP_REMOTE)
+	set(WIRESHARK_QT_HEADERS
+		${WIRESHARK_QT_HEADERS}
+		remote_capture_dialog.h
+		remote_settings_dialog.h
+	)
+endif()
 
 file(GLOB EXTA_QT_HEADERS
 	packet_list_record.h
@@ -169,8 +175,6 @@ set(WIRESHARK_QT_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
-	remote_capture_dialog.cpp
-	remote_settings_dialog.cpp
 	sctp_all_assocs_dialog.cpp
 	sctp_assoc_analyse_dialog.cpp
 	sctp_chunk_statistics_dialog.cpp
@@ -192,6 +196,14 @@ set(WIRESHARK_QT_SRC
 	uat_dialog.cpp
 	wireshark_application.cpp
 )
+
+if(HAVE_PCAP_REMOTE)
+	set(WIRESHARK_QT_SRC
+		${WIRESHARK_QT_SRC}
+		remote_capture_dialog.cpp
+		remote_settings_dialog.cpp
+	)
+endif()
 
 set(WIRESHARK_QT_TAP_SRC
 	conversation_dialog.cpp
@@ -240,8 +252,6 @@ set(WIRESHARK_QT_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
-	remote_capture_dialog.ui
-	remote_settings_dialog.ui
 	sctp_all_assocs_dialog.ui
 	sctp_assoc_analyse_dialog.ui
 	sctp_chunk_statistics_dialog.ui
@@ -258,6 +268,14 @@ set(WIRESHARK_QT_UI
 	traffic_table_dialog.ui
 	uat_dialog.ui
 )
+
+if(HAVE_PCAP_REMOTE)
+	set(WIRESHARK_QT_UI
+		${WIRESHARK_QT_UI}
+		remote_capture_dialog.ui
+		remote_settings_dialog.ui
+	)
+endif()
 
 set(WIRESHARK_QT_QRC
 	../../image/about.qrc

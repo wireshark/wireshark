@@ -24,8 +24,6 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(WIRESHARK_GTK_SRC
 	about_dlg.c
 	addr_resolution_dlg.c
-	airpcap_dlg.c
-	airpcap_gui_utils.c
 	bytes_view.c
 	capture_dlg.c
 	capture_file_dlg.c
@@ -70,7 +68,6 @@ set(WIRESHARK_GTK_SRC
 	macros_dlg.c
 	main.c
 	main_80211_toolbar.c
-	main_airpcap_toolbar.c
 	main_filter_toolbar.c
 	main_menubar.c
 	main_statusbar.c
@@ -102,7 +99,6 @@ set(WIRESHARK_GTK_SRC
 	proto_hier_tree_model.c
 	proto_tree_model.c
 	range_utils.c
-	rtp_player.c
 	rtp_stream.c
 	sctp_byte_graph_dlg.c
 	sctp_error_dlg.c
@@ -120,6 +116,22 @@ set(WIRESHARK_GTK_SRC
 	webbrowser.c
 	${WIRESHARK_CUSTOM_GTK_SRC}
 )
+
+if (HAVE_AIRPCAP)
+	set(WIRESHARK_GTK_SRC
+		${WIRESHARK_GTK_SRC}
+		airpcap_dlg.c
+		airpcap_gui_utils.c
+		main_airpcap_toolbar.c
+	)
+endif()
+
+if(HAVE_PORTAUDIO_H)
+	set(WIRESHARK_GTK_SRC
+		${WIRESHARK_GTK_SRC}
+		rtp_player.c
+	)
+endif()
 
 if(HAVE_EXTCAP)
 	set(WIRESHARK_GTK_SRC
