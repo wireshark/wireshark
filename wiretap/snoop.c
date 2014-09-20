@@ -168,15 +168,12 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * if it can't, this may be useful reference information for anybody doing
  * code to use DLPI to do raw packet captures on those network types.
  *
- * Once upon a time
- *
  *	http://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
  *
- * gave information on Shomiti's mutant flavor of snoop; Shomiti's Web site
- * is no longer available on the Wayback Machine.  For some unknown reason,
- * they decided not to just Go With The DLPI Flow, and instead used the types
- * unspecified in RFC 1461 for their own nefarious purposes, such as
- * distinguishing 10MB from 100MB from 1000MB Ethernet and distinguishing
+ * gives information on Shomiti's mutant flavor of snoop.  For some unknown
+ * reason, they decided not to just Go With The DLPI Flow, and instead used
+ * the types unspecified in RFC 1461 for their own nefarious purposes, such
+ * as distinguishing 10MB from 100MB from 1000MB Ethernet and distinguishing
  * 4MB from 16MB Token Ring, and distinguishing both of them from the
  * "Shomiti" versions of same.
  */
