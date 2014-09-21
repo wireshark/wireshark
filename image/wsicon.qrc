@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/wsicon">
+        <file>wsiconcap16.png</file>
+        <file>wsiconcap24.png</file>
+        <file>wsiconcap32.png</file>
+        <file>wsiconcap48.png</file>
+        <file>wsiconcap64.png</file>
+        <file>wsiconcap128.png</file>
+        <file>wsiconcap256.png</file>
+        <file>wsiconcap512.png</file>
+        <file>wsiconcap1024.png</file>
+        <file>wsicon16.png</file>
+        <file>wsicon24.png</file>
+        <file>wsicon32.png</file>
+        <file>wsicon48.png</file>
+        <file>wsicon64.png</file>
+        <file>wsicon128.png</file>
+        <file>wsicon256.png</file>
+        <file>wsicon512.png</file>
+        <file>wsicon1024.png</file>
+    </qresource>
+</RCC>

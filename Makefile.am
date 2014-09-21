@@ -1065,6 +1065,7 @@ EXTRA_DIST = \
 	image/WiresharkDoc-128.png	\
 	image/WiresharkDoc-256.png	\
 	image/wiretap.rc.in	\
+	image/wsicon.qrc	\
 	image/wsicon.svg	\
 	image/wsicon16.png	\
 	image/wsicon24.png	\

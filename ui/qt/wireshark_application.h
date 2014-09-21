@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QFont>
+#include <QIcon>
 #include <QList>
 #include <QSocketNotifier>
 #include <QThread>
@@ -89,6 +90,8 @@ public:
     int monospaceTextSize(const char *str, bool bold = false);
     void setConfigurationProfile(const gchar *profile_name);
     bool isInitialized() { return initialized_; }
+    const QIcon &normalIcon() const { return normal_icon_; }
+    const QIcon &captureIcon() const { return capture_icon_; }
 
 private:
     bool initialized_;
@@ -99,6 +102,8 @@ private:
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
     QSocketNotifier *if_notifier_;
+    QIcon normal_icon_;
+    QIcon capture_icon_;
 
 protected:
     bool event(QEvent *event);

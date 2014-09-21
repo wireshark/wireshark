@@ -580,6 +580,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(layout);
     Q_INIT_RESOURCE(status);
     Q_INIT_RESOURCE(toolbar);
+    Q_INIT_RESOURCE(wsicon);
 
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
@@ -593,6 +594,14 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #endif // Q_OS_WIN
 
     setAttribute(Qt::AA_DontShowIconsInMenus, true);
+
+    QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
+    foreach (int icon_size, icon_sizes) {
+        QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
+        normal_icon_.addFile(icon_path);
+        icon_path = QString(":/wsicon/wsiconcap%1.png").arg(icon_size);
+        capture_icon_.addFile(icon_path);
+    }
 
     recent_timer_.setParent(this);
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));

@@ -373,10 +373,7 @@ void MainWindow::captureCapturePrepared(capture_session *cap_session) {
     qDebug() << "FIX captureCapturePrepared";
     setTitlebarForCaptureInProgress();
 
-//    if(icon_list == NULL) {
-//        icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
-//    }
-//    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
+    setWindowIcon(wsApp->captureIcon());
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -417,6 +414,8 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
+
+    setWindowIcon(wsApp->normalIcon());
 #endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureFixedStarted(capture_session *cap_session) {
@@ -436,6 +435,8 @@ void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
+
+    setWindowIcon(wsApp->normalIcon());
 #endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureStopping(capture_session *cap_session) {
@@ -454,6 +455,8 @@ void MainWindow::captureCaptureFailed(capture_session *cap_session) {
     capture_stopping_ = false;
 
     setForCaptureInProgress(false);
+
+    setWindowIcon(wsApp->normalIcon());
 #endif // HAVE_LIBPCAP
 }
 
