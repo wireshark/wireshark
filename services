@@ -9458,6 +9458,7 @@ swispol          6966/tcp # swispol [Yutaka_Ono] [Yutaka_Ono]
 swispol          6966/udp # swispol [Yutaka_Ono] [Yutaka_Ono]
 acmsoda          6969/tcp # acmsoda [Daniel_Simms] [Daniel_Simms]
 acmsoda          6969/udp # acmsoda [Daniel_Simms] [Daniel_Simms]
+conductor        6970/tcp # Conductor test coordination protocol [George_Neville-Neil] [George_Neville-Neil] 2014-09-18
 conductor-mpx    6970/sctp # conductor for multiplex [George_Neville-Neil] [George_Neville-Neil] 2014-07-29
 MobilitySrv      6997/tcp # Mobility XE Protocol [Joseph_T_Savarese] [Joseph_T_Savarese] 2007-06
 MobilitySrv      6997/udp # Mobility XE Protocol [Joseph_T_Savarese] [Joseph_T_Savarese] 2007-06
@@ -9915,6 +9916,7 @@ indigo-vbcp      8131/tcp # INDIGO-VBCP [Colin_Caughie] [Colin_Caughie]
 indigo-vbcp      8131/udp # INDIGO-VBCP [Colin_Caughie] [Colin_Caughie]
 dbabble          8132/tcp # dbabble [Chris_Pugmire] [Chris_Pugmire]
 dbabble          8132/udp # dbabble [Chris_Pugmire] [Chris_Pugmire]
+puppet           8140/tcp # The Puppet master service [Puppet_Labs] [Zach_Leslie] 2014-09-18
 isdd             8148/tcp # i-SDD file transfer [Frank_Waarsenburg] [Frank_Waarsenburg] 2004-11
 isdd             8148/udp # i-SDD file transfer [Frank_Waarsenburg] [Frank_Waarsenburg] 2004-11
 eor-game         8149/udp # Edge of Reality game data [Sky_Schulz] [Sky_Schulz] 2011-05-09
