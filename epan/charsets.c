@@ -776,6 +776,7 @@ get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
     wmem_strbuf_t *strbuf;
     gint           char_count;                  /* character counter for string */
     guint8         in_byte, out_byte, rest = 0x00;
+    const guint8  *start_ptr = ptr;
     gboolean       saw_escape = FALSE;
     int            bits;
 
@@ -786,10 +787,9 @@ get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
         bits = 7;
     }
 
-    for(char_count = 0; char_count < no_of_chars;) {
+    for(char_count = 0; char_count < no_of_chars; ptr++) {
         /* Get the next byte from the string. */
         in_byte = *ptr;
-        ptr++;
 
         /*
          * Combine the bits we've accumulated with bits from
@@ -807,7 +807,7 @@ get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
          * next char. Under *out_num we have now 0 and under Rest -
          * _first_ part of the char.
          */
-        if (char_count || (bits == 7)) {
+        if ((start_ptr != ptr) || (bits == 7)) {
             saw_escape = handle_ts_23_038_char(strbuf, out_byte,
                 saw_escape);
             char_count++;
@@ -823,8 +823,9 @@ get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
             char_count++;
             bits = 7;
             rest = 0x00;
-        } else
+        } else {
             bits--;
+        }
     }
 
     if (saw_escape) {
@@ -847,6 +848,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
     wmem_strbuf_t *strbuf;
     gint           char_count;                  /* character counter for string */
     guint8         in_byte, out_byte, rest = 0x00;
+    const guint8  *start_ptr = ptr;
     int            bits;
 
     bits = bit_offset & 0x07;
@@ -855,10 +857,9 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
     }
 
     strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
-    for(char_count = 0; char_count < no_of_chars;) {
+    for(char_count = 0; char_count < no_of_chars; ptr++) {
         /* Get the next byte from the string. */
         in_byte = *ptr;
-        ptr++;
 
         /*
          * Combine the bits we've accumulated with bits from
@@ -876,7 +877,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
          * next char. Under *out_num we have now 0 and under Rest -
          * _first_ part of the char.
          */
-        if (char_count || (bits == 7)) {
+        if ((start_ptr != ptr) || (bits == 7)) {
             wmem_strbuf_append_c(strbuf, out_byte);
             char_count++;
         }
@@ -890,8 +891,9 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
             char_count++;
             bits = 7;
             rest = 0x00;
-        } else
+        } else {
             bits--;
+        }
     }
 
     return (guint8 *)wmem_strbuf_finalize(strbuf);
