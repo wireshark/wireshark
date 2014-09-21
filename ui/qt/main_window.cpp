@@ -137,12 +137,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
-#if defined(Q_OS_MAC)
-    // XXX Force icons to 24x24 for now, otherwise actionFileOpen looks wonky on OS X.
-    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
-#elif defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
     // Current GTK+ and other Windows app behavior.
     main_ui_->mainToolBar->setIconSize(QSize(16, 16));
+#else
+    // Force icons to 24x24 for now, otherwise actionFileOpen looks wonky.
+    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
 #endif
 
     main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));

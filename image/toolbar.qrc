@@ -44,6 +44,7 @@
         <file>toolbar/16x16/x-capture-file-save.png</file>
         <file>toolbar/16x16/x-capture-options.png</file>
         <file>toolbar/16x16/x-capture-restart.png</file>
+        <file>toolbar/16x16/x-capture-start.on.png</file>
         <file>toolbar/16x16/x-capture-start.png</file>
         <file>toolbar/16x16/x-capture-stop.png</file>
         <file>toolbar/24x24/edit-find.png</file>
@@ -57,6 +58,7 @@
         <file>toolbar/24x24/x-capture-file-save.png</file>
         <file>toolbar/24x24/x-capture-options.png</file>
         <file>toolbar/24x24/x-capture-restart.png</file>
+        <file>toolbar/24x24/x-capture-start.on.png</file>
         <file>toolbar/24x24/x-capture-start.png</file>
         <file>toolbar/24x24/x-capture-stop.png</file>
     </qresource>

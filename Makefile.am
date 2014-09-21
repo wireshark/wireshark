@@ -928,6 +928,8 @@ EXTRA_DIST = \
 	image/toolbar/16x16/x-capture-restart-turn1.svg		\
 	image/toolbar/16x16/x-capture-restart-turn2.svg		\
 	image/toolbar/16x16/x-capture-restart.png		\
+	image/toolbar/16x16/x-capture-start.on.png		\
+	image/toolbar/16x16/x-capture-start.on.svg		\
 	image/toolbar/16x16/x-capture-start.png			\
 	image/toolbar/16x16/x-capture-start.svg			\
 	image/toolbar/16x16/x-capture-stop-red.svg		\
@@ -971,6 +973,8 @@ EXTRA_DIST = \
 	image/toolbar/24x24/x-capture-restart-turn1.svg		\
 	image/toolbar/24x24/x-capture-restart-turn2.svg		\
 	image/toolbar/24x24/x-capture-restart.png		\
+	image/toolbar/24x24/x-capture-start.on.png		\
+	image/toolbar/24x24/x-capture-start.on.svg		\
 	image/toolbar/24x24/x-capture-start.png			\
 	image/toolbar/24x24/x-capture-start.svg			\
 	image/toolbar/24x24/x-capture-stop-red.svg		\
