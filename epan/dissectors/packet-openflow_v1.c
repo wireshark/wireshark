@@ -121,6 +121,7 @@ static int hf_openflow_cookie = -1;
 /* static int hf_openflow_cookie_mask = -1; */
 static int hf_openflow_padd8 = -1;
 /* static int hf_openflow_padd16 = -1; */
+static int hf_openflow_features_reply_padding = -1;
 /* static int hf_openflow_padd48 = -1; */
 static int hf_openflow_actions_len = -1;
 static int hf_openflow_action_type = -1;
@@ -507,6 +508,9 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+
+    proto_tree_add_item(tree, hf_openflow_features_reply_padding, tvb, offset, 3, ENC_NA);
+    offset+=3;
 
     ti = proto_tree_add_item(tree, hf_openflow_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
     cap_tree = proto_item_add_subtree(ti, ett_openflow_cap);
@@ -1170,6 +1174,11 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
 #endif
+        { &hf_openflow_features_reply_padding,
+            { "Padding", "openflow.features_reply.padding",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
 #if 0
         { &hf_openflow_padd48,
             { "Padding", "openflow.padding48",
