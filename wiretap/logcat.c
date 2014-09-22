@@ -85,8 +85,8 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
 
     /* ensure buffer is large enough for all versions */
     buffer = (guint8 *) g_malloc(sizeof(*log_entry_v2) + payload_length);
-    log_entry_v2 = (struct logger_entry_v2 *) buffer;
-    log_entry = (struct logger_entry *) buffer;
+    log_entry_v2 = (struct logger_entry_v2 *)(void *) buffer;
+    log_entry = (struct logger_entry *)(void *) buffer;
 
     /* cannot rely on __pad being 0 for v1, use heuristics to find out what
      * version is in use. First assume the smallest msg. */
@@ -143,14 +143,14 @@ gint logcat_exported_pdu_length(const guint8 *pd) {
     const guint16  *tag_length;
     gint            length = 0;
 
-    tag = (const guint16 *) pd;
+    tag = (const guint16 *)(const void *) pd;
 
     while(GINT16_FROM_BE(*tag)) {
-        tag_length = (const guint16 *) (pd + 2);
+        tag_length = (const guint16 *)(const void *) (pd + 2);
         length += 2 + 2 + GINT16_FROM_BE(*tag_length);
 
         pd += 2 + 2 + GINT16_FROM_BE(*tag_length);
-        tag = (const guint16 *) pd;
+        tag = (const guint16 *)(const void *) pd;
     }
 
     length += 2 + 2;
@@ -187,7 +187,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
 
     ws_buffer_assure_space(buf, packet_size);
     pd = ws_buffer_start_ptr(buf);
-    log_entry = (struct logger_entry *) pd;
+    log_entry = (struct logger_entry *)(void *) pd;
 
     /* Copy the first two bytes of the packet. */
     memcpy(pd, tmp, 2);

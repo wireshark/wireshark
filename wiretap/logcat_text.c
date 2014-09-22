@@ -64,8 +64,8 @@ static gint buffered_detect_version(const guint8 *pd)
     guint8                  *msg_end;
     guint16                  msg_len;
 
-    log_entry_v2 = (const struct logger_entry_v2 *) pd;
-    log_entry = (const struct logger_entry *) pd;
+    log_entry    = (const struct logger_entry *)(const void *) pd;
+    log_entry_v2 = (const struct logger_entry_v2 *)(const void *) pd;
 
     /* must contain at least priority and two nulls as separator */
     if (log_entry->len < 3)
@@ -459,8 +459,8 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             logcat_version = pseudo_header->logcat.version;
         }
 
-        log_entry = (const struct logger_entry *) pd;
-        log_entry_v2 = (const struct logger_entry_v2 *) pd;
+        log_entry    = (const struct logger_entry *)(const void *) pd;
+        log_entry_v2 = (const struct logger_entry_v2 *)(const void *) pd;
 
         payload_length = GINT32_FROM_LE(log_entry->len);
         pid = GINT32_FROM_LE(log_entry->pid);
