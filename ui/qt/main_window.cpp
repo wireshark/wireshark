@@ -145,15 +145,19 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->mainToolBar->setIconSize(QSize(24, 24));
 #endif
 
+    // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
+    // toolbar item but that clutters up our menu. Set menu icons sparingly.
+
     main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
     main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
     main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
     main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
 
+    // Menu icons are disabled in main_window.ui for these items.
     main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
     main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
     main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
-    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+//    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
 
     main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
     main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
@@ -193,11 +197,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ntb->setIconSize(QSize(24, 24));
 #endif // QT_MACEXTRAS_LIB
 
-    foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
-        foreach (QAction *act, menu->actions()) {
-            act->setIconVisibleInMenu(false);
-        }
-    }
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);

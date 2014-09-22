@@ -487,7 +487,6 @@
    <addaction name="actionFileOpen"/>
    <addaction name="actionFileSave"/>
    <addaction name="actionFileClose"/>
-   <addaction name="actionViewReload"/>
    <addaction name="separator"/>
    <addaction name="actionEditFindPacket"/>
    <addaction name="actionGoPreviousPacket"/>
@@ -521,6 +520,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionFileQuit">
@@ -572,6 +574,9 @@
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionDummyNoFilesFound">
    <property name="enabled">
@@ -582,10 +587,6 @@
    </property>
   </action>
   <action name="actionHelpContents">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/trolltech/styles/commonstyle/images/standardbutton-help-32.png</normaloff>:/trolltech/styles/commonstyle/images/standardbutton-help-32.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Contents</string>
    </property>
@@ -637,6 +638,10 @@
    </property>
   </action>
   <action name="actionHelpWebsite">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
+   </property>
    <property name="text">
     <string>Website</string>
    </property>
@@ -654,7 +659,7 @@
   <action name="actionHelpWiki">
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/menu/help/gnome_emblem_web_16.png</normaloff>:/menu/help/gnome_emblem_web_16.png</iconset>
+     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
    </property>
    <property name="text">
     <string>Wiki</string>
@@ -669,18 +674,11 @@
    </property>
   </action>
   <action name="actionHelpAbout">
-   <property name="icon">
-    <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;About Wireshark</string>
    </property>
    <property name="menuRole">
     <enum>QAction::AboutRole</enum>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
    </property>
   </action>
   <action name="actionHelpAsk">
@@ -812,12 +810,11 @@
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionFileSaveAs">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</iconset>
-   </property>
    <property name="text">
     <string>Save &amp;As...</string>
    </property>
@@ -881,6 +878,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionCaptureOptions">

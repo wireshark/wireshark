@@ -593,8 +593,6 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     }
 #endif // Q_OS_WIN
 
-    setAttribute(Qt::AA_DontShowIconsInMenus, true);
-
     QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
     foreach (int icon_size, icon_sizes) {
         QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);

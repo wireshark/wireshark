@@ -1,31 +1,7 @@
 <RCC>
     <qresource prefix="/menu/help">
-        <file alias="wsicon16.png">wsicon16.png</file>
-        <file alias="gnome_emblem_web_16.png">toolbar/gnome_emblem_web_16.png</file>
-        <file alias="wsicon-ask.png">wsicon-ask.png</file>
-        <file>toolbar/16x16/go-first.png</file>
-        <file>toolbar/16x16/go-jump.png</file>
-        <file>toolbar/16x16/go-last.png</file>
-        <file>toolbar/16x16/go-next.png</file>
-        <file>toolbar/16x16/go-next.svg.png</file>
-        <file>toolbar/16x16/go-previous.svg</file>
-        <file>toolbar/16x16/x-colorize-packets.png</file>
-        <file>toolbar/16x16/x-resize-columns.png</file>
-        <file>toolbar/16x16/x-stay-last.png</file>
-        <file>toolbar/16x16/zoom-in.png</file>
-        <file>toolbar/16x16/zoom-original.png</file>
-        <file>toolbar/16x16/zoom-out.png</file>
-        <file>toolbar/24x24/go-first.png</file>
-        <file>toolbar/24x24/go-jump.png</file>
-        <file>toolbar/24x24/go-last.png</file>
-        <file>toolbar/24x24/go-next.png</file>
-        <file>toolbar/24x24/go-previous.png</file>
-        <file>toolbar/24x24/x-colorize-packets.png</file>
-        <file>toolbar/24x24/x-resize-columns.png</file>
-        <file>toolbar/24x24/x-stay-last.png</file>
-        <file>toolbar/24x24/zoom-in.png</file>
-        <file>toolbar/24x24/zoom-original.png</file>
-        <file>toolbar/24x24/zoom-out.png</file>
+        <file>wsicon16.png</file>
+        <file>wsicon-ask.png</file>
     </qresource>
     <qresource prefix="/stock">
         <file>minus-8.png</file>
