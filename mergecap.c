@@ -467,7 +467,7 @@ main(int argc, char *argv[])
     shb_hdr->opt_comment   = comment_gstr->str; /* NULL if not available */
     shb_hdr->shb_hardware  = NULL;              /* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
     shb_hdr->shb_os        = NULL;              /* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
-    shb_hdr->shb_user_appl = "mergecap";        /* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+    shb_hdr->shb_user_appl = g_strdup("mergecap"); /* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 
     pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
                               FALSE /* compressed */, shb_hdr, NULL /* wtapng_iface_descriptions_t *idb_inf */, &open_err);

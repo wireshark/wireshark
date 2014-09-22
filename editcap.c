@@ -1308,7 +1308,7 @@ main(int argc, char *argv[])
 
                 /* If we don't have an application name add Editcap */
                 if (shb_hdr->shb_user_appl == NULL) {
-                    shb_hdr->shb_user_appl = "Editcap " VERSION;
+                    shb_hdr->shb_user_appl = g_strdup("Editcap " VERSION);
                 }
 
                 pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
