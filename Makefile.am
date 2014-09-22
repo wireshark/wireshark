@@ -1079,6 +1079,12 @@ EXTRA_DIST = \
 	image/wsicon-ask.png	\
 	image/wsicon-ask.svg	\
 	image/wsiconcap.svg	\
+	image/wsiconcap16.png	\
+	image/wsiconcap24.png	\
+	image/wsiconcap32.png	\
+	image/wsiconcap48.png	\
+	image/wsiconcap64.png	\
+	image/wsiconcap128.png	\
 	image/wsiconcap256.png	\
 	image/wsiconcap512.png	\
 	image/wsiconcap1024.png	\
