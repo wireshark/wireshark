@@ -930,6 +930,12 @@ wtap_close(wtap *wth)
 		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
 		g_ptr_array_free(wth->fast_seek, TRUE);
 	}
+
+	g_free(wth->shb_hdr.opt_comment);
+	g_free(wth->shb_hdr.shb_hardware);
+	g_free(wth->shb_hdr.shb_os);
+	g_free(wth->shb_hdr.shb_user_appl);
+
 	for(i = 0; i < wth->interface_data->len; i++) {
 		wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, i);
 		if(wtapng_if_descr->opt_comment != NULL){

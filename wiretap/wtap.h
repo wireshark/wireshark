@@ -1027,7 +1027,7 @@ typedef struct wtapng_section_s {
     gchar               *shb_os;        /**< NULL if not available, UTF-8 string containing the
                                          *     name of the operating system used to create this section.
                                          */
-    const gchar         *shb_user_appl; /**< NULL if not available, UTF-8 string containing the
+    gchar         *shb_user_appl;       /**< NULL if not available, UTF-8 string containing the
                                          *     name of the application used to create this section.
                                          */
 } wtapng_section_t;

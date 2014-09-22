@@ -490,6 +490,15 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 }
 
 
+static void
+pcapng_free_wtapng_block_data(wtapng_block_t *wblock)
+{
+    g_free(wblock->data.section.opt_comment);
+    g_free(wblock->data.section.shb_hardware);
+    g_free(wblock->data.section.shb_os);
+    g_free(wblock->data.section.shb_user_appl);
+}
+
 static int
 pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                                  pcapng_block_header_t *bh, pcapng_t *pn,
@@ -622,7 +631,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
     /* Option defaults */
     wblock->data.section.opt_comment        = NULL;
     wblock->data.section.shb_hardware       = NULL;
-    wblock->data.section.shb_os                     = NULL;
+    wblock->data.section.shb_os             = NULL;
     wblock->data.section.shb_user_appl      = NULL;
 
     /* Options */
@@ -659,6 +668,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 break;
             case(OPT_COMMENT):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                    g_free(wblock->data.section.opt_comment);
                     wblock->data.section.opt_comment = g_strndup(option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: opt_comment %s", wblock->data.section.opt_comment);
                 } else {
@@ -667,6 +677,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 break;
             case(OPT_SHB_HARDWARE):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                    g_free(wblock->data.section.shb_hardware);
                     wblock->data.section.shb_hardware = g_strndup(option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_hardware %s", wblock->data.section.shb_hardware);
                 } else {
@@ -675,6 +686,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 break;
             case(OPT_SHB_OS):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                    g_free(wblock->data.section.shb_os);
                     wblock->data.section.shb_os = g_strndup(option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_os %s", wblock->data.section.shb_os);
                 } else {
@@ -683,6 +695,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 break;
             case(OPT_SHB_USERAPPL):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                    g_free(wblock->data.section.shb_user_appl);
                     wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
                     pcapng_debug1("pcapng_read_section_header_block: shb_user_appl %s", wblock->data.section.shb_user_appl);
                 } else {
@@ -2225,6 +2238,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     /* read first block */
     bytes_read = pcapng_read_block(wth->fh, TRUE, &pn, &wblock, err, err_info);
     if (bytes_read <= 0) {
+        pcapng_free_wtapng_block_data(&wblock);
         if (bytes_read == -2) {
             pcapng_debug0("pcapng_open: doesn't begin with SHB, probably not a pcap-ng file");
             return 0;
@@ -2243,6 +2257,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
          * binary data?
          */
         pcapng_debug1("pcapng_open: first block type %u not SHB", wblock.type);
+        pcapng_free_wtapng_block_data(&wblock);
         return 0;
     }
     pn.shb_read = TRUE;
@@ -2304,10 +2319,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
         if (bytes_read == 0) {
             pcapng_debug0("No more IDBs available...");
+            pcapng_free_wtapng_block_data(&wblock);
             break;
         }
         if (bytes_read <= 0) {
             pcapng_debug0("pcapng_open: couldn't read IDB");
+            pcapng_free_wtapng_block_data(&wblock);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return -1;
@@ -2452,6 +2469,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 
     /* read the block */
     bytes_read = pcapng_read_block(wth->random_fh, FALSE, pcapng, &wblock, err, err_info);
+    pcapng_free_wtapng_block_data(&wblock);
     if (bytes_read <= 0) {
         pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
                       *err, errno, bytes_read);
