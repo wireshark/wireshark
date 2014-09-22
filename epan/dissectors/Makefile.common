@@ -827,6 +827,7 @@ DISSECTOR_SRC = \
 	packet-link16.c		\
 	packet-linx.c		\
 	packet-lisp-data.c	\
+	packet-lisp-tcp.c	\
 	packet-lisp.c		\
 	packet-llc.c		\
 	packet-lldp.c		\

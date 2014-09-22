@@ -905,6 +905,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-link16.c
 	dissectors/packet-linx.c
 	dissectors/packet-lisp-data.c
+	dissectors/packet-lisp-tcp.c
 	dissectors/packet-lisp.c
 	dissectors/packet-llc.c
 	dissectors/packet-lldp.c
