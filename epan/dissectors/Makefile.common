@@ -510,6 +510,7 @@ DISSECTOR_SRC = \
 	packet-dpnss.c		\
 	packet-drda.c		\
 	packet-dsi.c		\
+	packet-dsr.c		\
 	packet-dtcp-ip.c	\
 	packet-dtls.c		\
 	packet-dtn.c		\

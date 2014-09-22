@@ -3607,13 +3607,18 @@ Sean O. Stalley		<sean.stalley[AT]intel.com> {
 	Dissector for Media Agnostic USB (MA USB)
 }
 
-Qiaoyin Yang <qiaoyin.yang[AT]gmail.com> {
+Qiaoyin Yang		<qiaoyin.yang[AT]gmail.com> {
 	Dissector for CP 'Cooper' 2179
 }
 
-Thomas Wiens <th.wiens[AT]gmx.de> {
+Thomas Wiens		<th.wiens[AT]gmx.de> {
 	Dissector for S7 Communication
 }
+
+Gilles Roudiere		<gilles[AT]roudiere.net> {
+	Dissector for the Dynamic Source Routing (DSR) protocol (RFC 4728)
+}
+
 
 and by:
 
