@@ -763,8 +763,11 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
 
     while ( rem_length >= OSS_MINIMUM_LENGTH)
     {
-        /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid */
-        if ( ctr != 0 )
+        /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid,
+         * also, the byte we want to access, must at least exist, otherwise,
+         * the frame is not detectable as an openSAFETY frame.
+         * We check for ID and length */
+        if ( ctr != 0 && tvb_bytes_exist(message_tvb, ctr, 2) )
         {
             *u_frameLength = 0;
             *u_frameOffset = 0;
