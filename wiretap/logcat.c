@@ -175,8 +175,8 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
 
     /* ensure buffer is large enough for all versions */
     buffer = (guint8 *) g_malloc(sizeof(*log_entry_v2) + payload_length);
-    log_entry_v2 = (struct logger_entry_v2 *) buffer;
-    log_entry = (struct logger_entry *) buffer;
+    log_entry_v2 = (struct logger_entry_v2 *)(void *) buffer;
+    log_entry = (struct logger_entry *)(void *) buffer;
 
     /* cannot rely on __pad being 0 for v1, use heuristics to find out what
      * version is in use. First assume the smallest msg. */
@@ -257,7 +257,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
 
     buffer_assure_space(buf, packet_size);
     pd = buffer_start_ptr(buf);
-    log_entry = (struct logger_entry *) pd;
+    log_entry = (struct logger_entry *)(void *) pd;
 
     /* Copy the first two bytes of the packet. */
     memcpy(pd, tmp, 2);
