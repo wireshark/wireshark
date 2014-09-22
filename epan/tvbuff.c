@@ -384,8 +384,11 @@ static tvbuff_t *
 tvb_generic_clone_offset_len(tvbuff_t *tvb, guint offset, guint len)
 {
 	tvbuff_t *cloned_tvb;
+	guint8 *data;
 
-	guint8 *data = (guint8 *) g_malloc(len);
+	DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, len));
+
+	data = (guint8 *) g_malloc(len);
 
 	tvb_memcpy(tvb, data, offset, len);
 

@@ -1726,11 +1726,16 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 
 	/* If we have reached this point, the packet is not defragmented yet.
 	 * Save all payload in a buffer until we can defragment.
-	 * XXX - what if we didn't capture the entire fragment due
-	 * to a too-short snapshot length?
 	 */
 	/* check len, there may be a fragment with 0 len, that is actually the tail */
 	if (fd->len) {
+		if (!tvb_bytes_exist(tvb, offset, fd->len)) {
+			/* abort if we didn't capture the entire fragment due
+			 * to a too-short snapshot length */
+			g_slice_free(fragment_item, fd);
+			return FALSE;
+		}
+
 		fd->tvb_data = tvb_clone_offset_len(tvb, offset, fd->len);
 	}
 	LINK_FRAG(fd_head,fd);
