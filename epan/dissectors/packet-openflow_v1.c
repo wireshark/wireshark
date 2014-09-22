@@ -49,7 +49,6 @@ static int hf_openflow_datapath_impl = -1;
 static int hf_openflow_n_buffers = -1;
 static int hf_openflow_n_tables = -1;
 /* static int hf_openflow_auxiliary_id = -1; */
-/* static int hf_openflow_pad3 = -1; */
 static int hf_openflow_capabilities = -1;
 static int hf_openflow_actions = -1;
 /* static int hf_openflow_reserved32 = -1; */
@@ -116,13 +115,11 @@ static int hf_openflow_buffer_id = -1;
 static int hf_openflow_total_len = -1;
 static int hf_openflow_in_port = -1;
 static int hf_openflow_reason = -1;
+static int hf_openflow_pkt_in_pad = -1;
 /* static int hf_openflow_table_id = -1; */
 static int hf_openflow_cookie = -1;
 /* static int hf_openflow_cookie_mask = -1; */
-static int hf_openflow_padd8 = -1;
-/* static int hf_openflow_padd16 = -1; */
-static int hf_openflow_features_reply_padding = -1;
-/* static int hf_openflow_padd48 = -1; */
+static int hf_openflow_features_reply_pad = -1;
 static int hf_openflow_actions_len = -1;
 static int hf_openflow_action_type = -1;
 static int hf_openflow_action_len = -1;
@@ -134,6 +131,7 @@ static int hf_openflow_eth_src = -1;
 static int hf_openflow_eth_dst = -1;
 static int hf_openflow_dl_vlan = -1;
 static int hf_openflow_dl_vlan_pcp = -1;
+static int hf_openflow_ofp_match_pad = -1;
 static int hf_openflow_idle_timeout = -1;
 static int hf_openflow_hard_timeout = -1;
 static int hf_openflow_priority = -1;
@@ -317,7 +315,7 @@ dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(tree, hf_openflow_dl_vlan_pcp, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* uint8_t pad1[1]; Align to 64-bits */
-    proto_tree_add_item(tree, hf_openflow_padd8, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_ofp_match_pad, tvb, offset, 1, ENC_NA);
     offset++;
     /* uint16_t dl_type; Ethernet frame type. */
     /* uint8_t nw_tos; IP ToS (actually DSCP field, 6 bits). */
@@ -514,7 +512,7 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_openflow_features_reply_padding, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_features_reply_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     ti = proto_tree_add_item(tree, hf_openflow_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -610,7 +608,7 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(tree, hf_openflow_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_openflow_padd8, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_pkt_in_pad, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     next_tvb = tvb_new_subset_length(tvb, offset, length-offset);
@@ -848,13 +846,6 @@ proto_register_openflow_v1(void)
         { &hf_openflow_auxiliary_id,
             { "auxiliary_id", "openflow.auxiliary_id",
                FT_UINT8, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-#endif
-#if 0
-        { &hf_openflow_pad3,
-            { "Padding", "openflow.pad3",
-               FT_UINT24, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
 #endif
@@ -1145,6 +1136,12 @@ proto_register_openflow_v1(void)
                FT_UINT8, BASE_DEC, VALS(openflow_reason_values), 0x0,
                NULL, HFILL }
         },
+
+        { &hf_openflow_pkt_in_pad,
+            { "Pad", "openflow.pkt_in.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
 #if 0
         { &hf_openflow_table_id,
             { "Table Id", "openflow.table_id",
@@ -1164,30 +1161,11 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
 #endif
-        { &hf_openflow_padd8,
-            { "Padding", "openflow.padding8",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-#if 0
-        { &hf_openflow_padd16,
-            { "Padding", "openflow.padding16",
-               FT_UINT16, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-#endif
-        { &hf_openflow_features_reply_padding,
-            { "Padding", "openflow.features_reply.padding",
+        { &hf_openflow_features_reply_pad,
+            { "Pad", "openflow.features_reply.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
-#if 0
-        { &hf_openflow_padd48,
-            { "Padding", "openflow.padding48",
-               FT_UINT64, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-#endif
         { &hf_openflow_actions_len,
             { "Actions length", "openflow.actions_len",
                FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1241,6 +1219,11 @@ proto_register_openflow_v1(void)
         { &hf_openflow_dl_vlan_pcp,
             { "Input VLAN priority", "openflow.dl_vlan_pcp",
                FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_ofp_match_pad,
+            { "Pad", "openflow.ofp_match.pad",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_idle_timeout,
