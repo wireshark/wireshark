@@ -1363,7 +1363,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
                                           /*  description of the hardware used to create this section. */
     shb_hdr->shb_os        = NULL;        /* NULL if not available, UTF-8 string containing the name   */
                                           /*  of the operating system used to create this section.     */
-    shb_hdr->shb_user_appl = "Wireshark"; /* NULL if not available, UTF-8 string containing the name   */
+    shb_hdr->shb_user_appl = g_strdup("Wireshark"); /* NULL if not available, UTF-8 string containing the name   */
                                           /*  of the application used to create this section.          */
 
     /* create fake IDB info */
