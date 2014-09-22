@@ -2620,6 +2620,20 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " | ManufacturerParam_%02Xh_U32]",subindex);
 			}
+			/* if the subindex is a EPL_SOD_PDO_RX_MAPP */
+			else if(idx == EPL_SOD_PDO_RX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (ObjectMapping)");
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | ObjectMapping]");
+			}
+			/* if the subindex is a EPL_SOD_PDO_TX_MAPP */
+			else if(idx == EPL_SOD_PDO_TX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (ObjectMapping)");
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | ObjectMapping]");
+			}
 			/* no subindex */
 			else if(nosub != error)
 			{
@@ -2703,7 +2717,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		/* if the index is a R/TPDO and it's not a segmentation initiated transfer */
+		/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 		if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
 		{
 			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, offset, 1, ENC_NA);
@@ -2712,7 +2726,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, offset, 2, idx,"Index: 0x%04X", idx);
 			offset += 2;
 			idx = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, offset, 2, idx,"SubIndex: 0x%02X", idx);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, offset, 1, idx,"SubIndex: 0x%02X", idx);
 			offset += 2;
 			idx = tvb_get_letohs(tvb, offset);
 			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_offset, tvb, offset, 2, idx,"Offset: 0x%04X", idx);
@@ -2722,7 +2736,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 		}
 		else
 		{
-		offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
+			offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
 		}
 	}
 	else
@@ -2884,6 +2898,20 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 					proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
 					col_append_fstr(pinfo->cinfo, COL_INFO, " | ManufacturerParam_%02Xh_U32]",subindex);
 				}
+				/* if the subindex is a EPL_SOD_PDO_RX_MAPP */
+				else if(idx == EPL_SOD_PDO_RX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
+				{
+					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset+6, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+					proto_item_append_text(psf_item, " (ObjectMapping)");
+					col_append_fstr(pinfo->cinfo, COL_INFO, " | ObjectMapping]");
+				}
+				/* if the subindex is a EPL_SOD_PDO_TX_MAPP */
+				else if(idx == EPL_SOD_PDO_TX_MAPP && subindex >= 0x01 && subindex <= 0xfe)
+				{
+					psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset+6, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+					proto_item_append_text(psf_item, " (ObjectMapping)");
+					col_append_fstr(pinfo->cinfo, COL_INFO, " | ObjectMapping]");
+				}
 				/* no subindex */
 				else if(nosub != error)
 				{
@@ -2909,25 +2937,28 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				dataoffset += 1;
 			}
 
-			/* if the index is a R/TPDO and it's not a segmentation initiated transfer */
+			/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 			if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
 			{
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, dataoffset, 1, ENC_NA);
 				psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sdo_cmd_data_mapping);
-				idx = tvb_get_letohs(tvb, offset);
+				idx = tvb_get_letohs(tvb, dataoffset);
 				proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, dataoffset, 2, idx,"Index: 0x%04X", idx);
 				dataoffset += 2;
-				idx = tvb_get_letohs(tvb, offset);
-				proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 2, idx,"SubIndex: 0x%02X", idx);
+				idx = tvb_get_letohs(tvb, dataoffset);
+				proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, idx,"SubIndex: 0x%02X", idx);
 				dataoffset += 2;
-				idx = tvb_get_letohs(tvb, offset);
+				idx = tvb_get_letohs(tvb, dataoffset);
 				proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_offset, tvb, dataoffset, 2, idx,"Offset: 0x%04X", idx);
 				dataoffset += 2;
 				proto_tree_add_item(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_length, tvb, dataoffset, 2, ENC_LITTLE_ENDIAN);
 				dataoffset += 2;
 			}
-			/* dissect the payload */
-			dissect_epl_payload ( epl_tree, tvb, pinfo, dataoffset, size, EPL_ASND);
+			else
+			{
+				/* dissect the payload */
+				dissect_epl_payload ( epl_tree, tvb, pinfo, dataoffset, size, EPL_ASND);
+			}
 
 			offset += datalength;
 
@@ -3006,7 +3037,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 			}
 			/* add the frame to reassembly_table */
 			frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
-							  fragmentId, NULL, count, payload_length, end_segment ? FALSE : TRUE );
+							fragmentId, NULL, count, payload_length, end_segment ? FALSE : TRUE );
 
 			/* if the reassembly_table is not Null and the frame stored is the same as the current frame */
 			if(frag_msg != NULL && (epl_asnd_sdo_reassembly_read.frame[epl_segmentation.recv][epl_segmentation.send] == frame))
@@ -3019,7 +3050,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 					/* add the reassembley fields */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 					proto_tree_add_uint_format_value(payload_tree, hf_epl_asnd_sdo_cmd_reassembled, tvb, 0, 0,
-									 payload_length, "%d bytes (over all fragments)", frag_msg->len);
+									payload_length, "%d bytes (over all fragments)", frag_msg->len);
 					col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
 					/* reset memory */
 					memset(&epl_asnd_sdo_reassembly_read,0,sizeof(epl_sdo_reassembly));
