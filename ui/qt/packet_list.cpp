@@ -154,8 +154,9 @@ packet_list_clear(void)
 void
 packet_list_enable_color(gboolean enable)
 {
+    Q_UNUSED(enable);
     if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
-        gbl_cur_packet_list->packetListModel()->setColorEnabled(enable);
+        gbl_cur_packet_list->packetListModel()->resetColorized();
         gbl_cur_packet_list->update();
     }
 }
@@ -239,7 +240,6 @@ PacketList::PacketList(QWidget *parent) :
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
-    packet_list_model_->setColorEnabled(recent.packet_list_colorize);
 
     // XXX We might want to reimplement setParent() and fill in the context
     // menu there.

@@ -277,6 +277,7 @@ private slots:
     void on_actionEditConfigurationProfiles_triggered();
     void on_actionEditPreferences_triggered();
 
+    void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewReload_triggered();
     void on_actionViewToolbarMainToolbar_triggered();
     void on_actionViewToolbarDisplayFilter_triggered();

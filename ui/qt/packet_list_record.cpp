@@ -78,6 +78,11 @@ void PacketListRecord::resetColumns(column_info *cinfo)
     }
 }
 
+void PacketListRecord::resetColorized()
+{
+    colorized_ = false;
+}
+
 void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
 {
     // packet_list_store.c:packet_list_dissect_and_cache_record
@@ -117,7 +122,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         }
         if (dissect_color) {
             fdata_->color_filter = NULL;
-            colorized_ = TRUE;
+            colorized_ = true;
         }
         ws_buffer_free(&buf);
         return;    /* error reading the record */

@@ -93,10 +93,6 @@ guint PacketListModel::recreateVisibleRows()
     return visible_rows_.count();
 }
 
-void PacketListModel::setColorEnabled(bool enable_color) {
-    enable_color_ = enable_color;
-}
-
 void PacketListModel::clear() {
     beginResetModel();
     physical_rows_.clear();
@@ -110,6 +106,17 @@ void PacketListModel::resetColumns()
     beginResetModel();
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
+    }
+    endResetModel();
+}
+
+void PacketListModel::resetColorized()
+{
+    PacketListRecord *record;
+
+    beginResetModel();
+    foreach (record, physical_rows_) {
+        record->resetColorized();
     }
     endResetModel();
 }
@@ -170,20 +177,19 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
             color = &prefs.gui_ignored_bg;
         } else if (fdata->flags.marked) {
             color = &prefs.gui_marked_bg;
-        } else if (fdata->color_filter) {
+        } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
             color = &color_filter->bg_color;
         } else {
             return QVariant();
         }
-//        g_log(NULL, G_LOG_LEVEL_DEBUG, "i: %d m: %d cf: %p bg: %d %d %d", fdata->flags.ignored, fdata->flags.marked, fdata->color_filter, color->red, color->green, color->blue);
         return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
     case Qt::ForegroundRole:
         if (fdata->flags.ignored) {
             color = &prefs.gui_ignored_fg;
         } else if (fdata->flags.marked) {
             color = &prefs.gui_marked_fg;
-        } else if (fdata->color_filter) {
+        } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
             color = &color_filter->fg_color;
         } else {
@@ -193,7 +199,6 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
     {
         int column = index.column();
-        //    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
         return record->columnString(cap_file_, column);
     }
     default:

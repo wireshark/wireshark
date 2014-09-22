@@ -244,8 +244,11 @@
     <addaction name="actionViewExpandAll"/>
     <addaction name="actionViewCollapseAll"/>
     <addaction name="separator"/>
-    <addaction name="actionViewReload"/>
+    <addaction name="actionViewColorizePacketList"/>
     <addaction name="separator"/>
+    <addaction name="actionViewZoomIn"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewReload"/>
     <addaction name="menuToolbars"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
@@ -495,6 +498,7 @@
    <addaction name="actionGoFirstPacket"/>
    <addaction name="actionGoLastPacket"/>
    <addaction name="separator"/>
+   <addaction name="actionViewColorizePacketList"/>
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
@@ -1729,6 +1733,28 @@
    </property>
    <property name="toolTip">
     <string>Endpoints at different protocol levels</string>
+   </property>
+  </action>
+  <action name="actionViewColorizePacketList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Colorize Packet List</string>
+   </property>
+   <property name="toolTip">
+    <string>Color packets according to the coloring rules</string>
+   </property>
+  </action>
+  <action name="actionViewZoomIn">
+   <property name="text">
+    <string>&amp;Zoom In</string>
+   </property>
+   <property name="toolTip">
+    <string>Enlarge the main window text</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta++</string>
    </property>
   </action>
  </widget>

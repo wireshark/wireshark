@@ -1360,8 +1360,8 @@ main_update_for_unsaved_changes(capture_file *cf)
 void
 main_auto_scroll_live_changed(gboolean auto_scroll_live_in)
 {
-  /* Update menubar and toolbar */
-      menu_auto_scroll_live_changed(auto_scroll_live_in);
+    /* Update menubar and toolbar */
+    menu_auto_scroll_live_changed(auto_scroll_live_in);
     toolbar_auto_scroll_live_changed(auto_scroll_live_in);
 
     /* change auto scroll state */

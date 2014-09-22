@@ -49,7 +49,6 @@ public:
     QModelIndex parent(const QModelIndex &index) const;
     int packetNumberToRow(int packet_num) const;
     guint recreateVisibleRows();
-    void setColorEnabled(bool enable_color);
     void clear();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -62,6 +61,7 @@ public:
     frame_data *getRowFdata(int row);
     int visibleIndexOf(frame_data *fdata) const;
     void resetColumns();
+    void resetColorized();
 
 signals:
 
@@ -76,7 +76,6 @@ private:
     QFont pl_font_;
 
     int header_height_;
-    bool enable_color_;
 };
 
 #endif // PACKET_LIST_MODEL_H

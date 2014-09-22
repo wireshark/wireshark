@@ -34,9 +34,6 @@
 
 #include "globals.h"
 
-#include <wsutil/filesystem.h>
-#include <epan/prefs.h>
-
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
@@ -46,24 +43,30 @@
 #include "ui/capture.h"
 #endif
 
+#include "color_filters.h"
+
 #include "wsutil/file_util.h"
+#include "wsutil/filesystem.h"
 
 #include "epan/column.h"
-#include <epan/epan_dissect.h>
+#include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
-#include <epan/value_string.h>
+#include "epan/prefs.h"
+#include "epan/value_string.h"
 
 #include "ui/alert_box.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif
-#include "ui/ui_util.h"
+
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
+#include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/ssl_key_export.h"
+#include "ui/ui_util.h"
 
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
@@ -421,13 +424,11 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
 void MainWindow::captureCaptureFixedStarted(capture_session *cap_session) {
     Q_UNUSED(cap_session);
 #ifdef HAVE_LIBPCAP
-    qDebug() << "captureCaptureFixedStarted";
 #endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     Q_UNUSED(cap_session);
 #ifdef HAVE_LIBPCAP
-    qDebug() << "captureCaptureFixedFinished";
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -450,7 +451,6 @@ void MainWindow::captureCaptureStopping(capture_session *cap_session) {
 void MainWindow::captureCaptureFailed(capture_session *cap_session) {
     Q_UNUSED(cap_session);
 #ifdef HAVE_LIBPCAP
-    qDebug() << "captureCaptureFailed";
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
 
@@ -1676,6 +1676,13 @@ void MainWindow::on_actionEditPreferences_triggered()
 }
 
 // View Menu
+
+void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
+    recent.packet_list_colorize = checked;
+    color_filters_enable(checked);
+    packet_list_->packetListModel()->resetColorized();
+    packet_list_->update();
+}
 
 void MainWindow::on_actionViewReload_triggered()
 {

@@ -44,6 +44,7 @@ public:
     frame_data *frameData();
 
     static void resetColumns(column_info *cinfo);
+    void resetColorized();
 
 private:
     /** The column text for some columns */
@@ -55,12 +56,6 @@ private:
 //    gboolean columnized_;
     /** Has this record been colorized? */
     bool colorized_;
-
-    /* admin stuff used by the custom list model */
-    /** position within the physical array */
-    //guint physical_pos_;
-    /** position within the visible array */
-    //gint visible_pos_;
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);

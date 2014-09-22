@@ -166,7 +166,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
     main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
 
-//    main_ui_->actionViewColorizePackets->setIcon(StockIcon("x-colorize-packets"));
+    main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
+    main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 //    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
 
 //    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
