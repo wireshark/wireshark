@@ -5514,19 +5514,15 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
-        value = wmem_new(wmem_packet_scope(), dcerpc_call_value);
+        value = wmem_new0(wmem_packet_scope(), dcerpc_call_value);
         value->uuid = hdr->if_id;
         value->ver = hdr->if_ver;
         value->object_uuid = hdr->obj_id;
         value->opnum = hdr->opnum;
-        value->req_frame = 0;
         value->rep_frame = pinfo->fd->num;
-        value->se_data = NULL;
-        value->private_data = NULL;
     }
 
     di->conv = conv;
-    di->call_id = 0;
     di->smb_fid = -1;
     di->ptype = PDU_RESP;
     di->call_data = value;
