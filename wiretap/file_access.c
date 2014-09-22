@@ -93,7 +93,8 @@
  * Add an extension, and all compressed versions thereof, to a GSList
  * of extensions.
  */
-static GSList *add_extensions(GSList *extensions, const gchar *extension,
+static GSList *
+add_extensions(GSList *extensions, const gchar *extension,
     GSList *compressed_file_extensions)
 {
 	GSList *compressed_file_extension;
@@ -158,7 +159,9 @@ static const struct file_extension_info* file_type_extensions = NULL;
 static GArray* file_type_extensions_arr = NULL;
 
 /* initialize the extensions array if it has not been initialized yet */
-static void init_file_type_extensions(void) {
+static void
+init_file_type_extensions(void)
+{
 
 	if (file_type_extensions_arr) return;
 
@@ -169,7 +172,9 @@ static void init_file_type_extensions(void) {
 	file_type_extensions = (struct file_extension_info*)(void *)file_type_extensions_arr->data;
 }
 
-void wtap_register_file_type_extension(const struct file_extension_info *ei) {
+void
+wtap_register_file_type_extension(const struct file_extension_info *ei)
+{
 	init_file_type_extensions();
 
 	g_array_append_val(file_type_extensions_arr,*ei);
@@ -177,17 +182,20 @@ void wtap_register_file_type_extension(const struct file_extension_info *ei) {
 	file_type_extensions = (const struct file_extension_info*)(void *)file_type_extensions_arr->data;
 }
 
-int wtap_get_num_file_type_extensions(void)
+int
+wtap_get_num_file_type_extensions(void)
 {
 	return file_type_extensions_arr->len;
 }
 
-const char *wtap_get_file_extension_type_name(int extension_type)
+const char *
+wtap_get_file_extension_type_name(int extension_type)
 {
 	return file_type_extensions[extension_type].name;
 }
 
-static GSList *add_extensions_for_file_extensions_type(int extension_type,
+static GSList *
+add_extensions_for_file_extensions_type(int extension_type,
     GSList *extensions, GSList *compressed_file_extensions)
 {
 	gchar **extensions_set, **extensionp, *extension;
@@ -221,7 +229,8 @@ static GSList *add_extensions_for_file_extensions_type(int extension_type,
 
    All strings in the list are allocated with g_malloc() and must be freed
    with g_free(). */
-GSList *wtap_get_file_extension_type_extensions(guint extension_type)
+GSList *
+wtap_get_file_extension_type_extensions(guint extension_type)
 {
 	GSList *compressed_file_extensions;
 	GSList *extensions;
@@ -253,7 +262,8 @@ GSList *wtap_get_file_extension_type_extensions(guint extension_type)
 
    All strings in the list are allocated with g_malloc() and must be freed
    with g_free(). */
-GSList *wtap_get_all_file_extensions_list(void)
+GSList *
+wtap_get_all_file_extensions_list(void)
 {
 	GSList *compressed_file_extensions;
 	GSList *extensions;
@@ -386,7 +396,9 @@ struct open_info *open_routines = NULL;
 /* this points to the first OPEN_INFO_HEURISTIC type in the array */
 static guint heuristic_open_routine_idx = 0;
 
-static void set_heuristic_routine(void) {
+static void
+set_heuristic_routine(void)
+{
 	guint i;
 	g_assert(open_info_arr != NULL);
 
@@ -402,12 +414,14 @@ static void set_heuristic_routine(void) {
 	g_assert(heuristic_open_routine_idx > 0);
 }
 
-void init_open_routines(void) {
+void
+init_open_routines(void)
+{
     unsigned int i;
     struct open_info *i_open;
 
     if (open_info_arr)
-        return;
+	return;
 
     open_info_arr = g_array_new(TRUE,TRUE,sizeof(struct open_info));
 
@@ -417,8 +431,8 @@ void init_open_routines(void) {
 
     /* Populate the extensions_set list now */
     for (i = 0, i_open = open_routines; i < open_info_arr->len; i++, i_open++) {
-        if (i_open->extensions != NULL)
-            i_open->extensions_set = g_strsplit(i_open->extensions, ";", 0);
+	if (i_open->extensions != NULL)
+	    i_open->extensions_set = g_strsplit(i_open->extensions, ";", 0);
     }
 
     set_heuristic_routine();
@@ -429,31 +443,33 @@ void init_open_routines(void) {
  * Also, it checks for an existing reader of the same name and errors if it finds one; if
  * you want to handle that condition more gracefully, call wtap_has_open_info() first.
  */
-void wtap_register_open_info(struct open_info *oi, const gboolean first_routine) {
+void
+wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
+{
     init_open_routines();
 
     if (!oi || !oi->name) {
-        g_error("No open_info name given to register");
-        return;
+	g_error("No open_info name given to register");
+	return;
     }
 
     /* verify name doesn't already exist */
     if (wtap_has_open_info(oi->name)) {
-        g_error("Name given to register_open_info already exists");
-        return;
+	g_error("Name given to register_open_info already exists");
+	return;
     }
 
     if (oi->extensions != NULL)
-        oi->extensions_set = g_strsplit(oi->extensions, ";", 0);
+	oi->extensions_set = g_strsplit(oi->extensions, ";", 0);
 
     /* if it's magic and first, prepend it; if it's heuristic and not first,
        append it; if it's anything else, stick it in the middle */
     if (first_routine && oi->type == OPEN_INFO_MAGIC) {
-        g_array_prepend_val(open_info_arr, *oi);
+	g_array_prepend_val(open_info_arr, *oi);
     } else if (!first_routine && oi->type == OPEN_INFO_HEURISTIC) {
-        g_array_append_val(open_info_arr, *oi);
+	g_array_append_val(open_info_arr, *oi);
     } else {
-        g_array_insert_val(open_info_arr, heuristic_open_routine_idx, *oi);
+	g_array_insert_val(open_info_arr, heuristic_open_routine_idx, *oi);
     }
 
     open_routines = (struct open_info *)(void*) open_info_arr->data;
@@ -465,23 +481,25 @@ void wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
  * Note: this function will error if it doesn't find the given name; if you want to handle
  * that condition more gracefully, call wtap_has_open_info() first.
  */
-void wtap_deregister_open_info(const gchar *name) {
+void
+wtap_deregister_open_info(const gchar *name)
+{
     guint i;
     init_open_routines();
 
     if (!name) {
-        g_error("Missing open_info name to de-register");
-        return;
+	g_error("Missing open_info name to de-register");
+	return;
     }
 
     for (i = 0; i < open_info_arr->len; i++) {
-        if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
-            if (open_routines[i].extensions_set != NULL)
-                g_strfreev(open_routines[i].extensions_set);
-            open_info_arr = g_array_remove_index(open_info_arr, i);
-            set_heuristic_routine();
-            return;
-        }
+	if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
+	    if (open_routines[i].extensions_set != NULL)
+		g_strfreev(open_routines[i].extensions_set);
+	    open_info_arr = g_array_remove_index(open_info_arr, i);
+	    set_heuristic_routine();
+	    return;
+	}
     }
 
     g_error("deregister_open_info: name not found");
@@ -489,20 +507,22 @@ void wtap_deregister_open_info(const gchar *name) {
 
 /* Determines if a open routine short name already exists
  */
-gboolean wtap_has_open_info(const gchar *name) {
+gboolean
+wtap_has_open_info(const gchar *name)
+{
     guint i;
     init_open_routines();
 
     if (!name) {
-        g_error("No name given to wtap_has_open_info!");
-        return FALSE;
+	g_error("No name given to wtap_has_open_info!");
+	return FALSE;
     }
 
 
     for (i = 0; i < open_info_arr->len; i++) {
-        if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
-            return TRUE;
-        }
+	if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
+	    return TRUE;
+	}
     }
 
     return FALSE;
@@ -531,7 +551,8 @@ gboolean wtap_has_open_info(const gchar *name) {
    passed-in name (the name in the open_info struct). It returns WTAP_TYPE_AUTO
    on failure, which is the number 0. The 'type' number is the entry's index+1,
    because that's what wtap_open_offline() expects it to be. */
-unsigned int open_info_name_to_type(const char *name)
+unsigned int
+open_info_name_to_type(const char *name)
 {
 	unsigned int i;
 	init_open_routines();
@@ -548,7 +569,8 @@ unsigned int open_info_name_to_type(const char *name)
 	return WTAP_TYPE_AUTO; /* no such file type */
 }
 
-static char *get_file_extension(const char *pathname)
+static char *
+get_file_extension(const char *pathname)
 {
 	gchar *filename;
 	gchar **components;
@@ -645,7 +667,8 @@ static char *get_file_extension(const char *pathname)
 /*
  * Check if file extension is used in this heuristic
  */
-static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
+static gboolean
+heuristic_uses_extension(unsigned int i, const char *extension)
 {
 	gchar **extensionp;
 
@@ -675,8 +698,9 @@ static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
    so that it can do sequential I/O to a capture file that's being
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */
-wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_info,
-			gboolean do_random)
+wtap *
+wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_info,
+		  gboolean do_random)
 {
 	int	fd;
 	ws_statb64 statb;
@@ -1471,7 +1495,9 @@ static GArray*  dump_open_table_arr = NULL;
 static const struct file_type_subtype_info* dump_open_table = dump_open_table_base;
 
 /* initialize the file types array if it has not being initialized yet */
-static void init_file_types_subtypes(void) {
+static void
+init_file_types_subtypes(void)
+{
 
 	if (dump_open_table_arr) return;
 
@@ -1484,7 +1510,9 @@ static void init_file_types_subtypes(void) {
 
 /* if subtype is WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, then create a new subtype as well as register it, else replace the
    existing entry in that spot */
-int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype) {
+int
+wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype)
+{
 	struct file_type_subtype_info* finfo = NULL;
 	init_file_types_subtypes();
 
@@ -1532,7 +1560,9 @@ int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, co
 
 /* De-registers a file writer - they can never be removed from the GArray, but we can "clear" an entry.
  */
-void wtap_deregister_file_type_subtype(const int subtype) {
+void
+wtap_deregister_file_type_subtype(const int subtype)
+{
 	struct file_type_subtype_info* finfo = NULL;
 
 	if (subtype < 0 || subtype >= wtap_num_file_types_subtypes) {
@@ -1555,7 +1585,8 @@ void wtap_deregister_file_type_subtype(const int subtype) {
 	finfo->wslua_info = NULL;
 }
 
-int wtap_get_num_file_types_subtypes(void)
+int
+wtap_get_num_file_types_subtypes(void)
 {
 	return wtap_num_file_types_subtypes;
 }
@@ -1666,20 +1697,21 @@ wtap_dump_can_write_format(int ft, const GArray *file_encaps,
 gboolean
 wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types)
 {
-  int ft;
+	int ft;
 
-  for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
-    /* To save a file with Wiretap, Wiretap has to handle that format,
-       and its code to handle that format must be able to write a file
-       with this file's encapsulation types. */
-    if (wtap_dump_can_write_format(ft, file_encaps, required_comment_types)) {
-      /* OK, we can write it out in this type. */
-      return TRUE;
-    }
-  }
+	for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
+		/* To save a file with Wiretap, Wiretap has to handle that format,
+		 * and its code to handle that format must be able to write a file
+		 * with this file's encapsulation types.
+		 */
+		if (wtap_dump_can_write_format(ft, file_encaps, required_comment_types)) {
+			/* OK, we can write it out in this type. */
+			return TRUE;
+		}
+	}
 
-  /* No, we couldn't save it in any format. */
-  return FALSE;
+	/* No, we couldn't save it in any format. */
+	return FALSE;
 }
 
 /**
@@ -1698,7 +1730,7 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 
 	/* Can we save this file in its own file type/subtype? */
 	if (wtap_dump_can_write_format(file_type_subtype, file_encaps,
-	                               required_comment_types)) {
+				       required_comment_types)) {
 		/* Yes - make that the default file type/subtype. */
 		default_file_type_subtype = file_type_subtype;
 	} else {
@@ -1706,7 +1738,7 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 		default_file_type_subtype = -1;
 		for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
 			if (wtap_dump_can_write_format(ft, file_encaps,
-			                               required_comment_types)) {
+						       required_comment_types)) {
 				/* OK, got it. */
 				default_file_type_subtype = ft;
 			}
@@ -1730,11 +1762,11 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 	   pcap format. */
 	if (default_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) {
 		if (wtap_dump_can_write_format(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, file_encaps,
-		                               required_comment_types))
+					       required_comment_types))
 			other_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 	} else if (default_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
 		if (wtap_dump_can_write_format(WTAP_FILE_TYPE_SUBTYPE_PCAP, file_encaps,
-		                               required_comment_types))
+					       required_comment_types))
 			other_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 	}
 	if (other_file_type_subtype != -1)
@@ -1747,7 +1779,7 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 		if (ft == default_file_type_subtype || ft == other_file_type_subtype)
 			continue;	/* we've already done this one */
 		if (wtap_dump_can_write_format(ft, file_encaps,
-		                               required_comment_types)) {
+					       required_comment_types)) {
 			/* OK, we can write it out in this type. */
 			g_array_append_val(savable_file_types_subtypes, ft);
 		}
@@ -1757,7 +1789,8 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 }
 
 /* Name that should be somewhat descriptive. */
-const char *wtap_file_type_subtype_string(int file_type_subtype)
+const char *
+wtap_file_type_subtype_string(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes) {
 		g_error("Unknown capture file type %d", file_type_subtype);
@@ -1768,7 +1801,8 @@ const char *wtap_file_type_subtype_string(int file_type_subtype)
 }
 
 /* Name to use in, say, a command-line flag specifying the type/subtype. */
-const char *wtap_file_type_subtype_short_string(int file_type_subtype)
+const char *
+wtap_file_type_subtype_short_string(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
 		return NULL;
@@ -1777,7 +1811,8 @@ const char *wtap_file_type_subtype_short_string(int file_type_subtype)
 }
 
 /* Translate a short name to a capture file type/subtype. */
-int wtap_short_string_to_file_type_subtype(const char *short_name)
+int
+wtap_short_string_to_file_type_subtype(const char *short_name)
 {
 	int file_type_subtype;
 
@@ -1851,7 +1886,8 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 
    All strings in the list are allocated with g_malloc() and must be freed
    with g_free(). */
-GSList *wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed)
+GSList *
+wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed)
 {
 	GSList *compressed_file_extensions;
 	GSList *extensions;
@@ -1888,7 +1924,8 @@ GSList *wtap_get_file_extensions_list(int file_type_subtype, gboolean include_co
  * Free a list returned by wtap_get_file_extension_type_extensions(),
  * wtap_get_all_file_extensions_list, or wtap_get_file_extensions_list().
  */
-void wtap_free_extensions_list(GSList *extensions)
+void
+wtap_free_extensions_list(GSList *extensions)
 {
 	GSList *extension;
 
@@ -1901,7 +1938,8 @@ void wtap_free_extensions_list(GSList *extensions)
 
 /* Return the default file extension to use with the specified file type;
    that's just the extension, without any ".". */
-const char *wtap_default_file_extension(int file_type_subtype)
+const char *
+wtap_default_file_extension(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
 		return NULL;
@@ -1909,7 +1947,8 @@ const char *wtap_default_file_extension(int file_type_subtype)
 		return dump_open_table[file_type_subtype].default_file_extension;
 }
 
-gboolean wtap_dump_can_open(int file_type_subtype)
+gboolean
+wtap_dump_can_open(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes
 	    || dump_open_table[file_type_subtype].dump_open == NULL)
@@ -1919,7 +1958,8 @@ gboolean wtap_dump_can_open(int file_type_subtype)
 }
 
 #ifdef HAVE_LIBZ
-gboolean wtap_dump_can_compress(int file_type_subtype)
+gboolean
+wtap_dump_can_compress(int file_type_subtype)
 {
 	/*
 	 * If this is an unknown file type, or if we have to
@@ -1933,13 +1973,15 @@ gboolean wtap_dump_can_compress(int file_type_subtype)
 	return TRUE;
 }
 #else
-gboolean wtap_dump_can_compress(int file_type_subtype _U_)
+gboolean
+wtap_dump_can_compress(int file_type_subtype _U_)
 {
 	return FALSE;
 }
 #endif
 
-gboolean wtap_dump_has_name_resolution(int file_type_subtype)
+gboolean
+wtap_dump_has_name_resolution(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes
 	    || dump_open_table[file_type_subtype].has_name_resolution == FALSE)
@@ -1948,7 +1990,8 @@ gboolean wtap_dump_has_name_resolution(int file_type_subtype)
 	return TRUE;
 }
 
-gboolean wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment_types)
+gboolean
+wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment_types)
 {
 	guint32 supported_comment_types;
 
@@ -1971,8 +2014,9 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
-wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-				int snaplen, gboolean compressed, int *err)
+wtap_dumper *
+wtap_dump_open(const char *filename, int file_type_subtype, int encap,
+	       int snaplen, gboolean compressed, int *err)
 {
 	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, NULL, err);
 }
@@ -2018,8 +2062,9 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	return wdh;
 }
 
-wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
+wtap_dumper *
+wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
+		  int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2077,14 +2122,16 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int 
 	return wdh;
 }
 
-wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
-				gboolean compressed, int *err)
+wtap_dumper *
+wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
+		 gboolean compressed, int *err)
 {
 	return wtap_dump_fdopen_ng(fd, file_type_subtype, encap, snaplen, compressed, NULL, NULL, err);
 }
 
-wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-				gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
+wtap_dumper *
+wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
+		    gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2130,7 +2177,8 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int s
 	return wdh;
 }
 
-static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err)
+static gboolean
+wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err)
 {
 	if (!wtap_dump_can_open(file_type_subtype)) {
 		/* Invalid type, or type we don't know how to write. */
@@ -2163,8 +2211,8 @@ static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean 
 	return TRUE;
 }
 
-static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
-					gboolean compressed, int *err)
+static wtap_dumper *
+wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen, gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
 
@@ -2182,7 +2230,8 @@ static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int sn
 	return wdh;
 }
 
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err)
+static gboolean
+wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err)
 {
 	int fd;
 	gboolean cant_seek;
@@ -2222,13 +2271,15 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, g
 	return TRUE;	/* success! */
 }
 
-gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-		   const guint8 *pd, int *err)
+gboolean
+wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+	  const guint8 *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pd, err);
 }
 
-void wtap_dump_flush(wtap_dumper *wdh)
+void
+wtap_dump_flush(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2240,7 +2291,8 @@ void wtap_dump_flush(wtap_dumper *wdh)
 	}
 }
 
-gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
+gboolean
+wtap_dump_close(wtap_dumper *wdh, int *err)
 {
 	gboolean ret = TRUE;
 
@@ -2272,17 +2324,20 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	return ret;
 }
 
-gint64 wtap_get_bytes_dumped(wtap_dumper *wdh)
+gint64
+wtap_get_bytes_dumped(wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
 
-void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
+void
+wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
 }
 
-gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
+gboolean
+wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 {
 	if (!wdh || wdh->file_type_subtype < 0 || wdh->file_type_subtype >= wtap_num_file_types_subtypes
 		|| dump_open_table[wdh->file_type_subtype].has_name_resolution == FALSE)
@@ -2293,7 +2348,8 @@ gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinf
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+static WFILE_T
+wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
 	if(wdh->compressed) {
 		return gzwfile_open(filename);
@@ -2302,7 +2358,8 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 	}
 }
 #else
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
+static WFILE_T
+wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 {
 	return ws_fopen(filename, "wb");
 }
@@ -2310,7 +2367,8 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+static WFILE_T
+wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
 	if(wdh->compressed) {
 		return gzwfile_fdopen(fd);
@@ -2319,15 +2377,16 @@ static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 	}
 }
 #else
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
+static WFILE_T
+wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 {
 	return fdopen(fd, "wb");
 }
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
-		     int *err)
+gboolean
+wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err)
 {
 	size_t nwritten;
 
@@ -2361,7 +2420,8 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 }
 
 /* internally close a file for writing (compressed or not) */
-static int wtap_dump_file_close(wtap_dumper *wdh)
+static int
+wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2373,7 +2433,8 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 	}
 }
 
-gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
+gint64
+wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2391,7 +2452,9 @@ gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err
 		}
 	}
 }
-gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
+
+gint64
+wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	gint64 rval;
 #ifdef HAVE_LIBZ
