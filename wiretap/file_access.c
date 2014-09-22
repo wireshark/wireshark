@@ -291,7 +291,8 @@ wtap_get_all_file_extensions_list(void)
 	return extensions;
 }
 
-/* The open_file_* routines should return:
+/*
+ * The open_file_* routines should return:
  *
  *	-1 on an I/O error;
  *
@@ -310,76 +311,76 @@ wtap_get_all_file_extensions_list(void)
  * returning 0, since the next file type will be called and will likely
  * just overwrite the pointer.
  */
-
 static struct open_info open_info_base[] = {
-    { "Pcap",                        OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
-    { "PcapNG",                      OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
-    { "NgSniffer",                   OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
-    { "Snoop",                       OPEN_INFO_MAGIC,     snoop_open,               NULL,       NULL, NULL },
-    { "IP Trace",                    OPEN_INFO_MAGIC,     iptrace_open,             NULL,       NULL, NULL },
-    { "Netmon",                      OPEN_INFO_MAGIC,     netmon_open,              NULL,       NULL, NULL },
-    { "Netxray",                     OPEN_INFO_MAGIC,     netxray_open,             NULL,       NULL, NULL },
-    { "Radcom",                      OPEN_INFO_MAGIC,     radcom_open,              NULL,       NULL, NULL },
-    { "Nettl",                       OPEN_INFO_MAGIC,     nettl_open,               NULL,       NULL, NULL },
-    { "Visual",                      OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
-    { "5 Views",                     OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
-    { "Network Instruments",         OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
-    { "Peek Tagged",                 OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
-    { "DBS Etherwatch",              OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
-    { "K12",                         OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
-    { "Catapult DCT 2000",           OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
-    { "Aethra",                      OPEN_INFO_MAGIC,     aethra_open,              NULL,       NULL, NULL },
-    { "BTSNOOP",                     OPEN_INFO_MAGIC,     btsnoop_open,             "log",      NULL, NULL },
-    { "EYESDN",                      OPEN_INFO_MAGIC,     eyesdn_open,              NULL,       NULL, NULL },
-    { "TNEF",                        OPEN_INFO_MAGIC,     tnef_open,                NULL,       NULL, NULL },
-    { "MIME Files with Magic Bytes", OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
-    { "Lanalyzer",                   OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
-    /*
-     * PacketLogger must come before MPEG, because its files
-     * are sometimes grabbed by mpeg_open.
-     */
-    { "Packet Logger",               OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
-    /* Some MPEG files have magic numbers, others just have heuristics. */
-    { "Mpeg",                        OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
-    { "DCT3 Trace",                  OPEN_INFO_HEURISTIC, dct3trace_open,           "xml",      NULL, NULL },
-    { "Daintree SNA",                OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
-    { "Stanag 4607",                 OPEN_INFO_HEURISTIC, stanag4607_open,          NULL,       NULL, NULL },
-    { "BER",                         OPEN_INFO_HEURISTIC, ber_open,                 NULL,       NULL, NULL },
-    /* I put NetScreen *before* erf, because there were some
-     * false positives with my test-files (Sake Blok, July 2007)
-     *
-     * I put VWR *after* ERF, because there were some cases where
-     * ERF files were misidentified as vwr files (Stephen
-     * Donnelly, August 2013; see bug 9054)
-     *
-     * I put VWR *after* Peek Classic, CommView, iSeries text,
-     * Toshiba text, K12 text, VMS tcpiptrace text, and NetScaler,
-     * because there were some cases where files of those types were
-     * misidentified as vwr files (Guy Harris, December 2013)
-     */
-    { "Netscreen",                   OPEN_INFO_HEURISTIC, netscreen_open,           "txt",      NULL, NULL },
-    { "ERF",                         OPEN_INFO_HEURISTIC, erf_open,                 "erf",      NULL, NULL },
-    { "IPfix",                       OPEN_INFO_HEURISTIC, ipfix_open,               "pfx;ipfix",NULL, NULL },
-    { "K12 Text",                    OPEN_INFO_HEURISTIC, k12text_open,             "txt",      NULL, NULL },
-    { "Peek Classic",                OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
-    { "PPP Dump",                    OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
-    { "iSeries",                     OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
-    { "i4btrace",                    OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
-    { "Mp2t",                        OPEN_INFO_HEURISTIC, mp2t_open,                "ts;mpg",   NULL, NULL },
-    { "Csids",                       OPEN_INFO_HEURISTIC, csids_open,               NULL,       NULL, NULL },
-    { "VMS",                         OPEN_INFO_HEURISTIC, vms_open,                 "txt",      NULL, NULL },
-    { "Cosine",                      OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
-    { "Hcidump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL, NULL },
-    { "Commview",                    OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL, NULL },
-    { "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "cap",      NULL, NULL },
-    { "Logcat ",                     OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL, NULL },
-    { "Logcat Text",                 OPEN_INFO_HEURISTIC, logcat_text_open,         "txt",      NULL, NULL },
-    /* ASCII trace files from Telnet sessions. */
-    { "Ascend",                      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
-    { "Toshiba",                     OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
-    /* Extremely weak heuristics - put them at the end. */
-    { "VWR",                         OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
-    { "Camins",                      OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
+	{ "Pcap",                        OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
+	{ "PcapNG",                      OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
+	{ "NgSniffer",                   OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
+	{ "Snoop",                       OPEN_INFO_MAGIC,     snoop_open,               NULL,       NULL, NULL },
+	{ "IP Trace",                    OPEN_INFO_MAGIC,     iptrace_open,             NULL,       NULL, NULL },
+	{ "Netmon",                      OPEN_INFO_MAGIC,     netmon_open,              NULL,       NULL, NULL },
+	{ "Netxray",                     OPEN_INFO_MAGIC,     netxray_open,             NULL,       NULL, NULL },
+	{ "Radcom",                      OPEN_INFO_MAGIC,     radcom_open,              NULL,       NULL, NULL },
+	{ "Nettl",                       OPEN_INFO_MAGIC,     nettl_open,               NULL,       NULL, NULL },
+	{ "Visual",                      OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
+	{ "5 Views",                     OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
+	{ "Network Instruments",         OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
+	{ "Peek Tagged",                 OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
+	{ "DBS Etherwatch",              OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
+	{ "K12",                         OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
+	{ "Catapult DCT 2000",           OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
+	{ "Aethra",                      OPEN_INFO_MAGIC,     aethra_open,              NULL,       NULL, NULL },
+	{ "BTSNOOP",                     OPEN_INFO_MAGIC,     btsnoop_open,             "log",      NULL, NULL },
+	{ "EYESDN",                      OPEN_INFO_MAGIC,     eyesdn_open,              NULL,       NULL, NULL },
+	{ "TNEF",                        OPEN_INFO_MAGIC,     tnef_open,                NULL,       NULL, NULL },
+	{ "MIME Files with Magic Bytes", OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
+	{ "Lanalyzer",                   OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
+	/*
+	 * PacketLogger must come before MPEG, because its files
+	 * are sometimes grabbed by mpeg_open.
+	 */
+	{ "Packet Logger",               OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
+	/* Some MPEG files have magic numbers, others just have heuristics. */
+	{ "Mpeg",                        OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
+	{ "DCT3 Trace",                  OPEN_INFO_HEURISTIC, dct3trace_open,           "xml",      NULL, NULL },
+	{ "Daintree SNA",                OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
+	{ "Stanag 4607",                 OPEN_INFO_HEURISTIC, stanag4607_open,          NULL,       NULL, NULL },
+	{ "BER",                         OPEN_INFO_HEURISTIC, ber_open,                 NULL,       NULL, NULL },
+	/*
+	 * I put NetScreen *before* erf, because there were some
+	 * false positives with my test-files (Sake Blok, July 2007)
+	 *
+	 * I put VWR *after* ERF, because there were some cases where
+	 * ERF files were misidentified as vwr files (Stephen
+	 * Donnelly, August 2013; see bug 9054)
+	 *
+	 * I put VWR *after* Peek Classic, CommView, iSeries text,
+	 * Toshiba text, K12 text, VMS tcpiptrace text, and NetScaler,
+	 * because there were some cases where files of those types were
+	 * misidentified as vwr files (Guy Harris, December 2013)
+	 */
+	{ "Netscreen",                   OPEN_INFO_HEURISTIC, netscreen_open,           "txt",      NULL, NULL },
+	{ "ERF",                         OPEN_INFO_HEURISTIC, erf_open,                 "erf",      NULL, NULL },
+	{ "IPfix",                       OPEN_INFO_HEURISTIC, ipfix_open,               "pfx;ipfix",NULL, NULL },
+	{ "K12 Text",                    OPEN_INFO_HEURISTIC, k12text_open,             "txt",      NULL, NULL },
+	{ "Peek Classic",                OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
+	{ "PPP Dump",                    OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
+	{ "iSeries",                     OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
+	{ "i4btrace",                    OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
+	{ "Mp2t",                        OPEN_INFO_HEURISTIC, mp2t_open,                "ts;mpg",   NULL, NULL },
+	{ "Csids",                       OPEN_INFO_HEURISTIC, csids_open,               NULL,       NULL, NULL },
+	{ "VMS",                         OPEN_INFO_HEURISTIC, vms_open,                 "txt",      NULL, NULL },
+	{ "Cosine",                      OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
+	{ "Hcidump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL, NULL },
+	{ "Commview",                    OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL, NULL },
+	{ "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "cap",      NULL, NULL },
+	{ "Logcat ",                     OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL, NULL },
+	{ "Logcat Text",                 OPEN_INFO_HEURISTIC, logcat_text_open,         "txt",      NULL, NULL },
+	/* ASCII trace files from Telnet sessions. */
+	{ "Ascend",                      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
+	{ "Toshiba",                     OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
+	/* Extremely weak heuristics - put them at the end. */
+	{ "VWR",                         OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
+	{ "Camins",                      OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this
@@ -417,28 +418,29 @@ set_heuristic_routine(void)
 void
 init_open_routines(void)
 {
-    unsigned int i;
-    struct open_info *i_open;
+	unsigned int i;
+	struct open_info *i_open;
 
-    if (open_info_arr)
-	return;
+	if (open_info_arr)
+		return;
 
-    open_info_arr = g_array_new(TRUE,TRUE,sizeof(struct open_info));
+	open_info_arr = g_array_new(TRUE,TRUE,sizeof(struct open_info));
 
-    g_array_append_vals(open_info_arr, open_info_base, N_OPEN_INFO_ROUTINES);
+	g_array_append_vals(open_info_arr, open_info_base, N_OPEN_INFO_ROUTINES);
 
-    open_routines = (struct open_info *)(void*) open_info_arr->data;
+	open_routines = (struct open_info *)(void*) open_info_arr->data;
 
-    /* Populate the extensions_set list now */
-    for (i = 0, i_open = open_routines; i < open_info_arr->len; i++, i_open++) {
-	if (i_open->extensions != NULL)
-	    i_open->extensions_set = g_strsplit(i_open->extensions, ";", 0);
-    }
+	/* Populate the extensions_set list now */
+	for (i = 0, i_open = open_routines; i < open_info_arr->len; i++, i_open++) {
+		if (i_open->extensions != NULL)
+			i_open->extensions_set = g_strsplit(i_open->extensions, ";", 0);
+	}
 
-    set_heuristic_routine();
+	set_heuristic_routine();
 }
 
-/* Registers a new file reader - currently only called by wslua code for Lua readers.
+/*
+ * Registers a new file reader - currently only called by wslua code for Lua readers.
  * If first_routine is true, it's added before other readers of its type (magic or heuristic).
  * Also, it checks for an existing reader of the same name and errors if it finds one; if
  * you want to handle that condition more gracefully, call wtap_has_open_info() first.
@@ -446,34 +448,34 @@ init_open_routines(void)
 void
 wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 {
-    init_open_routines();
+	init_open_routines();
 
-    if (!oi || !oi->name) {
-	g_error("No open_info name given to register");
-	return;
-    }
+	if (!oi || !oi->name) {
+		g_error("No open_info name given to register");
+		return;
+	}
 
-    /* verify name doesn't already exist */
-    if (wtap_has_open_info(oi->name)) {
-	g_error("Name given to register_open_info already exists");
-	return;
-    }
+	/* verify name doesn't already exist */
+	if (wtap_has_open_info(oi->name)) {
+		g_error("Name given to register_open_info already exists");
+		return;
+	}
 
-    if (oi->extensions != NULL)
-	oi->extensions_set = g_strsplit(oi->extensions, ";", 0);
+	if (oi->extensions != NULL)
+		oi->extensions_set = g_strsplit(oi->extensions, ";", 0);
 
-    /* if it's magic and first, prepend it; if it's heuristic and not first,
-       append it; if it's anything else, stick it in the middle */
-    if (first_routine && oi->type == OPEN_INFO_MAGIC) {
-	g_array_prepend_val(open_info_arr, *oi);
-    } else if (!first_routine && oi->type == OPEN_INFO_HEURISTIC) {
-	g_array_append_val(open_info_arr, *oi);
-    } else {
-	g_array_insert_val(open_info_arr, heuristic_open_routine_idx, *oi);
-    }
+	/* if it's magic and first, prepend it; if it's heuristic and not first,
+	   append it; if it's anything else, stick it in the middle */
+	if (first_routine && oi->type == OPEN_INFO_MAGIC) {
+		g_array_prepend_val(open_info_arr, *oi);
+	} else if (!first_routine && oi->type == OPEN_INFO_HEURISTIC) {
+		g_array_append_val(open_info_arr, *oi);
+	} else {
+		g_array_insert_val(open_info_arr, heuristic_open_routine_idx, *oi);
+	}
 
-    open_routines = (struct open_info *)(void*) open_info_arr->data;
-    set_heuristic_routine();
+	open_routines = (struct open_info *)(void*) open_info_arr->data;
+	set_heuristic_routine();
 }
 
 /* De-registers a file reader by removign it from the GArray based on its name.
@@ -484,25 +486,25 @@ wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 void
 wtap_deregister_open_info(const gchar *name)
 {
-    guint i;
-    init_open_routines();
+	guint i;
+	init_open_routines();
 
-    if (!name) {
-	g_error("Missing open_info name to de-register");
-	return;
-    }
-
-    for (i = 0; i < open_info_arr->len; i++) {
-	if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
-	    if (open_routines[i].extensions_set != NULL)
-		g_strfreev(open_routines[i].extensions_set);
-	    open_info_arr = g_array_remove_index(open_info_arr, i);
-	    set_heuristic_routine();
-	    return;
+	if (!name) {
+		g_error("Missing open_info name to de-register");
+		return;
 	}
-    }
 
-    g_error("deregister_open_info: name not found");
+	for (i = 0; i < open_info_arr->len; i++) {
+		if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
+			if (open_routines[i].extensions_set != NULL)
+				g_strfreev(open_routines[i].extensions_set);
+			open_info_arr = g_array_remove_index(open_info_arr, i);
+			set_heuristic_routine();
+			return;
+		}
+	}
+
+	g_error("deregister_open_info: name not found");
 }
 
 /* Determines if a open routine short name already exists
@@ -510,22 +512,22 @@ wtap_deregister_open_info(const gchar *name)
 gboolean
 wtap_has_open_info(const gchar *name)
 {
-    guint i;
-    init_open_routines();
+	guint i;
+	init_open_routines();
 
-    if (!name) {
-	g_error("No name given to wtap_has_open_info!");
-	return FALSE;
-    }
-
-
-    for (i = 0; i < open_info_arr->len; i++) {
-	if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
-	    return TRUE;
+	if (!name) {
+		g_error("No name given to wtap_has_open_info!");
+		return FALSE;
 	}
-    }
 
-    return FALSE;
+
+	for (i = 0; i < open_info_arr->len; i++) {
+		if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 /*
@@ -562,7 +564,7 @@ open_info_name_to_type(const char *name)
 
 	for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].name != NULL &&
-			strcmp(name, open_routines[i].name) == 0)
+		    strcmp(name, open_routines[i].name) == 0)
 			return i+1;
 	}
 
