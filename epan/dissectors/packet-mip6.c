@@ -926,6 +926,10 @@ static const value_string mip6_mng_id_type_vals[] = {
 
 #define MIP6_MNG_LEN          6
 
+#define MIP6_MAG_IPv6_LEN    16
+
+#define MIP6_ACC_NET_ID_MIN_LEN    3
+
 static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered header fields */
@@ -1134,6 +1138,14 @@ static int hf_mip6_opt_mng_sub_type = -1;
 static int hf_mip6_opt_mng_reserved = -1;
 static int hf_mip6_opt_mng_mng_id = -1;
 
+static int hf_mip6_opt_acc_net_id_sub_opt = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_len = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_e_bit = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_net_name_len = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_net_name = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_ap_name_len = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_ap_name = -1;
+
 static int hf_pmip6_opt_lila_lla = -1;
 
 /* Initialize the subtree pointers */
@@ -1186,6 +1198,8 @@ static gint ett_mip6_opt_redir = -1;
 static gint ett_mip6_opt_load_inf = -1;
 static gint ett_mip6_opt_alt_ip4 = -1;
 static gint ett_mip6_opt_mng = -1;
+static gint ett_mip6_opt_mag_ipv6 = -1;
+static gint ett_mip6_opt_acc_net_id = -1;
 
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
 
@@ -2996,6 +3010,156 @@ dissect_pmip6_opt_mng(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 }
 
+/*
+11.1.  MAG IPv6 Address
+
+   The MAG IPv6 address mobility option contains the IPv6 address of a
+   MAG involved in localized routing.  The MAG IPv6 address option has
+   an alignment requirement of 8n+4.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |      Type     |   Length      |   Reserved    | Address Length|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +                       MAG IPv6 Address                        +
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static void
+dissect_pmip6_opt_mag_ipv6(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_text(opt_tree, tvb, offset, 18, "Not dissected yet");
+
+}
+
+/*
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Type     |   Length      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                  ...      ANI Sub-option(s) ...                   ~
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+3.1.  Format of the Access Network Identifier Sub-Option
+
+   The Access Network Identifier sub-options are used for carrying
+   information elements related to the access network to which the
+   mobile node is attached.  These sub-options can be included in the
+   Access Network Identifier option defined in Section 3.  The format of
+   this sub-option is as follows:
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    ANI Type   | ANI Length    |         Option Data           ~
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   ANI Type:  8-bit unsigned integer indicating the type of the Access
+      Network Identifier sub-option.  This specification defines the
+      following types:
+
+      0 -  Reserved
+
+      1 -  Network-Identifier sub-option
+
+      2 -  Geo-Location sub-option
+
+      3 -  Operator-Identifier sub-option
+
+*/
+
+static const value_string mmip6_opt_acc_net_id_sub_opt_vals[] = {
+    {  0,    "Reserved"},
+    {  1,    "Network-Identifier"},
+    {  2,    "Geo-Location"},
+    {  3,    "Operator-Identifier"},
+    {  0,    NULL}
+};
+
+static const true_false_string mip6_opt_acc_net_id_sub_opt_e_bit_value = {
+    "UTF-8",
+    "Encoding is undefined"
+};
+
+static void
+dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+    gint16 length, sub_opt_len;
+    guint8 sub_opt, e_bit, net_name_len, ap_name_len;
+
+    /* offset points to tag(opt) */
+    offset++;
+    length = tvb_get_guint8(tvb,offset);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    while(length > 0){
+        sub_opt = tvb_get_guint8(tvb,offset);
+        proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        length--;
+        sub_opt_len = tvb_get_guint8(tvb,offset);
+        proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        length--;
+        switch(sub_opt){
+        case 1: /* Network-Identifier */
+            /*
+                0                   1                   2                   3
+                0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               | ANI Type=1    |  ANI Length   |E|   Reserved  | Net-Name Len  |
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               |                     Network Name (e.g., SSID or PLMNID)       ~
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               | AP-Name Len   |        Access-Point Name                      ~
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            */
+            e_bit = tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_e_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            net_name_len = tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            if(e_bit == 0x80){
+                proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+            }else{
+                proto_tree_add_text(opt_tree, tvb, offset, net_name_len, "Network Name");
+            };
+            offset = offset+net_name_len;
+
+            ap_name_len = tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+            offset = offset+ap_name_len;
+
+        default:
+            proto_tree_add_text(opt_tree, tvb, offset, sub_opt_len, "Data not dissected yet");
+            offset = offset + sub_opt_len;
+            length = length - sub_opt_len;
+            break;
+        }
+    }
+
+}
+
 static const mip6_opt mip6_opts[] = {
 {
     MIP6_PAD1,                  /* 0 Pad1 [RFC3775] */
@@ -3398,8 +3562,24 @@ static const mip6_opt mip6_opts[] = {
     MIP6_MNG_LEN,
     dissect_pmip6_opt_mng
 },
-/* 51 MAG IPv6 Address [RFC6705] */
-/* 52 Access Network Identifier [RFC6757] */
+
+{
+    MIP6_MAG_IPv6,               /* 51 MAG IPv6 Address [RFC6705] */
+    "MAG IPv6 Address",
+    &ett_mip6_opt_mag_ipv6,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_MAG_IPv6_LEN,
+    dissect_pmip6_opt_mag_ipv6
+},
+
+{
+    MIP6_ACC_NET_ID,               /* 52 Access Network Identifier [RFC6757] */
+    "Access Network Identifier",
+    &ett_mip6_opt_acc_net_id,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_ACC_NET_ID_MIN_LEN,
+    dissect_pmip6_opt_acc_net_id
+},
 
 };
 
@@ -4569,6 +4749,48 @@ proto_register_mip6(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt,
+      { "ANI Type", "mip6.acc_net_id.ani",
+        FT_UINT8, BASE_DEC, VALS(mmip6_opt_acc_net_id_sub_opt_vals), 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_len,
+      { "Length", "mip6.acc_net_id.sub_opt_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_e_bit,
+      { "E(Encoding)", "mip6.acc_net_id.e_bit",
+        FT_BOOLEAN, 8, TFS(&mip6_opt_acc_net_id_sub_opt_e_bit_value), 0x80,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_net_name_len,
+      { "Net-Name Length", "mip6.acc_net_id.net_name_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_net_name,
+      { "Network Name", "mip6.acc_net_id.net_name",
+        FT_STRING, FT_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_ap_name_len,
+      { "AP-Name Length", "mip6.acc_net_id.ap_name_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_ap_name,
+      { "Access-Point Name", "mip6.acc_net_id.ap_name",
+        FT_STRING, FT_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 };
 
     /* Setup protocol subtree array */
@@ -4622,6 +4844,8 @@ proto_register_mip6(void)
         &ett_mip6_opt_load_inf,
         &ett_mip6_opt_alt_ip4,
         &ett_mip6_opt_mng,
+        &ett_mip6_opt_mag_ipv6,
+        &ett_mip6_opt_acc_net_id,
     };
 
     static ei_register_info ei[] = {
