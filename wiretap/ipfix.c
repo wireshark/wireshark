@@ -242,7 +242,20 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
         /* check each Set in IPFIX Message for sanity */
         while (checked_len < msg_hdr.message_length) {
-            wtap_file_read_expected_bytes(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh, err, err_info);
+            int bytes_read;
+
+            bytes_read = file_read(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh);
+            if (bytes_read != IPFIX_SET_HDR_SIZE) {
+                *err = file_error(wth->fh, err_info);
+                if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
+                    /* Not a valid IPFIX Set, so not an IPFIX file. */
+                    ipfix_debug1("ipfix_open: error %d reading set", *err);
+                    return 0;
+                }
+
+                /* A real I/O error; fail. */
+                return -1;
+            }
             set_hdr.set_length = g_ntohs(set_hdr.set_length);
             if ((set_hdr.set_length < IPFIX_SET_HDR_SIZE) ||
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
@@ -256,7 +269,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
             {
                 ipfix_debug1("ipfix_open: failed seek to next set in file, %d bytes away",
                              set_hdr.set_length - IPFIX_SET_HDR_SIZE);
-                return 0;
+                return -1;
             }
             checked_len += set_hdr.set_length;
         }
