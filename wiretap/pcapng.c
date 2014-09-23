@@ -628,12 +628,6 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         wblock->data.section.section_length = shb.section_length;
     }
 
-    /* Option defaults */
-    wblock->data.section.opt_comment        = NULL;
-    wblock->data.section.shb_hardware       = NULL;
-    wblock->data.section.shb_os             = NULL;
-    wblock->data.section.shb_user_appl      = NULL;
-
     /* Options */
     errno = WTAP_ERR_CANT_READ;
     to_read = bh->block_total_length - MIN_SHB_SIZE;
@@ -2233,6 +2227,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wblock.frame_buffer = NULL;
     wblock.packet_header = NULL;
     wblock.file_encap = &wth->file_encap;
+
+    /* Option defaults */
+    wblock.data.section.opt_comment        = NULL;
+    wblock.data.section.shb_hardware       = NULL;
+    wblock.data.section.shb_os             = NULL;
+    wblock.data.section.shb_user_appl      = NULL;
 
     pcapng_debug0("pcapng_open: opening file");
     /* read first block */
