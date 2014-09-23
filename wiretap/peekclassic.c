@@ -532,6 +532,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 {
 	peekclassic_t *peekclassic = (peekclassic_t *)wth->priv;
 	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
+	int bytes_read;
 	guint16 length;
 	guint16 sliceLength;
 #if 0
@@ -549,8 +550,13 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 #endif
 	unsigned int i;
 
-	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), fh, err,
-	    err_info);
+	bytes_read = file_read(ep_pkt, sizeof(ep_pkt), fh);
+	if (bytes_read != (int) sizeof(ep_pkt)) {
+		*err = file_error(fh, err_info);
+		if (*err == 0 && bytes_read > 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
 
 	/* Extract the fields from the packet */
 	length = pntoh16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
