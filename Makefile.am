@@ -911,7 +911,6 @@ EXTRA_DIST = \
 	image/toolbar/16x16/go-last.svg		\
 	image/toolbar/16x16/go-next.png		\
 	image/toolbar/16x16/go-next.svg		\
-	image/toolbar/16x16/go-next.svg.png		\
 	image/toolbar/16x16/go-previous.png		\
 	image/toolbar/16x16/go-previous.svg		\
 	image/toolbar/16x16/x-capture-file-close.png		\
