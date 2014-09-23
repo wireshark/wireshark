@@ -84,9 +84,12 @@ void ColumnPreferencesFrame::unstash()
     QTreeWidgetItemIterator it(ui->columnTreeWidget);
     while (*it) {
         fmt_data *cfmt = g_new0(fmt_data, 1);
-        cfmt->visible = (*it)->checkState(visible_col_) == Qt::Checked ? TRUE : FALSE;
+
         cfmt->title = g_strdup((*it)->text(title_col_).toUtf8().constData());
         cfmt->fmt = (*it)->data(type_col_, Qt::UserRole).value<int>();
+        cfmt->visible = (*it)->checkState(visible_col_) == Qt::Checked ? TRUE : FALSE;
+        cfmt->resolved = TRUE;
+
         if (cfmt->fmt == COL_CUSTOM) {
             bool ok;
             int occurrence = (*it)->text(custom_occurrence_col_).toInt(&ok);

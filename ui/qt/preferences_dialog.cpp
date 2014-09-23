@@ -23,7 +23,6 @@
 #include "ui_preferences_dialog.h"
 
 #include "module_preferences_scroll_area.h"
-#include "wireshark_application.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -788,6 +787,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     gboolean must_redissect = FALSE;
 
     // XXX - We should validate preferences as the user changes them, not here.
+    // XXX - We're also too enthusiastic about setting must_redissect.
 //    if (!prefs_main_fetch_all(parent_w, &must_redissect))
 //        return; /* Errors in some preference setting - already reported */
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
@@ -813,15 +813,15 @@ void PreferencesDialog::on_buttonBox_accepted()
 #endif
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
-    wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
     /* Now destroy the "Preferences" dialog. */
 //    window_destroy(GTK_WIDGET(parent_w));
 
     if (must_redissect) {
         /* Redissect all the packets, and re-evaluate the display filter. */
-        wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+        app_signals_ << WiresharkApplication::PacketDissectionChanged;
     }
+    app_signals_ << WiresharkApplication::PreferencesChanged;
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()

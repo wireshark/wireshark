@@ -2794,9 +2794,9 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     gchar **cust_format_info;
     char *p;
     int col_fmt;
-    gchar *col_custom_field;
-    long col_custom_occurrence;
-    gboolean col_resolved;
+    gchar *col_custom_field = NULL;
+    long col_custom_occurrence = 0;
+    gboolean col_resolved = TRUE;
 
     /*
      * Is this a custom column?
@@ -2815,22 +2815,15 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
                 g_strfreev(cust_format_info);
                 return FALSE;
             }
-        } else {
-            col_custom_occurrence = 0;
         }
         if (col_custom_field && cust_format_info[1] && cust_format_info[2]) {
             col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
-        } else {
-            col_resolved = TRUE;
         }
         g_strfreev(cust_format_info);
     } else {
         col_fmt = get_column_format_from_str(fmt);
         if (col_fmt == -1)
             return FALSE;
-        col_custom_field = NULL;
-        col_custom_occurrence = 0;
-        col_resolved = TRUE;
     }
 
     cfmt->fmt = col_fmt;

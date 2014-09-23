@@ -30,6 +30,8 @@
 
 #include <epan/prefs.h>
 
+#include "wireshark_application.h"
+
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include <QComboBox>
@@ -48,6 +50,7 @@ class PreferencesDialog : public QDialog
 public:
     explicit PreferencesDialog(QWidget *parent = 0);
     ~PreferencesDialog();
+    const QList<WiresharkApplication::AppSignal> appSignals() const { return app_signals_; }
 
 protected:
     void showEvent(QShowEvent *evt);
@@ -63,6 +66,7 @@ private:
     QString saved_string_pref_;
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
+    QList<WiresharkApplication::AppSignal> app_signals_;
 
 private slots:
     void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);

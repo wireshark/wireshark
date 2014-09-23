@@ -1673,6 +1673,12 @@ void MainWindow::on_actionEditPreferences_triggered()
     PreferencesDialog pref_dialog;
 
     pref_dialog.exec();
+
+    // Emitting PacketDissectionChanged directly from PreferencesDialog
+    // can cause problems. Queue them up and emit them here.
+    foreach (WiresharkApplication::AppSignal app_signal, pref_dialog.appSignals()) {
+        wsApp->emitAppSignal(app_signal);
+    }
 }
 
 // View Menu
