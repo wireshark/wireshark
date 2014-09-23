@@ -106,6 +106,7 @@ private:
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
+    QFont mono_font_;
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
@@ -163,6 +164,7 @@ signals:
     void setCaptureFile(capture_file *cf);
     void setDissectedCaptureFile(capture_file *cf);
     void displayFilterSuccess(bool success);
+    void monospaceFontChanged(const QFont &mono_font);
 
 public slots:
     // in main_window_slots.cpp
@@ -277,7 +279,12 @@ private slots:
     void on_actionEditConfigurationProfiles_triggered();
     void on_actionEditPreferences_triggered();
 
+    void zoomText();
+    void on_actionViewZoomIn_triggered();
+    void on_actionViewZoomOut_triggered();
+    void on_actionViewNormalSize_triggered();
     void on_actionViewColorizePacketList_triggered(bool checked);
+    void on_actionViewResizeColumns_triggered();
     void on_actionViewReload_triggered();
     void on_actionViewToolbarMainToolbar_triggered();
     void on_actionViewToolbarDisplayFilter_triggered();

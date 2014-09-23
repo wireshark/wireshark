@@ -58,10 +58,10 @@
    inkscape:collect="always"
    xlink:href="#linearGradient5075"
    id="linearGradient5081"
-   x1="15"
-   y1="4"
-   x2="18"
-   y2="11.5"
+   x1="10"
+   y1="6.5"
+   x2="12.5"
+   y2="14"
    gradientUnits="userSpaceOnUse" /></defs>
 <path
    fill="#FFFFFF"
@@ -74,13 +74,13 @@
    inkscape:guide-bbox="true"
    inkscape:window-maximized="0"
    inkscape:window-height="837"
-   inkscape:cy="11.54297"
-   inkscape:cx="15.291385"
-   inkscape:window-x="206"
+   inkscape:cy="12"
+   inkscape:cx="17.508885"
+   inkscape:window-x="0"
    id="base"
-   inkscape:window-y="0"
+   inkscape:window-y="759"
    showgrid="true"
-   inkscape:zoom="24.101265">
+   inkscape:zoom="27.833333">
 	
 		<inkscape:grid
    type="xygrid"

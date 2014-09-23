@@ -33,6 +33,7 @@
 
 #include "wireshark_application.h"
 #include <QColor>
+#include <QFontMetrics>
 #include <QModelIndex>
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
@@ -121,6 +122,19 @@ void PacketListModel::resetColorized()
     endResetModel();
 }
 
+int PacketListModel::columnTextSize(const char *str)
+{
+    QFontMetrics fm(mono_font_);
+
+    return fm.width(str);
+}
+
+void PacketListModel::setMonospaceFont(const QFont &mono_font)
+{
+    mono_font_ = mono_font;
+    recreateVisibleRows();
+}
+
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() >= prefs.num_cols)
@@ -150,7 +164,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::FontRole:
-        return wsApp->monospaceFont();
+        return mono_font_;
     case Qt::TextAlignmentRole:
         switch(recent_get_column_xalign(index.column())) {
         case COLUMN_XALIGN_RIGHT:

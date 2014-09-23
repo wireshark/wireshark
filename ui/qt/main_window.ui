@@ -239,6 +239,14 @@
      <addaction name="actionViewToolbarMainToolbar"/>
      <addaction name="actionViewToolbarDisplayFilter"/>
     </widget>
+    <widget class="QMenu" name="menuZoom">
+     <property name="title">
+      <string>Zoom</string>
+     </property>
+     <addaction name="actionViewZoomIn"/>
+     <addaction name="actionViewZoomOut"/>
+     <addaction name="actionViewNormalSize"/>
+    </widget>
     <addaction name="separator"/>
     <addaction name="actionViewExpandSubtrees"/>
     <addaction name="actionViewExpandAll"/>
@@ -246,7 +254,9 @@
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
     <addaction name="separator"/>
-    <addaction name="actionViewZoomIn"/>
+    <addaction name="menuZoom"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
     <addaction name="actionViewReload"/>
     <addaction name="menuToolbars"/>
@@ -499,6 +509,11 @@
    <addaction name="actionGoLastPacket"/>
    <addaction name="separator"/>
    <addaction name="actionViewColorizePacketList"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewZoomIn"/>
+   <addaction name="actionViewZoomOut"/>
+   <addaction name="actionViewNormalSize"/>
+   <addaction name="actionViewResizeColumns"/>
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
@@ -1743,7 +1758,7 @@
     <string>Colorize Packet List</string>
    </property>
    <property name="toolTip">
-    <string>Color packets according to the coloring rules</string>
+    <string>Draw packets using your coloring rules</string>
    </property>
   </action>
   <action name="actionViewZoomIn">
@@ -1754,7 +1769,34 @@
     <string>Enlarge the main window text</string>
    </property>
    <property name="shortcut">
-    <string>Meta++</string>
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionViewZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionViewNormalSize">
+   <property name="text">
+    <string>Normal Size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionViewResizeColumns">
+   <property name="text">
+    <string>Resize Columns</string>
+   </property>
+   <property name="toolTip">
+    <string>Resize packet list columns to fit contents</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
    </property>
   </action>
  </widget>

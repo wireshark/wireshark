@@ -24,6 +24,10 @@
         <file>toolbar/16x16/x-capture-start.png</file>
         <file>toolbar/16x16/x-capture-stop.png</file>
         <file>toolbar/16x16/x-colorize-packets.png</file>
+        <file>toolbar/16x16/x-resize-columns.png</file>
+        <file>toolbar/16x16/zoom-in.png</file>
+        <file>toolbar/16x16/zoom-original.png</file>
+        <file>toolbar/16x16/zoom-out.png</file>
         <file>toolbar/24x24/edit-find.png</file>
         <file>toolbar/24x24/go-first.png</file>
         <file>toolbar/24x24/go-jump.png</file>
@@ -39,5 +43,9 @@
         <file>toolbar/24x24/x-capture-start.png</file>
         <file>toolbar/24x24/x-capture-stop.png</file>
         <file>toolbar/24x24/x-colorize-packets.png</file>
+        <file>toolbar/24x24/x-resize-columns.png</file>
+        <file>toolbar/24x24/zoom-in.png</file>
+        <file>toolbar/24x24/zoom-original.png</file>
+        <file>toolbar/24x24/zoom-out.png</file>
     </qresource>
 </RCC>

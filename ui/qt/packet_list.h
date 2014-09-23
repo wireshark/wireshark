@@ -79,6 +79,7 @@ signals:
 
 public slots:
     void setCaptureFile(capture_file *cf);
+    void setMonospaceFont(const QFont &mono_font);
     void goNextPacket();
     void goPreviousPacket();
     void goFirstPacket();

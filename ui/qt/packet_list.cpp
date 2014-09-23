@@ -418,9 +418,9 @@ void PacketList::showEvent (QShowEvent *event) {
         fmt = get_column_format(i);
         long_str = get_column_width_string(fmt, i);
         if (long_str) {
-            col_width = wsApp->monospaceTextSize(long_str);
+            col_width = packet_list_model_->columnTextSize(long_str);
         } else {
-            col_width = wsApp->monospaceTextSize(MIN_COL_WIDTH_STR);
+            col_width = packet_list_model_->columnTextSize(MIN_COL_WIDTH_STR);
         }
         setColumnWidth(i, col_width);
     }
@@ -788,6 +788,11 @@ void PacketList::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);
+}
+
+void PacketList::setMonospaceFont(const QFont &mono_font)
+{
+    packet_list_model_->setMonospaceFont(mono_font);
 }
 
 void PacketList::goNextPacket(void) {

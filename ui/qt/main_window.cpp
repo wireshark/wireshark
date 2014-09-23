@@ -113,8 +113,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(recentFilesRead()), this, SLOT(loadWindowGeometry()));
 
@@ -170,9 +172,13 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 //    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
 
-//    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
-//    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
-//    main_ui_->actionViewZoomOriginal->setIcon(StockIcon("zoom-original"));
+    QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
+    zi_seq << QKeySequence(Qt::CTRL + Qt::Key_Equal);
+    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
+    main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
+    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
+    main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
+    main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
 
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
@@ -285,6 +291,13 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             byte_view_tab_, SLOT(setCaptureFile(capture_file*)));
+
+    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+            packet_list_, SLOT(setMonospaceFont(QFont)));
+    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+            proto_tree_, SLOT(setMonospaceFont(QFont)));
+    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+            byte_view_tab_, SLOT(setMonospaceFont(QFont)));
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
@@ -1537,18 +1550,17 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionEditFindPacket->setEnabled(have_captured_packets);
     main_ui_->actionEditFindNext->setEnabled(have_captured_packets);
     main_ui_->actionEditFindPrevious->setEnabled(have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomIn",
-//                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomOut",
-//                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NormalSize",
-//                         have_captured_packets);
 
     main_ui_->actionGoGoToPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoPreviousPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoNextPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoFirstPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoLastPacket->setEnabled(have_captured_packets);
+
+    main_ui_->actionViewZoomIn->setEnabled(have_captured_packets);
+    main_ui_->actionViewZoomOut->setEnabled(have_captured_packets);
+    main_ui_->actionViewNormalSize->setEnabled(have_captured_packets);
+    main_ui_->actionViewResizeColumns->setEnabled(have_captured_packets);
 
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/PreviousPacketInConversation",
 //                         have_captured_packets);
@@ -1573,8 +1585,6 @@ void MainWindow::setMenusForFileSet(bool enable_list_files) {
 void MainWindow::updateForUnsavedChanges() {
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
-//    set_toolbar_for_capture_file(cf);
-
 }
 
 void MainWindow::changeEvent(QEvent* event)
@@ -1590,9 +1600,7 @@ void MainWindow::changeEvent(QEvent* event)
         default:
             break;
         }
-
     }
-
      QMainWindow::changeEvent(event);
 }
 

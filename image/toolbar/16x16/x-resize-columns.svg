@@ -60,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -127,7 +127,7 @@
        style="fill:#204a87;stroke:#888a85;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        sodipodi:type="star"
-       style="fill:#3465a4;fill-opacity:1;stroke:#204a87;stroke-width:3.77817893;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#3465a4;fill-opacity:1;stroke:#3465a4;stroke-width:3.77817893000000016;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="path4292"
        sodipodi:sides="3"
        sodipodi:cx="28"
@@ -163,7 +163,7 @@
        sodipodi:cx="28"
        sodipodi:sides="3"
        id="path4590"
-       style="fill:#3465a4;fill-opacity:1;stroke:#204a87;stroke-width:3.77817893;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#3465a4;fill-opacity:1;stroke:#3465a4;stroke-width:3.77817893000000016;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        sodipodi:type="star"
        inkscape:transform-center-y="-3.5440869e-05" />
   </g>

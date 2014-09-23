@@ -122,6 +122,14 @@ void ByteViewText::renderBytes()
     setUpdatesEnabled(true);
 }
 
+void ByteViewText::setMonospaceFont(const QFont &mono_font)
+{
+    mono_normal_font_ = mono_font;
+    mono_bold_font_ = QFont(mono_font);
+    mono_bold_font_.setBold(true);
+    renderBytes();
+}
+
 // Private
 
 #define BYTE_VIEW_SEP    8      /* insert a space every BYTE_VIEW_SEP bytes */
@@ -285,7 +293,7 @@ void ByteViewText::setState(ByteViewText::highlight_state state)
     QPalette pal = wsApp->palette();
 
     moveCursor(QTextCursor::End);
-    setCurrentFont(wsApp->monospaceFont());
+    setCurrentFont(mono_normal_font_);
     setTextColor(pal.text().color());
     setTextBackgroundColor(pal.base().color());
 
@@ -295,7 +303,7 @@ void ByteViewText::setState(ByteViewText::highlight_state state)
         break;
     case StateField:
         if (bold_highlight_) {
-            setCurrentFont(wsApp->monospaceFont(true));
+            setCurrentFont(mono_bold_font_);
         } else {
             setTextColor(pal.base().color());
             setTextBackgroundColor(pal.text().color());

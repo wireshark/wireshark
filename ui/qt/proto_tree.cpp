@@ -26,13 +26,12 @@
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
-#include "wireshark_application.h"
+#include <QApplication>
+#include <QContextMenuEvent>
+#include <QDesktopServices>
 #include <QHeaderView>
 #include <QTreeWidgetItemIterator>
-#include <QDesktopServices>
 #include <QUrl>
-#include <QContextMenuEvent>
-#include <QMainWindow>
 
 QColor        expert_color_comment    ( 0xb7, 0xf7, 0x74 );        /* Green */
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
@@ -257,9 +256,16 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     decode_as_->setData(QVariant());
 }
 
+void ProtoTree::setMonospaceFont(const QFont &mono_font)
+{
+    mono_font_ = mono_font;
+    setFont(mono_font_);
+    update();
+}
+
 void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
     clear();
-    setFont(wsApp->monospaceFont());
+    setFont(mono_font_);
 
     proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
 }

@@ -335,9 +335,9 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
 void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
-        mono_regular_font_.fromString(font_string);
-        mono_bold_font_ = QFont(mono_regular_font_);
-        mono_bold_font_.setBold(true);
+        mono_font_.fromString(font_string);
+//        mono_bold_font_ = QFont(mono_regular_font_);
+//        mono_bold_font_.setBold(true);
         return;
     }
 
@@ -365,33 +365,23 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_font << fallback_fonts;
 #endif
 
-    mono_regular_font_.setFamily(default_font);
-    mono_regular_font_.insertSubstitutions(default_font, substitutes);
-    mono_regular_font_.setPointSize(wsApp->font().pointSize() + font_size_adjust);
-    mono_regular_font_.setBold(false);
+    mono_font_.setFamily(default_font);
+    mono_font_.insertSubstitutions(default_font, substitutes);
+    mono_font_.setPointSize(wsApp->font().pointSize() + font_size_adjust);
+    mono_font_.setBold(false);
 
-    mono_bold_font_ = QFont(mono_regular_font_);
-    mono_bold_font_.setBold(true);
+//    mono_bold_font_ = QFont(mono_font_);
+//    mono_bold_font_.setBold(true);
 
     g_free(prefs.gui_qt_font_name);
-    prefs.gui_qt_font_name = g_strdup(mono_regular_font_.toString().toUtf8().constData());
+    prefs.gui_qt_font_name = g_strdup(mono_font_.toString().toUtf8().constData());
 }
 
-int WiresharkApplication::monospaceTextSize(const char *str, bool bold)
+int WiresharkApplication::monospaceTextSize(const char *str)
 {
-    QFontMetrics *fm;
+    QFontMetrics fm(mono_font_);
 
-    if (bold)
-        fm = new QFontMetrics(mono_bold_font_);
-    else
-        fm = new QFontMetrics(mono_regular_font_);
-
-    return fm->width(str);
-}
-
-QFont WiresharkApplication::monospaceFont(bool bold)
-{
-    return bold ? mono_bold_font_ : mono_regular_font_;
+    return fm.width(str);
 }
 
 void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)

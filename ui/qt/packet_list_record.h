@@ -43,6 +43,7 @@ public:
     QVariant columnString(capture_file *cap_file, int column);
     frame_data *frameData();
 
+    int columnTextSize(const char *str);
     static void resetColumns(column_info *cinfo);
     void resetColorized();
 

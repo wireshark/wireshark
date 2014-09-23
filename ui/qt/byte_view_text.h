@@ -54,6 +54,9 @@ public:
     void setFieldAppendixHighlight(int start, int end);
     void renderBytes();
 
+public slots:
+    void setMonospaceFont(const QFont &mono_font);
+
 private:
     typedef enum {
         StateNormal,
@@ -72,6 +75,8 @@ private:
     tvbuff_t *tvb_;
     proto_tree *proto_tree_;
     QTreeWidget *tree_widget_;
+    QFont mono_normal_font_;
+    QFont mono_bold_font_;
 
     gboolean bold_highlight_;
 

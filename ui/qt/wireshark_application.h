@@ -85,9 +85,9 @@ public:
     void setLastOpenDir(const char *dir_name);
     void setLastOpenDir(QString *dir_str);
     void helpTopicAction(topic_action_e action);
-    QFont monospaceFont(bool bold = false);
+    const QFont monospaceFont() const { return mono_font_; }
     void setMonospaceFont(const char *font_string);
-    int monospaceTextSize(const char *str, bool bold = false);
+    int monospaceTextSize(const char *str);
     void setConfigurationProfile(const gchar *profile_name);
     bool isInitialized() { return initialized_; }
     const QIcon &normalIcon() const { return normal_icon_; }
@@ -95,8 +95,7 @@ public:
 
 private:
     bool initialized_;
-    QFont mono_regular_font_;
-    QFont mono_bold_font_;
+    QFont mono_font_;
     QTimer recent_timer_;
     QTimer addr_resolv_timer_;
     QTimer tap_update_timer_;

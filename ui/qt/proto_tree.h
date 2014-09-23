@@ -46,6 +46,7 @@ protected:
 private:
      QMenu ctx_menu_;
      QAction *decode_as_;
+     QFont mono_font_;
 
 signals:
     void protoItemSelected(QString &);
@@ -54,6 +55,7 @@ signals:
     void relatedFrame(int);
 
 public slots:
+    void setMonospaceFont(const QFont &mono_font);
     void updateSelectionStatus(QTreeWidgetItem*);
     void expand(const QModelIndex & index);
     void collapse(const QModelIndex & index);

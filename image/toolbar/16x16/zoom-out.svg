@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.2 r9819"
    sodipodi:docname="zoom-out.svg"
-   inkscape:export-filename="zoom-in.png"
+   inkscape:export-filename="zoom-out.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -35,14 +35,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32.125"
+     inkscape:zoom="30.8125"
      inkscape:cx="8"
      inkscape:cy="8"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="931"
-     inkscape:window-height="683"
+     inkscape:window-width="1241"
+     inkscape:window-height="662"
      inkscape:window-x="132"
      inkscape:window-y="882"
      inkscape:window-maximized="0">
@@ -102,9 +102,9 @@
     <rect
        style="fill:#2e3436;stroke:none"
        id="rect3760"
-       width="7"
+       width="5"
        height="1"
-       x="3"
+       x="4"
        y="1042.3622" />
   </g>
 </svg>

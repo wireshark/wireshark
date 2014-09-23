@@ -62,18 +62,20 @@ public:
     int visibleIndexOf(frame_data *fdata) const;
     void resetColumns();
     void resetColorized();
+    int columnTextSize(const char *str);
 
 signals:
 
 public slots:
+    void setMonospaceFont(const QFont &mono_font);
 
 private:
     capture_file *cap_file_;
+    QFont mono_font_;
     QList<QString> col_names_;
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> physical_rows_;
     QMap<int, int> number_to_row_;
-    QFont pl_font_;
 
     int header_height_;
 };
