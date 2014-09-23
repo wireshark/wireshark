@@ -2407,6 +2407,29 @@ dissect_lte_rrc_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE_HO_Prep_Info");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  /* Don't want elements inside message updating Info column, so set now and
+     freeze during dissection of PDU */
+  col_set_str(pinfo->cinfo, COL_INFO, "HandoverPreparationInformation");
+  col_set_writable(pinfo->cinfo, FALSE);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_lte_rrc_HandoverPreparationInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
+
+  col_set_writable(pinfo->cinfo, TRUE);
+}
+
+static void
 lte_rrc_init_protocol(void)
 {
   if (lte_rrc_etws_cmas_dcs_hash) {
@@ -2926,6 +2949,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
   register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
   register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));

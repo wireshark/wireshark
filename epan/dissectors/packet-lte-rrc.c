@@ -35537,6 +35537,29 @@ dissect_lte_rrc_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_lte_rrc_Handover_Preparation_Info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE_HO_Prep_Info");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  /* Don't want elements inside message updating Info column, so set now and
+     freeze during dissection of PDU */
+  col_set_str(pinfo->cinfo, COL_INFO, "HandoverPreparationInformation");
+  col_set_writable(pinfo->cinfo, FALSE);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_lte_rrc_HandoverPreparationInformation_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
+
+  col_set_writable(pinfo->cinfo, TRUE);
+}
+
+static void
 lte_rrc_init_protocol(void)
 {
   if (lte_rrc_etws_cmas_dcs_hash) {
@@ -44217,7 +44240,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2430 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2453 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -45777,7 +45800,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2885 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2908 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45822,6 +45845,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
   register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
   register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
@@ -45846,7 +45870,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2938 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2962 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
