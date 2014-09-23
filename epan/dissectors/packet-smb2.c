@@ -4159,7 +4159,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* data offset */
-	dataoffset=tvb_get_letohl(tvb,offset);
+	dataoffset=tvb_get_letohs(tvb,offset);
 	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
