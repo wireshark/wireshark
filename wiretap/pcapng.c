@@ -2353,6 +2353,10 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wblock.frame_buffer  = wth->frame_buffer;
     wblock.packet_header = &wth->phdr;
     wblock.file_encap    = &wth->file_encap;
+    wblock.data.section.opt_comment   = NULL;
+    wblock.data.section.shb_hardware  = NULL;
+    wblock.data.section.shb_os        = NULL;
+    wblock.data.section.shb_user_appl = NULL;
 
     pcapng->add_new_ipv4 = wth->add_new_ipv4;
     pcapng->add_new_ipv6 = wth->add_new_ipv6;
@@ -2466,6 +2470,10 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     wblock.frame_buffer = buf;
     wblock.packet_header = phdr;
     wblock.file_encap = &wth->file_encap;
+    wblock.data.section.opt_comment   = NULL;
+    wblock.data.section.shb_hardware  = NULL;
+    wblock.data.section.shb_os        = NULL;
+    wblock.data.section.shb_user_appl = NULL;
 
     /* read the block */
     bytes_read = pcapng_read_block(wth->random_fh, FALSE, pcapng, &wblock, err, err_info);
