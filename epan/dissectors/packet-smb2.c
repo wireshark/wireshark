@@ -173,6 +173,10 @@ static int hf_smb2_create_action = -1;
 static int hf_smb2_create_rep_flags = -1;
 static int hf_smb2_create_rep_flags_reparse_point = -1;
 static int hf_smb2_next_offset = -1;
+static int hf_smb2_negotiate_context_type = -1;
+static int hf_smb2_negotiate_context_data_length = -1;
+static int hf_smb2_negotiate_context_offset = -1;
+static int hf_smb2_negotiate_context_count = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
 static int hf_smb2_ea_name_len = -1;
@@ -353,6 +357,7 @@ static gint ett_smb2_header = -1;
 static gint ett_smb2_encrypted = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
+static gint ett_smb2_negotiate_context_element = -1;
 static gint ett_smb2_file_basic_info = -1;
 static gint ett_smb2_file_standard_info = -1;
 static gint ett_smb2_file_internal_info = -1;
@@ -545,6 +550,14 @@ static const value_string smb2_find_info_levels[] = {
 	{ SMB2_FIND_NAME_INFO,			"SMB2_FIND_NAME_INFO" },
 	{ SMB2_FIND_ID_BOTH_DIRECTORY_INFO,	"SMB2_FIND_ID_BOTH_DIRECTORY_INFO" },
 	{ SMB2_FIND_ID_FULL_DIRECTORY_INFO,	"SMB2_FIND_ID_FULL_DIRECTORY_INFO" },
+	{ 0, NULL }
+};
+
+#define SMB2_PREAUTH_INTEGRITY_CAPABILITIES 0x0001
+#define SMB2_ENCRYPTION_CAPABILITIES        0x0002
+static const value_string smb2_negotiate_context_types[] = {
+	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
+	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
 	{ 0, NULL }
 };
 
@@ -3438,9 +3451,56 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
+dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	int start_offset = offset;
+	guint16 type;
+	const gchar *type_str;
+	guint16 data_length;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+	tvbuff_t *sub_tvb;
+
+	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_smb2_negotiate_context_element, &sub_item, "Negotiate Context");
+
+	/* type */
+	type = tvb_get_letohl(tvb, offset);
+	type_str = val_to_str(type, smb2_negotiate_context_types, "Unknown Type: (0x%0x)");
+	proto_item_append_text(sub_item, ": %s ", type_str);
+	proto_tree_add_item(sub_tree, hf_smb2_negotiate_context_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* data length */
+	data_length = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(sub_tree, hf_smb2_negotiate_context_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	/* data */
+	sub_tvb = tvb_new_subset_length(tvb, offset, data_length);
+	offset += data_length;
+
+	proto_item_set_len(sub_item, offset - start_offset);
+
+	/*
+	 * TODO: disssect the context data
+	 */
+	proto_tree_add_item(sub_tree, hf_smb2_unknown, sub_tvb, 0, data_length, ENC_NA);
+
+	return offset;
+}
+
+static int
 dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	guint16 dc;
+	guint16 i;
+	gboolean supports_smb_3_10 = FALSE;
+	guint32 nco;
+	guint16 ncc;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -3456,6 +3516,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 
 	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* capabilities */
@@ -3465,13 +3526,47 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	proto_tree_add_item(tree, hf_smb2_client_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
 
-	/* client boot time */
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_boot_time);
-	offset += 8;
+	/* negotiate context offset */
+	nco = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
-	for ( ; dc>0; dc--) {
+	/* negotiate context count */
+	ncc = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+
+	for (i = 0 ; i < dc; i++) {
+		guint16 d = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
+
+		if (d >= 0x310) {
+			supports_smb_3_10 = TRUE;
+		}
+	}
+
+	if (!supports_smb_3_10) {
+		ncc = 0;
+	}
+
+	if (nco != 0) {
+		guint32 tmp = 0x40 + 36 + dc * 2;
+
+		if (nco >= tmp) {
+			offset += nco - tmp;
+		} else {
+			ncc = 0;
+		}
+	}
+
+	for (i = 0; i < ncc; i++) {
+		offset = (offset + 7) & ~7;
+		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
 	}
 
 	return offset;
@@ -3481,6 +3576,10 @@ static int
 dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	offset_length_buffer_t s_olb;
+	guint16 d;
+	guint16 i;
+	guint32 nco;
+	guint16 ncc;
 
 	switch (si->status) {
 	case 0x00000000: break;
@@ -3495,10 +3594,13 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset++;
 
 	/* dialect picked */
+	d = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	/* reserved */
+	/* negotiate context count */
+	ncc = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_negotiate_context_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* server GUID */
@@ -3534,10 +3636,31 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* the security blob itself */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
 
-	/* reserved */
+	/* negotiate context offset */
+	nco = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_negotiate_context_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
+
+	if (d < 0x310) {
+		ncc = 0;
+	}
+
+	if (nco != 0) {
+		guint32 tmp = 0x40 + 64 + s_olb.len;
+
+		if (nco >= tmp) {
+			offset += nco - tmp;
+		} else {
+			ncc = 0;
+		}
+	}
+
+	for (i = 0; i < ncc; i++) {
+		offset = (offset + 7) & ~7;
+		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
+	}
 
 	return offset;
 }
@@ -7698,6 +7821,22 @@ proto_register_smb2(void)
 		  { "Next Offset", "smb2.next_offset", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Offset to next buffer or 0", HFILL }},
 
+		{ &hf_smb2_negotiate_context_type,
+		  { "Type", "smb2.negotiate_context.type", FT_UINT16, BASE_HEX,
+		    VALS(smb2_negotiate_context_types), 0, "NegotiateContext Type", HFILL }},
+
+		{ &hf_smb2_negotiate_context_data_length,
+		  { "DataLength", "smb2.negotiate_context.data_length", FT_UINT16, BASE_DEC,
+		    NULL, 0, "NegotiateContext DataLength", HFILL }},
+
+		{ &hf_smb2_negotiate_context_offset,
+		  { "NegotiateContextOffset", "smb2.negotiate_context.offset", FT_UINT16, BASE_HEX,
+		    NULL, 0, "NegotiateContext Offset", HFILL }},
+
+		{ &hf_smb2_negotiate_context_count,
+		  { "NegotiateContextCount", "smb2.negotiate_context.count", FT_UINT16, BASE_DEC,
+		    NULL, 0, "NegotiateContext Count", HFILL }},
+
 		{ &hf_smb2_current_time,
 		  { "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		    NULL, 0, "Current Time at server", HFILL }},
@@ -8374,6 +8513,7 @@ proto_register_smb2(void)
 		&ett_smb2_encrypted,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
+		&ett_smb2_negotiate_context_element,
 		&ett_smb2_file_basic_info,
 		&ett_smb2_file_standard_info,
 		&ett_smb2_file_internal_info,
