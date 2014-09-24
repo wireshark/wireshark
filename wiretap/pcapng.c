@@ -493,10 +493,14 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 static void
 pcapng_free_wtapng_block_data(wtapng_block_t *wblock)
 {
-    g_free(wblock->data.section.opt_comment);
-    g_free(wblock->data.section.shb_hardware);
-    g_free(wblock->data.section.shb_os);
-    g_free(wblock->data.section.shb_user_appl);
+    switch (wblock->type) {
+        case(BLOCK_TYPE_SHB):
+            g_free(wblock->data.section.opt_comment);
+            g_free(wblock->data.section.shb_hardware);
+            g_free(wblock->data.section.shb_os);
+            g_free(wblock->data.section.shb_user_appl);
+            break;
+    }
 }
 
 static int
@@ -2061,6 +2065,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
     pcapng_block_header_t bh;
     guint32 block_total_length;
 
+    memset(&(wblock->data), 0, sizeof(wblock->data));
 
     /* Try to read the (next) block header */
     errno = WTAP_ERR_CANT_READ;
@@ -2228,12 +2233,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wblock.packet_header = NULL;
     wblock.file_encap = &wth->file_encap;
 
-    /* Option defaults */
-    wblock.data.section.opt_comment        = NULL;
-    wblock.data.section.shb_hardware       = NULL;
-    wblock.data.section.shb_os             = NULL;
-    wblock.data.section.shb_user_appl      = NULL;
-
     pcapng_debug0("pcapng_open: opening file");
     /* read first block */
     bytes_read = pcapng_read_block(wth->fh, TRUE, &pn, &wblock, err, err_info);
@@ -2353,10 +2352,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wblock.frame_buffer  = wth->frame_buffer;
     wblock.packet_header = &wth->phdr;
     wblock.file_encap    = &wth->file_encap;
-    wblock.data.section.opt_comment   = NULL;
-    wblock.data.section.shb_hardware  = NULL;
-    wblock.data.section.shb_os        = NULL;
-    wblock.data.section.shb_user_appl = NULL;
 
     pcapng->add_new_ipv4 = wth->add_new_ipv4;
     pcapng->add_new_ipv6 = wth->add_new_ipv6;
@@ -2470,10 +2465,6 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     wblock.frame_buffer = buf;
     wblock.packet_header = phdr;
     wblock.file_encap = &wth->file_encap;
-    wblock.data.section.opt_comment   = NULL;
-    wblock.data.section.shb_hardware  = NULL;
-    wblock.data.section.shb_os        = NULL;
-    wblock.data.section.shb_user_appl = NULL;
 
     /* read the block */
     bytes_read = pcapng_read_block(wth->random_fh, FALSE, pcapng, &wblock, err, err_info);
