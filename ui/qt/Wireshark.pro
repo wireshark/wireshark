@@ -573,7 +573,7 @@ HEADERS += \
     related_packet_delegate.h \
     sequence_diagram.h \
     sequence_dialog.h \
-    simple_dialog_qt.h \
+    simple_dialog.h \
     sparkline_delegate.h \
     syntax_line_edit.h \
     time_shift_dialog.h \
@@ -654,7 +654,7 @@ SOURCES += \
     search_frame.cpp \
     sequence_diagram.cpp \
     sequence_dialog.cpp \
-    simple_dialog_qt.cpp \
+    simple_dialog.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \

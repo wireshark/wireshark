@@ -49,6 +49,7 @@
 #include "export_dissection_dialog.h"
 #include "import_text_dialog.h"
 #include "proto_tree.h"
+#include "simple_dialog.h"
 #include "stock_icon.h"
 #include "wireshark_application.h"
 
@@ -79,6 +80,68 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 {
     gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
 }
+
+gpointer
+simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(gbl_cur_main_window_, type, btn_mask, msg_format, ap);
+    va_end(ap);
+
+    sd.exec();
+    return NULL;
+}
+
+/*
+ * Alert box, with optional "don't show this message again" variable
+ * and checkbox, and optional secondary text.
+ */
+void
+simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+                   const char *secondary_msg, const char *msg_format, ...)
+{
+    if (notagain && *notagain) {
+        return;
+    }
+
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(gbl_cur_main_window_, type, ESD_BTN_OK, msg_format, ap);
+    va_end(ap);
+
+    sd.setDetailedText(secondary_msg);
+
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
+    QCheckBox *cb = new QCheckBox();
+    if (notagain) {
+        cb->setChecked(true);
+        cb->setText(QObject::tr("Don't show this message again."));
+        sd.setCheckBox(cb);
+    }
+#endif
+
+    sd.exec();
+
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
+    if (notagain) {
+        *notagain = cb->isChecked();
+    }
+#endif
+}
+
+/*
+ * Error alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_error_message_box(const char *msg_format, va_list ap)
+{
+    SimpleDialog sd(NULL, ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
+    sd.exec();
+}
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

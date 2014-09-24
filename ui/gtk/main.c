@@ -119,7 +119,6 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/software_update.h"
-#include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 #include "ui/util.h"
 
@@ -192,6 +191,7 @@
 #include "ui/gtk/filter_expression_save_dlg.h"
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/hostlist_table.h"
+#include "simple_dialog.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

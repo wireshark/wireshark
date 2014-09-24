@@ -30,15 +30,15 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/value_string.h>
-#include <epan/addr_resolv.h>
+#include "epan/value_string.h"
+#include "epan/addr_resolv.h"
 
-#include <wsutil/str_util.h>
+#include "wsutil/str_util.h"
 
 #include "../file.h"
 #include "ui/capture.h"
 
-#include "ui/simple_dialog.h"
+#include "simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"

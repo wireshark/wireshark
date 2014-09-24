@@ -1,4 +1,4 @@
-/* simple_dialog_qt.h
+/* simple_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,24 +19,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SIMPLE_DIALOG_QT_H
-#define SIMPLE_DIALOG_QT_H
+#ifndef SIMPLE_DIALOG_H
+#define SIMPLE_DIALOG_H
 
-#include <QErrorMessage>
+#include "config.h"
 
-class SimpleDialog : public QErrorMessage
+#include <stdio.h>
+
+#include <glib.h>
+
+#include "ui/simple_dialog.h"
+
+#include <QMessageBox>
+
+typedef QPair<QString,QString> MessagePair;
+
+class SimpleDialog : public QMessageBox
 {
     Q_OBJECT
-public:
-    explicit SimpleDialog(QWidget *parent = 0);
 
-signals:
+public:
+    explicit SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap);
+    ~SimpleDialog();
+    static void displayQueuedMessages(QWidget *parent = 0);
 
 public slots:
+    int exec();
 
+private:
+    const MessagePair splitMessage(QString &message) const;
 };
 
-#endif // SIMPLE_DIALOG_QT_H
+#endif // SIMPLE_DIALOG_H
 
 /*
  * Editor modelines

@@ -36,13 +36,12 @@
 
 #include "ui/util.h"
 
-#include "ui/simple_dialog.h"
-
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/proto_dlg.h"
 #include "ui/gtk/help_dlg.h"
+#include "simple_dialog.h"
 
 static gboolean proto_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);

@@ -28,7 +28,6 @@
 #include <gtk/gtk.h>
 
 #include "epan/addr_resolv.h"
-#include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
@@ -38,6 +37,7 @@
 #include "ui/gtk/manual_addr_resolv.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/packet_win.h"
+#include "simple_dialog.h"
 
 GtkWidget *man_addr_resolv_dlg = NULL;
 

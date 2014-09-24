@@ -34,9 +34,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/print.h>
 
-#include "../file.h"
+#include "file.h"
 #include "ui/preference_utils.h"
-#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/prefs_column.h"
@@ -56,6 +55,7 @@
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/packet_win.h"
+#include "simple_dialog.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32

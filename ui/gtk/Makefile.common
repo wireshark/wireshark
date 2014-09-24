@@ -305,6 +305,7 @@ noinst_HEADERS = \
 	sctp_stat_gtk.h	\
 	service_response_time_table.h	\
 	time_shift_dlg.h	\
+	simple_dialog.h	\
 	stock_icons.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \

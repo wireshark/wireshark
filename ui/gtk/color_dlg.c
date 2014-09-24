@@ -34,7 +34,7 @@
 #include "../color_filters.h"
 #include "../file.h"
 
-#include "ui/simple_dialog.h"
+#include "simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/color_utils.h"

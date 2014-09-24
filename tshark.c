@@ -2119,11 +2119,11 @@ main(int argc, char *argv[])
     }
     CATCH(OutOfMemoryError) {
       fprintf(stderr,
-              "Out Of Memory!\n"
+              "Out Of Memory.\n"
               "\n"
-              "Sorry, but TShark has to terminate now!\n"
+              "Sorry, but TShark has to terminate now.\n"
               "\n"
-              "Some infos / workarounds can be found at:\n"
+              "More information and workarounds can be found at\n"
               "http://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
       err = ENOMEM;
     }
@@ -2552,11 +2552,11 @@ capture(void)
   }
   CATCH(OutOfMemoryError) {
     fprintf(stderr,
-            "Out Of Memory!\n"
+            "Out Of Memory.\n"
             "\n"
-            "Sorry, but TShark has to terminate now!\n"
+            "Sorry, but TShark has to terminate now.\n"
             "\n"
-            "Some infos / workarounds can be found at:\n"
+            "More information and workarounds can be found at\n"
             "http://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
     exit(1);
   }
@@ -2586,7 +2586,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
 
   if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     cmdarg_err(
-      "Invalid capture filter \"%s\" for interface '%s'!\n"
+      "Invalid capture filter \"%s\" for interface '%s'.\n"
       "\n"
       "That string looks like a valid display filter; however, it isn't a valid\n"
       "capture filter (%s).\n"
@@ -2599,7 +2599,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
     dfilter_free(rfcode);
   } else {
     cmdarg_err(
-      "Invalid capture filter \"%s\" for interface '%s'!\n"
+      "Invalid capture filter \"%s\" for interface '%s'.\n"
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
@@ -2618,7 +2618,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   int      err;
 
   if (cap_session->state == CAPTURE_PREPARING) {
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started.");
   }
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
 

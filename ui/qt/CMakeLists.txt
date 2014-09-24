@@ -88,7 +88,7 @@ set(WIRESHARK_QT_HEADERS
 	search_frame.h
 	sequence_diagram.h
 	sequence_dialog.h
-	simple_dialog_qt.h
+	simple_dialog.h
 	splash_overlay.h
 	stats_tree_dialog.h
 	summary_dialog.h
@@ -184,7 +184,7 @@ set(WIRESHARK_QT_SRC
 	search_frame.cpp
 	sequence_diagram.cpp
 	sequence_dialog.cpp
-	simple_dialog_qt.cpp
+	simple_dialog.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp
 	stock_icon.cpp

@@ -174,7 +174,7 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, void(
           capture_opts->save_file = NULL;
       }
 
-      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start failed!");
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start failed.");
       cap_session->state = CAPTURE_STOPPED;
   } else {
       /* the capture child might not respond shortly after bringing it up */
@@ -295,18 +295,18 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
   /* if we didn't capture even a single packet, close the file again */
   if(cf_get_packet_count((capture_file *)cap_session->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-"%sNo packets captured!%s\n"
+"%sNo packets captured.%s\n"
 "\n"
-"As no data was captured, closing the %scapture file!\n"
+"As no data was captured, closing the %scapture file.\n"
 "\n"
 "\n"
-"Help about capturing can be found at:\n"
+"Help about capturing can be found at\n"
 "\n"
 "       http://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
 "\n\n"
 "Wireless (Wi-Fi/WLAN):\n"
-"Try to switch off promiscuous mode in the Capture Options!"
+"Try to switch off promiscuous mode in the Capture Options"
 #endif
 "",
     simple_dialog_primary_start(), simple_dialog_primary_end(),
@@ -326,7 +326,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   int  err;
 
   if(cap_session->state == CAPTURE_PREPARING) {
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started");
   }
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
 
@@ -516,7 +516,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i,
   /* Did the user try a display filter? */
   if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sInvalid capture filter \"%s\" for interface %s!%s\n"
+      "%sInvalid capture filter \"%s\" for interface %s.%s\n"
       "\n"
       "That string looks like a valid display filter; however, it isn't a valid\n"
       "capture filter (%s).\n"
@@ -530,7 +530,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i,
       dfilter_free(rfcode);
   } else {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sInvalid capture filter \"%s\" for interface %s!%s\n"
+      "%sInvalid capture filter \"%s\" for interface %s.%s\n"
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
@@ -552,7 +552,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
   int  err;
   int  packet_count_save;
 
-  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped.");
   g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   if (msg != NULL)
@@ -585,18 +585,18 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
       case CF_READ_OK:
         if ((packet_count_save == 0) && !capture_opts->restart) {
           simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sNo packets captured!%s\n"
+            "%sNo packets captured.%s\n"
             "\n"
-            "As no data was captured, closing the %scapture file!\n"
+            "As no data was captured, closing the %scapture file.\n"
             "\n"
             "\n"
-            "Help about capturing can be found at:\n"
+            "Help about capturing can be found at\n"
             "\n"
             "       http://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
             "\n\n"
             "Wireless (Wi-Fi/WLAN):\n"
-            "Try to switch off promiscuous mode in the Capture Options!"
+            "Try to switch off promiscuous mode in the Capture Options."
 #endif
             "",
             simple_dialog_primary_start(), simple_dialog_primary_end(),

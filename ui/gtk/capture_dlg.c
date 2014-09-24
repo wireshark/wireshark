@@ -47,7 +47,6 @@
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
-#include "ui/simple_dialog.h"
 #include "ui/util.h"
 
 #include "ui/gtk/main.h"
@@ -67,6 +66,7 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main_80211_toolbar.h"
+#include "simple_dialog.h"
 
 #include "ui/gtk/keys.h"
 

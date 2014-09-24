@@ -31,19 +31,19 @@
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"
 
-#include <epan/epan.h>
-#include <epan/frequency-utils.h>
+#include "epan/epan.h"
+#include "epan/frequency-utils.h"
 
 #include "ui/recent.h"
-#include "ui/simple_dialog.h"
+#include "simple_dialog.h"
 
 #include "main.h"
 #include "main_airpcap_toolbar.h"
 
 #include "keys.h"
 
-#include <caputils/airpcap.h>
-#include <caputils/airpcap_loader.h>
+#include "caputils/airpcap.h"
+#include "caputils/airpcap_loader.h"
 #include "airpcap_dlg.h"
 #include "airpcap_gui_utils.h"
 

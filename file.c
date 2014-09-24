@@ -692,9 +692,9 @@ cf_read(capture_file *cf, gboolean reloading)
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
-                   "Some infos / workarounds can be found at:\n"
+                   "More information and workarounds can be found at\n"
                    "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                   "Sorry, but Wireshark has run out of memory and has to terminate now!");
+                   "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
 #else
@@ -758,7 +758,7 @@ cf_read(capture_file *cf, gboolean reloading)
                   "\n"
                   "As a lot of packets from the original file will be missing,\n"
                   "remember to be careful when saving the current content to a file.\n",
-                  "File loading was cancelled!");
+                  "File loading was cancelled.");
     return CF_READ_ERROR;
   }
 
@@ -878,9 +878,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
-                   "Some infos / workarounds can be found at:\n"
+                   "More information and workarounds can be found at\n"
                    "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                   "Sorry, but Wireshark has run out of memory and has to terminate now!");
+                   "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
     return CF_READ_ABORTED;
@@ -1753,7 +1753,7 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
     const modified_frame_data *frame = (const modified_frame_data *) g_tree_lookup(cf->edited_frames, GINT_TO_POINTER(fdata->num));
 
     if (!frame) {
-      simple_error_message_box("fdata->file_off == -1, but can't find modified frame!");
+      simple_error_message_box("fdata->file_off == -1, but can't find modified frame.");
       return FALSE;
     }
 
@@ -2117,7 +2117,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
            so we can't select it. */
         simple_message_box(ESD_TYPE_INFO, NULL,
                            "The capture file is probably not fully dissected.",
-                           "End of capture exceeded!");
+                           "End of capture exceeded.");
       }
     }
   }
@@ -3710,7 +3710,7 @@ find_packet(capture_file *cf,
          so we can't select it. */
       simple_message_box(ESD_TYPE_INFO, NULL,
                          "The capture file is probably not fully dissected.",
-                         "End of capture exceeded!");
+                         "End of capture exceeded.");
       return FALSE;
     }
     return TRUE;    /* success */
@@ -3743,7 +3743,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
        so we can't select it. */
     simple_message_box(ESD_TYPE_INFO, NULL,
                        "The capture file is probably not fully dissected.",
-                       "End of capture exceeded!");
+                       "End of capture exceeded.");
     return FALSE;
   }
   return TRUE;  /* we got to that packet */

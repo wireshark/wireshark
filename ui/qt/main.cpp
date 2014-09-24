@@ -21,8 +21,9 @@
 
 #include "config.h"
 
-#include "wireshark_application.h"
+#include "simple_dialog.h"
 #include "main_window.h"
+#include "wireshark_application.h"
 
 #include <ctype.h>
 #include "globals.h"
@@ -799,6 +800,7 @@ int main(int argc, char *argv[])
     // Init the main window (and splash)
     main_w = new(MainWindow);
     main_w->show();
+    SimpleDialog::displayQueuedMessages(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
     main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),

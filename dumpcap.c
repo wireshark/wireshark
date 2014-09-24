@@ -2579,7 +2579,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     if ((use_threads == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, (gulong) errmsg_len,
-                   "Using threads is required for capturing on multiple interfaces!");
+                   "Using threads is required for capturing on multiple interfaces.");
         return FALSE;
     }
 
@@ -2648,7 +2648,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                     "\n"
                     "Nonetheless, the capture is started.\n",
                     interface_opts.buffer_size, DEFAULT_CAPTURE_BUFFER_SIZE);
-                report_capture_error("Couldn't set the capture buffer size!",
+                report_capture_error("Couldn't set the capture buffer size.",
                                      sync_secondary_msg_str);
                 g_free(sync_secondary_msg_str);
             }
@@ -2845,7 +2845,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if ((capture_opts->use_pcapng == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, errmsg_len,
-                   "Using PCAPNG is required for capturing on multiple interfaces! Use the -n option.");
+                   "Using PCAPNG is required for capturing on multiple interfaces. Use the -n option.");
         return FALSE;
     }
 
@@ -3589,7 +3589,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     gettimeofday(&upd_time, NULL);
 #endif
     start_time = create_timestamp();
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running!");
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running.");
 
     /* WOW, everything is prepared! */
     /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -3895,7 +3895,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* close the input file (pcap or capture pipe) */
     capture_loop_close_input(&global_ld);
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped!");
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped.");
 
     /* ok, if the write and the close were successful. */
     return write_ok && close_ok;
@@ -4290,7 +4290,7 @@ main(int argc, char *argv[])
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
-        fprintf (stderr, "Unable to open debug log file !\n");
+        fprintf (stderr, "Unable to open debug log file .\n");
         exit (1);
     }
 #endif
@@ -5078,7 +5078,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
              */
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
             cmdarg_err(
-              "Invalid capture filter \"%s\" for interface '%s'!\n"
+              "Invalid capture filter \"%s\" for interface '%s'.\n"
               "\n"
               "That string isn't a valid capture filter (%s).\n"
               "See the User's Guide for a description of the capture filter syntax.",
