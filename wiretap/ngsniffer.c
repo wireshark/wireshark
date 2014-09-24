@@ -880,10 +880,9 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 				wth->fh);
 			if (bytes_read != bytes_to_read) {
 				*err = file_error(wth->fh, err_info);
-				if (*err == 0) {
+				if (*err == 0)
 					*err = WTAP_ERR_SHORT_READ;
-					return -1;
-				}
+				return -1;
 			}
 
 			switch (maj_vers) {
