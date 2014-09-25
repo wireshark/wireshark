@@ -12,12 +12,19 @@ IF (CAP_INCLUDE_DIRS)
   SET(CAP_FIND_QUIETLY TRUE)
 ENDIF (CAP_INCLUDE_DIRS)
 
-FIND_PATH(CAP_INCLUDE_DIR sys/capability.h)
+find_package(PkgConfig)
+pkg_search_module(CAP libcap)
+
+FIND_PATH(CAP_INCLUDE_DIR sys/capability.h
+  HINTS ${CAP_INCLUDEDIR}
+)
 
 SET(CAP_NAMES cap)
-FIND_LIBRARY(CAP_LIBRARY NAMES ${CAP_NAMES} )
+FIND_LIBRARY(CAP_LIBRARY NAMES ${CAP_NAMES}
+  HINTS ${CAP_LIBDIR}
+)
 
-# handle the QUIETLY and REQUIRED arguments and set CAP_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set CAP_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(CAP DEFAULT_MSG CAP_LIBRARY CAP_INCLUDE_DIR)

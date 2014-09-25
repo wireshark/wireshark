@@ -40,7 +40,7 @@ find_path( GLIB2_MAIN_INCLUDE_DIR
 	NAMES
 		glib.h
 	HINTS
-		"${PC_GLIB2_INCLUDEDIR}"
+		"${GLIB2_INCLUDEDIR}"
 		"${GLIB2_HINTS}/include"
 	PATH_SUFFIXES
 		glib-2.0
@@ -58,7 +58,7 @@ find_library( GLIB2_LIBRARY
 		glib-2.0
 		libglib-2.0
 	HINTS
-		"${PC_GLIB2_LIBDIR}"
+		"${GLIB2_LIBDIR}"
 		"${GLIB2_HINTS}/lib"
 	PATHS
 		/opt/gnome/lib64
@@ -77,7 +77,7 @@ find_path( GLIB2_INTERNAL_INCLUDE_DIR
 	NAMES
 		glibconfig.h
 	HINTS
-		"${PC_GLIB2_INCLUDEDIR}"
+		"${GLIB2_INCLUDEDIR}"
 		"${glib2LibDir}"
 		${CMAKE_SYSTEM_LIBRARY_PATH}
 	PATH_SUFFIXES

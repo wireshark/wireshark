@@ -20,11 +20,19 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
       /usr
       /usr/local
   )
+
+  find_package(PkgConfig)
+  pkg_check_modules(NL3 libnl-3.0 libnl-genl-3.0 libnl-route-3.0)
+  pkg_search_module(NL2 libnl-2.0)
+
   FIND_PATH( NL_INCLUDE_DIR
     PATH_SUFFIXES
       include/libnl3
     NAMES
       netlink/version.h
+    HINTS
+      "${NL3_libnl-3.0_INCLUDEDIR}"
+      "${NL2_INCLUDEDIR}"
     PATHS
       $(SEARCHPATHS)
   )
@@ -35,6 +43,9 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
         nl-3 nl
       PATH_SUFFIXES
         lib64 lib
+      HINTS
+        "${NL3_libnl-3.0_LIBDIR}"
+        "${NL2_LIBDIR}"
       PATHS
         $(SEARCHPATHS)
     )
@@ -43,6 +54,9 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
         nl-genl-3 nl-genl
       PATH_SUFFIXES
         lib64 lib
+      HINTS
+        "${NL3_libnl-genl-3.0_LIBDIR}"
+        "${NL2_LIBDIR}"
       PATHS
         $(SEARCHPATHS)
     )
@@ -51,6 +65,9 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
         nl-route-3 nl-route
       PATH_SUFFIXES
         lib64 lib
+      HINTS
+        "${NL3_libnl-route-3.0_LIBDIR}"
+        "${NL2_LIBDIR}"
       PATHS
         $(SEARCHPATHS)
     )
@@ -71,9 +88,12 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
     ENDIF( NL_LIBRARY )
   ELSE( NL_INCLUDE_DIR )
     # NL version 1 ?
+    pkg_search_module(NL1 libnl-1)
     FIND_PATH( NL_INCLUDE_DIR
       NAMES
         netlink/netlink.h
+      HINTS
+        "${NL1_INCLUDEDIR}"
       PATHS
         $(SEARCHPATHS)
     )
@@ -82,6 +102,8 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
         nl
       PATH_SUFFIXES
         lib64 lib
+      HINTS
+        "${NL1_LIBDIR}"
       PATHS
         $(SEARCHPATHS)
     )
