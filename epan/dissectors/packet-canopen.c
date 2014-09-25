@@ -37,9 +37,19 @@ static int hf_canopen_node_id = -1;
 static int hf_canopen_pdo_data = -1;
 static int hf_canopen_pdo_data_string = -1;
 static int hf_canopen_sdo_cmd = -1;
+static int hf_canopen_sdo_cmd_ccs = -1;
+static int hf_canopen_sdo_cmd_scs = -1;
+static int hf_canopen_sdo_cmd_toggle = -1;
+static int hf_canopen_sdo_cmd_updown_n = -1;
+static int hf_canopen_sdo_cmd_updown_c = -1;
+static int hf_canopen_sdo_cmd_init_n = -1;
+static int hf_canopen_sdo_cmd_init_e = -1;
+static int hf_canopen_sdo_cmd_init_s = -1;
 static int hf_canopen_sdo_main_idx = -1;
 static int hf_canopen_sdo_sub_idx = -1;
 static int hf_canopen_sdo_data = -1;
+static int hf_canopen_sdo_abort_code = -1;
+static int hf_canopen_reserved = -1;
 static int hf_canopen_em_err_code = -1;
 static int hf_canopen_em_err_reg = -1;
 static int hf_canopen_em_err_field = -1;
@@ -52,10 +62,124 @@ static int hf_canopen_time_stamp = -1;
 static int hf_canopen_time_stamp_ms = -1;
 static int hf_canopen_time_stamp_days = -1;
 
+
+  /* Download segment request (ccs=0) decode mask */
+static const int *sdo_cmd_fields_ccs0[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  &hf_canopen_sdo_cmd_toggle,
+  &hf_canopen_sdo_cmd_updown_n,
+  &hf_canopen_sdo_cmd_updown_c,
+  NULL
+};
+/* Initiate download request (ccs=1) decode mask */
+static const int *sdo_cmd_fields_ccs1[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  &hf_canopen_sdo_cmd_init_n,
+  &hf_canopen_sdo_cmd_init_e,
+  &hf_canopen_sdo_cmd_init_s,
+  NULL
+};
+/* Initiate upload request (ccs=2) decode mask */
+static const int *sdo_cmd_fields_ccs2[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  NULL
+};
+/* Download segment request (ccs=3) decode mask */
+static const int *sdo_cmd_fields_ccs3[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  &hf_canopen_sdo_cmd_toggle,
+  NULL
+};
+/*  */
+static const int *sdo_cmd_fields_ccs4[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  NULL
+};
+/* Block upload (ccs=5) decode mask */
+static const int *sdo_cmd_fields_ccs5[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  /* TODO: full decoding depends on subcommand */
+  NULL
+};
+/* Block download (ccs=6) decode mask */
+static const int *sdo_cmd_fields_ccs6[] = {
+  &hf_canopen_sdo_cmd_ccs,
+  /* TODO: full decoding depends on subcommand */
+  NULL
+};
+
+static const int **sdo_cmd_fields_ccs[] = {
+  sdo_cmd_fields_ccs0,
+  sdo_cmd_fields_ccs1,
+  sdo_cmd_fields_ccs2,
+  sdo_cmd_fields_ccs3,
+  sdo_cmd_fields_ccs4,
+  sdo_cmd_fields_ccs5,
+  sdo_cmd_fields_ccs6
+};
+
+
+/* (scs=0) decode mask */
+static const int *sdo_cmd_fields_scs0[] = {
+  &hf_canopen_sdo_cmd_scs,
+  &hf_canopen_sdo_cmd_toggle,
+  &hf_canopen_sdo_cmd_updown_n,
+  &hf_canopen_sdo_cmd_updown_c,
+  NULL
+};
+/* (scs=1) decode mask */
+static const int *sdo_cmd_fields_scs1[] = {
+  &hf_canopen_sdo_cmd_scs,
+  &hf_canopen_sdo_cmd_toggle,
+  NULL
+};
+/* (scs=2) decode mask */
+static const int *sdo_cmd_fields_scs2[] = {
+  &hf_canopen_sdo_cmd_scs,
+  &hf_canopen_sdo_cmd_init_n,
+  &hf_canopen_sdo_cmd_init_e,
+  &hf_canopen_sdo_cmd_init_s,
+  NULL
+};
+/* (scs=3) decode mask */
+static const int *sdo_cmd_fields_scs3[] = {
+  &hf_canopen_sdo_cmd_scs,
+  NULL
+};
+/* (scs=4) decode mask */
+static const int *sdo_cmd_fields_scs4[] = {
+  &hf_canopen_sdo_cmd_scs,
+  NULL
+};
+/* (scs=5) decode mask */
+static const int *sdo_cmd_fields_scs5[] = {
+  &hf_canopen_sdo_cmd_scs,
+  /* TODO: full decoding depends on subcommand */
+  NULL
+};
+/* (scs=6) decode mask */
+static const int *sdo_cmd_fields_scs6[] = {
+  &hf_canopen_sdo_cmd_scs,
+  /* TODO: full decoding depends on subcommand */
+  NULL
+};
+
+
+static const int **sdo_cmd_fields_scs[] = {
+  sdo_cmd_fields_scs0,
+  sdo_cmd_fields_scs1,
+  sdo_cmd_fields_scs2,
+  sdo_cmd_fields_scs3,
+  sdo_cmd_fields_scs4,
+  sdo_cmd_fields_scs5,
+  sdo_cmd_fields_scs6
+};
+
 /* Initialize the subtree pointers */
 static gint ett_canopen = -1;
 static gint ett_canopen_cob = -1;
 static gint ett_canopen_type = -1;
+static gint ett_canopen_sdo_cmd = -1;
 
 /* broadcast messages */
 #define FC_NMT                  0x0
@@ -114,6 +238,47 @@ static const value_string CAN_open_p2p_msg_type_vals[] = {
 #define TS_SECONDS_IN_PER_DAY           86400
 #define TS_NANOSEC_PER_MSEC             1000000
 
+/* SDO command specifier */
+#define SDO_CCS_DOWN_SEG_REQ    0
+#define SDO_CCS_INIT_DOWN_REQ   1
+#define SDO_CCS_INIT_UP_REQ     2
+#define SDO_CCS_UP_SEQ_REQ      3
+#define SDO_CCS_BLOCK_UP        5
+#define SDO_CCS_BLOCK_DOWN      6
+
+#define SDO_SCS_UP_SEQ_RESP     0
+#define SDO_SCS_DOWN_SEG_RESP   1
+#define SDO_SCS_INIT_UP_RESP    2
+#define SDO_SCS_INIT_DOWN_RESP  3
+#define SDO_SCS_BLOCK_DOWN      5
+#define SDO_SCS_BLOCK_UP        6
+
+#define SDO_CS_ABORT_TRANSFER   4
+
+static const range_string obj_dict[] = {
+    { 0x0000, 0x0000, "not used"},
+    { 0x0001, 0x001F, "Static data types"},
+    { 0x0020, 0x003F, "Complex data types"},
+    { 0x0040, 0x005F, "Manufacturer-specific complex data types"},
+    { 0x0060, 0x025F, "Device profile specific data types"},
+    { 0x0260, 0x03FF, "reserved"},
+    { 0x0400, 0x0FFF, "reserved"},
+    { 0x1000, 0x1FFF, "Communication profile area"},
+    { 0x2000, 0x5FFF, "Manufacturer-specific profile area"},
+    { 0x6000, 0x67FF, "Standardized profile area 1st logical device"},
+    { 0x6800, 0x6FFF, "Standardized profile area 2nd logical device"},
+    { 0x7000, 0x77FF, "Standardized profile area 3rd logical device"},
+    { 0x7800, 0x7FFF, "Standardized profile area 4th logical device"},
+    { 0x8000, 0x87FF, "Standardized profile area 5th logical device"},
+    { 0x8800, 0x8FFF, "Standardized profile area 6th logical device"},
+    { 0x9000, 0x97FF, "Standardized profile area 7th logical device"},
+    { 0x9800, 0x9FFF, "Standardized profile area 8th logical device"},
+    { 0xA000, 0xAFFF, "Standardized network variable area"},
+    { 0xB000, 0xBFFF, "Standardized system variable area"},
+    { 0xC000, 0xFFFF, "reserved"},
+    { 0,      0,      NULL}
+};
+
 /* NMT command specifiers */
 static const value_string nmt_ctrl_cs[] = {
     { 0x01, "Start remote node"},
@@ -130,6 +295,65 @@ static const value_string nmt_guard_state[] = {
     { 0x04, "Stopped"},
     { 0x05, "Operational"},
     { 0x7F, "Pre-operational"},
+    { 0, NULL}
+};
+
+/* SDO Client command specifier */
+static const value_string sdo_ccs[] = {
+    { 0x00, "Download segment request"},
+    { 0x01, "Initiate download request"},
+    { 0x02, "Initiate upload request"},
+    { 0x03, "Upload segment request"},
+    { 0x04, "Abort transfer"},
+    { 0x05, "Block upload"},
+    { 0x06, "Block download"},
+    { 0, NULL}
+};
+
+/* SDO Server command specifier */
+static const value_string sdo_scs[] = {
+    { 0x00, "Upload segment response"},
+    { 0x01, "Download segment response"},
+    { 0x02, "Initiate upload response"},
+    { 0x03, "Initiate download response"},
+    { 0x04, "Abort transfer"},
+    { 0x05, "Block download"},
+    { 0x06, "Block upload"},
+    { 0, NULL}
+};
+
+static const value_string sdo_abort_code[] = {
+    { 0x05030000, "Toggle bit not alternated"},
+    { 0x05040000, "SDO protocol timed out"},
+    { 0x05040001, "Client/server command specifier not valid or unknown"},
+    { 0x05040002, "Invalid block size"},
+    { 0x05040003, "Invalid sequence number"},
+    { 0x05040004, "CRC error"},
+    { 0x05040005, "Out of memory"},
+    { 0x06010000, "Unsupported access to an object"},
+    { 0x06010001, "Attempt to read a write only object"},
+    { 0x06010002, "Attempt to write a read only object"},
+    { 0x06020000, "Object does not exist in the object dictionary"},
+    { 0x06040041, "Object cannot be mapped to the PDO"},
+    { 0x06040042, "The number and length of the objects to be mapped would exceed PDO length"},
+    { 0x06040043, "General parameter incompatibility reason"},
+    { 0x06040047, "General internal incompatibility in the device"},
+    { 0x06060000, "Access failed due to an hardware error"},
+    { 0x06070010, "Data type does not match, length of service parameter does not match"},
+    { 0x06070012, "Data type does not match, length of service parameter too high"},
+    { 0x06070013, "Data type does not match, length of service parameter too low"},
+    { 0x06090011, "Sub-index does not exist"},
+    { 0x06090030, "Invalid value for parameter"},
+    { 0x06090031, "Value of parameter written too high"},
+    { 0x06090032, "Value of parameter written too low"},
+    { 0x06090036, "Maximum value is less than minimum value"},
+    { 0x060A0023, "Resource not available: SDO connection"},
+    { 0x08000000, "General error"},
+    { 0x08000020, "Data cannot be transferred or stored to the application"},
+    { 0x08000021, "Data cannot be transferred or stored to the application because of local control"},
+    { 0x08000022, "Data cannot be transferred or stored to the application because of the present device state"},
+    { 0x08000023, "Object dictionary dynamic generation fails or no object dictionary is present"},
+    { 0x08000024, "No data available"},
     { 0, NULL}
 };
 
@@ -193,6 +417,111 @@ struct can_identifier
 {
     guint32 id;
 };
+
+
+static void
+dissect_sdo(tvbuff_t *tvb, proto_tree *canopen_type_tree, guint function_code)
+{
+    int offset = 0;
+    guint8 sdo_mux = 0, sdo_data = 0;
+    guint8 sdo_cs = 0;
+
+    /* get SDO command specifier */
+    sdo_cs = tvb_get_bits8(tvb, 0, 3);
+
+    if (function_code == FC_DEFAULT_SDO_RX) {
+
+        proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
+                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields_ccs[sdo_cs], ENC_LITTLE_ENDIAN);
+        offset++;
+
+        switch (sdo_cs) {
+            case SDO_CCS_DOWN_SEG_REQ:
+                sdo_mux = 0;
+                sdo_data = 7;
+                break;
+            case SDO_CCS_INIT_DOWN_REQ:
+                sdo_mux = 1;
+                sdo_data = 4;
+                break;
+            case SDO_CCS_INIT_UP_REQ:
+                sdo_mux = 1;
+                sdo_data = 0;
+                break;
+            case SDO_CCS_UP_SEQ_REQ:
+                sdo_mux = 0;
+                sdo_data = 0;
+                break;
+            case SDO_CS_ABORT_TRANSFER:
+            case SDO_CCS_BLOCK_UP:
+            case SDO_CCS_BLOCK_DOWN:
+                sdo_mux = 1;
+                sdo_data = 4;
+                break;
+            default:
+                return;
+        }
+    } else {
+
+        proto_tree_add_bitmask(canopen_type_tree, tvb, offset,
+                hf_canopen_sdo_cmd, ett_canopen_sdo_cmd, sdo_cmd_fields_scs[sdo_cs], ENC_LITTLE_ENDIAN);
+        offset++;
+
+        switch (sdo_cs) {
+            case SDO_SCS_UP_SEQ_RESP:
+                sdo_mux = 0;
+                sdo_data = 7;
+                break;
+            case SDO_SCS_DOWN_SEG_RESP:
+                sdo_mux = 0;
+                sdo_data = 0;
+                break;
+            case SDO_SCS_INIT_UP_RESP:
+                sdo_mux = 1;
+                sdo_data = 4;
+                break;
+            case SDO_SCS_INIT_DOWN_RESP:
+                sdo_mux = 1;
+                sdo_data = 0;
+                break;
+            case SDO_CS_ABORT_TRANSFER:
+            case SDO_SCS_BLOCK_DOWN:
+            case SDO_SCS_BLOCK_UP:
+                sdo_mux = 1;
+                sdo_data = 4;
+                break;
+            default:
+                return;
+        }
+    }
+
+    if (sdo_mux) {
+        /* decode mux */
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_sdo_main_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_sdo_sub_idx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+    }
+
+    if (sdo_cs == 4) {
+        /* SDO abort transfer */
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_sdo_abort_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        return;
+    }
+
+    if (sdo_data) {
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_sdo_data, tvb, offset, sdo_data, ENC_NA);
+    } else {
+        /* Reserved */
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_reserved, tvb, offset, 7 - 3 * sdo_mux - sdo_data , ENC_NA);
+    }
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -326,20 +655,9 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             }
             break;
         case MT_SDO:
-            proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_cmd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset++;
 
-            proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_main_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            dissect_sdo(tvb, canopen_type_tree, function_code);
 
-            proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_sub_idx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset++;
-
-            proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_data, tvb, offset, 4, ENC_NA);
             break;
         }
     }
@@ -353,6 +671,7 @@ void
 proto_register_canopen(void)
 {
     static hf_register_info hf[] = {
+        /* COB-ID */
         { &hf_canopen_cob_id,
           { "COB-ID",           "canopen.cob_id",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -378,14 +697,49 @@ proto_register_canopen(void)
             FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        /* SDO */
         { &hf_canopen_sdo_cmd,
           { "SDO command byte", "canopen.sdo.cmd",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_canopen_sdo_cmd_ccs,
+          { "Client command specifier", "canopen.sdo.ccs",
+            FT_UINT8, BASE_HEX, VALS(sdo_ccs), 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_scs,
+          { "Server command specifier", "canopen.sdo.ccs",
+            FT_UINT8, BASE_HEX, VALS(sdo_scs), 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_cmd_toggle,
+          { "Toggle bit", "canopen.sdo.toggle",
+            FT_UINT8, BASE_DEC, NULL, 0x10,
+            "toggle", HFILL }},
+        { &hf_canopen_sdo_cmd_updown_n,
+          { "Non-data bytes", "canopen.sdo.n",
+            FT_UINT8, BASE_DEC, NULL, 0x0E,
+            "toggle", HFILL }},
+        { &hf_canopen_sdo_cmd_updown_c,
+          { "No more segments", "canopen.sdo.c",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            "toggle", HFILL }},
+        { &hf_canopen_sdo_cmd_init_n,
+          { "Non-data bytes", "canopen.sdo.n",
+            FT_UINT8, BASE_DEC, NULL, 0x0C,
+            "toggle", HFILL }},
+        { &hf_canopen_sdo_cmd_init_e,
+          { "Expedited transfer", "canopen.sdo.e",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            "toggle", HFILL }},
+        { &hf_canopen_sdo_cmd_init_s,
+          { "Data set size indicated", "canopen.sdo.s",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            "toggle", HFILL }},
         { &hf_canopen_sdo_main_idx,
           { "OD main-index", "canopen.sdo.main_idx",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(obj_dict), 0x0,
             NULL, HFILL }
         },
         { &hf_canopen_sdo_sub_idx,
@@ -396,6 +750,16 @@ proto_register_canopen(void)
         { &hf_canopen_sdo_data,
           { "Data", "canopen.sdo.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_sdo_abort_code,
+          { "Abort code", "canopen.sdo.data",
+            FT_UINT32, BASE_HEX, VALS(sdo_abort_code), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_reserved,
+          { "Reserved", "canopen.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_canopen_em_err_code,
@@ -459,7 +823,8 @@ proto_register_canopen(void)
     static gint *ett[] = {
         &ett_canopen,
         &ett_canopen_cob,
-        &ett_canopen_type
+        &ett_canopen_type,
+        &ett_canopen_sdo_cmd
     };
 
     proto_canopen = proto_register_protocol("CANopen",

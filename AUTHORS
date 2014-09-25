@@ -3640,6 +3640,10 @@ Joe Fowler		<fowlerja[AT]us.ibm.com> {
 	Dissector for Shared Memory Communication over RDMA (SMC-R)
 }
 
+Enrico Jorns		<ejo[AT]pengutronix.de> {
+	CANopen dissector enhancements and fixes
+}
+
 
 and by:
 
