@@ -972,10 +972,13 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
     case 0x05:
         str = "Shift-JIS";
+        encoding_bit_len = 8;
+        cset = OTHER;
         break;
 
     case 0x06:
         str = "Korean";
+        encoding_bit_len = 8;
         cset = OTHER;
         break;
 
@@ -1045,6 +1048,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     {
         gsm_sms_udh_fields_t    udh_fields;
         gint32                  num_udh_bits;
+        guint8                  ud_length;
 
         memset(&udh_fields, 0, sizeof(udh_fields));
 
@@ -1078,9 +1082,16 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
         offset = 0;
         fill_bits = 0;
-        dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, cset, &fill_bits, &udh_fields);
+        ud_length = num_fields;
+        if (encoding_bit_len == 16) {
+            /* the NUM_FIELD value represents the number of characters in Unicode encoding.
+               Let's translate it into bytes */
+            ud_length <<= 1;
+        }
+        dis_field_udh(tvb_out, tree, &offset, &required_octs, &ud_length, cset, &fill_bits, &udh_fields);
 
         offset = saved_offset;
+        num_fields = ud_length;
 
         if (encoding_bit_len == 7)
         {
@@ -1113,6 +1124,9 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                 }
                 break;
             }
+        } else if (encoding_bit_len == 16) {
+            /* compute the number of Unicode characters now that UDH is taken into account */
+            num_fields >>= 1;
         }
 
         if (udh_fields.frags > 0)
