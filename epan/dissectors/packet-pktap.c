@@ -205,7 +205,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 20;
 
 	if (rectype == PKT_REC_PACKET) {
-		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		next_tvb = tvb_new_subset_remaining(tvb, pkt_len);
 		dissector_try_uint(wtap_encap_dissector_table,
 		    wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
 	}
