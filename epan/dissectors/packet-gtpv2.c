@@ -5043,6 +5043,24 @@ dissect_gtpv2_action_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_ep_str(tvb, offset, length-1));
 }
 
+/*
+ * 8.100	TWAN Identifier
+ * 8.101	ULI Timestamp
+ * 8.102	MBMS Flags
+ * 8.103	RAN/NAS Cause
+ * 8.104	CN Operator Selection Entity
+ * 8.105	Trusted WLAN Mode Indication
+ * 8.106	Node Number
+ * 8.107	Node Identifier
+ * 8.108	Presence Reporting Area Action
+ * 8.109	Presence Reporting Area Information
+ * 8.110	TWAN Identifier Timestamp
+ * 8.111	Overload Control Information
+ * 8.112	Load Control Information
+ * 8.113	Metric
+ * 8.114	Sequence Number
+ * 8.115	APN and Relative Capacity
+ */
 typedef struct _gtpv2_ie {
     int ie_type;
     void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8, guint8);
