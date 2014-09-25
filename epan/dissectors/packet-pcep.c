@@ -27,6 +27,14 @@
  * Added support of "A Set of Monitoring Tools for Path Computation Element
  * (PCE)-Based Architecture" (RFC 5886)
  * (c) Copyright 2012 Svetoslav Duhovnikov <duhovnikov[AT]gmail.com>
+ *
+ * Added support of "PCEP Extensions for Stateful PCE"
+ *  (draft-ietf-pce-stateful-pce-09) and
+ * "PCEP Extensions for PCE-initiated LSP Setup in a Stateful PCE Model"
+ *  (draft-ietf-pce-pce-initiated-lsp-01) and
+ * "Optimizations of Label Switched Path State Synchronization Procedures for a Stateful PCE"
+ *  (draft-ietf-pce-stateful-sync-optimizations-01)
+ * (c) Copyright 2014 Simon Zhong <szhong[AT]juniper.net>
  */
 
 #include "config.h"
@@ -39,7 +47,7 @@
 void proto_register_pcep(void);
 void proto_reg_handoff_pcep(void);
 
-/*differents types of objects*/
+/* Object-Class */
 #define PCEP_OPEN_OBJ                    1
 #define PCEP_RP_OBJ                      2
 #define PCEP_NO_PATH_OBJ                 3
@@ -63,6 +71,8 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_PCE_ID                 25
 #define PCEP_OBJ_PROC_TIME              26
 #define PCEP_OBJ_OVERLOAD               27
+#define PCEP_OBJ_LSP                    32
+#define PCEP_OBJ_SRP                    33
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4                    1
@@ -117,6 +127,10 @@ void proto_reg_handoff_pcep(void);
 #define P2MP_CAPABILITY_ERROR           16
 #define P2MP_END_POINTS_ERROR           17
 #define P2MP_FRAGMENT_ERROR             18
+#define INVALID_OPERATION               19
+#define LSP_STATE_SYNCHRONIZATION_ERROR 20
+#define BAD_PARAMETER_VALUE             23
+#define LSP_INSTANTIATION_ERROR         24
 
 /*Different values of Reason in the CLOSE object */
 #define NO_EXP_PROV                      1
@@ -212,6 +226,25 @@ void proto_reg_handoff_pcep(void);
 /*Mask for the flags of Label SubObject*/
 #define PCEP_SUB_LABEL_GL               0x01
 
+/* Mask for the flags of LSP Object */
+#define PCEP_OBJ_LSP_PLSP_ID            0xFFFFF0
+#define PCEP_OBJ_LSP_FLAGS_D            0x0001
+#define PCEP_OBJ_LSP_FLAGS_S            0x0002
+#define PCEP_OBJ_LSP_FLAGS_R            0x0004
+#define PCEP_OBJ_LSP_FLAGS_A            0x0008
+#define PCEP_OBJ_LSP_FLAGS_O            0x0070
+#define PCEP_OBJ_LSP_FLAGS_C            0x0080
+#define PCEP_OBJ_LSP_FLAGS_RESERVED     0x0F00
+
+/* Mask for the flags of SRP Object */
+#define PCEP_OBJ_SRP_FLAGS_R            0x00000001
+
+/* Mask for the flags of Stateful PCE Capability TLV */
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_U  0x0001
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_S  0x0002
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_I  0x0004
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x0008
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x0010
 
 static int proto_pcep = -1;
 
@@ -297,6 +330,8 @@ static gint hf_PCEPF_OBJ_OF = -1;
 static gint hf_PCEPF_OBJ_PCE_ID = -1;
 static gint hf_PCEPF_OBJ_PROC_TIME = -1;
 static gint hf_PCEPF_OBJ_OVERLOAD = -1;
+static gint hf_PCEPF_OBJ_LSP = -1;
+static gint hf_PCEPF_OBJ_SRP = -1;
 static gint hf_PCEPF_SUBOBJ = -1;
 static gint hf_PCEPF_SUBOBJ_7F = -1;
 static gint hf_PCEPF_SUBOBJ_IPv4 = -1;
@@ -439,6 +474,39 @@ static int hf_pcep_subobj_iro_ipv6_l = -1;
 static int hf_pcep_subobj_unnumb_interfaceID_l = -1;
 static int hf_pcep_subobj_iro_ipv4_l = -1;
 
+static int hf_pcep_lsp_update_capability = -1;
+static int hf_pcep_lsp_include_db_version_capability = -1;
+static int hf_pcep_lsp_instantiation_capability = -1;
+static int hf_pcep_lsp_triggered_sync_capability = -1;
+static int hf_pcep_lsp_delta_lsp_sync_capability_capability = -1;
+static int hf_pcep_obj_lsp_flags = -1;
+static int hf_pcep_obj_lsp_plsp_id = -1;
+static int hf_pcep_obj_lsp_flags_d = -1;
+static int hf_pcep_obj_lsp_flags_s = -1;
+static int hf_pcep_obj_lsp_flags_r = -1;
+static int hf_pcep_obj_lsp_flags_a = -1;
+static int hf_pcep_obj_lsp_flags_o = -1;
+static int hf_pcep_obj_lsp_flags_c = -1;
+static int hf_pcep_obj_lsp_flags_reserved = -1;
+static int hf_pcep_obj_srp_flags = -1;
+static int hf_pcep_obj_srp_flags_r = -1;
+static int hf_pcep_obj_srp_id_number = -1;
+static int hf_pcep_symbolic_path_name = -1;
+static int hf_pcep_ipv4_lsp_id_tunnnel_sender_address = -1;
+static int hf_pcep_ipv4_lsp_id_lsp_id = -1;
+static int hf_pcep_ipv4_lsp_id_tunnel_id = -1;
+static int hf_pcep_ipv4_lsp_id_extended_tunnel_id = -1;
+static int hf_pcep_ipv4_lsp_id_tunnel_endpoint_address = -1;
+static int hf_pcep_ipv6_lsp_id_tunnnel_sender_address = -1;
+static int hf_pcep_ipv6_lsp_id_lsp_id = -1;
+static int hf_pcep_ipv6_lsp_id_tunnel_id = -1;
+static int hf_pcep_ipv6_lsp_id_extended_tunnel_id = -1;
+static int hf_pcep_ipv6_lsp_id_tunnel_endpoint_address = -1;
+static int hf_pcep_lsp_error_code = -1;
+static int hf_pcep_rsvp_user_error_spec = -1;
+static int hf_pcep_lsp_state_db_version_number = -1;
+static int hf_pcep_speaker_entity_id = -1;
+
 static gint ett_pcep = -1;
 static gint ett_pcep_hdr = -1;
 static gint ett_pcep_obj_open = -1;
@@ -464,6 +532,8 @@ static gint ett_pcep_obj_of = -1;
 static gint ett_pcep_obj_pce_id = -1;
 static gint ett_pcep_obj_proc_time = -1;
 static gint ett_pcep_obj_overload = -1;
+static gint ett_pcep_obj_lsp = -1;
+static gint ett_pcep_obj_srp = -1;
 static gint ett_pcep_obj_unknown = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
@@ -485,46 +555,54 @@ typedef enum {
     PCEP_MSG_ERROR,
     PCEP_MSG_CLOSE,
     PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST,
-    PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY
+    PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,
+    PCEP_MSG_PATH_COMPUTATION_LSP_STATE_REPORT,
+    PCEP_MSG_PATH_COMPUTATION_LSP_UPDATE_REQUEST,
+    PCEP_MSG_INITIATE
 } pcep_message_types;
 
 static const value_string message_type_vals[] = {
-    {PCEP_MSG_OPEN,                                "OPEN MESSAGE"                                },
-    {PCEP_MSG_KEEPALIVE,                           "KEEPALIVE MESSAGE"                           },
-    {PCEP_MSG_PATH_COMPUTATION_REQUEST,            "PATH COMPUTATION REQUEST MESSAGE"            },
-    {PCEP_MSG_PATH_COMPUTATION_REPLY,              "PATH COMPUTATION REPLY MESSAGE"              },
-    {PCEP_MSG_NOTIFICATION,                        "NOTIFICATION MESSAGE"                        },
-    {PCEP_MSG_ERROR,                               "ERROR MESSAGE"                               },
-    {PCEP_MSG_CLOSE,                               "CLOSE MESSAGE"                               },
-    {PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST, "PATH COMPUTATION MONITORING REQUEST MESSAGE" },
-    {PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,   "PATH COMPUTATION MONITORING REPLY MESSAGE"   },
+    {PCEP_MSG_OPEN,                                "Open"                                           },
+    {PCEP_MSG_KEEPALIVE,                           "Keepalive"                                      },
+    {PCEP_MSG_PATH_COMPUTATION_REQUEST,            "Path Computation Request"                       },
+    {PCEP_MSG_PATH_COMPUTATION_REPLY,              "Path Computation Reply"                         },
+    {PCEP_MSG_NOTIFICATION,                        "Notification"                                   },
+    {PCEP_MSG_ERROR,                               "Error"                                          },
+    {PCEP_MSG_CLOSE,                               "Close"                                          },
+    {PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST, "Path Computation Monitoring Request (PCMonReq)" },
+    {PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,   "Path Computation Monitoring Reply (PCMonRep)"   },
+    {PCEP_MSG_PATH_COMPUTATION_LSP_STATE_REPORT,   "Path Computation LSP State Report (PCRpt)"      },
+    {PCEP_MSG_PATH_COMPUTATION_LSP_UPDATE_REQUEST, "Path Computation LSP Update Request (PCUpd)"    },
+    {PCEP_MSG_INITIATE,                            "Initiate"                                       },
     {0, NULL }
 };
 
 static const value_string pcep_class_vals[] = {
-    {PCEP_OPEN_OBJ,                "OPEN OBJECT"                        },
-    {PCEP_RP_OBJ,                  "RP OBJECT"                          },
-    {PCEP_NO_PATH_OBJ,             "NO-PATH OBJECT"                     },
-    {PCEP_END_POINT_OBJ,           "END-POINT OBJECT"                   },
-    {PCEP_BANDWIDTH_OBJ,           "BANDWIDTH OBJECT"                   },
-    {PCEP_METRIC_OBJ,              "METRIC OBJECT"                      },
-    {PCEP_EXPLICIT_ROUTE_OBJ,      "EXPLICIT ROUTE OBJECT (ERO)"        },
-    {PCEP_RECORD_ROUTE_OBJ,        "RECORD ROUTE OBJECT (RRO)"          },
-    {PCEP_LSPA_OBJ,                "LSPA OBJECT"                        },
-    {PCEP_IRO_OBJ,                 "IRO OBJECT"                         },
-    {PCEP_SVEC_OBJ,                "SVEC OBJECT"                        },
-    {PCEP_NOTIFICATION_OBJ,        "NOTIFICATION OBJECT"                },
-    {PCEP_PCEP_ERROR_OBJ,          "PCEP ERROR OBJECT"                  },
-    {PCEP_LOAD_BALANCING_OBJ,      "LOAD BALANCING OBJECT"              },
-    {PCEP_CLOSE_OBJ,               "CLOSE OBJECT"                       },
-    {PCEP_PATH_KEY_OBJ,            "PATH-KEY OBJECT"                    },
-    {PCEP_XRO_OBJ,                 "EXCLUDE ROUTE OBJECT (XRO)"         },
-    {PCEP_OBJ_MONITORING,          "MONITORING OBJECT"                  },
-    {PCEP_OBJ_PCC_ID_REQ,          "PCC-ID-REQ OBJECT"                  },
-    {PCEP_OF_OBJ,                  "OBJECTIVE FUNCTION OBJECT (OF)"     },
-    {PCEP_OBJ_PCE_ID,              "PCE-ID OBJECT"                      },
-    {PCEP_OBJ_PROC_TIME,           "PROC-TIME OBJECT"                   },
-    {PCEP_OBJ_OVERLOAD,            "OVERLOAD OBJECT"                    },
+    {PCEP_OPEN_OBJ,                   "OPEN OBJECT"                        },
+    {PCEP_RP_OBJ,                     "RP OBJECT"                          },
+    {PCEP_NO_PATH_OBJ,                "NO-PATH OBJECT"                     },
+    {PCEP_END_POINT_OBJ,              "END-POINT OBJECT"                   },
+    {PCEP_BANDWIDTH_OBJ,              "BANDWIDTH OBJECT"                   },
+    {PCEP_METRIC_OBJ,                 "METRIC OBJECT"                      },
+    {PCEP_EXPLICIT_ROUTE_OBJ,         "EXPLICIT ROUTE OBJECT (ERO)"        },
+    {PCEP_RECORD_ROUTE_OBJ,           "RECORD ROUTE OBJECT (RRO)"          },
+    {PCEP_LSPA_OBJ,                   "LSPA OBJECT"                        },
+    {PCEP_IRO_OBJ,                    "IRO OBJECT"                         },
+    {PCEP_SVEC_OBJ,                   "SVEC OBJECT"                        },
+    {PCEP_NOTIFICATION_OBJ,           "NOTIFICATION OBJECT"                },
+    {PCEP_PCEP_ERROR_OBJ,             "PCEP ERROR OBJECT"                  },
+    {PCEP_LOAD_BALANCING_OBJ,         "LOAD BALANCING OBJECT"              },
+    {PCEP_CLOSE_OBJ,                  "CLOSE OBJECT"                       },
+    {PCEP_PATH_KEY_OBJ,               "PATH-KEY OBJECT"                    },
+    {PCEP_XRO_OBJ,                    "EXCLUDE ROUTE OBJECT (XRO)"         },
+    {PCEP_OBJ_MONITORING,             "MONITORING OBJECT"                  },
+    {PCEP_OBJ_PCC_ID_REQ,             "PCC-ID-REQ OBJECT"                  },
+    {PCEP_OF_OBJ,                     "OBJECTIVE FUNCTION OBJECT (OF)"     },
+    {PCEP_OBJ_PCE_ID,                 "PCE-ID OBJECT"                      },
+    {PCEP_OBJ_PROC_TIME,              "PROC-TIME OBJECT"                   },
+    {PCEP_OBJ_OVERLOAD,               "OVERLOAD OBJECT"                    },
+    {PCEP_OBJ_LSP,                    "LSP OBJECT"                         },
+    {PCEP_OBJ_SRP,                    "SRP OBJECT"                         },
     {0, NULL }
 };
 static value_string_ext pcep_class_vals_ext = VALUE_STRING_EXT_INIT(pcep_class_vals);
@@ -612,47 +690,66 @@ static const value_string pcep_notification_values2_vals[] = {
 
 /* PCEP TLVs */
 static const value_string pcep_tlvs_vals[] = {
-    {1,         "NO-PATH-VECTOR TLV"    },
-    {2,         "OVERLOAD-DURATION TLV" },
-    {3,         "REQ-MISSING TLV"       },
-    {4,         "OF-list TLV"           },
-    {5,         "Order TLV"             },
-    {6,         "P2MP Capable"          },
-    {0, NULL }
+    {1,  "NO-PATH-VECTOR TLV"       },
+    {2,  "OVERLOAD-DURATION TLV"    },
+    {3,  "REQ-MISSING TLV"          },
+    {4,  "OF-list TLV"              },
+    {5,  "Order TLV"                },
+    {6,  "P2MP Capable"             },
+    {7,  "VENDOR-INFORMATION-TLV"   },
+    {16, "STATEFUL-PCE-CAPABILITY"  },
+    {17, "SYMBOLIC-PATH-NAME"       },
+    {18, "IPV4-LSP-IDENTIFIERS"     },
+    {19, "IPV6-LSP-IDENTIFIERS"     },
+    {20, "LSP-ERROR-CODE"           },
+    {21, "RSVP-ERROR-SPEC"          },
+    {23, "LSP-DB-VERSION"           },
+    {24, "SPEAKER-ENTITY-ID"        },
+    {0, NULL                        }
 };
 
 
 /*Values of Objective Functions*/
 static const value_string pcep_of_vals[] = {
-    {1,         "Minimum Cost Path"                             },
-    {2,         "Minimum Load Path"                             },
-    {3,         "Maximum residual Bandwidth Path"               },
-    {4,         "Minimize aggregate Bandwidth Consumption"      },
-    {5,         "Minimize the Load of the most loaded Link"     },
-    {6,         "Minimize the Cumulative Cost of a set of paths"},
-    {0,         NULL                                            }
+    {1,  "Minimum Cost Path"                                },
+    {2,  "Minimum Load Path"                                },
+    {3,  "Maximum residual Bandwidth Path"                  },
+    {4,  "Minimize aggregate Bandwidth Consumption"         },
+    {5,  "Minimize the Load of the most loaded Link"        },
+    {6,  "Minimize the Cumulative Cost of a set of paths"   },
+    {16, "STATEFUL-PCE-CAPABILITY"                          },
+    {17, "SYMBOLIC-PATH-NAME     "                          },
+    {18, "IPV4-LSP-IDENTIFIERS   "                          },
+    {19, "IPV6-LSP-IDENTIFIERS   "                          },
+    {20, "LSP-ERROR-CODE         "                          },
+    {21, "RSVP-ERROR-SPEC        "                          },
+    {0, NULL                                                }
 };
 
 
 /*Values of different types of errors*/
 static const value_string pcep_error_types_obj_vals[] = {
-    {ESTABLISH_FAILURE,     "PCEP Session Establishment Failure"            },
-    {CAP_NOT_SUPPORTED,     "Capability non supported"                      },
-    {UNKNOWN_OBJ,           "Unknown Object"                                },
-    {NOT_SUPP_OBJ,          "Not Supported Object"                          },
-    {POLICY_VIOLATION,      "Policy Violation"                              },
-    {MANDATORY_OBJ_MIS,     "Mandatory Object Missing"                      },
-    {SYNCH_PCREQ_MIS,       "Synchronized Path Computation Request Missing" },
-    {UNKNOWN_REQ_REF,       "Unknown Request Reference"                     },
-    {ATTEMPT_2_SESSION,     "Attempt to Establish a Second PCEP Session"    },
-    {INVALID_OBJ,           "Reception of an invalid object"                },
-    {UNRECO_EXRS_SUBOBJ,    "Unrecognized EXRS Subobject"                   },
-    {DIFFSERV_TE_ERROR,     "Differsv-aware TE error"                       },
-    {BRPC_FAILURE,          "BRPC procedure completion failure"             },
-    {GCO_ERROR,             "Global Concurrent Optimization error"          },
-    {P2MP_CAPABILITY_ERROR, "P2PM capability error"                         },
-    {P2MP_END_POINTS_ERROR, "P2PM END-POINTS error"                         },
-    {P2MP_FRAGMENT_ERROR,   "P2PM Fragmentation error"                      },
+    {ESTABLISH_FAILURE,                 "PCEP Session Establishment Failure"            },
+    {CAP_NOT_SUPPORTED,                 "Capability non supported"                      },
+    {UNKNOWN_OBJ,                       "Unknown Object"                                },
+    {NOT_SUPP_OBJ,                      "Not Supported Object"                          },
+    {POLICY_VIOLATION,                  "Policy Violation"                              },
+    {MANDATORY_OBJ_MIS,                 "Mandatory Object Missing"                      },
+    {SYNCH_PCREQ_MIS,                   "Synchronized Path Computation Request Missing" },
+    {UNKNOWN_REQ_REF,                   "Unknown Request Reference"                     },
+    {ATTEMPT_2_SESSION,                 "Attempt to Establish a Second PCEP Session"    },
+    {INVALID_OBJ,                       "Reception of an invalid object"                },
+    {UNRECO_EXRS_SUBOBJ,                "Unrecognized EXRS Subobject"                   },
+    {DIFFSERV_TE_ERROR,                 "Differsv-aware TE error"                       },
+    {BRPC_FAILURE,                      "BRPC procedure completion failure"             },
+    {GCO_ERROR,                         "Global Concurrent Optimization error"          },
+    {P2MP_CAPABILITY_ERROR,             "P2PM capability error"                         },
+    {P2MP_END_POINTS_ERROR,             "P2PM END-POINTS error"                         },
+    {P2MP_FRAGMENT_ERROR,               "P2PM Fragmentation error"                      },
+    {INVALID_OPERATION,                 "Invalid Operation"                             },
+    {LSP_STATE_SYNCHRONIZATION_ERROR,   "LSP State synchronization error"               },
+    {BAD_PARAMETER_VALUE,               "Bad parameter value"                           },
+    {LSP_INSTANTIATION_ERROR,           "LSP instantiation error"                       },
     {0, NULL }
 };
 static value_string_ext pcep_error_types_obj_vals_ext = VALUE_STRING_EXT_INIT(pcep_error_types_obj_vals);
@@ -700,10 +797,17 @@ static const value_string pcep_error_value_5_vals[] = {
 
 /*Error values for error type 6*/
 static const value_string pcep_error_value_6_vals[] = {
-    {1, "RP object missing"},
-    {2, "RRO object missing for a reoptimization request (R bit of the RP Object set)"},
-    {3, "END-POINTS object missing"},
-    {4, "MONITORINS object missing"},
+    {1,  "RP object missing"},
+    {2,  "RRO object missing for a reoptimization request (R bit of the RP Object set)"},
+    {3,  "END-POINTS object missing"},
+    {4,  "MONITORINS object missing"},
+    {8,  "LSP Object missing"},
+    {9,  "ERO Object missing"},
+    {10, "SRP Object missing"},
+    {11, "LSP-IDENTIFIERS TLV missing"},
+    {12, "LSP-DB-VERSION TLV missing"},
+    {13, "LSP cleanup TLV missing"},
+    {14, "SYMBOLIC-PATH-NAME TLV missing"},
     {0, NULL}
 };
 
@@ -756,6 +860,45 @@ static const value_string pcep_error_value_18_vals[] = {
     {0, NULL}
 };
 
+/*Error values for error type 19*/
+static const value_string pcep_error_value_19_vals[] = {
+    {1, "Attempted LSP Update Request for a non-delegated LSP.  The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
+    {2, "Attempted LSP Update Request if active stateful PCE capability was not advertised"},
+    {3, "Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID"},
+    {4, "A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot accept and process its LSP State Report message"},
+    {5, "Attempted LSP State Report if active stateful PCE capability was not advertised"},
+    {6, "PCE-initiated LSP limit reached"},
+    {7, "Delegation for PCE-initiated LSP cannot be revoked"},
+    {8, "Non-zero PLSP-ID in LSP initiation request"},
+    {0, NULL}
+};
+
+/*Error values for error type 20*/
+static const value_string pcep_error_value_20_vals[] = {
+    {1, "A PCE indicates to a PCC that it cannot process (an otherwise valid) LSP State Report.  The PCEP-ERROR Object is followed by the LSP Object that identifies the LSP"},
+    {2, "LSP Database version mismatch."},
+    {3, "The LSP-DB-VERSION TLV Missing when state synchronization avoidance is enabled."},
+    {4, "Attempt to trigger a synchronization when the TRIGGERED-SYNC capability has not been advertised."},
+    {5, "A PCC indicates to a PCE that it cannot complete the state synchronization"},
+    {6, "No sufficient LSP change information for incremental LSP state synchronization."},
+    {7, "Received an invalid LSP DB Version Number"},
+    {0, NULL}
+};
+
+/*Error values for error type 23*/
+static const value_string pcep_error_value_23_vals[] = {
+    {1, "SYMBOLIC-PATH-NAME in use"},
+    {0, NULL}
+};
+
+/*Error values for error type 24*/
+static const value_string pcep_error_value_24_vals[] = {
+    {1, "Unacceptable instantiation parameters"},
+    {2, "Internal error"},
+    {3, "RSVP signaling error"},
+    {0, NULL}
+};
+
 static const value_string pcep_close_reason_obj_vals[] = {
     {0,                         "Not defined"                           },
     {NO_EXP_PROV,               "No Explanation Provided"               },
@@ -771,6 +914,29 @@ static const value_string pcep_xro_attribute_obj_vals[] = {
     {0, NULL }
 };
 
+static const value_string pcep_object_lsp_flags_operational_vals[] = {
+    {0, "DOWN"          },
+    {1, "UP"            },
+    {2, "ACTIVE"        },
+    {3, "GOING-DOWN"    },
+    {4, "GOING-UP"      },
+    {5, "Reserved"      },
+    {6, "Reserved"      },
+    {7, "Reserved"      },
+    {0, NULL }
+};
+
+static const value_string pcep_tlv_lsp_error_code_vals[] = {
+    {1, "Unknown reason"                        },
+    {2, "Limit reached for PCE-controlled LSPs" },
+    {3, "Too many pending LSP update requests"  },
+    {4, "Unacceptable parameters"               },
+    {5, "Internal error"                        },
+    {6, "LSP administratively brought down"     },
+    {7, "LSP preempted"                         },
+    {8, "RSVP signaling error"                  },
+    {0, NULL }
+};
 
 #define OBJ_HDR_LEN  4       /* length of object header */
 
@@ -798,7 +964,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 3:   /* REQ-MISSING TLV */
-                proto_tree_add_item(tlv, hf_pcep_request_id,            tvb, offset+4+j, tlv_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_request_id, tvb, offset+4+j, tlv_length, ENC_BIG_ENDIAN);
                 break;
 
             case 4:   /* OF TLV */
@@ -807,6 +973,49 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                     proto_tree_add_uint_format(tlv, hf_pcep_of_code, tvb, offset+4+j+i*2, 2, of_code, "OF-Code #%d: %s (%u)",
                                                i+1, val_to_str_const(of_code, pcep_of_vals, "Unknown"), of_code);
                 }
+                break;
+
+            case 16:    /* STATEFUL-PCE-CAPABILITY TLV */
+                proto_tree_add_item(tlv, hf_pcep_lsp_update_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_lsp_include_db_version_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_lsp_instantiation_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_lsp_triggered_sync_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_lsp_delta_lsp_sync_capability_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                break;
+
+            case 17:    /* SYMBOLIC-PATH-NAME TLV */
+                proto_tree_add_item(tlv, hf_pcep_symbolic_path_name, tvb, offset+4+j, tlv_length, ENC_NA);
+                break;
+
+            case 18:    /* IPV4-LSP-IDENTIFIERS TLV */
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnnel_sender_address, tvb, offset+4+j, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_lsp_id, tvb, offset+4+j + 4, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_id, tvb, offset+4+j + 6, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_endpoint_address, tvb, offset+4+j + 12, 4, ENC_NA);
+                break;
+
+            case 19:    /* IPV6-LSP-IDENTIFIERS TLV */
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnnel_sender_address, tvb, offset+4+j, 16, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_lsp_id, tvb, offset+4+j + 16, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_id, tvb, offset+4+j + 18, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_extended_tunnel_id, tvb, offset+4+j + 20, 16, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv6_lsp_id_tunnel_endpoint_address, tvb, offset+4+j + 36, 16, ENC_NA);
+                break;
+
+            case 20:    /* LSP-ERROR-CODE TLV */
+                proto_tree_add_item(tlv, hf_pcep_lsp_error_code, tvb, offset+4+j, 4, ENC_NA);
+
+            case 21:    /* RSVP-ERROR-SPEC TLV */
+                proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_NA);
+                break;
+
+            case 23:    /* LSP-DB-VERSION TLV */
+                proto_tree_add_item(tlv, hf_pcep_lsp_state_db_version_number, tvb, offset+4+j, 8, ENC_NA);
+                break;
+
+            case 24:    /* SPEAKER-ENTITY-ID TLV */
+                proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_NA);
                 break;
 
             default:
@@ -1878,6 +2087,18 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
         case P2MP_FRAGMENT_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_18_vals, "Unknown");
             break;
+        case INVALID_OPERATION:
+            err_str = val_to_str_const(error_value, pcep_error_value_19_vals, "Unknown");
+            break;
+        case LSP_STATE_SYNCHRONIZATION_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_20_vals, "Unknown");
+            break;
+        case BAD_PARAMETER_VALUE:
+            err_str = val_to_str_const(error_value, pcep_error_value_23_vals, "Unknown");
+            break;
+        case LSP_INSTANTIATION_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_24_vals, "Unknown");
+            break;
         default:
             proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);
     }
@@ -2279,6 +2500,73 @@ dissect_pcep_obj_overload(proto_tree *pcep_object_tree, packet_info *pinfo, tvbu
     proto_tree_add_item(pcep_object_tree, hf_pcep_obj_overload_duration, tvb, offset2 + 2, 2, ENC_BIG_ENDIAN);
 }
 
+/*------------------------------------------------------------------------------
+ * LSP OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_LSP_MIN_LEN 4
+
+static void
+dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length)
+{
+    proto_item *ti;
+    proto_tree *lsp_flags;
+
+    if (obj_length < OBJ_HDR_LEN + OBJ_LSP_MIN_LEN) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad LSP object length %u, should >= %u",
+                                     obj_length, OBJ_HDR_LEN + OBJ_LSP_MIN_LEN);
+        return;
+    }
+
+    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_plsp_id, tvb, offset2, 3, ENC_NA);
+    ti = proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_flags, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    lsp_flags = proto_item_add_subtree(ti, ett_pcep_obj_lsp);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_d,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_s,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_r,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_a,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_o,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_c,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_reserved,  tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+
+    /* The object can have optional TLV(s)*/
+    offset2 += OBJ_LSP_MIN_LEN;
+    obj_length -= OBJ_HDR_LEN + OBJ_LSP_MIN_LEN;
+    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_lsp);
+}
+
+/*------------------------------------------------------------------------------
+ * SRP OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_SRP_MIN_LEN 8
+
+static void
+dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length)
+{
+    proto_item *ti;
+    proto_tree *srp_flags;
+
+    if (obj_length < OBJ_HDR_LEN + OBJ_SRP_MIN_LEN) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad SRP object length %u, should >= %u",
+                                     obj_length, OBJ_HDR_LEN + OBJ_SRP_MIN_LEN);
+        return;
+    }
+    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_flags, tvb, offset2, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_flags, tvb, offset2, 4, ENC_BIG_ENDIAN);
+    srp_flags = proto_item_add_subtree(ti, ett_pcep_obj_srp);
+    proto_tree_add_item(srp_flags, hf_pcep_obj_srp_flags_r, tvb, offset2, 4, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_id_number, tvb, offset2 + 4, 4, ENC_BIG_ENDIAN);
+
+    /*The object can have optional TLV(s)*/
+    offset2 += OPEN_OBJ_MIN_LEN;
+    obj_length -= OBJ_HDR_LEN + OBJ_SRP_MIN_LEN;
+    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_srp);
+}
+
 
 /*------------------------------------------------------------------------------*/
 /* Dissect in Objects */
@@ -2413,6 +2701,16 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_overload);
                 break;
 
+            case PCEP_OBJ_LSP:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_LSP, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_lsp);
+                break;
+
+            case PCEP_OBJ_SRP:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_SRP, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_srp);
+                break;
+
             default:
                 pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_UNKNOWN_TYPE, tvb, offset, -1, ENC_NA);
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
@@ -2534,6 +2832,14 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
             case PCEP_OBJ_OVERLOAD:
                 dissect_pcep_obj_overload(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
+                break;
+
+            case PCEP_OBJ_LSP:
+                dissect_pcep_obj_lsp(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
+                break;
+
+            case PCEP_OBJ_SRP:
+                dissect_pcep_obj_srp(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
                 break;
 
             default:
@@ -3018,6 +3324,18 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
 
+        { &hf_PCEPF_OBJ_LSP,
+          { "LSP object", "pcep.obj.lsp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_PCEPF_OBJ_SRP,
+          { "SRP object", "pcep.obj.srp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_PCEPF_OBJ_UNKNOWN_TYPE,
           { "Unknown object", "pcep.obj.unknown",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3127,6 +3445,31 @@ proto_register_pcep(void)
         { &hf_pcep_no_path_tlvs_unk_src,
           { "Unknown source", "pcep.no_path_tlvs.unk_src",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_update_capability,
+          { "LSP Update Capability (U)", "pcep.stateful-pce-capability.lsp-update",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_U,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_include_db_version_capability,
+          { "LSP INCLUDE-DB-VERSION Capability (S)", "pcep.stateful-pce-capability.include-db-version",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_S,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_instantiation_capability,
+          { "LSP Instantiation Capability (I)", "pcep.stateful-pce-capability.lsp-instantiation",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_I,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_triggered_sync_capability,
+          { "LSP TRIGGERED-SYNC Capability (T)", "pcep.stateful-pce-capability.triggered-sync",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_T,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_delta_lsp_sync_capability_capability,
+          { "LSP DELTA-LSP-SYNC-CAPABILITY Capability (D)", "pcep.stateful-pce-capability.delta-lsp-sync",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_D,
             NULL, HFILL }
         },
 
@@ -3751,7 +4094,141 @@ proto_register_pcep(void)
             FT_UINT8, BASE_DEC, VALS(pcep_no_path_obj_vals), 0x0,
             NULL, HFILL }
         },
-
+        { &hf_pcep_obj_srp_id_number,
+          { "SRP-ID-number", "pcep.obj.srp.id-number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_plsp_id,
+          { "PLSP-ID", "pcep.obj.lsp.plsp-id",
+            FT_UINT16, BASE_DEC, NULL, PCEP_OBJ_LSP_PLSP_ID,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags,
+          { "Flags", "pcep.obj.lsp.flags",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_d,
+          { "Delegate (D)", "pcep.obj.lsp.flags.delegate",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_D,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_s,
+          { "SYNC (S)", "pcep.obj.lsp.flags.sync",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_S,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_r,
+          { "Remove (R)", "pcep.obj.lsp.flags.remove",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_R,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_a,
+          { "Administrative (A)", "pcep.obj.lsp.flags.administrative",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_A,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_o,
+          { "Operational (O)", "pcep.obj.lsp.flags.operational",
+            FT_UINT16, BASE_DEC, VALS(pcep_object_lsp_flags_operational_vals), PCEP_OBJ_LSP_FLAGS_O,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_c,
+          { "Create (C)", "pcep.obj.lsp.flags.create",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_C,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_lsp_flags_reserved,
+          { "Reserved", "pcep.obj.lsp.flags.reserved",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_LSP_FLAGS_RESERVED,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_srp_flags,
+          { "Flags", "pcep.obj.srp.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_srp_flags_r,
+          { "Remove (R)", "pcep.obj.srp.flags.remove",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), PCEP_OBJ_SRP_FLAGS_R,
+            NULL, HFILL }
+        },
+        { &hf_pcep_symbolic_path_name,
+          { "SYMBOLIC-PATH-NAME", "pcep.tlv.symbolic-path-name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv4_lsp_id_tunnnel_sender_address,
+          { "IPv4 Tunnel Sender Address", "pcep.tlv.ipv4-lsp-id.tunnnel-sender-addr",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv4_lsp_id_lsp_id,
+          { "LSP ID", "pcep.tlv.ipv4-lsp-id.lsp-id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv4_lsp_id_tunnel_id,
+          { "Tunnel ID", "pcep.tlv.ipv4-lsp-id.tunnel-id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv4_lsp_id_extended_tunnel_id,
+          { "Extended Tunnel ID", "pcep.tlv.ipv4-lsp-id.extended-tunnel-id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv4_lsp_id_tunnel_endpoint_address,
+          { "IPv4 Tunnel Endpoint Address", "pcep.tlv.ipv4-lsp-id.tunnnel-endpoint-addr",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv6_lsp_id_tunnnel_sender_address,
+          { "IPv6 Tunnel Sender Address", "pcep.tlv.ipv6-lsp-id.tunnnel-sender-addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv6_lsp_id_lsp_id,
+          { "LSP ID", "pcep.tlv.ipv6-lsp-id.lsp-id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv6_lsp_id_tunnel_id,
+          { "Tunnel ID", "pcep.tlv.ipv6-lsp-id.tunnel-id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv6_lsp_id_extended_tunnel_id,
+          { "Extended Tunnel ID", "pcep.tlv.ipv6-lsp-id.extended-tunnel-id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_ipv6_lsp_id_tunnel_endpoint_address,
+          { "IPv6 Tunnel Endpoint Address", "pcep.tlv.ipv6-lsp-id.tunnnel-endpoint-addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_error_code,
+          { "LSP Error Code", "pcep.tlv.lsp-error-code",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_rsvp_user_error_spec,
+          { "RSVP/USER ERROR_SPEC", "pcep.tlv.rsvp-user-error-spec",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_lsp_state_db_version_number,
+          { "LSP State DB Version Number", "pcep.tlv.lsp-state-db-version-number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_speaker_entity_id,
+          { "Speaker Entity Identifier", "pcep.tlv.speaker-entity-id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -3780,6 +4257,8 @@ proto_register_pcep(void)
         &ett_pcep_obj_pce_id,
         &ett_pcep_obj_proc_time,
         &ett_pcep_obj_overload,
+        &ett_pcep_obj_lsp,
+        &ett_pcep_obj_srp,
         &ett_pcep_obj_unknown
     };
 
