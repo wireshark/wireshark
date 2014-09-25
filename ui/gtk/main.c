@@ -49,13 +49,6 @@
 #include <zlib.h>      /* to get the libz version number */
 #endif
 
-#ifdef _WIN32 /* Needed for console I/O */
-
-#include <fcntl.h>
-#include <conio.h>
-#include <ui/win32/console_win32.h>
-#endif
-
 #ifdef HAVE_LIBPORTAUDIO
 #include <portaudio.h>
 #endif /* HAVE_LIBPORTAUDIO */
@@ -111,6 +104,7 @@
 #include "gtk_iface_monitor.h"
 
 #include "ui/alert_box.h"
+#include "ui/console.h"
 #include "ui/decode_as_utils.h"
 #include "ui/filters.h"
 #include "ui/main_statusbar.h"
@@ -249,9 +243,6 @@ GString *comp_info_str, *runtime_info_str;
 static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
 static guint  tap_update_timer_id;
-
-static void console_log_handler(const char *log_domain,
-    GLogLevelFlags log_level, const char *message, gpointer user_data);
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void show_main_window(gboolean);
@@ -2180,7 +2171,6 @@ main(int argc, char *argv[])
     e_prefs             *prefs_p;
     char                 badopt;
     GtkWidget           *splash_win = NULL;
-    GLogLevelFlags       log_flags;
     guint                go_to_packet = 0;
     search_direction     jump_backwards = SD_FORWARD;
     dfilter_t           *jump_to_filter = NULL;
@@ -2472,40 +2462,9 @@ main(int argc, char *argv[])
     capture_callback_add(statusbar_capture_callback, NULL);
 #endif
 
-    /* Arrange that if we have no console window, and a GLib message logging
-       routine is called to log a message, we pop up a console window.
-
-       We do that by inserting our own handler for all messages logged
-       to the default domain; that handler pops up a console if necessary,
-       and then calls the default handler. */
-
-    /* We might want to have component specific log levels later ... */
-
-    log_flags = (GLogLevelFlags)
-                (G_LOG_LEVEL_ERROR|
-                 G_LOG_LEVEL_CRITICAL|
-                 G_LOG_LEVEL_WARNING|
-                 G_LOG_LEVEL_MESSAGE|
-                 G_LOG_LEVEL_INFO|
-                 G_LOG_LEVEL_DEBUG|
-                 G_LOG_FLAG_FATAL|
-                 G_LOG_FLAG_RECURSION);
-
-    g_log_set_handler(NULL,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_MAIN,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
+    set_console_log_handler();
 
 #ifdef HAVE_LIBPCAP
-    g_log_set_handler(LOG_DOMAIN_CAPTURE,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                    log_flags,
-                    console_log_handler, NULL /* user_data */);
-
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
@@ -3341,93 +3300,6 @@ WinMain (struct HINSTANCE__ *hInstance,
 #endif /* _WIN32 */
 
 
-static void
-console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data _U_)
-{
-    time_t curr;
-    struct tm *today;
-    const char *level;
-
-
-    /* ignore log message, if log_level isn't interesting based
-       upon the console log preferences.
-       If the preferences haven't been loaded loaded yet, display the
-       message anyway.
-
-       The default console_log_level preference value is such that only
-         ERROR, CRITICAL and WARNING level messages are processed;
-         MESSAGE, INFO and DEBUG level messages are ignored.  */
-    if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
-        prefs.console_log_level != 0) {
-        return;
-    }
-
-#ifdef _WIN32
-    if (prefs.gui_console_open != console_open_never || log_level & G_LOG_LEVEL_ERROR) {
-        /* the user wants a console or the application will terminate immediately */
-        create_console();
-    }
-    if (get_has_console()) {
-        /* For some unknown reason, the above doesn't appear to actually cause
-           anything to be sent to the standard output, so we'll just splat the
-           message out directly, just to make sure it gets out. */
-#endif
-        switch(log_level & G_LOG_LEVEL_MASK) {
-            case G_LOG_LEVEL_ERROR:
-                level = "Err ";
-                break;
-            case G_LOG_LEVEL_CRITICAL:
-                level = "Crit";
-                break;
-            case G_LOG_LEVEL_WARNING:
-                level = "Warn";
-                break;
-            case G_LOG_LEVEL_MESSAGE:
-                level = "Msg ";
-                break;
-            case G_LOG_LEVEL_INFO:
-                level = "Info";
-                break;
-            case G_LOG_LEVEL_DEBUG:
-                level = "Dbg ";
-                break;
-            default:
-                fprintf(stderr, "unknown log_level %u\n", log_level);
-                level = NULL;
-                g_assert_not_reached();
-        }
-
-        /* create a "timestamp" */
-        time(&curr);
-        today = localtime(&curr);
-
-        fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
-                today->tm_hour, today->tm_min, today->tm_sec,
-                log_domain != NULL ? log_domain : "",
-                level, message);
-#ifdef _WIN32
-        if(log_level & G_LOG_LEVEL_ERROR) {
-            /* wait for a key press before the following error handler will terminate the program
-               this way the user at least can read the error message */
-            printf("\n\nPress any key to exit\n");
-            _getch();
-        }
-    } else {
-        /* XXX - on UN*X, should we just use g_log_default_handler()?
-           We want the error messages to go to the standard output;
-           on Mac OS X, that will cause them to show up in various
-           per-user logs accessible through Console (details depend
-           on whether you're running 10.0 through 10.4 or running
-           10.5 and later), and, on other UN*X desktop environments,
-           if they don't show up in some form of console log, that's
-           a deficiency in that desktop environment.  (Too bad
-           Windows doesn't set the standard output and error for
-           GUI apps to something that shows up in such a log.) */
-        g_log_default_handler(log_domain, log_level, message, user_data);
-    }
-#endif
-}
 
 
 /*
@@ -3453,7 +3325,6 @@ static GtkWidget *main_widget_layout(gint layout_content)
         return NULL;
     }
 }
-
 
 /*
  * Rearrange the main window widgets

@@ -100,6 +100,7 @@
 #ifdef HAVE_LIBPCAP
 #  include "ui/capture_ui_utils.h"
 #endif
+#include "ui/console.h"
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
@@ -122,8 +123,6 @@
 #  include <wsutil/unicode-utils.h>
 #  include <commctrl.h>
 #  include <shellapi.h>
-#  include <conio.h>
-#  include "ui/win32/console_win32.h"
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
@@ -160,10 +159,6 @@ int    airpcap_dll_ret_val = -1;
 GString *comp_info_str, *runtime_info_str;
 
 //static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
-
-static void console_log_handler(const char *log_domain,
-    GLogLevelFlags log_level, const char *message, gpointer user_data);
-
 
 #ifdef HAVE_LIBPCAP
 extern capture_options global_capture_opts;
@@ -357,54 +352,6 @@ wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
     fprintf(stderr, "\n");
 }
 
-static void
-console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data)
-{
-    Q_UNUSED(user_data);
-    QString level;
-    QString hmsz = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-
-// xxx qtshark: We want all of the messages for now.
-//    /* ignore log message, if log_level isn't interesting based
-//     upon the console log preferences.
-//     If the preferences haven't been loaded loaded yet, display the
-//     message anyway.
-
-//     The default console_log_level preference value is such that only
-//       ERROR, CRITICAL and WARNING level messages are processed;
-//       MESSAGE, INFO and DEBUG level messages are ignored.  */
-//    if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
-//       prefs.console_log_level != 0) {
-//        return;
-
-        switch(log_level & G_LOG_LEVEL_MASK) {
-        case G_LOG_LEVEL_ERROR:
-            level = "Err ";
-            break;
-        case G_LOG_LEVEL_CRITICAL:
-            level = "Crit";
-            break;
-        case G_LOG_LEVEL_WARNING:
-            level = "Warn";
-            break;
-        case G_LOG_LEVEL_MESSAGE:
-            level = "Msg ";
-            break;
-        case G_LOG_LEVEL_INFO:
-            level = "Info";
-            break;
-        case G_LOG_LEVEL_DEBUG:
-            level = "Dbg ";
-            break;
-        default:
-            qDebug("%s unknown log_level %u", hmsz.toUtf8().constData(), log_level);
-            g_assert_not_reached();
-        }
-
-        qDebug("%s %s %s %s", hmsz.toUtf8().constData(), log_domain, level.toUtf8().constData(), message);
-    }
-
 // xxx based from ../gtk/main.c:get_gtk_compiled_info
 static void
 get_wireshark_qt_compiled_info(GString *str)
@@ -514,7 +461,6 @@ int main(int argc, char *argv[])
 #endif
     e_prefs             *prefs_p;
     char                 badopt;
-    GLogLevelFlags       log_flags;
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -838,39 +784,9 @@ int main(int argc, char *argv[])
 #endif
     cf_callback_add(main_cf_callback, NULL);
 
-    /* Arrange that if we have no console window, and a GLib message logging
-       routine is called to log a message, we pop up a console window.
-
-       We do that by inserting our own handler for all messages logged
-       to the default domain; that handler pops up a console if necessary,
-       and then calls the default handler. */
-
-    /* We might want to have component specific log levels later ... */
-
-    log_flags = (GLogLevelFlags) (
-            G_LOG_LEVEL_ERROR|
-            G_LOG_LEVEL_CRITICAL|
-            G_LOG_LEVEL_WARNING|
-            G_LOG_LEVEL_MESSAGE|
-            G_LOG_LEVEL_INFO|
-            G_LOG_LEVEL_DEBUG|
-            G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION );
-
-    g_log_set_handler(NULL,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_MAIN,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
+    set_console_log_handler();
 
 #ifdef HAVE_LIBPCAP
-    g_log_set_handler(LOG_DOMAIN_CAPTURE,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-    g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                      log_flags,
-                      console_log_handler, NULL /* user_data */);
-
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
