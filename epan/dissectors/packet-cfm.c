@@ -1158,9 +1158,9 @@ static int dissect_cfm_slm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_testid, tvb, offset, 4, ENC_NA);
 	offset += 4;
@@ -1190,9 +1190,9 @@ static int dissect_cfm_slr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_testid, tvb, offset, 4, ENC_NA);
 	offset += 4;
@@ -1965,12 +1965,12 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_cfm_slm_src_mep,
-			{ "SrcMepID", "cfm.slm.src_mep_id", FT_BYTES,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }
+			{ "Source MEP ID", "cfm.slm.src_mep_id", FT_UINT16,
+			BASE_DEC, NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_cfm_slr_rsp_mep,
-			{ "RspMepID", "cfm.slr.rsp_mep_id", FT_BYTES,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }
+			{ "Responder MEP ID", "cfm.slr.rsp_mep_id", FT_UINT16,
+			BASE_DEC, NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_cfm_slm_testid,
 			{ "TestID", "cfm.slm.test_id", FT_BYTES,
