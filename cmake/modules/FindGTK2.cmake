@@ -1,60 +1,102 @@
-# - FindGTK2.cmake
-# This module can find the GTK2 widget libraries and several of its other
-# optional components like gtkmm, glade, and glademm.
+#.rst:
+# FindGTK2
+# --------
+#
+# FindGTK2.cmake
+#
+# This module can find the GTK2 widget libraries and several of its
+# other optional components like gtkmm, glade, and glademm.
 #
 # NOTE: If you intend to use version checking, CMake 2.6.2 or later is
-#       required.
 #
-# Specify one or more of the following components
-# as you call this find module. See example below.
+# ::
 #
-#   gtk
-#   gtkmm
-#   glade
-#   glademm
+#        required.
+#
+#
+#
+# Specify one or more of the following components as you call this find
+# module.  See example below.
+#
+# ::
+#
+#    gtk
+#    gtkmm
+#    glade
+#    glademm
+#
+#
 #
 # The following variables will be defined for your use
 #
-#   GTK2_FOUND - Were all of your specified components found?
-#   GTK2_INCLUDE_DIRS - All include directories
-#   GTK2_LIBRARIES - All libraries
+# ::
 #
-#   GTK2_VERSION - The version of GTK2 found (x.y.z)
-#   GTK2_MAJOR_VERSION - The major version of GTK2
-#   GTK2_MINOR_VERSION - The minor version of GTK2
-#   GTK2_PATCH_VERSION - The patch version of GTK2
+#    GTK2_FOUND - Were all of your specified components found?
+#    GTK2_INCLUDE_DIRS - All include directories
+#    GTK2_LIBRARIES - All libraries
+#    GTK2_DEFINITIONS - Additional compiler flags
+#
+#
+#
+# ::
+#
+#    GTK2_VERSION - The version of GTK2 found (x.y.z)
+#    GTK2_MAJOR_VERSION - The major version of GTK2
+#    GTK2_MINOR_VERSION - The minor version of GTK2
+#    GTK2_PATCH_VERSION - The patch version of GTK2
+#
+#
 #
 # Optional variables you can define prior to calling this module:
 #
-#   GTK2_DEBUG - Enables verbose debugging of the module
-#   GTK2_SKIP_MARK_AS_ADVANCED - Disable marking cache variables as advanced
-#   GTK2_ADDITIONAL_SUFFIXES - Allows defining additional directories to
-#                              search for include files
+# ::
 #
-#=================
-# Example Usage:
+#    GTK2_DEBUG - Enables verbose debugging of the module
+#    GTK2_ADDITIONAL_SUFFIXES - Allows defining additional directories to
+#                               search for include files
 #
-#   Call find_package() once, here are some examples to pick from:
 #
-#   Require GTK 2.6 or later
-#       find_package(GTK2 2.6 REQUIRED gtk)
 #
-#   Require GTK 2.10 or later and Glade
-#       find_package(GTK2 2.10 REQUIRED gtk glade)
+# ================= Example Usage:
 #
-#   Search for GTK/GTKMM 2.8 or later
-#       find_package(GTK2 2.8 COMPONENTS gtk gtkmm)
+# ::
 #
-#   if(GTK2_FOUND)
-#      include_directories(${GTK2_INCLUDE_DIRS})
-#      add_executable(mygui mygui.cc)
-#      target_link_libraries(mygui ${GTK2_LIBRARIES})
-#   endif()
+#    Call find_package() once, here are some examples to pick from:
 #
+#
+#
+# ::
+#
+#    Require GTK 2.6 or later
+#        find_package(GTK2 2.6 REQUIRED gtk)
+#
+#
+#
+# ::
+#
+#    Require GTK 2.10 or later and Glade
+#        find_package(GTK2 2.10 REQUIRED gtk glade)
+#
+#
+#
+# ::
+#
+#    Search for GTK/GTKMM 2.8 or later
+#        find_package(GTK2 2.8 COMPONENTS gtk gtkmm)
+#
+#
+#
+# ::
+#
+#    if(GTK2_FOUND)
+#       include_directories(${GTK2_INCLUDE_DIRS})
+#       add_executable(mygui mygui.cc)
+#       target_link_libraries(mygui ${GTK2_LIBRARIES})
+#    endif()
 
 #=============================================================================
 # Copyright 2009 Kitware, Inc.
-# Copyright 2008-2009 Philip Lowman <philip@yhbt.com>
+# Copyright 2008-2012 Philip Lowman <philip@yhbt.com>
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -66,10 +108,28 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# Version 1.6 (CMake 3.0)
+#   * Create targets for each library
+#   * Do not link libfreetype
+# Version 1.5 (CMake 2.8.12)
+#   * 14236: Detect gthread library
+#            Detect pangocairo on windows
+#            Detect pangocairo with gtk module instead of with gtkmm
+#   * 14259: Use vc100 libraries with MSVC11
+#   * 14260: Export a GTK2_DEFINITIONS variable to set /vd2 when appropriate
+#            (i.e. MSVC)
+#   * Use the optimized/debug syntax for _LIBRARY and _LIBRARIES variables when
+#     appropriate. A new set of _RELEASE variables was also added.
+#   * Remove GTK2_SKIP_MARK_AS_ADVANCED option, as now the variables are
+#     marked as advanced by SelectLibraryConfigurations
+#   * Detect gmodule, pangoft2 and pangoxft libraries
+# Version 1.4 (10/4/2012) (CMake 2.8.10)
+#   * 12596: Missing paths for FindGTK2 on NetBSD
+#   * 12049: Fixed detection of GTK include files in the lib folder on
+#            multiarch systems.
 # Version 1.3 (11/9/2010) (CMake 2.8.4)
 #   * 11429: Add support for detecting GTK2 built with Visual Studio 10.
 #            Thanks to Vincent Levesque for the patch.
-
 # Version 1.2 (8/30/2010) (CMake 2.8.3)
 #   * Merge patch for detecting gdk-pixbuf library (split off
 #     from core GTK in 2.21).  Thanks to Vincent Untz for the patch
@@ -105,8 +165,8 @@
 # Version 0.5 (12/19/08)
 #   Second release to cmake mailing list
 
-INCLUDE(FindWSWinLibs)
-FindWSWinLibs("gtk2" "GTK2_HINTS")
+include( FindWSWinLibs )
+FindWSWinLibs( "gtk2" "GTK2_HINTS" )
 
 #=============================================================
 # _GTK2_GET_VERSION
@@ -116,8 +176,12 @@ FindWSWinLibs("gtk2" "GTK2_HINTS")
 #   _OUT_micro = Micro version number
 #   _gtkversion_hdr = Header file to parse
 #=============================================================
+
+include(SelectLibraryConfigurations)
+include(CMakeParseArguments)
+
 function(_GTK2_GET_VERSION _OUT_major _OUT_minor _OUT_micro _gtkversion_hdr)
-    file(READ ${_gtkversion_hdr} _contents)
+    file(STRINGS ${_gtkversion_hdr} _contents REGEX "#define GTK_M[A-Z]+_VERSION[ \t]+")
     if(_contents)
         string(REGEX REPLACE ".*#define GTK_MAJOR_VERSION[ \t]+\\(([0-9]+)\\).*" "\\1" ${_OUT_major} "${_contents}")
         string(REGEX REPLACE ".*#define GTK_MINOR_VERSION[ \t]+\\(([0-9]+)\\).*" "\\1" ${_OUT_minor} "${_contents}")
@@ -144,7 +208,7 @@ endfunction()
 #=============================================================
 # _GTK2_FIND_INCLUDE_DIR
 # Internal function to find the GTK include directories
-#   _var = variable to set
+#   _var = variable to set (_INCLUDE_DIR is appended)
 #   _hdr = header file to look for
 #=============================================================
 function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
@@ -154,7 +218,7 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
                        "_GTK2_FIND_INCLUDE_DIR( ${_var} ${_hdr} )")
     endif()
 
-    set(_relatives
+    set(_gtk_packages
         # If these ever change, things will break.
         ${GTK2_ADDITIONAL_SUFFIXES}
         glibmm-2.4
@@ -175,8 +239,15 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
         sigc++-2.0
     )
 
+    #
+    # NOTE: The following suffixes cause searching for header files in both of
+    # these directories:
+    #         /usr/include/<pkg>
+    #         /usr/lib/<pkg>/include
+    #
+
     set(_suffixes)
-    foreach(_d ${_relatives})
+    foreach(_d ${_gtk_packages})
         list(APPEND _suffixes ${_d})
         list(APPEND _suffixes ${_d}/include) # for /usr/lib/gtk-2.0/include
     endforeach()
@@ -186,13 +257,21 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
                        "include suffixes = ${_suffixes}")
     endif()
 
-    find_path(${_var} ${_hdr}
+    if(CMAKE_LIBRARY_ARCHITECTURE)
+      set(_gtk2_arch_dir /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE})
+      if(GTK2_DEBUG)
+        message(STATUS "Adding ${_gtk2_arch_dir} to search path for multiarch support")
+      endif()
+    endif()
+    find_path(GTK2_${_var}_INCLUDE_DIR ${_hdr}
         PATHS
-            /usr/lib/x86_64-linux-gnu
+            ${_gtk2_arch_dir}
             /usr/local/lib64
             /usr/local/lib
             /usr/lib64
             /usr/lib
+            /usr/X11R6/include
+            /usr/X11R6/lib
             /opt/gnome/include
             /opt/gnome/lib
             /opt/openwin/include
@@ -201,6 +280,8 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /sw/lib
             /opt/local/include
             /opt/local/lib
+            /usr/pkg/lib
+            /usr/pkg/include/glib
             $ENV{GTKMM_BASEPATH}/include
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/include
@@ -213,20 +294,18 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             "${GTK2_HINTS}/include"
             "${GTK2_HINTS}/lib"
     )
+    mark_as_advanced(GTK2_${_var}_INCLUDE_DIR)
 
-    if(${_var})
-        set(GTK2_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS} ${${_var}} PARENT_SCOPE)
-        if(NOT GTK2_SKIP_MARK_AS_ADVANCED)
-            mark_as_advanced(${_var})
-        endif()
+    if(GTK2_${_var}_INCLUDE_DIR)
+        set(GTK2_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS} ${GTK2_${_var}_INCLUDE_DIR} PARENT_SCOPE)
     endif()
 
-endfunction(_GTK2_FIND_INCLUDE_DIR)
+endfunction()
 
 #=============================================================
 # _GTK2_FIND_LIBRARY
 # Internal function to find libraries packaged with GTK2
-#   _var = library variable to create
+#   _var = library variable to create (_LIBRARY is appended)
 #=============================================================
 function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
 
@@ -255,6 +334,9 @@ function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
         elseif(MSVC90)
             set(_library   ${_library}-vc90)
         elseif(MSVC10)
+            set(_library ${_library}-vc100)
+        elseif(MSVC11)
+            # Up to gtkmm-win 2.22.0-2 there are no vc110 libraries but vc100 can be used
             set(_library ${_library}-vc100)
         endif()
         set(_library_d ${_library}-d)
@@ -305,16 +387,14 @@ function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
 
     if(GTK2_DEBUG)
         message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
-                       "While searching for ${_var}, our proposed library list is ${_lib_list}")
+                       "While searching for GTK2_${_var}_LIBRARY, our proposed library list is ${_lib_list}")
     endif()
 
-    find_library(${_var}
+    find_library(GTK2_${_var}_LIBRARY_RELEASE
         NAMES ${_lib_list}
         PATHS
             /opt/gnome/lib
-            /opt/gnome/lib64
             /usr/openwin/lib
-            /usr/openwin/lib64
             /sw/lib
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/lib
@@ -326,35 +406,165 @@ function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
     if(_expand_vc AND MSVC)
         if(GTK2_DEBUG)
             message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
-                           "While searching for ${_var}_DEBUG our proposed library list is ${_libd_list}")
+                           "While searching for GTK2_${_var}_LIBRARY_DEBUG our proposed library list is ${_libd_list}")
         endif()
 
-        find_library(${_var}_DEBUG
+        find_library(GTK2_${_var}_LIBRARY_DEBUG
             NAMES ${_libd_list}
             PATHS
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/lib
             [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]/lib
+        HINTS
+            "${GTK2_HINTS}/lib"
         )
-
-        if(${_var} AND ${_var}_DEBUG)
-            if(NOT GTK2_SKIP_MARK_AS_ADVANCED)
-                mark_as_advanced(${_var}_DEBUG)
-            endif()
-            set(GTK2_LIBRARIES ${GTK2_LIBRARIES} optimized ${${_var}} debug ${${_var}_DEBUG})
-            set(GTK2_LIBRARIES ${GTK2_LIBRARIES} PARENT_SCOPE)
-        endif()
-    else()
-        if(NOT GTK2_SKIP_MARK_AS_ADVANCED)
-            mark_as_advanced(${_var})
-        endif()
-        set(GTK2_LIBRARIES ${GTK2_LIBRARIES} ${${_var}})
-        set(GTK2_LIBRARIES ${GTK2_LIBRARIES} PARENT_SCOPE)
-        # Set debug to release
-        set(${_var}_DEBUG ${${_var}})
-        set(${_var}_DEBUG ${${_var}} PARENT_SCOPE)
     endif()
-endfunction(_GTK2_FIND_LIBRARY)
+
+    select_library_configurations(GTK2_${_var})
+
+    set(GTK2_${_var}_LIBRARY ${GTK2_${_var}_LIBRARY} PARENT_SCOPE)
+    set(GTK2_${_var}_FOUND ${GTK2_${_var}_FOUND} PARENT_SCOPE)
+
+    if(GTK2_${_var}_FOUND)
+        set(GTK2_LIBRARIES ${GTK2_LIBRARIES} ${GTK2_${_var}_LIBRARY})
+        set(GTK2_LIBRARIES ${GTK2_LIBRARIES} PARENT_SCOPE)
+    endif()
+
+    if(GTK2_DEBUG)
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
+                       "GTK2_${_var}_LIBRARY_RELEASE = \"${GTK2_${_var}_LIBRARY_RELEASE}\"")
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
+                       "GTK2_${_var}_LIBRARY_DEBUG   = \"${GTK2_${_var}_LIBRARY_DEBUG}\"")
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
+                       "GTK2_${_var}_LIBRARY         = \"${GTK2_${_var}_LIBRARY}\"")
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}]     "
+                       "GTK2_${_var}_FOUND           = \"${GTK2_${_var}_FOUND}\"")
+    endif()
+
+endfunction()
+
+
+function(_GTK2_ADD_TARGET_DEPENDS_INTERNAL _var _property)
+    if(GTK2_DEBUG)
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}] "
+                       "_GTK2_ADD_TARGET_DEPENDS_INTERNAL( ${_var} ${_property} )")
+    endif()
+
+    string(TOLOWER "${_var}" _basename)
+
+    if (TARGET GTK2::${_basename})
+        foreach(_depend ${ARGN})
+            set(_valid_depends)
+            if (TARGET GTK2::${_depend})
+                list(APPEND _valid_depends GTK2::${_depend})
+            endif()
+            if (_valid_depends)
+                set_property(TARGET GTK2::${_basename} APPEND PROPERTY ${_property} "${_valid_depends}")
+            endif()
+            set(_valid_depends)
+        endforeach()
+    endif()
+endfunction()
+
+function(_GTK2_ADD_TARGET_DEPENDS _var)
+    if(GTK2_DEBUG)
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}] "
+                       "_GTK2_ADD_TARGET_DEPENDS( ${_var} )")
+    endif()
+
+    string(TOLOWER "${_var}" _basename)
+
+    if(TARGET GTK2::${_basename})
+        get_target_property(_configs GTK2::${_basename} IMPORTED_CONFIGURATIONS)
+        _GTK2_ADD_TARGET_DEPENDS_INTERNAL(${_var} INTERFACE_LINK_LIBRARIES ${ARGN})
+        foreach(_config ${_configs})
+            _GTK2_ADD_TARGET_DEPENDS_INTERNAL(${_var} IMPORTED_LINK_INTERFACE_LIBRARIES_${_config} ${ARGN})
+        endforeach()
+    endif()
+endfunction()
+
+function(_GTK2_ADD_TARGET_INCLUDE_DIRS _var)
+    if(GTK2_DEBUG)
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}] "
+                       "_GTK2_ADD_TARGET_INCLUDE_DIRS( ${_var} )")
+    endif()
+
+    string(TOLOWER "${_var}" _basename)
+
+    if(TARGET GTK2::${_basename})
+        foreach(_include ${ARGN})
+            set_property(TARGET GTK2::${_basename} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${_include}")
+        endforeach()
+    endif()
+endfunction()
+
+#=============================================================
+# _GTK2_ADD_TARGET
+# Internal function to create targets for GTK2
+#   _var = target to create
+#=============================================================
+function(_GTK2_ADD_TARGET _var)
+    if(GTK2_DEBUG)
+        message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}] "
+                       "_GTK2_ADD_TARGET( ${_var} )")
+    endif()
+
+    string(TOLOWER "${_var}" _basename)
+
+    cmake_parse_arguments(_${_var} "" "" "GTK2_DEPENDS;GTK2_OPTIONAL_DEPENDS;OPTIONAL_INCLUDES" ${ARGN})
+
+    if(GTK2_${_var}_FOUND AND NOT TARGET GTK2::${_basename})
+        # Do not create the target if dependencies are missing
+        foreach(_dep ${_${_var}_GTK2_DEPENDS})
+            if(NOT TARGET GTK2::${_dep})
+                return()
+            endif()
+        endforeach()
+
+        add_library(GTK2::${_basename} UNKNOWN IMPORTED)
+
+        if(GTK2_${_var}_LIBRARY_RELEASE)
+            set_property(TARGET GTK2::${_basename} APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+            set_property(TARGET GTK2::${_basename}        PROPERTY IMPORTED_LOCATION_RELEASE "${GTK2_${_var}_LIBRARY_RELEASE}" )
+        endif()
+
+        if(GTK2_${_var}_LIBRARY_DEBUG)
+            set_property(TARGET GTK2::${_basename} APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+            set_property(TARGET GTK2::${_basename}        PROPERTY IMPORTED_LOCATION_DEBUG "${GTK2_${_var}_LIBRARY_DEBUG}" )
+        endif()
+
+        if(GTK2_${_var}_INCLUDE_DIR)
+            set_property(TARGET GTK2::${_basename} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${GTK2_${_var}_INCLUDE_DIR}")
+        endif()
+
+        if(GTK2_${_var}CONFIG_INCLUDE_DIR AND NOT "x${GTK2_${_var}CONFIG_INCLUDE_DIR}" STREQUAL "x${GTK2_${_var}_INCLUDE_DIR}")
+            set_property(TARGET GTK2::${_basename} APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${GTK2_${_var}CONFIG_INCLUDE_DIR}")
+        endif()
+
+        if(GTK2_DEFINITIONS)
+            set_property(TARGET GTK2::${_basename} PROPERTY INTERFACE_COMPILE_DEFINITIONS "${GTK2_DEFINITIONS}")
+        endif()
+
+        if(_${_var}_GTK2_DEPENDS)
+            _GTK2_ADD_TARGET_DEPENDS(${_var} ${_${_var}_GTK2_DEPENDS} ${_${_var}_GTK2_OPTIONAL_DEPENDS})
+        endif()
+
+        if(_${_var}_OPTIONAL_INCLUDES)
+            foreach(_D ${_${_var}_OPTIONAL_INCLUDES})
+                if(_D)
+                    _GTK2_ADD_TARGET_INCLUDE_DIRS(${_var} ${_D})
+                endif()
+            endforeach()
+        endif()
+
+        if(GTK2_USE_IMPORTED_TARGETS)
+            set(GTK2_${_var}_LIBRARY GTK2::${_basename} PARENT_SCOPE)
+        endif()
+
+    endif()
+endfunction()
+
+
 
 #=============================================================
 
@@ -365,6 +575,7 @@ endfunction(_GTK2_FIND_LIBRARY)
 set(GTK2_FOUND)
 set(GTK2_INCLUDE_DIRS)
 set(GTK2_LIBRARIES)
+set(GTK2_DEFINITIONS)
 
 if(NOT GTK2_FIND_COMPONENTS)
     # Assume they only want GTK
@@ -375,13 +586,12 @@ endif()
 # If specified, enforce version number
 #
 if(GTK2_FIND_VERSION)
-    cmake_minimum_required(VERSION 2.6.2)
     set(GTK2_FAILED_VERSION_CHECK true)
     if(GTK2_DEBUG)
         message(STATUS "[FindGTK2.cmake:${CMAKE_CURRENT_LIST_LINE}] "
                        "Searching for version ${GTK2_FIND_VERSION}")
     endif()
-    _GTK2_FIND_INCLUDE_DIR(GTK2_GTK_INCLUDE_DIR gtk/gtk.h)
+    _GTK2_FIND_INCLUDE_DIR(GTK gtk/gtk.h)
     if(GTK2_GTK_INCLUDE_DIR)
         _GTK2_GET_VERSION(GTK2_MAJOR_VERSION
                           GTK2_MINOR_VERSION
@@ -422,99 +632,188 @@ if(GTK2_FIND_VERSION)
 endif()
 
 #
+# On MSVC, according to https://wiki.gnome.org/gtkmm/MSWindows, the /vd2 flag needs to be
+# passed to the compiler in order to use gtkmm
+#
+if(MSVC)
+    foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
+        if(_GTK2_component STREQUAL "gtkmm")
+            set(GTK2_DEFINITIONS "/vd2")
+        elseif(_GTK2_component STREQUAL "glademm")
+            set(GTK2_DEFINITIONS "/vd2")
+        endif()
+    endforeach()
+endif()
+
+#
 # Find all components
 #
 
-find_package(Freetype)
-list(APPEND GTK2_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
-if(NOT WIN32)
-    list(APPEND GTK2_LIBRARIES ${FREETYPE_LIBRARIES})
-endif(NOT WIN32)
+find_package(Freetype QUIET)
+if(FREETYPE_INCLUDE_DIR_ft2build AND FREETYPE_INCLUDE_DIR_freetype2)
+    list(APPEND GTK2_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2})
+endif()
 
 foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
     if(_GTK2_component STREQUAL "gtk")
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLIB_INCLUDE_DIR glib.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLIBCONFIG_INCLUDE_DIR glibconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GLIB_LIBRARY glib false true)
+        # Left for compatibility with previous versions.
+        _GTK2_FIND_INCLUDE_DIR(FONTCONFIG fontconfig/fontconfig.h)
+        _GTK2_FIND_INCLUDE_DIR(X11 X11/Xlib.h)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GOBJECT_INCLUDE_DIR gobject/gobject.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GOBJECT_LIBRARY gobject false true)
+        _GTK2_FIND_INCLUDE_DIR(GLIB glib.h)
+        _GTK2_FIND_INCLUDE_DIR(GLIBCONFIG glibconfig.h)
+        _GTK2_FIND_LIBRARY    (GLIB glib false true)
+        _GTK2_ADD_TARGET      (GLIB)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDK_PIXBUF_INCLUDE_DIR gdk-pixbuf/gdk-pixbuf.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GDK_PIXBUF_LIBRARY gdk_pixbuf false true)
+        _GTK2_FIND_INCLUDE_DIR(GOBJECT glib-object.h)
+        _GTK2_FIND_LIBRARY    (GOBJECT gobject false true)
+        _GTK2_ADD_TARGET      (GOBJECT GTK2_DEPENDS glib)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDK_INCLUDE_DIR gdk/gdk.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDKCONFIG_INCLUDE_DIR gdkconfig.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GTK_INCLUDE_DIR gtk/gtk.h)
+        _GTK2_FIND_INCLUDE_DIR(ATK atk/atk.h)
+        _GTK2_FIND_LIBRARY    (ATK atk false true)
+        _GTK2_ADD_TARGET      (ATK GTK2_DEPENDS gobject glib)
 
+        _GTK2_FIND_LIBRARY    (GIO gio false true)
+        _GTK2_ADD_TARGET      (GIO GTK2_DEPENDS gobject glib)
+
+        _GTK2_FIND_LIBRARY    (GTHREAD gthread false true)
+        _GTK2_ADD_TARGET      (GTHREAD GTK2_DEPENDS glib)
+
+        _GTK2_FIND_LIBRARY    (GMODULE gmodule false true)
+        _GTK2_ADD_TARGET      (GMODULE GTK2_DEPENDS glib)
+
+        _GTK2_FIND_INCLUDE_DIR(GDK_PIXBUF gdk-pixbuf/gdk-pixbuf.h)
+        _GTK2_FIND_LIBRARY    (GDK_PIXBUF gdk_pixbuf false true)
+        _GTK2_ADD_TARGET      (GDK_PIXBUF GTK2_DEPENDS gobject glib)
+
+        _GTK2_FIND_INCLUDE_DIR(CAIRO cairo.h)
+        _GTK2_FIND_LIBRARY    (CAIRO cairo false false)
+        _GTK2_ADD_TARGET      (CAIRO)
+
+        _GTK2_FIND_INCLUDE_DIR(PANGO pango/pango.h)
+        _GTK2_FIND_LIBRARY    (PANGO pango false true)
+        _GTK2_ADD_TARGET      (PANGO GTK2_DEPENDS gobject glib)
+
+        _GTK2_FIND_LIBRARY    (PANGOCAIRO pangocairo false true)
+        _GTK2_ADD_TARGET      (PANGOCAIRO GTK2_DEPENDS pango cairo gobject glib)
+
+        _GTK2_FIND_LIBRARY    (PANGOFT2 pangoft2 false true)
+        _GTK2_ADD_TARGET      (PANGOFT2 GTK2_DEPENDS pango gobject glib
+                                        OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                          ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                          ${GTK2_X11_INCLUDE_DIR})
+
+        _GTK2_FIND_LIBRARY    (PANGOXFT pangoxft false true)
+        _GTK2_ADD_TARGET      (PANGOXFT GTK2_DEPENDS pangoft2 pango gobject glib
+                                        OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                          ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                          ${GTK2_X11_INCLUDE_DIR})
+
+        _GTK2_FIND_INCLUDE_DIR(GDK gdk/gdk.h)
+        _GTK2_FIND_INCLUDE_DIR(GDKCONFIG gdkconfig.h)
         if(UNIX)
-            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-x11 false true)
-            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-x11 false true)
-        elseif(WIN32)
-            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-win32 false true)
-            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-win32 false true)
-        elseif(APPLE)
-            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-quartz false true)
-            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-quartz false true)
+            if(APPLE)
+                _GTK2_FIND_LIBRARY    (GDK gdk-quartz false true)
+            endif()
+            if(NOT GTK2_GDK_FOUND)
+                _GTK2_FIND_LIBRARY    (GDK gdk-x11 false true)
+            endif()
+        else()
+            _GTK2_FIND_LIBRARY    (GDK gdk-win32 false true)
         endif()
+        _GTK2_ADD_TARGET (GDK GTK2_DEPENDS pango gdk_pixbuf gobject glib
+                              GTK2_OPTIONAL_DEPENDS pangocairo cairo)
 
-
-        _GTK2_FIND_INCLUDE_DIR(GTK2_CAIRO_INCLUDE_DIR cairo.h)
-        _GTK2_FIND_LIBRARY    (GTK2_CAIRO_LIBRARY cairo false false)
-
-        _GTK2_FIND_INCLUDE_DIR(GTK2_FONTCONFIG_INCLUDE_DIR fontconfig/fontconfig.h)
-
-        _GTK2_FIND_INCLUDE_DIR(GTK2_PANGO_INCLUDE_DIR pango/pango.h)
-        _GTK2_FIND_LIBRARY    (GTK2_PANGO_LIBRARY pango false true)
-
-        _GTK2_FIND_LIBRARY    (GTK2_PANGOCAIRO_LIBRARY pangocairo false true)
-
-        _GTK2_FIND_INCLUDE_DIR(GTK2_ATK_INCLUDE_DIR atk/atk.h)
-        _GTK2_FIND_LIBRARY    (GTK2_ATK_LIBRARY atk false true)
-
+        _GTK2_FIND_INCLUDE_DIR(GTK gtk/gtk.h)
+        if(UNIX)
+            if(APPLE)
+                _GTK2_FIND_LIBRARY    (GTK gtk-quartz false true)
+            endif()
+            if(NOT GTK2_GTK_FOUND)
+                _GTK2_FIND_LIBRARY    (GTK gtk-x11 false true)
+            endif()
+        else()
+            _GTK2_FIND_LIBRARY    (GTK gtk-win32 false true)
+        endif()
+        _GTK2_ADD_TARGET (GTK GTK2_DEPENDS gdk atk pangoft2 pango gdk_pixbuf gthread gobject glib
+                              GTK2_OPTIONAL_DEPENDS gio pangocairo cairo)
 
     elseif(_GTK2_component STREQUAL "gtkmm")
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLIBMM_INCLUDE_DIR glibmm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLIBMMCONFIG_INCLUDE_DIR glibmmconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GLIBMM_LIBRARY glibmm true true)
+        _GTK2_FIND_INCLUDE_DIR(SIGC++ sigc++/sigc++.h)
+        _GTK2_FIND_INCLUDE_DIR(SIGC++CONFIG sigc++config.h)
+        _GTK2_FIND_LIBRARY    (SIGC++ sigc true true)
+        _GTK2_ADD_TARGET      (SIGC++)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDKMM_INCLUDE_DIR gdkmm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDKMMCONFIG_INCLUDE_DIR gdkmmconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GDKMM_LIBRARY gdkmm true true)
+        _GTK2_FIND_INCLUDE_DIR(GLIBMM glibmm.h)
+        _GTK2_FIND_INCLUDE_DIR(GLIBMMCONFIG glibmmconfig.h)
+        _GTK2_FIND_LIBRARY    (GLIBMM glibmm true true)
+        _GTK2_ADD_TARGET      (GLIBMM GTK2_DEPENDS gobject sigc++ glib)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GTKMM_INCLUDE_DIR gtkmm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GTKMMCONFIG_INCLUDE_DIR gtkmmconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GTKMM_LIBRARY gtkmm true true)
+        _GTK2_FIND_INCLUDE_DIR(GIOMM giomm.h)
+        _GTK2_FIND_INCLUDE_DIR(GIOMMCONFIG giommconfig.h)
+        _GTK2_FIND_LIBRARY    (GIOMM giomm true true)
+        _GTK2_ADD_TARGET      (GIOMM GTK2_DEPENDS gio glibmm gobject sigc++ glib)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_CAIROMM_INCLUDE_DIR cairomm/cairomm.h)
-        _GTK2_FIND_LIBRARY    (GTK2_CAIROMM_LIBRARY cairomm true true)
+        _GTK2_FIND_INCLUDE_DIR(ATKMM atkmm.h)
+        _GTK2_FIND_LIBRARY    (ATKMM atkmm true true)
+        _GTK2_ADD_TARGET      (ATKMM GTK2_DEPENDS atk glibmm gobject sigc++ glib)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_PANGOMM_INCLUDE_DIR pangomm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_PANGOMMCONFIG_INCLUDE_DIR pangommconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_PANGOMM_LIBRARY pangomm true true)
+        _GTK2_FIND_INCLUDE_DIR(CAIROMM cairomm/cairomm.h)
+        _GTK2_FIND_INCLUDE_DIR(CAIROMMCONFIG cairommconfig.h)
+        _GTK2_FIND_LIBRARY    (CAIROMM cairomm true true)
+        _GTK2_ADD_TARGET      (CAIROMM GTK2_DEPENDS cairo sigc++
+                                       OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                         ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                         ${GTK2_X11_INCLUDE_DIR})
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_SIGC++_INCLUDE_DIR sigc++/sigc++.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_SIGC++CONFIG_INCLUDE_DIR sigc++config.h)
-        _GTK2_FIND_LIBRARY    (GTK2_SIGC++_LIBRARY sigc true true)
+        _GTK2_FIND_INCLUDE_DIR(PANGOMM pangomm.h)
+        _GTK2_FIND_INCLUDE_DIR(PANGOMMCONFIG pangommconfig.h)
+        _GTK2_FIND_LIBRARY    (PANGOMM pangomm true true)
+        _GTK2_ADD_TARGET      (PANGOMM GTK2_DEPENDS glibmm sigc++ pango gobject glib
+                                       GTK2_OPTIONAL_DEPENDS cairomm pangocairo cairo
+                                       OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                         ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                         ${GTK2_X11_INCLUDE_DIR})
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GIOMM_INCLUDE_DIR giomm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GIOMMCONFIG_INCLUDE_DIR giommconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GIOMM_LIBRARY giomm true true)
+        _GTK2_FIND_INCLUDE_DIR(GDKMM gdkmm.h)
+        _GTK2_FIND_INCLUDE_DIR(GDKMMCONFIG gdkmmconfig.h)
+        _GTK2_FIND_LIBRARY    (GDKMM gdkmm true true)
+        _GTK2_ADD_TARGET      (GDKMM GTK2_DEPENDS pangomm gtk glibmm sigc++ gdk atk pangoft2 gdk_pixbuf pango gobject glib
+                                     GTK2_OPTIONAL_DEPENDS giomm cairomm gio pangocairo cairo
+                                     OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                       ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                       ${GTK2_X11_INCLUDE_DIR})
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_ATKMM_INCLUDE_DIR atkmm.h)
-        _GTK2_FIND_LIBRARY    (GTK2_ATKMM_LIBRARY atkmm true true)
+        _GTK2_FIND_INCLUDE_DIR(GTKMM gtkmm.h)
+        _GTK2_FIND_INCLUDE_DIR(GTKMMCONFIG gtkmmconfig.h)
+        _GTK2_FIND_LIBRARY    (GTKMM gtkmm true true)
+        _GTK2_ADD_TARGET      (GTKMM GTK2_DEPENDS atkmm gdkmm pangomm gtk glibmm sigc++ gdk atk pangoft2 gdk_pixbuf pango gthread gobject glib
+                                     GTK2_OPTIONAL_DEPENDS giomm cairomm gio pangocairo cairo
+                                     OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                       ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                       ${GTK2_X11_INCLUDE_DIR})
 
     elseif(_GTK2_component STREQUAL "glade")
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLADE_INCLUDE_DIR glade/glade.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GLADE_LIBRARY glade false true)
+        _GTK2_FIND_INCLUDE_DIR(GLADE glade/glade.h)
+        _GTK2_FIND_LIBRARY    (GLADE glade false true)
+        _GTK2_ADD_TARGET      (GLADE GTK2_DEPENDS gtk gdk atk gio pangoft2 gdk_pixbuf pango gobject glib
+                                     GTK2_OPTIONAL_DEPENDS pangocairo cairo
+                                     OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                       ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                       ${GTK2_X11_INCLUDE_DIR})
 
     elseif(_GTK2_component STREQUAL "glademm")
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLADEMM_INCLUDE_DIR libglademm.h)
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GLADEMMCONFIG_INCLUDE_DIR libglademmconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GLADEMM_LIBRARY glademm true true)
+        _GTK2_FIND_INCLUDE_DIR(GLADEMM libglademm.h)
+        _GTK2_FIND_INCLUDE_DIR(GLADEMMCONFIG libglademmconfig.h)
+        _GTK2_FIND_LIBRARY    (GLADEMM glademm true true)
+        _GTK2_ADD_TARGET      (GLADEMM GTK2_DEPENDS gtkmm glade atkmm gdkmm giomm pangomm glibmm sigc++ gtk gdk atk pangoft2 gdk_pixbuf pango gthread gobject glib
+                                       GTK2_OPTIONAL_DEPENDS giomm cairomm gio pangocairo cairo
+                                       OPTIONAL_INCLUDES ${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2}
+                                                         ${GTK2_FONTCONFIG_INCLUDE_DIR}
+                                                         ${GTK2_X11_INCLUDE_DIR})
 
     else()
         message(FATAL_ERROR "Unknown GTK2 component ${_component}")
@@ -543,18 +842,20 @@ include(FindPackageHandleStandardArgs)
 foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
     string(TOUPPER ${_GTK2_component} _COMPONENT_UPPER)
 
+    set(GTK2_${_COMPONENT_UPPER}_FIND_QUIETLY ${GTK2_FIND_QUIETLY})
+
     if(_GTK2_component STREQUAL "gtk")
         FIND_PACKAGE_HANDLE_STANDARD_ARGS(GTK2_${_COMPONENT_UPPER} "Some or all of the gtk libraries were not found."
             GTK2_GTK_LIBRARY
             GTK2_GTK_INCLUDE_DIR
 
-            GTK2_GLIB_INCLUDE_DIR
-            GTK2_GLIBCONFIG_INCLUDE_DIR
-            GTK2_GLIB_LIBRARY
-
             GTK2_GDK_INCLUDE_DIR
             GTK2_GDKCONFIG_INCLUDE_DIR
             GTK2_GDK_LIBRARY
+
+            GTK2_GLIB_INCLUDE_DIR
+            GTK2_GLIBCONFIG_INCLUDE_DIR
+            GTK2_GLIB_LIBRARY
         )
     elseif(_GTK2_component STREQUAL "gtkmm")
         FIND_PACKAGE_HANDLE_STANDARD_ARGS(GTK2_${_COMPONENT_UPPER} "Some or all of the gtkmm libraries were not found."
@@ -562,13 +863,16 @@ foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
             GTK2_GTKMM_INCLUDE_DIR
             GTK2_GTKMMCONFIG_INCLUDE_DIR
 
+            GTK2_GDKMM_INCLUDE_DIR
+            GTK2_GDKMMCONFIG_INCLUDE_DIR
+            GTK2_GDKMM_LIBRARY
+
             GTK2_GLIBMM_INCLUDE_DIR
             GTK2_GLIBMMCONFIG_INCLUDE_DIR
             GTK2_GLIBMM_LIBRARY
 
-            GTK2_GDKMM_INCLUDE_DIR
-            GTK2_GDKMMCONFIG_INCLUDE_DIR
-            GTK2_GDKMM_LIBRARY
+            FREETYPE_INCLUDE_DIR_ft2build
+            FREETYPE_INCLUDE_DIR_freetype2
         )
     elseif(_GTK2_component STREQUAL "glade")
         FIND_PACKAGE_HANDLE_STANDARD_ARGS(GTK2_${_COMPONENT_UPPER} "The glade library was not found."
@@ -599,8 +903,10 @@ else()
     set(GTK2_VERSION_PATCH)
     set(GTK2_INCLUDE_DIRS)
     set(GTK2_LIBRARIES)
+    set(GTK2_DEFINITIONS)
 endif()
 
 if(GTK2_INCLUDE_DIRS)
    list(REMOVE_DUPLICATES GTK2_INCLUDE_DIRS)
 endif()
+
