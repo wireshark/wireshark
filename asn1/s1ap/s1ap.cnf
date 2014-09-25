@@ -307,6 +307,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 %(DEFAULT_BODY)s
 
 	if (g_s1ap_dissect_container) {
+		/* Don't want elements inside container to write to info column */
+		col_set_writable(actx->pinfo->cinfo, FALSE);
 		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     	switch(handover_type_value){
@@ -350,6 +352,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 		}
+		/* Enable writing of the column again */
+		col_set_writable(actx->pinfo->cinfo, TRUE);
 	}
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octest string(no "double encoding")
