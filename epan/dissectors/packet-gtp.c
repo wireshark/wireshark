@@ -8936,7 +8936,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_sac,
          { "SAC", "gtp.ext_sac",
-           FT_UINT16, BASE_HEX, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_imeisv,
