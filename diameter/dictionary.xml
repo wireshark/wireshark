@@ -6408,8 +6408,27 @@
 		<!--
 		Note: The AVP codes from 2607 to 2699 are reserved for TS 32.299
 		-->
+    <!-- -->
+    <avp name="Presence-Reporting-Area-Elements-List" code="2820" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Presence-Reporting-Area-Identifier" code="2821" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Presence-Reporting-Area-Information" code="2822" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <grouped>
+        <gavp name="Presence-Reporting-Area-Identifier"/>
+        <gavp name="Presence-Reporting-Area-Status"/>
+        <gavp name="Presence-Reporting-Area-Elements-List"/>
+      </grouped>
+    </avp>
+    <avp name="Presence-Reporting-Area-Status" code="2823" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+      <type type-name="Enumerated"/>
+      <enum name="In area" code="0"/>
+      <enum name="Out of area" code="1"/>
+    </avp>
 
-		<avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Policy-Counter-Status" code="2902" mandatory="must" vendor-bit="must" vendor-id="TGPP">
