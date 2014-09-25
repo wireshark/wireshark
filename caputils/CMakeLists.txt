@@ -36,11 +36,17 @@ endif()
 
 set(CAPUTILS_SRC
 	${PLATFORM_CAPUTILS_SRC}
-	airpcap_loader.c
 	capture-pcap-util.c
 	iface_monitor.c
 	ws80211_utils.c
 )
+
+if (AIRPCAP_FOUND)
+	set(CAPUTILS_SRC
+		${CAPUTILS_SRC}
+		airpcap_loader.c
+	)
+endif()
 
 set(CLEAN_FILES
 	${CAPUTILS_SRC}

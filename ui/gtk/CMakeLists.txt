@@ -117,7 +117,7 @@ set(WIRESHARK_GTK_SRC
 	${WIRESHARK_CUSTOM_GTK_SRC}
 )
 
-if (HAVE_AIRPCAP)
+if (AIRPCAP_FOUND)
 	set(WIRESHARK_GTK_SRC
 		${WIRESHARK_GTK_SRC}
 		airpcap_dlg.c
@@ -126,14 +126,14 @@ if (HAVE_AIRPCAP)
 	)
 endif()
 
-if(HAVE_PORTAUDIO_H)
+if(PORTAUDIO_FOUND)
 	set(WIRESHARK_GTK_SRC
 		${WIRESHARK_GTK_SRC}
 		rtp_player.c
 	)
 endif()
 
-if(HAVE_EXTCAP)
+if(ENABLE_EXTCAP)
 	set(WIRESHARK_GTK_SRC
 		${WIRESHARK_GTK_SRC}
 		extcap_gtk.c
