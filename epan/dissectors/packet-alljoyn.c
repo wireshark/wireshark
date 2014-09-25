@@ -92,6 +92,7 @@ static int hf_alljoyn_uint32 = -1;
 static int hf_alljoyn_int64 = -1;
 static int hf_alljoyn_uint64 = -1;
 static int hf_alljoyn_double = -1;
+static int hf_padding = -1;         /* Some fields are padded to an even number of 2, 4, or 8 bytes. */
 
 #define MESSAGE_HEADER_FLAG_NO_REPLY_EXPECTED 0x01
 #define MESSAGE_HEADER_FLAG_NO_AUTO_START     0x02
@@ -326,6 +327,10 @@ static gint round_to_8byte(gint current_offset,
 
     return starting_offset + ROUND_TO_8BYTE(length);
 }
+
+/* This is the maximum number of rounding bytes that is ever used.
+ * This define is used for error checking. */
+#define MAX_ROUND_TO_BYTES 7
 
 /* Gets a 32-bit unsigned integer from the packet buffer with
  * the proper byte-swap.
@@ -739,6 +744,27 @@ advance_to_end_of_signature(guint8 **signature,
     }
 }
 
+/* This is called to add a padding item. There is not padding done for each call made.
+ * There is testing for the padding length which must be greater than zero. It's also possible,
+ * in the case of bad packets, that the end of the padding is wrong so range checking is
+ * also done. In the case of something being obviously wrong this function returns
+ * without adding the padding item.
+ * @param padding_start is the offset into tvb at which the (possible) padding starts.
+ * @param padding_end is the offset into tvb at which the (possible) padding ends.
+ * @param tvb is the incoming network data buffer.
+ * @param tree is the tree to which the new item should be attached.
+ */
+void add_padding_item(gint padding_start, gint padding_end, tvbuff_t *tvb, proto_tree *tree)
+{
+    if(padding_end > padding_start && padding_end < (gint)tvb_reported_length(tvb)) {
+        gint padding_length = padding_end - padding_start;
+
+        if (padding_length <= MAX_ROUND_TO_BYTES) {
+            proto_tree_add_item(tree, hf_padding, tvb, padding_start, padding_length, ENC_NA);
+        }
+    }
+}
+
 /* This is called to handle a single typed argument. Recursion is used
  * to handle arrays and structures.
  * @param tvb is the incoming network data buffer.
@@ -782,6 +808,7 @@ parse_arg(tvbuff_t     *tvb,
           gint          field_starting_offset)
 {
     gint length;
+    gint padding_start;
     const gchar *header_type_name = NULL;
 
     switch(type_id)
@@ -811,12 +838,16 @@ parse_arg(tvbuff_t     *tvb,
 
             /* *sig_saved will now be the element type after the 'a'. */
             sig_saved = (*signature) + 1;
+
+            padding_start = offset;
             offset = round_to_4byte(offset, field_starting_offset);
+            add_padding_item(padding_start, offset, tvb, field_tree);
 
             /* This is the length of the entire array in bytes but does not include the length field. */
             length = (gint)get_uint32(tvb, offset, encoding);
 
-            starting_offset = pad_according_to_type(offset + 4, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
+            padding_start = offset + 4;
+            starting_offset = pad_according_to_type(padding_start, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
 
             if(length < 0 || length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, starting_offset));
@@ -828,6 +859,7 @@ parse_arg(tvbuff_t     *tvb,
             tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
             offset = starting_offset;
+            add_padding_item(padding_start, offset, tvb, tree);
 
             if(0 == length) {
                 advance_to_end_of_signature(signature, &remaining_sig_length);
@@ -867,7 +899,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_BOOLEAN:    /* AllJoyn boolean basic type */
         header_type_name = "boolean";
+        padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_boolean, tvb, offset, 4, encoding);
         offset += 4;
@@ -875,7 +909,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_DOUBLE:     /* AllJoyn IEEE 754 double basic type */
         header_type_name = "IEEE 754 double";
+        padding_start = offset;
         offset = round_to_8byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_double, tvb, offset, 8, encoding);
         offset += 8;
@@ -912,7 +948,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_HANDLE:     /* AllJoyn socket handle basic type. */
         header_type_name = "socket handle";
+        padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_handle, tvb, offset, 4, encoding);
         offset += 4;
@@ -920,7 +958,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT32:      /* AllJoyn 32-bit signed integer basic type. */
         header_type_name = "int32";
+        padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int32, tvb, offset, 4, encoding);
         offset += 4;
@@ -928,7 +968,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT16:      /* AllJoyn 16-bit signed integer basic type. */
         header_type_name = "int16";
+        padding_start = offset;
         offset = round_to_2byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int16, tvb, offset, 2, encoding);
         offset += 2;
@@ -955,7 +997,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT16:     /* AllJoyn 16-bit unsigned integer basic type */
         header_type_name = "uint16";
+        padding_start = offset;
         offset = round_to_2byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_uint16, tvb, offset, 2, encoding);
         offset += 2;
@@ -963,7 +1007,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_STRING:     /* AllJoyn UTF-8 NULL terminated string basic type */
         header_type_name = "string";
+        padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding);
 
@@ -993,7 +1039,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT64:     /* AllJoyn 64-bit unsigned integer basic type */
         header_type_name = "uint64";
+        padding_start = offset;
         offset = round_to_8byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_uint64, tvb, offset, 8, encoding);
         offset += 8;
@@ -1001,7 +1049,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_UINT32:     /* AllJoyn 32-bit unsigned integer basic type */
         header_type_name = "uint32";
+        padding_start = offset;
         offset = round_to_4byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         if(is_reply_to) {
             static const gchar format[] = " Replies to: %09u";
@@ -1077,7 +1127,9 @@ parse_arg(tvbuff_t     *tvb,
 
     case ARG_INT64:      /* AllJoyn 64-bit signed integer basic type */
         header_type_name = "int64";
+        padding_start = offset;
         offset = round_to_8byte(offset, field_starting_offset);
+        add_padding_item(padding_start, offset, tvb, field_tree);
 
         proto_tree_add_item(field_tree, hf_alljoyn_int64, tvb, offset, 8, encoding);
         offset += 8;
@@ -1118,7 +1170,9 @@ parse_arg(tvbuff_t     *tvb,
             append_struct_signature(item, *signature, *signature_length, type_stop);
             tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
+            padding_start = offset;
             offset = pad_according_to_type(offset, field_starting_offset, tvb_reported_length(tvb), type_id);
+            add_padding_item(padding_start, offset, tvb, tree);
 
             (*signature)++; /* Advance past the '(' or '{'. */
 
@@ -1205,6 +1259,7 @@ handle_message_field(tvbuff_t     *tvb,
     guint8      type_id;
     gboolean    is_reply_to = FALSE;
     gint        starting_offset = offset;
+    gint        padding_start;
 
     field_code = tvb_get_guint8(tvb, offset);
 
@@ -1243,7 +1298,9 @@ handle_message_field(tvbuff_t     *tvb,
                        signature_length,
                        starting_offset);
 
+    padding_start = offset;
     offset = round_to_8byte(offset, starting_offset);
+    add_padding_item(padding_start, offset, tvb, field_tree);
 
     if(offset < 0 || offset > (gint)tvb_reported_length(tvb)) {
         offset = (gint)tvb_reported_length(tvb);
@@ -1448,6 +1505,12 @@ handle_message_header_body(tvbuff_t    *tvb,
 
     signature = handle_message_header_fields(tvb, pinfo, message_tree, encoding,
                                              offset, header_length, &signature_length);
+    /* No need to call add_padding_item() after the following operation. It's not needed
+     * because all message header fields widths are multiples of 8 and are padded as necessary.
+     * Because the padding is taken care of in the individual message header field there is no
+     * need for it here. The rounding here just gets the offset to the end of the last header
+     * field and its (possible) padding.
+     */
     offset += ROUND_TO_8BYTE(header_length);
 
     if(body_length > 0 && signature != NULL && signature_length > 0) {
@@ -1673,7 +1736,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         }
 
         if(flags & ISAT_F) {
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_BIG_ENDIAN);
             (*offset) += 4;
         }
 
@@ -1797,7 +1860,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         (*offset) += 1;
 
         /* The entire transport mask. */
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask, tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
         /* The individual bits of the transport mask. */
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wfd,       tvb, *offset, 2, ENC_NA);
@@ -1811,7 +1874,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         (*offset) += 2;
 
         if(flags & ISAT_R4) {
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_BIG_ENDIAN);
             (*offset) += 4;
 
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -1819,7 +1882,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         }
 
         if(flags & ISAT_U4) {
-            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
+            proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_BIG_ENDIAN);
             (*offset) += 4;
 
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -2139,7 +2202,7 @@ proto_register_AllJoyn(void)
 
         {&hf_alljoyn_ns_isat_transport_mask,
          {"Transport Mask", "alljoyn.isat.TransportMask",
-          FT_UINT8, BASE_HEX, NULL, 0x0,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
 
@@ -2389,6 +2452,11 @@ proto_register_AllJoyn(void)
         {&hf_alljoyn_double,
          {"Double", "alljoyn.double",
           FT_DOUBLE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
+        },
+        {&hf_padding,
+         {"Padding", "alljoyn.padding",
+          FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL}
         },
 
