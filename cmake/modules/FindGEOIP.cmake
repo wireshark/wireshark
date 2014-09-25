@@ -15,12 +15,23 @@ ENDIF (GEOIP_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("GeoIP-.*" "GEOIP_HINTS")
 
-FIND_PATH(GEOIP_INCLUDE_DIR GeoIP.h HINTS "${GEOIP_HINTS}/include" )
+find_package(PkgConfig)
+pkg_search_module(GEOIP geoip)
+
+FIND_PATH(GEOIP_INCLUDE_DIR GeoIP.h
+  HINTS
+    "${GEOIP_INCLUDEDIR}"
+    "${GEOIP_HINTS}/include"
+)
 
 SET(GEOIP_NAMES GeoIP libGeoIP-1)
-FIND_LIBRARY(GEOIP_LIBRARY NAMES ${GEOIP_NAMES} HINTS "${GEOIP_HINTS}/lib" )
+FIND_LIBRARY(GEOIP_LIBRARY NAMES ${GEOIP_NAMES}
+  HINTS
+    "${GEOIP_LIBDIR}"
+    "${GEOIP_HINTS}/lib"
+  )
 
-# handle the QUIETLY and REQUIRED arguments and set GEOIP_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set GEOIP_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(GEOIP DEFAULT_MSG GEOIP_LIBRARY GEOIP_INCLUDE_DIR)

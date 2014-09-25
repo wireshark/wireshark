@@ -35,10 +35,14 @@
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("zlib" "ZLIB_HINTS")
 
+find_package(PkgConfig)
+pkg_search_module(ZLIB zlib)
+
 FIND_PATH(ZLIB_INCLUDE_DIR
     NAMES
         zlib.h
     HINTS
+        "${ZLIB_INCLUDEDIR}"
         ${ZLIB_HINTS}/include
         ${ZLIB_HINTS}
     PATHS
@@ -50,6 +54,7 @@ FIND_LIBRARY(ZLIB_LIBRARY
     NAMES
         ${ZLIB_NAMES}
     HINTS
+        "${ZLIB_LIBDIR}"
         ${ZLIB_HINTS}/lib
         ${ZLIB_HINTS}
     PATHS

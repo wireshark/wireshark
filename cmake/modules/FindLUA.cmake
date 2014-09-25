@@ -15,9 +15,13 @@
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("lua5*" "LUA_HINTS")
 
+find_package(PkgConfig)
+pkg_search_module(LUA lua)
+
 FIND_PATH(LUA_INCLUDE_DIR lua.h
   HINTS
-  $ENV{LUA_DIR}
+    "${LUA_INCLUDEDIR}"
+    "$ENV{LUA_DIR}"
   ${LUA_HINTS}
   PATH_SUFFIXES include/lua52 include/lua5.2 include/lua51 include/lua5.1 include/lua include
   PATHS
@@ -49,7 +53,8 @@ message("LUA INCLUDE SUFFIX: ${LUA_INC_SUFFIX}")
 FIND_LIBRARY(LUA_LIBRARY
   NAMES lua${LUA_INC_SUFFIX} lua52 lua5.2 lua51 lua5.1 lua
   HINTS
-  $ENV{LUA_DIR}
+    "${LUA_LIBDIR}"
+    "$ENV{LUA_DIR}"
   ${LUA_HINTS}
   PATH_SUFFIXES lib64 lib
   PATHS
