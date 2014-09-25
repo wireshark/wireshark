@@ -1125,13 +1125,13 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
     /*
-     * The record data must be large enough to hold the statistics header
-     * and the statistics trailer.
+     * The record data must be large enough to hold the statistics header,
+     * the PLCP, and the statistics trailer.
      */
-    if (rec_size < vVW510021_W_STATS_HEADER_LEN + vVW510021_W_STATS_TRAILER_LEN) {
+    if ((guint)rec_size < vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
         *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                     rec_size,
-                                    vVW510021_W_STATS_HEADER_LEN + vVW510021_W_STATS_TRAILER_LEN);
+                                    vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
     }
@@ -1481,7 +1481,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          delta_b;                             /* Used for calculating latency */
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
-    if (rec_size < (int)vwr->STATS_LEN) {
+    if ((guint)rec_size < vwr->STATS_LEN) {
         *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -1623,8 +1623,8 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * We include the length of the metadata headers in the packet lengths.
      */
-    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
-    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
+    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;
+    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
