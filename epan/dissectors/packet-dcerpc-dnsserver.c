@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-dnsserver.h"
+void proto_register_dcerpc_dnsserver(void);
+void proto_reg_handoff_dcerpc_dnsserver(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_dnsserver = -1;

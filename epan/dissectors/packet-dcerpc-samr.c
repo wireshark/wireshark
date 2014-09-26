@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-samr.h"
+void proto_register_dcerpc_samr(void);
+void proto_reg_handoff_dcerpc_samr(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_samr = -1;

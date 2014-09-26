@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-frsrpc.h"
+void proto_register_dcerpc_frsrpc(void);
+void proto_reg_handoff_dcerpc_frsrpc(void);
 
 /* Ett declarations */
 static gint ett_ChunkCtr = -1;

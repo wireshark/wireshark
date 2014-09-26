@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-dfs.h"
+void proto_register_dcerpc_netdfs(void);
+void proto_reg_handoff_dcerpc_netdfs(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_netdfs = -1;

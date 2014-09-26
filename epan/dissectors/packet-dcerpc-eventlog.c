@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-eventlog.h"
+void proto_register_dcerpc_eventlog(void);
+void proto_reg_handoff_dcerpc_eventlog(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_eventlog = -1;

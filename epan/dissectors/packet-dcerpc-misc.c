@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-misc.h"
+void proto_register_dcerpc_misc(void);
+void proto_reg_handoff_dcerpc_misc(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_misc = -1;

@@ -25,22 +25,24 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-rfr.h"
+void proto_register_dcerpc_rfr(void);
+void proto_reg_handoff_dcerpc_rfr(void);
 
 /* Ett declarations */
 static gint ett_dcerpc_rfr = -1;
 
 
 /* Header field declarations */
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN = -1;
 static gint hf_rfr_MAPISTATUS_status = -1;
 static gint hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN = -1;
-static gint hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN = -1;
-static gint hf_rfr_RfrGetNewDSA_ulFlags = -1;
-static gint hf_rfr_RfrGetNewDSA_pUserDN = -1;
-static gint hf_rfr_RfrGetNewDSA_ppszServer = -1;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN = -1;
 static gint hf_rfr_opnum = -1;
+static gint hf_rfr_RfrGetNewDSA_ulFlags = -1;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN = -1;
+static gint hf_rfr_RfrGetNewDSA_pUserDN = -1;
 static gint hf_rfr_RfrGetNewDSA_ppszUnused = -1;
+static gint hf_rfr_RfrGetNewDSA_ppszServer = -1;
+static gint hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN = -1;
 
 static gint proto_dcerpc_rfr = -1;
 /* Version information */
@@ -315,9 +317,9 @@ rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_,
 
 /* IDL: MAPISTATUS RfrGetNewDSA( */
 /* IDL: [in] uint32 ulFlags, */
-/* IDL: [in] [ref] [charset(DOS)] uint8 *pUserDN, */
-/* IDL: [charset(DOS)] [unique(1)] [out] [in] uint8 **ppszUnused, */
-/* IDL: [charset(DOS)] [unique(1)] [out] [in] uint8 **ppszServer */
+/* IDL: [ref] [in] [charset(DOS)] uint8 *pUserDN, */
+/* IDL: [out] [unique(1)] [in] [charset(DOS)] uint8 **ppszUnused, */
+/* IDL: [out] [unique(1)] [in] [charset(DOS)] uint8 **ppszServer */
 /* IDL: ); */
 
 static int
@@ -419,8 +421,8 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, i
 /* IDL: MAPISTATUS RfrGetFQDNFromLegacyDN( */
 /* IDL: [in] uint32 ulFlags, */
 /* IDL: [in] [range(10,1024)] uint32 cbMailboxServerDN, */
-/* IDL: [size_is(cbMailboxServerDN)] [charset(DOS)] [ref] [in] uint8 *szMailboxServerDN, */
-/* IDL: [out] [charset(DOS)] [ref] uint8 **ppszServerFQDN */
+/* IDL: [ref] [in] [charset(DOS)] [size_is(cbMailboxServerDN)] uint8 *szMailboxServerDN, */
+/* IDL: [out] [ref] [charset(DOS)] uint8 **ppszServerFQDN */
 /* IDL: ); */
 
 static int
@@ -464,26 +466,26 @@ static dcerpc_sub_dissector rfr_dissectors[] = {
 void proto_register_dcerpc_rfr(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN,
-		{ "Szmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.szMailboxServerDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_MAPISTATUS_status,
 		{ "MAPISTATUS", "rfr.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(rfr_MAPISTATUS_vals), 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags,
 		{ "Ulflags", "rfr.RfrGetFQDNFromLegacyDN.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN,
-		{ "Cbmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.cbMailboxServerDN", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN,
-		{ "Ppszserverfqdn", "rfr.RfrGetFQDNFromLegacyDN.ppszServerFQDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_rfr_RfrGetNewDSA_ulFlags,
-		{ "Ulflags", "rfr.RfrGetNewDSA.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_rfr_RfrGetNewDSA_pUserDN,
-		{ "Puserdn", "rfr.RfrGetNewDSA.pUserDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_rfr_RfrGetNewDSA_ppszServer,
-		{ "Ppszserver", "rfr.RfrGetNewDSA.ppszServer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN,
+		{ "Szmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.szMailboxServerDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_opnum,
 		{ "Operation", "rfr.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetNewDSA_ulFlags,
+		{ "Ulflags", "rfr.RfrGetNewDSA.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN,
+		{ "Cbmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.cbMailboxServerDN", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetNewDSA_pUserDN,
+		{ "Puserdn", "rfr.RfrGetNewDSA.pUserDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetNewDSA_ppszUnused,
 		{ "Ppszunused", "rfr.RfrGetNewDSA.ppszUnused", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetNewDSA_ppszServer,
+		{ "Ppszserver", "rfr.RfrGetNewDSA.ppszServer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN,
+		{ "Ppszserverfqdn", "rfr.RfrGetFQDNFromLegacyDN.ppszServerFQDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
 

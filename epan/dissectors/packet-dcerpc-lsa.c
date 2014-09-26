@@ -25,6 +25,8 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-lsa.h"
+void proto_register_dcerpc_lsarpc(void);
+void proto_reg_handoff_dcerpc_lsarpc(void);
 
 /* Ett declarations */
 static gint ett_lsarpc_names = -1;
