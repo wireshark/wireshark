@@ -62,7 +62,7 @@ The command to compile file:
     ../../../tools/pidl/pidl --includedir . --ws-parser -- <idl-file>
                                                         ^^^
                                                         This is *VERY* important
-The command generate 2 files:
+The command generates 2 files:
     packet-dcerpc-<interfacename>.h
     packet-dcerpc-<interfacename>.c
 
@@ -96,9 +96,13 @@ release, a copy of pidl is located in tools/pidl.
 
 Not compiling idl
 =================
-As of September 18, 2014, the following idl have issues when generating
+As of September 26, 2014, the following idl have issues when generating
 and compiling:
 
+pidl complains that inline arrays aren't supported for these:
+
+	dnsserver.idl
+	eventlog.idl
 
 pidl generates possibly-incorrect code for these - this needs checking:
 
