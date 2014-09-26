@@ -720,10 +720,27 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_MDT_CONFIG             162
 #define GTPV2_IE_APCO                   163
 #define GTPV2_IE_ABS_MBMS_DATA_TF_TIME  164
-#define GTPV2_IE_HENB_INFO_REPORT  165
-#define GTPV2_IE_IP4CP 166
+#define GTPV2_IE_HENB_INFO_REPORT       165
+#define GTPV2_IE_IP4CP                  166
 #define GTPV2_IE_CHANGE_TO_REPORT_FLAGS 167
-#define GTPV2_IE_ACTION_INDICATION 168
+#define GTPV2_IE_ACTION_INDICATION      168
+#define GTPV2_IE_TWAN_IDENTIFIER        169
+#define GTPV2_IE_ULI_TIMESTAMP          170
+#define GTPV2_IE_MBMS_FLAGS             171
+#define GTPV2_IE_RAN_NAS_CAUSE          172
+#define GTPV2_IE_CN_OP_SEL_ENT          173
+#define GTPV2_IE_TRUST_WLAN_MODE_IND    174
+#define GTPV2_IE_NODE_NUMBER            175
+#define GTPV2_IE_NODE_IDENTIFIER        176
+#define GTPV2_IE_PRES_REP_AREA_ACT  177
+#define GTPV2_IE_PRES_REP_AREA_INF  178
+#define GTPV2_IE_TWAN_ID_TS             179
+#define GTPV2_IE_OVERLOAD_CONTROL_INF   180
+#define GTPV2_IE_LOAD_CONTROL_INF       181
+#define GTPV2_IE_METRIC                 182
+#define GTPV2_IE_SEQ_NO                 183
+#define GTPV2_IE_APN_AND_REL_CAP        184
+
 /* 169 to 254 reserved for future use */
 #define GTPV2_IE_PRIVATE_EXT            255
 
@@ -857,7 +874,25 @@ static const value_string gtpv2_element_type_vals[] = {
     {166, "IPv4 Configuration Parameters (IP4CP)"},                             /* Extendable / 8.97*/
     {167, "Change to Report Flags"},                                            /* Extendable / 8.98 */
     {168, "Action Indication"},                                                 /* Extendable / 8.99 */
-    /* 169 to 254 Spare. For future use.  */                                    /* For future use. FFS */
+    {169, "TWAN Identifier "},                                                  /* Extendable / 8.100 */
+    {170, "ULI Timestamp"},                                                     /* Extendable / 8.101 */
+    {171, "MBMS Flags"},                                                        /* Extendable / 8.102 */
+    {172, "RAN/NAS Cause"},                                                     /* Extendable / 8.103 */
+    {173, "CN Operator Selection Entity"},                                      /* Extendable / 8.104 */
+    {174, "Trusted WLAN Mode Indication"},                                      /* Extendable / 8.105 */
+    {175, "Node Number"},                                                       /* Extendable / 8.106 */
+    {176, "Node Identifier"},                                                   /* Extendable / 8.107 */
+    {177, "Presence Reporting Area Action"},                                    /* Extendable / 8.108 */
+    {178, "Presence Reporting Area Information"},                               /* Extendable / 8.109 */
+    {179, "TWAN Identifier Timestamp"},                                         /* Extendable / 8.110 */
+    {180, "Overload Control Information"},                                      /* Extendable / 8.111 */
+    {181, "Load Control Information"},                                          /* Extendable / 8.112 */
+    {182, "Metric"},                                                            /* Fixed Length / 8.113 */
+    {183, "Sequence Number"},                                                   /* Fixed Length / 8.114 */
+    {184, "APN and Relative Capacity"},                                         /* Extendable / 8.115 */
+
+    /* 185 to 254	Spare. For future use.	*/
+
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -5045,22 +5080,133 @@ dissect_gtpv2_action_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /*
  * 8.100	TWAN Identifier
+ */
+static void
+dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.101	ULI Timestamp
+ */
+static void
+dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.102	MBMS Flags
+ */
+static void
+dissect_gtpv2_mbms_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.103	RAN/NAS Cause
+ */
+static void
+dissect_gtpv2_ran_nas_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.104	CN Operator Selection Entity
+ */
+static void
+dissect_gtpv2_cn_operator_selection_entity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.105	Trusted WLAN Mode Indication
+ */
+static void
+dissect_gtpv2_trust_wlan_mode_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.106	Node Number
+ */
+static void
+dissect_gtpv2_node_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.107	Node Identifier
+ */
+static void
+dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.108	Presence Reporting Area Action
+ */
+static void
+dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.109	Presence Reporting Area Information
+ */
+static void
+dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.110	TWAN Identifier Timestamp
+ */
+static void
+dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.111	Overload Control Information
+ */
+static void
+dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.112	Load Control Information
+ */
+static void
+dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.113	Metric
+ */
+static void
+dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.114	Sequence Number
+ */
+static void
+dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+/*
  * 8.115	APN and Relative Capacity
  */
+static void
+dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+}
+
 typedef struct _gtpv2_ie {
     int ie_type;
     void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8, guint8);
@@ -5179,11 +5325,27 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_MDT_CONFIG, dissect_gtpv2_mdt_config},                       /* 162, 8.93 MDT Configuration */
     {GTPV2_IE_APCO, dissect_gtpv2_apco},                                   /* 163, 8.94 Additional Protocol Configuration Options (APCO) */
     {GTPV2_IE_ABS_MBMS_DATA_TF_TIME, dissect_gtpv2_abs_mbms_data_tf_time}, /* 164, 8.95 Absolute Time of MBMS Data Transfer */
-    {GTPV2_IE_HENB_INFO_REPORT, dissect_gtpv2_henb_info_report}, /* 165, 8.96 H(e)NB Information Reporting */
-    {GTPV2_IE_IP4CP, dissect_gtpv2_ip4cp}, /* 166, 8.97 IPv4 Configuration Parameters (IPv4CP) */
-    {GTPV2_IE_CHANGE_TO_REPORT_FLAGS, dissect_gtpv2_change_report_flags}, /* 167, 8.98 Change to Report Flags */
-    {GTPV2_IE_ACTION_INDICATION, dissect_gtpv2_action_indication}, /* 168, 8.99 Action Indication */
-                                                    /* 169-254 Spare. For future use. FFS */
+    {GTPV2_IE_HENB_INFO_REPORT, dissect_gtpv2_henb_info_report},           /* 165, 8.96 H(e)NB Information Reporting */
+    {GTPV2_IE_IP4CP, dissect_gtpv2_ip4cp},                                 /* 166, 8.97 IPv4 Configuration Parameters (IPv4CP) */
+    {GTPV2_IE_CHANGE_TO_REPORT_FLAGS, dissect_gtpv2_change_report_flags},  /* 167, 8.98 Change to Report Flags */
+    {GTPV2_IE_ACTION_INDICATION, dissect_gtpv2_action_indication},         /* 168, 8.99 Action Indication */
+    {GTPV2_IE_TWAN_IDENTIFIER, dissect_gtpv2_twan_Identifier},             /* 169, 8.100 TWAN Identifier */
+    {GTPV2_IE_ULI_TIMESTAMP, dissect_gtpv2_uli_timestamp},                 /* 170, 8.101 ULI Timestamp */
+    {GTPV2_IE_MBMS_FLAGS, dissect_gtpv2_mbms_flags},                       /* 171, 8.102 MBMS Flags */
+    {GTPV2_IE_RAN_NAS_CAUSE, dissect_gtpv2_ran_nas_cause},                 /* 172, 8.103 RAN/NAS Cause */
+    {GTPV2_IE_CN_OP_SEL_ENT, dissect_gtpv2_cn_operator_selection_entity},  /* 173, 8.104 CN Operator Selection Entity */
+    {GTPV2_IE_TRUST_WLAN_MODE_IND, dissect_gtpv2_trust_wlan_mode_ind},     /* 174, 8.105 Trusted WLAN Mode Indication */
+    {GTPV2_IE_NODE_NUMBER, dissect_gtpv2_node_number},                     /* 175, 8.106 Node Number */
+    {GTPV2_IE_NODE_IDENTIFIER, dissect_gtpv2_node_identifier},             /* 176, 8.107 Node Identifier */
+    {GTPV2_IE_PRES_REP_AREA_ACT, dissect_gtpv2_pres_rep_area_action},      /* 177, 8.108 Presence Reporting Area Action */
+    {GTPV2_IE_PRES_REP_AREA_INF, dissect_gtpv2_pres_rep_area_information}, /* 178, 8.109 Presence Reporting Area Information */
+    {GTPV2_IE_TWAN_ID_TS, dissect_gtpv2_twan_identifier_timestamp},        /* 179, 8.110 TWAN Identifier Timestamp */
+    {GTPV2_IE_OVERLOAD_CONTROL_INF, dissect_gtpv2_overload_control_inf},   /* 180, 8.111 Overload Control Information */
+    {GTPV2_IE_LOAD_CONTROL_INF, dissect_gtpv2_load_control_inf},           /* 181, 8.112 Load Control Information */
+    {GTPV2_IE_METRIC, dissect_gtpv2_metric},                               /* 182, 8.113 Metric */
+    {GTPV2_IE_SEQ_NO, dissect_gtpv2_seq_no},                               /* 183, 8.114 Sequence Number */
+    {GTPV2_IE_APN_AND_REL_CAP, dissect_gtpv2_apn_and_relative_capacity},   /* 184, 8.115 APN and Relative Capacity */
+
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
     {0, dissect_gtpv2_unknown}
