@@ -58,6 +58,28 @@ static int hf_canopen_nmt_ctrl_node_id = -1;
 static int hf_canopen_nmt_guard_state = -1;
 static int hf_canopen_nmt_guard_toggle = -1;
 static int hf_canopen_sync_counter = -1;
+static int hf_canopen_lss_cs = -1;
+static int hf_canopen_lss_addr_vendor = -1;
+static int hf_canopen_lss_addr_product = -1;
+static int hf_canopen_lss_addr_revision = -1;
+static int hf_canopen_lss_addr_revision_low = -1;
+static int hf_canopen_lss_addr_revision_high = -1;
+static int hf_canopen_lss_addr_serial = -1;
+static int hf_canopen_lss_addr_serial_low = -1;
+static int hf_canopen_lss_addr_serial_high = -1;
+static int hf_canopen_lss_fastscan_id = -1;
+static int hf_canopen_lss_fastscan_check = -1;
+static int hf_canopen_lss_fastscan_sub = -1;
+static int hf_canopen_lss_fastscan_next = -1;
+static int hf_canopen_lss_switch_mode = -1;
+static int hf_canopen_lss_nid = -1;
+static int hf_canopen_lss_conf_id_err_code = -1;
+static int hf_canopen_lss_conf_bt_err_code = -1;
+static int hf_canopen_lss_store_conf_err_code = -1;
+static int hf_canopen_lss_spec_err = -1;
+static int hf_canopen_lss_bt_tbl_selector = -1;
+static int hf_canopen_lss_bt_tbl_index = -1;
+static int hf_canopen_lss_abt_delay = -1;
 static int hf_canopen_time_stamp = -1;
 static int hf_canopen_time_stamp_ms = -1;
 static int hf_canopen_time_stamp_days = -1;
@@ -232,6 +254,8 @@ static const value_string CAN_open_p2p_msg_type_vals[] = {
 #define MT_PDO                           5
 #define MT_SDO                           6
 #define MT_NMT_ERR_CTRL                  7
+#define MT_LSS_MASTER                    10
+#define MT_LSS_SLAVE                     11
 
 /* TIME STAMP conversion defines */
 #define TS_DAYS_BETWEEN_1970_AND_1984   5113
@@ -357,6 +381,121 @@ static const value_string sdo_abort_code[] = {
     { 0, NULL}
 };
 
+/* LSS COB-IDs */
+#define LSS_MASTER_CAN_ID                  0x7E5
+#define LSS_SLAVE_CAN_ID                   0x7E4
+
+/* LSS Switch state services */
+#define LSS_CS_SWITCH_GLOBAL               0x04
+#define LSS_CS_SWITCH_SELECTIVE_VENDOR     0x40
+#define LSS_CS_SWITCH_SELECTIVE_PRODUCT    0x41
+#define LSS_CS_SWITCH_SELECTIVE_REVISION   0x42
+#define LSS_CS_SWITCH_SELECTIVE_SERIAL     0x43
+#define LSS_CS_SWITCH_SELECTIVE_RESP       0x44
+/* LSS Configuration services */
+#define LSS_CS_CONF_NODE_ID                0x11
+#define LSS_CS_CONF_BIT_TIMING             0x13
+#define LSS_CS_CONF_ACT_BIT_TIMING         0x15
+#define LSS_CS_CONF_STORE                  0x17
+/* LSS Inquire services */
+#define LSS_CS_INQ_VENDOR_ID               0x5A
+#define LSS_CS_INQ_PRODUCT_CODE            0x5B
+#define LSS_CS_INQ_REV_NUMBER              0x5C
+#define LSS_CS_INQ_SERIAL_NUMBER           0x5D
+#define LSS_CS_INQ_NODE_ID                 0x5E
+/* LSS Identification services */
+#define LSS_CS_IDENT_REMOTE_VENDOR         0x46
+#define LSS_CS_IDENT_REMOTE_PRODUCT        0x47
+#define LSS_CS_IDENT_REMOTE_REV_LOW        0x48
+#define LSS_CS_IDENT_REMOTE_REV_HIGH       0x49
+#define LSS_CS_IDENT_REMOTE_SERIAL_LOW     0x4A
+#define LSS_CS_IDENT_REMOTE_SERIAL_HIGH    0x4B
+#define LSS_CS_IDENT_REMOTE_NON_CONF       0x4C
+#define LSS_CS_IDENT_SLAVE                 0x4F
+#define LSS_CS_IDENT_NON_CONF_SLAVE        0x50
+#define LSS_CS_IDENT_FASTSCAN              0x51
+
+
+/* LSS command specifier */
+static const value_string lss_cs_code[] = {
+    { 0x04, "Switch state global protocol"},
+    { 0x11, "Configure node-ID protocol"},
+    { 0x13, "Configure bit timing protocol"},
+    { 0x15, "Activate bit timing parameters protocol"},
+    { 0x17, "Store configuration protocol"},
+    { 0x40, "Switch state selective protocol"},
+    { 0x41, "Switch state selective protocol"},
+    { 0x42, "Switch state selective protocol"},
+    { 0x43, "Switch state selective protocol"},
+    { 0x44, "Switch state selective protocol"},
+    { 0x46, "Identify remote slave protocol"},
+    { 0x47, "Identify remote slave protocol"},
+    { 0x48, "Identify remote slave protocol"},
+    { 0x49, "Identify remote slave protocol"},
+    { 0x4A, "Identify remote slave protocol"},
+    { 0x4B, "Identify remote slave protocol"},
+    { 0x4C, "Identify non-configured remote slave protocol"},
+    { 0x4F, "Identify slave protocol"},
+    { 0x50, "Identify non-configured slave protocol"},
+    { 0x51, "LSS Fastscan protocol"},
+    { 0x5A, "Inquire identity vendor-ID protocol"},
+    { 0x5B, "Inquire identity product code protocol"},
+    { 0x5C, "Inquire identity revision number protocol"},
+    { 0x5D, "Inquire identity serial number protocol"},
+    { 0x5E, "Inquire node-ID protocol"},
+    { 0, NULL}
+};
+
+static const value_string lss_fastscan_subnext[] = {
+    { 0x0, "Vendor-ID"},
+    { 0x1, "Product code"},
+    { 0x2, "Revision number"},
+    { 0x3, "Serial number"},
+    { 0, NULL}
+};
+
+static const value_string lss_switch_mode[] = {
+    { 0x0, "Waiting state"},
+    { 0x1, "Configuration state"},
+    { 0, NULL}
+};
+
+static const value_string lss_conf_id_err_code[] = {
+    { 0x00, "Protocol successfully completed"},
+    { 0x01, "NID out of range"},
+    { 0xFF, "Implementation specific error"},
+    { 0, NULL}
+};
+
+static const value_string lss_conf_bt_err_code[] = {
+    { 0x00, "Protocol successfully completed"},
+	{ 0x01, "Bit rate not supported"},
+    { 0xFF, "Implementation specific error"},
+    { 0, NULL}
+};
+
+static const value_string lss_store_conf_err_code[] = {
+    { 0x00, "Protocol successfully completed"},
+	{ 0x01, "Store configuration not supported"},
+	{ 0x02, "Storage media access erro"},
+    { 0xFF, "Implementation specific error"},
+    { 0, NULL}
+};
+
+static const value_string bit_timing_tbl[] = {
+    { 0x00, "1000 kbit/s"},
+    { 0x01, "800 kbit/s"},
+    { 0x02, "500 kbit/s"},
+    { 0x03, "250 kbit/s"},
+    { 0x04, "125 kbit/s"},
+    { 0x05, "Reserved"},
+    { 0x06, "50 kbit/s"},
+    { 0x07, "20 kbit/s"},
+    { 0x08, "10 kbit/s"},
+    { 0x09, "Auto bit rate detection"},
+    { 0, NULL}
+};
+
 static guint
 canopen_detect_msg_type(guint function_code, guint node_id)
 {
@@ -406,6 +545,14 @@ canopen_detect_msg_type(guint function_code, guint node_id)
             break;
         case FC_NMT_ERR_CONTROL:
             return MT_NMT_ERR_CTRL;
+            break;
+        case LSS_MASTER_CAN_ID >> 7:
+            if (node_id == (LSS_MASTER_CAN_ID & 0x7F)) {
+                return MT_LSS_MASTER;
+            } else if (node_id == (LSS_SLAVE_CAN_ID & 0x7F)) {
+                return MT_LSS_SLAVE;
+            }
+            return MT_UNKNOWN;
             break;
         default:
             return MT_UNKNOWN;
@@ -523,6 +670,254 @@ dissect_sdo(tvbuff_t *tvb, proto_tree *canopen_type_tree, guint function_code)
     }
 }
 
+static void
+dissect_lss(tvbuff_t *tvb, proto_tree *canopen_type_tree, guint msg_type_id)
+{
+    int offset = 0;
+    int reserved = 0;
+    guint8 lss_cs;
+    guint8 lss_bc_mask;
+    guint16 lss_abt_delay;
+
+    proto_tree_add_item(canopen_type_tree,
+            hf_canopen_lss_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    /* LSS command specifier */
+    lss_cs = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    if (msg_type_id == MT_LSS_MASTER) {
+
+        /* Master commands */
+        switch (lss_cs) {
+            case LSS_CS_SWITCH_GLOBAL:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_switch_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                reserved = 6;
+                break;
+            case LSS_CS_SWITCH_SELECTIVE_VENDOR:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_vendor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_SWITCH_SELECTIVE_PRODUCT:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_product, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_SWITCH_SELECTIVE_REVISION:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_revision, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_SWITCH_SELECTIVE_SERIAL:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_serial, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_CONF_NODE_ID:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_nid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                reserved = 6;
+                break;
+            case LSS_CS_CONF_BIT_TIMING:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_bt_tbl_selector, tvb, offset, 1, ENC_NA);
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_bt_tbl_index, tvb, offset, 1, ENC_NA);
+                offset++;
+                reserved = 5;
+                break;
+            case LSS_CS_CONF_ACT_BIT_TIMING:
+                lss_abt_delay = tvb_get_letohl(tvb, offset);
+                proto_tree_add_uint_format_value(canopen_type_tree,
+                        hf_canopen_lss_abt_delay, tvb, offset, 2, lss_abt_delay,
+                        "%d ms (0x%02x)", lss_abt_delay, lss_abt_delay);
+
+
+                offset += 2;
+                reserved = 5;
+                break;
+            case LSS_CS_CONF_STORE:
+                reserved = 7;
+                break;
+            case LSS_CS_INQ_VENDOR_ID:
+                reserved = 7;
+                break;
+            case LSS_CS_INQ_PRODUCT_CODE:
+                reserved = 7;
+                break;
+            case LSS_CS_INQ_REV_NUMBER:
+                reserved = 7;
+                break;
+            case LSS_CS_INQ_SERIAL_NUMBER:
+                reserved = 7;
+                break;
+            case LSS_CS_INQ_NODE_ID:
+                reserved = 7;
+                break;
+            case LSS_CS_IDENT_REMOTE_VENDOR:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_vendor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_PRODUCT:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_product, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_REV_LOW:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_revision_low, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_REV_HIGH:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_revision_high, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_SERIAL_LOW:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_serial_low, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_SERIAL_HIGH:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_serial_high, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_IDENT_REMOTE_NON_CONF:
+                reserved = 7;
+                break;
+            case LSS_CS_IDENT_FASTSCAN:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_fastscan_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                lss_bc_mask = tvb_get_guint8(tvb, offset);
+                if (lss_bc_mask == 0x80) {
+                    proto_tree_add_uint_format_value(canopen_type_tree,
+                            hf_canopen_lss_fastscan_check, tvb, offset, 1, lss_bc_mask,
+                            "All LSS slaves (0x%02x)", lss_bc_mask);
+                } else if (lss_bc_mask < 32) {
+                    proto_tree_add_uint_format_value(canopen_type_tree,
+                            hf_canopen_lss_fastscan_check, tvb, offset, 1,
+                            lss_bc_mask, "0x%x (0x%02x)",
+                            ~((1 << lss_bc_mask) - 1),
+                            lss_bc_mask);
+                } else {
+                    proto_tree_add_uint_format_value(canopen_type_tree,
+                            hf_canopen_lss_fastscan_check, tvb, offset, 1, lss_bc_mask,
+                            "Reserved (0x%02x)", lss_bc_mask);
+                }
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_fastscan_sub, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_fastscan_next, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                break;
+            default: /* invalid command specifier */
+                return;
+        }
+
+    } else {
+
+        /* Slave commands */
+        switch (lss_cs) {
+            case LSS_CS_SWITCH_SELECTIVE_RESP:
+                reserved = 7;
+                break;
+            case LSS_CS_CONF_NODE_ID:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_conf_id_err_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_spec_err, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                reserved = 5;
+                break;
+            case LSS_CS_CONF_BIT_TIMING:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_conf_bt_err_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_spec_err, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+                offset++;
+                reserved = 5;
+                break;
+            case LSS_CS_CONF_STORE:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_store_conf_err_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_spec_err, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                reserved = 5;
+                break;
+            case LSS_CS_INQ_VENDOR_ID:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_vendor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_INQ_PRODUCT_CODE:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_product, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_INQ_REV_NUMBER:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_revision, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_INQ_SERIAL_NUMBER:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_addr_serial, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+                reserved = 3;
+                break;
+            case LSS_CS_INQ_NODE_ID:
+                proto_tree_add_item(canopen_type_tree,
+                        hf_canopen_lss_nid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                reserved = 6;
+                break;
+            case LSS_CS_IDENT_SLAVE:
+                reserved = 7;
+                break;
+            case LSS_CS_IDENT_NON_CONF_SLAVE:
+                reserved = 7;
+                break;
+            default: /* invalid command specifier */
+                return;
+        }
+
+    }
+
+    if (reserved) {
+        proto_tree_add_item(canopen_type_tree,
+                hf_canopen_reserved, tvb, offset, reserved, ENC_NA);
+    }
+
+}
+
 /* Code to actually dissect the packets */
 static int
 dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -549,14 +944,23 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     msg_type_id = canopen_detect_msg_type(function_code, node_id);
 
-    if (node_id == 0 ) {
-        /* broadcast */
-        function_code_str = val_to_str(function_code, CAN_open_bcast_msg_type_vals, "Unknown (%u)");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", function_code_str);
+    if (msg_type_id == MT_LSS_MASTER) {
+        function_code_str = "LSS (Master)";
+        col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
+    } else if (msg_type_id == MT_LSS_SLAVE) {
+        function_code_str = "LSS (Slave)";
+        col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
     } else {
-        /* point-to-point */
-        function_code_str = val_to_str(function_code, CAN_open_p2p_msg_type_vals, "Unknown (%u)");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "p2p %s", function_code_str);
+
+        if (node_id == 0 ) {
+            /* broadcast */
+            function_code_str = val_to_str(function_code, CAN_open_bcast_msg_type_vals, "Unknown (%u)");
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", function_code_str);
+        } else {
+            /* point-to-point */
+            function_code_str = val_to_str(function_code, CAN_open_p2p_msg_type_vals, "Unknown (%u)");
+            col_add_fstr(pinfo->cinfo, COL_INFO, "p2p %s", function_code_str);
+        }
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                     tvb_bytes_to_ep_str_punct(tvb, offset, can_data_len, ' '));
@@ -657,6 +1061,12 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         case MT_SDO:
 
             dissect_sdo(tvb, canopen_type_tree, function_code);
+
+            break;
+        case MT_LSS_MASTER:
+        case MT_LSS_SLAVE:
+
+            dissect_lss(tvb, canopen_type_tree, msg_type_id);
 
             break;
         }
@@ -803,6 +1213,119 @@ proto_register_canopen(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        /* LSS */
+        { &hf_canopen_lss_cs,
+          { "Command specifier", "canopen.lss.cs",
+            FT_UINT8, BASE_HEX, VALS(lss_cs_code), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_vendor,
+          { "Vendor-ID", "canopen.lss.addr.vendor",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_product,
+          { "Product-code", "canopen.lss.addr.product",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_revision,
+          { "Revision-number", "canopen.lss.addr.revision",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_revision_low,
+          { "Revision-number (low)", "canopen.lss.addr.revision_low",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_revision_high,
+          { "Revision-number (high)", "canopen.lss.addr.revision_high",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_serial,
+          { "Serial-number", "canopen.lss.addr.serial",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_serial_low,
+          { "Serial-number (low)", "canopen.lss.addr.serial_low",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_addr_serial_high,
+          { "Serial-number (high)", "canopen.lss.addr.serial_high",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_fastscan_id,
+          { "IDNumber", "canopen.lss.fastscan.id",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_fastscan_check,
+          { "Bit Check", "canopen.lss.fastscan.check",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_fastscan_sub,
+          { "LSS Sub", "canopen.lss.fastscan.sub",
+            FT_UINT8, BASE_HEX, VALS(lss_fastscan_subnext), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_fastscan_next,
+          { "LSS Next", "canopen.lss.fastscan.next",
+            FT_UINT8, BASE_HEX, VALS(lss_fastscan_subnext), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_switch_mode,
+          { "Mode", "canopen.lss.switch.mode",
+            FT_UINT8, BASE_HEX, VALS(lss_switch_mode), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_nid,
+          { "NID", "canopen.lss.nid",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_conf_id_err_code,
+          { "Error code", "canopen.lss.conf_id.err_code",
+            FT_UINT8, BASE_HEX, VALS(lss_conf_id_err_code), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_conf_bt_err_code,
+          { "Error code", "canopen.lss.conf_bt.err_code",
+            FT_UINT8, BASE_HEX, VALS(lss_conf_bt_err_code), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_store_conf_err_code,
+          { "Error code", "canopen.lss.store_conf.err_code",
+            FT_UINT8, BASE_HEX, VALS(lss_store_conf_err_code), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_spec_err,
+          { "Spec-error", "canopen.lss.spec_err",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_bt_tbl_selector,
+          { "Table selector", "canopen.lss.bt.tbl_selector",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_bt_tbl_index,
+          { "Table index", "canopen.lss.bt.tbl_index",
+            FT_UINT8, BASE_HEX, VALS(bit_timing_tbl), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_canopen_lss_abt_delay,
+          { "Switch delay", "canopen.lss.abt_delay",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+
         { &hf_canopen_time_stamp,
           { "Time stamp",           "canopen.time_stamp",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
