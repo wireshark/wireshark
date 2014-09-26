@@ -48,6 +48,7 @@
 #define READ_WRITE_REG              23
 #define READ_FIFO_QUEUE             24
 #define ENCAP_INTERFACE_TRANSP      43
+#define UNITY_SCHNEIDER             90
 
 /* Modbus protocol exception codes */
 #define ILLEGAL_FUNCTION            0x01

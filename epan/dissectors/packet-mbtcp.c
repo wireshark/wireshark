@@ -273,6 +273,7 @@ static const value_string function_code_vals[] = {
     { READ_WRITE_REG,         "Read Write Register" },
     { READ_FIFO_QUEUE,        "Read FIFO Queue" },
     { ENCAP_INTERFACE_TRANSP, "Encapsulated Interface Transport" },
+    { UNITY_SCHNEIDER,        "Unity (Schneider)" },
     { 0,                      NULL }
 };
 
