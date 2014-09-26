@@ -346,8 +346,8 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     const char *win_alt_font = "Lucida Console";
     const char *osx_default_font = "Menlo";
     const char *osx_alt_font = "Monaco";
-    const char *x11_default_font = "Bitstream Vera Sans Mono";
-    const QStringList x11_alt_fonts = QStringList() << "Liberation Mono" << "DejaVu Sans Mono";
+    const char *x11_default_font = "Liberation Mono";
+    const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
     const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
     QStringList substitutes;
     int font_size_adjust = 0;
