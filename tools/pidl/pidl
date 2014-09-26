@@ -404,7 +404,6 @@ pidl README by Andrew Tridgell.
 use strict;
 use FindBin qw($RealBin $Script);
 use lib "$RealBin/lib";
-use lib "$RealBin/../share/perl5";
 use Getopt::Long;
 use File::Basename;
 use Parse::Pidl qw ( $VERSION );
