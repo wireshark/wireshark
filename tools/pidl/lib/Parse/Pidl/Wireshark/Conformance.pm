@@ -59,7 +59,7 @@ Register a custom ett field
 =item I<STRIP_PREFIX> prefix
 
 Remove the specified prefix from all function names (if present).
-	
+
 =item I<PROTOCOL> longname shortname filtername
 
 Change the short-, long- and filter-name for the current interface in
@@ -371,11 +371,11 @@ sub handle_include
 
 my %field_handlers = (
 	TYPE => \&handle_type,
-	NOEMIT => \&handle_noemit, 
+	NOEMIT => \&handle_noemit,
 	MANUAL => \&handle_manual,
-	PARAM_VALUE => \&handle_param_value, 
-	HF_FIELD => \&handle_hf_field, 
-	HF_RENAME => \&handle_hf_rename, 
+	PARAM_VALUE => \&handle_param_value,
+	HF_FIELD => \&handle_hf_field,
+	HF_RENAME => \&handle_hf_rename,
 	ETT_FIELD => \&handle_ett_field,
 	TFS => \&handle_tfs,
 	STRIP_PREFIX => \&handle_strip_prefix,

@@ -118,7 +118,7 @@ $c
 	my $test_data_prefix = $ENV{TEST_DATA_PREFIX};
 	my $outfile;
 	if (defined($test_data_prefix)) {
-		$outfile = "$test_data_prefix/test-$name";	
+		$outfile = "$test_data_prefix/test-$name";
 	} else {
 		$outfile = "./test-$name";
 	}

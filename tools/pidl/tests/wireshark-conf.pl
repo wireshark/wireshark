@@ -15,7 +15,7 @@ use Parse::Pidl::Wireshark::Conformance qw(ReadConformanceFH valid_ft_type valid
 sub parse_conf($)
 {
 	my $str = shift;
-    open(TMP, "+>", undef) or die("unable to open temp file");
+	open(TMP, "+>", undef) or die("unable to open temp file");
 	print TMP $str;
 	seek(TMP, 0, 0);
 	my $data = {};

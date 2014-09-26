@@ -200,7 +200,7 @@ midl.exe would write the above array as the following C header:
 
 pidl takes a different approach, and writes it like this:
 
-    typedef struct {
+	typedef struct {
 		long abc;
 		long count;
 		long foo;
@@ -226,9 +226,9 @@ This will look like this on the wire:
 
 A fixed array looks like this:
 
-    typedef struct {
-	    long s[10];
-    } Struct1;
+	typedef struct {
+		long s[10];
+	} Struct1;
 
 The NDR representation looks just like 10 separate long
 declarations. The array size is not encoded on the wire.
@@ -236,12 +236,12 @@ declarations. The array size is not encoded on the wire.
 pidl also supports "inline" arrays, which are not part of the IDL/NDR
 standard. These are declared like this:
 
-    typedef struct {
-	    uint32 foo;
-	    uint32 count;
-	    uint32 bar;
-	    long s[count];
-    } Struct1;
+	typedef struct {
+		uint32 foo;
+		uint32 count;
+		uint32 bar;
+		long s[count];
+	} Struct1;
 
 This appears like this:
 
@@ -432,27 +432,27 @@ sub LoadStructure($)
 # read a file into a string
 sub FileLoad($)
 {
-    my($filename) = shift;
-    local(*INPUTFILE);
-    open(INPUTFILE, $filename) || return undef;
-    my($saved_delim) = $/;
-    undef $/;
-    my($data) = <INPUTFILE>;
-    close(INPUTFILE);
-    $/ = $saved_delim;
-    return $data;
+	my($filename) = shift;
+	local(*INPUTFILE);
+	open(INPUTFILE, $filename) || return undef;
+	my($saved_delim) = $/;
+	undef $/;
+	my($data) = <INPUTFILE>;
+	close(INPUTFILE);
+	$/ = $saved_delim;
+	return $data;
 }
 
 #####################################################################
 # write a string into a file
 sub FileSave($$)
 {
-    my($filename) = shift;
-    my($v) = shift;
-    local(*FILE);
-    open(FILE, ">$filename") || die "can't open $filename";
-    print FILE $v;
-    close(FILE);
+	my($filename) = shift;
+	my($v) = shift;
+	local(*FILE);
+	open(FILE, ">$filename") || die "can't open $filename";
+	print FILE $v;
+	close(FILE);
 }
 
 my(@opt_incdirs) = ();
@@ -533,57 +533,57 @@ Samba 3 output:
 Wireshark parsers:
  --ws-parser[=OUTFILE]  create Wireshark parser and header
 \n";
-    exit(0);
+	exit(0);
 }
 
 #########################################
 # Display version
 sub ShowVersion()
 {
-    print "perl IDL version $VERSION\n";
+	print "perl IDL version $VERSION\n";
 }
 
 # main program
 my $result = GetOptions (
-	    'help|h|?' => \$opt_help,
-            'version' => \$opt_version,
-	    'outputdir=s' => \$opt_outputdir,
-	    'dump-idl' => \$opt_dump_idl,
+		'help|h|?' => \$opt_help,
+		'version' => \$opt_version,
+		'outputdir=s' => \$opt_outputdir,
+		'dump-idl' => \$opt_dump_idl,
 		'dump-idl-tree:s' => \$opt_dump_idl_tree,
 		'parse-idl-tree' => \$opt_parse_idl_tree,
 		'dump-ndr-tree:s' => \$opt_dump_ndr_tree,
 		'samba3-ndr-client:s' => \$opt_samba3_ndr_client,
 		'samba3-ndr-server:s' => \$opt_samba3_ndr_server,
 		'header:s' => \$opt_header,
-	    'server:s' => \$opt_server,
+		'server:s' => \$opt_server,
 		'typelib:s' => \$opt_typelib,
-	    'tdr-parser:s' => \$opt_tdr_parser,
-	    'template' => \$opt_template,
-	    'ndr-parser:s' => \$opt_ndr_parser,
-	    'client:s' => \$opt_client,
-	    'ws-parser:s' => \$opt_ws_parser,
+		'tdr-parser:s' => \$opt_tdr_parser,
+		'template' => \$opt_template,
+		'ndr-parser:s' => \$opt_ndr_parser,
+		'client:s' => \$opt_client,
+		'ws-parser:s' => \$opt_ws_parser,
 		'python' => \$opt_python,
-	    'diff' => \$opt_diff,
-        'dcom-proxy:s' => \$opt_dcom_proxy,
+		'diff' => \$opt_diff,
+		'dcom-proxy:s' => \$opt_dcom_proxy,
 		'com-header:s' => \$opt_com_header,
-	    'quiet' => \$opt_quiet,
+		'quiet' => \$opt_quiet,
 		'verbose' => \$opt_verbose,
-	    'warn-compat' => \$opt_warn_compat,
+		'warn-compat' => \$opt_warn_compat,
 		'includedir=s@' => \@opt_incdirs
-	    );
+		);
 
 if (not $result) {
 	exit(1);
 }
 
 if ($opt_help) {
-    ShowHelp();
-    exit(0);
+	ShowHelp();
+	exit(0);
 }
 
 if ($opt_version) {
-    ShowVersion();
-    exit(0);
+	ShowVersion();
+	exit(0);
 }
 
 sub process_file($)
@@ -653,28 +653,28 @@ sub process_file($)
 	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl, dirname($idl_file), \@opt_incdirs);
 
 	if (defined($opt_ws_parser)) {
-	  require Parse::Pidl::Wireshark::NDR;
+		require Parse::Pidl::Wireshark::NDR;
 
-	  my $cnffile = $idl_file;
-	  $cnffile =~ s/\.idl$/\.cnf/;
+		my $cnffile = $idl_file;
+		$cnffile =~ s/\.idl$/\.cnf/;
 
-	  my $generator = new Parse::Pidl::Wireshark::NDR();
-	  $generator->Initialize($cnffile);
+		my $generator = new Parse::Pidl::Wireshark::NDR();
+		$generator->Initialize($cnffile);
 	}
 
 
 	if (defined($opt_ws_parser) or
-	    defined($opt_client) or
-	    defined($opt_server) or
-	    defined($opt_header) or
-	    defined($opt_ndr_parser) or
-	    defined($opt_python) or
-	    defined($opt_dump_ndr_tree) or
-	    defined($opt_samba3_header) or
-	    defined($opt_samba3_parser) or
-	    defined($opt_samba3_server) or
-	    defined($opt_samba3_ndr_client) or
-	    defined($opt_samba3_ndr_server)) {
+		defined($opt_client) or
+		defined($opt_server) or
+		defined($opt_header) or
+		defined($opt_ndr_parser) or
+		defined($opt_python) or
+		defined($opt_dump_ndr_tree) or
+		defined($opt_samba3_header) or
+		defined($opt_samba3_parser) or
+		defined($opt_samba3_server) or
+		defined($opt_samba3_ndr_client) or
+		defined($opt_samba3_ndr_server)) {
 		require Parse::Pidl::NDR;
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
 	}
@@ -732,17 +732,17 @@ sub process_file($)
 	}
 
 	if (defined($opt_ws_parser)) {
-	  require Parse::Pidl::Wireshark::NDR;
-	  my($eparser) = ($opt_ws_parser or "$outputdir/packet-dcerpc-$basename.c");
-	  my $eheader = $eparser;
-	  $eheader =~ s/\.c$/\.h/;
-	  my $cnffile = $idl_file;
-	  $cnffile =~ s/\.idl$/\.cnf/;
+		require Parse::Pidl::Wireshark::NDR;
+		my($eparser) = ($opt_ws_parser or "$outputdir/packet-dcerpc-$basename.c");
+		my $eheader = $eparser;
+		$eheader =~ s/\.c$/\.h/;
+		my $cnffile = $idl_file;
+		$cnffile =~ s/\.idl$/\.cnf/;
 
-	  my $generator = new Parse::Pidl::Wireshark::NDR();
-	  my ($dp, $dh) = $generator->Parse($ndr, $idl_file, $eheader, $cnffile);
-	  FileSave($eparser, $dp) if defined($dp);
-	  FileSave($eheader, $dh) if defined($dh);
+		my $generator = new Parse::Pidl::Wireshark::NDR();
+		my ($dp, $dh) = $generator->Parse($ndr, $idl_file, $eheader, $cnffile);
+		FileSave($eparser, $dp) if defined($dp);
+		FileSave($eheader, $dh) if defined($dh);
 	}
 
 	if (defined($opt_tdr_parser)) {
