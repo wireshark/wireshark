@@ -3622,9 +3622,6 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
                       phdr->pkt_encap,
                       wtap_encap_string(phdr->pkt_encap));
 
-        /* Flush any hostname resolution info we may have */
-        pcapng_write_name_resolution_block(wdh, err);
-
         switch (phdr->rec_type) {
 
         case REC_TYPE_PACKET:
@@ -3669,6 +3666,9 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 {
         guint i, j;
+
+        /* Flush any hostname resolution info we may have */
+        pcapng_write_name_resolution_block(wdh, err);
 
         for (i = 0; i < wdh->interface_data->len; i++) {
 

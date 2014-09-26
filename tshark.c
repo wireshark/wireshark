@@ -3181,13 +3181,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     pdh = NULL;
   }
 
-  if (pdh && out_file_name_res) {
-    if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
-      cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
-                 wtap_file_type_subtype_short_string(out_file_type));
-    }
-  }
-
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
 
@@ -3481,6 +3474,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
   } else {
     if (save_file != NULL) {
+      if (pdh && out_file_name_res) {
+        if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
+          cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
+                     wtap_file_type_subtype_short_string(out_file_type));
+        }
+      }
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err))
         show_capture_file_io_error(save_file, err, TRUE);
