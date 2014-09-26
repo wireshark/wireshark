@@ -3,11 +3,35 @@
 import os, sys, Logs
 from samba_utils import MODE_755
 
+# This function checks if a perl module is installed on the system.
+def check_system_perl_module(conf, module, version=None):
+    bundle_name = module.replace('::', '_')
+    module_check = module
+    found = False
+
+    # Create module string with version
+    if version:
+        module_check = module + ' ' + str(version)
+
+    # Check if we have to bundle it.
+    if conf.LIB_MUST_BE_BUNDLED(bundle_name.lower()):
+        return False
+
+    # Check for system perl module
+    if not conf.check_perl_module(module_check):
+        return False
+
+    conf.define('USING_SYSTEM_%s' % bundle_name.upper(), 1)
+
+    return True
+
 def set_options(opt):
-    opt.tool_options('perl')
+    return
 
 def configure(conf):
-    conf.check_tool('perl')
+    # Check if perl(Parse::Yapp::Driver) is available.
+    check_system_perl_module(conf, "Parse::Yapp::Driver", 1.05)
+
     # we need a recent version of MakeMaker to get the right man page names
     if conf.CHECK_PERL_MANPAGE():
         conf.env.PERLMAN1EXT = conf.CHECK_PERL_MANPAGE(section='1')
@@ -19,15 +43,12 @@ def configure(conf):
     conf.find_program('pod2man', var='POD2MAN')
 
 def build(bld):
-    bld.INSTALL_FILES('${BINDIR}', 'pidl', chmod=MODE_755)
+    bld.INSTALL_FILES('${BINDIR}', 'pidl', chmod=MODE_755, perl_fixup=True)
 
     bld.RECURSE('lib')
 
     if not bld.CONFIG_SET('HAVE_PERL_MAKEMAKER'):
         return
-
-    pidl_src = ['pidl']
-    pidl_src.extend(bld.path.ant_glob('lib/**/*.pm').split())
 
     pidl_manpages = {
         'pidl': 'man1/pidl.${PERLMAN1EXT}',
