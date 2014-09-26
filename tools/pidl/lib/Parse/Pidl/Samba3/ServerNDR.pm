@@ -14,7 +14,7 @@ use strict;
 use Parse::Pidl qw(warning error fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(ParseExpr has_property is_constant);
-use Parse::Pidl::NDR qw(GetNextLevel);
+use Parse::Pidl::NDR qw(GetNextLevel ContainsPipe);
 use Parse::Pidl::Samba4 qw(ElementStars DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionOutEnv);
 
@@ -110,6 +110,7 @@ sub CallWithStruct($$$$)
 	}
 
 	foreach (@{$fn->{ELEMENTS}}) {
+		next if ContainsPipe($_, $_->{LEVELS}[0]);
 		my @dir = @{$_->{DIRECTION}};
 		if (grep(/in/, @dir) and grep(/out/, @dir)) {
 			# noop
