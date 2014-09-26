@@ -243,7 +243,6 @@ static int winreg_dissect_element_String_name(tvbuff_t *tvb _U_, int offset _U_,
 static int winreg_dissect_element_String_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int winreg_dissect_element_KeySecurityData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int winreg_dissect_element_KeySecurityData_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int winreg_dissect_element_KeySecurityData_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int winreg_dissect_element_KeySecurityData_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int winreg_dissect_element_SecBuf_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -598,12 +597,9 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 		return offset;
 	}
 	/* this is a varying and conformant array */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_max_size, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_offset, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_actual_size, &len);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_max_size, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_offset, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_actual_size, &len);
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
 		&winreg_access_mask_info);
 	offset += len;
@@ -778,14 +774,6 @@ static int
 winreg_dissect_element_KeySecurityData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, winreg_dissect_element_KeySecurityData_data_, NDR_POINTER_UNIQUE, "Pointer to Data (uint8)",hf_winreg_KeySecurityData_data);
-
-	return offset;
-}
-
-static int
-winreg_dissect_element_KeySecurityData_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_winreg_KeySecurityData_data, 0);
 
 	return offset;
 }

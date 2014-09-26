@@ -55,8 +55,10 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-rfr.c	\
 	packet-dcerpc-srvsvc.c	\
+	packet-dcerpc-winreg.c	\
 	packet-dcerpc-wkssvc.c	\
 	packet-dcerpc-wzcsvc.c
+
 
 #
 # PIDL-generated DCE RPC dissectors with warnings.
@@ -69,8 +71,8 @@ DIRTY_PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-mapi.c	\
 	packet-dcerpc-mdssvc.c	\
-	packet-dcerpc-misc.c	\
-	packet-dcerpc-winreg.c
+	packet-dcerpc-misc.c
+
 
 #
 # Headers for PIDL-generated dissectors.

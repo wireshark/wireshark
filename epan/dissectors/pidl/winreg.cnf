@@ -166,12 +166,9 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 	}
 
 	/* this is a varying and conformant array */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_max_size, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_offset, NULL);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     hf_winreg_sd_actual_size, &len);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_max_size, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_offset, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_actual_size, &len);
 
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
 		&winreg_access_mask_info);

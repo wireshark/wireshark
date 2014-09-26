@@ -483,6 +483,7 @@ sub Element($$$$$$)
 			}
 		}
 		next if ($_->{TYPE} eq "SWITCH");
+		next if (defined($self->{conformance}->{noemit}->{"$dissectorname$add"}));
 		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_$moreparam);");
 		$self->pidl_fn_start("$dissectorname$add");
 		$self->pidl_code("static int");
