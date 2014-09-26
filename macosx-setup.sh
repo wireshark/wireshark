@@ -368,8 +368,8 @@ uninstall() {
         if [ ! -z "$installed_libtool_version" ] ; then
             echo "Uninstalling GNU libtool:"
             cd libtool-$installed_libtool_version
-            mv /usr/local/bin/glibtool /usr/local/bin/libtool
-            mv /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
+            $DO_MV /usr/local/bin/glibtool /usr/local/bin/libtool
+            $DO_MV /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
@@ -423,10 +423,12 @@ then
     DO_MAKE_INSTALL="make install"
     DO_MAKE_UNINSTALL="make uninstall"
     DO_RM="rm"
+    DO_MV="mv"
 else
     DO_MAKE_INSTALL="sudo make install"
     DO_MAKE_UNINSTALL="sudo make uninstall"
     DO_RM="sudo rm"
+    DO_MV="sudo mv"
 fi
 
 #
@@ -768,8 +770,8 @@ if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
     ./configure || exit 1
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
-    mv /usr/local/bin/libtool /usr/local/bin/glibtool
-    mv /usr/local/bin/libtoolize /usr/local/bin/glibtoolize
+    $DO_MV /usr/local/bin/libtool /usr/local/bin/glibtool
+    $DO_MV /usr/local/bin/libtoolize /usr/local/bin/glibtoolize
     cd ..
     touch libtool-$LIBTOOL_VERSION-done
 fi
