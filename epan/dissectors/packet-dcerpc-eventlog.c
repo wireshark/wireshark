@@ -202,7 +202,6 @@ static int eventlog_dissect_element_Record_data_offset(tvbuff_t *tvb _U_, int of
 static int eventlog_dissect_element_Record_source_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_Record_strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int eventlog_dissect_element_Record_strings_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_Record_raw_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ChangeUnknown0_unknown0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ChangeUnknown0_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -261,7 +260,6 @@ static int eventlog_dissect_element_ReadEventLogW_offset(tvbuff_t *tvb _U_, int 
 static int eventlog_dissect_element_ReadEventLogW_number_of_bytes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int eventlog_dissect_element_ReadEventLogW_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_sent_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_sent_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_real_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -711,14 +709,6 @@ static int
 eventlog_dissect_element_Record_data_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_Record_data_offset, 0);
-
-	return offset;
-}
-
-static int
-eventlog_dissect_element_Record_strings_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_strings , 0);
 
 	return offset;
 }
@@ -1620,14 +1610,6 @@ static int
 eventlog_dissect_element_ReadEventLogW_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, eventlog_dissect_element_ReadEventLogW_data_, NDR_POINTER_REF, "Pointer to Data (uint8)",hf_eventlog_eventlog_ReadEventLogW_data);
-
-	return offset;
-}
-
-static int
-eventlog_dissect_element_ReadEventLogW_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_eventlog_eventlog_ReadEventLogW_data, 0);
 
 	return offset;
 }

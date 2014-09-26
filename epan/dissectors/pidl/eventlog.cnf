@@ -16,7 +16,8 @@ MANUAL eventlog_dissect_element_Record_num_of_strings
 MANUAL eventlog_dissect_element_Record_stringoffset
 MANUAL eventlog_dissect_element_Record_strings
 
-
+NOEMIT eventlog_dissect_element_Record_strings_
+NOEMIT eventlog_dissect_element_ReadEventLogW_data__
 #
 # policyhandle tracking
 # This block is to specify where a policyhandle is opened and where it is
