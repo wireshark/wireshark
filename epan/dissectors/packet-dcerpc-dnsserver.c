@@ -395,9 +395,6 @@ static const true_false_string DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY_t
    "DNS_RPC_FLAG_SUPPRESS_NOTIFY is SET",
    "DNS_RPC_FLAG_SUPPRESS_NOTIFY is NOT SET",
 };
-static int dnsserver_dissect_element_DNS_RPC_NAME_NameLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int dnsserver_dissect_element_DNS_RPC_NAME_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int dnsserver_dissect_element_DNS_RPC_NAME_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1249,29 +1246,6 @@ dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: 	uint8 NameLength; */
 /* IDL: 	uint8 Name[NameLength]; */
 /* IDL: } */
-
-static int
-dnsserver_dissect_element_DNS_RPC_NAME_NameLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NAME_NameLength, 0);
-
-	return offset;
-}
-
-static int
-dnsserver_dissect_element_DNS_RPC_NAME_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-
-	return offset;
-}
-
-static int
-dnsserver_dissect_element_DNS_RPC_NAME_Name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NAME_Name, 0);
-
-	return offset;
-}
 
 
 /* IDL: struct { */

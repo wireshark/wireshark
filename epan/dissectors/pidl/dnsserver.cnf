@@ -11,6 +11,11 @@ HF_FIELD hf_dnsserver_DNS_RPC_NAME_name "Name" "dnsserver.DNS_RPC_NAME.name" FT_
 MANUAL dnsserver_dissect_element_DNS_RPC_NODE_RecordCount
 MANUAL dnsserver_dissect_element_DNS_RPC_NODE_records
 
+
+NOEMIT dnsserver_dissect_element_DNS_RPC_NAME_NameLength
+NOEMIT dnsserver_dissect_element_DNS_RPC_NAME_Name
+NOEMIT dnsserver_dissect_element_DNS_RPC_NAME_Name_
+
 CODE START
 
 	#include "packet-smb-common.h"
