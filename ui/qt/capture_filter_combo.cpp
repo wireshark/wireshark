@@ -111,11 +111,13 @@ void CaptureFilterCombo::rebuildFilterList(bool insert_edit_text)
         recent_add_cfilter(NULL, currentText().toUtf8().constData());
     }
 
+    lineEdit()->blockSignals(true);
     clear();
     for (GList *li = g_list_first(cfilter_list); li != NULL; li = g_list_next(li)) {
         insertItem(0, (const gchar *) li->data);
     }
-    setEditText(cur_filter);
+    lineEdit()->setText(cur_filter);
+    lineEdit()->blockSignals(false);
 }
 
 /*

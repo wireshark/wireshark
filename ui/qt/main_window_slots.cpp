@@ -455,6 +455,7 @@ void MainWindow::captureCaptureFailed(capture_session *cap_session) {
     capture_stopping_ = false;
 
     setForCaptureInProgress(false);
+    main_ui_->mainStack->setCurrentWidget(main_welcome_);
 
     setWindowIcon(wsApp->normalIcon());
 #endif // HAVE_LIBPCAP
