@@ -1380,22 +1380,22 @@ proto_register_modbus(void)
     /* Modbus/TCP header fields */
     static hf_register_info mbtcp_hf[] = {
         { &hf_mbtcp_transid,
-            { "Transaction Identifier",        "mbtcp.trans_id",
+            { "Transaction Identifier", "mbtcp.trans_id",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_mbtcp_protid,
-            { "Protocol Identifier",           "mbtcp.prot_id",
+            { "Protocol Identifier", "mbtcp.prot_id",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_mbtcp_len,
-            { "Length",                        "mbtcp.len",
+            { "Length", "mbtcp.len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_mbtcp_unitid,
-            { "Unit Identifier",               "mbtcp.unit_id",
+            { "Unit Identifier", "mbtcp.unit_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1403,105 +1403,108 @@ proto_register_modbus(void)
 
     static hf_register_info mbrtu_hf[] = {
         { &hf_mbrtu_unitid,
-            { "Unit ID",                       "mbrtu.unit_id",
+            { "Unit ID", "mbrtu.unit_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_mbrtu_crc16,
-            { "CRC-16",                        "mbrtu.crc16",
+            { "CRC-16", "mbrtu.crc16",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
     };
 
     static ei_register_info mbrtu_ei[] = {
-        { &ei_mbrtu_crc16_incorrect, { "mbrtu.crc16.incorrect", PI_CHECKSUM, PI_WARN, "Incorrect CRC", EXPFILL }},
+        { &ei_mbrtu_crc16_incorrect,
+          { "mbrtu.crc16.incorrect", PI_CHECKSUM, PI_WARN,
+            "Incorrect CRC", EXPFILL }
+        },
     };
 
     static hf_register_info hf[] = {
         /* Modbus header fields */
         { &hf_mbtcp_functioncode,
-            { "Function Code",                 "modbus.func_code",
+            { "Function Code", "modbus.func_code",
             FT_UINT8, BASE_DEC, VALS(function_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reference,
-            { "Reference Number",              "modbus.reference_num",
+            { "Reference Number", "modbus.reference_num",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_padding,
-            { "Padding",              "modbus.padding",
+            { "Padding", "modbus.padding",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_lreference,
-            { "Reference Number (32 bit)",     "modbus.reference_num_32",
+            { "Reference Number (32 bit)", "modbus.reference_num_32",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reftype,
-            { "Reference Type",                "modbus.reference_type",
+            { "Reference Type", "modbus.reference_type",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_readref,
-            { "Read Reference Number",         "modbus.read_reference_num",
+            { "Read Reference Number", "modbus.read_reference_num",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_writeref,
-            { "Write Reference Number",        "modbus.write_reference_num",
+            { "Write Reference Number", "modbus.write_reference_num",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_wordcnt,
-            { "Word Count",                    "modbus.word_cnt",
+            { "Word Count", "modbus.word_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_readwordcnt,
-            { "Read Word Count",               "modbus.read_word_cnt",
+            { "Read Word Count", "modbus.read_word_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_writewordcnt,
-            { "Write Word Count",              "modbus.write_word_cnt",
+            { "Write Word Count", "modbus.write_word_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_bitcnt,
-            { "Bit Count",                     "modbus.bit_cnt",
+            { "Bit Count", "modbus.bit_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_bytecnt,
-            { "Byte Count",                    "modbus.byte_cnt",
+            { "Byte Count", "modbus.byte_cnt",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_lbytecnt,
-            { "Byte Count (16-bit)",           "modbus.byte_cnt_16",
+            { "Byte Count (16-bit)", "modbus.byte_cnt_16",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_exceptioncode,
-            { "Exception Code",                "modbus.exception_code",
+            { "Exception Code", "modbus.exception_code",
             FT_UINT8, BASE_DEC, VALS(exception_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_diag_sf,
-            { "Diagnostic Code",               "modbus.diagnostic_code",
+            { "Diagnostic Code", "modbus.diagnostic_code",
             FT_UINT16, BASE_DEC, VALS(diagnostic_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_diag_return_query_data_request,
-            { "Request Data",                  "modbus.diagnostic.return_query_data.request",
+            { "Request Data", "modbus.diagnostic.return_query_data.request",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_diag_return_query_data_echo,
-            { "Echo Data",                  "modbus.diagnostic.return_query_data.echo",
+            { "Echo Data", "modbus.diagnostic.return_query_data.echo",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1561,32 +1564,32 @@ proto_register_modbus(void)
             NULL, HFILL }
         },
         { &hf_modbus_status,
-            { "Status",                        "modbus.ev_status",
+            { "Status", "modbus.ev_status",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_event,
-            { "Event",                   "modbus.event",
+            { "Event", "modbus.event",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_event_count,
-            { "Event Count",                   "modbus.ev_count",
+            { "Event Count", "modbus.ev_count",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_message_count,
-            { "Message Count",                 "modbus.ev_msg_count",
+            { "Message Count", "modbus.ev_msg_count",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_event_recv_comm_err,
-            { "Communication Error",           "modbus.ev_recv_comm_err",
+            { "Communication Error", "modbus.ev_recv_comm_err",
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_modbus_event_recv_char_over,
-            { "Character Overrun",             "modbus.ev_recv_char_over",
+            { "Character Overrun", "modbus.ev_recv_char_over",
             FT_UINT8, BASE_DEC, NULL, 0x10,
             NULL, HFILL }
         },
@@ -1596,22 +1599,22 @@ proto_register_modbus(void)
             NULL, HFILL }
         },
         { &hf_modbus_event_recv_broadcast,
-            { "Broadcast Received",            "modbus.ev_recv_broadcast",
+            { "Broadcast Received", "modbus.ev_recv_broadcast",
             FT_UINT8, BASE_DEC, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_modbus_event_send_read_ex,
-            { "Read Exception Sent",            "modbus.ev_send_read_ex",
+            { "Read Exception Sent", "modbus.ev_send_read_ex",
             FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_modbus_event_send_slave_abort_ex,
-            { "Slave Abort Exception Sent",     "modbus.ev_send_slave_abort_ex",
+            { "Slave Abort Exception Sent", "modbus.ev_send_slave_abort_ex",
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_modbus_event_send_slave_busy_ex,
-            { "Slave Busy Exception Sent",      "modbus.ev_send_slave_busy_ex",
+            { "Slave Busy Exception Sent", "modbus.ev_send_slave_busy_ex",
             FT_UINT8, BASE_DEC, NULL, 0x04,
             NULL, HFILL }
         },
@@ -1621,7 +1624,7 @@ proto_register_modbus(void)
             NULL, HFILL }
         },
         { &hf_modbus_event_send_write_timeout,
-            { "Write Timeout Error Occurred",  "modbus.ev_send_write_timeout",
+            { "Write Timeout Error Occurred", "modbus.ev_send_write_timeout",
             FT_UINT8, BASE_DEC, NULL, 0x10,
             NULL, HFILL }
         },
@@ -1631,86 +1634,86 @@ proto_register_modbus(void)
             NULL, HFILL }
         },
         { &hf_modbus_andmask,
-            { "AND mask",                      "modbus.and_mask",
+            { "AND mask", "modbus.and_mask",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_ormask,
-            { "OR mask",                       "modbus.or_mask",
+            { "OR mask", "modbus.or_mask",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_data,
-            { "Data",                          "modbus.data",
+            { "Data",  "modbus.data",
             FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL }
         },
         { &hf_modbus_mei,
-            { "MEI type",                      "modbus.mei",
+            { "MEI type", "modbus.mei",
             FT_UINT8, BASE_DEC, VALS(encap_interface_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_read_device_id,
-            { "Read Device ID",                "modbus.read_device_id",
+            { "Read Device ID", "modbus.read_device_id",
             FT_UINT8, BASE_DEC, VALS(read_device_id_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_object_id,
-            { "Object ID",                     "modbus.object_id",
+            { "Object ID", "modbus.object_id",
             FT_UINT8, BASE_DEC, VALS(object_id_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_num_objects,
-            { "Number of Objects",             "modbus.num_objects",
+            { "Number of Objects", "modbus.num_objects",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_list_object_len,
-            { "Object length",                 "modbus.objects_len",
+            { "Object length", "modbus.objects_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_conformity_level,
-            { "Conformity Level",              "modbus.conformity_level",
+            { "Conformity Level", "modbus.conformity_level",
             FT_UINT8, BASE_HEX, VALS(conformity_level_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_more_follows,
-            { "More Follows",                  "modbus.more_follows",
+            { "More Follows", "modbus.more_follows",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_next_object_id,
-            { "Next Object ID",                "modbus.next_object_id",
+            { "Next Object ID", "modbus.next_object_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_object_str_value,
-            { "Object String Value",           "modbus.object_str_value",
+            { "Object String Value", "modbus.object_str_value",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_object_value,
-            { "Object Value",           "modbus.object_value",
+            { "Object Value", "modbus.object_value",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_uint16,
-            { "Register (UINT16)",             "modbus.register.uint16",
+            { "Register (UINT16)", "modbus.register.uint16",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_uint32,
-            { "Register (UINT32)",             "modbus.register.uint32",
+            { "Register (UINT32)", "modbus.register.uint32",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_ieee_float,
-            { "Register (IEEE Float)",         "modbus.register.ieee_float",
+            { "Register (IEEE Float)", "modbus.register.ieee_float",
             FT_FLOAT, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_modbus_reg_modicon_float,
-            { "Register (Modicon Float)",      "modbus.register.modicon_float",
+            { "Register (Modicon Float)", "modbus.register.modicon_float",
             FT_FLOAT, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1730,9 +1733,11 @@ proto_register_modbus(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_modbus_data_decode, { "modbus.data.decode", PI_PROTOCOL, PI_WARN, "Invalid decoding options, register data not a multiple of 4!", EXPFILL }},
+        { &ei_modbus_data_decode,
+          { "modbus.data.decode", PI_PROTOCOL, PI_WARN,
+            "Invalid decoding options, register data not a multiple of 4!", EXPFILL }
+        },
     };
-
     module_t *mbtcp_module;
     module_t *mbrtu_module;
     expert_module_t* expert_mbrtu;
@@ -1877,3 +1882,16 @@ proto_reg_handoff_mbrtu(void)
     dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_MODBUS, modbus_handle);
 
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

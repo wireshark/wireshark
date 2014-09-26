@@ -3,7 +3,7 @@
  * Routines for Modbus/TCP dissection
  * By Riaan Swart <rswart@cs.sun.ac.za>
  * Copyright 2001, Institute for Applied Computer Science
- * 					 University of Stellenbosch
+ *                      University of Stellenbosch
  *
  * See http://www.modbus.org/ for information on Modbus/TCP.
  *
@@ -25,40 +25,40 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#define PORT_MBTCP		502	/* Modbus/TCP located on port 502, with IANA registration */
-#define PORT_MBRTU		0	/* Modbus RTU over TCP does not have a standard port, default to zero */
+#define PORT_MBTCP        502    /* Modbus/TCP located on port 502, with IANA registration */
+#define PORT_MBRTU        0    /* Modbus RTU over TCP does not have a standard port, default to zero */
 
 /* Modbus protocol function codes */
-#define READ_COILS				1
-#define READ_DISCRETE_INPUTS	2
-#define READ_HOLDING_REGS		3
-#define READ_INPUT_REGS			4
-#define WRITE_SINGLE_COIL		5
-#define WRITE_SINGLE_REG		6
-#define READ_EXCEPT_STAT		7
-#define DIAGNOSTICS				8
-#define GET_COMM_EVENT_CTRS		11
-#define GET_COMM_EVENT_LOG		12
-#define WRITE_MULT_COILS		15
-#define WRITE_MULT_REGS			16
-#define REPORT_SLAVE_ID			17
-#define READ_FILE_RECORD		20
-#define WRITE_FILE_RECORD		21
-#define MASK_WRITE_REG			22
-#define READ_WRITE_REG			23
-#define READ_FIFO_QUEUE			24
-#define ENCAP_INTERFACE_TRANSP	43
+#define READ_COILS                  1
+#define READ_DISCRETE_INPUTS        2
+#define READ_HOLDING_REGS           3
+#define READ_INPUT_REGS             4
+#define WRITE_SINGLE_COIL           5
+#define WRITE_SINGLE_REG            6
+#define READ_EXCEPT_STAT            7
+#define DIAGNOSTICS                 8
+#define GET_COMM_EVENT_CTRS         11
+#define GET_COMM_EVENT_LOG          12
+#define WRITE_MULT_COILS            15
+#define WRITE_MULT_REGS             16
+#define REPORT_SLAVE_ID             17
+#define READ_FILE_RECORD            20
+#define WRITE_FILE_RECORD           21
+#define MASK_WRITE_REG              22
+#define READ_WRITE_REG              23
+#define READ_FIFO_QUEUE             24
+#define ENCAP_INTERFACE_TRANSP      43
 
 /* Modbus protocol exception codes */
-#define ILLEGAL_FUNCTION	0x01
-#define ILLEGAL_ADDRESS		0x02
-#define ILLEGAL_VALUE		0x03
-#define SLAVE_FAILURE	0x04
-#define ACKNOWLEDGE		0x05
-#define SLAVE_BUSY		0x06
-#define MEMORY_ERR		0x08
-#define GATEWAY_UNAVAILABLE	0x0a
-#define GATEWAY_TRGT_FAIL	0x0b
+#define ILLEGAL_FUNCTION            0x01
+#define ILLEGAL_ADDRESS             0x02
+#define ILLEGAL_VALUE               0x03
+#define SLAVE_FAILURE               0x04
+#define ACKNOWLEDGE                 0x05
+#define SLAVE_BUSY                  0x06
+#define MEMORY_ERR                  0x08
+#define GATEWAY_UNAVAILABLE         0x0a
+#define GATEWAY_TRGT_FAIL           0x0b
 
 /* Modbus diagnostic subfunction codes */
 #define RETURN_QUERY_DATA                 0x00
@@ -89,21 +89,21 @@
 #define REMOTE_DEVICE_SEND_EVENT_VALUE    0x40
 
 /* return codes of function classifying packets as query/response */
-#define QUERY_PACKET		0
-#define RESPONSE_PACKET		1
-#define CANNOT_CLASSIFY		2
+#define QUERY_PACKET            0
+#define RESPONSE_PACKET         1
+#define CANNOT_CLASSIFY         2
 
-#define MODBUS_PROTOCOL_ID 0
+#define MODBUS_PROTOCOL_ID      0
 
 /* Preferences for Modbus/TCP Dissector */
-#define MBTCP_PREF_REGISTER_FORMAT_UINT16			0
-#define MBTCP_PREF_REGISTER_FORMAT_UINT32			1
-#define MBTCP_PREF_REGISTER_FORMAT_IEEE_FLOAT		2
-#define MBTCP_PREF_REGISTER_FORMAT_MODICON_FLOAT	3
+#define MBTCP_PREF_REGISTER_FORMAT_UINT16          0
+#define MBTCP_PREF_REGISTER_FORMAT_UINT32          1
+#define MBTCP_PREF_REGISTER_FORMAT_IEEE_FLOAT      2
+#define MBTCP_PREF_REGISTER_FORMAT_MODICON_FLOAT   3
 
-#define MBTCP_PREF_REGISTER_ADDR_RAW	0
-#define MBTCP_PREF_REGISTER_ADDR_MOD5	1
-#define MBTCP_PREF_REGISTER_ADDR_MOD6	2
+#define MBTCP_PREF_REGISTER_ADDR_RAW    0
+#define MBTCP_PREF_REGISTER_ADDR_MOD5   1
+#define MBTCP_PREF_REGISTER_ADDR_MOD6   2
 
 
 typedef struct {
@@ -111,3 +111,16 @@ typedef struct {
     guint8 register_addr_type;
     guint8 packet_type;
 } modbus_request_info_t;
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
