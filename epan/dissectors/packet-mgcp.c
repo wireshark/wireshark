@@ -142,6 +142,8 @@ static int hf_mgcp_req_dup = -1;
 static int hf_mgcp_req_dup_frame = -1;
 static int hf_mgcp_rsp_dup = -1;
 static int hf_mgcp_rsp_dup_frame = -1;
+static int hf_mgcp_unknown_parameter = -1;
+static int hf_mgcp_malformed_parameter = -1;
 
 static const value_string mgcp_return_code_vals[] = {
 	{000, "Response Acknowledgement"},
@@ -840,6 +842,12 @@ void proto_register_mgcp(void)
         { &hf_mgcp_rsp_dup_frame,
           { "Original Response Frame", "mgcp.rsp.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Frame containing original response", HFILL }},
+        { &hf_mgcp_unknown_parameter,
+          { "Unknown parameter", "mgcp.unknown_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_mgcp_malformed_parameter,
+          { "Malformed parameter", "mgcp.rsp.dup.frame", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] =
@@ -1924,13 +1932,13 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 				}
 				else
 				{
-					proto_tree_add_text(tree, tvb, offset, tokenlen, "Unknown parameter: %s", tokens[i]);
+					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
 				}
 			}
 		}
 		else if (tree)
 		{
-			proto_tree_add_text(tree, tvb, offset, tokenlen, "Malformed parameter: %s", tokens[i]);
+			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
 		}
 		offset += tokenlen + 1; /* 1 extra for the delimiter */
 	}
@@ -2092,13 +2100,13 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 				}
 				else
 				{
-					proto_tree_add_text(tree, tvb, offset, tokenlen, "Unknown parameter: %s", tokens[i]);
+					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
 				}
 			}
 		}
 		else if (tree)
 		{
-			proto_tree_add_text(tree, tvb, offset, tokenlen, "Malformed parameter: %s", tokens[i]);
+			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
 		}
 		offset += tokenlen + 1; /* 1 extra for the delimiter */
 	}

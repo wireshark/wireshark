@@ -57,6 +57,63 @@ static int hf_nlsp_lsp_link_info_clv_flags_cost_present = -1;
 static int hf_nlsp_lsp_link_info_clv_flags_cost_metric = -1;
 static int hf_nlsp_lsp_link_info_clv_flags_cost = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_nlsp_psnp_lsp_checksum = -1;
+static int hf_nlsp_csnp_start_lsp_id_source_id = -1;
+static int hf_nlsp_svcs_info_node_number = -1;
+static int hf_nlsp_ext_routes_rip_delay = -1;
+static int hf_nlsp_psnp_source_id_system_id = -1;
+static int hf_nlsp_svcs_info_socket = -1;
+static int hf_nlsp_hello_sending_router_system_id = -1;
+static int hf_nlsp_csnp_start_lsp_id_lsp_number = -1;
+static int hf_nlsp_lsp_id_system_id = -1;
+static int hf_nlsp_psnp_lsp_id_pseudonode_id = -1;
+static int hf_nlsp_csnp_end_lsp_id_lsp_number = -1;
+static int hf_nlsp_remaining_lifetime = -1;
+static int hf_nlsp_csnp_remaining_lifetime = -1;
+static int hf_nlsp_psnp_lsp_id_source_id = -1;
+static int hf_nlsp_ext_routes_hops = -1;
+static int hf_nlsp_hello_local_mtu_mtu_size = -1;
+static int hf_nlsp_link_info_throughput = -1;
+static int hf_nlsp_link_info_media_type = -1;
+static int hf_nlsp_mgt_info_name = -1;
+static int hf_nlsp_mgt_info_node_number = -1;
+static int hf_nlsp_csnp_end_lsp_id_source_id = -1;
+static int hf_nlsp_csnp_lsp_id_pseudonode_id = -1;
+static int hf_nlsp_psnp_lsp_sequence_number = -1;
+static int hf_nlsp_link_info_mtu_size = -1;
+static int hf_nlsp_lsp_id_lsp_number = -1;
+static int hf_nlsp_unknown_code = -1;
+static int hf_nlsp_mgt_info_ipx_version_number = -1;
+static int hf_nlsp_link_info_router_pseudonode_id = -1;
+static int hf_nlsp_psnp_source_id_pseudonode_id = -1;
+static int hf_nlsp_csnp_lsp_id_lsp_number = -1;
+static int hf_nlsp_csnp_source_id_pseudonode_id = -1;
+static int hf_nlsp_csnp_end_lsp_id_pseudonode_id = -1;
+static int hf_nlsp_csnp_lsp_sequence_number = -1;
+static int hf_nlsp_link_info_router_system_id = -1;
+static int hf_nlsp_svcs_info_type = -1;
+static int hf_nlsp_csnp_lsp_checksum = -1;
+static int hf_nlsp_hello_local_wan_circuit_id = -1;
+static int hf_nlsp_svcs_info_service_name = -1;
+static int hf_nlsp_mgt_info_name_length = -1;
+static int hf_nlsp_neighbor = -1;
+static int hf_nlsp_area_address_network_number = -1;
+static int hf_nlsp_link_info_delay = -1;
+static int hf_nlsp_csnp_start_lsp_id_pseudonode_id = -1;
+static int hf_nlsp_svcs_info_network_number = -1;
+static int hf_nlsp_csnp_source_id_system_id = -1;
+static int hf_nlsp_mgt_info_network_number = -1;
+static int hf_nlsp_hello_designated_router_pseudonode_id = -1;
+static int hf_nlsp_lsp_id_pseudonode_id = -1;
+static int hf_nlsp_csnp_lsp_id_source_id = -1;
+static int hf_nlsp_psnp_remaining_lifetime = -1;
+static int hf_nlsp_area_address_mask = -1;
+static int hf_nlsp_hello_designated_router_system_id = -1;
+static int hf_nlsp_svcs_info_hops_to_reach_the_service = -1;
+static int hf_nlsp_psnp_lsp_id_lsp_number = -1;
+static int hf_nlsp_ext_routes_network_number = -1;
+
 static gint ett_nlsp                     = -1;
 static gint ett_nlsp_hello_clv_area_addr = -1;
 static gint ett_nlsp_hello_clv_neighbors = -1;
@@ -224,9 +281,10 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			opts[q].dissect(tvb, clv_tree, offset,
 			    length);
 		} else {
-			proto_tree_add_text(tree, tvb, offset - 2,
-					length + 2, "Unknown code %u (%u)",
-					code, length);
+			proto_item* ti;
+			ti = proto_tree_add_uint_format_value(tree, hf_nlsp_unknown_code, tvb, offset - 2,
+					1, code, "%u (%u)", code, length);
+			proto_item_set_len(ti, length + 2);
 		}
 		offset += length;
 		len -= length;
@@ -258,11 +316,8 @@ dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short area address entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 4,
-			    "Area address network number: 0x%08x",
-			    tvb_get_ntohl(tvb, offset));
-		}
+		proto_tree_add_item(tree, hf_nlsp_area_address_network_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+
 		offset += 4;
 		length -= 4;
 
@@ -271,11 +326,8 @@ dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short area address entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 4,
-			    "Area address mask: 0x%08x",
-			    tvb_get_ntohl(tvb, offset));
-		}
+		proto_tree_add_item(tree, hf_nlsp_area_address_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+
 		offset += 4;
 		length -= 4;
 	}
@@ -306,11 +358,7 @@ dissect_neighbor_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short neighbor entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 6,
-			    "Neighbor: %s",
-			    tvb_ether_to_str(tvb, offset));
-		}
+		proto_tree_add_item(tree, hf_nlsp_neighbor, tvb, offset, 6, ENC_NA);
 		offset += 6;
 		length -= 6;
 	}
@@ -340,11 +388,7 @@ dissect_hello_local_mtu_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "MTU Size: %u",
-		    tvb_get_ntohl(tvb, offset));
-	}
+	proto_tree_add_item(tree, hf_nlsp_hello_local_mtu_mtu_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 static const nlsp_clv_handle_t clv_hello_opts[] = {
@@ -425,66 +469,42 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 	guint16		holding_timer;
 
-	if (tree) {
-		if (hello_type == NLSP_TYPE_WAN_HELLO) {
-			proto_tree_add_item(tree, hf_nlsp_hello_state, tvb,
-			    offset, 1, ENC_BIG_ENDIAN);
-		} else {
-			proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
-			    offset, 1, ENC_BIG_ENDIAN);
-		}
-		proto_tree_add_item(tree, hf_nlsp_hello_circuit_type, tvb,
-		    offset, 1, ENC_BIG_ENDIAN);
+	if (hello_type == NLSP_TYPE_WAN_HELLO) {
+		proto_tree_add_item(tree, hf_nlsp_hello_state, tvb,
+			offset, 1, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
+			offset, 1, ENC_BIG_ENDIAN);
 	}
+	proto_tree_add_item(tree, hf_nlsp_hello_circuit_type, tvb,
+		offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
-		    "Sending Router System ID: %s",
-		    tvb_ether_to_str(tvb, offset));
-	}
+	proto_tree_add_item(tree, hf_nlsp_hello_sending_router_system_id, tvb, offset, 6, ENC_NA);
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", System ID: %s",
 		    tvb_ether_to_str(tvb, offset));
 
 	offset += 6;
 
-	if (tree) {
-		holding_timer = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint_format_value(tree, hf_nlsp_hello_holding_timer,
-		    tvb, offset, 2, holding_timer,
-		    "%us", holding_timer);
-	}
+	holding_timer = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_uint_format_value(tree, hf_nlsp_hello_holding_timer,
+		tvb, offset, 2, holding_timer, "%us", holding_timer);
 	offset += 2;
 
 	packet_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
-			offset, 2, packet_length);
-	}
+	proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb, offset, 2, packet_length);
 	offset += 2;
 
-	if (tree) {
-		proto_tree_add_item(tree, hf_nlsp_hello_priority, tvb,
-		    offset, 1, ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_item(tree, hf_nlsp_hello_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	if (hello_type == NLSP_TYPE_WAN_HELLO) {
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Local WAN Circuit ID: %u",
-			    tvb_get_guint8(tvb, offset));
-		}
+		proto_tree_add_item(tree, hf_nlsp_hello_local_wan_circuit_id, tvb, offset, 1, ENC_NA);
 		offset += 1;
 	} else {
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 6,
-			    "Designated Router System ID: %s",
-			    tvb_ether_to_str(tvb, offset));
-			proto_tree_add_text(tree, tvb, offset+6, 1,
-			    "Designated Router Pseudonode ID: %u",
-			    tvb_get_guint8(tvb, offset+6));
-		}
+		proto_tree_add_item(tree, hf_nlsp_hello_designated_router_system_id, tvb, offset, 6, ENC_NA);
+		proto_tree_add_item(tree, hf_nlsp_hello_designated_router_pseudonode_id, tvb, offset+6, 1, ENC_NA);
 		offset += 7;
 	}
 
@@ -530,11 +550,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short management info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "Network number: 0x%08x",
-		    tvb_get_ntohl(tvb, offset));
-	}
+	proto_tree_add_item(tree, hf_nlsp_mgt_info_network_number, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	length -= 4;
 
@@ -543,11 +559,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short management info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
-		    "Node number: %s",
-		    tvb_ether_to_str(tvb, offset));
-	}
+	proto_tree_add_item(tree, hf_nlsp_mgt_info_node_number, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	length -= 6;
 
@@ -556,11 +568,8 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short management info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "IPX version number: %u",
-		    tvb_get_guint8(tvb, offset));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_mgt_info_ipx_version_number, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	length -= 1;
 
@@ -570,10 +579,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 	}
 	name_length = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Name length: %u", name_length);
-	}
+	proto_tree_add_item(tree, hf_nlsp_mgt_info_name_length, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	length -= 1;
 
@@ -583,11 +589,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short management info entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, name_length,
-			    "Name: %s",
-			    tvb_format_text(tvb, offset, name_length));
-		}
+		proto_tree_add_item(tree, hf_nlsp_mgt_info_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
 	}
 }
 
@@ -683,14 +685,9 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
-		    "Router System ID: %s",
-		    tvb_ether_to_str(tvb, offset));
-		proto_tree_add_text(tree, tvb, offset+6, 1,
-		    "Router Pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset+6));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_link_info_router_system_id, tvb, offset, 6, ENC_NA);
+	proto_tree_add_item(tree, hf_nlsp_link_info_router_pseudonode_id, tvb, offset+6, 1, ENC_NA);
 	offset += 7;
 	length -= 7;
 
@@ -699,11 +696,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "MTU Size: %u",
-		    tvb_get_ntohl(tvb, offset));
-	}
+	proto_tree_add_item(tree, hf_nlsp_link_info_mtu_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	length -= 4;
 
@@ -712,11 +705,8 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "Delay: %uus",
-		    tvb_get_ntohl(tvb, offset));
-	}
+	proto_tree_add_uint_format_value(tree, hf_nlsp_link_info_delay, tvb, offset, 4,
+			tvb_get_ntohl(tvb, offset), "%uus", tvb_get_ntohl(tvb, offset));
 	offset += 4;
 	length -= 4;
 
@@ -725,11 +715,8 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "Throughput: %u bits/s",
-		    tvb_get_ntohl(tvb, offset));
-	}
+	proto_tree_add_uint_format_value(tree, hf_nlsp_link_info_throughput, tvb, offset, 4,
+			tvb_get_ntohl(tvb, offset), "%u bits/s", tvb_get_ntohl(tvb, offset));
 	offset += 4;
 	length -= 4;
 
@@ -738,12 +725,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short link info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 2,
-		    "Media type: %s",
-		    val_to_str(tvb_get_ntohs(tvb, offset), media_type_vals,
-			"Unknown (0x%04x)"));
-	}
+	proto_tree_add_item(tree, hf_nlsp_link_info_media_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -770,11 +752,8 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short services info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Hops to reach the service: %u",
-		    tvb_get_guint8(tvb, offset));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_svcs_info_hops_to_reach_the_service, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	length -= 1;
 
@@ -783,11 +762,8 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short services info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "Network number: 0x%08x",
-		    tvb_get_ntohl(tvb, offset));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_svcs_info_network_number, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	length -= 4;
 
@@ -796,11 +772,8 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short services info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
-		    "Node number: %s",
-		    tvb_ether_to_str(tvb, offset));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_svcs_info_node_number, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	length -= 6;
 
@@ -809,12 +782,8 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short services info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 2,
-		    "Socket: %s",
-		    val_to_str_ext(tvb_get_ntohs(tvb, offset), &ipx_socket_vals_ext,
-			"Unknown (0x%04x)"));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_svcs_info_socket, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	length -= 2;
 
@@ -823,21 +792,13 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "Short services info entry");
 		return;
 	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 2,
-		    "Type: %s",
-		    val_to_str_ext(tvb_get_ntohs(tvb, offset), &novell_server_vals_ext,
-			"Unknown (0x%04x)"));
-	}
+
+	proto_tree_add_item(tree, hf_nlsp_svcs_info_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	length -= 2;
 
 	if (length > 0) {
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Service Name: %s",
-			    tvb_format_text(tvb, offset, length));
-		}
+		proto_tree_add_item(tree, hf_nlsp_svcs_info_service_name, tvb, offset, length, ENC_NA|ENC_ASCII);
 	}
 }
 
@@ -867,11 +828,8 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short external routes entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Hops: %u",
-			    tvb_get_guint8(tvb, offset));
-		}
+
+		proto_tree_add_item(tree, hf_nlsp_ext_routes_hops, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		length -= 1;
 
@@ -880,11 +838,8 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short external routes entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 4,
-			    "Network number: 0x%08x",
-			    tvb_get_ntohl(tvb, offset));
-		}
+
+		proto_tree_add_item(tree, hf_nlsp_ext_routes_network_number, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		length -= 4;
 
@@ -893,11 +848,9 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Short external routes entry");
 			return;
 		}
-		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, 2,
-			    "RIP delay: %u ticks",
-			    tvb_get_ntohs(tvb, offset));
-		}
+
+		proto_tree_add_uint_format_value(tree, hf_nlsp_ext_routes_rip_delay, tvb, offset, 2,
+				tvb_get_ntohs(tvb, offset), "%u ticks", tvb_get_ntohs(tvb, offset));
 		offset += 2;
 		length -= 2;
 	}
@@ -985,37 +938,26 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		len;
 
 	packet_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
+	proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
 			offset, 2, packet_length);
-	}
 	offset += 2;
 
 	remaining_lifetime = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 2,
-				    "Remaining Lifetime: %us",
-				    remaining_lifetime);
-	}
+	proto_tree_add_uint_format_value(tree, hf_nlsp_remaining_lifetime, tvb, offset, 2,
+					remaining_lifetime, "%us", remaining_lifetime);
 	offset += 2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
 
-	proto_tree_add_text(tree, tvb, offset, 6,
-		    "LSP ID system ID: %s",
-		    tvb_ether_to_str(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_lsp_id_system_id, tvb, offset, 6, ENC_NA);
 
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "LSP ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_lsp_id_pseudonode_id, tvb, offset, 1, ENC_NA);
 
 	offset += 1;
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_lsp_id_lsp_number, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	sequence_number = tvb_get_ntohl(tvb, offset);
@@ -1101,27 +1043,16 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
 
-		proto_tree_add_text(subtree, tvb, offset+2, 6,
-		    "LSP ID source ID: %s",
-		    tvb_ether_to_str(tvb, offset+2));
-		proto_tree_add_text(subtree, tvb, offset+8, 1,
-		    "LSP ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset+8));
-		proto_tree_add_text(subtree, tvb, offset+9, 1,
-		    "LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset+9));
+		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_id_source_id, tvb, offset+2, 6, ENC_NA);
+		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_id_pseudonode_id, tvb, offset+8, 1, ENC_NA);
+		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_id_lsp_number, tvb, offset+9, 1, ENC_NA);
 
-		proto_tree_add_text(subtree, tvb, offset+10, 4,
-			"LSP Sequence Number: 0x%08x",
-			tvb_get_ntohl(tvb, offset+10));
+		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_sequence_number, tvb, offset+10, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_text(subtree, tvb, offset, 2,
-			"Remaining Lifetime: %us",
-			tvb_get_ntohs(tvb, offset));
+		proto_tree_add_uint_format_value(subtree, hf_nlsp_csnp_remaining_lifetime, tvb, offset, 2,
+			tvb_get_ntohs(tvb, offset), "%us", tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_text(subtree, tvb, offset+14, 2,
-			"LSP checksum: 0x%04x",
-			tvb_get_ntohs(tvb, offset+14));
+		proto_tree_add_item(subtree, hf_nlsp_csnp_lsp_checksum, tvb, offset+14, 2, ENC_BIG_ENDIAN);
 
 		length -= 16;
 		offset += 16;
@@ -1148,27 +1079,16 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
 
-		proto_tree_add_text(subtree, tvb, offset+2, 6,
-		    "LSP ID source ID: %s",
-		    tvb_ether_to_str(tvb, offset+2));
-		proto_tree_add_text(subtree, tvb, offset+8, 1,
-		    "LSP ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset+8));
-		proto_tree_add_text(subtree, tvb, offset+9, 1,
-		    "LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset+9));
+		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_id_source_id, tvb, offset+2, 6, ENC_NA);
+		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_id_pseudonode_id, tvb, offset+8, 1, ENC_NA);
+		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_id_lsp_number, tvb, offset+9, 1, ENC_NA);
 
-		proto_tree_add_text(subtree, tvb, offset+10, 4,
-			"LSP Sequence Number: 0x%08x",
-			tvb_get_ntohl(tvb, offset+10));
+		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_sequence_number, tvb, offset+10, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_text(subtree, tvb, offset, 2,
-			"Remaining Lifetime: %us",
-			tvb_get_ntohs(tvb, offset));
+		proto_tree_add_uint_format_value(subtree, hf_nlsp_psnp_remaining_lifetime, tvb, offset, 2,
+			tvb_get_ntohs(tvb, offset), "%us", tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_text(subtree, tvb, offset+14, 2,
-			"LSP checksum: 0x%04x",
-			tvb_get_ntohs(tvb, offset+14));
+		proto_tree_add_item(subtree, hf_nlsp_psnp_lsp_checksum, tvb, offset+14, 2, ENC_BIG_ENDIAN);
 
 		length -= 16;
 		offset += 16;
@@ -1215,55 +1135,35 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	packet_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
-			offset, 2, packet_length);
-	}
+	proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb, offset, 2, packet_length);
 	offset += 2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	proto_tree_add_text(tree, tvb, offset, 6,
-		    "Source ID system ID: %s",
-		    tvb_ether_to_str(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_source_id_system_id, tvb, offset, 6, ENC_NA);
 	offset += 6;
-	/* XXX - add the pseudonode ID */
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "Source ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_source_id_pseudonode_id, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	proto_tree_add_text(tree, tvb, offset, 6,
-		    "Start LSP ID source ID: %s",
-		    tvb_ether_to_str(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_start_lsp_id_source_id, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "Start LSP ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_start_lsp_id_pseudonode_id, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "Start LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_start_lsp_id_lsp_number, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	proto_tree_add_text(tree, tvb, offset, 6,
-		    "End LSP ID source ID: %s",
-		    tvb_ether_to_str(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_end_lsp_id_source_id, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "End LSP ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_end_lsp_id_pseudonode_id, tvb, offset, 1, ENC_NA);
 	offset += 1;
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "End LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_csnp_end_lsp_id_lsp_number, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	len = packet_length - header_length;
@@ -1321,14 +1221,10 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	proto_tree_add_text(tree, tvb, offset, 6,
-		    "Source ID system ID: %s",
-		    tvb_ether_to_str(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_psnp_source_id_system_id, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	/* XXX - add the pseudonode ID */
-	proto_tree_add_text(tree, tvb, offset, 1,
-		    "Source ID pseudonode ID: %u",
-		    tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_nlsp_psnp_source_id_pseudonode_id, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	len = packet_length - header_length;
@@ -1404,11 +1300,9 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, nlsp_packet_type_vals, "Unknown (%u)"));
 	if (packet_type == NLSP_TYPE_L1_LSP) {
-		proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1,
-			    packet_type_flags );
+		proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1, packet_type_flags );
 	}
-	proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1,
-		    packet_type_flags );
+	proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1, packet_type_flags );
 	offset += 1;
 
 	proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
@@ -1468,7 +1362,7 @@ proto_register_nlsp(void)
 	static hf_register_info hf[] = {
 	    { &hf_nlsp_irpd,
 	      { "NetWare Link Services Protocol Discriminator",	"nlsp.irpd",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_header_length,
 	      { "PDU Header Length", "nlsp.header_length",
@@ -1555,6 +1449,63 @@ proto_register_nlsp(void)
 	    { &hf_nlsp_lsp_link_info_clv_flags_cost,
 	      { "Cost", "nlsp.lsp.link_info_clv.flags.cost", FT_UINT8, BASE_DEC,
 	        NULL, 0x3F, NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_nlsp_unknown_code, { "Unknown code", "nlsp.unknown_code", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_area_address_network_number, { "Area address network number", "nlsp.area_address.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_area_address_mask, { "Area address mask", "nlsp.area_address.mask", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_neighbor, { "Neighbor", "nlsp.neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_hello_local_mtu_mtu_size, { "MTU Size", "nlsp.hello_local_mtu.mtu_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_hello_sending_router_system_id, { "Sending Router System ID", "nlsp.hello.sending_router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_hello_local_wan_circuit_id, { "Local WAN Circuit ID", "nlsp.hello.local_wan_circuit_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_hello_designated_router_system_id, { "Designated Router System ID", "nlsp.hello.designated_router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_hello_designated_router_pseudonode_id, { "Designated Router Pseudonode ID", "nlsp.hello.designated_router_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_mgt_info_network_number, { "Network number", "nlsp.mgt_info.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_mgt_info_node_number, { "Node number", "nlsp.mgt_info.node_number", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_mgt_info_ipx_version_number, { "IPX version number", "nlsp.mgt_info.ipx_version_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_mgt_info_name_length, { "Name length", "nlsp.mgt_info.name_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_mgt_info_name, { "Name", "nlsp.mgt_info.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_router_system_id, { "Router System ID", "nlsp.link_info.router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_router_pseudonode_id, { "Router Pseudonode ID", "nlsp.link_info.router_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_mtu_size, { "MTU Size", "nlsp.link_info.mtu_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_delay, { "Delay", "nlsp.link_info.delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_throughput, { "Throughput", "nlsp.link_info.throughput", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_link_info_media_type, { "Media type", "nlsp.link_info.media_type", FT_UINT16, BASE_DEC, VALS(media_type_vals), 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_hops_to_reach_the_service, { "Hops to reach the service", "nlsp.svcs_info.hops_to_reach_the_service", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_network_number, { "Network number", "nlsp.svcs_info.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_node_number, { "Node number", "nlsp.svcs_info.node_number", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_socket, { "Socket", "nlsp.svcs_info.socket", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ipx_socket_vals_ext, 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_type, { "Type", "nlsp.svcs_info.type", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &novell_server_vals_ext, 0x0, NULL, HFILL }},
+      { &hf_nlsp_svcs_info_service_name, { "Service Name", "nlsp.svcs_info.service_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_ext_routes_hops, { "Hops", "nlsp.ext_routes.hops", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_ext_routes_network_number, { "Network number", "nlsp.ext_routes.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_ext_routes_rip_delay, { "RIP delay", "nlsp.ext_routes.rip_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_remaining_lifetime, { "Remaining Lifetime", "nlsp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_lsp_id_system_id, { "LSP ID system ID", "nlsp.lsp_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_lsp_id_source_id, { "LSP ID source ID", "nlsp.csnp.lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.csnp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.csnp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_lsp_sequence_number, { "LSP Sequence Number", "nlsp.csnp.lsp_sequence_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_remaining_lifetime, { "Remaining Lifetime", "nlsp.csnp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_lsp_checksum, { "LSP checksum", "nlsp.csnp.lsp_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_lsp_id_source_id, { "LSP ID source ID", "nlsp.psnp.lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.psnp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.psnp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_lsp_sequence_number, { "LSP Sequence Number", "nlsp.psnp.lsp_sequence_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_remaining_lifetime, { "Remaining Lifetime", "nlsp.psnp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_lsp_checksum, { "LSP checksum", "nlsp.psnp.lsp_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_source_id_system_id, { "Source ID system ID", "nlsp.csnp.source_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_source_id_pseudonode_id, { "Source ID pseudonode ID", "nlsp.csnp.source_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_start_lsp_id_source_id, { "Start LSP ID source ID", "nlsp.csnp.start_lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_start_lsp_id_pseudonode_id, { "Start LSP ID pseudonode ID", "nlsp.csnp.start_lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_start_lsp_id_lsp_number, { "Start LSP ID LSP number", "nlsp.csnp.start_lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_end_lsp_id_source_id, { "End LSP ID source ID", "nlsp.csnp.end_lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_end_lsp_id_pseudonode_id, { "End LSP ID pseudonode ID", "nlsp.csnp.end_lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_csnp_end_lsp_id_lsp_number, { "End LSP ID LSP number", "nlsp.csnp.end_lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_source_id_system_id, { "Source ID system ID", "nlsp.psnp.source_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nlsp_psnp_source_id_pseudonode_id, { "Source ID pseudonode ID", "nlsp.psnp.source_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_nlsp,

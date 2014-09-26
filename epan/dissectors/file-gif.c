@@ -292,6 +292,12 @@ static header_field_info hfi_trailer GIF_HFI_INIT =
 	HFILL
     };
 
+static header_field_info hfi_data_block GIF_HFI_INIT =
+    {   "Data block",
+	IMG_GIF ".data_block",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	NULL, HFILL };
+
 
 /* Initialize the subtree pointers */
 static gint ett_gif = -1;
@@ -496,8 +502,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 do {
                     /* Read length of data block */
                     len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(subtree, tvb,
-                            offset, 1 + len,
+                    proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
+                            offset+1, len, NULL,
                             "Data block (length = %u)", len);
                     offset += (1 + len);
                     item_len += (1 + len);
@@ -575,8 +581,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 do {
                     /* Read length of data block */
                     len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(subtree, tvb,
-                            offset, 1 + len,
+                    proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
+                            offset + 1, len, NULL,
                             "Data block (length = %u)", len);
                     offset += 1 + len;
                     item_len += (1 + len);

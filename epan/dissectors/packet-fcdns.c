@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
@@ -214,6 +215,18 @@ static header_field_info hfi_fcdns_zone_mbrid FCDNS_HFI_INIT =
           {"Member Identifier", "fcdns.zone.mbrid", FT_STRING, BASE_NONE, NULL,
            0x0, NULL, HFILL};
 
+static header_field_info hfi_fcdns_id_length FCDNS_HFI_INIT =
+          {"Identifier Length", "fcdns.id_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
+           HFILL};
+
+static header_field_info hfi_fcdns_zone_flags FCDNS_HFI_INIT =
+          {"Flags", "fcdns.zone_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+           HFILL};
+
+static header_field_info hfi_fcdns_zonelen FCDNS_HFI_INIT =
+          {"Name Length", "fcdns.zone_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
+           HFILL};
+
 static header_field_info hfi_fcdns_zonenm FCDNS_HFI_INIT =
           {"Zone Name", "fcdns.zonename", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
            HFILL};
@@ -221,6 +234,10 @@ static header_field_info hfi_fcdns_zonenm FCDNS_HFI_INIT =
 static header_field_info hfi_fcdns_portip FCDNS_HFI_INIT =
           {"Port IP Address", "fcdns.portip", FT_IPv4, BASE_NONE, NULL, 0x0,
            NULL, HFILL};
+
+static header_field_info hfi_fcdns_num_entries FCDNS_HFI_INIT =
+          {"Number of Entries", "fcdns.num_entries", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_sw2_objfmt FCDNS_HFI_INIT =
           {"Name Entry Object Format", "fcdns.entry.objfmt", FT_UINT8, BASE_HEX,
@@ -316,6 +333,8 @@ static gint ett_fcdns = -1;
 static gint ett_cos_flags = -1;
 static gint ett_fc4flags = -1;
 static gint ett_fc4features = -1;
+
+static expert_field ei_fcdns_no_record_of_exchange = EI_INIT;
 
 typedef struct _fcdns_conv_key {
     guint32 conv_idx;
@@ -1283,11 +1302,9 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     mbrtype = tvb_get_guint8 (tvb, offset);
     proto_tree_add_uint (zmbr_tree, &hfi_fcdns_zone_mbrtype, tvb,
                          offset, 1, mbrtype);
-    proto_tree_add_text (zmbr_tree, tvb, offset+2, 1, "Flags: 0x%x",
-                         tvb_get_guint8 (tvb, offset+2));
+    proto_tree_add_item(zmbr_tree, &hfi_fcdns_zone_flags, tvb, offset+2, 1, ENC_NA);
     idlen = tvb_get_guint8 (tvb, offset+3);
-    proto_tree_add_text (zmbr_tree, tvb, offset+3, 1,
-                         "Identifier Length: %d", idlen);
+    proto_tree_add_uint(zmbr_tree, &hfi_fcdns_id_length, tvb, offset+3, 1, idlen);
     switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
@@ -1323,11 +1340,9 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
     int numrec, i, len;
     guint8 objfmt;
 
-    numrec = tvb_get_ntohl (tvb, offset);
-
     if (tree) {
-        proto_tree_add_text (tree, tvb, offset, 4, "Number of Entries: %d",
-                             numrec);
+        numrec = tvb_get_ntohl (tvb, offset);
+        proto_tree_add_uint(tree, &hfi_fcdns_num_entries, tvb, offset, 4, numrec);
         offset += 4;
 
         for (i = 0; i < numrec; i++) {
@@ -1515,8 +1530,7 @@ dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
     if (isreq) {
         if (req_tree) {
             str_len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_text (req_tree, tvb, offset, 1, "Name Length: %d",
-                                 str_len);
+            proto_tree_add_uint(req_tree, &hfi_fcdns_zonelen, tvb, offset, 1, str_len);
             proto_tree_add_item (req_tree, &hfi_fcdns_zonenm, tvb, offset+3,
                                  str_len, ENC_ASCII|ENC_NA);
         }
@@ -1663,8 +1677,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                  val_to_str (opcode, fc_dns_opcode_val,
                                              "0x%x"));
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text (fcdns_tree, tvb, 0, -1,
-                                     "No record of Exchg. Unable to decode MSG_ACC/RJT");
+                proto_tree_add_expert(fcdns_tree, pinfo, &ei_fcdns_no_record_of_exchange, tvb, 0, -1);
                 return 0;
             }
         }
@@ -1696,8 +1709,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             if (tree) {
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_text (fcdns_tree, tvb, 0, -1,
-                                         "No record of Exchg. Unable to decode MSG_ACC/RJT");
+                    proto_tree_add_expert(fcdns_tree, pinfo, &ei_fcdns_no_record_of_exchange, tvb, 0, -1);
                     return 0;
                 }
             }
@@ -1934,14 +1946,20 @@ proto_register_fcdns (void)
         &ett_fc4features,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fcdns_no_record_of_exchange, { "fcdns.no_record_of_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode MSG_ACC/RJT", EXPFILL }},
+    };
+
+    expert_module_t* expert_fcdns;
     int proto_fcdns;
 
-    proto_fcdns = proto_register_protocol("Fibre Channel Name Server",
-                                          "FC-dNS", "fcdns");
+    proto_fcdns = proto_register_protocol("Fibre Channel Name Server", "FC-dNS", "fcdns");
     hfi_fcdns = proto_registrar_get_nth(proto_fcdns);
 
     proto_register_fields(proto_fcdns, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcdns = expert_register_protocol(proto_fcdns);
+    expert_register_field_array(expert_fcdns, ei, array_length(ei));
     register_init_routine (&fcdns_init_protocol);
 
     dns_handle = new_create_dissector_handle (dissect_fcdns, proto_fcdns);

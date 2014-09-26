@@ -63,6 +63,14 @@ static int hf_asize        = -1;
 static int hf_msize        = -1;
 static int hf_account      = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_igap_challenge = -1;
+static int hf_igap_user_password = -1;
+static int hf_igap_authentication_result = -1;
+static int hf_igap_result_of_md5_calculation = -1;
+static int hf_igap_accounting_status = -1;
+static int hf_igap_unknown_message = -1;
+
 static int ett_igap = -1;
 
 
@@ -207,39 +215,27 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	case IGAP_SUBTYPE_PASSWORD_LEAVE:
 	    /* Challenge field is user's password */
 	    message[msize] = '\0';
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"User password: %s", message);
+	    proto_tree_add_string(tree, hf_igap_user_password, tvb, offset, msize, message);
 	    break;
 	case IGAP_SUBTYPE_CHALLENGE_RESPONSE_JOIN:
 	case IGAP_SUBTYPE_CHALLENGE_RESPONSE_LEAVE:
 	    /* Challenge field is the results of MD5 calculation */
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"Result of MD5 calculation: 0x%s",
-				bytes_to_ep_str(message, msize));
+	    proto_tree_add_item(tree, hf_igap_result_of_md5_calculation, tvb, offset, msize, ENC_NA);
 	    break;
 	case IGAP_SUBTYPE_CHALLENGE:
 	    /* Challenge field is the challenge value */
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"Challenge: 0x%s",
-				bytes_to_ep_str(message, msize));
+	    proto_tree_add_item(tree, hf_igap_challenge, tvb, offset, msize, ENC_NA);
 	    break;
 	case IGAP_SUBTYPE_AUTH_MESSAGE:
 	    /* Challenge field indicates the result of the authenticaion */
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"Authentication result: %s (0x%x)",
-				val_to_str_const(message[0], igap_auth_result, "Unknown"),
-				message[0]);
+	    proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, message[0]);
 	    break;
 	case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
 	    /* Challenge field indicates the accounting status */
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"Accounting status: %s (0x%x)",
-				val_to_str_const(message[0], igap_account_status, "Unknown"),
-				message[0]);
+	    proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, message[0]);
 	    break;
 	default:
-	    proto_tree_add_text(tree, tvb, offset, msize,
-				"Message: (Unknown)");
+	    proto_tree_add_item(tree, hf_igap_unknown_message, tvb, offset, msize, ENC_NA);
 	}
     }
     offset += MESSAGE_SIZE;
@@ -306,7 +302,14 @@ proto_register_igap(void)
 	{ &hf_account,
 	  { "User Account", "igap.account", FT_STRING, BASE_NONE,
 	    NULL, 0, NULL, HFILL }
-	}
+	},
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_igap_user_password, { "User password", "igap.user_password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_igap_result_of_md5_calculation, { "Result of MD5 calculation", "igap.result_of_md5_calculation", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_igap_challenge, { "Challenge", "igap.challenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_igap_authentication_result, { "Authentication result", "igap.authentication_result", FT_UINT8, BASE_HEX, VALS(igap_auth_result), 0x0, NULL, HFILL }},
+      { &hf_igap_accounting_status, { "Accounting status", "igap.accounting_status", FT_UINT8, BASE_HEX, VALS(igap_account_status), 0x0, NULL, HFILL }},
+      { &hf_igap_unknown_message, { "Unknown message", "igap.unknown_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {

@@ -36,6 +36,13 @@
 static int proto_kismet = -1;
 static int hf_kismet_response = -1;
 static int hf_kismet_request = -1;
+static int hf_kismet_version = -1;
+static int hf_kismet_start_time = -1;
+static int hf_kismet_server_name = -1;
+static int hf_kismet_build_revision = -1;
+static int hf_kismet_unknown_field = -1;
+static int hf_kismet_extended_version_string = -1;
+static int hf_kismet_time = -1;
 
 static gint ett_kismet = -1;
 static gint ett_kismet_reqresp = -1;
@@ -178,56 +185,49 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Kismet version: %s",
-							format_text(line, tokenlen));
+						proto_tree_add_string(reqresp_tree, hf_kismet_version, tvb, offset,
+							tokenlen, format_text(line, tokenlen));
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Start time: %s",
-							format_text(line, tokenlen));
+						proto_tree_add_string(reqresp_tree, hf_kismet_start_time, tvb, offset,
+							tokenlen, format_text(line, tokenlen));
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Server name: %s",
-							format_text(line + 1, tokenlen - 2));
+						proto_tree_add_string(reqresp_tree, hf_kismet_server_name, tvb, offset,
+							tokenlen, format_text(line + 1, tokenlen - 2));
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Build revision: %s",
-							format_text(line, tokenlen));
+						proto_tree_add_string(reqresp_tree, hf_kismet_build_revision, tvb, offset,
+							tokenlen, format_text(line, tokenlen));
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Unknown field: %s",
-							format_text(line, tokenlen));
+						proto_tree_add_string(reqresp_tree, hf_kismet_unknown_field, tvb, offset,
+							tokenlen, format_text(line, tokenlen));
 
 						offset += (gint) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen,
-							"Extended version string: %s",
-							format_text(line, tokenlen));
+						proto_tree_add_string(reqresp_tree, hf_kismet_extended_version_string, tvb, offset,
+							tokenlen, format_text(line, tokenlen));
 					}
 					/*
 					 * *TIME: {Time}
 					 */
 					if (!strncmp(reqresp, "*TIME", 5)) {
-						time_t t;
+						nstime_t t;
 						char *ptr;
 
 						offset += (gint) (next_token - line);
@@ -235,17 +235,15 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 
-						/*
-						 * Convert form ascii to time_t
-						 */
-						t = atoi(format_text (line, tokenlen));
+						/* Convert form ascii to nstime */
+						t.secs = atoi(format_text (line, tokenlen));
+						t.nsecs = 0;
 
 						/*
 						 * Format ascii representaion of time
 						 */
-						ptr = abs_time_secs_to_str(wmem_packet_scope(), t, ABSOLUTE_TIME_LOCAL, TRUE);
-						proto_tree_add_text(reqresp_tree, tvb, offset,
-							tokenlen, "Time: %s", ptr);
+						ptr = abs_time_secs_to_str(wmem_packet_scope(), t.secs, ABSOLUTE_TIME_LOCAL, TRUE);
+						proto_tree_add_time_format_value(reqresp_tree, hf_kismet_time, tvb, offset, tokenlen, &t, "%s", ptr);
 					}
 				}
 
@@ -282,7 +280,35 @@ proto_register_kismet(void)
 
 		{&hf_kismet_request,
 		{"Request", "kismet.request", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "TRUE if kismet request", HFILL}}
+		NULL, 0x0, "TRUE if kismet request", HFILL}},
+
+		{&hf_kismet_version,
+		{"Version", "kismet.version", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_start_time,
+		{"Start time", "kismet.start_time", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_server_name,
+		{"Server name", "kismet.server_name", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_build_revision,
+		{"Build revision", "kismet.build_revision", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_unknown_field,
+		{"Unknown field", "kismet.unknown_field", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_extended_version_string,
+		{"Extended version string", "kismet.extended_version_string", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL}},
+
+		{&hf_kismet_time,
+		{"Time", "kismet.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0x0, NULL, HFILL}},
 	};
 
 	static gint *ett[] = {

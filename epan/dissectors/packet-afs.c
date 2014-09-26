@@ -585,7 +585,7 @@ static const fragment_items afs_frag_items = {
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
 #define OUT_RXStringV(field, length) \
-	{ 	char tmp_orxsv[length+1]; \
+	{	char tmp_orxsv[length+1]; \
 		int i_orxsv,soff_orxsv; \
 		soff_orxsv = offset;\
 		for (i_orxsv=0; i_orxsv<length; i_orxsv++)\
@@ -600,10 +600,9 @@ static const fragment_items afs_frag_items = {
 
 /* Output a callback */
 #define OUT_FS_AFSCallBack() \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 3*4, "Callback"); \
+	{	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_callback); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 3*4, ett_afs_callback, NULL, "Callback"); \
 		OUT_UINT(hf_afs_fs_callback_version); \
 		OUT_TIMESECS(hf_afs_fs_callback_expires); \
 		OUT_UINT(hf_afs_fs_callback_type); \
@@ -612,14 +611,13 @@ static const fragment_items afs_frag_items = {
 
 /* Output cache manager interfaces */
 #define OUT_CM_INTERFACES() \
-	{	proto_tree *save, *ti; \
+	{	proto_tree *save; \
 		unsigned int i; \
 		unsigned int maxint, numint; \
 		maxint = 32; \
 		numint = tvb_get_ntohl(tvb, offset); \
-		ti = proto_tree_add_text(tree, tvb, offset, 4+11*4+3*32*4, "Interfaces"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_cm_interfaces); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 4+11*4+3*32*4, ett_afs_cm_interfaces, NULL, "Interfaces"); \
 		OUT_UINT(hf_afs_cm_numint); \
 		OUT_UUID(hf_afs_cm_uuid); \
 		for ( i=0; i<numint; i++ ) { \
@@ -639,29 +637,25 @@ static const fragment_items afs_frag_items = {
 
 /* Output CM capabilities */
 #define OUT_CM_CAPABILITIES() \
-	{	proto_tree *save, *ti; \
+	{	proto_tree *save; \
 		unsigned int numcap; \
-		guint32 capabilities; \
 		numcap = tvb_get_ntohl(tvb, offset); \
-		ti = proto_tree_add_text(tree, tvb, offset, 4+numcap*4, "Capabilities"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_cm_capabilities); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 4+numcap*4, ett_afs_cm_capabilities, NULL, "Capabilities"); \
 		OUT_UINT(hf_afs_cm_numcap); \
-		capabilities = tvb_get_ntohl(tvb, offset); \
-		ti = proto_tree_add_uint(tree, hf_afs_cm_capabilities, tvb, offset, \
-			4, capabilities); \
-		proto_tree_add_boolean(tree, hf_afs_cm_cap_errortrans, \
-			tvb,offset,4, capabilities); \
+		proto_tree_add_item(tree, hf_afs_cm_capabilities, tvb, offset, \
+			4, ENC_BIG_ENDIAN); \
+		proto_tree_add_item(tree, hf_afs_cm_cap_errortrans, \
+			tvb,offset,4, ENC_BIG_ENDIAN); \
 		offset += 4; \
 		tree = save; \
 	}
 
 /* Output a callback */
 #define OUT_CB_AFSCallBack() \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 3*4, "Callback"); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_callback); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 3*4, ett_afs_callback, NULL, "Callback"); \
 		OUT_UINT(hf_afs_cb_callback_version); \
 		OUT_TIMESECS(hf_afs_cb_callback_expires); \
 		OUT_UINT(hf_afs_cb_callback_type); \
@@ -670,11 +664,10 @@ static const fragment_items afs_frag_items = {
 
 /* Output a File ID */
 #define OUT_FS_AFSFid(label) \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 3*4, \
-			"FileID (%s)", label); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_fid); \
+		tree = proto_tree_add_subtree_format(tree, tvb, offset, 3*4, \
+			ett_afs_fid, NULL, "FileID (%s)", label); \
 		OUT_UINT(hf_afs_fs_fid_volume); \
 		OUT_UINT(hf_afs_fs_fid_vnode); \
 		OUT_UINT(hf_afs_fs_fid_uniqifier); \
@@ -731,11 +724,10 @@ static const fragment_items afs_frag_items = {
 
 /* Output a File ID */
 #define OUT_CB_AFSFid(label) \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 3*4, \
-			"FileID (%s)", label); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_fid); \
+		tree = proto_tree_add_subtree_format(tree, tvb, offset, 3*4, \
+			ett_afs_fid, NULL, "FileID (%s)", label); \
 		OUT_UINT(hf_afs_cb_fid_volume); \
 		OUT_UINT(hf_afs_cb_fid_vnode); \
 		OUT_UINT(hf_afs_cb_fid_uniqifier); \
@@ -744,11 +736,10 @@ static const fragment_items afs_frag_items = {
 
 /* Output a StoreStatus */
 #define OUT_FS_AFSStoreStatus(label) \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 6*4, \
-			label); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_status); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 6*4, \
+			ett_afs_status, NULL, label); \
 		OUT_FS_STATUSMASK(); \
 		OUT_TIMESECS(hf_afs_fs_status_clientmodtime); \
 		OUT_UINT(hf_afs_fs_status_owner); \
@@ -760,11 +751,10 @@ static const fragment_items afs_frag_items = {
 
 /* Output a FetchStatus */
 #define OUT_FS_AFSFetchStatus(label) \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 21*4, \
-			label); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_status); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 21*4, \
+			ett_afs_status, NULL, label); \
 		OUT_UINT(hf_afs_fs_status_interfaceversion); \
 		OUT_UINT(hf_afs_fs_status_filetype); \
 		OUT_UINT(hf_afs_fs_status_linkcount); \
@@ -791,11 +781,10 @@ static const fragment_items afs_frag_items = {
 
 /* Output a VolSync */
 #define OUT_FS_AFSVolSync() \
-	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, tvb, offset, 6*4, \
-			"VolSync"); \
+	{ 	proto_tree *save; \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_volsync); \
+		tree = proto_tree_add_subtree(tree, tvb, offset, 6*4, \
+			ett_afs_volsync, NULL, "VolSync"); \
 		OUT_TIMESECS(hf_afs_fs_volsync_spare1); \
 		OUT_UINT(hf_afs_fs_volsync_spare2); \
 		OUT_UINT(hf_afs_fs_volsync_spare3); \
@@ -988,7 +977,7 @@ static const fragment_items afs_frag_items = {
 
 /* Output a UBIK version code */
 #define OUT_UBIKVERSION(label) \
-	{ 	proto_tree *save, *ti; \
+	{ 	proto_tree *save; \
 		unsigned int epoch,counter; \
 		nstime_t ts; \
 		epoch = tvb_get_ntohl(tvb, offset); \
@@ -997,10 +986,9 @@ static const fragment_items afs_frag_items = {
 		offset += 4; \
 		ts.secs = epoch; \
 		ts.nsecs = 0; \
-		ti = proto_tree_add_text(tree, tvb, offset-8, 8, \
-			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
+		tree = proto_tree_add_subtree_format(tree, tvb, offset-8, 8, \
+			ett_afs_ubikver, NULL, "UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		if ( epoch != 0 ) \
 		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
 			4,&ts); \

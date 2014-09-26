@@ -143,6 +143,7 @@ These are the structures you will see most often in EDP frames.
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
@@ -253,6 +254,8 @@ static int hf_edp_unknown = -1;
 static int hf_edp_unknown_data = -1;
 /* Null element */
 static int hf_edp_null = -1;
+
+static expert_field ei_edp_short_tlv = EI_INIT;
 
 static gint ett_edp = -1;
 static gint ett_edp_checksum = -1;
@@ -537,7 +540,6 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree	*flags_tree;
 	proto_item	*vlan_item;
 	proto_tree	*vlan_tree;
-	proto_item	*too_short_item;
 	guint16		vlan_id;
 	guint8		*vlan_name;
 
@@ -552,9 +554,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 
 	/* Begin flags subtree */
 	if (length < 1) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
+		expert_add_info(pinfo, vlan_item, &ei_edp_short_tlv);
 		return offset;
 	}
 	flags_item = proto_tree_add_item(vlan_tree, hf_edp_vlan_flags, tvb, offset, 1,
@@ -573,9 +573,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	/* End of flags subtree */
 
 	if (length < 1) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
+		expert_add_info(pinfo, vlan_item, &ei_edp_short_tlv);
 		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved1, tvb, offset, 1,
@@ -584,9 +582,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	length -= 1;
 
 	if (length < 2) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
+		expert_add_info(pinfo, vlan_item, &ei_edp_short_tlv);
 		return offset;
 	}
 	vlan_id = tvb_get_ntohs(tvb, offset);
@@ -598,9 +594,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	length -= 2;
 
 	if (length < 4) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
+		expert_add_info(pinfo, vlan_item, &ei_edp_short_tlv);
 		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved2, tvb, offset, 4,
@@ -609,9 +603,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	length -= 4;
 
 	if (length < 4) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
+		expert_add_info(pinfo, vlan_item, &ei_edp_short_tlv);
 		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_ip, tvb, offset, 4,
@@ -1050,17 +1042,17 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Decode the individual TLVs */
 		while (offset < data_length && !last) {
 			if (data_length - offset < 4) {
-	                	proto_tree_add_text(edp_tree, tvb, offset, 4,
-                    			"Too few bytes left for TLV: %u (< 4)",
-					data_length - offset);
+				proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 4,
+								"Too few bytes left for TLV: %u (< 4)",
+				data_length - offset);
 				break;
 			}
 			tlv_type = tvb_get_guint8(tvb, offset + 1);
 			tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
-	                	proto_tree_add_text(edp_tree, tvb, offset, 0,
-                    			"TLV with invalid length: %u", tlv_length);
+				proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 0,
+								"TLV with invalid length: %u", tlv_length);
 				break;
 			}
 			if (tlv_type != EDP_TYPE_NULL)
@@ -1477,10 +1469,17 @@ proto_register_edp(void)
 		&ett_edp_null,
 	};
 
-        proto_edp = proto_register_protocol(PROTO_LONG_NAME,
-	    PROTO_SHORT_NAME, "edp");
-        proto_register_field_array(proto_edp, hf, array_length(hf));
+	static ei_register_info ei[] = {
+		{ &ei_edp_short_tlv, { "edp.short_tlv", PI_MALFORMED, PI_ERROR, "TLV is too short", EXPFILL }},
+	};
+
+	expert_module_t* expert_edp;
+
+	proto_edp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "edp");
+	proto_register_field_array(proto_edp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_edp = expert_register_protocol(proto_edp);
+	expert_register_field_array(expert_edp, ei, array_length(ei));
 }
 
 void

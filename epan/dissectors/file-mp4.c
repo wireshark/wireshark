@@ -54,6 +54,7 @@ static int hf_mp4_box_type_str = -1;
 static int hf_mp4_box_largesize = -1;
 static int hf_mp4_full_box_ver = -1;
 static int hf_mp4_full_box_flags = -1;
+static int hf_mp4_full_box_flags_media_data_location = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
@@ -364,25 +365,30 @@ static gint
 dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, proto_tree *tree)
 {
+#if 0
     guint32  flags;
+#endif
 
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     /* XXX - put up an expert info if version!=0 */
     offset += 1;
 
+#if 0
     flags = tvb_get_ntoh24(tvb, offset);
+#endif
     proto_tree_add_item(tree, hf_mp4_full_box_flags,
             tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mp4_full_box_flags_media_data_location, tvb, offset, 3, ENC_BIG_ENDIAN);
     /*offset += 3;*/
 
+#if 0
     if (flags&ENTRY_FLAG_MOVIE) {
-        proto_tree_add_text(tree, tvb, 0, 0,
-                "Media data location is defined in the movie box");
     }
     else {
         /* XXX - dissect location string */
     }
+#endif
 
     return len;
 }
@@ -598,6 +604,9 @@ proto_register_mp4(void)
         { &hf_mp4_full_box_flags,
             { "Flags", "mp4.full_box.flags", FT_UINT24, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
+        { &hf_mp4_full_box_flags_media_data_location,
+            { "Media data location is defined in the movie box", "mp4.full_box.flags.media_data_location", FT_BOOLEAN, 24,
+                NULL, ENTRY_FLAG_MOVIE, NULL, HFILL } },
         { &hf_mp4_ftyp_brand,
             { "Brand", "mp4.ftyp.brand", FT_STRING, BASE_NONE,
                 NULL, 0, NULL, HFILL } },

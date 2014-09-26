@@ -324,6 +324,31 @@ static gint hf_pnrp_publicKey_publicKeyData = -1;
 /* Signature Structure */
 static gint hf_pnrp_signature_signatureData = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_pnrp_payload_port = -1;
+static int hf_pnrp_signature_length = -1;
+static int hf_pnrp_signature_structure_length = -1;
+static int hf_pnrp_encodedCPA_total_bytes_of_payload = -1;
+static int hf_pnrp_signature_hash_id = -1;
+static int hf_pnrp_message_flags = -1;
+static int hf_pnrp_encodedCPA_number_of_service_addresses = -1;
+static int hf_pnrp_payload_iana_proto = -1;
+static int hf_pnrp_reserved8 = -1;
+static int hf_pnrp_reserved16 = -1;
+static int hf_pnrp_encodedCPA_service_address_length = -1;
+static int hf_pnrp_message_data = -1;
+static int hf_pnrp_publicKey_length_of_structure = -1;
+static int hf_pnrp_publicKey_size_of_cbdata = -1;
+static int hf_pnrp_payload_type = -1;
+static int hf_pnrp_publicKey_size_of_algorithm_oid = -1;
+static int hf_pnrp_message_port_number = -1;
+static int hf_pnrp_publicKey_reserved = -1;
+static int hf_pnrp_encodedCPA_friendlyName_length = -1;
+static int hf_pnrp_message_offset = -1;
+static int hf_pnrp_publicKey_unused_bits = -1;
+static int hf_pnrp_length_of_data = -1;
+static int hf_pnrp_encodedCPA_number_of_payload_structures = -1;
+
 /* Define variables to reference subtrees */
 static gint ett_pnrp = -1;
 static gint ett_pnrp_header = -1;
@@ -533,7 +558,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
                             default:
-                                proto_tree_add_text(pnrp_message_tree, tvb, offset + 4, data_length -4, "Flags");
+                                proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_flags, tvb, offset + 4, data_length -4, ENC_BIG_ENDIAN);
                                 offset += data_length;
                                 break;
                         }
@@ -554,7 +579,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         /* D - Bit */
                         proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_flood_flags_Dbit, tvb,((offset + 4)*8)+15, 1, ENC_BIG_ENDIAN);
                         /* Reserved 2 */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 1, "Reserved 2: %d",tvb_get_guint8(tvb,offset+6));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_reserved8, tvb, offset + 6, 1, ENC_NA);
                         /* Padding 1 */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_padding, tvb, offset + 7, 1, ENC_NA);
                     }
@@ -569,9 +594,9 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                                                                 data_length, ett_pnrp_message, NULL, "Solicit Controls: ");
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 4, 1, "Reserved : %d",tvb_get_guint8(tvb,offset+4));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_reserved8, tvb, offset + 4, 1, ENC_NA);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_solicitType, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 2, "Reserved : %d",tvb_get_ntohs(tvb,offset+6));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_reserved16, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN);
                     }
                     offset += data_length +2;   /* Padding involved */
                     break;
@@ -591,7 +616,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         /* Reason Code */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_lookupControls_reasonCode, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
                         /* Reserved */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 10, 2, "Reserved : %d",tvb_get_ntohs(tvb,offset+10));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_reserved16, tvb, offset + 10, 2, ENC_LITTLE_ENDIAN);
 
                     }
 
@@ -728,7 +753,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         /* Size of Authority Buffer */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_splitControls_authorityBuffer, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                         /* Byte offset */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 2, "Offset : %d",tvb_get_ntohs(tvb,offset+6));
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_offset, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
                     }
 
@@ -806,7 +831,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         if(data_length > 4)
                         {
-                            proto_tree_add_text(pnrp_message_tree, tvb, offset + 4, data_length -4, "Data");
+                            proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_data, tvb, offset + 4, data_length -4, ENC_NA);
                         }
                         else {
                             return 0;
@@ -869,7 +894,7 @@ static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint len
     /* Check if we don't run out of data */
     while (0 <= tvb_reported_length_remaining(tvb, offset+18) && 18 <=length) {
         /* Port Number */
-        proto_tree_add_text(tree, tvb, offset, 2, "Port Number : %d",tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(tree, hf_pnrp_message_port_number, tvb, offset, 2, ENC_BIG_ENDIAN);
         /* IPv6 Addresses */
         dissect_ipv6_address(tvb, offset+2,16,tree);
         offset += 18;
@@ -911,7 +936,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         proto_tree_add_bitmask(pnrp_encodedCPA_tree, tvb, offset+6, hf_pnrp_encodedCPA_flags, ett_pnrp_message_encodedCPA_flags, encodedCPA_flags, ENC_BIG_ENDIAN);
         flagsField = tvb_get_guint8(tvb,offset+6);
         /* Reserved */
-        proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset + 7, 1, "Reserved");
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_reserved8, tvb, offset + 7, 1, ENC_NA);
         /* Not After */
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_notAfter, tvb, offset+8, 8, ENC_BIG_ENDIAN);
         /* Service Location */
@@ -941,23 +966,23 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* Check if F Flag is set */
         if (flagsField & FLAGS_ENCODED_CPA_F) {
             /* Friendly Name Length */
-            proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Length of Friendly name : %d",tvb_get_letohs(tvb,offset));
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             /* Friendly Name */
             proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName, tvb, offset+2, tvb_get_letohs(tvb,offset), ENC_ASCII|ENC_NA);
             offset +=tvb_get_letohs(tvb,offset)+2;
         }
         /* Service Address List */
-        proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Number of Service Addresses : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_number_of_service_addresses, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Service Address Length : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_service_address_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         /* A list of IPV6_Endpoint Structures follows */
         dissect_ipv6_endpoint_structure(tvb, offset,tvb_get_letohs(tvb,offset-4)*tvb_get_letohs(tvb,offset-2) , pnrp_encodedCPA_tree);
         offset += tvb_get_letohs(tvb,offset-4)*tvb_get_letohs(tvb,offset-2);
         /* A number of Payload Structures */
-        proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Number of Payload Structures : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_number_of_payload_structures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Total Bytes of Payload : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_total_bytes_of_payload, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         dissect_payload_structure(tvb,offset, tvb_get_letohs(tvb,offset-2)-4,pnrp_encodedCPA_tree);
         offset += tvb_get_letohs(tvb,offset-2)-4;
@@ -982,20 +1007,19 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
 
     /* Dissect the Payload Structure */
     /* Payload Type */
-    proto_tree_add_text(pnrp_payload_tree, tvb, offset,4, "Payload Type : %d",tvb_get_letohl(tvb,offset));
+    proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     /* Data Length */
     lengthOfData = tvb_get_letohs(tvb,offset);
-    proto_tree_add_text(pnrp_payload_tree, tvb, offset,2, "Length of Data : %d",lengthOfData);
+    proto_tree_add_item(pnrp_payload_tree, hf_pnrp_length_of_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     /* IPV6_APP_ENDPOINT Structure */
     while (0 <= tvb_reported_length_remaining(tvb, offset+20)&& 20 <= lengthOfData) {
         dissect_ipv6_address(tvb, offset, 16, pnrp_payload_tree);
         offset += 16;
-        proto_tree_add_text(pnrp_payload_tree, tvb, offset,2, "Port Number : %d",tvb_get_letohs(tvb,offset));
-        /* proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_port, tvb, offset, 2, ENC_BIG_ENDIAN); */
+        proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        proto_tree_add_text(pnrp_payload_tree, tvb, offset,2, "IANA Protocol Number : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_iana_proto, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         lengthOfData -=20;
     }
@@ -1012,21 +1036,21 @@ static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length,
         pnrp_publicKey_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_pnrp_message_publicKeyStructure, NULL, "CPA Public Key Structure");
         /* Parsing of Data */
         /* Field Length of Structure */
-        proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,2, "Length of Structure : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_length_of_structure, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         /* ObjID length */
         objIDLength = tvb_get_letohs(tvb,offset);
-        proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,2, "Size of Algorithm OID : %d",objIDLength);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_size_of_algorithm_oid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         /* Reserved */
-        proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,2, "Reserved : %d",tvb_get_ntohs(tvb,offset));
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset +=2;
         /* Public Key cbData Length */
         cbDataLength = tvb_get_letohs(tvb,offset);
-        proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,2, "Size of cbData : %d",cbDataLength);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_size_of_cbdata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         /* Unused Bits, actually only 7... */
-        proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,1, "Unused Bits : %d",7);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_unused_bits, tvb, offset, 1, ENC_NA);
         offset +=1;
         /* Algorithm ObjID */
         proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_objID, tvb, offset, objIDLength, ENC_ASCII|ENC_NA);
@@ -1046,14 +1070,14 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
         pnrp_signature_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_pnrp_message_signatureStructure, NULL, "Signature Structure");
         /* Parsing of Data */
         /* Field Length of Structure */
-        proto_tree_add_text(pnrp_signature_tree, tvb, offset,2, "Length of Structure : %d",tvb_get_letohs(tvb,offset));
+        proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset +=2;
         /* Signature Length */
         signatureLength = tvb_get_letohs(tvb,offset);
-        proto_tree_add_text(pnrp_signature_tree, tvb, offset,2, "Length of Signature : %d",signatureLength);
+        proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         /* Hash Algorithm Identifier */
-        proto_tree_add_text(pnrp_signature_tree, tvb, offset,4, "Hash Algorithm Identifier : %x",tvb_get_letohl(tvb,offset));
+        proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_hash_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         /* Signature Data */
         proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_signatureData, tvb, offset, signatureLength, ENC_NA);
@@ -1313,7 +1337,33 @@ void proto_register_pnrp(void)
             { "Solicit Type", "pnrp.segment.solicitType", FT_UINT8, BASE_DEC, VALS(solicitType), 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_ipv6,
-            { "IPv6 Address","pnrp.segment.ipv6Address",FT_IPv6, BASE_NONE, NULL, 0x0,NULL,HFILL}}
+            { "IPv6 Address","pnrp.segment.ipv6Address",FT_IPv6, BASE_NONE, NULL, 0x0,NULL,HFILL}},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_pnrp_message_flags, { "Flags", "pnrp.segment.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_reserved8, { "Reserved", "pnrp.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_reserved16, { "Reserved", "pnrp.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_message_offset, { "Offset", "pnrp.segment.offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_message_data, { "Data", "pnrp.segment.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_message_port_number, { "Port Number", "pnrp.segment.port_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_encodedCPA_friendlyName_length, { "Length of Friendly name", "pnrp.encodedCPA.friendlyName.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_encodedCPA_number_of_service_addresses, { "Number of Service Addresses", "pnrp.encodedCPA.number_of_service_addresses", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_encodedCPA_service_address_length, { "Service Address Length", "pnrp.encodedCPA.service_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_encodedCPA_number_of_payload_structures, { "Number of Payload Structures", "pnrp.encodedCPA.number_of_payload_structures", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_encodedCPA_total_bytes_of_payload, { "Total Bytes of Payload", "pnrp.encodedCPA.total_bytes_of_payload", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_payload_type, { "Payload Type", "pnrp.payload.type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_length_of_data, { "Length of Data", "pnrp.payload.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_payload_port, { "Port Number", "pnrp.payload.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_payload_iana_proto, { "IANA Protocol Number", "pnrp.payload.iana_proto", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_publicKey_length_of_structure, { "Length of Structure", "pnrp.publicKey.structure_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_publicKey_size_of_algorithm_oid, { "Size of Algorithm OID", "pnrp.publicKey.algorithm_oid_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_publicKey_reserved, { "Reserved", "pnrp.publicKey.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_publicKey_size_of_cbdata, { "Size of cbData", "pnrp.publicKey.cbdata_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_publicKey_unused_bits, { "Unused Bits", "pnrp.publicKey.unused_bits", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_signature_structure_length, { "Length of Structure", "pnrp.signature.structure_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_signature_length, { "Length of Signature", "pnrp.signature.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_pnrp_signature_hash_id, { "Hash Algorithm Identifier", "pnrp.signature.hash_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     };
 
     /* Protocol subtree array */

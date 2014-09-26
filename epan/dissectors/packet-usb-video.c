@@ -1096,7 +1096,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
     }
     else
     {
-        proto_tree_add_text(tree, tvb, offset+1, 1, "bTriggerUsage: Not applicable");
+        proto_tree_add_uint_format_value(tree, hf_usb_vid_streaming_trigger_usage, tvb, offset+1, 1, 0, "Not applicable");
     }
 
     offset += 2;

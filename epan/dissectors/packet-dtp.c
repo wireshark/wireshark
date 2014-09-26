@@ -56,6 +56,7 @@ static int hf_dtp_tot = -1;
 static int hf_dtp_tat = -1;
 static int hf_dtp_tos = -1;
 static int hf_dtp_tas = -1;
+static int hf_dtp_data = -1;
 
 static gint ett_dtp = -1;
 static gint ett_dtp_tlv = -1;
@@ -279,7 +280,7 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, length, "Data");
+		proto_tree_add_item(tree, hf_dtp_data, tvb, offset, length, ENC_NA);
 		break;
 	}
 }
@@ -324,6 +325,9 @@ proto_register_dtp(void)
 		{ "Sender ID", "dtp.senderid", FT_ETHER, BASE_NONE,
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
+	{ &hf_dtp_data,
+		{ "Data", "dtp.data", FT_ETHER, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

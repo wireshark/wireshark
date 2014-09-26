@@ -94,6 +94,14 @@ static int hf_hclnfsd_size = -1;
 static int hf_hclnfsd_copies = -1;
 static int hf_hclnfsd_auth_ident_obscure = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_hclnfsd_job_id = -1;
+static int hf_hclnfsd_print_queues = -1;
+static int hf_hclnfsd_print_jobs = -1;
+static int hf_hclnfsd_gids = -1;
+static int hf_hclnfsd_uids = -1;
+static int hf_hclnfsd_password = -1;
+
 static gint ett_hclnfsd = -1;
 static gint ett_hclnfsd_gids = -1;
 static gint ett_hclnfsd_groups = -1;
@@ -106,7 +114,7 @@ static gint ett_hclnfsd_auth_ident = -1;
 static int
 dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 ngids, ngids_i, gid;
+	guint32 ngids, ngids_i;
 	proto_tree *gidtree = NULL;
 	proto_item *giditem = NULL;
 
@@ -114,10 +122,8 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	ngids = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		giditem = proto_tree_add_text(tree, tvb, offset, 4, "GIDs: %d",
-			ngids);
-		if (giditem)
-			gidtree = proto_item_add_subtree(giditem, ett_hclnfsd_gids);
+		giditem = proto_tree_add_item(tree, hf_hclnfsd_gids, tvb, offset, 4, ENC_BIG_ENDIAN);
+		gidtree = proto_item_add_subtree(giditem, ett_hclnfsd_gids);
 	}
 	offset += 4;
 
@@ -125,9 +131,7 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	{
 		for (ngids_i = 0; ngids_i < ngids; ngids_i++)
 		{
-			gid = tvb_get_ntohl(tvb, offset + (4 * ngids_i));
-			proto_tree_add_text(gidtree, tvb, offset + (4 * ngids_i), 4,
-				"GID: %d", gid);
+			proto_tree_add_item(gidtree, hf_hclnfsd_gid, tvb, offset + (4 * ngids_i), 4, ENC_BIG_ENDIAN);
 		}
 	}
 	offset += 4 * ngids;
@@ -231,11 +235,8 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 			username = ident_decoded + 2;
 			password = username + strlen(username) + 1;
 
-			proto_tree_add_text(ident_tree, tvb, offset, ident_len,
-				"Username: %s", username);
-
-			proto_tree_add_text(ident_tree, tvb, offset, ident_len,
-				"Password: %s", password);
+			proto_tree_add_string(ident_tree, hf_hclnfsd_username, tvb, offset, ident_len, username);
+			proto_tree_add_string(ident_tree, hf_hclnfsd_password, tvb, offset, ident_len, password);
 
 			offset = newoffset;
 		}
@@ -333,16 +334,12 @@ dissect_hclnfsd_uid_to_name_call(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	nuids = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		uiditem = proto_tree_add_text(tree, tvb, offset, 4, "UIDs: %d",
-			nuids);
+		uiditem = proto_tree_add_item(tree, hf_hclnfsd_uids, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		if (uiditem)
 			uidtree = proto_item_add_subtree(uiditem, ett_hclnfsd_uids);
 	}
 	offset += 4;
-
-	if (!uidtree)
-		return offset;
 
 	for (nuids_i = 0; nuids_i < nuids; nuids_i++)
 		offset = dissect_rpc_uint32(tvb, uidtree, hf_hclnfsd_uid, offset);
@@ -361,8 +358,7 @@ dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, int offset, packet_info *pinfo 
 	nusers = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		useritem = proto_tree_add_text(tree, tvb, offset, 4, "UIDs: %d",
-			nusers);
+		useritem = proto_tree_add_item(tree, hf_hclnfsd_uids, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		if (useritem)
 			usertree = proto_item_add_subtree(useritem, ett_hclnfsd_usernames);
@@ -553,8 +549,7 @@ dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, int offset, packet_info *pinfo
 	nqueues = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		queuesitem = proto_tree_add_text(tree, tvb, offset, 4,
-			"Print Queues: %d", nqueues);
+		queuesitem = proto_tree_add_item(tree, hf_hclnfsd_print_queues, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		if (queuesitem)
 			queuestree = proto_item_add_subtree(queuesitem,
@@ -594,7 +589,7 @@ dissect_hclnfsd_get_printq_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int
 dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint datafollows, jobid;
+	guint datafollows;
 	proto_item *queueitem = NULL;
 	proto_tree *queuetree = NULL;
 	proto_item *jobitem;
@@ -611,21 +606,14 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	datafollows = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		queueitem = proto_tree_add_text(tree, tvb, offset, 4,
-			"Print Jobs: %d", datafollows);
-		if (queueitem)
-			queuetree = proto_item_add_subtree(queueitem, ett_hclnfsd_printqueues);
+		queueitem = proto_tree_add_item(tree, hf_hclnfsd_print_jobs, tvb, offset, 4, ENC_BIG_ENDIAN);
+		queuetree = proto_item_add_subtree(queueitem, ett_hclnfsd_printqueues);
 	}
 	offset += 4;
 
-	if (!queuetree)
-		return offset;
-
 	while (datafollows)
 	{
-		jobid = tvb_get_ntohl(tvb, offset);
-		jobitem = proto_tree_add_text(queuetree, tvb, offset, 4, "Job ID: %d",
-			jobid);
+		jobitem = proto_tree_add_item(queuetree, hf_hclnfsd_job_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		jobtree = proto_item_add_subtree(jobitem, ett_hclnfsd_printjob);
@@ -642,8 +630,7 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_timesubmitted, offset);
 		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_size, offset);
 		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_copies, offset);
-		offset = dissect_rpc_string(tvb, jobtree,
-			hf_hclnfsd_queuecomment, offset, NULL);
+		offset = dissect_rpc_string(tvb, jobtree, hf_hclnfsd_queuecomment, offset, NULL);
 
 		datafollows = tvb_get_ntohl(tvb, offset);
 		offset += 4;
@@ -867,6 +854,14 @@ proto_register_hclnfsd(void)
 		{ &hf_hclnfsd_auth_ident_obscure, {
 			"Obscure Ident", "hclnfsd.authorize.ident.obscure", FT_STRING,
 			BASE_NONE	, NULL, 0, "Authentication Obscure Ident", HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_hclnfsd_gids, { "GIDs", "hclnfsd.gids", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_hclnfsd_password, { "Password", "hclnfsd.password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_hclnfsd_uids, { "UIDs", "hclnfsd.uids", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_hclnfsd_print_queues, { "Print Queues", "hclnfsd.print_queues", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_hclnfsd_print_jobs, { "Print Jobs", "hclnfsd.print_jobs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_hclnfsd_job_id, { "Job ID", "hclnfsd.job_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_hclnfsd,
