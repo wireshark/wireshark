@@ -768,6 +768,45 @@ sub Interface($$$)
 		my $dcerpc_typename = $self->import_type_variable("samba.dcerpc.base", "ClientConnection");
 		$self->register_module_prereadycode(["$if_typename.tp_base = $dcerpc_typename;", ""]);
 		$self->register_module_postreadycode(["if (!PyInterface_AddNdrRpcMethods(&$if_typename, py_ndr_$interface->{NAME}\_methods))", "\treturn;", ""]);
+
+
+		$self->pidl("static PyObject *syntax_$interface->{NAME}_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl("return py_dcerpc_syntax_init_helper(type, args, kwargs, &ndr_table_$interface->{NAME}.syntax_id);");
+		$self->deindent;
+		$self->pidl("}");
+
+		$self->pidl("");
+
+		my $signature = "\"abstract_syntax()\\n\"";
+
+		my $docstring = $self->DocString($interface, $interface->{NAME}."_syntax");
+
+		if ($docstring) {
+			$docstring = "$signature$docstring";
+		} else {
+			$docstring = $signature;
+		}
+
+		my $syntax_typename = "$interface->{NAME}_SyntaxType";
+
+		$self->pidl("static PyTypeObject $syntax_typename = {");
+		$self->indent;
+		$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
+		$self->pidl(".tp_name = \"$basename.$interface->{NAME}\",");
+		$self->pidl(".tp_basicsize = sizeof(pytalloc_Object),");
+		$self->pidl(".tp_doc = $docstring,");
+		$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
+		$self->pidl(".tp_new = syntax_$interface->{NAME}_new,");
+		$self->deindent;
+		$self->pidl("};");
+
+		$self->pidl("");
+
+		$self->register_module_typeobject("abstract_syntax", "&$syntax_typename");
+		my $ndr_typename = $self->import_type_variable("samba.dcerpc.misc", "ndr_syntax_id");
+		$self->register_module_prereadycode(["$syntax_typename.tp_base = $ndr_typename;", ""]);
 	}
 
 	$self->pidl_hdr("\n");
