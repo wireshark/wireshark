@@ -1932,7 +1932,7 @@ ipxnet_addr_lookup(const gchar *name _U_, gboolean *success)
 } /* ipxnet_addr_lookup */
 
 static gboolean
-read_hosts_file (const char *hostspath)
+read_hosts_file (const char *hostspath, gboolean store_entries)
 {
     FILE *hf;
     char *line = NULL;
@@ -1940,7 +1940,7 @@ read_hosts_file (const char *hostspath)
     gchar *cp;
     guint32 host_addr[4]; /* IPv4 or IPv6 */
     struct e_in6_addr ip6_addr;
-    gboolean is_ipv6;
+    gboolean is_ipv6, entry_found = FALSE;
     int ret;
 
     /*
@@ -1973,28 +1973,31 @@ read_hosts_file (const char *hostspath)
         if ((cp = strtok(NULL, " \t")) == NULL)
             continue; /* no host name */
 
-        if (is_ipv6) {
-            memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
-            add_ipv6_name(&ip6_addr, cp);
-        } else
-            add_ipv4_name(host_addr[0], cp);
-
-        /*
-         * Add the aliases, too, if there are any.
-         * XXX - host_lookup() only returns the first entry.
-         */
-        while ((cp = strtok(NULL, " \t")) != NULL) {
+        entry_found = TRUE;
+        if (store_entries) {
             if (is_ipv6) {
                 memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
                 add_ipv6_name(&ip6_addr, cp);
             } else
                 add_ipv4_name(host_addr[0], cp);
+
+            /*
+             * Add the aliases, too, if there are any.
+             * XXX - host_lookup() only returns the first entry.
+             */
+            while ((cp = strtok(NULL, " \t")) != NULL) {
+                if (is_ipv6) {
+                    memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
+                    add_ipv6_name(&ip6_addr, cp);
+                } else
+                    add_ipv4_name(host_addr[0], cp);
+            }
         }
     }
     g_free(line);
 
     fclose(hf);
-    return TRUE;
+    return entry_found ? TRUE : FALSE;
 } /* read_hosts_file */
 
 gboolean
@@ -2016,7 +2019,7 @@ add_hosts_file (const char *hosts_file)
 
     if (!found) {
         g_ptr_array_add(extra_hosts_files, g_strdup(hosts_file));
-        return read_hosts_file (hosts_file);
+        return read_hosts_file (hosts_file, FALSE);
     }
     return TRUE;
 }
@@ -2674,7 +2677,7 @@ host_name_lookup_init(void)
      */
     if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
         hostspath = get_datafile_path(ENAME_HOSTS);
-        if (!read_hosts_file(hostspath) && errno != ENOENT) {
+        if (!read_hosts_file(hostspath, TRUE) && errno != ENOENT) {
             report_open_failure(hostspath, errno, FALSE);
         }
         g_free(hostspath);
@@ -2683,7 +2686,7 @@ host_name_lookup_init(void)
      * Load the user's hosts file no matter what, if they have one.
      */
     hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
-    if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    if (!read_hosts_file(hostspath, TRUE) && errno != ENOENT) {
         report_open_failure(hostspath, errno, FALSE);
     }
     g_free(hostspath);
@@ -2720,17 +2723,17 @@ host_name_lookup_init(void)
          */
         if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
             hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-            if (!read_hosts_file(hostspath)) {
+            if (!read_hosts_file(hostspath, TRUE)) {
                 g_free(hostspath);
                 hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
-                read_hosts_file(hostspath);
+                read_hosts_file(hostspath, TRUE);
             }
             g_free(hostspath);
         }
     }
 #else /* _WIN32 */
     if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-        read_hosts_file("/etc/hosts");
+        read_hosts_file("/etc/hosts", TRUE);
     }
 #endif /* _WIN32 */
 
@@ -2756,7 +2759,7 @@ host_name_lookup_init(void)
 
     if(extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only){
         for (i = 0; i < extra_hosts_files->len; i++) {
-            read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i));
+            read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i), TRUE);
         }
     }
 
