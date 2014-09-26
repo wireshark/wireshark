@@ -904,7 +904,7 @@ frsrpc_dissect_bitmap_CommPktCoCmdFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -1082,7 +1082,7 @@ frsrpc_dissect_bitmap_CommPktCoCmdIFlags(tvbuff_t *tvb _U_, int offset _U_, pack
 		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdIFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -1191,7 +1191,7 @@ frsrpc_dissect_bitmap_CommPktCoCmdContentCmd(tvbuff_t *tvb _U_, int offset _U_, 
 		tree = proto_item_add_subtree(item,ett_frsrpc_frsrpc_CommPktCoCmdContentCmd);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)

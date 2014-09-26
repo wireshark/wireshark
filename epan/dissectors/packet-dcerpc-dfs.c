@@ -678,7 +678,7 @@ netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_VolumeState);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -857,7 +857,7 @@ netdfs_dissect_bitmap_dfs_StorageState(tvbuff_t *tvb _U_, int offset _U_, packet
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_StorageState);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -1273,7 +1273,7 @@ netdfs_dissect_bitmap_dfs_PropertyFlags(tvbuff_t *tvb _U_, int offset _U_, packe
 		tree = proto_item_add_subtree(item,ett_netdfs_dfs_PropertyFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)

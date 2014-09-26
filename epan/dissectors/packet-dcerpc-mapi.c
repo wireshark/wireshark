@@ -9226,7 +9226,7 @@ mapi_dissect_bitmap_ulEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		tree = proto_item_add_subtree(item,ett_mapi_ulEventType);
 	}
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)

@@ -665,7 +665,7 @@ winreg_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet
 		tree = proto_item_add_subtree(item,ett_winreg_security_secinfo);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -923,7 +923,7 @@ winreg_dissect_bitmap_KeyOptions(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		tree = proto_item_add_subtree(item,ett_winreg_winreg_KeyOptions);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -1171,7 +1171,7 @@ winreg_dissect_bitmap_NotifyChangeType(tvbuff_t *tvb _U_, int offset _U_, packet
 		tree = proto_item_add_subtree(item,ett_winreg_winreg_NotifyChangeType);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -1238,7 +1238,7 @@ winreg_dissect_bitmap_RestoreKeyFlags(tvbuff_t *tvb _U_, int offset _U_, packet_
 		tree = proto_item_add_subtree(item,ett_winreg_winreg_RestoreKeyFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)

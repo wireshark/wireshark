@@ -2364,7 +2364,7 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 		tree = proto_item_add_subtree(item,ett_samr_samr_AcctFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -2794,7 +2794,7 @@ samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet
 		tree = proto_item_add_subtree(item,ett_samr_samr_PasswordProperties);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -3897,7 +3897,7 @@ samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		tree = proto_item_add_subtree(item,ett_samr_samr_GroupAttrs);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -5958,7 +5958,7 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		tree = proto_item_add_subtree(item,ett_samr_samr_FieldsPresent);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -8341,7 +8341,7 @@ samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, pac
 		tree = proto_item_add_subtree(item,ett_samr_samr_ValidateFieldsPresent);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)

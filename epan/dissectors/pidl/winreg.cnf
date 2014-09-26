@@ -2,7 +2,6 @@ TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, 
 TYPE winreg_Type "offset=misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
 IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
 
-
 #
 # Make all instances of an access mask use the same hf field display filter 
 # name

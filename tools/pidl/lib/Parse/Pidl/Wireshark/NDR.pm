@@ -221,7 +221,7 @@ sub Bitmap($$$$)
 	$self->deindent;
 	$self->pidl_code("}\n");
 
-	$self->pidl_code("offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, NULL, di, drep, -1, &flags);");
+	$self->pidl_code("offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, di, drep, -1, &flags);");
 
 	$self->pidl_code("proto_item_append_text(item, \": \");\n");
 	$self->pidl_code("if (!flags)");

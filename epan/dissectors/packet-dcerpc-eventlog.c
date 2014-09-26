@@ -410,7 +410,7 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb _U_, int offset _U_, pac
 		tree = proto_item_add_subtree(item,ett_eventlog_eventlogReadFlags);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
@@ -479,7 +479,7 @@ eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, pa
 		tree = proto_item_add_subtree(item,ett_eventlog_eventlogEventTypes);
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, -1, &flags);
 	proto_item_append_text(item, ": ");
 
 	if (!flags)
