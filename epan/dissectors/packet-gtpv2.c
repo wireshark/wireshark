@@ -412,6 +412,9 @@ static int hf_gtpv2_timer_unit = -1;
 static int hf_gtpv2_timer_value = -1;
 static int hf_gtpv2_lapi = -1;
 
+static int hf_gtpv2_pres_rep_area_action = -1;
+static int hf_gtpv2_pres_rep_area_id = -1;
+
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
@@ -5145,10 +5148,45 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 /*
  * 8.108	Presence Reporting Area Action
  */
+
+
+static const value_string gtpv2_pres_rep_area_action_vals[] = {
+    { 1, "Start Reporting change"},
+    { 2, "Stop Reporting change"},
+    { 0, NULL}
+};
+
 static void
-dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+
+    /* Octet 5	Spare	Action */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (length == 1)
+        return;
+    /* Octet 6 to 8	Presence Reporting Area Identifier */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    if (length == 3)
+        return;
+    /* Octet 9 	Number of TAI	Number of RAI */
+    /* Octet 10	Spare	Number of Macro eNodeB */
+    /* Octet 11	Spare	Number of Home eNodeB */
+    /* Octet 12	Spare	Number of ECGI */
+    /* Octet 13	Spare	Number of SAI */
+    /* Octet 14	Spare	Number of CGI */
+    /* Octet 15 to k	TAIs [1..15] */
+    /* Octet (k+1) to m	Macro eNB IDs [1..63] */
+    /* Octet (m+1) to p	Home eNB IDs [1..63] */
+    /* Octet (p+1) to q	ECGIs [1..63] */
+    /* Octet (q+1) to r	RAIs [1..15] */
+    /* Octet (r+1) to s	SAIs [1..63] */
+    /* Octet (s+1) to t	CGIs [1..63] */
+
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 }
 /*
  * 8.109	Presence Reporting Area Information
@@ -7189,6 +7227,16 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_mmbr_dl,
           {"Max MBR/APN-AMBR for downlink", "gtpv2.mmbr_dl",
            FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_action,
+          {"Action", "gtpv2._pres_rep_area_action.action",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_pres_rep_area_action_vals), 0x03,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_id,
+          {"Presence Reporting Area Identifier", "gtpv2._pres_rep_area_action.pres_rep_area_id",
+           FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL}
         },
     };
