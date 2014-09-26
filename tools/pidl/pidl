@@ -21,28 +21,28 @@ pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-id
 
 =head1 DESCRIPTION
 
-pidl is an IDL compiler written in Perl that aims to be somewhat 
-compatible with the midl compiler. IDL is short for 
+pidl is an IDL compiler written in Perl that aims to be somewhat
+compatible with the midl compiler. IDL is short for
 "Interface Definition Language".
 
-pidl can generate stubs for DCE/RPC server code, DCE/RPC 
+pidl can generate stubs for DCE/RPC server code, DCE/RPC
 client code and Wireshark dissectors for DCE/RPC traffic.
 
-IDL compilers like pidl take a description 
-of an interface as their input and use it to generate C 
-(though support for other languages may be added later) code that 
-can use these interfaces, pretty print data sent 
-using these interfaces, or even generate Wireshark 
-dissectors that can parse data sent over the 
-wire by these interfaces. 
+IDL compilers like pidl take a description
+of an interface as their input and use it to generate C
+(though support for other languages may be added later) code that
+can use these interfaces, pretty print data sent
+using these interfaces, or even generate Wireshark
+dissectors that can parse data sent over the
+wire by these interfaces.
 
-pidl takes IDL files in the same format as is used by midl, 
+pidl takes IDL files in the same format as is used by midl,
 converts it to a .pidl file (which contains pidl's internal representation of the interface) and can then generate whatever output you need.
-.pidl files should be used for debugging purposes only. Write your 
+.pidl files should be used for debugging purposes only. Write your
 interface definitions in .idl format.
 
-The goal of pidl is to implement a IDL compiler that can be used 
-while developing the RPC subsystem in Samba (for 
+The goal of pidl is to implement a IDL compiler that can be used
+while developing the RPC subsystem in Samba (for
 both marshalling/unmarshalling and debugging purposes).
 
 =head1 OPTIONS
@@ -59,17 +59,17 @@ Show pidl version
 
 =item I<--outputdir OUTNAME>
 
-Write output files to the specified directory.  Defaults to the current 
+Write output files to the specified directory.  Defaults to the current
 directory.
 
 =item I<--includedir DIR>
 
-Add DIR to the search path used by the preprocessor. This option can be 
+Add DIR to the search path used by the preprocessor. This option can be
 specified multiple times.
 
 =item I<--parse-idl-tree>
 
-Read internal tree structure from input files rather 
+Read internal tree structure from input files rather
 than assuming they contain IDL.
 
 =item I<--dump-idl>
@@ -82,14 +82,14 @@ Generate a C header file for the specified interface. Filename defaults to OUTNA
 
 =item I<--ndr-parser>
 
-Generate a C file and C header containing NDR parsers. The filename for 
-the parser defaults to ndr_OUTNAME.c. The header filename will be the 
+Generate a C file and C header containing NDR parsers. The filename for
+the parser defaults to ndr_OUTNAME.c. The header filename will be the
 parser filename with the extension changed from .c to .h.
 
 =item I<--tdr-parser>
 
-Generate a C file and C header containing TDR parsers. The filename for 
-the parser defaults to tdr_OUTNAME.c. The header filename will be the 
+Generate a C file and C header containing TDR parsers. The filename for
+the parser defaults to tdr_OUTNAME.c. The header filename will be the
 parser filename with the extension changed from .c to .h.
 
 =item I<--typelib>
@@ -98,51 +98,51 @@ Write type information to the specified file.
 
 =item I<--server>
 
-Generate boilerplate for the RPC server that implements 
+Generate boilerplate for the RPC server that implements
 the interface. Filename defaults to ndr_OUTNAME_s.c.
 
 =item I<--template>
 
-Generate stubs for a RPC server that implements the interface. Output will 
+Generate stubs for a RPC server that implements the interface. Output will
 be written to stdout.
 
 =item I<--ws-parser>
 
 Generate an Wireshark dissector (in C) and header file. The dissector filename
-defaults to packet-dcerpc-OUTNAME.c while the header filename defaults to 
+defaults to packet-dcerpc-OUTNAME.c while the header filename defaults to
 packet-dcerpc-OUTNAME.h.
 
-Pidl will read additional data from an Wireshark conformance file if present. 
-Such a file should have the same location as the IDL file but with the 
+Pidl will read additional data from an Wireshark conformance file if present.
+Such a file should have the same location as the IDL file but with the
 extension I<cnf> rather than I<idl>. See L<Parse::Pidl::Wireshark::Conformance>
 for details on the format of this file.
 
 =item I<--diff>
 
-Parse an IDL file,  generate a new IDL file based on the internal data 
-structures and see if there are any differences with the original IDL file. 
+Parse an IDL file,  generate a new IDL file based on the internal data
+structures and see if there are any differences with the original IDL file.
 Useful for debugging pidl.
 
 =item I<--dump-idl-tree>
 
-Tell pidl to dump the internal tree representation of an IDL 
+Tell pidl to dump the internal tree representation of an IDL
 file the to disk. Useful for debugging pidl.
 
 =item I<--dump-ndr-tree>
 
-Tell pidl to dump the internal NDR information tree it generated 
+Tell pidl to dump the internal NDR information tree it generated
 from the IDL file to disk.  Useful for debugging pidl.
 
 =item I<--samba3-ndr-client>
 
-Generate client calls for Samba3, to be placed in rpc_client/. Instead of 
-calling out to the code in Samba3's rpc_parse/, this will call out to 
+Generate client calls for Samba3, to be placed in rpc_client/. Instead of
+calling out to the code in Samba3's rpc_parse/, this will call out to
 Samba4's NDR code instead.
 
 =item I<--samba3-ndr-server>
 
-Generate server calls for Samba3, to be placed in rpc_server/. Instead of 
-calling out to the code in Samba3's rpc_parse/, this will call out to 
+Generate server calls for Samba3, to be placed in rpc_server/. Instead of
+calling out to the code in Samba3's rpc_parse/, this will call out to
 Samba4's NDR code instead.
 
 =back
@@ -151,13 +151,13 @@ Samba4's NDR code instead.
 
 IDL files are always preprocessed using the C preprocessor.
 
-Pretty much everything in an interface (the interface itself, functions, 
-parameters) can have attributes (or properties whatever name you give them). 
-Attributes always prepend the element they apply to and are surrounded 
-by square brackets ([]). Multiple attributes are separated by comma's; 
-arguments to attributes are specified between parentheses. 
+Pretty much everything in an interface (the interface itself, functions,
+parameters) can have attributes (or properties whatever name you give them).
+Attributes always prepend the element they apply to and are surrounded
+by square brackets ([]). Multiple attributes are separated by comma's;
+arguments to attributes are specified between parentheses.
 
-See the section COMPATIBILITY for the list of attributes that 
+See the section COMPATIBILITY for the list of attributes that
 pidl supports.
 
 C-style comments can be used.
@@ -165,15 +165,15 @@ C-style comments can be used.
 =head2 CONFORMANT ARRAYS
 
 A conformant array is one with that ends in [*] or []. The strange
-things about conformant arrays are that they can only appear as the last 
-element of a structure (unless there is a pointer to the conformant array, 
-of course) and the array size appears before the structure itself on the wire. 
+things about conformant arrays are that they can only appear as the last
+element of a structure (unless there is a pointer to the conformant array,
+of course) and the array size appears before the structure itself on the wire.
 
 So, in this example:
 
 	typedef struct {
 		long abc;
-		long count;     
+		long count;
 		long foo;
 		[size_is(count)] long s[*];
 	} Struct1;
@@ -193,7 +193,7 @@ midl.exe would write the above array as the following C header:
 
    typedef struct {
 		long abc;
-		long count;     
+		long count;
 		long foo;
 		long s[1];
 	} Struct1;
@@ -202,7 +202,7 @@ pidl takes a different approach, and writes it like this:
 
     typedef struct {
 		long abc;
-		long count;     
+		long count;
 		long foo;
 		long *s;
 	} Struct1;
@@ -213,7 +213,7 @@ A varying array looks like this:
 
 	typedef struct {
 		long abc;
-		long count;     
+		long count;
 		long foo;
 		[size_is(count)] long *s;
 	} Struct1;
@@ -248,16 +248,16 @@ This appears like this:
 	[foo] [count] [bar] [s...]
 
 Fixed arrays are an extension added to support some of the strange
-embedded structures in security descriptors and spoolss. 
+embedded structures in security descriptors and spoolss.
 
-This section is by no means complete. See the OpenGroup and MSDN 
+This section is by no means complete. See the OpenGroup and MSDN
 	documentation for additional information.
 
 =head1 COMPATIBILITY WITH MIDL
 
 =head2 Missing features in pidl
 
-The following MIDL features are not (yet) implemented in pidl 
+The following MIDL features are not (yet) implemented in pidl
 or are implemented with an incompatible interface:
 
 =over
@@ -266,7 +266,7 @@ or are implemented with an incompatible interface:
 
 Asynchronous communication
 
-=item * 
+=item *
 
 Typelibs (.tlb files)
 
@@ -278,9 +278,9 @@ Datagram support (ncadg_*)
 
 =head2 Supported attributes and statements
 
-in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, 
-unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, 
-call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as, 
+in, out, ref, length_is, switch_is, size_is, uuid, case, default, string,
+unique, ptr, pointer_default, v1_enum, object, helpstring, range, local,
+call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as,
 transmit_as, import, include, cpp_quote.
 
 =head2 PIDL Specific properties
@@ -324,16 +324,16 @@ complex structures.
 =item subcontext(length)
 
 Specifies that a size of I<length>
-bytes should be read, followed by a blob of that size, 
+bytes should be read, followed by a blob of that size,
 which will be parsed as NDR.
 
-subcontext() is deprecated now, and should not be used in new code. 
+subcontext() is deprecated now, and should not be used in new code.
 Instead, use represent_as() or transmit_as().
 
 =item flag
 
-Specify boolean options, mostly used for 
-low-level NDR options. Several options 
+Specify boolean options, mostly used for
+low-level NDR options. Several options
 can be specified using the | character.
 Note that flags are inherited by substructures!
 
@@ -346,24 +346,24 @@ spoolss structures.
 
 =item charset(name)
 
-Specify that the array or string uses the specified 
-charset. If this attribute is specified, pidl will 
-take care of converting the character data from this format 
+Specify that the array or string uses the specified
+charset. If this attribute is specified, pidl will
+take care of converting the character data from this format
 to the host format. Commonly used values are UCS2, DOS and UTF8.
 
 =back
 
 =head2 Unsupported MIDL properties or statements
 
-aggregatable, appobject, async_uuid, bindable, control, 
-defaultbind, defaultcollelem, defaultvalue, defaultvtable, dispinterface, 
-displaybind, dual, entry, first_is, helpcontext, helpfile, helpstringcontext, 
-helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib, 
-includelib, last_is, lcid, licensed, max_is, module, 
-ms_union, no_injected_text, nonbrowsable, noncreatable, nonextensible, odl, 
-oleautomation, optional, pragma, propget, propputref, propput, readonly, 
-requestedit, restricted, retval, source, uidefault, 
-usesgetlasterror, vararg, vi_progid, wire_marshal. 
+aggregatable, appobject, async_uuid, bindable, control,
+defaultbind, defaultcollelem, defaultvalue, defaultvtable, dispinterface,
+displaybind, dual, entry, first_is, helpcontext, helpfile, helpstringcontext,
+helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib,
+includelib, last_is, lcid, licensed, max_is, module,
+ms_union, no_injected_text, nonbrowsable, noncreatable, nonextensible, odl,
+oleautomation, optional, pragma, propget, propputref, propput, readonly,
+requestedit, restricted, retval, source, uidefault,
+usesgetlasterror, vararg, vi_progid, wire_marshal.
 
 =head1 EXAMPLES
 
@@ -382,7 +382,7 @@ usesgetlasterror, vararg, vi_progid, wire_marshal.
 =head1 SEE ALSO
 
 L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>,
-L<http://wiki.wireshark.org/DCE/RPC>, 
+L<http://wiki.wireshark.org/DCE/RPC>,
 L<http://www.samba.org/>,
 L<yapp(1)>
 
@@ -392,11 +392,11 @@ pidl is licensed under the GNU General Public License L<http://www.gnu.org/licen
 
 =head1 AUTHOR
 
-pidl was written by Andrew Tridgell, Stefan Metzmacher, Tim Potter and Jelmer 
+pidl was written by Andrew Tridgell, Stefan Metzmacher, Tim Potter and Jelmer
 Vernooij. The current maintainer is Jelmer Vernooij.
 
-This manpage was written by Jelmer Vernooij, partially based on the original 
-pidl README by Andrew Tridgell. 
+This manpage was written by Jelmer Vernooij, partially based on the original
+pidl README by Andrew Tridgell.
 
 =cut
 
@@ -450,12 +450,12 @@ sub FileSave($$)
     my($filename) = shift;
     my($v) = shift;
     local(*FILE);
-    open(FILE, ">$filename") || die "can't open $filename";    
+    open(FILE, ">$filename") || die "can't open $filename";
     print FILE $v;
     close(FILE);
 }
 
-my(@opt_incdirs) = (); 
+my(@opt_incdirs) = ();
 my($opt_help) = 0;
 my($opt_version) = 0;
 my($opt_parse_idl_tree) = 0;
@@ -525,9 +525,9 @@ Samba 4 output:
  --com-header[=OUTFILE]  create header for COM [com_BASENAME.h]
 
 Samba 3 output:
- --samba3-ndr-client[=OUTF] create client calls for Samba3 
+ --samba3-ndr-client[=OUTF] create client calls for Samba3
                             using Samba4's NDR code [cli_BASENAME.c]
- --samba3-ndr-server[=OUTF] create server call wrapper for Samba3 
+ --samba3-ndr-server[=OUTF] create server call wrapper for Samba3
                             using Samba4's NDR code [srv_BASENAME.c]
 
 Wireshark parsers:
@@ -545,7 +545,7 @@ sub ShowVersion()
 
 # main program
 my $result = GetOptions (
-	    'help|h|?' => \$opt_help, 
+	    'help|h|?' => \$opt_help,
             'version' => \$opt_version,
 	    'outputdir=s' => \$opt_outputdir,
 	    'dump-idl' => \$opt_dump_idl,
@@ -665,14 +665,14 @@ sub process_file($)
 
 	if (defined($opt_ws_parser) or
 	    defined($opt_client) or
-	    defined($opt_server) or 
+	    defined($opt_server) or
 	    defined($opt_header) or
 	    defined($opt_ndr_parser) or
-	    defined($opt_python) or 
+	    defined($opt_python) or
 	    defined($opt_dump_ndr_tree) or
-	    defined($opt_samba3_header) or 
-	    defined($opt_samba3_parser) or 
-	    defined($opt_samba3_server) or 
+	    defined($opt_samba3_header) or
+	    defined($opt_samba3_parser) or
+	    defined($opt_samba3_server) or
 	    defined($opt_samba3_ndr_client) or
 	    defined($opt_samba3_ndr_server)) {
 		require Parse::Pidl::NDR;
@@ -708,8 +708,8 @@ sub process_file($)
 
 	if (defined($opt_python)) {
 		require Parse::Pidl::Samba4::Python;
-		my $generator = new Parse::Pidl::Samba4::Python(); 
-		my ($prsr) = $generator->Parse($basename, $ndr, 
+		my $generator = new Parse::Pidl::Samba4::Python();
+		my ($prsr) = $generator->Parse($basename, $ndr,
 					"$outputdir/ndr_$basename\_c.h", $h_filename);
 		FileSave("$outputdir/py_$basename.c", $prsr);
 	}
