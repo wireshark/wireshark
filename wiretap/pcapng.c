@@ -305,8 +305,6 @@ typedef struct wtapng_simple_packet_s {
     /* mandatory */
     guint32                         cap_len;        /* data length in the file */
     guint32                         packet_len;     /* data length on the wire */
-    guint32                         pseudo_header_len;
-    int                             wtap_encap;
     /* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_simple_packet_t;
 
