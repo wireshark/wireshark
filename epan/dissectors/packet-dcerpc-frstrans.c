@@ -43,104 +43,104 @@ static gint ett_frstrans_frstrans_RdcFileInfo = -1;
 
 
 /* Header field declarations */
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_file_info = -1;
-static gint hf_frstrans_frstrans_RequestVersionVector_content_set_guid = -1;
-static gint hf_frstrans_frstrans_VersionVector_low = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_hour = -1;
-static gint hf_frstrans_frstrans_Update_clock = -1;
-static gint hf_frstrans_frstrans_RdcParameterFilterPoint_max_chunk_size = -1;
-static gint hf_frstrans_frstrans_Update_uid_version = -1;
-static gint hf_frstrans_frstrans_Update_sha1_hash = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_day_of_week = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_credits_available = -1;
-static gint hf_frstrans_frstrans_RdcParameterUnion_filter_point = -1;
-static gint hf_frstrans_opnum = -1;
-static gint hf_frstrans_frstrans_Update_content_set_guid = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_milli_seconds = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_server_context = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_rdc_version = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_content_set_guid = -1;
-static gint hf_frstrans_frstrans_RdcParameterGeneric_chunker_parameters = -1;
-static gint hf_frstrans_frstrans_Update_fence = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_frs_update = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_connection_guid = -1;
-static gint hf_frstrans_frstrans_Update_gsvn_version = -1;
-static gint hf_frstrans_frstrans_EstablishConnection_upstream_protocol_version = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_rdc_signature_levels = -1;
-static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector_count = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_gvsn_version = -1;
-static gint hf_frstrans_frstrans_VersionVector_high = -1;
 static gint hf_frstrans_frstrans_EpoqueVector_minute = -1;
-static gint hf_frstrans_frstrans_CheckConnectivity_replica_set_guid = -1;
-static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation = -1;
-static gint hf_frstrans_frstrans_EstablishConnection_replica_set_guid = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_update_count = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_is_end_of_file = -1;
-static gint hf_frstrans_frstrans_RdcParameters_rdc_chunker_algorithm = -1;
-static gint hf_frstrans_frstrans_AsyncPoll_connection_guid = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_frs_update = -1;
-static gint hf_frstrans_frstrans_Update_uid_db_guid = -1;
-static gint hf_frstrans_frstrans_Update_gsvn_db_guid = -1;
-static gint hf_frstrans_frstrans_RdcParameterFilterPoint_min_chunk_size = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_update_status = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_desired = -1;
-static gint hf_frstrans_frstrans_Update_parent_version = -1;
-static gint hf_frstrans_frstrans_EstablishConnection_downstream_protocol_version = -1;
-static gint hf_frstrans_frstrans_EstablishSession_content_set_guid = -1;
-static gint hf_frstrans_frstrans_RdcParameters_u = -1;
-static gint hf_frstrans_frstrans_Update_present = -1;
-static gint hf_frstrans_frstrans_Update_parent_db_guid = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_gvsn_db_guid = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_data_buffer = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_compression_algorithm = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_year = -1;
-static gint hf_frstrans_frstrans_VersionVector_db_guid = -1;
-static gint hf_frstrans_frstrans_RequestVersionVector_sequence_number = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_machine_guid = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_rdc_minimum_compatible_version = -1;
-static gint hf_frstrans_frstrans_RequestVersionVector_connection_guid = -1;
-static gint hf_frstrans_frstrans_AsyncPoll_response = -1;
+static gint hf_frstrans_frstrans_RdcParameterFilterPoint_max_chunk_size = -1;
+static gint hf_frstrans_frstrans_Update_sha1_hash = -1;
 static gint hf_frstrans_frstrans_RequestVersionVector_change_type = -1;
-static gint hf_frstrans_frstrans_EstablishConnection_upstream_flags = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_version_vector_diff = -1;
-static gint hf_frstrans_frstrans_EstablishSession_connection_guid = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_rdc_filter_parameters = -1;
-static gint hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY = -1;
-static gint hf_frstrans_frstrans_RequestVersionVector_vv_generation = -1;
-static gint hf_frstrans_frstrans_CheckConnectivity_connection_guid = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_day = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_version_vector_diff_count = -1;
-static gint hf_frstrans_frstrans_RdcParameterGeneric_chunker_type = -1;
-static gint hf_frstrans_frstrans_RdcParameterFilterMax_min_horizon_size = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_staging_policy = -1;
-static gint hf_frstrans_frstrans_Update_create_time = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_buffer_size = -1;
-static gint hf_frstrans_frstrans_Update_name_conflict = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_month = -1;
-static gint hf_frstrans_frstrans_RdcParameterFilterMax_max_window_size = -1;
-static gint hf_frstrans_frstrans_AsyncResponseContext_response = -1;
 static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector = -1;
-static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector_count = -1;
-static gint hf_frstrans_frstrans_RdcFileInfo_file_size_estimate = -1;
-static gint hf_frstrans_frstrans_AsyncResponseContext_status = -1;
-static gint hf_frstrans_frstrans_RdcParameterUnion_filter_generic = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_update_request_type = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_connection_guid = -1;
-static gint hf_frstrans_frstrans_EpoqueVector_second = -1;
-static gint hf_frstrans_frstrans_Update_rdc_similarity = -1;
-static gint hf_frstrans_frstrans_EstablishConnection_downstream_flags = -1;
-static gint hf_frstrans_frstrans_RequestUpdates_hash_requested = -1;
-static gint hf_frstrans_frstrans_Update_attributes = -1;
-static gint hf_frstrans_frstrans_RequestVersionVector_request_type = -1;
-static gint hf_frstrans_werror = -1;
-static gint hf_frstrans_frstrans_InitializeFileTransferAsync_size_read = -1;
-static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector = -1;
-static gint hf_frstrans_frstrans_Update_flags = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_year = -1;
+static gint hf_frstrans_frstrans_Update_fence = -1;
+static gint hf_frstrans_frstrans_RequestVersionVector_sequence_number = -1;
+static gint hf_frstrans_opnum = -1;
+static gint hf_frstrans_frstrans_VersionVector_db_guid = -1;
+static gint hf_frstrans_frstrans_RdcParameters_rdc_chunker_algorithm = -1;
+static gint hf_frstrans_frstrans_Update_uid_version = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_version_vector_diff_count = -1;
 static gint hf_frstrans_frstrans_EstablishConnection_connection_guid = -1;
-static gint hf_frstrans_frstrans_AsyncResponseContext_sequence_number = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_credits_available = -1;
+static gint hf_frstrans_frstrans_RdcParameterFilterMax_max_window_size = -1;
 static gint hf_frstrans_frstrans_Update_name = -1;
+static gint hf_frstrans_frstrans_VersionVector_low = -1;
+static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector_count = -1;
+static gint hf_frstrans_frstrans_EstablishConnection_downstream_flags = -1;
+static gint hf_frstrans_frstrans_RdcParameterGeneric_chunker_parameters = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_compression_algorithm = -1;
+static gint hf_frstrans_frstrans_Update_flags = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_machine_guid = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_connection_guid = -1;
+static gint hf_frstrans_frstrans_RdcParameterUnion_filter_point = -1;
+static gint hf_frstrans_frstrans_RdcParameterFilterMax_min_horizon_size = -1;
+static gint hf_frstrans_frstrans_RdcParameterUnion_filter_generic = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_second = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_rdc_filter_parameters = -1;
+static gint hf_frstrans_frstrans_RequestVersionVector_content_set_guid = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_day = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_frs_update = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_is_end_of_file = -1;
+static gint hf_frstrans_frstrans_EstablishConnection_upstream_flags = -1;
+static gint hf_frstrans_frstrans_EstablishConnection_downstream_protocol_version = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_update_status = -1;
+static gint hf_frstrans_frstrans_AsyncPoll_connection_guid = -1;
+static gint hf_frstrans_frstrans_AsyncResponseContext_response = -1;
+static gint hf_frstrans_frstrans_AsyncResponseContext_sequence_number = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_data_buffer = -1;
+static gint hf_frstrans_frstrans_RequestVersionVector_request_type = -1;
+static gint hf_frstrans_frstrans_Update_present = -1;
+static gint hf_frstrans_frstrans_Update_gsvn_version = -1;
+static gint hf_frstrans_frstrans_RdcParameterGeneric_chunker_type = -1;
+static gint hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_file_size_estimate = -1;
+static gint hf_frstrans_frstrans_CheckConnectivity_replica_set_guid = -1;
+static gint hf_frstrans_frstrans_EstablishSession_connection_guid = -1;
+static gint hf_frstrans_frstrans_EstablishSession_content_set_guid = -1;
+static gint hf_frstrans_frstrans_Update_content_set_guid = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_update_count = -1;
+static gint hf_frstrans_frstrans_Update_rdc_similarity = -1;
+static gint hf_frstrans_frstrans_AsyncPoll_response = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_version_vector_diff = -1;
+static gint hf_frstrans_frstrans_Update_clock = -1;
+static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector = -1;
+static gint hf_frstrans_frstrans_VersionVector_high = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_day_of_week = -1;
+static gint hf_frstrans_frstrans_Update_create_time = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_milli_seconds = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_rdc_minimum_compatible_version = -1;
+static gint hf_frstrans_frstrans_CheckConnectivity_connection_guid = -1;
+static gint hf_frstrans_frstrans_Update_uid_db_guid = -1;
+static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector_count = -1;
+static gint hf_frstrans_frstrans_Update_parent_version = -1;
+static gint hf_frstrans_frstrans_RdcParameterFilterPoint_min_chunk_size = -1;
+static gint hf_frstrans_frstrans_EstablishConnection_replica_set_guid = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_server_context = -1;
+static gint hf_frstrans_frstrans_Update_gsvn_db_guid = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_update_request_type = -1;
+static gint hf_frstrans_frstrans_Update_attributes = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_buffer_size = -1;
+static gint hf_frstrans_frstrans_RequestVersionVector_vv_generation = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_gvsn_version = -1;
 static gint hf_frstrans_frstrans_RdcParameterUnion_filter_max = -1;
+static gint hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_staging_policy = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_gvsn_db_guid = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_hash_requested = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size = -1;
+static gint hf_frstrans_frstrans_RdcParameters_u = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_rdc_version = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_hour = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_frs_update = -1;
+static gint hf_frstrans_frstrans_AsyncResponseContext_status = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_content_set_guid = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_desired = -1;
+static gint hf_frstrans_frstrans_Update_name_conflict = -1;
+static gint hf_frstrans_frstrans_EstablishConnection_upstream_protocol_version = -1;
+static gint hf_frstrans_frstrans_RequestUpdates_connection_guid = -1;
+static gint hf_frstrans_werror = -1;
+static gint hf_frstrans_frstrans_Update_parent_db_guid = -1;
+static gint hf_frstrans_frstrans_EpoqueVector_month = -1;
+static gint hf_frstrans_frstrans_RdcFileInfo_rdc_signature_levels = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_size_read = -1;
+static gint hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_file_info = -1;
+static gint hf_frstrans_frstrans_RequestVersionVector_connection_guid = -1;
 
 static gint proto_dcerpc_frstrans = -1;
 /* Version information */
@@ -920,9 +920,9 @@ frstrans_dissect_struct_EpoqueVector(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: struct { */
 /* IDL: 	hyper vv_generation; */
 /* IDL: 	uint32 version_vector_count; */
-/* IDL: 	[size_is(version_vector_count)] [unique(1)] frstrans_VersionVector *version_vector; */
+/* IDL: 	[unique(1)] [size_is(version_vector_count)] frstrans_VersionVector *version_vector; */
 /* IDL: 	uint32 epoque_vector_count; */
-/* IDL: 	[size_is(epoque_vector_count)] [unique(1)] frstrans_EpoqueVector *epoque_vector; */
+/* IDL: 	[unique(1)] [size_is(epoque_vector_count)] frstrans_EpoqueVector *epoque_vector; */
 /* IDL: } */
 
 static int
@@ -1718,7 +1718,7 @@ frstrans_dissect_element_EstablishConnection_upstream_flags_(tvbuff_t *tvb _U_, 
 /* IDL: [in] GUID connection_guid, */
 /* IDL: [in] frstrans_ProtocolVersion downstream_protocol_version, */
 /* IDL: [in] frstrans_TransportFlags downstream_flags, */
-/* IDL: [ref] [out] frstrans_ProtocolVersion *upstream_protocol_version, */
+/* IDL: [out] [ref] frstrans_ProtocolVersion *upstream_protocol_version, */
 /* IDL: [out] [ref] frstrans_TransportFlags *upstream_flags */
 /* IDL: ); */
 
@@ -1966,16 +1966,16 @@ frstrans_dissect_element_RequestUpdates_gvsn_version_(tvbuff_t *tvb _U_, int off
 /* IDL: WERROR frstrans_RequestUpdates( */
 /* IDL: [in] GUID connection_guid, */
 /* IDL: [in] GUID content_set_guid, */
-/* IDL: [range(0,256)] [in] uint32 credits_available, */
-/* IDL: [range(0,1)] [in] uint32 hash_requested, */
-/* IDL: [range(0,2)] [in] frstrans_UpdateRequestType update_request_type, */
+/* IDL: [in] [range(0,256)] uint32 credits_available, */
+/* IDL: [in] [range(0,1)] uint32 hash_requested, */
+/* IDL: [in] [range(0,2)] frstrans_UpdateRequestType update_request_type, */
 /* IDL: [in] uint32 version_vector_diff_count, */
-/* IDL: [in] [size_is(version_vector_diff_count)] [ref] frstrans_VersionVector *version_vector_diff, */
-/* IDL: [length_is(*update_count)] [size_is(credits_available)] [ref] [out] frstrans_Update *frs_update, */
+/* IDL: [ref] [in] [size_is(version_vector_diff_count)] frstrans_VersionVector *version_vector_diff, */
+/* IDL: [out] [ref] [length_is(*update_count)] [size_is(credits_available)] frstrans_Update *frs_update, */
 /* IDL: [out] [ref] uint32 *update_count, */
-/* IDL: [ref] [out] frstrans_UpdateStatus *update_status, */
-/* IDL: [ref] [out] GUID *gvsn_db_guid, */
-/* IDL: [ref] [out] hyper *gvsn_version */
+/* IDL: [out] [ref] frstrans_UpdateStatus *update_status, */
+/* IDL: [out] [ref] GUID *gvsn_db_guid, */
+/* IDL: [out] [ref] hyper *gvsn_version */
 /* IDL: ); */
 
 static int
@@ -2453,14 +2453,14 @@ frstrans_dissect_element_InitializeFileTransferAsync_is_end_of_file_(tvbuff_t *t
 
 /* IDL: WERROR frstrans_InitializeFileTransferAsync( */
 /* IDL: [in] GUID connection_guid, */
-/* IDL: [out] [ref] [in] frstrans_Update *frs_update, */
-/* IDL: [range(0,1)] [in] uint32 rdc_desired, */
-/* IDL: [in] [ref] [out] frstrans_RequestedStagingPolicy *staging_policy, */
+/* IDL: [out] [in] [ref] frstrans_Update *frs_update, */
+/* IDL: [in] [range(0,1)] uint32 rdc_desired, */
+/* IDL: [out] [in] [ref] frstrans_RequestedStagingPolicy *staging_policy, */
 /* IDL: [out] [ref] policy_handle *server_context, */
-/* IDL: [ref] [out] frstrans_RdcFileInfo **rdc_file_info, */
-/* IDL: [out] [length_is(*size_read)] [size_is(buffer_size)] [ref] uint8 *data_buffer, */
-/* IDL: [range(0,262144)] [in] uint32 buffer_size, */
-/* IDL: [ref] [out] uint32 *size_read, */
+/* IDL: [out] [ref] frstrans_RdcFileInfo **rdc_file_info, */
+/* IDL: [out] [ref] [length_is(*size_read)] [size_is(buffer_size)] uint8 *data_buffer, */
+/* IDL: [in] [range(0,262144)] uint32 buffer_size, */
+/* IDL: [out] [ref] uint32 *size_read, */
 /* IDL: [out] [ref] uint32 *is_end_of_file */
 /* IDL: ); */
 
@@ -2612,202 +2612,202 @@ static dcerpc_sub_dissector frstrans_dissectors[] = {
 void proto_register_dcerpc_frstrans(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_file_info,
-		{ "Rdc File Info", "frstrans.frstrans_InitializeFileTransferAsync.rdc_file_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestVersionVector_content_set_guid,
-		{ "Content Set Guid", "frstrans.frstrans_RequestVersionVector.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_VersionVector_low,
-		{ "Low", "frstrans.frstrans_VersionVector.low", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_hour,
-		{ "Hour", "frstrans.frstrans_EpoqueVector.hour", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_clock,
-		{ "Clock", "frstrans.frstrans_Update.clock", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterFilterPoint_max_chunk_size,
-		{ "Max Chunk Size", "frstrans.frstrans_RdcParameterFilterPoint.max_chunk_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_uid_version,
-		{ "Uid Version", "frstrans.frstrans_Update.uid_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_sha1_hash,
-		{ "Sha1 Hash", "frstrans.frstrans_Update.sha1_hash", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_day_of_week,
-		{ "Day Of Week", "frstrans.frstrans_EpoqueVector.day_of_week", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_credits_available,
-		{ "Credits Available", "frstrans.frstrans_RequestUpdates.credits_available", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterUnion_filter_point,
-		{ "Filter Point", "frstrans.frstrans_RdcParameterUnion.filter_point", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_opnum,
-		{ "Operation", "frstrans.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_content_set_guid,
-		{ "Content Set Guid", "frstrans.frstrans_Update.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_milli_seconds,
-		{ "Milli Seconds", "frstrans.frstrans_EpoqueVector.milli_seconds", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_server_context,
-		{ "Server Context", "frstrans.frstrans_InitializeFileTransferAsync.server_context", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_version,
-		{ "Rdc Version", "frstrans.frstrans_RdcFileInfo.rdc_version", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcVersion_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_content_set_guid,
-		{ "Content Set Guid", "frstrans.frstrans_RequestUpdates.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterGeneric_chunker_parameters,
-		{ "Chunker Parameters", "frstrans.frstrans_RdcParameterGeneric.chunker_parameters", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_fence,
-		{ "Fence", "frstrans.frstrans_Update.fence", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_frs_update,
-		{ "Frs Update", "frstrans.frstrans_RequestUpdates.frs_update", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_RequestUpdates.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_gsvn_version,
-		{ "Gsvn Version", "frstrans.frstrans_Update.gsvn_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishConnection_upstream_protocol_version,
-		{ "Upstream Protocol Version", "frstrans.frstrans_EstablishConnection.upstream_protocol_version", FT_UINT32, BASE_DEC, VALS(frstrans_frstrans_ProtocolVersion_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size,
-		{ "On Disk File Size", "frstrans.frstrans_RdcFileInfo.on_disk_file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_signature_levels,
-		{ "Rdc Signature Levels", "frstrans.frstrans_RdcFileInfo.rdc_signature_levels", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector_count,
-		{ "Version Vector Count", "frstrans.frstrans_AsyncVersionVectorResponse.version_vector_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_gvsn_version,
-		{ "Gvsn Version", "frstrans.frstrans_RequestUpdates.gvsn_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_VersionVector_high,
-		{ "High", "frstrans.frstrans_VersionVector.high", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_EpoqueVector_minute,
 		{ "Minute", "frstrans.frstrans_EpoqueVector.minute", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_CheckConnectivity_replica_set_guid,
-		{ "Replica Set Guid", "frstrans.frstrans_CheckConnectivity.replica_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation,
-		{ "Vv Generation", "frstrans.frstrans_AsyncVersionVectorResponse.vv_generation", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishConnection_replica_set_guid,
-		{ "Replica Set Guid", "frstrans.frstrans_EstablishConnection.replica_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_update_count,
-		{ "Update Count", "frstrans.frstrans_RequestUpdates.update_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_is_end_of_file,
-		{ "Is End Of File", "frstrans.frstrans_InitializeFileTransferAsync.is_end_of_file", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameters_rdc_chunker_algorithm,
-		{ "Rdc Chunker Algorithm", "frstrans.frstrans_RdcParameters.rdc_chunker_algorithm", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcChunckerAlgorithm_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncPoll_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_AsyncPoll.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_frs_update,
-		{ "Frs Update", "frstrans.frstrans_InitializeFileTransferAsync.frs_update", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_uid_db_guid,
-		{ "Uid Db Guid", "frstrans.frstrans_Update.uid_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_gsvn_db_guid,
-		{ "Gsvn Db Guid", "frstrans.frstrans_Update.gsvn_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterFilterPoint_min_chunk_size,
-		{ "Min Chunk Size", "frstrans.frstrans_RdcParameterFilterPoint.min_chunk_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_update_status,
-		{ "Update Status", "frstrans.frstrans_RequestUpdates.update_status", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_UpdateStatus_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_desired,
-		{ "Rdc Desired", "frstrans.frstrans_InitializeFileTransferAsync.rdc_desired", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_parent_version,
-		{ "Parent Version", "frstrans.frstrans_Update.parent_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishConnection_downstream_protocol_version,
-		{ "Downstream Protocol Version", "frstrans.frstrans_EstablishConnection.downstream_protocol_version", FT_UINT32, BASE_DEC, VALS(frstrans_frstrans_ProtocolVersion_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishSession_content_set_guid,
-		{ "Content Set Guid", "frstrans.frstrans_EstablishSession.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameters_u,
-		{ "U", "frstrans.frstrans_RdcParameters.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_present,
-		{ "Present", "frstrans.frstrans_Update.present", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_parent_db_guid,
-		{ "Parent Db Guid", "frstrans.frstrans_Update.parent_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_gvsn_db_guid,
-		{ "Gvsn Db Guid", "frstrans.frstrans_RequestUpdates.gvsn_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_data_buffer,
-		{ "Data Buffer", "frstrans.frstrans_InitializeFileTransferAsync.data_buffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_compression_algorithm,
-		{ "Compression Algorithm", "frstrans.frstrans_RdcFileInfo.compression_algorithm", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcCompressionAlgorithm_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_year,
-		{ "Year", "frstrans.frstrans_EpoqueVector.year", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_VersionVector_db_guid,
-		{ "Db Guid", "frstrans.frstrans_VersionVector.db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestVersionVector_sequence_number,
-		{ "Sequence Number", "frstrans.frstrans_RequestVersionVector.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_machine_guid,
-		{ "Machine Guid", "frstrans.frstrans_EpoqueVector.machine_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_minimum_compatible_version,
-		{ "Rdc Minimum Compatible Version", "frstrans.frstrans_RdcFileInfo.rdc_minimum_compatible_version", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcVersionCompatible_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestVersionVector_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_RequestVersionVector.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncPoll_response,
-		{ "Response", "frstrans.frstrans_AsyncPoll.response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterFilterPoint_max_chunk_size,
+		{ "Max Chunk Size", "frstrans.frstrans_RdcParameterFilterPoint.max_chunk_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_sha1_hash,
+		{ "Sha1 Hash", "frstrans.frstrans_Update.sha1_hash", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_RequestVersionVector_change_type,
 		{ "Change Type", "frstrans.frstrans_RequestVersionVector.change_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_VersionChangeType_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishConnection_upstream_flags,
-		{ "Upstream Flags", "frstrans.frstrans_EstablishConnection.upstream_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_version_vector_diff,
-		{ "Version Vector Diff", "frstrans.frstrans_RequestUpdates.version_vector_diff", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishSession_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_EstablishSession.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_filter_parameters,
-		{ "Rdc Filter Parameters", "frstrans.frstrans_RdcFileInfo.rdc_filter_parameters", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY,
-		{ "Frstrans Transport Supports Rdc Similarity", "frstrans.frstrans_TransportFlags.FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY", FT_BOOLEAN, 32, TFS(&frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestVersionVector_vv_generation,
-		{ "Vv Generation", "frstrans.frstrans_RequestVersionVector.vv_generation", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_CheckConnectivity_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_CheckConnectivity.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_day,
-		{ "Day", "frstrans.frstrans_EpoqueVector.day", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_version_vector_diff_count,
-		{ "Version Vector Diff Count", "frstrans.frstrans_RequestUpdates.version_vector_diff_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterGeneric_chunker_type,
-		{ "Chunker Type", "frstrans.frstrans_RdcParameterGeneric.chunker_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcChunckerAlgorithm_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterFilterMax_min_horizon_size,
-		{ "Min Horizon Size", "frstrans.frstrans_RdcParameterFilterMax.min_horizon_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_staging_policy,
-		{ "Staging Policy", "frstrans.frstrans_InitializeFileTransferAsync.staging_policy", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RequestedStagingPolicy_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_create_time,
-		{ "Create Time", "frstrans.frstrans_Update.create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_buffer_size,
-		{ "Buffer Size", "frstrans.frstrans_InitializeFileTransferAsync.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_name_conflict,
-		{ "Name Conflict", "frstrans.frstrans_Update.name_conflict", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_month,
-		{ "Month", "frstrans.frstrans_EpoqueVector.month", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterFilterMax_max_window_size,
-		{ "Max Window Size", "frstrans.frstrans_RdcParameterFilterMax.max_window_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncResponseContext_response,
-		{ "Response", "frstrans.frstrans_AsyncResponseContext.response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector,
 		{ "Version Vector", "frstrans.frstrans_AsyncVersionVectorResponse.version_vector", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector_count,
-		{ "Epoque Vector Count", "frstrans.frstrans_AsyncVersionVectorResponse.epoque_vector_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcFileInfo_file_size_estimate,
-		{ "File Size Estimate", "frstrans.frstrans_RdcFileInfo.file_size_estimate", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncResponseContext_status,
-		{ "Status", "frstrans.frstrans_AsyncResponseContext.status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RdcParameterUnion_filter_generic,
-		{ "Filter Generic", "frstrans.frstrans_RdcParameterUnion.filter_generic", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_update_request_type,
-		{ "Update Request Type", "frstrans.frstrans_RequestUpdates.update_request_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_UpdateRequestType_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_connection_guid,
-		{ "Connection Guid", "frstrans.frstrans_InitializeFileTransferAsync.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EpoqueVector_second,
-		{ "Second", "frstrans.frstrans_EpoqueVector.second", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_rdc_similarity,
-		{ "Rdc Similarity", "frstrans.frstrans_Update.rdc_similarity", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_EstablishConnection_downstream_flags,
-		{ "Downstream Flags", "frstrans.frstrans_EstablishConnection.downstream_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestUpdates_hash_requested,
-		{ "Hash Requested", "frstrans.frstrans_RequestUpdates.hash_requested", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_attributes,
-		{ "Attributes", "frstrans.frstrans_Update.attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_RequestVersionVector_request_type,
-		{ "Request Type", "frstrans.frstrans_RequestVersionVector.request_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_VersionRequestType_vals), 0, NULL, HFILL }},
-	{ &hf_frstrans_werror,
-		{ "Windows Error", "frstrans.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_size_read,
-		{ "Size Read", "frstrans.frstrans_InitializeFileTransferAsync.size_read", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector,
-		{ "Epoque Vector", "frstrans.frstrans_AsyncVersionVectorResponse.epoque_vector", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_Update_flags,
-		{ "Flags", "frstrans.frstrans_Update.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_year,
+		{ "Year", "frstrans.frstrans_EpoqueVector.year", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_fence,
+		{ "Fence", "frstrans.frstrans_Update.fence", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestVersionVector_sequence_number,
+		{ "Sequence Number", "frstrans.frstrans_RequestVersionVector.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_opnum,
+		{ "Operation", "frstrans.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_VersionVector_db_guid,
+		{ "Db Guid", "frstrans.frstrans_VersionVector.db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameters_rdc_chunker_algorithm,
+		{ "Rdc Chunker Algorithm", "frstrans.frstrans_RdcParameters.rdc_chunker_algorithm", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcChunckerAlgorithm_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_uid_version,
+		{ "Uid Version", "frstrans.frstrans_Update.uid_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_version_vector_diff_count,
+		{ "Version Vector Diff Count", "frstrans.frstrans_RequestUpdates.version_vector_diff_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_EstablishConnection_connection_guid,
 		{ "Connection Guid", "frstrans.frstrans_EstablishConnection.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frstrans_frstrans_AsyncResponseContext_sequence_number,
-		{ "Sequence Number", "frstrans.frstrans_AsyncResponseContext.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_credits_available,
+		{ "Credits Available", "frstrans.frstrans_RequestUpdates.credits_available", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterFilterMax_max_window_size,
+		{ "Max Window Size", "frstrans.frstrans_RdcParameterFilterMax.max_window_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_Update_name,
 		{ "Name", "frstrans.frstrans_Update.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_VersionVector_low,
+		{ "Low", "frstrans.frstrans_VersionVector.low", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_version_vector_count,
+		{ "Version Vector Count", "frstrans.frstrans_AsyncVersionVectorResponse.version_vector_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishConnection_downstream_flags,
+		{ "Downstream Flags", "frstrans.frstrans_EstablishConnection.downstream_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterGeneric_chunker_parameters,
+		{ "Chunker Parameters", "frstrans.frstrans_RdcParameterGeneric.chunker_parameters", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_compression_algorithm,
+		{ "Compression Algorithm", "frstrans.frstrans_RdcFileInfo.compression_algorithm", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcCompressionAlgorithm_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_flags,
+		{ "Flags", "frstrans.frstrans_Update.flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_machine_guid,
+		{ "Machine Guid", "frstrans.frstrans_EpoqueVector.machine_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_InitializeFileTransferAsync.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterUnion_filter_point,
+		{ "Filter Point", "frstrans.frstrans_RdcParameterUnion.filter_point", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterFilterMax_min_horizon_size,
+		{ "Min Horizon Size", "frstrans.frstrans_RdcParameterFilterMax.min_horizon_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterUnion_filter_generic,
+		{ "Filter Generic", "frstrans.frstrans_RdcParameterUnion.filter_generic", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_second,
+		{ "Second", "frstrans.frstrans_EpoqueVector.second", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_filter_parameters,
+		{ "Rdc Filter Parameters", "frstrans.frstrans_RdcFileInfo.rdc_filter_parameters", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestVersionVector_content_set_guid,
+		{ "Content Set Guid", "frstrans.frstrans_RequestVersionVector.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_day,
+		{ "Day", "frstrans.frstrans_EpoqueVector.day", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_frs_update,
+		{ "Frs Update", "frstrans.frstrans_InitializeFileTransferAsync.frs_update", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_is_end_of_file,
+		{ "Is End Of File", "frstrans.frstrans_InitializeFileTransferAsync.is_end_of_file", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishConnection_upstream_flags,
+		{ "Upstream Flags", "frstrans.frstrans_EstablishConnection.upstream_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishConnection_downstream_protocol_version,
+		{ "Downstream Protocol Version", "frstrans.frstrans_EstablishConnection.downstream_protocol_version", FT_UINT32, BASE_DEC, VALS(frstrans_frstrans_ProtocolVersion_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_update_status,
+		{ "Update Status", "frstrans.frstrans_RequestUpdates.update_status", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_UpdateStatus_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncPoll_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_AsyncPoll.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncResponseContext_response,
+		{ "Response", "frstrans.frstrans_AsyncResponseContext.response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncResponseContext_sequence_number,
+		{ "Sequence Number", "frstrans.frstrans_AsyncResponseContext.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_data_buffer,
+		{ "Data Buffer", "frstrans.frstrans_InitializeFileTransferAsync.data_buffer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestVersionVector_request_type,
+		{ "Request Type", "frstrans.frstrans_RequestVersionVector.request_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_VersionRequestType_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_present,
+		{ "Present", "frstrans.frstrans_Update.present", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_gsvn_version,
+		{ "Gsvn Version", "frstrans.frstrans_Update.gsvn_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterGeneric_chunker_type,
+		{ "Chunker Type", "frstrans.frstrans_RdcParameterGeneric.chunker_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcChunckerAlgorithm_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY,
+		{ "Frstrans Transport Supports Rdc Similarity", "frstrans.frstrans_TransportFlags.FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY", FT_BOOLEAN, 32, TFS(&frstrans_TransportFlags_FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_file_size_estimate,
+		{ "File Size Estimate", "frstrans.frstrans_RdcFileInfo.file_size_estimate", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_CheckConnectivity_replica_set_guid,
+		{ "Replica Set Guid", "frstrans.frstrans_CheckConnectivity.replica_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishSession_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_EstablishSession.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishSession_content_set_guid,
+		{ "Content Set Guid", "frstrans.frstrans_EstablishSession.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_content_set_guid,
+		{ "Content Set Guid", "frstrans.frstrans_Update.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_update_count,
+		{ "Update Count", "frstrans.frstrans_RequestUpdates.update_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_rdc_similarity,
+		{ "Rdc Similarity", "frstrans.frstrans_Update.rdc_similarity", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncPoll_response,
+		{ "Response", "frstrans.frstrans_AsyncPoll.response", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_version_vector_diff,
+		{ "Version Vector Diff", "frstrans.frstrans_RequestUpdates.version_vector_diff", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_clock,
+		{ "Clock", "frstrans.frstrans_Update.clock", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector,
+		{ "Epoque Vector", "frstrans.frstrans_AsyncVersionVectorResponse.epoque_vector", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_VersionVector_high,
+		{ "High", "frstrans.frstrans_VersionVector.high", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_day_of_week,
+		{ "Day Of Week", "frstrans.frstrans_EpoqueVector.day_of_week", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_create_time,
+		{ "Create Time", "frstrans.frstrans_Update.create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_milli_seconds,
+		{ "Milli Seconds", "frstrans.frstrans_EpoqueVector.milli_seconds", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_minimum_compatible_version,
+		{ "Rdc Minimum Compatible Version", "frstrans.frstrans_RdcFileInfo.rdc_minimum_compatible_version", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcVersionCompatible_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_CheckConnectivity_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_CheckConnectivity.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_uid_db_guid,
+		{ "Uid Db Guid", "frstrans.frstrans_Update.uid_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_epoque_vector_count,
+		{ "Epoque Vector Count", "frstrans.frstrans_AsyncVersionVectorResponse.epoque_vector_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_parent_version,
+		{ "Parent Version", "frstrans.frstrans_Update.parent_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameterFilterPoint_min_chunk_size,
+		{ "Min Chunk Size", "frstrans.frstrans_RdcParameterFilterPoint.min_chunk_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishConnection_replica_set_guid,
+		{ "Replica Set Guid", "frstrans.frstrans_EstablishConnection.replica_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_server_context,
+		{ "Server Context", "frstrans.frstrans_InitializeFileTransferAsync.server_context", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_gsvn_db_guid,
+		{ "Gsvn Db Guid", "frstrans.frstrans_Update.gsvn_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_update_request_type,
+		{ "Update Request Type", "frstrans.frstrans_RequestUpdates.update_request_type", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_UpdateRequestType_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_attributes,
+		{ "Attributes", "frstrans.frstrans_Update.attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_buffer_size,
+		{ "Buffer Size", "frstrans.frstrans_InitializeFileTransferAsync.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestVersionVector_vv_generation,
+		{ "Vv Generation", "frstrans.frstrans_RequestVersionVector.vv_generation", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_gvsn_version,
+		{ "Gvsn Version", "frstrans.frstrans_RequestUpdates.gvsn_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frstrans_frstrans_RdcParameterUnion_filter_max,
 		{ "Filter Max", "frstrans.frstrans_RdcParameterUnion.filter_max", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation,
+		{ "Vv Generation", "frstrans.frstrans_AsyncVersionVectorResponse.vv_generation", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_staging_policy,
+		{ "Staging Policy", "frstrans.frstrans_InitializeFileTransferAsync.staging_policy", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RequestedStagingPolicy_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_gvsn_db_guid,
+		{ "Gvsn Db Guid", "frstrans.frstrans_RequestUpdates.gvsn_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_hash_requested,
+		{ "Hash Requested", "frstrans.frstrans_RequestUpdates.hash_requested", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size,
+		{ "On Disk File Size", "frstrans.frstrans_RdcFileInfo.on_disk_file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcParameters_u,
+		{ "U", "frstrans.frstrans_RdcParameters.u", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_version,
+		{ "Rdc Version", "frstrans.frstrans_RdcFileInfo.rdc_version", FT_UINT1632, BASE_DEC, VALS(frstrans_frstrans_RdcVersion_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_hour,
+		{ "Hour", "frstrans.frstrans_EpoqueVector.hour", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_frs_update,
+		{ "Frs Update", "frstrans.frstrans_RequestUpdates.frs_update", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_AsyncResponseContext_status,
+		{ "Status", "frstrans.frstrans_AsyncResponseContext.status", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_content_set_guid,
+		{ "Content Set Guid", "frstrans.frstrans_RequestUpdates.content_set_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_desired,
+		{ "Rdc Desired", "frstrans.frstrans_InitializeFileTransferAsync.rdc_desired", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_name_conflict,
+		{ "Name Conflict", "frstrans.frstrans_Update.name_conflict", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EstablishConnection_upstream_protocol_version,
+		{ "Upstream Protocol Version", "frstrans.frstrans_EstablishConnection.upstream_protocol_version", FT_UINT32, BASE_DEC, VALS(frstrans_frstrans_ProtocolVersion_vals), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestUpdates_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_RequestUpdates.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_werror,
+		{ "Windows Error", "frstrans.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_Update_parent_db_guid,
+		{ "Parent Db Guid", "frstrans.frstrans_Update.parent_db_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_EpoqueVector_month,
+		{ "Month", "frstrans.frstrans_EpoqueVector.month", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RdcFileInfo_rdc_signature_levels,
+		{ "Rdc Signature Levels", "frstrans.frstrans_RdcFileInfo.rdc_signature_levels", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_size_read,
+		{ "Size Read", "frstrans.frstrans_InitializeFileTransferAsync.size_read", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_InitializeFileTransferAsync_rdc_file_info,
+		{ "Rdc File Info", "frstrans.frstrans_InitializeFileTransferAsync.rdc_file_info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frstrans_frstrans_RequestVersionVector_connection_guid,
+		{ "Connection Guid", "frstrans.frstrans_RequestVersionVector.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
 

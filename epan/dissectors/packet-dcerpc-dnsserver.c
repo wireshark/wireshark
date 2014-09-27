@@ -45,148 +45,148 @@ static gint ett_dnsserver_DNS_RECORD_BUFFER = -1;
 
 
 /* Header field declarations */
-static gint hf_dnsserver_DNS_RPC_RECORD_UNION_NodeName = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_Flags = -1;
-static gint hf_dnsserver_DNSSRV_RPC_UNION_dword = -1;
-static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array = -1;
-static gint hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet = -1;
-static gint hf_dnsserver_DNS_RPC_VERSION_ServicePackVersion = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT = -1;
-static gint hf_dnsserver_status = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP = -1;
-static gint hf_dnsserver_DnssrvQuery2_type_id = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_client_version = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_Serial = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_Flags = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_DataLength = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_RecordCount = -1;
-static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5 = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4 = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_Length = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority = -1;
-static gint hf_dnsserver_IP4_ARRAY_AddrArray = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_zone = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_TtlSeconds = -1;
-static gint hf_dnsserver_DNS_RPC_NAME_name = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries = -1;
-static gint hf_dnsserver_DnssrvQuery2_setting_flags = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_NODE_NAME_Name = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_Childcount = -1;
-static gint hf_dnsserver_DNS_RECORD_BUFFER_rpc_node = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_setting_flags = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE = -1;
-static gint hf_dnsserver_IP4_ARRAY_AddrCount = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_filter_start = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0 = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_TimeStamp = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_record = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1 = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders = -1;
-static gint hf_dnsserver_DnssrvQuery2_data = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_records = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogLevel = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Version = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_buffer_length = -1;
-static gint hf_dnsserver_DnssrvQuery2_operation = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_record_buffer_ = -1;
-static gint hf_dnsserver_DnssrvQuery2_zone = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_select_flag = -1;
 static gint hf_dnsserver_DnssrvEnumRecords2_start_child = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_server_name = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_record_buffer = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_NodeName = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition = -1;
-static gint hf_dnsserver_DNSSRV_RPC_UNION_null = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval = -1;
-static gint hf_dnsserver_DNS_RPC_NAME_NameLength = -1;
-static gint hf_dnsserver_DNS_RPC_VERSION_OSMinorVersion = -1;
-static gint hf_dnsserver_DnssrvQuery2_client_version = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_record_type = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2 = -1;
-static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2 = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BootMethod = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate = -1;
-static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer = -1;
-static gint hf_dnsserver_DNS_RPC_VERSION_OSMajorVersion = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3 = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON = -1;
 static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_WRITE_THROUGH = -1;
-static gint hf_dnsserver_opnum = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones = -1;
-static gint hf_dnsserver_DNS_RPC_RECORD_Type = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations = -1;
-static gint hf_dnsserver_DnssrvQuery2_server_name = -1;
-static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA = -1;
-static gint hf_dnsserver_DnssrvEnumRecords2_node_name = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs = -1;
-static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding = -1;
-static gint hf_dnsserver_DNS_RPC_NAME_Name = -1;
-static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured = -1;
 static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserved0 = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BootMethod = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1 = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders = -1;
+static gint hf_dnsserver_DnssrvQuery2_server_name = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate = -1;
+static gint hf_dnsserver_status = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_DataLength = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_buffer_length = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3 = -1;
+static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC = -1;
+static gint hf_dnsserver_DNS_RPC_NAME_name = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_Childcount = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0 = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5 = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones = -1;
+static gint hf_dnsserver_DnssrvQuery2_data = -1;
+static gint hf_dnsserver_DNSSRV_RPC_UNION_dword = -1;
+static gint hf_dnsserver_DNS_RPC_VERSION_OSMajorVersion = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_record_buffer_ = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer = -1;
+static gint hf_dnsserver_DnssrvQuery2_client_version = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_records = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_NODE_NAME_Name = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_TimeStamp = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_TtlSeconds = -1;
+static gint hf_dnsserver_DNS_RPC_VERSION_OSMinorVersion = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT = -1;
 static gint hf_dnsserver_DnssrvEnumRecords2_filter_stop = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_setting_flags = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_client_version = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_select_flag = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath = -1;
+static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_NodeName = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4 = -1;
+static gint hf_dnsserver_IP4_ARRAY_AddrCount = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_record_type = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_Flags = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_server_name = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_record_buffer = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_node_name = -1;
+static gint hf_dnsserver_DNS_RECORD_BUFFER_rpc_node = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_Length = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_filter_start = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition = -1;
+static gint hf_dnsserver_DnssrvEnumRecords2_zone = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2 = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2 = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_UNION_NodeName = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry = -1;
+static gint hf_dnsserver_DnssrvQuery2_zone = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA = -1;
+static gint hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion = -1;
+static gint hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_record = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Version = -1;
+static gint hf_dnsserver_DnssrvQuery2_setting_flags = -1;
 static gint hf_dnsserver_DNS_RPC_RECORD_reserved = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate = -1;
+static gint hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses = -1;
+static gint hf_dnsserver_IP4_ARRAY_AddrArray = -1;
+static gint hf_dnsserver_DNS_RPC_VERSION_ServicePackVersion = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_Type = -1;
+static gint hf_dnsserver_DNSSRV_RPC_UNION_null = -1;
+static gint hf_dnsserver_DNS_RPC_NAME_Name = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogLevel = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_RecordCount = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_Flags = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP = -1;
+static gint hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval = -1;
+static gint hf_dnsserver_opnum = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations = -1;
+static gint hf_dnsserver_DNS_RPC_RECORD_Serial = -1;
+static gint hf_dnsserver_DnssrvQuery2_operation = -1;
+static gint hf_dnsserver_DnssrvQuery2_type_id = -1;
+static gint hf_dnsserver_DNS_RPC_NAME_NameLength = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL = -1;
+static gint hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel = -1;
+static gint hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask = -1;
 
 static gint proto_dcerpc_dnsserver = -1;
 /* Version information */
@@ -1625,7 +1625,7 @@ dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: 	uint8 AllowUpdate; */
 /* IDL: 	uint8 DsAvailable; */
 /* IDL: 	[unique(1)] uint8 *ServerName; */
-/* IDL: 	[charset(UTF16)] [unique(1)] uint16 *DsContainer; */
+/* IDL: 	[unique(1)] [charset(UTF16)] uint16 *DsContainer; */
 /* IDL: 	[unique(1)] IP4_ARRAY *ServerAddrs; */
 /* IDL: 	[unique(1)] IP4_ARRAY *ListenAddrs; */
 /* IDL: 	[unique(1)] IP4_ARRAY *Forwarders; */
@@ -2555,9 +2555,9 @@ dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb _U_, int offset _U_, packet
 
 
 /* IDL: union { */
-/* IDL: [case(DNSSRV_TYPEID_NULL)] [case(DNSSRV_TYPEID_NULL)] [unique(1)] uint8 *null; */
+/* IDL: [case(DNSSRV_TYPEID_NULL)] [unique(1)] [case(DNSSRV_TYPEID_NULL)] uint8 *null; */
 /* IDL: [case(DNSSRV_TYPEID_DWORD)] [case(DNSSRV_TYPEID_DWORD)] uint32 dword; */
-/* IDL: [case(DNSSRV_TYPEID_SERVER_INFO_DOTNET)] [case(DNSSRV_TYPEID_SERVER_INFO_DOTNET)] [unique(1)] DNS_RPC_SERVER_INFO_DOTNET *ServerInfoDotnet; */
+/* IDL: [case(DNSSRV_TYPEID_SERVER_INFO_DOTNET)] [unique(1)] [case(DNSSRV_TYPEID_SERVER_INFO_DOTNET)] DNS_RPC_SERVER_INFO_DOTNET *ServerInfoDotnet; */
 /* IDL: } */
 
 static int
@@ -2934,11 +2934,11 @@ dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: NTSTATUS DnssrvQuery2( */
 /* IDL: [in] DNS_RPC_CLIENT_VERSION client_version, */
 /* IDL: [in] uint32 setting_flags, */
-/* IDL: [unique(1)] [charset(UTF16)] [in] uint16 *server_name, */
+/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *server_name, */
 /* IDL: [unique(1)] [in] uint8 *zone, */
-/* IDL: [in] [unique(1)] uint8 *operation, */
+/* IDL: [unique(1)] [in] uint8 *operation, */
 /* IDL: [out] [ref] DnssrvRpcTypeId *type_id, */
-/* IDL: [ref] [out] [switch_is(*type_id)] DNSSRV_RPC_UNION *data */
+/* IDL: [out] [ref] [switch_is(*type_id)] DNSSRV_RPC_UNION *data */
 /* IDL: ); */
 
 static int
@@ -3204,16 +3204,16 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb _U_, 
 /* IDL: NTSTATUS DnssrvEnumRecords2( */
 /* IDL: [in] DNS_RPC_CLIENT_VERSION client_version, */
 /* IDL: [in] uint32 setting_flags, */
-/* IDL: [unique(1)] [charset(UTF16)] [in] uint16 *server_name, */
-/* IDL: [in] [unique(1)] uint8 *zone, */
+/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *server_name, */
+/* IDL: [unique(1)] [in] uint8 *zone, */
 /* IDL: [unique(1)] [in] uint8 *node_name, */
-/* IDL: [in] [unique(1)] uint8 *start_child, */
+/* IDL: [unique(1)] [in] uint8 *start_child, */
 /* IDL: [in] DNS_RECORD_TYPE record_type, */
 /* IDL: [in] DNS_SELECT_FLAGS select_flag, */
-/* IDL: [in] [unique(1)] uint8 *filter_start, */
+/* IDL: [unique(1)] [in] uint8 *filter_start, */
 /* IDL: [unique(1)] [in] uint8 *filter_stop, */
 /* IDL: [out] [ref] uint32 *buffer_length, */
-/* IDL: [out] [unique(1)] [subcontext(4)] DNS_RPC_NODE *record_buffer */
+/* IDL: [unique(1)] [out] [subcontext(4)] DNS_RPC_NODE *record_buffer */
 /* IDL: ); */
 
 static int
@@ -3316,290 +3316,290 @@ static dcerpc_sub_dissector dnsserver_dissectors[] = {
 void proto_register_dcerpc_dnsserver(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_dnsserver_DNS_RPC_RECORD_UNION_NodeName,
-		{ "Nodename", "dnsserver.DNS_RPC_RECORD_UNION.NodeName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_Flags,
-		{ "Flags", "dnsserver.DNS_RPC_RECORD.Flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNSSRV_RPC_UNION_dword,
-		{ "Dword", "dnsserver.DNSSRV_RPC_UNION.dword", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP,
-		{ "Dns Rpc Use Tcpip", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_TCPIP", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array,
-		{ "Reserve Array", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.reserve_array", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet,
-		{ "Serverinfodotnet", "dnsserver.DNSSRV_RPC_UNION.ServerInfoDotnet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_VERSION_ServicePackVersion,
-		{ "Servicepackversion", "dnsserver.DNS_RPC_VERSION.ServicePackVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT,
-		{ "Dns Rpc Flag Auth Zone Root", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_AUTH_ZONE_ROOT", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT_tfs), ( 0x20000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_status,
-		{ "NT Error", "dnsserver.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable,
-		{ "Dsavailable", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsAvailable", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP,
-		{ "Dns Log Level Tcp", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_TCP", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP_tfs), ( 0x00008000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_type_id,
-		{ "Type Id", "dnsserver.DnssrvQuery2.type_id", FT_UINT32, BASE_DEC, VALS(dnsserver_DnssrvRpcTypeId_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_client_version,
-		{ "Client Version", "dnsserver.DnssrvEnumRecords2.client_version", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_RPC_CLIENT_VERSION_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl,
-		{ "Maxcachettl", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.MaxCacheTtl", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_Serial,
-		{ "Serial", "dnsserver.DNS_RPC_RECORD.Serial", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel,
-		{ "Debuglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DebugLevel", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_Flags,
-		{ "Flags", "dnsserver.DNS_RPC_NODE.Flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_DataLength,
-		{ "Datalength", "dnsserver.DNS_RPC_RECORD.DataLength", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol,
-		{ "Rpcprotocol", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RpcProtocol", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_RecordCount,
-		{ "Recordcount", "dnsserver.DNS_RPC_NODE.RecordCount", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC,
-		{ "Dns Rpc Use Lpc", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_LPC", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion,
-		{ "Dsdomainversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsDomainVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV,
-		{ "Dns Log Level Recv", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_RECV", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5,
-		{ "Extension5", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension5", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR,
-		{ "Dns Rpc Flag Record Create Ptr", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECORD_CREATE_PTR", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR_tfs), ( 0x02000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE,
-		{ "Dns Rpc Flag Record Ttl Change", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECORD_TTL_CHANGE", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE_tfs), ( 0x04000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath,
-		{ "Logfilepath", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFilePath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA,
-		{ "Dns Rpc View Root Hint Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ROOT_HINT_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4,
-		{ "Extension4", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension4", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing,
-		{ "Strictfileparsing", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.StrictFileParsing", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_Length,
-		{ "Length", "dnsserver.DNS_RPC_NODE.Length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS,
-		{ "Dns Log Level Full Packets", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_FULL_PACKETS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS_tfs), ( 0x01000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS,
-		{ "Dns Log Level Answers", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_ANSWERS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding,
-		{ "Loosewildcarding", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LooseWildcarding", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP,
-		{ "Dns Log Level Udp", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_UDP", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP_tfs), ( 0x00004000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS,
-		{ "Dns Log Level Questions", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_QUESTIONS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS_tfs), ( 0x00000100 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit,
-		{ "Addressanswerlimit", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AddressAnswerLimit", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority,
-		{ "Localnetpriority", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LocalNetPriority", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_IP4_ARRAY_AddrArray,
-		{ "Addrarray", "dnsserver.IP4_ARRAY.AddrArray", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE,
-		{ "Dns Rpc Flag Node Complete", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_NODE_COMPLETE", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE_tfs), ( 0x00800000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter,
-		{ "Logfilter", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFilter", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY,
-		{ "Dns Rpc Flag Node Sticky", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_NODE_STICKY", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY_tfs), ( 0x01000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_zone,
-		{ "Zone", "dnsserver.DnssrvEnumRecords2.zone", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON,
-		{ "Dns Rpc Flag Aging On", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_AGING_ON", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON_tfs), ( 0x00020000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_TtlSeconds,
-		{ "Ttlseconds", "dnsserver.DNS_RPC_RECORD.TtlSeconds", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NAME_name,
-		{ "Name", "dnsserver.DNS_RPC_NAME.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate,
-		{ "Allowupdate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AllowUpdate", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask,
-		{ "Localnetprioritynetmask", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LocalNetPriorityNetmask", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion,
-		{ "Dsforestversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsForestVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName,
-		{ "Servername", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ServerName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries,
-		{ "Bindsecondaries", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.BindSecondaries", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_setting_flags,
-		{ "Setting Flags", "dnsserver.DnssrvQuery2.setting_flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL,
-		{ "Dns Rpc Flag Recor Default Ttl", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECOR_DEFAULT_TTL", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL_tfs), ( 0x08000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_NODE_NAME_Name,
-		{ "Name", "dnsserver.DNS_RPC_RECORD_NODE_NAME.Name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN,
-		{ "Dns Rpc View No Children", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_NO_CHILDREN", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN_tfs), ( 0x00010000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval,
-		{ "Dspollinginterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsPollingInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_Childcount,
-		{ "Childcount", "dnsserver.DNS_RPC_NODE.Childcount", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RECORD_BUFFER_rpc_node,
-		{ "Rpc Node", "dnsserver.DNS_RECORD_BUFFER.rpc_node", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA,
-		{ "Dns Rpc View Glue Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_GLUE_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_setting_flags,
-		{ "Setting Flags", "dnsserver.DnssrvEnumRecords2.setting_flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY,
-		{ "Dns Log Level Query", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_QUERY", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel,
-		{ "Eventloglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.EventLogLevel", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry,
-		{ "Recursionretry", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecursionRetry", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA,
-		{ "Dns Rpc View Authority Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_AUTHORITY_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE,
-		{ "Dns Log Level Update", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_UPDATE", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_dnsserver_IP4_ARRAY_AddrCount,
-		{ "Addrcount", "dnsserver.IP4_ARRAY.AddrCount", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion,
-		{ "Dsdsaversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsDsaVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime,
-		{ "Lastscavengetime", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LastScavengeTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_filter_start,
-		{ "Filter Start", "dnsserver.DnssrvEnumRecords2.filter_start", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL,
-		{ "Dns Rpc Flag Open Acl", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_OPEN_ACL", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL_tfs), ( 0x00040000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA,
-		{ "Dns Rpc View Cache Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_CACHE_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0,
-		{ "Extension0", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension0", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName,
-		{ "Forestname", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForestName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_TimeStamp,
-		{ "Timestamp", "dnsserver.DNS_RPC_RECORD.TimeStamp", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs,
-		{ "Serveraddrs", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ServerAddrs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_record,
-		{ "Record", "dnsserver.DNS_RPC_RECORD.record", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1,
-		{ "Extension1", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension1", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders,
-		{ "Forwarders", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.Forwarders", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_data,
-		{ "Data", "dnsserver.DnssrvQuery2.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag,
-		{ "Namecheckflag", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.NameCheckFlag", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_NAME_CHECK_FLAGS_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout,
-		{ "Forwardtimeout", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForwardTimeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_records,
-		{ "Records", "dnsserver.DNS_RPC_NODE.records", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION,
-		{ "Dns Rpc Flag Zone Delegation", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_ZONE_DELEGATION", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION_tfs), ( 0x10000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval,
-		{ "Scavenginginterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ScavengingInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogLevel,
-		{ "Loglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogLevel", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT,
-		{ "Dns Rpc Flag Zone Root", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_ZONE_ROOT", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT_tfs), ( 0x40000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Version,
-		{ "Version", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.Version", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses,
-		{ "Secureresponses", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.SecureResponses", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_buffer_length,
-		{ "Buffer Length", "dnsserver.DnssrvEnumRecords2.buffer_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_operation,
-		{ "Operation", "dnsserver.DnssrvQuery2.operation", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize,
-		{ "Logfilemaxsize", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFileMaxSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_record_buffer_,
-		{ "Subcontext length", "dnsserver.DnssrvEnumRecords2.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_zone,
-		{ "Zone", "dnsserver.DnssrvQuery2.zone", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_select_flag,
-		{ "Select Flag", "dnsserver.DnssrvEnumRecords2.select_flag", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_dnsserver_DnssrvEnumRecords2_start_child,
 		{ "Start Child", "dnsserver.DnssrvEnumRecords2.start_child", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_server_name,
-		{ "Server Name", "dnsserver.DnssrvEnumRecords2.server_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND,
-		{ "Dns Log Level Send", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_SEND", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND_tfs), ( 0x00001000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN,
-		{ "Dns Rpc View Only Children", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ONLY_CHILDREN", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN_tfs), ( 0x00020000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_record_buffer,
-		{ "Record Buffer", "dnsserver.DnssrvEnumRecords2.record_buffer", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin,
-		{ "Roundrobin", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RoundRobin", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_NodeName,
-		{ "Nodename", "dnsserver.DNS_RPC_NODE.NodeName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition,
-		{ "Domaindirectorypartition", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DomainDirectoryPartition", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNSSRV_RPC_UNION_null,
-		{ "Null", "dnsserver.DNSSRV_RPC_UNION.null", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval,
-		{ "Defaultnorefreshinterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultNoRefreshInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NAME_NameLength,
-		{ "Namelength", "dnsserver.DNS_RPC_NAME.NameLength", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_VERSION_OSMinorVersion,
-		{ "Osminorversion", "dnsserver.DNS_RPC_VERSION.OSMinorVersion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_client_version,
-		{ "Client Version", "dnsserver.DnssrvQuery2.client_version", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_RPC_CLIENT_VERSION_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA,
-		{ "Dns Rpc Flag Cache Data", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_CACHE_DATA", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA_tfs), ( 0x80000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout,
-		{ "Recursiontimeout", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecursionTimeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition,
-		{ "Forestdirectorypartition", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForestDirectoryPartition", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_record_type,
-		{ "Record Type", "dnsserver.DnssrvEnumRecords2.record_type", FT_UINT16, BASE_DEC, VALS(dnsserver_DNS_RECORD_TYPE_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval,
-		{ "Defaultrefreshinterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultRefreshInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2,
-		{ "Reserve Array2", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.reserve_array2", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY,
-		{ "Dns Rpc Flag Suppress Notify", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_SUPPRESS_NOTIFY", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY_tfs), ( 0x00010000 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2,
-		{ "Extension2", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension2", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion,
-		{ "Norecursion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.NoRecursion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BootMethod,
-		{ "Bootmethod", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.BootMethod", FT_UINT8, BASE_DEC, VALS(dnsserver_DNS_RPC_BOOT_METHOD_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate,
-		{ "Autocacheupdate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AutoCacheUpdate", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY,
-		{ "Dns Log Level Notify", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_NOTIFY", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer,
-		{ "Dscontainer", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsContainer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_VERSION_OSMajorVersion,
-		{ "Osmajorversion", "dnsserver.DNS_RPC_VERSION.OSMajorVersion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState,
-		{ "Defaultagingstate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultAgingState", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3,
-		{ "Extension3", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension3", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName,
-		{ "Domainname", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DomainName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority,
+		{ "Localnetpriority", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LocalNetPriority", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON,
+		{ "Dns Rpc Flag Aging On", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_AGING_ON", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AGING_ON_tfs), ( 0x00020000 ), NULL, HFILL }},
 	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_WRITE_THROUGH,
 		{ "Dns Log Level Write Through", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_WRITE_THROUGH", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_WRITE_THROUGH_tfs), ( 0x80000000 ), NULL, HFILL }},
-	{ &hf_dnsserver_opnum,
-		{ "Operation", "dnsserver.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones,
-		{ "Autoreversezones", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AutoReverseZones", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_RECORD_Type,
-		{ "Type", "dnsserver.DNS_RPC_RECORD.Type", FT_UINT16, BASE_DEC, VALS(dnsserver_DNS_RECORD_TYPE_vals), 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs,
-		{ "Writeauthorityns", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.WriteAuthorityNs", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion,
-		{ "Rpcstructureversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RpcStructureVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations,
-		{ "Forwarddelegations", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForwardDelegations", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvQuery2_server_name,
-		{ "Server Name", "dnsserver.DnssrvQuery2.server_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA,
-		{ "Dns Rpc View Additional Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ADDITIONAL_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_dnsserver_DnssrvEnumRecords2_node_name,
-		{ "Node Name", "dnsserver.DnssrvEnumRecords2.node_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs,
-		{ "Listenaddrs", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ListenAddrs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE,
-		{ "Dns Rpc Use Named Pipe", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_NAMED_PIPE", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding,
-		{ "Recurseafterforwarding", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecurseAfterForwarding", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_NAME_Name,
-		{ "Name", "dnsserver.DNS_RPC_NAME.Name", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured,
-		{ "Adminconfigured", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AdminConfigured", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserved0,
 		{ "Reserved0", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.reserved0", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval,
+		{ "Defaultnorefreshinterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultNoRefreshInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter,
+		{ "Logfilter", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFilter", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS,
+		{ "Dns Log Level Answers", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_ANSWERS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_ANSWERS_tfs), ( 0x00000200 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN,
+		{ "Dns Rpc View Only Children", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ONLY_CHILDREN", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ONLY_CHILDREN_tfs), ( 0x00020000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BootMethod,
+		{ "Bootmethod", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.BootMethod", FT_UINT8, BASE_DEC, VALS(dnsserver_DNS_RPC_BOOT_METHOD_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA,
+		{ "Dns Rpc View Authority Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_AUTHORITY_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_AUTHORITY_DATA_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1,
+		{ "Extension1", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension1", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs,
+		{ "Listenaddrs", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ListenAddrs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS,
+		{ "Dns Log Level Questions", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_QUESTIONS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUESTIONS_tfs), ( 0x00000100 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE,
+		{ "Dns Rpc Flag Node Complete", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_NODE_COMPLETE", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_COMPLETE_tfs), ( 0x00800000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders,
+		{ "Forwarders", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.Forwarders", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_server_name,
+		{ "Server Name", "dnsserver.DnssrvQuery2.server_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY,
+		{ "Dns Rpc Flag Node Sticky", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_NODE_STICKY", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_NODE_STICKY_tfs), ( 0x01000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs,
+		{ "Writeauthorityns", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.WriteAuthorityNs", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate,
+		{ "Autocacheupdate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AutoCacheUpdate", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_status,
+		{ "NT Error", "dnsserver.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_DataLength,
+		{ "Datalength", "dnsserver.DNS_RPC_RECORD.DataLength", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured,
+		{ "Adminconfigured", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AdminConfigured", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV,
+		{ "Dns Log Level Recv", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_RECV", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_RECV_tfs), ( 0x00002000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_buffer_length,
+		{ "Buffer Length", "dnsserver.DnssrvEnumRecords2.buffer_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3,
+		{ "Extension3", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension3", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC,
+		{ "Dns Rpc Use Lpc", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_LPC", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_LPC_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NAME_name,
+		{ "Name", "dnsserver.DNS_RPC_NAME.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR,
+		{ "Dns Rpc Flag Record Create Ptr", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECORD_CREATE_PTR", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_CREATE_PTR_tfs), ( 0x02000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol,
+		{ "Rpcprotocol", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RpcProtocol", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_Childcount,
+		{ "Childcount", "dnsserver.DNS_RPC_NODE.Childcount", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion,
+		{ "Rpcstructureversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RpcStructureVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState,
+		{ "Defaultagingstate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultAgingState", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion,
+		{ "Dsdsaversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsDsaVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0,
+		{ "Extension0", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension0", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin,
+		{ "Roundrobin", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RoundRobin", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries,
+		{ "Bindsecondaries", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.BindSecondaries", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5,
+		{ "Extension5", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension5", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones,
+		{ "Autoreversezones", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AutoReverseZones", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_data,
+		{ "Data", "dnsserver.DnssrvQuery2.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNSSRV_RPC_UNION_dword,
+		{ "Dword", "dnsserver.DNSSRV_RPC_UNION.dword", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_VERSION_OSMajorVersion,
+		{ "Osmajorversion", "dnsserver.DNS_RPC_VERSION.OSMajorVersion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion,
+		{ "Dsdomainversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsDomainVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION,
+		{ "Dns Rpc Flag Zone Delegation", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_ZONE_DELEGATION", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_DELEGATION_tfs), ( 0x10000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout,
+		{ "Recursiontimeout", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecursionTimeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_record_buffer_,
+		{ "Subcontext length", "dnsserver.DnssrvEnumRecords2.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE,
+		{ "Dns Log Level Update", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_UPDATE", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_UPDATE_tfs), ( 0x00000020 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding,
+		{ "Loosewildcarding", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LooseWildcarding", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer,
+		{ "Dscontainer", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsContainer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_client_version,
+		{ "Client Version", "dnsserver.DnssrvQuery2.client_version", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_RPC_CLIENT_VERSION_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA,
+		{ "Dns Rpc View Additional Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ADDITIONAL_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ADDITIONAL_DATA_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_records,
+		{ "Records", "dnsserver.DNS_RPC_NODE.records", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_NODE_NAME_Name,
+		{ "Name", "dnsserver.DNS_RPC_RECORD_NODE_NAME.Name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_TimeStamp,
+		{ "Timestamp", "dnsserver.DNS_RPC_RECORD.TimeStamp", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_TtlSeconds,
+		{ "Ttlseconds", "dnsserver.DNS_RPC_RECORD.TtlSeconds", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_VERSION_OSMinorVersion,
+		{ "Osminorversion", "dnsserver.DNS_RPC_VERSION.OSMinorVersion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag,
+		{ "Namecheckflag", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.NameCheckFlag", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_NAME_CHECK_FLAGS_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName,
+		{ "Domainname", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DomainName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT,
+		{ "Dns Rpc Flag Auth Zone Root", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_AUTH_ZONE_ROOT", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_AUTH_ZONE_ROOT_tfs), ( 0x20000000 ), NULL, HFILL }},
 	{ &hf_dnsserver_DnssrvEnumRecords2_filter_stop,
 		{ "Filter Stop", "dnsserver.DnssrvEnumRecords2.filter_stop", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_setting_flags,
+		{ "Setting Flags", "dnsserver.DnssrvEnumRecords2.setting_flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND,
+		{ "Dns Log Level Send", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_SEND", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_SEND_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition,
+		{ "Domaindirectorypartition", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DomainDirectoryPartition", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion,
+		{ "Norecursion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.NoRecursion", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_client_version,
+		{ "Client Version", "dnsserver.DnssrvEnumRecords2.client_version", FT_UINT32, BASE_DEC, VALS(dnsserver_DNS_RPC_CLIENT_VERSION_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs,
+		{ "Serveraddrs", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ServerAddrs", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_select_flag,
+		{ "Select Flag", "dnsserver.DnssrvEnumRecords2.select_flag", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath,
+		{ "Logfilepath", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFilePath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE,
+		{ "Dns Rpc Use Named Pipe", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_NAMED_PIPE", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_NAMED_PIPE_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_NodeName,
+		{ "Nodename", "dnsserver.DNS_RPC_NODE.NodeName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN,
+		{ "Dns Rpc View No Children", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_NO_CHILDREN", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_NO_CHILDREN_tfs), ( 0x00010000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4,
+		{ "Extension4", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension4", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_IP4_ARRAY_AddrCount,
+		{ "Addrcount", "dnsserver.IP4_ARRAY.AddrCount", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName,
+		{ "Forestname", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForestName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_record_type,
+		{ "Record Type", "dnsserver.DnssrvEnumRecords2.record_type", FT_UINT16, BASE_DEC, VALS(dnsserver_DNS_RECORD_TYPE_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY,
+		{ "Dns Log Level Notify", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_NOTIFY", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_NOTIFY_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_Flags,
+		{ "Flags", "dnsserver.DNS_RPC_RECORD.Flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_server_name,
+		{ "Server Name", "dnsserver.DnssrvEnumRecords2.server_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_record_buffer,
+		{ "Record Buffer", "dnsserver.DnssrvEnumRecords2.record_buffer", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_node_name,
+		{ "Node Name", "dnsserver.DnssrvEnumRecords2.node_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RECORD_BUFFER_rpc_node,
+		{ "Rpc Node", "dnsserver.DNS_RECORD_BUFFER.rpc_node", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime,
+		{ "Lastscavengetime", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LastScavengeTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_Length,
+		{ "Length", "dnsserver.DNS_RPC_NODE.Length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_filter_start,
+		{ "Filter Start", "dnsserver.DnssrvEnumRecords2.filter_start", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition,
+		{ "Forestdirectorypartition", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForestDirectoryPartition", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvEnumRecords2_zone,
+		{ "Zone", "dnsserver.DnssrvEnumRecords2.zone", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array,
+		{ "Reserve Array", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.reserve_array", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE,
+		{ "Dns Rpc Flag Record Ttl Change", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECORD_TTL_CHANGE", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECORD_TTL_CHANGE_tfs), ( 0x04000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA,
+		{ "Dns Rpc View Cache Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_CACHE_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_CACHE_DATA_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout,
+		{ "Forwardtimeout", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForwardTimeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2,
+		{ "Reserve Array2", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.reserve_array2", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2,
+		{ "Extension2", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.extension2", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_UNION_NodeName,
+		{ "Nodename", "dnsserver.DNS_RPC_RECORD_UNION.NodeName", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS,
+		{ "Dns Log Level Full Packets", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_FULL_PACKETS", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_FULL_PACKETS_tfs), ( 0x01000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry,
+		{ "Recursionretry", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecursionRetry", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_zone,
+		{ "Zone", "dnsserver.DnssrvQuery2.zone", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval,
+		{ "Defaultrefreshinterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DefaultRefreshInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT,
+		{ "Dns Rpc Flag Zone Root", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_ZONE_ROOT", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_ZONE_ROOT_tfs), ( 0x40000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing,
+		{ "Strictfileparsing", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.StrictFileParsing", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA,
+		{ "Dns Rpc View Root Hint Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_ROOT_HINT_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_ROOT_HINT_DATA_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA,
+		{ "Dns Rpc View Glue Data", "dnsserver.DNS_SELECT_FLAGS.DNS_RPC_VIEW_GLUE_DATA", FT_BOOLEAN, 32, TFS(&DNS_SELECT_FLAGS_DNS_RPC_VIEW_GLUE_DATA_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion,
+		{ "Dsforestversion", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsForestVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet,
+		{ "Serverinfodotnet", "dnsserver.DNSSRV_RPC_UNION.ServerInfoDotnet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize,
+		{ "Logfilemaxsize", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogFileMaxSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl,
+		{ "Maxcachettl", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.MaxCacheTtl", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_record,
+		{ "Record", "dnsserver.DNS_RPC_RECORD.record", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval,
+		{ "Scavenginginterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ScavengingInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding,
+		{ "Recurseafterforwarding", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.RecurseAfterForwarding", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY,
+		{ "Dns Rpc Flag Suppress Notify", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_SUPPRESS_NOTIFY", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY_tfs), ( 0x00010000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Version,
+		{ "Version", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.Version", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_setting_flags,
+		{ "Setting Flags", "dnsserver.DnssrvQuery2.setting_flags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_dnsserver_DNS_RPC_RECORD_reserved,
 		{ "Reserved", "dnsserver.DNS_RPC_RECORD.reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA,
+		{ "Dns Rpc Flag Cache Data", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_CACHE_DATA", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_CACHE_DATA_tfs), ( 0x80000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName,
+		{ "Servername", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ServerName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit,
+		{ "Addressanswerlimit", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AddressAnswerLimit", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate,
+		{ "Allowupdate", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.AllowUpdate", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP,
+		{ "Dns Rpc Use Tcpip", "dnsserver.DNS_RPC_PROTOCOLS.DNS_RPC_USE_TCPIP", FT_BOOLEAN, 32, TFS(&DNS_RPC_PROTOCOLS_DNS_RPC_USE_TCPIP_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses,
+		{ "Secureresponses", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.SecureResponses", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_IP4_ARRAY_AddrArray,
+		{ "Addrarray", "dnsserver.IP4_ARRAY.AddrArray", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_VERSION_ServicePackVersion,
+		{ "Servicepackversion", "dnsserver.DNS_RPC_VERSION.ServicePackVersion", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel,
+		{ "Debuglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DebugLevel", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_Type,
+		{ "Type", "dnsserver.DNS_RPC_RECORD.Type", FT_UINT16, BASE_DEC, VALS(dnsserver_DNS_RECORD_TYPE_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNSSRV_RPC_UNION_null,
+		{ "Null", "dnsserver.DNSSRV_RPC_UNION.null", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NAME_Name,
+		{ "Name", "dnsserver.DNS_RPC_NAME.Name", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogLevel,
+		{ "Loglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LogLevel", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_RecordCount,
+		{ "Recordcount", "dnsserver.DNS_RPC_NODE.RecordCount", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_Flags,
+		{ "Flags", "dnsserver.DNS_RPC_NODE.Flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY,
+		{ "Dns Log Level Query", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_QUERY", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_QUERY_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP,
+		{ "Dns Log Level Udp", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_UDP", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_UDP_tfs), ( 0x00004000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP,
+		{ "Dns Log Level Tcp", "dnsserver.DNS_LOG_LEVELS.DNS_LOG_LEVEL_TCP", FT_BOOLEAN, 32, TFS(&DNS_LOG_LEVELS_DNS_LOG_LEVEL_TCP_tfs), ( 0x00008000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval,
+		{ "Dspollinginterval", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsPollingInterval", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_opnum,
+		{ "Operation", "dnsserver.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable,
+		{ "Dsavailable", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.DsAvailable", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations,
+		{ "Forwarddelegations", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.ForwardDelegations", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_RECORD_Serial,
+		{ "Serial", "dnsserver.DNS_RPC_RECORD.Serial", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_operation,
+		{ "Operation", "dnsserver.DnssrvQuery2.operation", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DnssrvQuery2_type_id,
+		{ "Type Id", "dnsserver.DnssrvQuery2.type_id", FT_UINT32, BASE_DEC, VALS(dnsserver_DnssrvRpcTypeId_vals), 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NAME_NameLength,
+		{ "Namelength", "dnsserver.DNS_RPC_NAME.NameLength", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL,
+		{ "Dns Rpc Flag Open Acl", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_OPEN_ACL", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_OPEN_ACL_tfs), ( 0x00040000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL,
+		{ "Dns Rpc Flag Recor Default Ttl", "dnsserver.DNS_RPC_NODE_FLAGS.DNS_RPC_FLAG_RECOR_DEFAULT_TTL", FT_BOOLEAN, 32, TFS(&DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_RECOR_DEFAULT_TTL_tfs), ( 0x08000000 ), NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel,
+		{ "Eventloglevel", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.EventLogLevel", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask,
+		{ "Localnetprioritynetmask", "dnsserver.DNS_RPC_SERVER_INFO_DOTNET.LocalNetPriorityNetmask", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 
