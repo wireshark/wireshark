@@ -27,11 +27,22 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wsutil/pint.h>
 #include <epan/nlpid.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"
-#include "packet-esis.h"
+
+/* The version we support is 1 */
+#define ESIS_REQUIRED_VERSION    1
+
+/* ESIS PDU types */
+#define ESIS_ESH_PDU    02
+#define ESIS_ISH_PDU    04
+#define ESIS_RD_PDU     06
+
+/* The length of the fixed part */
+#define ESIS_HDR_FIXED_LENGTH 9
 
 void proto_register_esis(void);
 void proto_reg_handoff_esis(void);
@@ -59,20 +70,15 @@ static int hf_esis_bsnpa = -1;
 static gint ett_esis              = -1;
 static gint ett_esis_area_addr    = -1;
 
+static expert_field ei_esis_version = EI_INIT;
+static expert_field ei_esis_length = EI_INIT;
+static expert_field ei_esis_type = EI_INIT;
+
 static const value_string esis_vals[] = {
   { ESIS_ESH_PDU, "ES HELLO"},
   { ESIS_ISH_PDU, "IS HELLO"},
   { ESIS_RD_PDU,  "RD REQUEST"},
   { 0,             NULL} };
-
-/* internal prototypes */
-
-static void esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb,
-                           proto_tree *treepd);
-static void esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb,
-                           proto_tree *tree);
-static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
-                           proto_tree *tree);
 
 /* ################## Descriptions ###########################################*/
 /* Parameters for the ESH PDU
@@ -121,38 +127,6 @@ static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
  */
 
 /* ############################ Tool Functions ############################## */
-
-
-/* ############################## Dissection Functions ###################### */
-/*
- * Name: dissect_esis_unknown()
- *
- * Description:
- *   There was some error in the protocol and we are in unknown space
- *   here.  Add a tree item to cover the error and go on.  Note
- *   that we make sure we don't go off the end of the bleedin packet here!
- *
- *   This is just a copy of isis.c and isis.h, so I keep the stuff also
- *   and adapt the names to cover possible protocol errors! I've really no
- *   idea whether I need this or not.
- *
- * Input
- *   tvbuff_t *      : tvbuff with packet data.
- *   proto_tree *    : tree of display data.  May be NULL.
- *   char *          : format text
- *   subsequent args : arguments to format
- *
- * Output:
- *   void (may modify proto tree)
- */
-static void
-esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, const char *fmat, ...){
-  va_list ap;
-
-  va_start(ap, fmat);
-  proto_tree_add_text_valist(tree, tvb, 0, -1, fmat, ap);
-  va_end(ap);
-}
 
 
 static void
@@ -273,64 +247,48 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
  */
 static void
 dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  const char *pdu_type_string        = NULL;
-  const char *pdu_type_format_string = "PDU Type      : %s (R:%s%s%s)";
-  esis_hdr_t  ehdr;
-  proto_item *ti;
+  guint8 version, length;
+  proto_item *ti, *type_item;
   proto_tree *esis_tree    = NULL;
-  guint8      variable_len;
-  guint       tmp_uint     = 0;
+  guint8      variable_len, type;
+  guint16     holdtime, checksum;
   const char *cksum_status;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&ehdr, 0, sizeof ehdr);
-
-  if (tree) {
     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, -1, ENC_NA);
     esis_tree = proto_item_add_subtree(ti, ett_esis);
 
-    if (ehdr.esis_version != ESIS_REQUIRED_VERSION){
-      esis_dissect_unknown(tvb, esis_tree,
-                           "Unknown ESIS version (%u vs %u)",
-                           ehdr.esis_version, ESIS_REQUIRED_VERSION );
-      return;
-    }
-
-    if (ehdr.esis_length < ESIS_HDR_FIXED_LENGTH) {
-      esis_dissect_unknown(tvb, esis_tree,
+    proto_tree_add_item( esis_tree, hf_esis_nlpi, tvb, 0, 1, ENC_NA);
+    ti = proto_tree_add_item( esis_tree, hf_esis_length, tvb, 1, 1, ENC_NA );
+    length = tvb_get_guint8(tvb, 1);
+    if (length < ESIS_HDR_FIXED_LENGTH) {
+      expert_add_info_format(pinfo, ti, &ei_esis_length,
                            "Bogus ESIS length (%u, must be >= %u)",
-                           ehdr.esis_length, ESIS_HDR_FIXED_LENGTH );
+                           length, ESIS_HDR_FIXED_LENGTH );
       return;
     }
-    proto_tree_add_uint( esis_tree, hf_esis_nlpi, tvb, 0, 1, ehdr.esis_nlpi );
-    proto_tree_add_uint( esis_tree, hf_esis_length, tvb,
-                         1, 1, ehdr.esis_length );
-    proto_tree_add_uint( esis_tree, hf_esis_version, tvb, 2, 1,
-                         ehdr.esis_version );
-    proto_tree_add_uint( esis_tree, hf_esis_reserved, tvb, 3, 1,
-                         ehdr.esis_reserved );
 
-    pdu_type_string = val_to_str(ehdr.esis_type&OSI_PDU_TYPE_MASK,
-                                 esis_vals, "Unknown (0x%x)");
+    version = tvb_get_guint8(tvb, 2);
+    ti = proto_tree_add_item( esis_tree, hf_esis_version, tvb, 2, 1, ENC_NA);
+    if (version != ESIS_REQUIRED_VERSION){
+      expert_add_info_format(pinfo, ti, &ei_esis_version,
+                           "Unknown ESIS version (%u vs %u)",
+                           version, ESIS_REQUIRED_VERSION );
+    }
 
-    proto_tree_add_uint_format( esis_tree, hf_esis_type, tvb, 4, 1,
-                                ehdr.esis_type,
-                                pdu_type_format_string,
-                                pdu_type_string,
-                                (ehdr.esis_type&0x80) ? "1" : "0",
-                                (ehdr.esis_type&0x40) ? "1" : "0",
-                                (ehdr.esis_type&0x20) ? "1" : "0");
+    proto_tree_add_item( esis_tree, hf_esis_reserved, tvb, 3, 1, ENC_NA);
 
-    tmp_uint = pntoh16( ehdr.esis_holdtime );
+    type_item = proto_tree_add_item( esis_tree, hf_esis_type, tvb, 4, 1, ENC_NA);
+    type = tvb_get_guint8(tvb, 4) & OSI_PDU_TYPE_MASK;
+
+    holdtime = tvb_get_ntohs(tvb, 5);
     proto_tree_add_uint_format_value(esis_tree, hf_esis_holdtime, tvb, 5, 2,
-                               tmp_uint, "%u seconds",
-                               tmp_uint );
+                               holdtime, "%u seconds", holdtime);
 
-    tmp_uint = pntoh16( ehdr.esis_checksum );
-
-    switch (calc_checksum( tvb, 0, ehdr.esis_length, tmp_uint )) {
+    checksum = tvb_get_ntohs(tvb, 7);
+    switch (calc_checksum( tvb, 0, length, checksum)) {
 
     case NO_CKSUM:
       cksum_status = "Not Used";
@@ -353,9 +311,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       DISSECTOR_ASSERT_NOT_REACHED();
     }
     proto_tree_add_uint_format_value( esis_tree, hf_esis_checksum, tvb, 7, 2,
-                                tmp_uint, "0x%x ( %s )",
-                                tmp_uint, cksum_status );
-  }
+                                checksum, "0x%x ( %s )", checksum, cksum_status );
 
 
   /*
@@ -364,12 +320,12 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    * dispatch the sub-type.
    */
   col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str( ehdr.esis_type&OSI_PDU_TYPE_MASK, esis_vals,
+                val_to_str( type, esis_vals,
                             "Unknown (0x%x)" ) );
 
-  variable_len = ehdr.esis_length - ESIS_HDR_FIXED_LENGTH;
+  variable_len = length - ESIS_HDR_FIXED_LENGTH;
 
-  switch (ehdr.esis_type & OSI_PDU_TYPE_MASK) {
+  switch (type) {
   case ESIS_ESH_PDU:
     esis_dissect_esh_pdu( variable_len, tvb, esis_tree);
     break;
@@ -380,9 +336,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     esis_dissect_redirect_pdu( variable_len, tvb, esis_tree);
     break;
   default:
-    esis_dissect_unknown(tvb, esis_tree,
-                         "Unknown ESIS packet type 0x%x",
-                         ehdr.esis_type & OSI_PDU_TYPE_MASK );
+    expert_add_info(pinfo, type_item, &ei_esis_type);
   }
 } /* dissect_esis */
 
@@ -414,13 +368,13 @@ proto_register_esis(void) {
       { "PDU Length", "esis.length",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_esis_version,
-      { "Version (==1)", "esis.ver",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Version", "esis.ver",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_esis_reserved,
       { "Reserved(==0)", "esis.res",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_esis_type,
-      { "PDU Type", "esis.type",      FT_UINT8, BASE_DEC, VALS(esis_vals), 0xff, NULL, HFILL }},
+      { "PDU Type", "esis.type",      FT_UINT8, BASE_DEC, VALS(esis_vals), OSI_PDU_TYPE_MASK, NULL, HFILL }},
 
     { &hf_esis_holdtime,
       { "Holding Time", "esis.htime", FT_UINT16, BASE_DEC, NULL, 0x0, "s", HFILL }},
@@ -438,18 +392,25 @@ proto_register_esis(void) {
       { &hf_esis_da, { "DA", "esis.da", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_esis_bsnpa, { "BSNPA", "esis.bsnpa", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
-  /*
-   *
-   *
-   */
+
   static gint *ett[] = {
     &ett_esis,
     &ett_esis_area_addr,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_esis_version, { "esis.ver.unknown", PI_PROTOCOL, PI_WARN, "Unknown ESIS version", EXPFILL }},
+    { &ei_esis_length, { "esis.length.invalid", PI_MALFORMED, PI_ERROR, "Bogus ESIS length", EXPFILL }},
+    { &ei_esis_type, { "esis.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown ESIS packet type", EXPFILL }},
+  };
+
+  expert_module_t* expert_esis;
+
   proto_esis = proto_register_protocol( PROTO_STRING_ESIS, "ESIS", "esis");
   proto_register_field_array(proto_esis, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_esis = expert_register_protocol(proto_esis);
+  expert_register_field_array(expert_esis, ei, array_length(ei));
   register_dissector("esis", dissect_esis, proto_esis);
 }
 

@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include "packet-ipx.h"
 
@@ -114,6 +115,11 @@ static int hf_nlsp_svcs_info_hops_to_reach_the_service = -1;
 static int hf_nlsp_psnp_lsp_id_lsp_number = -1;
 static int hf_nlsp_ext_routes_network_number = -1;
 
+static expert_field ei_nlsp_short_packet = EI_INIT;
+static expert_field ei_nlsp_long_packet = EI_INIT;
+static expert_field ei_nlsp_major_version = EI_INIT;
+static expert_field ei_nlsp_type = EI_INIT;
+
 static gint ett_nlsp                     = -1;
 static gint ett_nlsp_hello_clv_area_addr = -1;
 static gint ett_nlsp_hello_clv_neighbors = -1;
@@ -179,38 +185,9 @@ typedef struct {
 	int		optcode;		/* code for option */
 	const char	*tree_text;		/* text for fold out */
 	gint		*tree_id;		/* id for add_item */
-	void		(*dissect)(tvbuff_t *tvb, proto_tree *tree,
+	void		(*dissect)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 				int offset, int length);
 } nlsp_clv_handle_t;
-
-/*
- * Name: nlsp_dissect_unknown()
- *
- * Description:
- *	There was some error in the protocol and we are in unknown space
- *	here.  Add a tree item to cover the error and go on.  Note
- *	that we make sure we don't go off the end of the bleedin packet here!
- *
- * Input
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : tree of display data.  May be NULL.
- *	int : current offset into packet data
- *	char * : format text
- *	subsequent args : arguments to format
- *
- * Output:
- *	void (may modify proto tree)
- */
-static void
-nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
-	const char *fmat, ...)
-{
-	va_list	ap;
-
-	va_start(ap, fmat);
-	proto_tree_add_text_valist(tree, tvb, offset, -1, fmat, ap);
-	va_end(ap);
-}
 
 /*
  * Name: nlsp_dissect_clvs()
@@ -242,7 +219,7 @@ nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	void, but we will add to proto tree if !NULL.
  */
 static void
-nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
+nlsp_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 	const nlsp_clv_handle_t *opts, int len, int unknown_tree_id _U_)
 {
 	guint8 code;
@@ -264,9 +241,8 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			break;
 
 		if ( len < length ) {
-			nlsp_dissect_unknown(tvb, tree, offset,
-				"Short CLV header (%d vs %d)",
-				length, len );
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
+				"Short CLV header (%d vs %d)", length, len );
 			return;
 		}
 		q = 0;
@@ -278,7 +254,7 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			clv_tree = proto_tree_add_subtree_format(tree, tvb, offset - 2,
 					length + 2, *opts[q].tree_id, NULL, "%s (%u)",
 					opts[q].tree_text, length );
-			opts[q].dissect(tvb, clv_tree, offset,
+			opts[q].dissect(tvb, pinfo, clv_tree, offset,
 			    length);
 		} else {
 			proto_item* ti;
@@ -307,12 +283,12 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_area_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	while (length > 0) {
 		if (length < 4) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short area address entry");
 			return;
 		}
@@ -322,7 +298,7 @@ dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		length -= 4;
 
 		if (length < 4) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short area address entry");
 			return;
 		}
@@ -349,13 +325,13 @@ dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_neighbor_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	while (length > 0) {
 		if (length < 6) {
-			nlsp_dissect_unknown(tvb, tree, offset,
-			    "Short neighbor entry");
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet,
+					tvb, offset, -1, "Short neighbor entry");
 			return;
 		}
 		proto_tree_add_item(tree, hf_nlsp_neighbor, tvb, offset, 6, ENC_NA);
@@ -380,11 +356,11 @@ dissect_neighbor_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_hello_local_mtu_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_hello_local_mtu_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -510,7 +486,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	len = packet_length - header_length;
 	if (len < 0) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_long_packet, tvb, offset, -1,
 			"packet header length %d went beyond packet",
 			header_length);
 		return;
@@ -520,7 +496,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * Now, we need to decode our CLVs.  We need to pass in
 	 * our list of valid ones!
 	 */
-	nlsp_dissect_clvs(tvb, tree, offset,
+	nlsp_dissect_clvs(tvb, pinfo, tree, offset,
 	    clv_hello_opts, len, ett_nlsp_hello_clv_unknown);
 }
 
@@ -540,13 +516,13 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_mgt_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	guint8 name_length;
 
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short management info entry");
 		return;
 	}
@@ -555,7 +531,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 
 	if (length < 6) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short management info entry");
 		return;
 	}
@@ -564,7 +540,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 6;
 
 	if (length < 1) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short management info entry");
 		return;
 	}
@@ -574,7 +550,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 1;
 
 	if (length < 1) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short management info entry");
 		return;
 	}
@@ -585,7 +561,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (name_length != 0) {
 		if (length < name_length) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short management info entry");
 			return;
 		}
@@ -648,13 +624,13 @@ static const value_string media_type_vals[] = {
 };
 
 static void
-dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_link_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	guint8 flags_cost;
 
 	if (length < 1) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -673,7 +649,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 1;
 
 	if (length < 3) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -681,7 +657,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 3;
 
 	if (length < 7) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -692,7 +668,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 7;
 
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -701,7 +677,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -711,7 +687,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -721,7 +697,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 
 	if (length < 2) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short link info entry");
 		return;
 	}
@@ -744,11 +720,11 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_svcs_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	if (length < 1) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short services info entry");
 		return;
 	}
@@ -758,7 +734,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 1;
 
 	if (length < 4) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short services info entry");
 		return;
 	}
@@ -768,7 +744,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 4;
 
 	if (length < 6) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short services info entry");
 		return;
 	}
@@ -778,7 +754,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 6;
 
 	if (length < 2) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short services info entry");
 		return;
 	}
@@ -788,7 +764,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length -= 2;
 
 	if (length < 2) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 		    "Short services info entry");
 		return;
 	}
@@ -819,12 +795,12 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_lsp_ext_routes_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	while (length > 0) {
 		if (length < 1) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short external routes entry");
 			return;
 		}
@@ -834,7 +810,7 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		length -= 1;
 
 		if (length < 4) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short external routes entry");
 			return;
 		}
@@ -844,7 +820,7 @@ dissect_lsp_ext_routes_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		length -= 4;
 
 		if (length < 2) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short external routes entry");
 			return;
 		}
@@ -989,7 +965,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	len = packet_length - header_length;
 	if (len < 0) {
-		nlsp_dissect_unknown(tvb, tree, offset,
+		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_long_packet, tvb, offset, -1,
 			"packet header length %d went beyond packet",
 			 header_length);
 		return;
@@ -999,7 +975,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * Now, we need to decode our CLVs.  We need to pass in
 	 * our list of valid ones!
 	 */
-	nlsp_dissect_clvs(tvb, tree, offset,
+	nlsp_dissect_clvs(tvb, pinfo, tree, offset,
 		clv_l1_lsp_opts, len, ett_nlsp_lsp_clv_unknown);
 }
 
@@ -1024,14 +1000,14 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_csnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	proto_tree *subtree;
 
 	while (length > 0) {
 		if (length < 16) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short CSNP header entry");
 			return;
 		}
@@ -1060,14 +1036,14 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 }
 
 static void
-dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_psnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int length)
 {
 	proto_tree *subtree;
 
 	while (length > 0) {
 		if (length < 16) {
-			nlsp_dissect_unknown(tvb, tree, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
 			    "Short PSNP header entry");
 			return;
 		}
@@ -1171,7 +1147,7 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return;
 	}
 	/* Call into payload dissector */
-	nlsp_dissect_clvs(tvb, tree, offset,
+	nlsp_dissect_clvs(tvb, pinfo, tree, offset,
 	    clv_l1_csnp_opts, len, ett_nlsp_csnp_clv_unknown);
 }
 
@@ -1232,7 +1208,7 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return;
 	}
 	/* Call into payload dissector */
-	nlsp_dissect_clvs(tvb, tree, offset,
+	nlsp_dissect_clvs(tvb, pinfo, tree, offset,
 	    clv_l1_psnp_opts, len, ett_nlsp_psnp_clv_unknown);
 }
 
@@ -1254,7 +1230,7 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
+	proto_item *ti, *type_item;
 	proto_tree *nlsp_tree;
 	int offset = 0;
 	guint8 nlsp_major_version;
@@ -1264,18 +1240,6 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NLSP");
 	col_clear(pinfo->cinfo, COL_INFO);
-
-	nlsp_major_version = tvb_get_guint8(tvb, 5);
-	if (nlsp_major_version != 1){
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"Unknown NLSP version (%u vs 1)",
-				nlsp_major_version);
-
-		nlsp_dissect_unknown(tvb, tree, 0,
-			"Unknown NLSP version (%d vs 1)",
-			nlsp_major_version, 1);
-		return;
-	}
 
 	ti = proto_tree_add_item(tree, proto_nlsp, tvb, 0, -1, ENC_NA);
 	nlsp_tree = proto_item_add_subtree(ti, ett_nlsp);
@@ -1302,11 +1266,17 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (packet_type == NLSP_TYPE_L1_LSP) {
 		proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1, packet_type_flags );
 	}
-	proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1, packet_type_flags );
+	type_item = proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1, packet_type_flags );
 	offset += 1;
 
-	proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
+	nlsp_major_version = tvb_get_guint8(tvb, offset);
+	ti = proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
 			offset, 1, ENC_BIG_ENDIAN );
+	if (nlsp_major_version != 1){
+		expert_add_info_format(pinfo, ti, &ei_nlsp_major_version,
+			"Unknown NLSP version (%d vs 1)",
+			nlsp_major_version);
+	}
 	offset += 1;
 
 	offset += 2;	/* Reserved */
@@ -1335,8 +1305,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	default:
-		nlsp_dissect_unknown(tvb, tree, offset,
-			"Unknown NLSP packet type");
+		expert_add_info(pinfo, type_item, &ei_nlsp_type);
 	}
 }
 
@@ -1528,10 +1497,21 @@ proto_register_nlsp(void)
 		&ett_nlsp_psnp_clv_unknown,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_nlsp_short_packet, { "nlsp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
+		{ &ei_nlsp_long_packet, { "nlsp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
+		{ &ei_nlsp_major_version, { "nlsp.major_version.unknown", PI_PROTOCOL, PI_WARN, "Unknown NLSP version", EXPFILL }},
+		{ &ei_nlsp_type, { "nlsp.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown NLSP packet type", EXPFILL }},
+	};
+
+	expert_module_t* expert_nlsp;
+
 	proto_nlsp = proto_register_protocol("NetWare Link Services Protocol",
 	    "NLSP", "nlsp");
 	proto_register_field_array(proto_nlsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_nlsp = expert_register_protocol(proto_nlsp);
+	expert_register_field_array(expert_nlsp, ei, array_length(ei));
 }
 
 void
