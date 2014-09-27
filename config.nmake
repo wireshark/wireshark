@@ -2,10 +2,10 @@
 # the file README.windows and the Developer's Guide (available online).
 
 ##### Program name #####
-# Changing the name is experimental and may break the installer/unistaller and possibly other stuff.
+# Changing the name is experimental and may break the installer/uninstaller and possibly other stuff.
 # Application data will still be under the same dir as Wireshark so preference files, profiles, and etc
 # will be shared with a "normal" Wireshark installation.
-# Note that suport libararies needs to be in PROGRAM_NAME-libs...
+# Note that support libraries need to be in PROGRAM_NAME-libs...
 
 !IFNDEF PROGRAM_NAME
 PROGRAM_NAME=Wireshark
@@ -963,12 +963,6 @@ APPVER=5.02
 # Compiler flags:
 # /W3                               Warning level 3 (0 less - 4 most, 1 default).
 # /Zi                               Create .pdb file for debugging.
-# /FR                               Create .sbr file with complete symbolic information.
-#                                   add to standard CFLAGS if you want to build the .sbr files
-#                                     for Wireshark compiles.
-#                                     Warning: using /FR for Wireshark requires ~1Gig of additional disk space
-#                                     XXX: provides less functionality for VC8, ... than for previous compilers ?
-#                                     XXX: .bsc files not usable (not supported ?) with VC10 (Visual Studio 2010) ?
 # /MD                               Use "multithread- and DLL-specific version" of run-time libraries.
 #                                    msvc documentation states that /MD causes _MT and _DLL to be defined
 #                                    See: http://msdn.microsoft.com/en-us/library/2kzt1wy3%28v=VS.90%29.aspx
@@ -994,10 +988,7 @@ APPVER=5.02
 #                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
 #                                   This definition prevents the complaint about the redefinition of inline by WinPCap
 #                                   in pcap-stdinc.h when compiling CPP files, e.g. the QT UI
-#
-# -GS                               Stack-Based Buffer Overrun Detection: On by default for MSVC 2003 and later
-#                                    (See # http://msdn.microsoft.com/en-us/magazine/cc337897.aspx)
-# -O2                               http://msdn.microsoft.com/en-us/library/8f8h5cxt.aspx
+# /O2                               http://msdn.microsoft.com/en-us/library/8f8h5cxt.aspx
 #                                   Specifying the /O2 compiler option is the same as using the following options:
 #                                   /Ob (Inline Function Expansion), where the option parameter is 2 (/Ob2)
 #                                   /Og (Global Optimizations)
@@ -1007,6 +998,9 @@ APPVER=5.02
 #                                   /Gs (Control Stack Checking Calls))
 #                                   /GF (Eliminate Duplicate Strings)
 #                                   /Gy (Enable Function-Level Linking)
+# /Zo                               Output debug info allowing debuggers to display local values and trace into inline
+#                                   functions.  For VS2013 Update 3.  Assume all VS2013 builds are at least Update 3.
+#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
@@ -1033,7 +1027,7 @@ LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_ALLOW_KEYWORD_MACROS
 
 !IF "$(MSVC_VARIANT)" == "MSVC2013"   || \
         "$(MSVC_VARIANT)" == "MSVC2013EE"
-LOCAL_CFLAGS=$(LOCAL_CFLAGS) /DBUILD_WINDOWS
+LOCAL_CFLAGS=$(LOCAL_CFLAGS) /DBUILD_WINDOWS /Zo
 !ENDIF
 
 !IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
@@ -1086,11 +1080,6 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
 STANDARD_CFLAGS=/DWINPCAP_VERSION=$(WINPCAP_VERSION) $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
-# Optional: Define WIRESHARK_GENERATE_BSC_FILE to generate .sbr files for input to bscmake
-!IFDEF WIRESHARK_GENERATE_BSC_FILE
-STANDARD_CFLAGS= $(STANDARD_CFLAGS) /FR
-!ENDIF
-
 #Comment out the following if warnings are not to be treated as errors
 WARNINGS_ARE_ERRORS=-WX
 
@@ -1099,8 +1088,9 @@ WARNINGS_ARE_ERRORS=-WX
 # /PROFILE generate map file(s) for profiling
 # /DEFAULTLIB:xxx use xxx as the standard C library
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
+# /RELEASE set the checksum in the header, stops debugger complaints
 #
-LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
+LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE) /RELEASE
 DLL_LDFLAGS =
 !IFDEF MANIFEST_INFO_REQUIRED
 DLL_LDFLAGS = /MANIFEST:no

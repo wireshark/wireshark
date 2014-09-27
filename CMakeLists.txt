@@ -178,6 +178,13 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		/D_ALLOW_KEYWORD_MACROS
 	)
 
+	if(MSVC12)
+		# /Zo                               Enhanced debugging of optimised codem for VS2013 Update 3 and beyond,
+		#                                   Assume all VS2013 builds are at least Update 3.
+		#                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/Zo")
+	endif()
+
 	if(NOT WIN64)
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
@@ -197,7 +204,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	)
 
 	# Set in Makefile.nmake
-	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO")
+	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
 
 else()
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
