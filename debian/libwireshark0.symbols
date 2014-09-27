@@ -291,8 +291,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_dcom_this@Base 1.9.1
  dissect_dsp_AccessPointInformation@Base 1.9.1
  dissect_e164_cc@Base 1.9.1
+ dissect_e164_msisdn@Base 1.99.0
+ dissect_e212_imsi@Base 1.99.0
  dissect_e212_mcc_mnc@Base 1.9.1
  dissect_e212_mcc_mnc_in_address@Base 1.9.1
+ dissect_e212_utf8_imsi@Base 1.99.0
  dissect_gsm_map_GlobalCellId@Base 1.9.1
  dissect_gsm_map_IMSI@Base 1.9.1
  dissect_gsm_map_ISDN_AddressString@Base 1.9.1
@@ -398,6 +401,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_handle_get_dissector_name@Base 1.12.0~rc1
  dissector_handle_get_protocol_index@Base 1.9.1
  dissector_handle_get_short_name@Base 1.9.1
+ dissector_hostlist_init@Base 1.99.0
  dissector_reset_string@Base 1.9.1
  dissector_reset_uint@Base 1.9.1
  dissector_table_foreach@Base 1.9.1
@@ -617,7 +621,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_column_format@Base 1.9.1
  get_column_format_from_str@Base 1.9.1
  get_column_format_matches@Base 1.9.1
- get_column_longest_string@Base 1.9.1
+#MISSING: 1.99.0# get_column_longest_string@Base 1.9.1
  get_column_resolved@Base 1.9.1
  get_column_title@Base 1.9.1
  get_column_visible@Base 1.9.1
@@ -647,6 +651,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_follow_tcp_index@Base 1.12.0~rc1
  get_host_ipaddr6@Base 1.9.1
  get_host_ipaddr@Base 1.9.1
+ get_hostlist_filter@Base 1.99.0
+ get_hostlist_packet_func@Base 1.99.0
+ get_hostlist_prefix_func@Base 1.99.0
  get_hostname6@Base 1.9.1
  get_hostname@Base 1.9.1
  get_ipv4_hash_table@Base 1.12.0~rc1
@@ -713,6 +720,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  hfinfo_bitshift@Base 1.12.0~rc1
  host_ip_af@Base 1.9.1
  host_name_lookup_process@Base 1.9.1
+ hostlist_table_set_gui_info@Base 1.99.0
  http_dissector_add@Base 1.9.1
  http_port_add@Base 1.9.1
  ieee80211_chan_to_mhz@Base 1.9.1
@@ -723,6 +731,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  incomplete_tcp_stream@Base 1.9.1
  ip6_guint8_to_str@Base 1.12.0~rc1
  ip6_to_str@Base 1.9.1
+ ip_checksum@Base 1.99.0
+ ip_checksum_tvb@Base 1.99.0
  ip_to_str@Base 1.9.1
  ipopt_type_class_vals@Base 1.9.1
  ipopt_type_number_vals@Base 1.9.1
@@ -1063,6 +1073,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  remove_tap_listener@Base 1.9.1
  req_resp_hdrs_do_reassembly@Base 1.9.1
  reset_conversation_table_data@Base 1.99.0
+ reset_hostlist_table_data@Base 1.99.0
  reset_tap_listeners@Base 1.9.1
  reset_tcp_reassembly@Base 1.9.1
  rose_ctx_clean_data@Base 1.9.1
