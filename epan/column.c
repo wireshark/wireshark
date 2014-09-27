@@ -450,18 +450,6 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     return "";
 }
 
-/* Returns the longer string of the column title or the hard-coded width of
- * its contents for building the packet list layout. */
-const gchar *
-get_column_width_string(const gint format, const gint col)
-{
-    if(strlen(get_column_longest_string(format)) >
-       strlen(get_column_title(col)))
-        return get_column_longest_string(format);
-    else
-        return get_column_title(col);
-}
-
 /* Returns a string representing the longest possible value for a
    particular column type.  See also get_column_width_string() above.
 
@@ -474,7 +462,7 @@ get_column_width_string(const gint format, const gint col)
    is done, and given that the width for COL...SRC and COL...DST columns
    is somewhat arbitrary in any case.  We should probably clean
    that up eventually, though. */
-const char *
+static const char *
 get_column_longest_string(const gint format)
 {
   switch (format) {
@@ -618,6 +606,18 @@ get_column_longest_string(const gint format)
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
   }
+}
+
+/* Returns the longer string of the column title or the hard-coded width of
+ * its contents for building the packet list layout. */
+const gchar *
+get_column_width_string(const gint format, const gint col)
+{
+    if(strlen(get_column_longest_string(format)) >
+       strlen(get_column_title(col)))
+        return get_column_longest_string(format);
+    else
+        return get_column_title(col);
 }
 
 /* Returns the longest possible width, in characters, for a particular
