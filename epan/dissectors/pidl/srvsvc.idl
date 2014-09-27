@@ -14,8 +14,8 @@
   helpstring("Server Service")
 ] interface srvsvc
 {
-	declare bitmap svcctl_ServerType;
-	declare bitmap security_secinfo;
+	typedef bitmap svcctl_ServerType svcctl_ServerType;
+	typedef bitmap security_secinfo security_secinfo;
 
 /**************************/
 /* srvsvc_NetCharDev      */

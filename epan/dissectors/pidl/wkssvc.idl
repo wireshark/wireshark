@@ -14,7 +14,7 @@ import "srvsvc.idl", "lsa.idl";
   endpoint("ncacn_np:[\\pipe\\wkssvc]","ncacn_ip_tcp:","ncalrpc:")
 ] interface wkssvc
 {
-	declare [v1_enum] enum srvsvc_PlatformId;
+	typedef [v1_enum] enum srvsvc_PlatformId srvsvc_PlatformId;
 
 #define BOOL uint32
 
