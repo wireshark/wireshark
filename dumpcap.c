@@ -714,6 +714,31 @@ open_capture_device(interface_options *interface_opts,
             pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
             pcap_set_timeout(pcap_h, CAP_READ_TIMEOUT);
 
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
+            /*
+             * If we're writing pcap-ng files, try to enable
+             * nanosecond-resolution capture; any code that
+             * can read pcap-ng files must be able to handle
+             * nanosecond-resolution time stamps.
+             *
+             * If we're writing pcap files, don't try to enable
+             * nanosecond-resolution capture, as not all code
+             * that reads pcap files recognizes the nanosecond-
+             * resolution pcap file magic number.
+             */
+            if (capture_opts->use_pcapng) {
+                /*
+                 * The only errors this is documenting as returning
+                 * are PCAP_ERROR_TSTAMP_PRECISION_NOTSUP, which just
+                 * means we can't do nanosecond precision on this adapter,
+                 * in which case we just live with whatever resolution
+                 * we get by default, and PCAP_ERROR_ACTIVATED, which
+                 * can't happen as we haven't activated the pcap_t yet.
+                 */
+                pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
+            }
+#endif
+
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
                   "buffersize %d.", interface_opts->buffer_size);
             if (interface_opts->buffer_size != 0) {
@@ -2638,6 +2663,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
         if (pcap_opts->pcap_h != NULL) {
             /* we've opened "iface" as a network device */
+
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
+            /* Find out if we're getting nanosecond-precision time stamps */
+            pcap_opts->ts_nsec = pcap_get_tstamp_precision(pcap_opts->pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
+#endif
+
 #ifdef _WIN32
             /* try to set the capture buffer size */
             if (interface_opts.buffer_size > 1 &&
