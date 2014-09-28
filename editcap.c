@@ -123,7 +123,6 @@ static int       cur_dup_entry = 0;
 
 static int       ignored_bytes  = 0;  /* Used with -I */
 
-#define ONE_MILLION    1000000
 #define ONE_BILLION 1000000000
 
 /* Weights of different errors we can introduce */
@@ -140,7 +139,7 @@ static int       ignored_bytes  = 0;  /* Used with -I */
 #define ALNUM_LEN       (sizeof(ALNUM_CHARS) - 1)
 
 struct time_adjustment {
-    struct timeval tv;
+    nstime_t tv;
     int is_negative;
 };
 
@@ -363,18 +362,18 @@ set_time_adjustment(char *optarg_str_p)
             exit(1);
         }
     }
-    time_adj.tv.tv_sec = val;
+    time_adj.tv.secs = val;
 
     /* now collect the partial seconds, if any */
     if (*frac != '\0') {             /* chars left, so get fractional part */
         val = strtol(&(frac[1]), &end, 10);
-        /* if more than 6 fractional digits truncate to 6 */
-        if ((end - &(frac[1])) > 6) {
-            frac[7] = 't'; /* 't' for truncate */
+        /* if more than 9 fractional digits truncate to 9 */
+        if ((end - &(frac[1])) > 9) {
+            frac[10] = 't'; /* 't' for truncate */
             val = strtol(&(frac[1]), &end, 10);
         }
         if (*frac != '.' || end == NULL || end == frac || val < 0
-            || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
+            || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
             exit(1);
@@ -384,15 +383,15 @@ set_time_adjustment(char *optarg_str_p)
     }
 
     /* adjust fractional portion from fractional to numerator
-     * e.g., in "1.5" from 5 to 500000 since .5*10^6 = 500000 */
+     * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
     if (frac && end) {            /* both are valid */
         frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
-        while(frac_digits < 6) {    /* this is frac of 10^6 */
+        while(frac_digits < 9) {    /* this is frac of 10^9 */
             val *= 10;
             frac_digits++;
         }
     }
-    time_adj.tv.tv_usec = (int)val;
+    time_adj.tv.nsecs = (int)val;
 }
 
 static void
@@ -437,18 +436,18 @@ set_strict_time_adj(char *optarg_str_p)
             exit(1);
         }
     }
-    strict_time_adj.tv.tv_sec = val;
+    strict_time_adj.tv.secs = val;
 
     /* now collect the partial seconds, if any */
     if (*frac != '\0') {             /* chars left, so get fractional part */
         val = strtol(&(frac[1]), &end, 10);
-        /* if more than 6 fractional digits truncate to 6 */
-        if ((end - &(frac[1])) > 6) {
-            frac[7] = 't'; /* 't' for truncate */
+        /* if more than 9 fractional digits truncate to 9 */
+        if ((end - &(frac[1])) > 9) {
+            frac[10] = 't'; /* 't' for truncate */
             val = strtol(&(frac[1]), &end, 10);
         }
         if (*frac != '.' || end == NULL || end == frac || val < 0
-            || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
+            || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
             exit(1);
@@ -458,15 +457,15 @@ set_strict_time_adj(char *optarg_str_p)
     }
 
     /* adjust fractional portion from fractional to numerator
-     * e.g., in "1.5" from 5 to 500000 since .5*10^6 = 500000 */
+     * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
     if (frac && end) {            /* both are valid */
         frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
-        while(frac_digits < 6) {    /* this is frac of 10^6 */
+        while(frac_digits < 9) {    /* this is frac of 10^9 */
             val *= 10;
             frac_digits++;
         }
     }
-    strict_time_adj.tv.tv_usec = (int)val;
+    strict_time_adj.tv.nsecs = (int)val;
 }
 
 static void
@@ -1462,14 +1461,14 @@ main(int argc, char *argv[])
                                      */
                                     /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
                                     snap_phdr = *phdr;
-                                    snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
+                                    snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
                                     snap_phdr.ts.nsecs = previous_time.nsecs;
-                                    if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                                    if (snap_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                         /* carry */
                                         snap_phdr.ts.secs++;
-                                        snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                                        snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                     } else {
-                                        snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+                                        snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
                                     }
                                     phdr = &snap_phdr;
                                 }
@@ -1480,14 +1479,14 @@ main(int argc, char *argv[])
                                  * packet's timestamp plus delta.
                                  */
                                 snap_phdr = *phdr;
-                                snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
+                                snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
                                 snap_phdr.ts.nsecs = previous_time.nsecs;
-                                if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                                if (snap_phdr.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
                                     /* carry */
                                     snap_phdr.ts.secs++;
-                                    snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                                    snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
                                 } else {
-                                    snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+                                    snap_phdr.ts.nsecs += strict_time_adj.tv.nsecs;
                                 }
                                 phdr = &snap_phdr;
                             }
@@ -1498,32 +1497,32 @@ main(int argc, char *argv[])
 
                     /* assume that if the frame's tv_sec is 0, then
                      * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.tv_sec != 0) {
+                    if (phdr->ts.secs > 0 && time_adj.tv.secs != 0) {
                         snap_phdr = *phdr;
                         if (time_adj.is_negative)
-                            snap_phdr.ts.secs -= time_adj.tv.tv_sec;
+                            snap_phdr.ts.secs -= time_adj.tv.secs;
                         else
-                            snap_phdr.ts.secs += time_adj.tv.tv_sec;
+                            snap_phdr.ts.secs += time_adj.tv.secs;
                         phdr = &snap_phdr;
                     }
 
                     /* assume that if the frame's tv_sec is 0, then
                      * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.tv_usec != 0) {
+                    if (phdr->ts.secs > 0 && time_adj.tv.nsecs != 0) {
                         snap_phdr = *phdr;
                         if (time_adj.is_negative) { /* subtract */
-                            if (snap_phdr.ts.nsecs/1000 < time_adj.tv.tv_usec) { /* borrow */
+                            if (snap_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
                                 snap_phdr.ts.secs--;
-                                snap_phdr.ts.nsecs += ONE_MILLION * 1000;
+                                snap_phdr.ts.nsecs += ONE_BILLION;
                             }
-                            snap_phdr.ts.nsecs -= time_adj.tv.tv_usec * 1000;
+                            snap_phdr.ts.nsecs -= time_adj.tv.nsecs;
                         } else {                  /* add */
-                            if (snap_phdr.ts.nsecs + time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                            if (snap_phdr.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
                                 /* carry */
                                 snap_phdr.ts.secs++;
-                                snap_phdr.ts.nsecs += (time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                                snap_phdr.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
                             } else {
-                                snap_phdr.ts.nsecs += time_adj.tv.tv_usec * 1000;
+                                snap_phdr.ts.nsecs += time_adj.tv.nsecs;
                             }
                         }
                         phdr = &snap_phdr;
