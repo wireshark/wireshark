@@ -395,7 +395,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		 * Version 1.x of the file format supports
 		 * millisecond precision.
 		 */
-		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+		wth->file_tsprec = WTAP_TSPREC_MSEC;
 		break;
 
 	case 2:
@@ -405,7 +405,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		 * currently support that, so say
 		 * "nanosecond precision" for now.
 		 */
-		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wth->file_tsprec = WTAP_TSPREC_NSEC;
 		break;
 	}
 	return 1;

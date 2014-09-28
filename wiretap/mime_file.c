@@ -204,7 +204,7 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
 	wth->file_encap = WTAP_ENCAP_MIME;
-	wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+	wth->file_tsprec = WTAP_TSPREC_SEC;
 	wth->subtype_read = mime_read;
 	wth->subtype_seek_read = mime_seek_read;
 	wth->snapshot_length = 0;

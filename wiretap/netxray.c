@@ -576,12 +576,12 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD:
 		ticks_per_sec = 1000.0;
-		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+		wth->file_tsprec = WTAP_TSPREC_MSEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0:
 		ticks_per_sec = 1000.0;
-		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+		wth->file_tsprec = WTAP_TSPREC_MSEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1:
@@ -592,7 +592,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * and older versions of Windows Sniffer.
 		 */
 		ticks_per_sec = 1000000.0;
-		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x:
@@ -749,9 +749,9 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * XXX - Seems reasonable to use nanosecs only if TPS >= 10M
 		 */
 		if (ticks_per_sec >= 1e7)
-			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+			wth->file_tsprec = WTAP_TSPREC_NSEC;
 		else
-			wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+			wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	default:

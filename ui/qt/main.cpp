@@ -1133,7 +1133,7 @@ int main(int argc, char *argv[])
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: timestamp types should be set elsewhere");
     timestamp_set_type(TS_RELATIVE);
-    timestamp_set_precision(TS_PREC_AUTO_USEC);
+    timestamp_set_precision(TS_PREC_AUTO);
     timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
 #ifdef HAVE_LIBPCAP

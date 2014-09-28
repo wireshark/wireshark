@@ -231,7 +231,7 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
 
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG_2_TS;
     wth->file_encap = WTAP_ENCAP_MPEG_2_TS;
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
     wth->subtype_read = mp2t_read;
     wth->subtype_seek_read = mp2t_seek_read;
     wth->snapshot_length = 0;

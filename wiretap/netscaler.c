@@ -781,7 +781,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         nstrace->nstrace_buf_offset = 0;
     }
 
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
     wth->phdr.ts.secs = nstrace->nspm_curtime;
     wth->phdr.ts.nsecs = 0;
 

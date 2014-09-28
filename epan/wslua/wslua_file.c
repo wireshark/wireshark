@@ -705,7 +705,7 @@ static CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean fir
     if (first_time) {
         /* XXX: need to do this? */
         wth->file_encap = WTAP_ENCAP_UNKNOWN;
-        wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+        wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
         wth->snapshot_length = 0;
     }
 
@@ -720,8 +720,8 @@ WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
         lua_pushstring(L,"CaptureInfo pointer is NULL!");
     } else {
         wtap *wth = fi->wth;
-        lua_pushfstring(L, "CaptureInfo: file_type_subtype=%d, snapshot_length=%d, pkt_encap=%d, tsprecision='%s'",
-            wth->file_type_subtype, wth->snapshot_length, wth->phdr.pkt_encap, wth->tsprecision);
+        lua_pushfstring(L, "CaptureInfo: file_type_subtype=%d, snapshot_length=%d, pkt_encap=%d, file_tsprec='%s'",
+            wth->file_type_subtype, wth->snapshot_length, wth->phdr.pkt_encap, wth->file_tsprec);
     }
 
     WSLUA_RETURN(1); /* String of debug information. */
@@ -747,8 +747,8 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,encap,wth->file_encap,int);
 
     See `wtap_file_tsprec` in `init.lua` for available precisions.
  */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,time_precision,wth->tsprecision);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->tsprecision,int);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,time_precision,wth->file_tsprec);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->file_tsprec,int);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_snapshot_length RW The maximum packet length that could be recorded.
 
@@ -979,7 +979,7 @@ WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
         lua_pushstring(L,"CaptureInfoConst pointer is NULL!");
     } else {
         wtap_dumper *wdh = fi->wdh;
-        lua_pushfstring(L, "CaptureInfoConst: file_type_subtype=%d, snaplen=%d, encap=%d, compressed=%d, tsprecision='%s'",
+        lua_pushfstring(L, "CaptureInfoConst: file_type_subtype=%d, snaplen=%d, encap=%d, compressed=%d, file_tsprec='%s'",
             wdh->file_type_subtype, wdh->snaplen, wdh->encap, wdh->compressed, wdh->tsprecision);
     }
 

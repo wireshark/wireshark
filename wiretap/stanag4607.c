@@ -197,7 +197,7 @@ int stanag4607_open(wtap *wth, int *err, gchar **err_info)
 
   wth->subtype_read = stanag4607_read;
   wth->subtype_seek_read = stanag4607_seek_read;
-  wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+  wth->file_tsprec = WTAP_TSPREC_MSEC;
 
   return 1;
 }

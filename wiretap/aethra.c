@@ -173,7 +173,7 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	wth->file_encap = WTAP_ENCAP_ISDN;
 	wth->snapshot_length = 0;	/* not available in header */
-	wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+	wth->file_tsprec = WTAP_TSPREC_MSEC;
 	return 1;
 }
 

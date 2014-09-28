@@ -1001,7 +1001,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     wth->subtype_seek_read = k12_seek_read;
     wth->subtype_close = k12_close;
     wth->priv = (void *)file_data;
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
 
     return 1;
 }

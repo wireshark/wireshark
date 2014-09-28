@@ -245,7 +245,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_close = NULL;
     wth->subtype_sequential_close = NULL;
     wth->snapshot_length = 0;    /* not available in header */
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETWORK_INSTRUMENTS;
 
     /* reset the pointer to the first packet */

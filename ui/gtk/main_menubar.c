@@ -638,11 +638,7 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
     value = gtk_radio_action_get_current_value (action);
     if (recent.gui_time_precision != value) {
         /* the actual precision will be set in packet_list_queue_draw() below */
-        if (value == TS_PREC_AUTO) {
-            timestamp_set_precision(TS_PREC_AUTO_SEC);
-        } else {
-            timestamp_set_precision(value);
-        }
+        timestamp_set_precision(value);
         recent.gui_time_precision  = value;
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
@@ -1804,7 +1800,7 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_entries [] =
 {
     /* name, stock id, label, accel, tooltip,  value */
-    { "/View/TimeDisplayFormat/FileFormatPrecision-Automatic",      NULL, "Automatic (File Format Precision)",  NULL, NULL, TS_PREC_AUTO },
+    { "/View/TimeDisplayFormat/FileFormatPrecision-Automatic",      NULL, "Automatic (use precision indicated in the file)",  NULL, NULL, TS_PREC_AUTO },
     { "/View/TimeDisplayFormat/FileFormatPrecision-Seconds",        NULL, "Seconds:   0",                       NULL, NULL, TS_PREC_FIXED_SEC },
     { "/View/TimeDisplayFormat/FileFormatPrecision-Deciseconds",    NULL, "Deciseconds:   0.1",                 NULL, NULL, TS_PREC_FIXED_DSEC },
     { "/View/TimeDisplayFormat/FileFormatPrecision-Centiseconds",   NULL, "Centiseconds:  0.12",                NULL, NULL, TS_PREC_FIXED_CSEC },
@@ -4773,8 +4769,8 @@ menu_recent_read_finished(void)
     cf_timestamp_auto_precision(&cfile);
     packet_list_queue_draw();
     /* the actual precision will be set in packet_list_queue_draw() below */
-    if (recent.gui_time_precision == TS_PREC_AUTO) {
-        timestamp_set_precision(TS_PREC_AUTO_SEC);
+    if (recent.gui_time_precision > TS_PREC_FIXED_NSEC) {
+        timestamp_set_precision(TS_PREC_AUTO);
     } else {
         timestamp_set_precision(recent.gui_time_precision);
     }

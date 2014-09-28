@@ -128,7 +128,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 
 	wth->subtype_read = hcidump_read;
 	wth->subtype_seek_read = hcidump_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_tsprec = WTAP_TSPREC_USEC;
 
 	return 1;
 }

@@ -290,7 +290,7 @@ good_magic:
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG;
 	wth->file_encap = WTAP_ENCAP_MPEG;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->file_tsprec = WTAP_TSPREC_NSEC;
 	wth->subtype_read = mpeg_read;
 	wth->subtype_seek_read = mpeg_seek_read;
 	wth->snapshot_length = 0;

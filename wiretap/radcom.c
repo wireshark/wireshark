@@ -164,7 +164,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = radcom_read;
 	wth->subtype_seek_read = radcom_seek_read;
 	wth->snapshot_length = 0; /* not available in header, only in frame */
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_tsprec = WTAP_TSPREC_USEC;
 
 #if 0
 	tm.tm_year = pletoh16(&start_date.year)-1900;

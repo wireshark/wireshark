@@ -122,7 +122,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either standard or ss990417 libpcap. */
 		byte_swapped = FALSE;
 		modified = FALSE;
-		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	case PCAP_MODIFIED_MAGIC:
@@ -130,7 +130,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either ss990915 or ss991029 libpcap. */
 		byte_swapped = FALSE;
 		modified = TRUE;
-		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	case PCAP_SWAPPED_MAGIC:
@@ -139,7 +139,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   ss990417 libpcap. */
 		byte_swapped = TRUE;
 		modified = FALSE;
-		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	case PCAP_SWAPPED_MODIFIED_MAGIC:
@@ -148,7 +148,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   or ss991029 libpcap. */
 		byte_swapped = TRUE;
 		modified = TRUE;
-		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
 	case PCAP_NSEC_MAGIC:
@@ -157,7 +157,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   except that the time stamps have nanosecond resolution. */
 		byte_swapped = FALSE;
 		modified = FALSE;
-		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wth->file_tsprec = WTAP_TSPREC_NSEC;
 		break;
 
 	case PCAP_SWAPPED_NSEC_MAGIC:
@@ -167,7 +167,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   nanosecond resolution. */
 		byte_swapped = TRUE;
 		modified = FALSE;
-		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wth->file_tsprec = WTAP_TSPREC_NSEC;
 		break;
 
 	default:
@@ -326,7 +326,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * precision to nanosecond precision.
 		 */
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
-		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wth->file_tsprec = WTAP_TSPREC_NSEC;
 		return 1;
 	}
 
@@ -371,7 +371,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		subtypes = subtypes_modified;
 		n_subtypes = N_SUBTYPES_MODIFIED;
 	} else {
-		if (wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+		if (wth->file_tsprec == WTAP_TSPREC_NSEC) {
 			/*
 			 * We have nanosecond-format libpcap's magic
 			 * number.  Try the subtypes for that.
@@ -715,7 +715,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	/* Update the timestamp, if not already done */
 	if (wth->file_encap != WTAP_ENCAP_ERF) {
 		phdr->ts.secs = hdr.hdr.ts_sec;
-		if (wth->tsprecision == WTAP_FILE_TSPREC_NSEC)
+		if (wth->file_tsprec == WTAP_TSPREC_NSEC)
 			phdr->ts.nsecs = hdr.hdr.ts_usec;
 		else
 			phdr->ts.nsecs = hdr.hdr.ts_usec * 1000;
@@ -851,18 +851,18 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
 		magic = PCAP_MAGIC;
-		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wdh->tsprecision = WTAP_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:	/* new magic, extra crap */
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
 		magic = PCAP_MODIFIED_MAGIC;
-		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+		wdh->tsprecision = WTAP_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:		/* same as WTAP_FILE_TYPE_SUBTYPE_PCAP, but nsec precision */
 		magic = PCAP_NSEC_MAGIC;
-		wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wdh->tsprecision = WTAP_TSPREC_NSEC;
 		break;
 
 	default:
@@ -928,7 +928,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	}
 
 	rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
-	if(wdh->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+	if(wdh->tsprecision == WTAP_TSPREC_NSEC) {
 		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;
 	} else {
 		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;

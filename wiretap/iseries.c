@@ -248,7 +248,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
         wth->snapshot_length   = 0;
         wth->subtype_read      = iseries_read;
         wth->subtype_seek_read = iseries_seek_read;
-        wth->tsprecision       = WTAP_FILE_TSPREC_USEC;
+        wth->file_tsprec       = WTAP_TSPREC_USEC;
 
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
           {
@@ -288,7 +288,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
             wth->snapshot_length   = 0;
             wth->subtype_read      = iseries_read;
             wth->subtype_seek_read = iseries_seek_read;
-            wth->tsprecision       = WTAP_FILE_TSPREC_USEC;
+            wth->file_tsprec       = WTAP_TSPREC_USEC;
 
             if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
               {

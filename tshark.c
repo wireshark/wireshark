@@ -2082,31 +2082,6 @@ main(int argc, char *argv[])
       return 2;
     }
 
-    /* Set timestamp precision; there should arguably be a command-line
-       option to let the user set this. */
-    switch(wtap_file_tsprecision(cfile.wth)) {
-    case(WTAP_FILE_TSPREC_SEC):
-      timestamp_set_precision(TS_PREC_AUTO_SEC);
-      break;
-    case(WTAP_FILE_TSPREC_DSEC):
-      timestamp_set_precision(TS_PREC_AUTO_DSEC);
-      break;
-    case(WTAP_FILE_TSPREC_CSEC):
-      timestamp_set_precision(TS_PREC_AUTO_CSEC);
-      break;
-    case(WTAP_FILE_TSPREC_MSEC):
-      timestamp_set_precision(TS_PREC_AUTO_MSEC);
-      break;
-    case(WTAP_FILE_TSPREC_USEC):
-      timestamp_set_precision(TS_PREC_AUTO_USEC);
-      break;
-    case(WTAP_FILE_TSPREC_NSEC):
-      timestamp_set_precision(TS_PREC_AUTO_NSEC);
-      break;
-    default:
-      g_assert_not_reached();
-    }
-
     /* Process the packets in the file */
     TRY {
 #ifdef HAVE_LIBPCAP
@@ -2208,9 +2183,6 @@ main(int argc, char *argv[])
         return 2;
       }
     }
-
-    /* For now, assume libpcap gives microsecond precision. */
-    timestamp_set_precision(TS_PREC_AUTO_USEC);
 
     /*
      * XXX - this returns FALSE if an error occurred, but it also

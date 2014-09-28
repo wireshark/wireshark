@@ -353,7 +353,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	wth->snapshot_length   = 0; /* not available in header */
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_tsprec = WTAP_TSPREC_USEC;
 
 	return 1;
 }

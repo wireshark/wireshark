@@ -551,7 +551,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;
     wth->subtype_read = vwr_read;
     wth->subtype_seek_read = vwr_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->file_tsprec = WTAP_TSPREC_USEC;
     wth->file_encap = WTAP_ENCAP_IXVERIWAVE;
 
     if (fpgaVer == S2_W_FPGA || fpgaVer == S1_W_FPGA || fpgaVer == S3_W_FPGA)

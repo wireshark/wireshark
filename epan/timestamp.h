@@ -52,19 +52,13 @@ typedef enum {
 } ts_type;
 
 typedef enum {
-	TS_PREC_AUTO,		/* recent */
-	TS_PREC_FIXED_SEC,	/* recent and internal */
-	TS_PREC_FIXED_DSEC,	/* recent and internal */
-	TS_PREC_FIXED_CSEC,	/* recent and internal */
-	TS_PREC_FIXED_MSEC,	/* recent and internal */
-	TS_PREC_FIXED_USEC,	/* recent and internal */
-	TS_PREC_FIXED_NSEC,	/* recent and internal */
-	TS_PREC_AUTO_SEC,	/* internal */
-	TS_PREC_AUTO_DSEC,	/* internal */
-	TS_PREC_AUTO_CSEC,	/* internal */
-	TS_PREC_AUTO_MSEC,	/* internal */
-	TS_PREC_AUTO_USEC,	/* internal */
-	TS_PREC_AUTO_NSEC	/* internal */
+	TS_PREC_AUTO,
+	TS_PREC_FIXED_SEC,
+	TS_PREC_FIXED_DSEC,
+	TS_PREC_FIXED_CSEC,
+	TS_PREC_FIXED_MSEC,
+	TS_PREC_FIXED_USEC,
+	TS_PREC_FIXED_NSEC
 } ts_precision;
 
 typedef enum {

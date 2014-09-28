@@ -278,7 +278,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     /* all's good, this is a IPFIX file */
     wth->file_encap = WTAP_ENCAP_RAW_IPFIX;
     wth->snapshot_length = 0;
-    wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+    wth->file_tsprec = WTAP_TSPREC_SEC;
     wth->subtype_read = ipfix_read;
     wth->subtype_seek_read = ipfix_seek_read;
     wth->subtype_close = ipfix_close;

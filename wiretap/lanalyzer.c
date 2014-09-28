@@ -345,7 +345,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = lanalyzer_read;
 	wth->subtype_seek_read = lanalyzer_seek_read;
 	wth->snapshot_length = 0;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->file_tsprec = WTAP_TSPREC_NSEC;
 
 	/* Read records until we find the start of packets */
 	while (1) {

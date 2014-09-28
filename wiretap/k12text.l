@@ -343,7 +343,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->snapshot_length = 0;
 	wth->subtype_read = k12text_read;
 	wth->subtype_seek_read = k12text_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->file_tsprec = WTAP_TSPREC_NSEC;
 
 	return 1;
 }

@@ -162,9 +162,9 @@ wtap_file_encap(wtap *wth)
 }
 
 int
-wtap_file_tsprecision(wtap *wth)
+wtap_file_tsprec(wtap *wth)
 {
-	return wth->tsprecision;
+	return wth->file_tsprec;
 }
 
 wtapng_section_t *
@@ -996,8 +996,11 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 * capture file type doesn't have to set it), and if it
 	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
 	 * anyway.
+	 *
+	 * Do the same for the packet time stamp resolution.
 	 */
 	wth->phdr.pkt_encap = wth->file_encap;
+	wth->phdr.pkt_tsprec = wth->file_tsprec;
 
 	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
 		/*

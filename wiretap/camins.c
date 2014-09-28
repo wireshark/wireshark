@@ -348,7 +348,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
 
    wth->file_encap = WTAP_ENCAP_DVBCI;
    wth->snapshot_length = 0;
-   wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+   wth->file_tsprec = WTAP_TSPREC_MSEC;
 
    wth->priv = NULL;
 

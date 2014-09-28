@@ -261,7 +261,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_close = catapult_dct2000_close;
 
     /* Choose microseconds (have 4 decimal places...) */
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->file_tsprec = WTAP_TSPREC_USEC;
 
 
     /***************************************************************/

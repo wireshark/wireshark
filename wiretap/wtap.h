@@ -353,12 +353,14 @@ extern "C" {
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
 /* timestamp precision (currently only these values are supported) */
-#define WTAP_FILE_TSPREC_SEC        0
-#define WTAP_FILE_TSPREC_DSEC       1
-#define WTAP_FILE_TSPREC_CSEC       2
-#define WTAP_FILE_TSPREC_MSEC       3
-#define WTAP_FILE_TSPREC_USEC       6
-#define WTAP_FILE_TSPREC_NSEC       9
+#define WTAP_TSPREC_UNKNOWN    -2
+#define WTAP_TSPREC_PER_PACKET -1  /* as a per-file value, means per-packet */
+#define WTAP_TSPREC_SEC         0
+#define WTAP_TSPREC_DSEC        1
+#define WTAP_TSPREC_CSEC        2
+#define WTAP_TSPREC_MSEC        3
+#define WTAP_TSPREC_USEC        6
+#define WTAP_TSPREC_NSEC        9
 
 /*
  * Maximum packet size we'll support.
@@ -969,7 +971,8 @@ struct wtap_pkthdr {
     nstime_t            ts;
     guint32             caplen;         /* data length in the file */
     guint32             len;            /* data length on the wire */
-    int                 pkt_encap;
+    int                 pkt_encap;      /* WTAP_ENCAP_ value for this packet */
+    int                 pkt_tsprec;     /* WTAP_TSPREC_ value for this packet */
                                         /* pcapng variables */
     guint32             interface_id;   /* identifier of the interface. */
                                         /* options */
@@ -1112,6 +1115,7 @@ typedef struct wtapng_iface_descriptions_s {
 typedef struct wtapng_if_descr_s {
     int                    wtap_encap;            /**< link_type translated to wtap_encap */
     guint64                time_units_per_second;
+    int                    tsprecision;           /**< WTAP_TSPREC_ value for this interface */
 
     /* mandatory */
     guint16                link_type;
@@ -1431,7 +1435,7 @@ int wtap_file_type_subtype(wtap *wth);
 WS_DLL_PUBLIC
 int wtap_file_encap(wtap *wth);
 WS_DLL_PUBLIC
-int wtap_file_tsprecision(wtap *wth);
+int wtap_file_tsprec(wtap *wth);
 WS_DLL_PUBLIC
 wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
 WS_DLL_PUBLIC

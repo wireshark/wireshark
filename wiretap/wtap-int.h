@@ -68,10 +68,18 @@ struct wtap {
     int                         file_encap;    /* per-file, for those
                                                 * file formats that have
                                                 * per-file encapsulation
-                                                * types
+                                                * types rather than per-packet
+                                                * encapsulation types
                                                 */
-    int                         tsprecision;   /* timestamp precision of the lower 32bits
-                                                * e.g. WTAP_FILE_TSPREC_USEC
+    int                         file_tsprec;   /* per-file timestamp precision
+                                                * of the fractional part of
+                                                * the time stamp, for those
+                                                * file formats that have
+                                                * per-file timestamp
+                                                * precision rather than
+                                                * per-packet timestamp
+                                                * precision
+                                                * e.g. WTAP_TSPREC_USEC
                                                 */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
@@ -105,7 +113,7 @@ struct wtap_dumper {
     subtype_close_func      subtype_close;
 
     int                     tsprecision;    /**< timestamp precision of the lower 32bits
-                                             * e.g. WTAP_FILE_TSPREC_USEC
+                                             * e.g. WTAP_TSPREC_USEC
                                              */
     addrinfo_lists_t        *addrinfo_lists;        /**< Struct containing lists of resolved addresses */
     struct wtapng_section_s *shb_hdr;

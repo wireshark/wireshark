@@ -181,7 +181,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = dct3trace_read;
 	wth->subtype_seek_read = dct3trace_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+	wth->file_tsprec = WTAP_TSPREC_SEC;
 
 	return 1;
 }

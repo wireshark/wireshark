@@ -68,13 +68,13 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info)
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0;
 		wth->subtype_read = iptrace_read_1_0;
 		wth->subtype_seek_read = iptrace_seek_read_1_0;
-		wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+		wth->file_tsprec = WTAP_TSPREC_SEC;
 	}
 	else if (strcmp(name, "iptrace 2.0") == 0) {
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0;
 		wth->subtype_read = iptrace_read_2_0;
 		wth->subtype_seek_read = iptrace_seek_read_2_0;
-		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		wth->file_tsprec = WTAP_TSPREC_NSEC;
 	}
 	else {
 		return 0;

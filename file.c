@@ -217,46 +217,12 @@ void
 cf_timestamp_auto_precision(capture_file *cf)
 {
   int i;
-  int prec = timestamp_get_precision();
-
 
   /* don't try to get the file's precision if none is opened */
   if (cf->state == FILE_CLOSED) {
     return;
   }
 
-  /* if we are in auto mode, set precision of current file */
-  if (prec == TS_PREC_AUTO ||
-     prec == TS_PREC_AUTO_SEC ||
-     prec == TS_PREC_AUTO_DSEC ||
-     prec == TS_PREC_AUTO_CSEC ||
-     prec == TS_PREC_AUTO_MSEC ||
-     prec == TS_PREC_AUTO_USEC ||
-     prec == TS_PREC_AUTO_NSEC)
-  {
-    switch(wtap_file_tsprecision(cf->wth)) {
-    case(WTAP_FILE_TSPREC_SEC):
-      timestamp_set_precision(TS_PREC_AUTO_SEC);
-      break;
-    case(WTAP_FILE_TSPREC_DSEC):
-      timestamp_set_precision(TS_PREC_AUTO_DSEC);
-      break;
-    case(WTAP_FILE_TSPREC_CSEC):
-      timestamp_set_precision(TS_PREC_AUTO_CSEC);
-      break;
-    case(WTAP_FILE_TSPREC_MSEC):
-      timestamp_set_precision(TS_PREC_AUTO_MSEC);
-      break;
-    case(WTAP_FILE_TSPREC_USEC):
-      timestamp_set_precision(TS_PREC_AUTO_USEC);
-      break;
-    case(WTAP_FILE_TSPREC_NSEC):
-      timestamp_set_precision(TS_PREC_AUTO_NSEC);
-      break;
-    default:
-      g_assert_not_reached();
-    }
-  }
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {

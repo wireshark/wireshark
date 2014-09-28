@@ -272,7 +272,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
   wth->subtype_read = erf_read;
   wth->subtype_seek_read = erf_seek_read;
-  wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+  wth->file_tsprec = WTAP_TSPREC_NSEC;
 
   erf_populate_interfaces(wth);
 
@@ -714,7 +714,7 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
 
   switch(wdh->file_type_subtype){
     case WTAP_FILE_TYPE_SUBTYPE_ERF:
-      wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
+      wdh->tsprecision = WTAP_TSPREC_NSEC;
       break;
     default:
       *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;

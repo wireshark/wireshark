@@ -345,7 +345,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = file_encap;
     wth->subtype_read = peektagged_read;
     wth->subtype_seek_read = peektagged_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
 
     peektagged = (peektagged_t *)g_malloc(sizeof(peektagged_t));
     wth->priv = (void *)peektagged;

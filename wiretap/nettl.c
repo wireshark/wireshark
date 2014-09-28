@@ -282,7 +282,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
 	return -1;
     }
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->file_tsprec = WTAP_TSPREC_USEC;
 
     return 1;
 }

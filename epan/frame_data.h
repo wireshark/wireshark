@@ -77,6 +77,7 @@ typedef struct _frame_data {
     unsigned int has_phdr_comment : 1; /** 1 = there's comment for this packet */
     unsigned int has_user_comment : 1; /** 1 = user set (also deleted) comment for this packet */
   } flags;
+  gint16       tsprec;       /**< Time stamp precision */
 
   const void *color_filter;  /**< Per-packet matching color_filter_t object */
 

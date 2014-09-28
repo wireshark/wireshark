@@ -824,7 +824,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
 

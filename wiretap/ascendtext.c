@@ -217,7 +217,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
   }
   ascend->inittime = statbuf.st_ctime;
   ascend->adjusted = FALSE;
-  wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+  wth->file_tsprec = WTAP_TSPREC_USEC;
 
   init_parse_ascend();
 

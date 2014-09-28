@@ -190,7 +190,7 @@ int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0;	/* not known */
 	wth->subtype_read = dbs_etherwatch_read;
 	wth->subtype_seek_read = dbs_etherwatch_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+	wth->file_tsprec = WTAP_TSPREC_CSEC;
 
 	return 1;
 }

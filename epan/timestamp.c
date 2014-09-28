@@ -28,7 +28,7 @@
  * and distinguish it from a command line value */
 static ts_type timestamp_type = TS_NOT_SET;
 
-static int timestamp_precision = TS_PREC_AUTO_USEC;
+static int timestamp_precision = TS_PREC_AUTO;
 
 static ts_seconds_type timestamp_seconds_type = TS_SECONDS_NOT_SET;
 

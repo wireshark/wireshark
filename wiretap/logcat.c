@@ -277,7 +277,7 @@ int logcat_open(wtap *wth, int *err, gchar **err_info _U_)
 
     wth->subtype_read = logcat_read;
     wth->subtype_seek_read = logcat_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->file_tsprec = WTAP_TSPREC_USEC;
 
     return 1;
 }
@@ -332,7 +332,7 @@ gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
     switch (wdh->encap) {
         case WTAP_ENCAP_LOGCAT:
         case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
-            wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+            wdh->tsprecision = WTAP_TSPREC_USEC;
             break;
 
         default:

@@ -310,7 +310,7 @@ int logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
 
     wth->subtype_read = logcat_text_read;
     wth->subtype_seek_read = logcat_text_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->file_tsprec = WTAP_TSPREC_USEC;
     return 1;
 }
 

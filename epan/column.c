@@ -286,28 +286,23 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     case(TS_ABSOLUTE_WITH_YMD):
     case(TS_UTC_WITH_YMD):
         switch(precision) {
-            case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
                 return "0000-00-00 00:00:00";
                 break;
-            case(TS_PREC_AUTO_DSEC):
             case(TS_PREC_FIXED_DSEC):
                 return "0000-00-00 00:00:00.0";
                 break;
-            case(TS_PREC_AUTO_CSEC):
             case(TS_PREC_FIXED_CSEC):
                 return "0000-00-00 00:00:00.00";
                 break;
-            case(TS_PREC_AUTO_MSEC):
             case(TS_PREC_FIXED_MSEC):
                 return "0000-00-00 00:00:00.000";
                 break;
-            case(TS_PREC_AUTO_USEC):
             case(TS_PREC_FIXED_USEC):
                 return "0000-00-00 00:00:00.000000";
                 break;
-            case(TS_PREC_AUTO_NSEC):
             case(TS_PREC_FIXED_NSEC):
+            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
                 return "0000-00-00 00:00:00.000000000";
                 break;
             default:
@@ -317,28 +312,23 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     case(TS_ABSOLUTE_WITH_YDOY):
     case(TS_UTC_WITH_YDOY):
         switch(precision) {
-            case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
                 return "0000/000 00:00:00";
                 break;
-            case(TS_PREC_AUTO_DSEC):
             case(TS_PREC_FIXED_DSEC):
                 return "0000/000 00:00:00.0";
                 break;
-            case(TS_PREC_AUTO_CSEC):
             case(TS_PREC_FIXED_CSEC):
                 return "0000/000 00:00:00.00";
                 break;
-            case(TS_PREC_AUTO_MSEC):
             case(TS_PREC_FIXED_MSEC):
                 return "0000/000 00:00:00.000";
                 break;
-            case(TS_PREC_AUTO_USEC):
             case(TS_PREC_FIXED_USEC):
                 return "0000/000 00:00:00.000000";
                 break;
-            case(TS_PREC_AUTO_NSEC):
             case(TS_PREC_FIXED_NSEC):
+            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
                 return "0000/000 00:00:00.000000000";
                 break;
             default:
@@ -348,28 +338,23 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     case(TS_ABSOLUTE):
     case(TS_UTC):
         switch(precision) {
-            case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
                 return "00:00:00";
                 break;
-            case(TS_PREC_AUTO_DSEC):
             case(TS_PREC_FIXED_DSEC):
                 return "00:00:00.0";
                 break;
-            case(TS_PREC_AUTO_CSEC):
             case(TS_PREC_FIXED_CSEC):
                 return "00:00:00.00";
                 break;
-            case(TS_PREC_AUTO_MSEC):
             case(TS_PREC_FIXED_MSEC):
                 return "00:00:00.000";
                 break;
-            case(TS_PREC_AUTO_USEC):
             case(TS_PREC_FIXED_USEC):
                 return "00:00:00.000000";
                 break;
-            case(TS_PREC_AUTO_NSEC):
             case(TS_PREC_FIXED_NSEC):
+            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
                 return "00:00:00.000000000";
                 break;
             default:
@@ -380,28 +365,23 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     case(TS_DELTA):
     case(TS_DELTA_DIS):
         switch(precision) {
-            case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
                 return "0000";
                 break;
-            case(TS_PREC_AUTO_DSEC):
             case(TS_PREC_FIXED_DSEC):
                 return "0000.0";
                 break;
-            case(TS_PREC_AUTO_CSEC):
             case(TS_PREC_FIXED_CSEC):
                 return "0000.00";
                 break;
-            case(TS_PREC_AUTO_MSEC):
             case(TS_PREC_FIXED_MSEC):
                 return "0000.000";
                 break;
-            case(TS_PREC_AUTO_USEC):
             case(TS_PREC_FIXED_USEC):
                 return "0000.000000";
                 break;
-            case(TS_PREC_AUTO_NSEC):
             case(TS_PREC_FIXED_NSEC):
+            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
                 return "0000.000000000";
                 break;
             default:
@@ -411,28 +391,23 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
     case(TS_EPOCH):
         /* This is enough to represent 2^63 (signed 64-bit integer) + fractions */
         switch(precision) {
-            case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
                 return "0000000000000000000";
                 break;
-            case(TS_PREC_AUTO_DSEC):
             case(TS_PREC_FIXED_DSEC):
                 return "0000000000000000000.0";
                 break;
-            case(TS_PREC_AUTO_CSEC):
             case(TS_PREC_FIXED_CSEC):
                 return "0000000000000000000.00";
                 break;
-            case(TS_PREC_AUTO_MSEC):
             case(TS_PREC_FIXED_MSEC):
                 return "0000000000000000000.000";
                 break;
-            case(TS_PREC_AUTO_USEC):
             case(TS_PREC_FIXED_USEC):
                 return "0000000000000000000.000000";
                 break;
-            case(TS_PREC_AUTO_NSEC):
             case(TS_PREC_FIXED_NSEC):
+            case(TS_PREC_AUTO):    /* Leave enough room for the maximum */
                 return "0000000000000000000.000000000";
                 break;
             default:

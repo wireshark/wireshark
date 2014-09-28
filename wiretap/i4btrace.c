@@ -104,7 +104,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	i4btrace->byte_swapped = byte_swapped;
 
 	wth->file_encap = WTAP_ENCAP_ISDN;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_tsprec = WTAP_TSPREC_USEC;
 
 	return 1;
 }
