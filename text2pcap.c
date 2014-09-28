@@ -255,7 +255,7 @@ static guint64 bytes_written       = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static time_t   ts_sec  = 0;
-static guint32  ts_usec = 0;
+static guint32  ts_nsec = 0;
 static char    *ts_fmt  = NULL;
 static struct tm timecode_default;
 
@@ -878,15 +878,15 @@ write_current_packet (gboolean cont)
         if (use_pcapng) {
             success = pcapng_write_enhanced_packet_block(output_file,
                                                          NULL,
-                                                         ts_sec, ts_usec,
+                                                         ts_sec, ts_nsec,
                                                          length, length,
                                                          0,
-                                                         1000000,
+                                                         1000000000,
                                                          packet_buf, direction,
                                                          &bytes_written, &err);
         } else {
             success = libpcap_write_packet(output_file,
-                                           ts_sec, ts_usec,
+                                           ts_sec, ts_nsec/1000,
                                            length, length,
                                            packet_buf,
                                            &bytes_written, &err);
@@ -898,7 +898,10 @@ write_current_packet (gboolean cont)
         }
         if (ts_fmt == NULL) {
             /* fake packet counter */
-            ts_usec++;
+            if (use_pcapng)
+                ts_nsec++;
+            else
+                ts_nsec += 1000;
         }
         if (!quiet) {
             fprintf(stderr, "Wrote packet of %u bytes.\n", length);
@@ -948,12 +951,13 @@ write_file_header (void)
                                                                PCAP_SNAPLEN,
                                                                &bytes_written,
                                                                0,
-                                                               6,
+                                                               9,
                                                                &err);
         }
     } else {
-        success = libpcap_write_file_header(output_file, pcap_link_type, PCAP_SNAPLEN,
-                                            FALSE, &bytes_written, &err);
+        success = libpcap_write_file_header(output_file, pcap_link_type,
+                                            PCAP_SNAPLEN, FALSE,
+                                            &bytes_written, &err);
     }
     if (!success) {
         fprintf(stderr, "File write error [%s] : %s\n",
@@ -1084,7 +1088,7 @@ parse_preamble (void)
      */
 
     timecode = timecode_default;
-    ts_usec = 0;
+    ts_nsec = 0;
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
@@ -1112,34 +1116,34 @@ parse_preamble (void)
                     timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
             }
             ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-            ts_usec = 0;
+            ts_nsec = 0;
         } else {
             /* Parse subseconds */
-            ts_usec = (guint32)strtol(subsecs, &p, 10);
+            ts_nsec = (guint32)strtol(subsecs, &p, 10);
             if (subsecs == p) {
                 /* Error */
-                ts_usec = 0;
+                ts_nsec = 0;
             } else {
                 /*
                  * Convert that number to a number
                  * of microseconds; if it's N digits
                  * long, it's in units of 10^(-N) seconds,
                  * so, to convert it to units of
-                 * 10^-6 seconds, we multiply by
-                 * 10^(6-N).
+                 * 10^-9 seconds, we multiply by
+                 * 10^(9-N).
                  */
                 subseclen = (int) (p - subsecs);
-                if (subseclen > 6) {
+                if (subseclen > 9) {
                     /*
-                     * *More* than 6 digits; 6-N is
+                     * *More* than 9 digits; 9-N is
                      * negative, so we divide by
-                     * 10^(N-6).
+                     * 10^(N-9).
                      */
-                    for (i = subseclen - 6; i != 0; i--)
-                        ts_usec /= 10;
-                } else if (subseclen < 6) {
-                    for (i = 6 - subseclen; i != 0; i--)
-                        ts_usec *= 10;
+                    for (i = subseclen - 9; i != 0; i--)
+                        ts_nsec /= 10;
+                } else if (subseclen < 9) {
+                    for (i = 9 - subseclen; i != 0; i--)
+                        ts_nsec *= 10;
                 }
             }
         }
@@ -1148,7 +1152,7 @@ parse_preamble (void)
         char *c;
         while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
         fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
+        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
     }
 
 
