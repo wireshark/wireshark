@@ -8254,7 +8254,6 @@ int
 mapi_dissect_struct_Release_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
 	int old_offset;
 
 
@@ -8262,7 +8261,6 @@ mapi_dissect_struct_Release_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mapi_Release_req);
 	}
 	
 
@@ -8280,7 +8278,6 @@ int
 mapi_dissect_struct_Release_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
 	int old_offset;
 
 
@@ -8288,7 +8285,6 @@ mapi_dissect_struct_Release_repl(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mapi_Release_repl);
 	}
 	
 
@@ -8609,7 +8605,6 @@ int
 mapi_dissect_struct_RecipSMTP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
 	int old_offset;
 
 
@@ -8617,7 +8612,6 @@ mapi_dissect_struct_RecipSMTP(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mapi_RecipSMTP);
 	}
 	
 

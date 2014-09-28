@@ -664,7 +664,9 @@ sub Struct($$$$)
 	$self->indent;
 	$self->pidl_code($_) foreach (@$vars);
 	$self->pidl_code("proto_item *item = NULL;");
-	$self->pidl_code("proto_tree *tree = NULL;");
+	if($res) {
+		$self->pidl_code("proto_tree *tree = NULL;");
+	}
 	$self->pidl_code("int old_offset;");
 	$self->pidl_code("");
 
@@ -678,7 +680,9 @@ sub Struct($$$$)
 	$self->pidl_code("if (parent_tree) {");
 	$self->indent;
 	$self->pidl_code("item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);");
-	$self->pidl_code("tree = proto_item_add_subtree(item, ett_$ifname\_$name);");
+	if($res) {
+		$self->pidl_code("tree = proto_item_add_subtree(item, ett_$ifname\_$name);");
+	}
 	$self->deindent;
 	$self->pidl_code("}");
 
