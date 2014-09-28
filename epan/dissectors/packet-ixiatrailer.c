@@ -75,87 +75,87 @@ static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
 static int
 dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree *ti;
-    guint tvblen, trailer_length, time_length;
-    proto_tree *ixiatrailer_tree = NULL;
-    guint offset = 0;
-    guint16 cksum, comp_cksum;
-    vec_t vec;
-    guint8 source;
+  proto_tree *ti;
+  guint tvblen, trailer_length, time_length;
+  proto_tree *ixiatrailer_tree = NULL;
+  guint offset = 0;
+  guint16 cksum, comp_cksum;
+  vec_t vec;
+  guint8 source;
 
-    /* Need at least 5 bytes.  TODO: should be 15? */
-    tvblen = tvb_length(tvb);
-    if (tvblen < 5) {
-        return 0;
-    }
+  /* Need at least 5 bytes.  TODO: should be 15? */
+  tvblen = tvb_length(tvb);
+  if (tvblen < 5) {
+    return 0;
+  }
 
-    /* Depending upon the ethernet preference "Assume packets have FCS", we
-       may be given those 4 bytes too.  If we see 19 bytes, assume we are
-       getting them and only look at first 15. */
-    if (tvblen == 19) {
-        tvblen = 15;
-    }
+  /* Depending upon the ethernet preference "Assume packets have FCS", we
+     may be given those 4 bytes too.  If we see 19 bytes, assume we are
+     getting them and only look at first 15. */
+  if (tvblen == 19) {
+    tvblen = 15;
+  }
 
-    /* 3rd & 4th bytes from the end must match our pattern */
-    if (tvb_get_ntohs(tvb, tvblen-4) != IXIA_PATTERN) {
-        return 0;
-    }
+  /* 3rd & 4th bytes from the end must match our pattern */
+  if (tvb_get_ntohs(tvb, tvblen-4) != IXIA_PATTERN) {
+    return 0;
+  }
 
-    /* Read Trailer-length field */
-    trailer_length  = tvb_get_guint8(tvb, tvblen-5);
-    /* Should match overall length of trailer */
-    if ((tvblen-5) != trailer_length) {
-        return 0;
-    }
+  /* Read Trailer-length field */
+  trailer_length  = tvb_get_guint8(tvb, tvblen-5);
+  /* Should match overall length of trailer */
+  if ((tvblen-5) != trailer_length) {
+    return 0;
+  }
 
-    /* Last 2 bytes are the checksum */
-    cksum = tvb_get_ntohs(tvb, tvblen-2);
+  /* Last 2 bytes are the checksum */
+  cksum = tvb_get_ntohs(tvb, tvblen-2);
 
-    /* Verify the checksum; if not valid, it means that the trailer is not valid */
-    SET_CKSUM_VEC_TVB(vec, tvb, offset, trailer_length + 3);
-    comp_cksum = in_cksum(&vec, 1);
-    if (pntoh16(&comp_cksum) != cksum) {
-        return 0;
-    }
+  /* Verify the checksum; if not valid, it means that the trailer is not valid */
+  SET_CKSUM_VEC_TVB(vec, tvb, offset, trailer_length + 3);
+  comp_cksum = in_cksum(&vec, 1);
+  if (pntoh16(&comp_cksum) != cksum) {
+    return 0;
+  }
 
-    /* OK: We have our trailer - create protocol root */
-    ti = proto_tree_add_item(tree, proto_ixiatrailer, tvb, offset, trailer_length + 5, ENC_NA);
+  /* OK: We have our trailer - create protocol root */
+  ti = proto_tree_add_item(tree, proto_ixiatrailer, tvb, offset, trailer_length + 5, ENC_NA);
 
-    /* Append summary to item, if configured to */
-    if (ixiatrailer_summary_in_tree) {
-        proto_item_append_text(ti, ", Length: %u, Checksum: 0x%x", trailer_length, cksum);
-    }
+  /* Append summary to item, if configured to */
+  if (ixiatrailer_summary_in_tree) {
+    proto_item_append_text(ti, ", Length: %u, Checksum: 0x%x", trailer_length, cksum);
+  }
 
-    /* Create subtree */
-    ixiatrailer_tree = proto_item_add_subtree(ti, ett_ixiatrailer);
+  /* Create subtree */
+  ixiatrailer_tree = proto_item_add_subtree(ti, ett_ixiatrailer);
 
-    source = tvb_get_guint8(tvb, offset++);
-    time_length = tvb_get_guint8(tvb, offset++);
+  source = tvb_get_guint8(tvb, offset++);
+  time_length = tvb_get_guint8(tvb, offset++);
 
-    switch (source) {
-        case IXIATRAILER_FTYPE_TIMESTAMP_LOCAL:
-        case IXIATRAILER_FTYPE_TIMESTAMP_NTP:
-        case IXIATRAILER_FTYPE_TIMESTAMP_GPS:
-        case IXIATRAILER_FTYPE_TIMESTAMP_1588:
-        case IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER:
-            if (time_length != 8) {
-                expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", time_length);
-                break;
-            }
-            /* Timestamp */
-            ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_timestamp, tvb, offset, time_length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
-            proto_item_append_text(ti, "; Source: %s", val_to_str_const(source, ixiatrailer_ftype_timestamp, "Unknown"));
-            break;
+  switch (source) {
+    case IXIATRAILER_FTYPE_TIMESTAMP_LOCAL:
+    case IXIATRAILER_FTYPE_TIMESTAMP_NTP:
+    case IXIATRAILER_FTYPE_TIMESTAMP_GPS:
+    case IXIATRAILER_FTYPE_TIMESTAMP_1588:
+    case IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER:
+      if (time_length != 8) {
+        expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", time_length);
+        break;
+      }
+      /* Timestamp */
+      ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_timestamp, tvb, offset, time_length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+      proto_item_append_text(ti, "; Source: %s", val_to_str_const(source, ixiatrailer_ftype_timestamp, "Unknown"));
+      break;
 
-      default:
-            /* Not a recognised time format - just show as bytes */
-            ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_generic, tvb, offset, time_length, ENC_NA);
-            proto_item_append_text(ti, " [Id: %u, Length: %u]", source, time_length);
-            break;
-    }
+    default:
+      /* Not a recognised time format - just show as bytes */
+      ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_generic, tvb, offset, time_length, ENC_NA);
+      proto_item_append_text(ti, " [Id: %u, Length: %u]", source, time_length);
+      break;
+  }
 
-    /* We are claiming all of the bytes */
-    return tvblen;
+  /* We are claiming all of the bytes */
+  return tvblen;
 }
 
 void
@@ -202,3 +202,16 @@ proto_reg_handoff_ixiatrailer(void)
   /* Check for Ixia format in the ethernet trailer */
   heur_dissector_add("eth.trailer", dissect_ixiatrailer, proto_ixiatrailer);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

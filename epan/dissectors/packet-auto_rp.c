@@ -300,3 +300,16 @@ proto_reg_handoff_auto_rp(void)
                                                  proto_auto_rp);
         dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */

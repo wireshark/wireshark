@@ -522,3 +522,15 @@ proto_reg_handoff_gmhdr(void)
   heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer, proto_gmtrailer);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -117,3 +117,16 @@ void proto_reg_handoff_vicp(void)
    vicp_handle = create_dissector_handle(dissect_vicp, proto_vicp);
    dissector_add_uint("tcp.port", VICP_PORT, vicp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

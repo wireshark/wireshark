@@ -9461,3 +9461,16 @@ proto_reg_handoff_dcerpc_netlogon(void)
                                       DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN,
                                       &secchan_auth_fns);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

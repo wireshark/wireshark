@@ -100,27 +100,27 @@ static int eth_tap = -1;
 #define ETH_HEADER_SIZE    14
 
 static const true_false_string ig_tfs = {
-    "Group address (multicast/broadcast)",
-    "Individual address (unicast)"
+  "Group address (multicast/broadcast)",
+  "Individual address (unicast)"
 };
 static const true_false_string lg_tfs = {
-    "Locally administered address (this is NOT the factory default)",
-    "Globally unique address (factory default)"
+  "Locally administered address (this is NOT the factory default)",
+  "Globally unique address (factory default)"
 };
 
 
 static const char* eth_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
-        return "eth.src";
+  if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
+    return "eth.src";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
-        return "eth.dst";
+  if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
+    return "eth.dst";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
-        return "eth.addr";
+  if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
+    return "eth.addr";
 
-    return CONV_FILTER_INVALID;
+  return CONV_FILTER_INVALID;
 }
 
 static ct_dissector_info_t eth_ct_dissector_info = {&eth_conv_get_filter_type};
@@ -128,20 +128,20 @@ static ct_dissector_info_t eth_ct_dissector_info = {&eth_conv_get_filter_type};
 static int
 eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    conv_hash_t *hash = (conv_hash_t*) pct;
-    const eth_hdr *ehdr=(const eth_hdr *)vip;
+  conv_hash_t *hash = (conv_hash_t*) pct;
+  const eth_hdr *ehdr=(const eth_hdr *)vip;
 
-    add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &eth_ct_dissector_info, PT_NONE);
+  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &eth_ct_dissector_info, PT_NONE);
 
-    return 1;
+  return 1;
 }
 
 static const char* eth_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
-        return "eth.addr";
+  if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
+    return "eth.addr";
 
-    return CONV_FILTER_INVALID;
+  return CONV_FILTER_INVALID;
 }
 
 static hostlist_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter_type};
@@ -149,16 +149,16 @@ static hostlist_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter
 static int
 eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    conv_hash_t *hash = (conv_hash_t*) pit;
-    const eth_hdr *ehdr=(const eth_hdr *)vip;
+  conv_hash_t *hash = (conv_hash_t*) pit;
+  const eth_hdr *ehdr=(const eth_hdr *)vip;
 
-    /* Take two "add" passes per packet, adding for each direction, ensures that all
-    packets are counted properly (even if address is sending to itself)
-    XXX - this could probably be done more efficiently inside hostlist_table */
-    add_hostlist_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, PT_NONE);
-    add_hostlist_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, PT_NONE);
+  /* Take two "add" passes per packet, adding for each direction, ensures that all
+     packets are counted properly (even if address is sending to itself)
+     XXX - this could probably be done more efficiently inside hostlist_table */
+  add_hostlist_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, PT_NONE);
+  add_hostlist_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, PT_NONE);
 
-    return 1;
+  return 1;
 }
 
 
@@ -835,203 +835,216 @@ dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_eth(void)
 {
-    static hf_register_info hf[] = {
+  static hf_register_info hf[] = {
 
-        { &hf_eth_dst,
-        { "Destination", "eth.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Destination Hardware Address", HFILL }},
+    { &hf_eth_dst,
+      { "Destination", "eth.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Destination Hardware Address", HFILL }},
 
-        { &hf_eth_dst_resolved,
-        { "Destination (resolved)", "eth.dst_resolved", FT_STRING, BASE_NONE,
-            NULL, 0x0, "Destination Hardware Address (resolved)", HFILL }},
+    { &hf_eth_dst_resolved,
+      { "Destination (resolved)", "eth.dst_resolved", FT_STRING, BASE_NONE,
+        NULL, 0x0, "Destination Hardware Address (resolved)", HFILL }},
 
-        { &hf_eth_src,
-        { "Source", "eth.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Source Hardware Address", HFILL }},
+    { &hf_eth_src,
+      { "Source", "eth.src", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Source Hardware Address", HFILL }},
 
-        { &hf_eth_src_resolved,
-        { "Source (resolved)", "eth.src_resolved", FT_STRING, BASE_NONE,
-            NULL, 0x0, "Source Hardware Address (resolved)", HFILL }},
+    { &hf_eth_src_resolved,
+      { "Source (resolved)", "eth.src_resolved", FT_STRING, BASE_NONE,
+        NULL, 0x0, "Source Hardware Address (resolved)", HFILL }},
 
-        { &hf_eth_len,
-        { "Length", "eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+    { &hf_eth_len,
+      { "Length", "eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
-        /* registered here but handled in packet-ethertype.c */
-        { &hf_eth_type,
-        { "Type", "eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-            NULL, HFILL }},
+    /* registered here but handled in packet-ethertype.c */
+    { &hf_eth_type,
+      { "Type", "eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+        NULL, HFILL }},
 
-        { &hf_eth_invalid_lentype,
-        { "Invalid length/type", "eth.invalid_lentype", FT_UINT16, BASE_HEX_DEC,
-            NULL, 0x0, NULL, HFILL }},
+    { &hf_eth_invalid_lentype,
+      { "Invalid length/type", "eth.invalid_lentype", FT_UINT16, BASE_HEX_DEC,
+        NULL, 0x0, NULL, HFILL }},
 
-        { &hf_eth_addr,
-        { "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Source or Destination Hardware Address", HFILL }},
+    { &hf_eth_addr,
+      { "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Source or Destination Hardware Address", HFILL }},
 
-        { &hf_eth_addr_resolved,
-        { "Address (resolved)", "eth.addr_resolved", FT_STRING, BASE_NONE,
-            NULL, 0x0, "Source or Destination Hardware Address (resolved)",
-            HFILL }},
+    { &hf_eth_addr_resolved,
+      { "Address (resolved)", "eth.addr_resolved", FT_STRING, BASE_NONE,
+        NULL, 0x0, "Source or Destination Hardware Address (resolved)",
+        HFILL }},
 
-        { &hf_eth_padding,
-        { "Padding", "eth.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Ethernet Padding", HFILL }},
+    { &hf_eth_padding,
+      { "Padding", "eth.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Ethernet Padding", HFILL }},
 
-        { &hf_eth_trailer,
-        { "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Ethernet Trailer or Checksum", HFILL }},
+    { &hf_eth_trailer,
+      { "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Ethernet Trailer or Checksum", HFILL }},
 
-        { &hf_eth_fcs,
-        { "Frame check sequence", "eth.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Ethernet checksum", HFILL }},
+    { &hf_eth_fcs,
+      { "Frame check sequence", "eth.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Ethernet checksum", HFILL }},
 
-        { &hf_eth_fcs_good,
-        { "FCS Good", "eth.fcs_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+    { &hf_eth_fcs_good,
+      { "FCS Good", "eth.fcs_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
-        { &hf_eth_fcs_bad,
-        { "FCS Bad", "eth.fcs_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True: checksum doesn't matche packet content; False: does match content or not checked", HFILL }},
+    { &hf_eth_fcs_bad,
+      { "FCS Bad", "eth.fcs_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        "True: checksum doesn't matche packet content; False: does match content or not checked", HFILL }},
 
-        { &hf_eth_lg,
-        { "LG bit", "eth.lg", FT_BOOLEAN, 24,
-            TFS(&lg_tfs), 0x020000,
-            "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+    { &hf_eth_lg,
+      { "LG bit", "eth.lg", FT_BOOLEAN, 24,
+        TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
 
-        { &hf_eth_ig,
-        { "IG bit", "eth.ig", FT_BOOLEAN, 24,
-            TFS(&ig_tfs), 0x010000,
-            "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }}
-    };
-    static gint *ett[] = {
-        &ett_ieee8023,
-        &ett_ether2,
-        &ett_ether,
-        &ett_addr,
-        &ett_eth_fcs
-    };
+    { &hf_eth_ig,
+      { "IG bit", "eth.ig", FT_BOOLEAN, 24,
+        TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }}
+  };
+  static gint *ett[] = {
+    &ett_ieee8023,
+    &ett_ether2,
+    &ett_ether,
+    &ett_addr,
+    &ett_eth_fcs
+  };
 
-    static ei_register_info ei[] = {
-        { &ei_eth_invalid_lentype, { "eth.invalid_lentype", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
-        { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
-        { &ei_eth_fcs_bad, { "eth.fcs_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
-    };
+  static ei_register_info ei[] = {
+    { &ei_eth_invalid_lentype, { "eth.invalid_lentype", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
+    { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
+    { &ei_eth_fcs_bad, { "eth.fcs_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
+  };
 
-    module_t *eth_module;
-    expert_module_t* expert_eth;
+  module_t *eth_module;
+  expert_module_t* expert_eth;
 
-    proto_eth = proto_register_protocol("Ethernet", "Ethernet", "eth");
-    proto_register_field_array(proto_eth, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-    expert_eth = expert_register_protocol(proto_eth);
-    expert_register_field_array(expert_eth, ei, array_length(ei));
+  proto_eth = proto_register_protocol("Ethernet", "Ethernet", "eth");
+  proto_register_field_array(proto_eth, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+  expert_eth = expert_register_protocol(proto_eth);
+  expert_register_field_array(expert_eth, ei, array_length(ei));
 
-    /* subdissector code */
-    register_heur_dissector_list("eth", &heur_subdissector_list);
-    register_heur_dissector_list("eth.trailer", &eth_trailer_subdissector_list);
+  /* subdissector code */
+  register_heur_dissector_list("eth", &heur_subdissector_list);
+  register_heur_dissector_list("eth.trailer", &eth_trailer_subdissector_list);
 
-    /* Register configuration preferences */
-    eth_module = prefs_register_protocol(proto_eth, NULL);
+  /* Register configuration preferences */
+  eth_module = prefs_register_protocol(proto_eth, NULL);
 
-    prefs_register_bool_preference(eth_module, "assume_padding",
-            "Assume short frames which include a trailer contain padding",
-            "Some devices add trailing data to frames. When this setting is checked "
-            "the Ethernet dissector will assume there has been added padding to the "
-            "frame before the trailer was added. Uncheck if a device added a trailer "
-            "before the frame was padded.",
-            &eth_assume_padding);
+  prefs_register_bool_preference(eth_module, "assume_padding",
+                                 "Assume short frames which include a trailer contain padding",
+                                 "Some devices add trailing data to frames. When this setting is checked "
+                                 "the Ethernet dissector will assume there has been added padding to the "
+                                 "frame before the trailer was added. Uncheck if a device added a trailer "
+                                 "before the frame was padded.",
+                                 &eth_assume_padding);
 
-    prefs_register_uint_preference(eth_module, "trailer_length",
-            "Fixed ethernet trailer length",
-            "Some TAPs add a fixed length ethernet trailer at the end "
-            "of the frame, but before the (optional) FCS. Make sure it "
-            "gets interpreted correctly.",
-            10, &eth_trailer_length);
+  prefs_register_uint_preference(eth_module, "trailer_length",
+                                 "Fixed ethernet trailer length",
+                                 "Some TAPs add a fixed length ethernet trailer at the end "
+                                 "of the frame, but before the (optional) FCS. Make sure it "
+                                 "gets interpreted correctly.",
+                                 10, &eth_trailer_length);
 
-    prefs_register_bool_preference(eth_module, "assume_fcs",
-            "Assume packets have FCS",
-            "Some Ethernet adapters and drivers include the FCS at the end of a packet, others do not.  "
-            "The Ethernet dissector attempts to guess whether a captured packet has an FCS, "
-            "but it cannot always guess correctly.",
-            &eth_assume_fcs);
+  prefs_register_bool_preference(eth_module, "assume_fcs",
+                                 "Assume packets have FCS",
+                                 "Some Ethernet adapters and drivers include the FCS at the end of a packet, others do not.  "
+                                 "The Ethernet dissector attempts to guess whether a captured packet has an FCS, "
+                                 "but it cannot always guess correctly.",
+                                 &eth_assume_fcs);
 
-    prefs_register_bool_preference(eth_module, "check_fcs",
-            "Validate the Ethernet checksum if possible",
-            "Whether to validate the Frame Check Sequence",
-            &eth_check_fcs);
+  prefs_register_bool_preference(eth_module, "check_fcs",
+                                 "Validate the Ethernet checksum if possible",
+                                 "Whether to validate the Frame Check Sequence",
+                                 &eth_check_fcs);
 
-    prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
-            "Attempt to interpret as FireWall-1 monitor file",
-            "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
-            &eth_interpret_as_fw1_monitor);
+  prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
+                                 "Attempt to interpret as FireWall-1 monitor file",
+                                 "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
+                                 &eth_interpret_as_fw1_monitor);
 
-    prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
-            "These are the conditions to match a payload against in order to determine if this\n"
-            "is a CCSDS (Consultative Committee for Space Data Systems) packet within\n"
-            "an 802.3 packet. A packet is considered as a possible CCSDS packet only if\n"
-            "one or more of the conditions are checked.",
-            "Describe the conditions that must be true for the CCSDS dissector to be called");
+  prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
+                                        "These are the conditions to match a payload against in order to determine if this\n"
+                                        "is a CCSDS (Consultative Committee for Space Data Systems) packet within\n"
+                                        "an 802.3 packet. A packet is considered as a possible CCSDS packet only if\n"
+                                        "one or more of the conditions are checked.",
+                                        "Describe the conditions that must be true for the CCSDS dissector to be called");
 
-    prefs_register_bool_preference(eth_module, "ccsds_heuristic_length",
-            "CCSDS Length in header matches payload size",
-            "Set the condition that must be true for the CCSDS dissector to be called",
-            &ccsds_heuristic_length);
+  prefs_register_bool_preference(eth_module, "ccsds_heuristic_length",
+                                 "CCSDS Length in header matches payload size",
+                                 "Set the condition that must be true for the CCSDS dissector to be called",
+                                 &ccsds_heuristic_length);
 
-    prefs_register_bool_preference(eth_module, "ccsds_heuristic_version",
-            "CCSDS Version # is zero",
-            "Set the condition that must be true for the CCSDS dissector to be called",
-            &ccsds_heuristic_version);
+  prefs_register_bool_preference(eth_module, "ccsds_heuristic_version",
+                                 "CCSDS Version # is zero",
+                                 "Set the condition that must be true for the CCSDS dissector to be called",
+                                 &ccsds_heuristic_version);
 
-    prefs_register_bool_preference(eth_module, "ccsds_heuristic_header",
-            "CCSDS Secondary Header Flag is set",
-            "Set the condition that must be true for the CCSDS dissector to be called",
-            &ccsds_heuristic_header);
+  prefs_register_bool_preference(eth_module, "ccsds_heuristic_header",
+                                 "CCSDS Secondary Header Flag is set",
+                                 "Set the condition that must be true for the CCSDS dissector to be called",
+                                 &ccsds_heuristic_header);
 
-    prefs_register_bool_preference(eth_module, "ccsds_heuristic_bit",
-            "CCSDS Spare bit is cleared",
-            "Set the condition that must be true for the CCSDS dissector to be called",
-            &ccsds_heuristic_bit);
+  prefs_register_bool_preference(eth_module, "ccsds_heuristic_bit",
+                                 "CCSDS Spare bit is cleared",
+                                 "Set the condition that must be true for the CCSDS dissector to be called",
+                                 &ccsds_heuristic_bit);
 
-    register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
-    register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
-    register_dissector("eth", dissect_eth_maybefcs, proto_eth);
-    eth_tap = register_tap("eth");
+  register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
+  register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
+  register_dissector("eth", dissect_eth_maybefcs, proto_eth);
+  eth_tap = register_tap("eth");
 
-    register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet, NULL);
+  register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet, NULL);
 }
 
 void
 proto_reg_handoff_eth(void)
 {
-    dissector_handle_t eth_maybefcs_handle, eth_withoutfcs_handle;
+  dissector_handle_t eth_maybefcs_handle, eth_withoutfcs_handle;
 
-    /* Get a handle for the Firewall-1 dissector. */
-    fw1_handle = find_dissector("fw1");
+  /* Get a handle for the Firewall-1 dissector. */
+  fw1_handle = find_dissector("fw1");
 
-    /* Get a handle for the ethertype dissector. */
-    ethertype_handle = find_dissector("ethertype");
+  /* Get a handle for the ethertype dissector. */
+  ethertype_handle = find_dissector("ethertype");
 
-    /* Get a handle for the generic data dissector. */
-    data_handle = find_dissector("data");
+  /* Get a handle for the generic data dissector. */
+  data_handle = find_dissector("data");
 
-    eth_maybefcs_handle = find_dissector("eth");
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
+  eth_maybefcs_handle = find_dissector("eth");
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
 
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-    dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-    dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_withoutfcs_handle);
-    dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-    dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+  dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_withoutfcs_handle);
+  dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 
-    dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
+  dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
 
-    /*
-     * This is to handle the output for the Cisco CMTS "cable intercept"
-     * command - it encapsulates Ethernet frames in UDP packets, but
-     * the UDP port is user-defined.
-     */
-    dissector_add_for_decode_as("udp.port", eth_withoutfcs_handle);
+  /*
+   * This is to handle the output for the Cisco CMTS "cable intercept"
+   * command - it encapsulates Ethernet frames in UDP packets, but
+   * the UDP port is user-defined.
+   */
+  dissector_add_for_decode_as("udp.port", eth_withoutfcs_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

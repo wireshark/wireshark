@@ -213,8 +213,8 @@ static const true_false_string gre_wccp_alternative_bucket_used_val = {
 };
 
 static const true_false_string gre_wccp_redirect_header_valid_val = {
-  "Header is present, but ignore contents",
-  "Header contents are valid",
+    "Header is present, but ignore contents",
+    "Header contents are valid",
 };
 
 
@@ -750,3 +750,16 @@ proto_reg_handoff_gre(void)
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

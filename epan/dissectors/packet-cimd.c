@@ -737,19 +737,19 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
 
 static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset )
 {
-    /* Same routine can be used to dissect CIMD Error,Status and Status Error Codes */
-    proto_tree *param_tree;
-    guint32 err_code;
+  /* Same routine can be used to dissect CIMD Error,Status and Status Error Codes */
+  proto_tree *param_tree;
+  guint32 err_code;
 
-    param_tree = proto_tree_add_subtree(tree, tvb, startOffset + 1, endOffset - (startOffset + 1),
-                                     (*vals_hdr_PC[pindex].ett_p), NULL, cimd_vals_PC[pindex].strptr);
+  param_tree = proto_tree_add_subtree(tree, tvb, startOffset + 1, endOffset - (startOffset + 1),
+                                      (*vals_hdr_PC[pindex].ett_p), NULL, cimd_vals_PC[pindex].strptr);
 
-    proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb, startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb, startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
-    err_code = (guint32) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb,
-                                       startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), ENC_ASCII),
-                                       NULL, 10);
-    proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
+  err_code = (guint32) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                                  startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), ENC_ASCII),
+                               NULL, 10);
+  proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
 }
 
 static void
@@ -1173,3 +1173,16 @@ proto_reg_handoff_cimd(void)
   cimd_handle = create_dissector_handle(dissect_cimd, proto_cimd);
   dissector_add_for_decode_as("tcp.port", cimd_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

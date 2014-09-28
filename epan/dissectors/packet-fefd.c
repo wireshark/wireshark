@@ -292,3 +292,16 @@ proto_reg_handoff_fefd(void)
     fefd_handle = create_dissector_handle(dissect_fefd, proto_fefd);
     dissector_add_uint("llc.force10_pid", 0x0111, fefd_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

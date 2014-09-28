@@ -219,7 +219,7 @@ static dissector_handle_t png_handle;
 
 /*XXX: Sorted by value definition since it appears that the "value" is just */
 /*     the ascii representation of the last 4 letters of the definition.    */
-/*     (Sorted so a binary search can be done when using value_string_ext)  */
+*     (Sorted so a binary search can be done when using value_string_ext)  */
 static const value_string vals_tag_code[] = {
    { daap_abal, "browse album listing" },
    { daap_abar, "browse artist listing" },
@@ -740,3 +740,16 @@ proto_reg_handoff_daap(void)
 
    png_handle = find_dissector("png");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

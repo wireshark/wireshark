@@ -2057,3 +2057,16 @@ proto_reg_handoff_telnet(void)
   tn3270_handle = find_dissector("tn3270");
   tn5250_handle = find_dissector("tn5250");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

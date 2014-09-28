@@ -145,16 +145,16 @@ swap_mac_addr(guint8 *swapped_addr, tvbuff_t *tvb, gint offset)
 
 static const char* fddi_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
-        return "fddi.src";
+  if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_ETHER))
+    return "fddi.src";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
-        return "fddi.dst";
+  if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_ETHER))
+    return "fddi.dst";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
-        return "fddi.addr";
+  if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_ETHER))
+    return "fddi.addr";
 
-    return CONV_FILTER_INVALID;
+  return CONV_FILTER_INVALID;
 }
 
 static ct_dissector_info_t fddi_ct_dissector_info = {&fddi_conv_get_filter_type};
@@ -551,3 +551,16 @@ proto_reg_handoff_fddi(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

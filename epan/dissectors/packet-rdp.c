@@ -2963,3 +2963,16 @@ prefs_register_rdp(void) {
   if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
