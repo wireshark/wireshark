@@ -85,8 +85,6 @@ static guint16 ver_dcerpc_mdssvc = 2;
 static int mdssvc_dissect_element_blob_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mdssvc_dissect_element_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_blob_spotlight_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_blob_spotlight_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mdssvc_dissect_element_open_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -166,22 +164,6 @@ static int
 mdssvc_dissect_element_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_blob_size, 0);
-
-	return offset;
-}
-
-static int
-mdssvc_dissect_element_blob_spotlight_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_blob_spotlight_blob__);
-
-	return offset;
-}
-
-static int
-mdssvc_dissect_element_blob_spotlight_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_blob_spotlight_blob, 0);
 
 	return offset;
 }
