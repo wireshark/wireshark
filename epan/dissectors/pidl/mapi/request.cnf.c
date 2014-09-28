@@ -110,7 +110,7 @@ mapi_dissect_element_EcDoRpc_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 
-static int 
+static int
 mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32		size;
@@ -164,7 +164,7 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 
-/* 
+/*
  * Analyze mapi_request real contents
  */
 static int mapi_dissect_element_EcDoRpc_request__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
@@ -275,17 +275,11 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int 
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;
-	int		old_offset;
 	int		origin_offset;
 	/**** Function parameters ****/
-	guint32		codepage;
-	guint32		padding;
-	guint8		row;
 	guint16		str_len;
-	gchar		*mailbox;
 
 	origin_offset = offset;
-	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_mapi_EcDoRpc_MAPI_REQ_UNION_mapi_OpenMsgStore, tvb, offset, -1, ENC_NA);
@@ -305,7 +299,6 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int 
 	proto_tree_add_item(tree, hf_mapi_EcDoRpc_str_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	mailbox = tvb_format_text(tvb, offset, str_len - 1);
 	proto_tree_add_item(tree, hf_mapi_EcDoRpc_mailbox, tvb, offset, str_len, ENC_ASCII|ENC_NA);
 	offset += str_len;
 

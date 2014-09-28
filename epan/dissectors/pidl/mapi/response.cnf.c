@@ -54,7 +54,6 @@ mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_tree	*tree = NULL;
 	int		old_offset;
 	guint8		opnum;
-	guint8		handle_idx;
 	guint32		retval;
 
 	old_offset = offset;
@@ -71,7 +70,6 @@ mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_
 	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation: 0x%02x"));
 
 	if (opnum != op_MAPI_Notify) {
-		handle_idx = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mapi_EcDoRpc_handle_index, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
@@ -194,8 +192,6 @@ mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_OpenFolder(tvbuff_t *tvb _U_, int o
 	proto_tree	*tree = NULL;
 	int		old_offset;
 	int		origin_offset;
-	/**** Function parameters ****/
-	guint16		unknown;
 
 	origin_offset = offset;
 
@@ -222,7 +218,6 @@ mapi_dissect_element_EcDoRpc_MAPI_REPL_UNION_GetProps(tvbuff_t *tvb _U_, int off
 	proto_tree	*tree = NULL;
 	int		origin_offset;
 	/**** Function parameters ****/
-	guint8		layout;
 	guint16		length;
 
 	origin_offset = offset;
