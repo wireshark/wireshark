@@ -539,8 +539,6 @@ comparestat_init(const char *opt_arg, void* userdata _U_)
 	cs->zebra_time.secs=0;
 	cs->zebra_time.nsecs=1;
 	cs->nr_set=g_hash_table_new(NULL, NULL);
-	/* microsecond precision */
-	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 
 	if(filter){
 		cs->filter=g_strdup(filter);

@@ -579,8 +579,6 @@ comparestat_draw(void *arg)
 	second_file_amount=cs->second_file_amount;
 	/* reset after numbering */
 	g_hash_table_remove_all(cs->nr_set);
-	/* microsecond precision for Info column*/
-	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 	/* reset ordering */
 	nstime_set_unset(&cs->current_time);
 
@@ -734,8 +732,6 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	cs->zebra_time.secs=0;
 	cs->zebra_time.nsecs=1;
 	cs->nr_set=g_hash_table_new(NULL, NULL);
-	/* microsecond precision */
-	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 
 	/* transient_for top_level */
 	cs->win=dlg_window_new("compare-stat");
