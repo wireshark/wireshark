@@ -2590,8 +2590,8 @@ commonspace      1592/tcp # commonspace [Rob_Chandhok_2] [Rob_Chandhok_2]
 commonspace      1592/udp # commonspace [Rob_Chandhok_2] [Rob_Chandhok_2]
 mainsoft-lm      1593/tcp # mainsoft-lm [Anand_Gangadharan] [Anand_Gangadharan]
 mainsoft-lm      1593/udp # mainsoft-lm [Anand_Gangadharan] [Anand_Gangadharan]
-sixtrak          1594/tcp # sixtrak [Bob_Rennie] [Bob_Rennie]
-sixtrak          1594/udp # sixtrak [Bob_Rennie] [Bob_Rennie]
+sixtrak          1594/tcp # sixtrak [Red_Lion_Controls] [Denis_Aull] 2014-09-22
+sixtrak          1594/udp # sixtrak [Red_Lion_Controls] [Denis_Aull] 2014-09-22
 radio            1595/tcp # radio
 radio            1595/udp # radio
 radio-sm         1596/tcp # radio-sm
@@ -10793,6 +10793,7 @@ netserialext4   16368/udp # Network Serial Extension Ports Four [Michael_J_Hoy] 
 connected       16384/tcp # Connected Corp [Nicole_C_Ouellette] [Nicole_C_Ouellette] 2004-02
 connected       16384/udp # Connected Corp [Nicole_C_Ouellette] [Nicole_C_Ouellette] 2004-02
 xoms            16619/tcp # X509 Objects Management Service [Francis_GASCHET] [Francis_GASCHET] 2008-09-08
+axon-tunnel     16665/tcp # Reliable multipath data transport for high latencies [Bridgeworks] [Paul_Burgess] 2014-09-26
 vtp             16666/udp # Vidder Tunnel Protocol [Vidder_Inc] [Ted_Schroeder_2] 2011-10-24
 newbay-snc-mc   16900/tcp # Newbay Mobile Client Update Service [Srinivasa_Nayudu] [Srinivasa_Nayudu] 2009-07-06
 newbay-snc-mc   16900/udp # Newbay Mobile Client Update Service [Srinivasa_Nayudu] [Srinivasa_Nayudu] 2009-07-06
