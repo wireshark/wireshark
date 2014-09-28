@@ -413,7 +413,6 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset;
     gint value_offset;
     gint str_len;
-    gchar helper_str[256];
     gchar *header_name;
     gchar *header_value;
     LINE_TYPE line_type = UNKNOWN_LINE;
@@ -612,8 +611,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (content_length > 0)
                 { /* content length > 0 and CRLF detected, this has to be msg body */
                     offset += 2; /* skip separating CRLF */
-                    proto_tree_add_string_format(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset,
-                        helper_str, "Message data: %s", tvb_format_text(tvb, offset, tvb_len - offset));
+                    proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset, ENC_ASCII|ENC_NA);
                     next_offset = tvb_len; /* we are done */
                 }
                 continue;
@@ -1050,7 +1048,7 @@ proto_register_mrcpv2(void)
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_mrcpv2_Data,
-            { "Data", "mrcpv2.Data",
+            { "Message data", "mrcpv2.Data",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_mrcpv2_Method,
