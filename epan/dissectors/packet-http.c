@@ -793,10 +793,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
 		 * and do body desegmentation if we've been told to and
-		 * we find a Content-Length header.
+		 * we find a Content-Length header. Responses to HEAD MUST NOT
+		 * contain a message body, so ignore the Content-Length header
+		 * which is done by disabling body desegmentation.
 		 */
+		gboolean try_desegment_body = http_desegment_body &&
+			!(conv_data->request_method &&
+			  g_str_equal(conv_data->request_method, "HEAD"));
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-		    http_desegment_headers, http_desegment_body)) {
+		    http_desegment_headers, try_desegment_body)) {
 			/*
 			 * More data needed for desegmentation.
 			 */
