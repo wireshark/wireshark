@@ -373,7 +373,6 @@ void MainWindow::filterAction(QString &action_filter, FilterAction::Action actio
 
 void MainWindow::captureCapturePrepared(capture_session *cap_session) {
 #ifdef HAVE_LIBPCAP
-    qDebug() << "FIX captureCapturePrepared";
     setTitlebarForCaptureInProgress();
 
     setWindowIcon(wsApp->captureIcon());
@@ -625,18 +624,18 @@ void MainWindow::startCapture() {
 //    main_auto_scroll_live_changed(auto_scroll_live);
 
     /* XXX - can this ever happen? */
-    if (global_capture_session.state != CAPTURE_STOPPED)
+    if (cap_session_.state != CAPTURE_STOPPED)
       return;
 
     /* close the currently loaded capture file */
-    cf_close((capture_file *) global_capture_session.cf);
+    cf_close((capture_file *) cap_session_.cf);
 
     /* Copy the selected interfaces to the set of interfaces to use for
        this capture. */
     collect_ifaces(&global_capture_opts);
 
     cfile.window = this;
-    if (capture_start(&global_capture_opts, &global_capture_session, main_window_update)) {
+    if (capture_start(&global_capture_opts, &cap_session_, main_window_update)) {
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -730,7 +729,7 @@ void MainWindow::stopCapture() {
 //#endif
 
 #ifdef HAVE_LIBPCAP
-    capture_stop(&global_capture_session);
+    capture_stop(&cap_session_);
 #endif // HAVE_LIBPCAP
 }
 

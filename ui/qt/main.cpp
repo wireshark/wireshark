@@ -113,13 +113,14 @@
 #ifdef HAVE_LIBPCAP
 #  include "caputils/capture_ifinfo.h"
 #  include "ui/capture.h"
-#  include <capchild/capture_sync.h>
+#  include "capchild/capture_sync.h"
 #endif
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
 #  include "caputils/capture_wpcap_packet.h"
 #  include <tchar.h> /* Needed for Unicode */
+#  include <wsutil/os_version_info.h>
 #  include <wsutil/unicode-utils.h>
 #  include <commctrl.h>
 #  include <shellapi.h>
@@ -132,22 +133,22 @@
 //#  include "airpcap_gui_utils.h"
 #endif
 
-#include <epan/crypt/airpdcap_ws.h>
+#include "epan/crypt/airpdcap_ws.h"
 
-#include <QDebug>
 #include <QDateTime>
+#include <QLibraryInfo>
+#include <QLocale>
+#include <QMessageBox>
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
 #endif
-#include <qtranslator.h>
-#include <qlocale.h>
-#include <qlibraryinfo.h>
+#include <QTranslator>
+
 #include "conversation_dialog.h"
 #include "endpoint_dialog.h"
 
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
-capture_session global_capture_session;
 #endif
 
 capture_file cfile;
@@ -428,6 +429,44 @@ get_wireshark_runtime_info(GString *str)
     }
 }
 
+/*  Check if there's something important to tell the user during startup.
+ *  We want to do this *after* showing the main window so that any windows
+ *  we pop up will be above the main window.
+ */
+static void
+check_and_warn_user_startup(const QString &cf_name)
+{
+#ifndef _WIN32
+    Q_UNUSED(cf_name)
+#endif
+    gchar               *cur_user, *cur_group;
+
+    /* Tell the user not to run as root. */
+    if (running_with_special_privs() && recent.privs_warn_if_elevated) {
+        cur_user = get_cur_username();
+        cur_group = get_cur_groupname();
+        simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_elevated,
+        "Running as user \"%s\" and group \"%s\".\n"
+        "This could be dangerous.\n\n"
+        "If you're running Wireshark this way in order to perform live capture, "
+        "you may want to be aware that there is a better way documented at\n"
+        "http://wiki.wireshark.org/CaptureSetup/CapturePrivileges", cur_user, cur_group);
+        g_free(cur_user);
+        g_free(cur_group);
+    }
+
+#ifdef _WIN32
+    /* Warn the user if npf.sys isn't loaded. */
+    if (!get_stdin_capture() && cf_name.isEmpty() && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_windows_major_version() >= 6) {
+        simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_no_npf, "%s",
+        "The NPF driver isn't running. You may have trouble\n"
+        "capturing or listing interfaces.");
+    }
+#endif
+
+}
+
+
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
 {
@@ -447,7 +486,7 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     int                  err;
     gboolean             start_capture = FALSE;
-//    gboolean             list_link_layer_types = FALSE;
+    gboolean             list_link_layer_types = FALSE;
     GList               *if_list;
     gchar               *err_str;
     int                  status;
@@ -461,6 +500,7 @@ int main(int argc, char *argv[])
 #endif
     e_prefs             *prefs_p;
     char                 badopt;
+    guint                go_to_packet = 0;
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -540,8 +580,8 @@ int main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     QString locale;
-    QString *cf_name = NULL;
-    QString *display_filter = NULL;
+    QString cf_name;
+    QString display_filter;
     int optind_initial;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
@@ -790,8 +830,6 @@ int main(int argc, char *argv[])
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
     capture_opts_init(&global_capture_opts);
-
-    capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
     init_report_err(failure_alert_box, open_failure_alert_box,
@@ -931,7 +969,7 @@ int main(int argc, char *argv[])
             /* Not supported yet */
             break;
         case 'g':        /* Go to packet with the given packet number */
-            /* Not supported yet */
+            go_to_packet = get_positive_int(optarg, "go to packet");
             break;
         case 'J':        /* Jump to the first packet which matches the filter criteria */
             /* Not supported yet */
@@ -940,7 +978,12 @@ int main(int argc, char *argv[])
             /* Not supported yet */
             break;
         case 'L':        /* Print list of link-layer types and exit */
-            /* Not supported yet */
+#ifdef HAVE_LIBPCAP
+                list_link_layer_types = TRUE;
+#else
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif
             break;
         case 'm':        /* Fixed-width font for the display */
             /* Not supported yet */
@@ -1000,7 +1043,7 @@ int main(int argc, char *argv[])
             /* Path settings were already processed just ignore them this time*/
             break;
         case 'r':
-            cf_name = new QString(optarg);
+            cf_name = optarg;
             break;
         case 'R':        /* Read file filter */
             /* Not supported yet */
@@ -1084,7 +1127,7 @@ int main(int argc, char *argv[])
         argc -= optind;
         argv += optind;
         if (argc >= 1) {
-            if (cf_name != NULL) {
+            if (!cf_name.isEmpty()) {
                 /*
                  * Input file name specified with "-r" *and* specified as a regular
                  * command-line argument.
@@ -1102,7 +1145,7 @@ int main(int argc, char *argv[])
                  * file - yes, you could have "-r" as the last part of the command,
                  * but that's a bit ugly.
                  */
-                cf_name = new QString(g_strdup(argv[0]));
+                cf_name = argv[0];
 
             }
             argc--;
@@ -1138,6 +1181,105 @@ int main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
     fill_in_local_interfaces(main_window_update);
+
+    if (start_capture && list_link_layer_types) {
+        /* Specifying *both* is bogus. */
+        cmdarg_err("You can't specify both -L and a live capture.");
+        exit(1);
+    }
+
+    if (list_link_layer_types) {
+        /* We're supposed to list the link-layer types for an interface;
+           did the user also specify a capture file to be read? */
+        if (!cf_name.isEmpty()) {
+            /* Yes - that's bogus. */
+            cmdarg_err("You can't specify -L and a capture file to be read.");
+        exit(1);
+        }
+        /* No - did they specify a ring buffer option? */
+        if (global_capture_opts.multi_files_on) {
+            cmdarg_err("Ring buffer requested, but a capture isn't being done.");
+            exit(1);
+        }
+    } else {
+        /* We're supposed to do a live capture; did the user also specify
+           a capture file to be read? */
+        if (start_capture && !cf_name.isEmpty()) {
+            /* Yes - that's bogus. */
+            cmdarg_err("You can't specify both a live capture and a capture file to be read.");
+            exit(1);
+        }
+
+        /* No - was the ring buffer option specified and, if so, does it make
+           sense? */
+        if (global_capture_opts.multi_files_on) {
+            /* Ring buffer works only under certain conditions:
+             a) ring buffer does not work with temporary files;
+             b) real_time_mode and multi_files_on are mutually exclusive -
+             real_time_mode takes precedence;
+             c) it makes no sense to enable the ring buffer if the maximum
+             file size is set to "infinite". */
+            if (global_capture_opts.save_file == NULL) {
+                cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
+                global_capture_opts.multi_files_on = FALSE;
+            }
+            if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+                cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+                /* XXX - this must be redesigned as the conditions changed */
+            }
+        }
+    }
+
+    if (start_capture || list_link_layer_types) {
+        /* We're supposed to do a live capture or get a list of link-layer
+           types for a live capture device; if the user didn't specify an
+           interface to use, pick a default. */
+        status = capture_opts_default_iface_if_necessary(&global_capture_opts,
+        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
+        if (status != 0) {
+            exit(status);
+        }
+    }
+
+    if (list_link_layer_types) {
+        /* Get the list of link-layer types for the capture devices. */
+        if_capabilities_t *caps;
+        guint i;
+        interface_t device;
+        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device.selected) {
+#if defined(HAVE_PCAP_CREATE)
+                caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str, main_window_update);
+#else
+                caps = capture_get_if_capabilities(device.name, FALSE, &err_str,main_window_update);
+#endif
+                if (caps == NULL) {
+                    cmdarg_err("%s", err_str);
+                    g_free(err_str);
+                    exit(2);
+                }
+            if (caps->data_link_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
+                exit(2);
+            }
+#ifdef _WIN32
+            create_console();
+#endif /* _WIN32 */
+#if defined(HAVE_PCAP_CREATE)
+            capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
+#else
+            capture_opts_print_if_capabilities(caps, device.name, FALSE);
+#endif
+#ifdef _WIN32
+            destroy_console();
+#endif /* _WIN32 */
+            free_if_capabilities(caps);
+            }
+        }
+        exit(0);
+    }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
     capture_opts_trim_ring_num_files(&global_capture_opts);
@@ -1214,15 +1356,11 @@ int main(int argc, char *argv[])
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
     /* user could specify filename, or display filter, or both */
-    if (cf_name != NULL || display_filter != NULL) {
-        if (display_filter == NULL)
-            display_filter = new QString();
-        if (cf_name == NULL)
-            cf_name = new QString();
+    if (!cf_name.isEmpty()) {
 
         // XXX We need to call cf_open + start_requested_stats + cf_read
         // similar to gtk/main.c:3110.
-        main_w->openCaptureFile(*cf_name, *display_filter, in_file_type);
+        main_w->openCaptureFile(cf_name, display_filter, in_file_type);
 
         /* Open stat windows; we do so after creating the main window,
            to avoid Qt warnings, and after successfully opening the
@@ -1233,6 +1371,42 @@ int main(int argc, char *argv[])
            filter. */
         start_requested_stats();
     }
+#ifdef HAVE_LIBPCAP
+    else {
+        if (start_capture) {
+            if (global_capture_opts.save_file != NULL) {
+                /* Save the directory name for future file dialogs. */
+                /* (get_dirname overwrites filename) */
+                gchar *s = get_dirname(g_strdup(global_capture_opts.save_file));
+                set_last_open_dir(s);
+                g_free(s);
+            }
+            /* "-k" was specified; start a capture. */
+//            show_main_window(FALSE);
+            check_and_warn_user_startup(cf_name);
+
+            /* If no user interfaces were specified on the command line,
+               copy the list of selected interfaces to the set of interfaces
+               to use for this capture. */
+            if (global_capture_opts.ifaces->len == 0)
+                collect_ifaces(&global_capture_opts);
+            cfile.window = main_w;
+            if (capture_start(&global_capture_opts, main_w->captureSession(), main_window_update)) {
+                /* The capture started.  Open stat windows; we do so after creating
+                   the main window, to avoid GTK warnings, and after successfully
+                   opening the capture file, so we know we have something to compute
+                   stats on, and after registering all dissectors, so that MATE will
+                   have registered its field array and we can have a tap filter with
+                   one of MATE's late-registered fields as part of the filter. */
+                start_requested_stats();
+            }
+        }
+    /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
+        if (!start_capture && !global_capture_opts.default_options.cfilter) {
+            global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
+        }
+    }
+#endif /* HAVE_LIBPCAP */
 
     g_main_loop_new(NULL, FALSE);
     return wsApp->exec();

@@ -37,6 +37,7 @@ if (WERROR)
 	)
 endif()
 
+file(GLOB CAPCHILD_HEADERS capture_session.h)
 
 add_library(capchild STATIC
 	${CAPCHILD_SRC}

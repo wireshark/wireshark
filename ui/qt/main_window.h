@@ -76,6 +76,7 @@ public:
     void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
 
     QString getFilter();
+    capture_session *captureSession() { return &cap_session_; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -106,6 +107,7 @@ private:
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
+    capture_session cap_session_;
     QFont mono_font_;
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
