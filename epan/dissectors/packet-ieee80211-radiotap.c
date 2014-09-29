@@ -810,12 +810,12 @@ static const value_string phy_type[] = {
 	{IEEE80211_CHAN_G,                        "802.11g"},                 /* 0x00480 */
 	{IEEE80211_CHAN_108G,                     "802.11g (turbo)"},         /* 0x00490 */
 	{IEEE80211_CHAN_FHSS,                     "FHSS"},                    /* 0x00880 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT20,  "802.11a (ht20)"},          /* 0x10140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT20,  "802.11g (ht20)"},          /* 0x10480 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40U, "802.11a (ht40+)"},         /* 0x20140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40U, "802.11g (ht40+)"},         /* 0x20480 */
-	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40D, "802.11a (ht40-)"},         /* 0x40140 */
-	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40D, "802.11g (ht40-)"},         /* 0x40480 */
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT20,  "802.11n (ht20, 5 GHz)"},   /* 0x10140 */
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT20,  "802.11n (ht20, 2.4 GHz)"}, /* 0x10480 */
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40U, "802.11n (ht40+, 5 GHz)"},  /* 0x20140 */
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40U, "802.11n (ht40+, 2.4 GHz)"},/* 0x20480 */
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40D, "802.11n (ht40-, 5 GHz)"},  /* 0x40140 */
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40D, "802.11n (ht40-, 2.4 GHz)"},/* 0x40480 */
 	{0, NULL}
 };
 static value_string_ext phy_type_ext = VALUE_STRING_EXT_INIT(phy_type);
