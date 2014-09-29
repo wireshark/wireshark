@@ -414,6 +414,13 @@ static int hf_gtpv2_lapi = -1;
 
 static int hf_gtpv2_pres_rep_area_action = -1;
 static int hf_gtpv2_pres_rep_area_id = -1;
+static int hf_gtpv2_pres_rep_area_act_no_tai = -1;
+static int hf_gtpv2_pres_rep_area_act_no_rai = -1;
+static int hf_gtpv2_pres_rep_area_act_no_m_enodeb = -1;
+static int hf_gtpv2_pres_rep_area_act_no_h_enodeb = -1;
+static int hf_gtpv2_pres_rep_area_act_no_ecgi = -1;
+static int hf_gtpv2_pres_rep_area_act_no_sai = -1;
+static int hf_gtpv2_pres_rep_area_act_no_cgi = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -5159,7 +5166,8 @@ static const value_string gtpv2_pres_rep_area_action_vals[] = {
 static void
 dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    int offset = 0;
+    int offset = 0, i;
+    guint8 oct, no_tai/*, no_rai*/;
 
     /* Octet 5	Spare	Action */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5173,12 +5181,37 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     if (length == 3)
         return;
     /* Octet 9 	Number of TAI	Number of RAI */
+    oct = tvb_get_guint8(tvb,offset);
+    no_tai = oct >> 4;
+    /*no_rai = oct & 0x0f;*/
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_tai, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 10	Spare	Number of Macro eNodeB */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_m_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 11	Spare	Number of Home eNodeB */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_h_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 12	Spare	Number of ECGI */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_ecgi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 13	Spare	Number of SAI */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_sai, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 14	Spare	Number of CGI */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_cgi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* Octet 15 to k	TAIs [1..15] */
+    if(no_tai > 0){
+        i = 1;
+        while (no_tai > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL, "Tracking Area Identity (TAI) Number %u",i);
+            offset+=5;
+            i++;
+            no_tai--;
+        }
+    }
     /* Octet (k+1) to m	Macro eNB IDs [1..63] */
     /* Octet (m+1) to p	Home eNB IDs [1..63] */
     /* Octet (p+1) to q	ECGIs [1..63] */
@@ -7230,13 +7263,48 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_pres_rep_area_action,
-          {"Action", "gtpv2._pres_rep_area_action.action",
+          {"Action", "gtpv2.pres_rep_area_action.action",
            FT_UINT8, BASE_DEC, VALS(gtpv2_pres_rep_area_action_vals), 0x03,
            NULL, HFILL}
         },
         { &hf_gtpv2_pres_rep_area_id,
-          {"Presence Reporting Area Identifier", "gtpv2._pres_rep_area_action.pres_rep_area_id",
+          {"Presence Reporting Area Identifier", "gtpv2.pres_rep_area_action.pres_rep_area_id",
            FT_UINT16, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_tai,
+          {"Number of TAI", "gtpv2.pres_rep_area_action.no_tai",
+           FT_UINT8, BASE_DEC, NULL, 0xf0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_rai,
+          {"Number of RAI", "gtpv2.pres_rep_area_action.no_rai",
+           FT_UINT8, BASE_DEC, NULL, 0x0f,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_m_enodeb,
+          {"Number of Macro eNodeB", "gtpv2.pres_rep_area_action.no_m_enodeb",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_h_enodeb,
+          {"Number of Home eNodeB", "gtpv2.pres_rep_area_action.no_h_enodeb",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_ecgi,
+          {"Number of ECGI", "gtpv2.pres_rep_area_action.no_ecgi",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_sai,
+          {"Number of SAI", "gtpv2.pres_rep_area_action.no_sai",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_no_cgi,
+          {"Number of CGI", "gtpv2.pres_rep_area_action.no_cgi",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
            NULL, HFILL}
         },
     };
