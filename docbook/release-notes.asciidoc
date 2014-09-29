@@ -131,6 +131,8 @@ ceph
 Stateless Transport Tunneling
 CP 'Cooper' 2179
 S7 Communication
+KNXnetIP
+Dynamic Source Routing (RFC 4728)
 --sort-and-group--
 
 === Updated Protocol Support
@@ -139,9 +141,10 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-//--sort-and-group--
+--sort-and-group--
 Android logcat text files
-//--sort-and-group--
+Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
+--sort-and-group--
 
 === Major API Changes
 

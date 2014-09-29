@@ -110,9 +110,10 @@ What's New
 
   New Protocol Support
 
-   ceph, corosync/totemnet, corosync/totemsrp, CP Cooper 2179, Generic
-   Network Virtualization Encapsulation (Geneve), IPMI Trace, iSER,
-   OptoMMP, S7 Communication, and Stateless Transport Tunneling
+   ceph, corosync/totemnet, corosync/totemsrp, CP Cooper 2179, Dynamic
+   Source Routing (RFC 4728), Generic Network Virtualization Encapsulation
+   (Geneve), IPMI Trace, iSER, KNXnetIP, OptoMMP, S7 Communication, and
+   Stateless Transport Tunneling
 
   Updated Protocol Support
 
@@ -120,7 +121,8 @@ What's New
 
   New and Updated Capture File Support
 
-   Android logcat text files
+   Android logcat text files, and Wireshark now supports nanosecond
+   timestamp resolution in PCAP-NG files.
 
   Major API Changes
 
@@ -135,7 +137,7 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [5]http://www.wireshark.org/download.html.
+   [5]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
@@ -201,7 +203,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-09-04 15:30:56 UTC
+   Last updated 2014-09-29 15:04:45 UTC
 
 References
 
@@ -209,8 +211,8 @@ References
    2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
    3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200
    4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9492
-   5. http://www.wireshark.org/download.html
-   6. http://www.wireshark.org/download.html#thirdparty
+   5. https://www.wireshark.org/download.html
+   6. https://www.wireshark.org/download.html#thirdparty
    7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
    8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
    9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
@@ -224,6 +226,6 @@ References
   17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
   18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
   19. http://ask.wireshark.org/
-  20. http://www.wireshark.org/lists/
+  20. https://www.wireshark.org/lists/
   21. http://www.wiresharktraining.com/
-  22. http://www.wireshark.org/faq.html
+  22. https://www.wireshark.org/faq.html
