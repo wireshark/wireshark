@@ -641,7 +641,12 @@ relinquish_all_capabilities(void)
 #endif
 
 static pcap_t *
-open_capture_device(interface_options *interface_opts,
+open_capture_device(capture_options *capture_opts
+#ifndef HAVE_PCAP_SET_TSTAMP_PRECISION
+                    _U_
+#endif
+                    ,
+                    interface_options *interface_opts,
                     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
     pcap_t *pcap_h;
@@ -930,7 +935,7 @@ show_filter_code(capture_options *capture_opts)
 
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
-        pcap_h = open_capture_device(&interface_opts, &open_err_str);
+        pcap_h = open_capture_device(capture_opts, &interface_opts, &open_err_str);
         if (pcap_h == NULL) {
             /* Open failed; get messages */
             get_capture_device_open_failure_messages(open_err_str,
@@ -2659,7 +2664,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         g_array_append_val(ld->pcaps, pcap_opts);
 
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", interface_opts.name);
-        pcap_opts->pcap_h = open_capture_device(&interface_opts, &open_err_str);
+        pcap_opts->pcap_h = open_capture_device(capture_opts, &interface_opts, &open_err_str);
 
         if (pcap_opts->pcap_h != NULL) {
             /* we've opened "iface" as a network device */
