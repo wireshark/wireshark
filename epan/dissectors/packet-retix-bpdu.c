@@ -115,3 +115,16 @@ proto_register_retix_bpdu(void)
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("rbpdu", dissect_retix_bpdu, proto_retix_bpdu);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

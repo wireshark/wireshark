@@ -121,3 +121,16 @@ proto_reg_handoff_ipoib(void)
   ipoib_handle = create_dissector_handle(dissect_ipoib, proto_ipoib);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_IB, ipoib_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

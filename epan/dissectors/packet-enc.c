@@ -196,3 +196,16 @@ proto_reg_handoff_enc(void)
   enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

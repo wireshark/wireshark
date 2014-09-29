@@ -36,14 +36,14 @@ void proto_reg_handoff_hsr_prp_supervision(void);
 /**********************************************************/
 
 static const value_string type_vals[] = {
-  {20, "PRP Node (Duplicate Discard)"},
-  {21, "PRP Node (Duplicate Accept)"},
-  {22, "Obsolete TLV value"},
-  {23, "HSR Node"},
-  {30, "Redundancy Box MAC Address"},
-  {31, "Virtual Dual Attached Node"},
-  {0,  "End of TLVs"},
-  {0,  NULL}
+    {20, "PRP Node (Duplicate Discard)"},
+    {21, "PRP Node (Duplicate Accept)"},
+    {22, "Obsolete TLV value"},
+    {23, "HSR Node"},
+    {30, "Redundancy Box MAC Address"},
+    {31, "Virtual Dual Attached Node"},
+    {0,  "End of TLVs"},
+    {0,  NULL}
 };
 
 /**********************************************************/
@@ -256,3 +256,16 @@ void proto_reg_handoff_hsr_prp_supervision(void)
     hsr_prp_supervision_handle = create_dissector_handle(dissect_hsr_prp_supervision, proto_hsr_prp_supervision);
     dissector_add_uint("ethertype", ETHERTYPE_PRP, hsr_prp_supervision_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

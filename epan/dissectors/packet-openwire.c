@@ -359,73 +359,73 @@ static gboolean openwire_verbose_type = FALSE;
 #define OPENWIRE_BROKER_ID                     124
 
 static const value_string openwire_opcode_vals[] = {
-  { OPENWIRE_WIREFORMAT_INFO,               "WireFormatInfo" },
-  { OPENWIRE_BROKER_INFO,                   "BrokerInfo" },
-  { OPENWIRE_CONNECTION_INFO,               "ConnectionInfo" },
-  { OPENWIRE_SESSION_INFO,                  "SessionInfo" },
-  { OPENWIRE_CONSUMER_INFO,                 "ConsumerInfo" },
-  { OPENWIRE_PRODUCER_INFO,                 "ProducerInfo" },
-  { OPENWIRE_TRANSACTION_INFO,              "TransactionInfo" },
-  { OPENWIRE_DESTINATION_INFO,              "DestinationInfo" },
-  { OPENWIRE_REMOVE_SUBSCRIPTION_INFO,      "RemoveSubscriptionInfo" },
-  { OPENWIRE_KEEP_ALIVE_INFO,               "KeepAliveInfo" },
-  { OPENWIRE_SHUTDOWN_INFO,                 "ShutdownInfo" },
-  { OPENWIRE_REMOVE_INFO,                   "RemoveInfo" },
-  { OPENWIRE_CONTROL_COMMAND,               "ControlCommand" },
-  { OPENWIRE_FLUSH_COMMAND,                 "FlushCommand" },
-  { OPENWIRE_CONNECTION_ERROR,              "ConnectionError" },
-  { OPENWIRE_CONSUMER_CONTROL,              "ConsumerControl" },
-  { OPENWIRE_CONNECTION_CONTROL,            "ConnectionControl" },
-  { OPENWIRE_PRODUCER_ACK,                  "ProducerAck" },
-  { OPENWIRE_MESSAGE_PULL,                  "MessagePull" },
-  { OPENWIRE_MESSAGE_DISPATCH,              "MessageDispatch" },
-  { OPENWIRE_MESSAGE_ACK,                   "MessageAck" },
-  { OPENWIRE_ACTIVEMQ_MESSAGE,              "ActiveMQMessage" },
-  { OPENWIRE_ACTIVEMQ_BYTES_MESSAGE,        "ActiveMQBytesMessage" },
-  { OPENWIRE_ACTIVEMQ_MAP_MESSAGE,          "ActiveMQMapMessage" },
-  { OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE,       "ActiveMQObjectMessage" },
-  { OPENWIRE_ACTIVEMQ_STREAM_MESSAGE,       "ActiveMQStreamMessage" },
-  { OPENWIRE_ACTIVEMQ_TEXT_MESSAGE,         "ActiveMQTextMessage" },
-  { OPENWIRE_ACTIVEMQ_BLOB_MESSAGE,         "ActiveMQBlobMessage" },
-  { OPENWIRE_RESPONSE,                      "Response" },
-  { OPENWIRE_EXCEPTION_RESPONSE,            "ExceptionResponse" },
-  { OPENWIRE_DATA_RESPONSE,                 "DataResponse" },
-  { OPENWIRE_DATA_ARRAY_RESPONSE,           "DataArrayResponse" },
-  { OPENWIRE_INTEGER_RESPONSE,              "IntegerResponse" },
-  { OPENWIRE_DISCOVERY_EVENT,               "DiscoveryEvent" },
-  { OPENWIRE_JOURNAL_ACK,                   "JournalTopicAck" },
-  { OPENWIRE_JOURNAL_REMOVE,                "JournalQueueAck" },
-  { OPENWIRE_JOURNAL_TRACE,                 "JournalTrace" },
-  { OPENWIRE_JOURNAL_TRANSACTION,           "JournalTransaction" },
-  { OPENWIRE_DURABLE_SUBSCRIPTION_INFO,     "SubscriptionInfo" },
-  { OPENWIRE_PARTIAL_COMMAND,               "PartialCommand" },
-  { OPENWIRE_PARTIAL_LAST_COMMAND,          "LastPartialCommand" },
-  { OPENWIRE_REPLAY,                        "ReplayCommand" },
-  { OPENWIRE_BYTE_TYPE,                     "Byte" },
-  { OPENWIRE_CHAR_TYPE,                     "Char" },
-  { OPENWIRE_SHORT_TYPE,                    "Short" },
-  { OPENWIRE_INTEGER_TYPE,                  "Integer" },
-  { OPENWIRE_LONG_TYPE,                     "Long" },
-  { OPENWIRE_DOUBLE_TYPE,                   "Double" },
-  { OPENWIRE_FLOAT_TYPE,                    "Float" },
-  { OPENWIRE_STRING_TYPE,                   "String" },
-  { OPENWIRE_BOOLEAN_TYPE,                  "Boolean" },
-  { OPENWIRE_BYTE_ARRAY_TYPE,               "ByteArray" },
-  { OPENWIRE_MESSAGE_DISPATCH_NOTIFICATION, "MessageDispatchNotification" },
-  { OPENWIRE_NETWORK_BRIDGE_FILTER,         "NetworkBridgeFilter" },
-  { OPENWIRE_ACTIVEMQ_QUEUE,                "ActiveMQQueue" },
-  { OPENWIRE_ACTIVEMQ_TOPIC,                "ActiveMQTopic" },
-  { OPENWIRE_ACTIVEMQ_TEMP_QUEUE,           "ActiveMQTempQueue" },
-  { OPENWIRE_ACTIVEMQ_TEMP_TOPIC,           "ActiveMQTempTopic" },
-  { OPENWIRE_MESSAGE_ID,                    "MessageId" },
-  { OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID, "LocalTransactionId" },
-  { OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID,    "XATransactionId" },
-  { OPENWIRE_CONNECTION_ID,                 "ConnectionId" },
-  { OPENWIRE_SESSION_ID,                    "SessionId" },
-  { OPENWIRE_CONSUMER_ID,                   "ConsumerId" },
-  { OPENWIRE_PRODUCER_ID,                   "ProducerId" },
-  { OPENWIRE_BROKER_ID,                     "BrokerId" },
-  { 0,          NULL }
+    { OPENWIRE_WIREFORMAT_INFO,               "WireFormatInfo" },
+    { OPENWIRE_BROKER_INFO,                   "BrokerInfo" },
+    { OPENWIRE_CONNECTION_INFO,               "ConnectionInfo" },
+    { OPENWIRE_SESSION_INFO,                  "SessionInfo" },
+    { OPENWIRE_CONSUMER_INFO,                 "ConsumerInfo" },
+    { OPENWIRE_PRODUCER_INFO,                 "ProducerInfo" },
+    { OPENWIRE_TRANSACTION_INFO,              "TransactionInfo" },
+    { OPENWIRE_DESTINATION_INFO,              "DestinationInfo" },
+    { OPENWIRE_REMOVE_SUBSCRIPTION_INFO,      "RemoveSubscriptionInfo" },
+    { OPENWIRE_KEEP_ALIVE_INFO,               "KeepAliveInfo" },
+    { OPENWIRE_SHUTDOWN_INFO,                 "ShutdownInfo" },
+    { OPENWIRE_REMOVE_INFO,                   "RemoveInfo" },
+    { OPENWIRE_CONTROL_COMMAND,               "ControlCommand" },
+    { OPENWIRE_FLUSH_COMMAND,                 "FlushCommand" },
+    { OPENWIRE_CONNECTION_ERROR,              "ConnectionError" },
+    { OPENWIRE_CONSUMER_CONTROL,              "ConsumerControl" },
+    { OPENWIRE_CONNECTION_CONTROL,            "ConnectionControl" },
+    { OPENWIRE_PRODUCER_ACK,                  "ProducerAck" },
+    { OPENWIRE_MESSAGE_PULL,                  "MessagePull" },
+    { OPENWIRE_MESSAGE_DISPATCH,              "MessageDispatch" },
+    { OPENWIRE_MESSAGE_ACK,                   "MessageAck" },
+    { OPENWIRE_ACTIVEMQ_MESSAGE,              "ActiveMQMessage" },
+    { OPENWIRE_ACTIVEMQ_BYTES_MESSAGE,        "ActiveMQBytesMessage" },
+    { OPENWIRE_ACTIVEMQ_MAP_MESSAGE,          "ActiveMQMapMessage" },
+    { OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE,       "ActiveMQObjectMessage" },
+    { OPENWIRE_ACTIVEMQ_STREAM_MESSAGE,       "ActiveMQStreamMessage" },
+    { OPENWIRE_ACTIVEMQ_TEXT_MESSAGE,         "ActiveMQTextMessage" },
+    { OPENWIRE_ACTIVEMQ_BLOB_MESSAGE,         "ActiveMQBlobMessage" },
+    { OPENWIRE_RESPONSE,                      "Response" },
+    { OPENWIRE_EXCEPTION_RESPONSE,            "ExceptionResponse" },
+    { OPENWIRE_DATA_RESPONSE,                 "DataResponse" },
+    { OPENWIRE_DATA_ARRAY_RESPONSE,           "DataArrayResponse" },
+    { OPENWIRE_INTEGER_RESPONSE,              "IntegerResponse" },
+    { OPENWIRE_DISCOVERY_EVENT,               "DiscoveryEvent" },
+    { OPENWIRE_JOURNAL_ACK,                   "JournalTopicAck" },
+    { OPENWIRE_JOURNAL_REMOVE,                "JournalQueueAck" },
+    { OPENWIRE_JOURNAL_TRACE,                 "JournalTrace" },
+    { OPENWIRE_JOURNAL_TRANSACTION,           "JournalTransaction" },
+    { OPENWIRE_DURABLE_SUBSCRIPTION_INFO,     "SubscriptionInfo" },
+    { OPENWIRE_PARTIAL_COMMAND,               "PartialCommand" },
+    { OPENWIRE_PARTIAL_LAST_COMMAND,          "LastPartialCommand" },
+    { OPENWIRE_REPLAY,                        "ReplayCommand" },
+    { OPENWIRE_BYTE_TYPE,                     "Byte" },
+    { OPENWIRE_CHAR_TYPE,                     "Char" },
+    { OPENWIRE_SHORT_TYPE,                    "Short" },
+    { OPENWIRE_INTEGER_TYPE,                  "Integer" },
+    { OPENWIRE_LONG_TYPE,                     "Long" },
+    { OPENWIRE_DOUBLE_TYPE,                   "Double" },
+    { OPENWIRE_FLOAT_TYPE,                    "Float" },
+    { OPENWIRE_STRING_TYPE,                   "String" },
+    { OPENWIRE_BOOLEAN_TYPE,                  "Boolean" },
+    { OPENWIRE_BYTE_ARRAY_TYPE,               "ByteArray" },
+    { OPENWIRE_MESSAGE_DISPATCH_NOTIFICATION, "MessageDispatchNotification" },
+    { OPENWIRE_NETWORK_BRIDGE_FILTER,         "NetworkBridgeFilter" },
+    { OPENWIRE_ACTIVEMQ_QUEUE,                "ActiveMQQueue" },
+    { OPENWIRE_ACTIVEMQ_TOPIC,                "ActiveMQTopic" },
+    { OPENWIRE_ACTIVEMQ_TEMP_QUEUE,           "ActiveMQTempQueue" },
+    { OPENWIRE_ACTIVEMQ_TEMP_TOPIC,           "ActiveMQTempTopic" },
+    { OPENWIRE_MESSAGE_ID,                    "MessageId" },
+    { OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID, "LocalTransactionId" },
+    { OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID,    "XATransactionId" },
+    { OPENWIRE_CONNECTION_ID,                 "ConnectionId" },
+    { OPENWIRE_SESSION_ID,                    "SessionId" },
+    { OPENWIRE_CONSUMER_ID,                   "ConsumerId" },
+    { OPENWIRE_PRODUCER_ID,                   "ProducerId" },
+    { OPENWIRE_BROKER_ID,                     "BrokerId" },
+    { 0,          NULL }
 };
 
 static value_string_ext openwire_opcode_vals_ext = VALUE_STRING_EXT_INIT(openwire_opcode_vals);
@@ -451,42 +451,42 @@ static value_string_ext openwire_opcode_vals_ext = VALUE_STRING_EXT_INIT(openwir
 #define OPENWIRE_TYPE_BIG_STRING      13
 
 static const value_string openwire_type_vals[] = {
-  { OPENWIRE_TYPE_NULL,                      "Null" },
-  { OPENWIRE_TYPE_BOOLEAN,                   "Boolean" },
-  { OPENWIRE_TYPE_BYTE,                      "Byte" },
-  { OPENWIRE_TYPE_CHAR,                      "Char" },
-  { OPENWIRE_TYPE_SHORT,                     "Short" },
-  { OPENWIRE_TYPE_INTEGER,                   "Integer" },
-  { OPENWIRE_TYPE_LONG,                      "Long" },
-  { OPENWIRE_TYPE_DOUBLE,                    "Double" },
-  { OPENWIRE_TYPE_FLOAT,                     "Float" },
-  { OPENWIRE_TYPE_STRING,                    "String" },
-  { OPENWIRE_TYPE_BYTE_ARRAY,                "ByteArray" },
-  { OPENWIRE_TYPE_MAP,                       "Map" },
-  { OPENWIRE_TYPE_LIST,                      "List" },
-  { OPENWIRE_TYPE_BIG_STRING,                "BigString" },
-  { OPENWIRE_ACTIVEMQ_MESSAGE,               "ActiveMQMessage" },
-  { OPENWIRE_ACTIVEMQ_BYTES_MESSAGE,         "ActiveMQBytesMessage" },
-  { OPENWIRE_ACTIVEMQ_MAP_MESSAGE,           "ActiveMQMapMessage" },
-  { OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE,        "ActiveMQObjectMessage" },
-  { OPENWIRE_ACTIVEMQ_STREAM_MESSAGE,        "ActiveMQStreamMessage" },
-  { OPENWIRE_ACTIVEMQ_TEXT_MESSAGE,          "ActiveMQTextMessage" },
-  { OPENWIRE_ACTIVEMQ_BLOB_MESSAGE,          "ActiveMQBlobMessage" },
-  { OPENWIRE_ACTIVEMQ_QUEUE,                 "ActiveMQQueue" },
-  { OPENWIRE_ACTIVEMQ_TOPIC,                 "ActiveMQTopic" },
-  { OPENWIRE_ACTIVEMQ_TEMP_QUEUE,            "ActiveMQTempQueue" },
-  { OPENWIRE_ACTIVEMQ_TEMP_TOPIC,            "ActiveMQTempTopic" },
-  { OPENWIRE_MESSAGE_ID,                     "MessageId" },
-  { OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID,  "LocalTransactionId" },
-  { OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID,     "XATransactionId" },
-  { OPENWIRE_CONNECTION_ID,                  "ConnectionId" },
-  { OPENWIRE_SESSION_ID,                     "SessionId" },
-  { OPENWIRE_CONSUMER_ID,                    "ConsumerId" },
-  { OPENWIRE_PRODUCER_ID,                    "ProducerId" },
-  { OPENWIRE_BROKER_ID,                      "BrokerId" },
-  { OPENWIRE_TYPE_OBJECT_ARRAY,              "ObjectArray" },
-  { OPENWIRE_TYPE_THROWABLE,                 "Throwable" },
-  { 0,                                        NULL }
+    { OPENWIRE_TYPE_NULL,                      "Null" },
+    { OPENWIRE_TYPE_BOOLEAN,                   "Boolean" },
+    { OPENWIRE_TYPE_BYTE,                      "Byte" },
+    { OPENWIRE_TYPE_CHAR,                      "Char" },
+    { OPENWIRE_TYPE_SHORT,                     "Short" },
+    { OPENWIRE_TYPE_INTEGER,                   "Integer" },
+    { OPENWIRE_TYPE_LONG,                      "Long" },
+    { OPENWIRE_TYPE_DOUBLE,                    "Double" },
+    { OPENWIRE_TYPE_FLOAT,                     "Float" },
+    { OPENWIRE_TYPE_STRING,                    "String" },
+    { OPENWIRE_TYPE_BYTE_ARRAY,                "ByteArray" },
+    { OPENWIRE_TYPE_MAP,                       "Map" },
+    { OPENWIRE_TYPE_LIST,                      "List" },
+    { OPENWIRE_TYPE_BIG_STRING,                "BigString" },
+    { OPENWIRE_ACTIVEMQ_MESSAGE,               "ActiveMQMessage" },
+    { OPENWIRE_ACTIVEMQ_BYTES_MESSAGE,         "ActiveMQBytesMessage" },
+    { OPENWIRE_ACTIVEMQ_MAP_MESSAGE,           "ActiveMQMapMessage" },
+    { OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE,        "ActiveMQObjectMessage" },
+    { OPENWIRE_ACTIVEMQ_STREAM_MESSAGE,        "ActiveMQStreamMessage" },
+    { OPENWIRE_ACTIVEMQ_TEXT_MESSAGE,          "ActiveMQTextMessage" },
+    { OPENWIRE_ACTIVEMQ_BLOB_MESSAGE,          "ActiveMQBlobMessage" },
+    { OPENWIRE_ACTIVEMQ_QUEUE,                 "ActiveMQQueue" },
+    { OPENWIRE_ACTIVEMQ_TOPIC,                 "ActiveMQTopic" },
+    { OPENWIRE_ACTIVEMQ_TEMP_QUEUE,            "ActiveMQTempQueue" },
+    { OPENWIRE_ACTIVEMQ_TEMP_TOPIC,            "ActiveMQTempTopic" },
+    { OPENWIRE_MESSAGE_ID,                     "MessageId" },
+    { OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID,  "LocalTransactionId" },
+    { OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID,     "XATransactionId" },
+    { OPENWIRE_CONNECTION_ID,                  "ConnectionId" },
+    { OPENWIRE_SESSION_ID,                     "SessionId" },
+    { OPENWIRE_CONSUMER_ID,                    "ConsumerId" },
+    { OPENWIRE_PRODUCER_ID,                    "ProducerId" },
+    { OPENWIRE_BROKER_ID,                      "BrokerId" },
+    { OPENWIRE_TYPE_OBJECT_ARRAY,              "ObjectArray" },
+    { OPENWIRE_TYPE_THROWABLE,                 "Throwable" },
+    { 0,                                        NULL }
 };
 
 static value_string_ext openwire_type_vals_ext = VALUE_STRING_EXT_INIT(openwire_type_vals);
@@ -501,15 +501,15 @@ static value_string_ext openwire_type_vals_ext = VALUE_STRING_EXT_INIT(openwire_
 #define OPENWIRE_TRANSACTIONTYPE_END                7
 
 static const value_string openwire_transaction_type_vals[] = {
-  { OPENWIRE_TRANSACTIONTYPE_BEGIN,                "Begin" },
-  { OPENWIRE_TRANSACTIONTYPE_PREPARE,              "Prepare" },
-  { OPENWIRE_TRANSACTIONTYPE_COMMIT_ONE_PHASE,     "CommitOnePhase" },
-  { OPENWIRE_TRANSACTIONTYPE_COMMIT_TWO_PHASE,     "CommitTwoPhase" },
-  { OPENWIRE_TRANSACTIONTYPE_ROLLBACK,             "Rollback" },
-  { OPENWIRE_TRANSACTIONTYPE_RECOVER,              "Recover" },
-  { OPENWIRE_TRANSACTIONTYPE_FORGET,               "Forget" },
-  { OPENWIRE_TRANSACTIONTYPE_END,                  "End" },
-  { 0,                                             NULL }
+    { OPENWIRE_TRANSACTIONTYPE_BEGIN,                "Begin" },
+    { OPENWIRE_TRANSACTIONTYPE_PREPARE,              "Prepare" },
+    { OPENWIRE_TRANSACTIONTYPE_COMMIT_ONE_PHASE,     "CommitOnePhase" },
+    { OPENWIRE_TRANSACTIONTYPE_COMMIT_TWO_PHASE,     "CommitTwoPhase" },
+    { OPENWIRE_TRANSACTIONTYPE_ROLLBACK,             "Rollback" },
+    { OPENWIRE_TRANSACTIONTYPE_RECOVER,              "Recover" },
+    { OPENWIRE_TRANSACTIONTYPE_FORGET,               "Forget" },
+    { OPENWIRE_TRANSACTIONTYPE_END,                  "End" },
+    { 0,                                             NULL }
 };
 
 static value_string_ext openwire_transaction_type_vals_ext = VALUE_STRING_EXT_INIT(openwire_transaction_type_vals);
@@ -522,27 +522,27 @@ static value_string_ext openwire_transaction_type_vals_ext = VALUE_STRING_EXT_IN
 #define OPENWIRE_MESSAGE_ACK_TYPE_UNMATCHED       5
 
 static const value_string openwire_message_ack_type_vals[] = {
-  { OPENWIRE_MESSAGE_ACK_TYPE_DELIVERED,         "Delivered" },
-  { OPENWIRE_MESSAGE_ACK_TYPE_POISON,            "Poison" },
-  { OPENWIRE_MESSAGE_ACK_TYPE_STANDARD,          "Standard" },
-  { OPENWIRE_MESSAGE_ACK_TYPE_REDELIVERED,       "Redelivered" },
-  { OPENWIRE_MESSAGE_ACK_TYPE_INDIVIDUAL,        "Individual" },
-  { OPENWIRE_MESSAGE_ACK_TYPE_UNMATCHED,         "Unmatched" },
-  { 0,                                           NULL }
+    { OPENWIRE_MESSAGE_ACK_TYPE_DELIVERED,         "Delivered" },
+    { OPENWIRE_MESSAGE_ACK_TYPE_POISON,            "Poison" },
+    { OPENWIRE_MESSAGE_ACK_TYPE_STANDARD,          "Standard" },
+    { OPENWIRE_MESSAGE_ACK_TYPE_REDELIVERED,       "Redelivered" },
+    { OPENWIRE_MESSAGE_ACK_TYPE_INDIVIDUAL,        "Individual" },
+    { OPENWIRE_MESSAGE_ACK_TYPE_UNMATCHED,         "Unmatched" },
+    { 0,                                           NULL }
 };
 
 #define OPENWIRE_OPERATION_TYPE_ADD       0
 #define OPENWIRE_OPERATION_TYPE_REMOVE    1
 
 static const value_string openwire_operation_type_vals[] = {
-  { OPENWIRE_OPERATION_TYPE_ADD,          "Add" },
-  { OPENWIRE_OPERATION_TYPE_REMOVE,       "Remove" },
-  { 0,                                    NULL }
+    { OPENWIRE_OPERATION_TYPE_ADD,          "Add" },
+    { OPENWIRE_OPERATION_TYPE_REMOVE,       "Remove" },
+    { 0,                                    NULL }
 };
 
 typedef struct openwire_conv_data {
-  gboolean caching;
-  gboolean tight;
+    gboolean caching;
+    gboolean tight;
 } openwire_conv_data;
 
 static void
@@ -2022,3 +2022,16 @@ proto_reg_handoff_openwire(void)
     openwire_tcp_handle = new_create_dissector_handle(dissect_openwire_tcp, proto_openwire);
     dissector_add_for_decode_as("tcp.port", openwire_tcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

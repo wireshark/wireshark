@@ -62,9 +62,9 @@ typedef enum {
 } i_octet_dlci_status_t;
 
 
- /* Keep conversation info for one side of an SPRT conversation
-  * TODO - this needs to be bidirectional
-  */
+/* Keep conversation info for one side of an SPRT conversation
+ * TODO - this needs to be bidirectional
+ */
 struct _sprt_conversation_info
 {
     gchar    method[SPRT_CONV_MAX_SETUP_METHOD_SIZE + 1];
@@ -3437,3 +3437,16 @@ proto_reg_handoff_sprt(void)
 
     heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

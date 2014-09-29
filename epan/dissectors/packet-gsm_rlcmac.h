@@ -5244,4 +5244,17 @@ extern const guint8 gsm_rlcmac_egprs_header_type_to_dl_header_block_length[];
 extern const guint8 gsm_rlcmac_egprs_header_type_to_ul_header_block_length[];
 extern const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[];
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
+
 #endif /* __PACKET_GSM_RLCMAC_H__ */

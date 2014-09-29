@@ -711,3 +711,16 @@ proto_reg_handoff_starteam(void)
   heur_dissector_add("tcp", dissect_starteam_heur, proto_starteam);
   starteam_tcp_handle = new_create_dissector_handle(dissect_starteam_tcp, proto_starteam);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

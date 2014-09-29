@@ -1088,3 +1088,16 @@ void proto_register_packetbb(void) {
       "UDP port for packetbb", "UDP communication port for packetbb PDUs",
       10, &global_packetbb_port);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
