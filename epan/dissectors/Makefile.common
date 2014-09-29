@@ -71,10 +71,7 @@ DIRTY_PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-dfs.c	\
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-mapi.c	\
-	packet-dcerpc-misc.c	\
-	packet-dcerpc-mapi.c
-
-
+	packet-dcerpc-misc.c
 
 #
 # Headers for PIDL-generated dissectors.
