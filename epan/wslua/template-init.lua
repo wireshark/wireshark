@@ -113,6 +113,8 @@ end
 
 -- %WTAP_FILETYPES%
 
+-- %WTAP_TSPRECS%
+
 -- %WTAP_COMMENTTYPES%
 
 -- %FT_TYPES%

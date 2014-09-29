@@ -32,6 +32,7 @@ die "'$WSROOT' is not a directory" unless -d $WSROOT;
 
 my $wtap_encaps_table = '';
 my $wtap_filetypes_table = '';
+my $wtap_tsprecs_table = '';
 my $wtap_commenttypes_table = '';
 my $ft_types_table = '';
 my $wtap_rec_types_table = '';
@@ -47,6 +48,7 @@ my $menu_groups = '';
 my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
     WTAP_FILETYPES => \$wtap_filetypes_table,
+    WTAP_TSPRECS => \$wtap_tsprecs_table,
     WTAP_COMMENTTYPES => \$wtap_commenttypes_table,
     FT_TYPES => \$ft_types_table,
     WTAP_REC_TYPES => \$wtap_rec_types_table,
@@ -79,6 +81,7 @@ close TEMPLATE;
 
 $wtap_encaps_table = "-- Wiretap encapsulations XXX\nwtap_encaps = {\n";
 $wtap_filetypes_table = "-- Wiretap file types\nwtap_filetypes = {\n";
+$wtap_tsprecs_table = "-- Wiretap timestamp precision types\nwtap_tsprecs = {\n";
 $wtap_commenttypes_table = "-- Wiretap file comment types\nwtap_comments = {\n";
 $wtap_rec_types_table = "-- Wiretap record_types\nwtap_rec_types = {\n";
 $wtap_presence_flags_table = "-- Wiretap presence flags\nwtap_presence_flags = {\n";
@@ -90,9 +93,12 @@ while(<WTAP_H>) {
         $wtap_encaps_table .= "\t[\"$1\"] = $2,\n";
     }
 
-    # this has to catch both file types and timestamp precision defines (yuck)
-    if ( /^#define WTAP_FILE_(?:TYPE_SUBTYPE_)?([A-Z0-9_]+)\s+(\d+)/ ) {
+    if ( /^#define WTAP_FILE_TYPE_SUBTYPE_([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_filetypes_table .= "\t[\"$1\"] = $2,\n";
+    }
+
+    if ( /^#define WTAP_TSPREC_([A-Z0-9_]+)\s+(\d+)/ ) {
+        $wtap_tsprecs_table .= "\t[\"$1\"] = $2,\n";
     }
 
     if ( /^#define WTAP_COMMENT_([A-Z0-9_]+)\s+(0x\d+)/ ) {
@@ -111,6 +117,7 @@ while(<WTAP_H>) {
 
 $wtap_encaps_table =~ s/,\n$/\n}\nwtap = wtap_encaps -- for bw compatibility\n/msi;
 $wtap_filetypes_table =~ s/,\n$/\n}\n/msi;
+$wtap_tsprecs_table =~ s/,\n$/\n}\n/msi;
 $wtap_commenttypes_table =~ s/,\n$/\n}\n/msi;
 # wtap_rec_types_table has comments at the end (not a comma),
 # but Lua doesn't care about extra commas so leave it in
