@@ -4211,7 +4211,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_lsp_error_code,
           { "LSP Error Code", "pcep.tlv.lsp-error-code",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, VALS(pcep_tlv_lsp_error_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_rsvp_user_error_spec,
