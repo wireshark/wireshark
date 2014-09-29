@@ -580,3 +580,16 @@ proto_reg_handoff_irc(void)
     dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
     dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

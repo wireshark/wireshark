@@ -283,3 +283,16 @@ void proto_register_user_encap(void)
     prefs_register_protocol_obsolete(proto_register_protocol("DLT User D","DLT_USER_D","user_dlt_d"));
     */
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

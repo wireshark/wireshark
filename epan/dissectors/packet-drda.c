@@ -958,3 +958,16 @@ proto_reg_handoff_drda(void)
     heur_dissector_add("tcp", dissect_drda_heur, proto_drda);
     drda_tcp_handle = new_create_dissector_handle(dissect_drda_tcp, proto_drda);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

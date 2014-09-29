@@ -1728,3 +1728,16 @@ void proto_reg_handoff_dplay(void)
     heur_dissector_add("udp", heur_dissect_dplay, proto_dplay);
     heur_dissector_add("tcp", heur_dissect_dplay, proto_dplay);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
