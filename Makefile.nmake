@@ -1370,7 +1370,9 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgthread-2.0-0.dll $(INSTALL_DIR) /d
+!IF "$(GTK_PKG)" != "2.24.14-1.1"
 	xcopy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR) /d
+!ENDIF
 	xcopy $(GTK_DIR)\bin\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper.exe $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper-console.exe $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
@@ -1398,9 +1400,10 @@ install-all: install-generated-files
 	xcopy $(GNUTLS_DIR)\bin\libnettle-4-6.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libp11-kit-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-6.dll $(INSTALL_DIR) /d
-! IF "$(INTL_DLL)" != "libintl-8.dll"
+! IF "$(INTL_DLL)" != "libintl-8.dll" || "$(GTK_PKG)" == "2.24.14-1.1"
 # The gtk+ bundle doesn't provide libintl-8.dll (which is the case
-# with the 32-bit package); use the GNUTLS version.
+# with the 32-bit package) or libintl-8.dll doesn't include
+# intl_vasprintf; use the GNUTLS version.
 	xcopy $(GNUTLS_DIR)\bin\libintl-8.dll $(INSTALL_DIR) /d
 ! ENDIF
 !ENDIF
