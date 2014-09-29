@@ -99,6 +99,8 @@ while(<WTAP_H>) {
 
     if ( /^#define WTAP_TSPREC_([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_tsprecs_table .= "\t[\"$1\"] = $2,\n";
+        # for backwards compatibility we need to add them to the filetypes table too
+        $wtap_filetypes_table .= "\t[\"TSPREC_$1\"] = $2,\n";
     }
 
     if ( /^#define WTAP_COMMENT_([A-Z0-9_]+)\s+(0x\d+)/ ) {
