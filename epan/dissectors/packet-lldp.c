@@ -2412,38 +2412,28 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 		tlvLen--;
 
 		/* Get flags */
-		if (tlvLen < 2)
+		if (tlvLen < 3)
 		{
 			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
 			return;
 		}
 
-		proto_tree_add_item(tree, hf_media_policy_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_media_tag_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_media_policy_flag, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_media_tag_flag, tvb, offset, 3, ENC_BIG_ENDIAN);
 
 		/* Get vlan id */
-		proto_tree_add_item(tree, hf_media_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_media_vlan_id, tvb, offset, 3, ENC_BIG_ENDIAN);
 
-		offset++;
-		tlvLen--;
 
 		/* Get L2 priority */
-		if (tlvLen < 1)
-		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
-			return;
-		}
 
-		proto_tree_add_item(tree, hf_media_l2_prio, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-		offset++;
-		tlvLen--;
+		proto_tree_add_item(tree, hf_media_l2_prio, tvb, offset, 3, ENC_BIG_ENDIAN);
 
 		/* Get DSCP value */
-		proto_tree_add_item(tree, hf_media_dscp, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_media_dscp, tvb, offset, 3, ENC_BIG_ENDIAN);
 
-		offset++;
-		tlvLen--;
+		offset += 3;
+		tlvLen -= 3;
 		break;
 	}
 	case 3:	/* Location Identification */
