@@ -1359,10 +1359,6 @@ int main(int argc, char *argv[])
     /* user could specify filename, or display filter, or both */
     if (!cf_name.isEmpty()) {
 
-        // XXX We need to call cf_open + start_requested_stats + cf_read
-        // similar to gtk/main.c:3110.
-        main_w->openCaptureFile(cf_name, display_filter, in_file_type);
-
         /* Open stat windows; we do so after creating the main window,
            to avoid Qt warnings, and after successfully opening the
            capture file, so we know we have something to compute stats
@@ -1371,6 +1367,14 @@ int main(int argc, char *argv[])
            with one of MATE's late-registered fields as part of the
            filter. */
         start_requested_stats();
+
+        // XXX The GTK+ UI does error checking here.
+        main_w->openCaptureFile(cf_name, display_filter, in_file_type);
+        if(go_to_packet != 0) {
+            /* Jump to the specified frame number, kept for backward
+               compatibility. */
+            cf_goto_frame(&cfile, go_to_packet);
+        }
     }
 #ifdef HAVE_LIBPCAP
     else {
