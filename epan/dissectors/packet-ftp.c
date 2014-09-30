@@ -327,6 +327,11 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
     /* Copy the rest of the line into a null-terminated buffer. */
     args = wmem_strndup(wmem_packet_scope(), line, linelen);
     p = args;
+    /*
+     * Handle a NUL being in the line; if there's a NUL in the line,
+     * strlen(args) will terminate at the NUL and will thus return
+     * a value less than linelen.
+     */
     if ((gint)strlen(args) < linelen)
         linelen = (gint)strlen(args);
 
