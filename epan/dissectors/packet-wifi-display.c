@@ -79,6 +79,17 @@ static int hf_wfd_subelem_session_coupled_sink_reserved = -1;
 static int hf_wfd_subelem_session_coupled_sink_addr = -1;
 static int hf_wfd_subelem_session_extra_info = -1;
 
+static int hf_wfd_subelem_ext_capab = -1;
+static int hf_wfd_subelem_ext_capab_uibc = -1;
+static int hf_wfd_subelem_ext_capab_i2c_read_write = -1;
+static int hf_wfd_subelem_ext_capab_preferred_display_mode = -1;
+static int hf_wfd_subelem_ext_capab_standby_resume_control = -1;
+static int hf_wfd_subelem_ext_capab_tdls_persistent = -1;
+static int hf_wfd_subelem_ext_capab_tdls_persistent_bssid = -1;
+static int hf_wfd_subelem_ext_capab_reserved = -1;
+
+static int hf_wfd_subelem_alt_mac_addr = -1;
+
 static gint ett_wfd_subelem = -1;
 static gint ett_wfd_dev_info_descr = -1;
 
@@ -307,6 +318,46 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
   }
 }
 
+static void
+dissect_wfd_subelem_ext_capab(packet_info *pinfo, proto_tree *tree,
+                                 tvbuff_t *tvb, int offset, int len)
+{
+  if (len<2) {
+    expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid,
+                           "Too short Wi-Fi Display Extended Capability");
+    return;
+  }
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_uibc,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_i2c_read_write,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_preferred_display_mode,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_standby_resume_control,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_tdls_persistent,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_tdls_persistent_bssid,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_wfd_subelem_ext_capab_reserved,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_wfd_subelem_alt_mac_addr(packet_info *pinfo, proto_tree *tree,
+                                 tvbuff_t *tvb, int offset, int len)
+{
+  if (len<6) {
+    expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid,
+                           "Too short Wi-Fi Display Alternative MAC Address");
+    return;
+  }
+  proto_tree_add_item(tree, hf_wfd_subelem_alt_mac_addr,
+                      tvb, offset, 6, ENC_NA);
+}
+
 void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
                              tvbuff_t *tvb, int offset, gint size)
 {
@@ -351,6 +402,12 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
       break;
     case WFD_SUBELEM_SESSION_INFO:
       dissect_wfd_subelem_session_info(pinfo, wfd_tree, tvb, offset, len);
+      break;
+    case WFD_SUBELEM_EXT_CAPAB:
+      dissect_wfd_subelem_ext_capab(pinfo, wfd_tree, tvb, offset, len);
+      break;
+    case WFD_SUBELEM_ALT_MAC_ADDR:
+      dissect_wfd_subelem_alt_mac_addr(pinfo, wfd_tree, tvb, offset, len);
       break;
     default:
       expert_add_info(pinfo, subelem, &ei_wfd_subelem_id);
@@ -520,6 +577,40 @@ proto_register_wifi_display(void)
       { "Extra info in the end of descriptor",
         "wifi_display.subelem.session.extra_info",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab,
+      { "WFD Extended Capability Bitmap",
+        "wifi_display.subelem.ext_capab",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_uibc,
+      { "User Input Back Channel(UIBC)",
+        "wifi_display.subelem.ext_capab.uibc",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0001, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_i2c_read_write,
+      { "I2C Read/Write",
+        "wifi_display.subelem.ext_capab.i2c_read_write",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0002, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_preferred_display_mode,
+      { "Preferred Display Mode",
+        "wifi_display.subelem.ext_capab.preferred_display_mode",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0004, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_standby_resume_control,
+      { "Standby and Resume Control",
+        "wifi_display.subelem.ext_capab.standby_resume_control",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x008, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_tdls_persistent,
+      { "TDLS Persistent",
+        "wifi_display.subelem.ext_capab.tdls_persistent",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0010, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_tdls_persistent_bssid,
+      { "TDLS Persistent BSSID",
+        "wifi_display.subelem.ext_capab.tdls_persistent_bssid",
+        FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0020, NULL, HFILL }},
+    { &hf_wfd_subelem_ext_capab_reserved,
+      { "Reserved", "wifi_display.subelem.ext_capab.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xffc0, NULL, HFILL }},
+    { &hf_wfd_subelem_alt_mac_addr,
+      { "Alternative MAC Address", "wifi_display.subelem.alt_mac_addr",
+        FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_wfd_subelem,
