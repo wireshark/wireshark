@@ -73,3 +73,16 @@ proto_reg_handoff_cds_solicit (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_cds_solicit, ett_cds_solicit, &uuid_cds_solicit, ver_cds_solicit, cds_solicit_dissectors, hf_cds_solicit_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

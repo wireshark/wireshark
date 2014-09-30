@@ -74,33 +74,33 @@ static gint ett_omapi = -1;
 
 #define OMAPI_PORT 7911
 
-#define OP_OPEN		1
-#define OP_REFRESH	2
-#define OP_UPDATE	3
-#define OP_NOTIFY	4
-#define OP_ERROR	5
-#define OP_DELETE	6
-#define OP_NOTIFY_CANCEL	7
-#define OP_NOTIFY_CANCELLED	8
+#define OP_OPEN             1
+#define OP_REFRESH          2
+#define OP_UPDATE           3
+#define OP_NOTIFY           4
+#define OP_ERROR            5
+#define OP_DELETE           6
+#define OP_NOTIFY_CANCEL    7
+#define OP_NOTIFY_CANCELLED 8
 
 static const value_string omapi_opcode_vals[] = {
-  { OP_OPEN,	"Open" },
-  { OP_REFRESH,	"Refresh" },
-  { OP_UPDATE, 	"Update" },
-  { OP_NOTIFY, 	"Notify" },
-  { OP_ERROR, 	"Error" },
-  { OP_DELETE, 	"Delete" },
-  { OP_NOTIFY_CANCEL, 	"Notify cancel" },
-  { OP_NOTIFY_CANCELLED,"Notify cancelled" },
+  { OP_OPEN,             "Open" },
+  { OP_REFRESH,          "Refresh" },
+  { OP_UPDATE,           "Update" },
+  { OP_NOTIFY,           "Notify" },
+  { OP_ERROR,            "Error" },
+  { OP_DELETE,           "Delete" },
+  { OP_NOTIFY_CANCEL,    "Notify cancel" },
+  { OP_NOTIFY_CANCELLED, "Notify cancelled" },
   { 0, NULL }
 };
 
 static void
 dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *omapi_tree;
-  ptvcursor_t* cursor;
+  proto_item  *ti;
+  proto_tree  *omapi_tree;
+  ptvcursor_t *cursor;
 
   guint32 authlength;
   guint32 msglength;
@@ -226,72 +226,72 @@ proto_register_omapi(void)
   static hf_register_info hf[] = {
     { &hf_omapi_version,
       { "Version", "omapi.version",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_hlength,
       { "Header length", "omapi.hlength",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_auth_id,
       { "Authentication ID", "omapi.authid",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_auth_len,
       { "Authentication length", "omapi.authlength",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_opcode,
       { "Opcode", "omapi.opcode",
-	FT_UINT32, BASE_DEC, VALS(omapi_opcode_vals), 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, VALS(omapi_opcode_vals), 0x0,
+        NULL, HFILL }},
     { &hf_omapi_handle,
       { "Handle", "omapi.handle",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_id,
       { "ID", "omapi.id",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_rid,
       { "Response ID", "omapi.rid",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_msg_name_len,
       { "Message name length", "omapi.msg_name_length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_msg_name,
       { "Message name", "omapi.msg_name",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_msg_value_len,
       { "Message value length", "omapi.msg_value_length",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_msg_value,
       { "Message value", "omapi.msg_value",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_obj_name_len,
       { "Object name length", "omapi.obj_name_length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_obj_name,
       { "Object name", "omapi.obj_name",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_obj_value_len,
       { "Object value length", "omapi.object_value_length",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_obj_value,
       { "Object value", "omapi.obj_value",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_omapi_signature,
       { "Signature", "omapi.signature",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }}
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }}
   };
 
   static gint *ett[] = {
@@ -311,3 +311,16 @@ proto_reg_handoff_omapi(void)
   omapi_handle = create_dissector_handle(dissect_omapi, proto_omapi);
   dissector_add_uint("tcp.port", OMAPI_PORT, omapi_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

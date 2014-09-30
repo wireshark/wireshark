@@ -41,14 +41,14 @@ static header_field_info *hfi_daytime = NULL;
 #define DAYTIME_HFI_INIT HFI_INIT(proto_daytime)
 
 static header_field_info hfi_daytime_string DAYTIME_HFI_INIT =
-      { "Daytime", "daytime.string",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-      	"String containing time and date", HFILL };
+{ "Daytime", "daytime.string",
+  FT_STRING, BASE_NONE, NULL, 0x0,
+  "String containing time and date", HFILL };
 
 static header_field_info hfi_response_request DAYTIME_HFI_INIT =
-      { "Type", "daytime.string",
-	FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
-        NULL, HFILL };
+{ "Type", "daytime.string",
+  FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
+  NULL, HFILL };
 
 static gint ett_daytime = -1;
 
@@ -58,8 +58,8 @@ static gint ett_daytime = -1;
 static void
 dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree	*daytime_tree;
-  proto_item	*ti;
+  proto_tree    *daytime_tree;
+  proto_item    *ti;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAYTIME");
 
@@ -109,3 +109,16 @@ proto_reg_handoff_daytime(void)
   dissector_add_uint("udp.port", DAYTIME_PORT, daytime_handle);
   dissector_add_uint("tcp.port", DAYTIME_PORT, daytime_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

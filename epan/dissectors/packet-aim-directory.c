@@ -40,20 +40,20 @@ static int ett_aim_directory = -1;
 
 static int dissect_aim_directory_user_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
-	while (tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
-	}
-	return offset;
+  int offset = 0;
+  while (tvb_length_remaining(tvb, offset) > 0) {
+    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
+  }
+  return offset;
 }
 
 static const aim_subtype aim_fnac_family_directory[] = {
-	{ 0x0001, "Error", dissect_aim_snac_error },
-	{ 0x0002, "Client search for user request", NULL },
-	{ 0x0003, "Server reply for search request (found users)", dissect_aim_directory_user_repl },
-	{ 0x0004, "Request interests list from server", NULL },
-	{ 0x0005, "Interests list", NULL },
-	{ 0, NULL, NULL },
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Client search for user request", NULL },
+  { 0x0003, "Server reply for search request (found users)", dissect_aim_directory_user_repl },
+  { 0x0004, "Request interests list from server", NULL },
+  { 0x0005, "Interests list", NULL },
+  { 0, NULL, NULL },
 };
 
 
@@ -69,7 +69,7 @@ proto_register_aim_directory(void)
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
-	  &ett_aim_directory
+    &ett_aim_directory
   };
 /* Register the protocol name and description */
   proto_aim_directory = proto_register_protocol("AIM Directory Search", "AIM Directory", "aim_dir");
@@ -85,3 +85,16 @@ proto_reg_handoff_aim_directory(void)
 {
   aim_init_family(proto_aim_directory, ett_aim_directory, FAMILY_DIRECTORY, aim_fnac_family_directory);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

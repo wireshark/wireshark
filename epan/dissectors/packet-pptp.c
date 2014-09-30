@@ -90,43 +90,43 @@ static expert_field ei_pptp_incorrect_magic_cookie = EI_INIT;
 
 static dissector_handle_t data_handle;
 
-#define TCP_PORT_PPTP		1723
+#define TCP_PORT_PPTP           1723
 
-#define MAGIC_COOKIE		0x1A2B3C4D
+#define MAGIC_COOKIE            0x1A2B3C4D
 
-#define CNTRL_REQ 	0x01
-#define CNTRL_REPLY	0x02
-#define STOP_REQ	0x03
-#define STOP_REPLY	0x04
-#define ECHO_REQ	0x05
-#define ECHO_REPLY	0x06
-#define OUT_REQ		0x07
-#define OUT_REPLY	0x08
-#define IN_REQ		0x09
-#define IN_REPLY 	0x0A
-#define IN_CONNECTED	0x0B
-#define CLEAR_REQ	0x0C
-#define DISC_NOTIFY	0x0D
-#define ERROR_NOTIFY	0x0E
-#define SET_LINK	0x0F
+#define CNTRL_REQ       0x01
+#define CNTRL_REPLY     0x02
+#define STOP_REQ        0x03
+#define STOP_REPLY      0x04
+#define ECHO_REQ        0x05
+#define ECHO_REPLY      0x06
+#define OUT_REQ         0x07
+#define OUT_REPLY       0x08
+#define IN_REQ          0x09
+#define IN_REPLY        0x0A
+#define IN_CONNECTED    0x0B
+#define CLEAR_REQ       0x0C
+#define DISC_NOTIFY     0x0D
+#define ERROR_NOTIFY    0x0E
+#define SET_LINK        0x0F
 
 static const value_string control_message_type_vals[] = {
-  { CNTRL_REQ,	  "Start-Control-Connection-Request" },
+  { CNTRL_REQ,    "Start-Control-Connection-Request" },
   { CNTRL_REPLY,  "Start-Control-Connection-Reply" },
-  { STOP_REQ,	  "Stop-Control-Connection-Request" },
-  { STOP_REPLY,	  "Stop-Control-Connection-Reply" },
-  { ECHO_REQ,	  "Echo-Request" },
-  { ECHO_REPLY,	  "Echo-Reply" },
-  { OUT_REQ,	  "Outgoing-Call-Request" },
-  { OUT_REPLY,	  "Outgoing-Call-Reply" },
-  { IN_REQ,	  "Incoming-Call-Request" },
-  { IN_REPLY,	  "Incoming-Call-Reply" },
+  { STOP_REQ,     "Stop-Control-Connection-Request" },
+  { STOP_REPLY,   "Stop-Control-Connection-Reply" },
+  { ECHO_REQ,     "Echo-Request" },
+  { ECHO_REPLY,   "Echo-Reply" },
+  { OUT_REQ,      "Outgoing-Call-Request" },
+  { OUT_REPLY,    "Outgoing-Call-Reply" },
+  { IN_REQ,       "Incoming-Call-Request" },
+  { IN_REPLY,     "Incoming-Call-Reply" },
   { IN_CONNECTED, "Incoming-Call-Connected" },
-  { CLEAR_REQ,	  "Call-Clear-Request" },
+  { CLEAR_REQ,    "Call-Clear-Request" },
   { DISC_NOTIFY,  "Call-Disconnect-Notify" },
   { ERROR_NOTIFY, "WAN-Error-Notify" },
   { SET_LINK,     "Set-Link-Info" },
-  { 0,	NULL },
+  { 0,  NULL },
 };
 static const value_string msgtype_vals[] = {
   { 1, "Control Message" },
@@ -346,7 +346,7 @@ dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 }
 
 static void
-dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *tree)
+dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
   if (!tree)
     return;
@@ -593,19 +593,19 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *pptp_tree = NULL;
   proto_item *item      = NULL;
-  int	      offset    = 0;
+  int         offset    = 0;
   guint16     len;
   guint16     control_message_type;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPTP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  len	     = tvb_get_ntohs(tvb, offset);
+  len        = tvb_get_ntohs(tvb, offset);
   control_message_type = tvb_get_ntohs(tvb, offset + 8);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-	      val_to_str(control_message_type, control_message_type_vals,
-			 "Unknown control type (%d)"));
+              val_to_str(control_message_type, control_message_type_vals,
+                         "Unknown control type (%d)"));
 
   if (tree) {
     proto_item *ti;
@@ -950,7 +950,7 @@ proto_register_pptp(void)
   expert_module_t* expert_pptp;
 
   proto_pptp = proto_register_protocol("Point-to-Point Tunnelling Protocol",
-				       "PPTP", "pptp");
+                                       "PPTP", "pptp");
   proto_register_field_array(proto_pptp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_pptp = expert_register_protocol(proto_pptp);
@@ -966,3 +966,16 @@ proto_reg_handoff_pptp(void)
   dissector_add_uint("tcp.port", TCP_PORT_PPTP, pptp_handle);
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

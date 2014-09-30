@@ -71,3 +71,16 @@ proto_reg_handoff_rsec_login (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rsec_login, ett_rsec_login, &uuid_rsec_login, ver_rsec_login, rsec_login_dissectors, hf_rsec_login_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

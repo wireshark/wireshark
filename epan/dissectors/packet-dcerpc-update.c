@@ -42,7 +42,7 @@ static gint ett_dce_update = -1;
 
 static e_uuid_t uuid_dce_update =
   { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x10,
-				 0x00}
+                                 0x00}
 };
 static guint16 ver_dce_update = 4;
 
@@ -79,6 +79,19 @@ proto_reg_handoff_dce_update (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_dce_update, ett_dce_update, &uuid_dce_update,
-		    ver_dce_update, dce_update_dissectors,
-		    hf_dce_update_opnum);
+                    ver_dce_update, dce_update_dissectors,
+                    hf_dce_update_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

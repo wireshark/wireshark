@@ -42,9 +42,9 @@ static dissector_handle_t lapb_handle;
 static void
 dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree		*lapbether_tree, *ti;
-    int			len;
-    tvbuff_t		*next_tvb;
+    proto_tree *lapbether_tree, *ti;
+    int         len;
+    tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPBETHER");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -54,11 +54,11 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 
       ti = proto_tree_add_protocol_format(tree, proto_lapbether, tvb, 0, 2,
-					  "LAPBETHER");
+                                          "LAPBETHER");
 
       lapbether_tree = proto_item_add_subtree(ti, ett_lapbether);
       proto_tree_add_uint_format(lapbether_tree, hf_lapbether_length, tvb, 0, 2,
-				 len, "Length: %u", len);
+                                 len, "Length: %u", len);
 
     }
 
@@ -72,8 +72,8 @@ proto_register_lapbether(void)
 {
     static hf_register_info hf[] = {
       { &hf_lapbether_length,
-	{ "Length Field", "lapbether.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "LAPBEther Length Field", HFILL }},
+        { "Length Field", "lapbether.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "LAPBEther Length Field", HFILL }},
 
     };
     static gint *ett[] = {
@@ -98,7 +98,20 @@ proto_reg_handoff_lapbether(void)
   lapb_handle = find_dissector("lapb");
 
   lapbether_handle = create_dissector_handle(dissect_lapbether,
-					     proto_lapbether);
+                                             proto_lapbether);
   dissector_add_uint("ethertype", ETHERTYPE_DEC, lapbether_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

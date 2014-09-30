@@ -111,3 +111,16 @@ proto_reg_handoff_snaeth(void)
 	snaeth_handle = create_dissector_handle(dissect_snaeth, proto_snaeth);
 	dissector_add_uint("ethertype", ETHERTYPE_SNA, snaeth_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

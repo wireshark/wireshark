@@ -22,7 +22,7 @@
  *
  * See
  *
- *	http://h71000.www7.hp.com/wizard/decnet/
+ *    http://h71000.www7.hp.com/wizard/decnet/
  *
  * for some DECnet specifications.
  *
@@ -1493,3 +1493,16 @@ proto_reg_handoff_dec_rt(void)
     dissector_add_uint("ppp.protocol", PPP_DEC4, dec_rt_handle);
 /*  dissector_add_uint("ppp.protocol", PPP_DECNETCP, dec_rt_handle);*/
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

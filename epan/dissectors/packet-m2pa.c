@@ -476,8 +476,8 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
 
     pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), ENC_NA);
     expert_add_info_format(pinfo, pi, &ei_undecode_data,
-			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
-			   actual_length, length);
+                           "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
+                           actual_length, length);
   }
 }
 
@@ -626,3 +626,16 @@ proto_reg_handoff_m2pa(void)
 
   dissector_add_uint("sctp.port", sctp_port, m2pa_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

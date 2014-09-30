@@ -135,12 +135,12 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 static guint16
 mtp2_fcs16(tvbuff_t * tvbuff)
 {
-    guint len = tvb_length(tvbuff)-2;
+  guint len = tvb_length(tvbuff)-2;
 
-    /* Check for Invalid Length */
-    if (len == 0)
-        return (0x0000);
-    return crc16_ccitt_tvb(tvbuff, len);
+  /* Check for Invalid Length */
+  if (len == 0)
+    return (0x0000);
+  return crc16_ccitt_tvb(tvbuff, len);
 }
 
 /*
@@ -239,10 +239,10 @@ static const value_string status_field_acro_vals[] = {
 #define SF_OFFSET          (LI_OFFSET + LI_LENGTH)
 #define EXTENDED_SF_OFFSET (EXTENDED_LI_OFFSET + EXTENDED_LI_LENGTH)
 
-#define SF_LENGTH			1
-#define SF_EXTRA_OFFSET			(SF_OFFSET + SF_LENGTH)
-#define EXTENDED_SF_EXTRA_OFFSET	(EXTENDED_SF_OFFSET + SF_LENGTH)
-#define SF_EXTRA_LENGTH			1
+#define SF_LENGTH                       1
+#define SF_EXTRA_OFFSET                 (SF_OFFSET + SF_LENGTH)
+#define EXTENDED_SF_EXTRA_OFFSET        (EXTENDED_SF_OFFSET + SF_LENGTH)
+#define SF_EXTRA_LENGTH                 1
 
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
@@ -424,3 +424,16 @@ proto_reg_handoff_mtp2(void)
 
   mtp3_handle   = find_dissector("mtp3");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

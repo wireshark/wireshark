@@ -44,124 +44,124 @@ void proto_register_cbs(void);
 #define GSM_CBS_PAGE_SIZE 88
 
 const value_string message_id_values[] = {
-    { 0, "Index"},
-    { 10, "Flashes"},
-    { 20, "Hospitals"},
-    { 22, "Doctors"},
-    { 24, "Pharmacy"},
-    { 30, "Long Distance Road Reports"},
-    { 32, "Local Road Reports"},
-    { 34, "Taxis"},
-    { 40, "Weather"},
-    { 50, "Regional Services (local phone prefixes) / District (Base Station Identity)"},
-    { 52, "Network Information"},
-    { 54, "Operator Service"},
-    { 56, "Directory Enquiries (national)"},
-    { 57, "Directory Enquiries (international)"},
-    { 58, "Customer Care (national)"},
-    { 59, "Customer Care (international)"},
-    { 60, "Local Date/Time Group incl. Time Zone"},
-    { 100, "Regional Services (local phone prefixes)"},
-    { 101, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 102, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 103, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 104, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 105, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 106, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 107, "planned for news, events, whether, traffic, TV station and News of the day"},
-    { 123, "Mobile Auction"},
-    { 140, "Handelsblatt (latest info from stock exchange)"},
-    { 666, "PASSO Traffic Alert (brief teaser information for IVR)"},
-    { 1000, "LCS CBS Message Identifier for E-OTD Assistance Data message"},
-    { 1001, "LCS CBS Message Identifier for DGPS Correction Data message"},
-    { 1002, "LCS CBS Message Identifier for GPS Ephemeris and Clock Correction Data message"},
-    { 1003, "LCS CBS Message Identifier for GPS Almanac and Other Data message"},
-    { 4352, "ETWS CBS Message Identifier for earthquake warning message"},
-    { 4353, "ETWS CBS Message Identifier for tsunami warning message"},
-    { 4354, "ETWS CBS Message Identifier for earthquake and tsunami combined warning message"},
-    { 4355, "ETWS CBS Message Identifier for test message"},
-    { 4356, "ETWS CBS Message Identifier for messages related to other emergency types"},
-    { 4370, "CMAS CBS Message Identifier for CMAS Presidential Level Alerts"},
-    { 4371, "CMAS CBS Message Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed"},
-    { 4372, "CMAS CBS Message Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely"},
-    { 4373, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed"},
-    { 4374, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely"},
-    { 4375, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed"},
-    { 4376, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely"},
-    { 4377, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed"},
-    { 4378, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely"},
-    { 4379, "CMAS CBS Message Identifier for Child Abduction Emergency (or Amber Alert)"},
-    { 4380, "CMAS CBS Message Identifier for the Required Monthly Test"},
-    { 4381, "CMAS CBS Message Identifier for CMAS Exercise"},
-    { 4382, "CMAS CBS Message Identifier for operator defined use"},
-    { 65535, "Message Identifier Reserved, and should not be used for new services"},
-    {    0, NULL }
+   { 0, "Index"},
+   { 10, "Flashes"},
+   { 20, "Hospitals"},
+   { 22, "Doctors"},
+   { 24, "Pharmacy"},
+   { 30, "Long Distance Road Reports"},
+   { 32, "Local Road Reports"},
+   { 34, "Taxis"},
+   { 40, "Weather"},
+   { 50, "Regional Services (local phone prefixes) / District (Base Station Identity)"},
+   { 52, "Network Information"},
+   { 54, "Operator Service"},
+   { 56, "Directory Enquiries (national)"},
+   { 57, "Directory Enquiries (international)"},
+   { 58, "Customer Care (national)"},
+   { 59, "Customer Care (international)"},
+   { 60, "Local Date/Time Group incl. Time Zone"},
+   { 100, "Regional Services (local phone prefixes)"},
+   { 101, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 102, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 103, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 104, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 105, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 106, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 107, "planned for news, events, whether, traffic, TV station and News of the day"},
+   { 123, "Mobile Auction"},
+   { 140, "Handelsblatt (latest info from stock exchange)"},
+   { 666, "PASSO Traffic Alert (brief teaser information for IVR)"},
+   { 1000, "LCS CBS Message Identifier for E-OTD Assistance Data message"},
+   { 1001, "LCS CBS Message Identifier for DGPS Correction Data message"},
+   { 1002, "LCS CBS Message Identifier for GPS Ephemeris and Clock Correction Data message"},
+   { 1003, "LCS CBS Message Identifier for GPS Almanac and Other Data message"},
+   { 4352, "ETWS CBS Message Identifier for earthquake warning message"},
+   { 4353, "ETWS CBS Message Identifier for tsunami warning message"},
+   { 4354, "ETWS CBS Message Identifier for earthquake and tsunami combined warning message"},
+   { 4355, "ETWS CBS Message Identifier for test message"},
+   { 4356, "ETWS CBS Message Identifier for messages related to other emergency types"},
+   { 4370, "CMAS CBS Message Identifier for CMAS Presidential Level Alerts"},
+   { 4371, "CMAS CBS Message Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed"},
+   { 4372, "CMAS CBS Message Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely"},
+   { 4373, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed"},
+   { 4374, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely"},
+   { 4375, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed"},
+   { 4376, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely"},
+   { 4377, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed"},
+   { 4378, "CMAS CBS Message Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely"},
+   { 4379, "CMAS CBS Message Identifier for Child Abduction Emergency (or Amber Alert)"},
+   { 4380, "CMAS CBS Message Identifier for the Required Monthly Test"},
+   { 4381, "CMAS CBS Message Identifier for CMAS Exercise"},
+   { 4382, "CMAS CBS Message Identifier for operator defined use"},
+   { 65535, "Message Identifier Reserved, and should not be used for new services"},
+   {    0, NULL }
 };
 
 const value_string geographic_scope_values[] = {
-    { 0x00, "Cell-wide (immediate display)" },
-    { 0x01, "PLMN-wide" },
-    { 0x02, "Location Area-wide (GSM) or Service Area-wide (UMTS)" },
-    { 0x03, "Cell-wide (normal display)" },
-    {    0, NULL }
+   { 0x00, "Cell-wide (immediate display)" },
+   { 0x01, "PLMN-wide" },
+   { 0x02, "Location Area-wide (GSM) or Service Area-wide (UMTS)" },
+   { 0x03, "Cell-wide (normal display)" },
+   {    0, NULL }
 };
 
 /* Initialize the protocol and registered fields */
 static int proto_cell_broadcast = -1;
 
-static int hf_gsm_cbs_serial_number	= -1;
-static int hf_gsm_cbs_geographic_scope	= -1;
-static int hf_gsm_cbs_message_code	= -1;
-static int hf_gsm_cbs_update_number	= -1;
-static int hf_gsm_cbs_message_identifier	= -1;
-static int hf_gsm_cbs_total_pages	= -1;
-static int hf_gsm_cbs_current_page	= -1;
+static int hf_gsm_cbs_serial_number              = -1;
+static int hf_gsm_cbs_geographic_scope           = -1;
+static int hf_gsm_cbs_message_code               = -1;
+static int hf_gsm_cbs_update_number              = -1;
+static int hf_gsm_cbs_message_identifier         = -1;
+static int hf_gsm_cbs_total_pages                = -1;
+static int hf_gsm_cbs_current_page               = -1;
 
 /* These fields are used when reassembling multi-page gsm cbs messages */
-static int hf_gsm_cbs_pages			= -1;
-static int hf_gsm_cbs_page_num			= -1;
-static int hf_gsm_cbs_page_overlap		= -1;
-static int hf_gsm_cbs_page_overlap_conflict	= -1;
-static int hf_gsm_cbs_page_multiple_tails	= -1;
-static int hf_gsm_cbs_page_too_long_fragment	= -1;
-static int hf_gsm_cbs_page_error		= -1;
-static int hf_gsm_cbs_page_count		= -1;
-static int hf_gsm_cbs_message_reassembled_in		= -1;
-static int hf_gsm_cbs_message_reassembled_length		= -1;
-static int hf_gsm_cbs_page_content		= -1;
-static int hf_gsm_cbs_page_content_padding = -1;
-static int hf_gsm_cbs_message_content		= -1;
+static int hf_gsm_cbs_pages                      = -1;
+static int hf_gsm_cbs_page_num                   = -1;
+static int hf_gsm_cbs_page_overlap               = -1;
+static int hf_gsm_cbs_page_overlap_conflict      = -1;
+static int hf_gsm_cbs_page_multiple_tails        = -1;
+static int hf_gsm_cbs_page_too_long_fragment     = -1;
+static int hf_gsm_cbs_page_error                 = -1;
+static int hf_gsm_cbs_page_count                 = -1;
+static int hf_gsm_cbs_message_reassembled_in    = -1;
+static int hf_gsm_cbs_message_reassembled_length = -1;
+static int hf_gsm_cbs_page_content               = -1;
+static int hf_gsm_cbs_page_content_padding       = -1;
+static int hf_gsm_cbs_message_content            = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_cbs_msg = -1;
-static gint ett_cbs_serial_no = -1;
-static gint ett_cbs_coding = -1;
-static gint ett_gsm_cbs_page           = -1;
-static gint ett_gsm_cbs_page_content         = -1;
-static gint ett_gsm_cbs_pages          = -1;
+static gint ett_cbs_msg                          = -1;
+static gint ett_cbs_serial_no                    = -1;
+static gint ett_cbs_coding                       = -1;
+static gint ett_gsm_cbs_page                     = -1;
+static gint ett_gsm_cbs_page_content             = -1;
+static gint ett_gsm_cbs_pages                    = -1;
 
 static expert_field ei_gsm_cbs_unhandled_encoding = EI_INIT;
 
 /* reassembly of GSM multi-page messages */
-static reassembly_table	gsm_cbs_reassembly_table;
+static reassembly_table gsm_cbs_reassembly_table;
 
 /* Structure needed for the fragmentation routines in reassemble.c */
 static const fragment_items gsm_page_items = {
-    &ett_gsm_cbs_page,
-    &ett_gsm_cbs_pages,
-    &hf_gsm_cbs_pages,
-    &hf_gsm_cbs_page_num,
-    &hf_gsm_cbs_page_overlap,
-    &hf_gsm_cbs_page_overlap_conflict,
-    &hf_gsm_cbs_page_multiple_tails,
-    &hf_gsm_cbs_page_too_long_fragment,
-    &hf_gsm_cbs_page_error,
-    &hf_gsm_cbs_page_count,
-    &hf_gsm_cbs_message_reassembled_in,
-    &hf_gsm_cbs_message_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    "pages"
+   &ett_gsm_cbs_page,
+   &ett_gsm_cbs_pages,
+   &hf_gsm_cbs_pages,
+   &hf_gsm_cbs_page_num,
+   &hf_gsm_cbs_page_overlap,
+   &hf_gsm_cbs_page_overlap_conflict,
+   &hf_gsm_cbs_page_multiple_tails,
+   &hf_gsm_cbs_page_too_long_fragment,
+   &hf_gsm_cbs_page_error,
+   &hf_gsm_cbs_page_count,
+   &hf_gsm_cbs_message_reassembled_in,
+   &hf_gsm_cbs_message_reassembled_length,
+   /* Reassembled data field */
+   NULL,
+   "pages"
 };
 
 
@@ -423,166 +423,179 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
 void
 proto_register_cbs(void)
 {
-    /* Setup list of header fields */
-    static hf_register_info hf_cbs[] =
-        {
-           { &hf_gsm_cbs_serial_number,
-             { "GSM CBS Serial Number",	"gsm_cbs.serial_number",
-       FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
-       NULL, HFILL }
-           },
-            { &hf_gsm_cbs_message_code,
-              { "GSM CBS Message Code",	"gsm_cbs.message_code",
-		FT_UINT16, BASE_DEC_HEX, NULL, 0x3FF0,
-		NULL, HFILL }
-            },
-            { &hf_gsm_cbs_geographic_scope,
-              { "GSM CBS Geographic Scope",	"gsm_cbs.geographic_scope",
-		FT_UINT16, BASE_DEC, VALS(geographic_scope_values), 0xC000,
-		NULL, HFILL }
-            },
-            { &hf_gsm_cbs_update_number,
-              { "GSM CBS Update Number",	"gsm_cbs.update_number",
-		FT_UINT16, BASE_DEC, NULL, 0x000F,
-		NULL, HFILL }
-            },
-            { &hf_gsm_cbs_message_identifier,
-              { "GSM CBS Message Identifier",	"gsm_cbs.message-identifier",
-		FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
-		NULL, HFILL }
-            },
-            { &hf_gsm_cbs_total_pages,
-              { "GSM CBS Total Pages",	"gsm_cbs.total_pages",
-		FT_UINT8, BASE_DEC, NULL, 0x0F,
-		NULL, HFILL }
-            },
-            { &hf_gsm_cbs_current_page,
-              { "GSM CBS Current Page",	"gsm_cbs.current_page",
-		FT_UINT8, BASE_DEC, NULL, 0xF0,
-		NULL, HFILL }
-            },
-            /* Fragment fields
-             */
-            { &hf_gsm_cbs_page_overlap,
-              {	"page overlap",
-            "gsm_cbs.page.overlap",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "GSM CBS page overlaps with other fragments", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_overlap_conflict,
-              {	"Conflicting data in page overlap",
-            "gsm_cbs.page.overlap.conflict",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "Overlapping pages contained conflicting data", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_multiple_tails,
-              {	"Multiple final pages found",
-            "gsm_cbs.page.multipletails",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "Several copies of the final page were found when reassembling the message", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_too_long_fragment,
-              {	"Page too long",
-            "gsm_cbs.page.toolongfragment",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "Page contained data past end of packet", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_error,
-              {	"Reassembly error",
-            "gsm_cbs.fragment.error",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "Reassembly error due to illegal fragments", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_count,
-              {	"Fragment count",
-            "gsm_cbs.fragment.count",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Count of Page Fragment", HFILL
-              }
-            },
-            { &hf_gsm_cbs_message_reassembled_in,
-              {	"Reassembled in",
-            "gsm_cbs.reassembled.in",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "CBS pages are reassembled in the given packet", HFILL
-              }
-            },
-            { &hf_gsm_cbs_message_reassembled_length,
-              {	"Reassembled message length",
-            "gsm_cbs.reassembled.length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "The total length of the reassembled message", HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_num,
-              {	"CBS Page Number",
-            "gsm_cbs.page_number",
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            NULL, HFILL
-              }
-            },
-            { &hf_gsm_cbs_pages,
-              {	"CBS Pages",
-            "gsm_cbs.pages",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_content,
-              {	"CBS Page Content",
-            "gsm_cbs.page_content",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL
-              }
-            },
-            { &hf_gsm_cbs_page_content_padding,
-              {	"CBS Page Content Padding",
-            "gsm_cbs.page_content_padding",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL
-              }
-            },
-            { &hf_gsm_cbs_message_content,
-              {	"CBS Message Content",
-            "gsm_cbs.message_content",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL
-              }
-            }
-            };
+   /* Setup list of header fields */
+   static hf_register_info hf_cbs[] =
+      {
+         { &hf_gsm_cbs_serial_number,
+           { "GSM CBS Serial Number", "gsm_cbs.serial_number",
+             FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_message_code,
+           { "GSM CBS Message Code", "gsm_cbs.message_code",
+             FT_UINT16, BASE_DEC_HEX, NULL, 0x3FF0,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_geographic_scope,
+           { "GSM CBS Geographic Scope",     "gsm_cbs.geographic_scope",
+             FT_UINT16, BASE_DEC, VALS(geographic_scope_values), 0xC000,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_update_number,
+           { "GSM CBS Update Number",        "gsm_cbs.update_number",
+             FT_UINT16, BASE_DEC, NULL, 0x000F,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_message_identifier,
+           { "GSM CBS Message Identifier",   "gsm_cbs.message-identifier",
+             FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_total_pages,
+           { "GSM CBS Total Pages",  "gsm_cbs.total_pages",
+             FT_UINT8, BASE_DEC, NULL, 0x0F,
+             NULL, HFILL }
+         },
+         { &hf_gsm_cbs_current_page,
+           { "GSM CBS Current Page", "gsm_cbs.current_page",
+             FT_UINT8, BASE_DEC, NULL, 0xF0,
+             NULL, HFILL }
+         },
+         /* Fragment fields
+          */
+         { &hf_gsm_cbs_page_overlap,
+           { "page overlap",
+             "gsm_cbs.page.overlap",
+             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+             "GSM CBS page overlaps with other fragments", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_overlap_conflict,
+           { "Conflicting data in page overlap",
+             "gsm_cbs.page.overlap.conflict",
+             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+             "Overlapping pages contained conflicting data", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_multiple_tails,
+           { "Multiple final pages found",
+             "gsm_cbs.page.multipletails",
+             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+             "Several copies of the final page were found when reassembling the message", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_too_long_fragment,
+           { "Page too long",
+             "gsm_cbs.page.toolongfragment",
+             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+             "Page contained data past end of packet", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_error,
+           { "Reassembly error",
+             "gsm_cbs.fragment.error",
+             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+             "Reassembly error due to illegal fragments", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_count,
+           { "Fragment count",
+             "gsm_cbs.fragment.count",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             "Count of Page Fragment", HFILL
+           }
+         },
+         { &hf_gsm_cbs_message_reassembled_in,
+           { "Reassembled in",
+             "gsm_cbs.reassembled.in",
+             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+             "CBS pages are reassembled in the given packet", HFILL
+           }
+         },
+         { &hf_gsm_cbs_message_reassembled_length,
+           { "Reassembled message length",
+             "gsm_cbs.reassembled.length",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             "The total length of the reassembled message", HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_num,
+           { "CBS Page Number",
+             "gsm_cbs.page_number",
+             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+           }
+         },
+         { &hf_gsm_cbs_pages,
+           { "CBS Pages",
+             "gsm_cbs.pages",
+             FT_NONE, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_content,
+           { "CBS Page Content",
+             "gsm_cbs.page_content",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+           }
+         },
+         { &hf_gsm_cbs_page_content_padding,
+           { "CBS Page Content Padding",
+             "gsm_cbs.page_content_padding",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+           }
+         },
+         { &hf_gsm_cbs_message_content,
+           { "CBS Message Content",
+             "gsm_cbs.message_content",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL
+           }
+         }
+      };
 
-    /* Setup protocol subtree array */
-    static gint *ett[] = {
-       &ett_cbs_msg,
-       &ett_cbs_serial_no,
-       &ett_cbs_coding,
-       &ett_gsm_cbs_page,
-       &ett_gsm_cbs_page_content,
-       &ett_gsm_cbs_pages,
-    };
+   /* Setup protocol subtree array */
+   static gint *ett[] = {
+      &ett_cbs_msg,
+      &ett_cbs_serial_no,
+      &ett_cbs_coding,
+      &ett_gsm_cbs_page,
+      &ett_gsm_cbs_page_content,
+      &ett_gsm_cbs_pages,
+   };
 
-    static ei_register_info ei[] = {
-        { &ei_gsm_cbs_unhandled_encoding, { "gsm_cbs.unhandled_encoding", PI_PROTOCOL, PI_WARN, "Unhandled encoding", EXPFILL }},
-    };
-    expert_module_t* expert_cell_broadcast;
+   static ei_register_info ei[] = {
+      { &ei_gsm_cbs_unhandled_encoding, { "gsm_cbs.unhandled_encoding", PI_PROTOCOL, PI_WARN, "Unhandled encoding", EXPFILL }},
+   };
+   expert_module_t* expert_cell_broadcast;
 
-    /* Register the protocol name and description */
-    proto_cell_broadcast = proto_register_protocol("GSM Cell Broadcast Service", "GSM Cell Broadcast Service", "gsm_cbs");
+   /* Register the protocol name and description */
+   proto_cell_broadcast = proto_register_protocol("GSM Cell Broadcast Service", "GSM Cell Broadcast Service", "gsm_cbs");
 
-    proto_register_field_array(proto_cell_broadcast, hf_cbs, array_length(hf_cbs));
-    register_init_routine(gsm_cbs_message_reassembly_init);
+   proto_register_field_array(proto_cell_broadcast, hf_cbs, array_length(hf_cbs));
+   register_init_routine(gsm_cbs_message_reassembly_init);
 
-    /* subdissector code */
-    register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
-    register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
+   /* subdissector code */
+   register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
+   register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
 
-    /* subtree array */
-    proto_register_subtree_array(ett, array_length(ett));
-    expert_cell_broadcast = expert_register_protocol(proto_cell_broadcast);
-    expert_register_field_array(expert_cell_broadcast, ei, array_length(ei));
+   /* subtree array */
+   proto_register_subtree_array(ett, array_length(ett));
+   expert_cell_broadcast = expert_register_protocol(proto_cell_broadcast);
+   expert_register_field_array(expert_cell_broadcast, ei, array_length(ei));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

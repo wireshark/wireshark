@@ -40,8 +40,8 @@ static int hf_rs_plcy_opnum = -1;
 static gint ett_dcerpc_rs_plcy = -1;
 
 static e_uuid_t uuid_dcerpc_rs_plcy = {
-        0x4c878280, 0x4000, 0x0000,
-        { 0x0D, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 }
+	0x4c878280, 0x4000, 0x0000,
+	{ 0x0D, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 }
 };
 
 static guint16 ver_dcerpc_rs_plcy = 1;
@@ -57,7 +57,7 @@ static dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
 	{ 7,  "rs_auth_policy_get_info",      NULL, NULL },
 	{ 8,  "rs_auth_policy_get_effective", NULL, NULL },
 	{ 9,  "rs_auth_policy_set_info",      NULL, NULL },
-        { 0, NULL, NULL,  NULL }
+	{ 0, NULL, NULL,  NULL }
 };
 
 void
@@ -74,25 +74,38 @@ proto_register_dcerpc_rs_plcy(void)
 
 	};
 
-        static gint *ett[] = {
-                &ett_dcerpc_rs_plcy
-        };
+	static gint *ett[] = {
+		&ett_dcerpc_rs_plcy
+	};
 
-        proto_dcerpc_rs_plcy = proto_register_protocol(
-                "RS Interface properties", "RS_PLCY", "rs_plcy");
+	proto_dcerpc_rs_plcy = proto_register_protocol(
+		"RS Interface properties", "RS_PLCY", "rs_plcy");
 
 	proto_register_field_array(proto_dcerpc_rs_plcy, hf,
 		array_length(hf));
 
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_dcerpc_rs_plcy(void)
 {
-        /* Register protocol as dcerpc */
+	/* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_rs_plcy, ett_dcerpc_rs_plcy,
-        		&uuid_dcerpc_rs_plcy, ver_dcerpc_rs_plcy,
-        		dcerpc_rs_plcy_dissectors, hf_rs_plcy_opnum);
+	dcerpc_init_uuid(proto_dcerpc_rs_plcy, ett_dcerpc_rs_plcy,
+			 &uuid_dcerpc_rs_plcy, ver_dcerpc_rs_plcy,
+			 dcerpc_rs_plcy_dissectors, hf_rs_plcy_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

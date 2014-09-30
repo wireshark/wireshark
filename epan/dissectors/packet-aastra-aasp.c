@@ -22,8 +22,8 @@
  */
 
 /*
- *	AASP over SIP
- *	Content-Type: message/x-aasp-signalling
+ *      AASP over SIP
+ *      Content-Type: message/x-aasp-signalling
  */
 
 #include "config.h"
@@ -134,7 +134,7 @@ static const value_string szCmdID[] =
 };
 
 /**
- *	Dissect single command
+ *     Dissect single command
  */
 static void
 dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -365,7 +365,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 /**
- *	Searching for the next command when the variable or unknown length.
+ *      Searching for the next command when the variable or unknown length.
  */
 static guint searchNext(tvbuff_t *tvb, guint begin, guint end)
 {
@@ -425,13 +425,15 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         /* 86:02:00:00:01:03:02 */
                         switch(tvb_get_guint8(tvb, i+2))
                         {
-                        case 0x00:	i += 11; break;
+                        case 0x00:  i += 11; break;
                         case 0x02:  i +=  8; break;
                         }
                         break;
                     }
 #endif
-                default:	i = searchNext(tvb, i+1, n); break;
+                default:
+                    i = searchNext(tvb, i+1, n);
+                    break;
                 }
                 dissect_a_binary_command(tvb_new_subset_length(tvb, prev, i-prev), pinfo, aasp_tree);
                 prev = i;
@@ -525,3 +527,16 @@ proto_reg_handoff_aasp(void)
     aasp_handle = new_create_dissector_handle(dissect_aasp, proto_aasp);
     dissector_add_string("media_type", "message/x-aasp-signalling", aasp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

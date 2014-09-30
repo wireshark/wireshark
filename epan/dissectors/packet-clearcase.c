@@ -76,3 +76,16 @@ proto_reg_handoff_clearcase(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(CLEARCASE_PROGRAM, 3, clearcase3_proc, hf_clearcase_procedure_v3);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

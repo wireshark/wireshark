@@ -2534,10 +2534,10 @@ packet_is_cigi(tvbuff_t *tvb)
             /* CIGI 3 requires that the first packet is always the IG Control or SOF */
             switch ( packet_id ) {
                 case CIGI3_PACKET_ID_IG_CONTROL:
-					if ( packet_size != CIGI3_PACKET_SIZE_IG_CONTROL ) {
-						if ( packet_size != CIGI3_2_PACKET_SIZE_IG_CONTROL ) {
-							return FALSE;
-						}
+                    if ( packet_size != CIGI3_PACKET_SIZE_IG_CONTROL ) {
+                        if ( packet_size != CIGI3_2_PACKET_SIZE_IG_CONTROL ) {
+                            return FALSE;
+                        }
                     }
 
                     if (!tvb_bytes_exist(tvb, 4, 2)) {
@@ -2552,10 +2552,10 @@ packet_is_cigi(tvbuff_t *tvb)
 
                     break;
                 case CIGI3_PACKET_ID_START_OF_FRAME:
-					if ( packet_size != CIGI3_PACKET_SIZE_START_OF_FRAME ) {
-						if ( packet_size != CIGI3_2_PACKET_SIZE_START_OF_FRAME) {
-							return FALSE;
-						}
+                    if ( packet_size != CIGI3_PACKET_SIZE_START_OF_FRAME ) {
+                        if ( packet_size != CIGI3_2_PACKET_SIZE_START_OF_FRAME) {
+                            return FALSE;
+                        }
                     }
 
                     if (!tvb_bytes_exist(tvb, 5, 1)) {
@@ -2563,7 +2563,7 @@ packet_is_cigi(tvbuff_t *tvb)
                         return FALSE;
                     }
 
-					break;
+                    break;
                 default:
                     return FALSE;
             }
@@ -2666,17 +2666,17 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Ports */
         hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_src_port, tvb, 0, 0, pinfo->srcport);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_dest_port, tvb, 0, 0, pinfo->destport);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->srcport);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->destport);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Frame Size */
         hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_frame_size, tvb, 0, 0, tvb_reported_length(tvb));
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Since the versions of CIGI are not backwards compatible,
          * dissection is different for each version.
@@ -12039,7 +12039,7 @@ proto_reg_handoff_cigi(void)
         cigi_byte_order = ENC_LITTLE_ENDIAN;
         break;
 
-    default:	/* includes CIGI_BYTE_ORDER_FROM_PACKET */
+    default:  /* includes CIGI_BYTE_ORDER_FROM_PACKET */
         /* Leave it alone. */
         break;
     }
@@ -12054,3 +12054,16 @@ proto_reg_handoff_cigi(void)
         inited = TRUE;
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

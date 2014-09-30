@@ -3,7 +3,7 @@
  *
  * See
  *
- *	http://stuff.mit.edu/people/jhawk/ctp.html
+ *    http://stuff.mit.edu/people/jhawk/ctp.html
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -44,8 +44,8 @@ static gint ett_loop = -1;
 
 static dissector_handle_t data_handle;
 
-#define FUNC_REPLY		1
-#define FUNC_FORWARD_DATA	2
+#define FUNC_REPLY              1
+#define FUNC_FORWARD_DATA       2
 
 static const value_string function_vals[] = {
   { FUNC_REPLY, "Reply" },
@@ -126,28 +126,28 @@ proto_register_loop(void)
 {
   static hf_register_info hf[] = {
     { &hf_loop_skipcount,
-      { "skipCount",		"loop.skipcount",
-    FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      { "skipCount",            "loop.skipcount",
+    FT_UINT16,  BASE_DEC,       NULL,   0x0,
       NULL, HFILL }},
 
     { &hf_loop_function,
-      { "Function",		"loop.function",
-    FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
+      { "Function",             "loop.function",
+    FT_UINT16,  BASE_DEC,       VALS(function_vals),    0x0,
       NULL, HFILL }},
 
     { &hf_loop_relevant_function,
-      { "Relevant function",		"loop.relevant_function",
-    FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
+      { "Relevant function",            "loop.relevant_function",
+    FT_UINT16,  BASE_DEC,       VALS(function_vals),    0x0,
       NULL, HFILL }},
 
     { &hf_loop_receipt_number,
-      { "Receipt number",	"loop.receipt_number",
-    FT_UINT16,	BASE_DEC,	NULL,	0x0,
+      { "Receipt number",       "loop.receipt_number",
+    FT_UINT16,  BASE_DEC,       NULL,   0x0,
       NULL, HFILL }},
 
     { &hf_loop_forwarding_address,
-      { "Forwarding address",	"loop.forwarding_address",
-    FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      { "Forwarding address",   "loop.forwarding_address",
+    FT_ETHER,   BASE_NONE,      NULL,   0x0,
       NULL, HFILL }},
   };
   static gint *ett[] = {
@@ -155,7 +155,7 @@ proto_register_loop(void)
   };
 
   proto_loop = proto_register_protocol("Configuration Test Protocol (loopback)",
-				      "LOOP", "loop");
+                                       "LOOP", "loop");
   proto_register_field_array(proto_loop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -171,3 +171,16 @@ proto_reg_handoff_loop(void)
 
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

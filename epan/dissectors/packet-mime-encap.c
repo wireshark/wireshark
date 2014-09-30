@@ -70,3 +70,16 @@ proto_reg_handoff_mime_encap(void)
 	mime_encap_handle = find_dissector("mime_dlt");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MIME, mime_encap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

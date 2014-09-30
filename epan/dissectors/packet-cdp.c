@@ -38,7 +38,7 @@
 /*
  * See
  *
- *	http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/cdp/configuration/15-mt/cdp-15-mt-book/nm-cdp-discover.html#GUID-84FBA50B-677C-4D90-AF56-2FB96F2DC085
+ *    http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/cdp/configuration/15-mt/cdp-15-mt-book/nm-cdp-discover.html#GUID-84FBA50B-677C-4D90-AF56-2FB96F2DC085
  *
  * and
  *
@@ -1491,3 +1491,16 @@ proto_reg_handoff_cdp(void)
     dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);
     dissector_add_uint("ppp.protocol",  0x0207, cdp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

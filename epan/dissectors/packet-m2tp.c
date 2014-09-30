@@ -174,18 +174,18 @@ static const value_string m2tp_message_class_type_acro_values[] = {
 #define M2TP_USER_FRAME_RELAY   3
 
 static const value_string m2tp_user_identifier_values[] = {
-    { M2TP_USER_MTP2,        "MTP2" },
-    { M2TP_USER_Q921,        "Q.921" },
-    { M2TP_USER_FRAME_RELAY, "Frame Relay" },
-    { 0, NULL }};
+  { M2TP_USER_MTP2,        "MTP2" },
+  { M2TP_USER_Q921,        "Q.921" },
+  { M2TP_USER_FRAME_RELAY, "Frame Relay" },
+  { 0, NULL }};
 
 #define M2TP_MODE_MASTER 1
 #define M2TP_MODE_SLAVE  2
 
 static const value_string m2tp_mode_values[] = {
-    { M2TP_MODE_MASTER,      "Master" },
-    { M2TP_MODE_SLAVE,       "Slave" },
-    { 0, NULL}};
+  { M2TP_MODE_MASTER,      "Master" },
+  { M2TP_MODE_SLAVE,       "Slave" },
+  { 0, NULL}};
 
 #define M2TP_ERROR_CODE_INVALID_VERSION                         1
 #define M2TP_ERROR_CODE_INVALID_INTERFACE_IDENTIFIER            2
@@ -198,24 +198,24 @@ static const value_string m2tp_mode_values[] = {
 #define M2TP_ERROR_CODE_INCOMPATIBLE_MASTER_SLAVE_CONFIGURATION 9
 
 static const value_string m2tp_error_code_values[] = {
-      { M2TP_ERROR_CODE_INVALID_VERSION,                        "Invalid Version" },
-      { M2TP_ERROR_CODE_INVALID_INTERFACE_IDENTIFIER,           "Invalid Interface Identifier" },
-      { M2TP_ERROR_CODE_INVALID_ADAPTATION_LAYER_IDENTIFIER,    "Invalid Adaptation Layer Identifier" },
-      { M2TP_ERROR_CODE_INVALID_MESSAGE_TYPE,                   "Invalid Message Type" },
-      { M2TP_ERROR_CODE_INVALID_TRAFFIC_HANDLING_MODE,          "Invalid Traffic Handling Mode" },
-      { M2TP_ERROR_CODE_UNEXPECTED_MESSAGE,                     "Unexpected Message" },
-      { M2TP_ERROR_CODE_PROTOCOL_ERROR,                         "Protocol Error" },
-      { M2TP_ERROR_CODE_INVALID_STREAM_IDENTIFIER,              "Invalid Stream Identified" },
-      { M2TP_ERROR_CODE_INCOMPATIBLE_MASTER_SLAVE_CONFIGURATION,"Incompatible Master Slave Configuration" },
-      { 0,                                                      NULL } };
+  { M2TP_ERROR_CODE_INVALID_VERSION,                        "Invalid Version" },
+  { M2TP_ERROR_CODE_INVALID_INTERFACE_IDENTIFIER,           "Invalid Interface Identifier" },
+  { M2TP_ERROR_CODE_INVALID_ADAPTATION_LAYER_IDENTIFIER,    "Invalid Adaptation Layer Identifier" },
+  { M2TP_ERROR_CODE_INVALID_MESSAGE_TYPE,                   "Invalid Message Type" },
+  { M2TP_ERROR_CODE_INVALID_TRAFFIC_HANDLING_MODE,          "Invalid Traffic Handling Mode" },
+  { M2TP_ERROR_CODE_UNEXPECTED_MESSAGE,                     "Unexpected Message" },
+  { M2TP_ERROR_CODE_PROTOCOL_ERROR,                         "Protocol Error" },
+  { M2TP_ERROR_CODE_INVALID_STREAM_IDENTIFIER,              "Invalid Stream Identified" },
+  { M2TP_ERROR_CODE_INCOMPATIBLE_MASTER_SLAVE_CONFIGURATION,"Incompatible Master Slave Configuration" },
+  { 0,                                                      NULL } };
 
 #define MANAGEMENT_ORDER_REASON_CODE       1
 #define MTP_RELEASE_REASON_CODE            2
 
 static const value_string m2tp_reason_code_values[] = {
-      { MANAGEMENT_ORDER_REASON_CODE,                      "Management Order" },
-      { MTP_RELEASE_REASON_CODE,                           "MTP Release" },
-      { 0,                                                 NULL } };
+  { MANAGEMENT_ORDER_REASON_CODE,                      "Management Order" },
+  { MTP_RELEASE_REASON_CODE,                           "MTP Release" },
+  { 0,                                                 NULL } };
 
 
 /* Initialize the protocol and registered fields */
@@ -586,13 +586,13 @@ proto_register_m2tp(void)
     },
     { &hf_m2tp_parameter_value,
       { "Parameter Value", "m2tp.parameter_value",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,
-	      NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_m2tp_parameter_padding,
       { "Padding", "m2tp.parameter_padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,
-	      NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_m2tp_interface_identifier,
       { "Interface Identifier", "m2tp.interface_identifier",
@@ -616,13 +616,13 @@ proto_register_m2tp(void)
     },
     { &hf_m2tp_diagnostic_info,
       { "Diagnostic information", "m2tp.diagnostic_info",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,
-	       NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_m2tp_heartbeat_data,
       { "Heartbeat data", "m2tp.heartbeat_data",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,
-	       NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_m2tp_error_code,
       { "Error code", "m2tp.error_code",
@@ -659,3 +659,16 @@ proto_reg_handoff_m2tp(void)
   dissector_add_uint("sctp.ppi",  M2TP_PAYLOAD_PROTOCOL_ID, m2tp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2TP, m2tp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

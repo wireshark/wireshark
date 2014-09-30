@@ -72,3 +72,16 @@ proto_reg_handoff_dtsstime_req (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_dtsstime_req, ett_dtsstime_req, &uuid_dtsstime_req, ver_dtsstime_req, dtsstime_req_dissectors, hf_dtsstime_req_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

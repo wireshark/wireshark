@@ -38,16 +38,16 @@ static dissector_handle_t ccsds_handle;
 
 void
 dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
-	      int offset_after_length, packet_info *pinfo, proto_tree *tree,
-	      proto_tree *fh_tree, int length_id, int trailer_id, expert_field* ei_len,
-	      int fcs_len)
+              int offset_after_length, packet_info *pinfo, proto_tree *tree,
+              proto_tree *fh_tree, int length_id, int trailer_id, expert_field* ei_len,
+              int fcs_len)
 {
-  proto_item		*length_it;
-  tvbuff_t		*volatile next_tvb = NULL;
-  tvbuff_t		*trailer_tvb = NULL;
-  const char		*saved_proto;
-  gint			captured_length, reported_length;
-  void			*pd_save;
+  proto_item *length_it;
+  tvbuff_t   *volatile next_tvb = NULL;
+  tvbuff_t   *trailer_tvb = NULL;
+  const char *saved_proto;
+  gint        captured_length, reported_length;
+  void       *pd_save;
 
   length_it = proto_tree_add_uint(fh_tree, length_id, tvb,
                                   offset_after_length - 2, 2, length);
@@ -135,3 +135,16 @@ proto_reg_handoff_ieee802_3(void)
   llc_handle = find_dissector("llc");
   ccsds_handle = find_dissector("ccsds");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

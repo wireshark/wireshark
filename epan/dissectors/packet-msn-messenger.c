@@ -36,13 +36,13 @@ void proto_reg_handoff_msnms(void);
  * The now-expired Internet-Draft for the MSN Messenger 1.0 protocol
  * can, as of the time of the writing of this comment, be found at:
  *
- *	http://praya.sourceforge.net/draft-movva-msn-messenger-protocol-00.txt
+ *      http://praya.sourceforge.net/draft-movva-msn-messenger-protocol-00.txt
  *
- *	http://mono.es.gnome.org/imsharp/tutoriales/msn/appendixa.html
+ *      http://mono.es.gnome.org/imsharp/tutoriales/msn/appendixa.html
  *
- *	http://www.hypothetic.org/docs/msn/ietf_draft.php
+ *      http://www.hypothetic.org/docs/msn/ietf_draft.php
  *
- *	http://babble.wundsam.net/docs/protocol-msn-im.txt
+ *      http://babble.wundsam.net/docs/protocol-msn-im.txt
  *
  * Note that it's Yet Another FTP-Like Command/Response Protocol,
  * so it arguably should be dissected as such, although you do have
@@ -58,84 +58,97 @@ static int proto_msnms = -1;
 
 static gint ett_msnms = -1;
 
-#define TCP_PORT_MSNMS			1863
+#define TCP_PORT_MSNMS    1863
 
 static void
 dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_tree      *msnms_tree;
-	proto_item	*ti;
-	gint		offset = 0;
-	const guchar	*line;
-	gint		next_offset;
-	int		linelen;
-	/* int		tokenlen; */
-	/* const guchar	*next_token; */
+    proto_tree   *msnms_tree;
+    proto_item   *ti;
+    gint          offset = 0;
+    const guchar *line;
+    gint          next_offset;
+    int           linelen;
+    /* int              tokenlen; */
+    /* const guchar     *next_token; */
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSNMS");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSNMS");
 
-	/*
-	 * Find the end of the first line.
-	 *
-	 * Note that "tvb_find_line_end()" will return a value that is
-	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
-	 * call won't throw an exception.
-	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-	line = tvb_get_ptr(tvb, offset, linelen);
+    /*
+     * Find the end of the first line.
+     *
+     * Note that "tvb_find_line_end()" will return a value that is
+     * not longer than what's in the buffer, so the "tvb_get_ptr()"
+     * call won't throw an exception.
+     */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    line = tvb_get_ptr(tvb, offset, linelen);
 
 
-	/*
-	 * Put the first line from the buffer into the summary.
-	 */
-	col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, linelen));
+    /*
+     * Put the first line from the buffer into the summary.
+     */
+    col_add_str(pinfo->cinfo, COL_INFO,
+                format_text(line, linelen));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_msnms, tvb, offset, -1,
-		    ENC_NA);
-		msnms_tree = proto_item_add_subtree(ti, ett_msnms);
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_msnms, tvb, offset, -1,
+                                 ENC_NA);
+        msnms_tree = proto_item_add_subtree(ti, ett_msnms);
 
-		/*
-		 * Show the rest of the packet as text,
-		 * a line at a time.
-		 */
-		while (tvb_offset_exists(tvb, offset)) {
-			/*
-			 * Find the end of the line.
-			 */
-			tvb_find_line_end(tvb, offset, -1,
-			    &next_offset, FALSE);
+        /*
+         * Show the rest of the packet as text,
+         * a line at a time.
+         */
+        while (tvb_offset_exists(tvb, offset)) {
+            /*
+             * Find the end of the line.
+             */
+            tvb_find_line_end(tvb, offset, -1,
+                              &next_offset, FALSE);
 
-			/*
-			 * Put this line.
-			 */
-			proto_tree_add_format_text(msnms_tree, tvb, offset, next_offset - offset);
-			offset = next_offset;
-		}
-	}
+            /*
+             * Put this line.
+             */
+            proto_tree_add_format_text(msnms_tree, tvb, offset, next_offset - offset);
+            offset = next_offset;
+        }
+    }
 }
 
 void
 proto_register_msnms(void)
 {
-  static gint *ett[] = {
-    &ett_msnms,
-  };
+    static gint *ett[] = {
+        &ett_msnms,
+    };
 
-  proto_msnms = proto_register_protocol("MSN Messenger Service", "MSNMS", "msnms");
-  proto_register_subtree_array(ett, array_length(ett));
+    proto_msnms = proto_register_protocol("MSN Messenger Service", "MSNMS", "msnms");
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_msnms(void)
 {
-  dissector_handle_t msnms_handle;
+    dissector_handle_t msnms_handle;
 
-  msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
-  dissector_add_uint("tcp.port", TCP_PORT_MSNMS, msnms_handle);
-  /*
-   * For MSN Messenger Protocol over HTTP
-   */
-  dissector_add_string("media_type", "application/x-msn-messenger", msnms_handle);
+    msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
+    dissector_add_uint("tcp.port", TCP_PORT_MSNMS, msnms_handle);
+    /*
+     * For MSN Messenger Protocol over HTTP
+     */
+    dissector_add_string("media_type", "application/x-msn-messenger", msnms_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

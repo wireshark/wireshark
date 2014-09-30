@@ -108,28 +108,28 @@ void
 proto_register_ipnet(void)
 {
   static hf_register_info hf[] = {
-    { &hf_version,	{ "Header version",		"ipnet.version",
+    { &hf_version,      { "Header version",             "ipnet.version",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_family,	{ "Address family",		"ipnet.family",
+    { &hf_family,       { "Address family",             "ipnet.family",
       FT_UINT8, BASE_DEC, VALS(solaris_family_vals), 0x0, NULL, HFILL }},
 
-    { &hf_htype,	{ "Hook type",			"ipnet.htype",
+    { &hf_htype,        { "Hook type",                  "ipnet.htype",
       FT_UINT16, BASE_DEC, VALS(htype_vals), 0x0, NULL, HFILL }},
 
-    { &hf_pktlen,	{ "Data length",		"ipnet.pktlen",
+    { &hf_pktlen,       { "Data length",                "ipnet.pktlen",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_ifindex,	{ "Interface index",		"ipnet.ifindex",
+    { &hf_ifindex,      { "Interface index",            "ipnet.ifindex",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_grifindex,	{ "Group interface index",	"ipnet.grifindex",
+    { &hf_grifindex,    { "Group interface index",      "ipnet.grifindex",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_zsrc,		{ "Source Zone ID",		"ipnet.zsrc",
+    { &hf_zsrc,         { "Source Zone ID",             "ipnet.zsrc",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_zdst,		{ "Destination Zone ID",	"ipnet.zdst",
+    { &hf_zdst,         { "Destination Zone ID",        "ipnet.zdst",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
@@ -155,3 +155,16 @@ proto_reg_handoff_ipnet(void)
   ipnet_handle = create_dissector_handle(dissect_ipnet, proto_ipnet);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IPNET, ipnet_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

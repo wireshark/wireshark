@@ -59,7 +59,7 @@ static dcerpc_sub_dissector ubikdisk_dissectors[] = {
 	{ 10, "Probe", NULL, NULL},
 	{ 11, "GetServerInterfaces", NULL, NULL},
 	{ 12, "BulkUpdate", NULL, NULL},
-        { 0, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL }
 };
 
 void
@@ -85,3 +85,16 @@ proto_reg_handoff_ubikdisk (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ubikdisk, ett_ubikdisk, &uuid_ubikdisk, ver_ubikdisk, ubikdisk_dissectors, hf_ubikdisk_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

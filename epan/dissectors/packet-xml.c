@@ -1055,13 +1055,13 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         if (root_name == NULL)
             root_name = g_strdup(nl->name);
 
-        element->name		   = nl->name;
+        element->name          = nl->name;
         element->element_names = nl->list;
-        element->hf_tag		   = -1;
-        element->hf_cdata	   = -1;
-        element->ett		   = -1;
-        element->attributes	   = g_hash_table_new(g_str_hash, g_str_equal);
-        element->elements	   = g_hash_table_new(g_str_hash, g_str_equal);
+        element->hf_tag        = -1;
+        element->hf_cdata      = -1;
+        element->ett           = -1;
+        element->attributes    = g_hash_table_new(g_str_hash, g_str_equal);
+        element->elements      = g_hash_table_new(g_str_hash, g_str_equal);
 
         if( g_hash_table_lookup(elements, element->name) ) {
             g_string_append_printf(errors, "element %s defined more than once\n", element->name);
@@ -1388,10 +1388,10 @@ static void apply_prefs(void)
         }
     }
 
-	dissector_delete_uint_range("tcp.port", xml_tcp_range, xml_handle);
+    dissector_delete_uint_range("tcp.port", xml_tcp_range, xml_handle);
     g_free(xml_tcp_range);
     xml_tcp_range = range_copy(global_xml_tcp_range);
-	dissector_add_uint_range("tcp.port", xml_tcp_range, xml_handle);
+    dissector_add_uint_range("tcp.port", xml_tcp_range, xml_handle);
 }
 
 void
@@ -1505,3 +1505,16 @@ proto_reg_handoff_xml(void)
     heur_dissector_add("wtap_file", dissect_xml_heur, xml_ns.hf_tag);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

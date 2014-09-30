@@ -144,10 +144,10 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   addr_dst= tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_DST);
 
   subtree = proto_tree_add_subtree_format(tree, tvb, *offset, ROOFNET_LINK_LEN,
-			    ett_roofnet_link, NULL, "link: %u, src: %s, dst: %s",
-			    link,
-			    get_hostname(addr_src),
-			    get_hostname(addr_dst));
+                                          ett_roofnet_link, NULL, "link: %u, src: %s, dst: %s",
+                                          link,
+                                          get_hostname(addr_src),
+                                          get_hostname(addr_dst));
 
   proto_tree_add_ipv4(subtree, hf_roofnet_link_src, tvb, *offset, 4, addr_src);
   *offset += 4;
@@ -181,8 +181,8 @@ static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * 
   /* dissect on remaining_datalen */
    if (roofnet_datalen < remaining_datalen)
      proto_tree_add_expert_format(tree, pinfo, &ei_roofnet_too_much_data, tvb, offset, roofnet_datalen,
-	 "[More payload data (%u) than told by Roofnet (%u)]",
-	 remaining_datalen, roofnet_datalen);
+                                  "[More payload data (%u) than told by Roofnet (%u)]",
+                                  remaining_datalen, roofnet_datalen);
 
   if (roofnet_datalen == 0)
     return;
@@ -210,7 +210,7 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   roofnet_msg_type = tvb_get_guint8(tvb, ROOFNET_OFFSET_TYPE);
   /* Clear out stuff in the info column */
   col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s",
-	val_to_str(roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
+               val_to_str(roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
 
   it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
   roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
@@ -245,47 +245,47 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_type,
       { "Type", "roofnet.type",
-	FT_UINT8, BASE_DEC, VALS(roofnet_pt_vals), 0x0, "Roofnet Message Type", HFILL }
+        FT_UINT8, BASE_DEC, VALS(roofnet_pt_vals), 0x0, "Roofnet Message Type", HFILL }
     },
 
     { &hf_roofnet_nlinks,
       { "Number of Links", "roofnet.nlinks",
-	FT_UINT8, BASE_DEC, NULL, 0x0, "Roofnet Number of Links", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0, "Roofnet Number of Links", HFILL }
     },
 
     { &hf_roofnet_next,
       { "Next Link", "roofnet.next",
-	FT_UINT8, BASE_DEC, NULL, 0x0, "Roofnet Next Link to Use", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0, "Roofnet Next Link to Use", HFILL }
     },
 
     { &hf_roofnet_ttl,
       { "Time To Live", "roofnet.ttl",
-	FT_UINT16, BASE_DEC, NULL, 0x0, "Roofnet Time to Live", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0, "Roofnet Time to Live", HFILL }
     },
 
     { &hf_roofnet_cksum,
       { "Checksum", "roofnet.cksum",
-	FT_UINT16, BASE_DEC, NULL, 0x0, "Roofnet Header Checksum", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0, "Roofnet Header Checksum", HFILL }
     },
 
     { &hf_roofnet_flags,
       { "Flags", "roofnet.flags",
-	FT_UINT16, BASE_DEC, VALS(roofnet_flags_vals), 0x0, "Roofnet Flags", HFILL }
+        FT_UINT16, BASE_DEC, VALS(roofnet_flags_vals), 0x0, "Roofnet Flags", HFILL }
     },
 
     { &hf_roofnet_data_length,
       { "Data Length", "roofnet.datalength",
-	FT_UINT16, BASE_DEC, NULL, 0x0, "Data Payload Length", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0, "Data Payload Length", HFILL }
     },
 
     { &hf_roofnet_query_dst,
       { "Query Dst", "roofnet.querydst",
-	FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Query Destination", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Query Destination", HFILL }
     },
 
     { &hf_roofnet_seq,
       { "Seq", "roofnet.seq",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "Roofnet Sequential Number", HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0, "Roofnet Sequential Number", HFILL }
     },
 
 #if 0
@@ -302,27 +302,27 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_link_forward,
       { "Forward", "roofnet.link.forward",
-	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_roofnet_link_rev,
       { "Rev", "roofnet.link.rev",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "Revision Number", HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0, "Revision Number", HFILL }
     },
 
     { &hf_roofnet_link_seq,
       { "Seq", "roofnet.link.seq",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "Link Sequential Number", HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0, "Link Sequential Number", HFILL }
     },
 
     { &hf_roofnet_link_age,
       { "Age", "roofnet.link.age",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "Information Age", HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0, "Information Age", HFILL }
     },
 
     { &hf_roofnet_link_dst,
       { "Dst IP", "roofnet.link.dst",
-	FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Message Destination", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Message Destination", HFILL }
     }
   };
 
@@ -340,10 +340,10 @@ void proto_register_roofnet(void)
   expert_module_t* expert_roofnet;
 
   proto_roofnet = proto_register_protocol(
-				"Roofnet Protocol", /* Name */
-				"Roofnet",	    /* Short Name */
-				"roofnet"	    /* Abbrev */
-				);
+                                "Roofnet Protocol", /* Name */
+                                "Roofnet",          /* Short Name */
+                                "roofnet"           /* Abbrev */
+                                );
 
   proto_register_field_array(proto_roofnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -367,3 +367,16 @@ void proto_reg_handoff_roofnet(void)
   dissector_add_uint("ethertype", 0x0644, roofnet_handle);
   dissector_add_uint("ethertype", 0x0645, roofnet_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

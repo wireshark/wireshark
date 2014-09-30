@@ -107,3 +107,16 @@ proto_reg_handoff_dcerpc_bossvr (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_bossvr, ett_bossvr, &uuid_bossvr, ver_bossvr, bossvr_dissectors, hf_bossvr_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

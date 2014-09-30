@@ -54,7 +54,7 @@ capture_clip( const guchar *pd, int len, packet_counts *ld ) {
 static void
 dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item	*fh_item;
+  proto_item *fh_item;
 
   pinfo->current_proto = "CLIP";
 
@@ -128,3 +128,16 @@ proto_reg_handoff_clip(void)
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

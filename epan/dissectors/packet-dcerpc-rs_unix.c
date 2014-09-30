@@ -72,3 +72,16 @@ proto_reg_handoff_rs_unix (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_unix, ett_rs_unix, &uuid_rs_unix, ver_rs_unix, rs_unix_dissectors, hf_rs_unix_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

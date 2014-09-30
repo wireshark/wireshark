@@ -41,7 +41,7 @@ static int hf_rs_repmgr_opnum = -1;
 static gint ett_rs_repmgr = -1;
 static e_uuid_t uuid_rs_repmgr =
   { 0xb62dc198, 0xdfd4, 0x11ca, {0x94, 0x8f, 0x08, 0x00, 0x1e, 0x02, 0x59,
-				 0x4c} };
+                                 0x4c} };
 
 static guint16 ver_rs_repmgr = 2;
 
@@ -84,5 +84,18 @@ proto_reg_handoff_rs_repmgr (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_rs_repmgr, ett_rs_repmgr, &uuid_rs_repmgr,
-		    ver_rs_repmgr, rs_repmgr_dissectors, hf_rs_repmgr_opnum);
+                    ver_rs_repmgr, rs_repmgr_dissectors, hf_rs_repmgr_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

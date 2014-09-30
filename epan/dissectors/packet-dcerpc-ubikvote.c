@@ -54,7 +54,7 @@ static dcerpc_sub_dissector ubikvote_dissectors[] = {
 	{ 5, "DebugV2",             NULL, NULL},
 	{ 6, "SDebugV2",            NULL, NULL},
 	{ 7, "GetSyncSiteIdentity", NULL, NULL},
-        { 0, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL }
 };
 
 void
@@ -80,3 +80,16 @@ proto_reg_handoff_ubikvote (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ubikvote, ett_ubikvote, &uuid_ubikvote, ver_ubikvote, ubikvote_dissectors, hf_ubikvote_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

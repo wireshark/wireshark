@@ -1491,7 +1491,7 @@ static void process_control_avps(tvbuff_t *tvb,
                                  proto_tree *l2tp_tree,
                                  int idx,
                                  int length,
-								 guint32 ccid,
+                                 guint32 ccid,
                                  l2tpv3_tunnel_t *tunnel)
 {
     proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub;
@@ -1511,7 +1511,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
     l2tpv3_session_t *session = NULL;
 
-	l2tp_cntrl_data->ccid = ccid;
+    l2tp_cntrl_data->ccid = ccid;
 
     while (idx < length) {    /* Process AVP's */
         ver_len_hidden  = tvb_get_ntohs(tvb, idx);
@@ -3110,3 +3110,16 @@ proto_reg_handoff_l2tp(void)
     ehdlc_handle          = find_dissector("ehdlc");
     data_handle           = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

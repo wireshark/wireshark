@@ -41,7 +41,7 @@ static int hf_rs_prop_attr_opnum = -1;
 static gint ett_rs_prop_attr = -1;
 static e_uuid_t uuid_rs_prop_attr =
   { 0x0eff23e6, 0x555a, 0x11cd, {0x95, 0xbf, 0x08, 0x00, 0x09, 0x27, 0x84,
-				 0xc3} };
+                                 0xc3} };
 
 static guint16 ver_rs_prop_attr = 1;
 
@@ -66,7 +66,7 @@ proto_register_rs_prop_attr (void)
   };
   proto_rs_prop_attr =
     proto_register_protocol ("DCE/RPC Prop Attr", "rs_prop_attr",
-			     "rs_prop_attr");
+                             "rs_prop_attr");
   proto_register_field_array (proto_rs_prop_attr, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }
@@ -76,6 +76,19 @@ proto_reg_handoff_rs_prop_attr (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_rs_prop_attr, ett_rs_prop_attr, &uuid_rs_prop_attr,
-		    ver_rs_prop_attr, rs_prop_attr_dissectors,
-		    hf_rs_prop_attr_opnum);
+                    ver_rs_prop_attr, rs_prop_attr_dissectors,
+                    hf_rs_prop_attr_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

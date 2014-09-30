@@ -46,13 +46,13 @@ static guint16  ver_secidmap = 1;
 
 
 static dcerpc_sub_dissector secidmap_dissectors[] = {
-        { 0, "parse_name",       NULL, NULL},
-        { 1, "gen_name",         NULL, NULL},
-        { 2, "avoid_cn_bug",     NULL, NULL},
-        { 3, "parse_name_cache", NULL, NULL},
-        { 4, "gen_name_cache",   NULL, NULL},
+	{ 0, "parse_name",	 NULL, NULL},
+	{ 1, "gen_name",	 NULL, NULL},
+	{ 2, "avoid_cn_bug",	 NULL, NULL},
+	{ 3, "parse_name_cache", NULL, NULL},
+	{ 4, "gen_name_cache",	 NULL, NULL},
 
-        { 0, NULL, NULL, NULL },
+	{ 0, NULL, NULL, NULL },
 };
 
 void
@@ -75,6 +75,19 @@ proto_register_secidmap (void)
 void
 proto_reg_handoff_secidmap (void)
 {
-        /* Register the protocol as dcerpc */
-        dcerpc_init_uuid (proto_secidmap, ett_secidmap, &uuid_secidmap, ver_secidmap, secidmap_dissectors, hf_secidmap_opnum);
+	/* Register the protocol as dcerpc */
+	dcerpc_init_uuid (proto_secidmap, ett_secidmap, &uuid_secidmap, ver_secidmap, secidmap_dissectors, hf_secidmap_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

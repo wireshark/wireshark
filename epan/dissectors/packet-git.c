@@ -47,35 +47,35 @@ static gint hf_git_packet_len = -1;
 static gint hf_git_packet_data = -1;
 static gint hf_git_packet_terminator = -1;
 
-#define TCP_PORT_GIT			9418
+#define TCP_PORT_GIT    9418
 
 /* desegmentation of Git over TCP */
 static gboolean git_desegment = TRUE;
 
 static gboolean get_packet_length(tvbuff_t *tvb, int offset,
-									  guint16 *length)
+                                  guint16 *length)
 {
-	guint8 *lenstr;
+  guint8 *lenstr;
 
-	lenstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+  lenstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
 
-	return (sscanf(lenstr, "%hx", length) == 1);
+  return (sscanf(lenstr, "%hx", length) == 1);
 }
 
 static guint
 get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	guint16 plen;
+  guint16 plen;
 
-	if (!get_packet_length(tvb, offset, &plen))
-		return 0; /* No idea what this is */
+  if (!get_packet_length(tvb, offset, &plen))
+    return 0; /* No idea what this is */
 
-	if (plen == 0) {
-		/* Terminator packet */
-		return 4;
-	}
+  if (plen == 0) {
+    /* Terminator packet */
+    return 4;
+  }
 
-	return plen;
+  return plen;
 }
 
 static int
@@ -94,21 +94,21 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   git_tree = proto_item_add_subtree(ti, ett_git);
 
   if (!get_packet_length(tvb, 0, &plen))
-	  return 0;
+    return 0;
 
   if (plen == 0) {
-	  proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
-								4, plen);
-	  return 4;
+    proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
+                        4, plen);
+    return 4;
   }
 
   if (git_tree)
   {
-	  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
-								4, plen);
+    proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
+                        4, plen);
 
-	  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4,
-								plen-4, ENC_NA);
+    proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4,
+                        plen-4, ENC_NA);
   }
 
   return tvb_length(tvb);
@@ -117,24 +117,24 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static int
 dissect_git(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, git_desegment, 4, get_git_pdu_len,
-			 dissect_git_pdu, data);
-	return tvb_length(tvb);
+  tcp_dissect_pdus(tvb, pinfo, tree, git_desegment, 4, get_git_pdu_len,
+                   dissect_git_pdu, data);
+  return tvb_length(tvb);
 }
 
 void
 proto_register_git(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_git_packet_len,
-		{ "Packet length", "git.length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
-	},
-	{ &hf_git_packet_data,
-		{ "Packet data", "git.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
-	},
-	{ &hf_git_packet_terminator,
-		{ "Terminator packet", "git.terminator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
-	},
+    { &hf_git_packet_len,
+      { "Packet length", "git.length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+    },
+    { &hf_git_packet_data,
+      { "Packet data", "git.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
+    },
+    { &hf_git_packet_terminator,
+      { "Terminator packet", "git.terminator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+    },
   };
 
   static gint *ett[] = {
@@ -152,10 +152,10 @@ proto_register_git(void)
   git_module = prefs_register_protocol(proto_git, NULL);
 
   prefs_register_bool_preference(git_module, "desegment",
-				 "Reassemble GIT messages spanning multiple TCP segments",
-				 "Whether the GIT dissector should reassemble messages spanning multiple TCP segments."
-				 " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-				 &git_desegment);
+                                 "Reassemble GIT messages spanning multiple TCP segments",
+                                 "Whether the GIT dissector should reassemble messages spanning multiple TCP segments."
+                                 " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                 &git_desegment);
 }
 
 void
@@ -163,3 +163,16 @@ proto_reg_handoff_git(void)
 {
   dissector_add_uint("tcp.port", TCP_PORT_GIT, git_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

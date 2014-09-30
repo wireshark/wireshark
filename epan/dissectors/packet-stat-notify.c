@@ -57,15 +57,15 @@ dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 /* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff statnotify1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { STATNOTIFYPROC_MON,   "MON-CALLBACK",
-		dissect_statnotify_mon, NULL },
-    { 0, NULL, NULL, NULL }
+	{ 0, "NULL", NULL, NULL },
+	{ STATNOTIFYPROC_MON,   "MON-CALLBACK",
+	  dissect_statnotify_mon, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 static const value_string statnotify1_proc_vals[] = {
-    { 0, "NULL" },
-    { STATNOTIFYPROC_MON,   "MON-CALLBACK" },
-    { 0, NULL }
+	{ 0, "NULL" },
+	{ STATNOTIFYPROC_MON,   "MON-CALLBACK" },
+	{ 0, NULL }
 };
 /* end of stat-notify version 1 */
 
@@ -105,3 +105,16 @@ proto_reg_handoff_statnotify(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify1_proc, hf_statnotify_procedure_v1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

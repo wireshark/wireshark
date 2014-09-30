@@ -82,3 +82,16 @@ proto_reg_handoff_rs_replist (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_replist, ett_rs_replist, &uuid_rs_replist, ver_rs_replist, rs_replist_dissectors, hf_rs_replist_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

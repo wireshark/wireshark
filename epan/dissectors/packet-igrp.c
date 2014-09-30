@@ -4,7 +4,7 @@
  *
  * See
  *
- *	http://www.cisco.com/en/US/tech/tk365/technologies_white_paper09186a00800c8ae1.shtml
+ *   http://www.cisco.com/en/US/tech/tk365/technologies_white_paper09186a00800c8ae1.shtml
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -69,13 +69,13 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ver_and_opcode) {
   case 0x11:
-	col_set_str(pinfo->cinfo, COL_INFO, "Response" );
-	break;
+    col_set_str(pinfo->cinfo, COL_INFO, "Response" );
+    break;
   case 0x12:
-	col_set_str(pinfo->cinfo, COL_INFO, "Request" );
-	break;
+    col_set_str(pinfo->cinfo, COL_INFO, "Request" );
+    break;
   default:
-	col_set_str(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
+    col_set_str(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
   }
 
 
@@ -136,26 +136,26 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
 {
-	guint8 *ptr_addr,addr[5];
+  guint8 *ptr_addr,addr[5];
 
-	addr[0]=network;
-	addr[1]=tvb_get_guint8(tvb,0);
-	addr[2]=tvb_get_guint8(tvb,1);
-	addr[3]=tvb_get_guint8(tvb,2);
-	addr[4]=0;
+  addr[0]=network;
+  addr[1]=tvb_get_guint8(tvb,0);
+  addr[2]=tvb_get_guint8(tvb,1);
+  addr[3]=tvb_get_guint8(tvb,2);
+  addr[4]=0;
 
-	ptr_addr=addr;
-	if (network==0) ptr_addr=&addr[1];
+  ptr_addr=addr;
+  if (network==0) ptr_addr=&addr[1];
 
-	igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
-	  ett_igrp_net, NULL, "Entry for network %s", ip_to_str(ptr_addr)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 9 ,2,"MTU         = %d  bytes",tvb_get_ntohs(tvb,9)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 11,1,"Reliability = %d",tvb_get_guint8(tvb,11)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 12,1,"Load        = %d",tvb_get_guint8(tvb,12)) ;
-	proto_tree_add_text (igrp_vektor_tree, tvb, 13,1,"Hop count   = %d  hops",tvb_get_guint8(tvb,13)) ;
+  igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
+                                                   ett_igrp_net, NULL, "Entry for network %s", ip_to_str(ptr_addr)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 9 ,2,"MTU         = %d  bytes",tvb_get_ntohs(tvb,9)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 11,1,"Reliability = %d",tvb_get_guint8(tvb,11)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 12,1,"Load        = %d",tvb_get_guint8(tvb,12)) ;
+  proto_tree_add_text (igrp_vektor_tree, tvb, 13,1,"Hop count   = %d  hops",tvb_get_guint8(tvb,13)) ;
 }
 
 
@@ -187,7 +187,7 @@ void proto_register_igrp(void)
 
   /* Register the protocol name and description */
   proto_igrp = proto_register_protocol("Cisco Interior Gateway Routing Protocol",
-				       "IGRP", "igrp");
+                                       "IGRP", "igrp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_igrp, hf, array_length(hf));
@@ -203,32 +203,32 @@ proto_reg_handoff_igrp(void)
   dissector_add_uint("ip.proto", IP_PROTO_IGRP, igrp_handle);
 }
 
-/*	IGRP Packet structure:
+/*    IGRP Packet structure:
 
 HEADER structure + k * VECTOR structure
 where: k = (Number of Interior routes) + (Number of System routes) + (Number of Exterior routes)
 
 HEADER structure is 12 bytes as follows :
 
-4  bits		Version (only version 1 is defined)
-4  bits		Opcode (1=Replay, 2=Request)
-8  bits		Update Release
-16 bits		Autonomous system number
-16 bits		Number of Interior routes
-16 bits		Number of System routes
-16 bits		Number of Exterior routes
-16 bits		Checksum
+4  bits         Version (only version 1 is defined)
+4  bits         Opcode (1=Replay, 2=Request)
+8  bits         Update Release
+16 bits         Autonomous system number
+16 bits         Number of Interior routes
+16 bits         Number of System routes
+16 bits         Number of Exterior routes
+16 bits         Checksum
 -------
 12 bytes in header
 
 VECTOR structure is 14 bytes as follows :
-24 bits		Network
-24 bits		Delay
-24 bits		Bandwidth
-16 bits		MTU
-8  bits		Reliability
-8  bits		Load
-8  bits		Hop count
+24 bits         Network
+24 bits         Delay
+24 bits         Bandwidth
+16 bits         MTU
+8  bits         Reliability
+8  bits         Load
+8  bits         Hop count
 -------
 14 bytes in 1 vector
 
@@ -239,3 +239,16 @@ If it is a system route or a exterior route then this 3 bytes are the first thre
 If the Delay is 0xFFFFFF then the network is unreachable
 
 */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

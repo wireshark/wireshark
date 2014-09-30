@@ -573,19 +573,19 @@ static const value_string tlv_unknown_vals[] = {
 #define VC_FEC          0x80    /* draft-martini-l2circuit-trans-mpls */
 #define GEN_FEC         0x81
 #define P2MP_FEC        0x06
-#define MP2MP_FEC_UP	0x07
-#define MP2MP_FEC_DOWN	0x08
+#define MP2MP_FEC_UP    0x07
+#define MP2MP_FEC_DOWN  0x08
 
 const value_string fec_types_vals[] = {
-  {WILDCARD_FEC, 	"Wildcard FEC"},
-  {PREFIX_FEC,   	"Prefix FEC"},
-  {HOST_FEC,     	"Host Address FEC"},
-  {CRLSP_FEC,    	"CR LSP FEC"},
-  {VC_FEC,       	"Virtual Circuit FEC"},
-  {GEN_FEC,      	"Generalized PWid FEC"},
-  {P2MP_FEC,     	"P2MP FEC"},
-  {MP2MP_FEC_UP, 	"MP2MP FEC upstream"},
-  {MP2MP_FEC_DOWN,	"MP2MP FEC Downstream"},
+  {WILDCARD_FEC,        "Wildcard FEC"},
+  {PREFIX_FEC,          "Prefix FEC"},
+  {HOST_FEC,            "Host Address FEC"},
+  {CRLSP_FEC,           "CR LSP FEC"},
+  {VC_FEC,              "Virtual Circuit FEC"},
+  {GEN_FEC,             "Generalized PWid FEC"},
+  {P2MP_FEC,            "P2MP FEC"},
+  {MP2MP_FEC_UP,        "MP2MP FEC upstream"},
+  {MP2MP_FEC_DOWN,      "MP2MP FEC Downstream"},
   {0, NULL}
 };
 
@@ -2248,21 +2248,21 @@ dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
     sub_tree = proto_tree_add_subtree(val_tree, tvb, offset + 8, rem, ett_ldp_sub_tlv, NULL, "Sub TLV");
 
     if(rem != 20 && rem != 24 && rem != 28 && rem != 29)
-    	{
-	    /*rem = 20 >> Length of IP Multicast Tunnel TLV
-	    rem = 29 >> Length of LDP P2MP LSV TLV
-	    rem = 24 >> Length of RSVP-TE P2MP LSP TLV
-	    rem = 28 >> Length of MPLS Context Label TLV*/
+    {
+        /*rem = 20 >> Length of IP Multicast Tunnel TLV
+          rem = 29 >> Length of LDP P2MP LSV TLV
+          rem = 24 >> Length of RSVP-TE P2MP LSP TLV
+          rem = 28 >> Length of MPLS Context Label TLV*/
 
-	    proto_item* inv_length;
-	    inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
-	    expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
-	}
+        proto_item* inv_length;
+        inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+    }
     else
-    	{
-	    rem = rem - 8;
-	    dissect_tlv(tvb, pinfo, offset + 8, sub_tree, rem);
-	}
+    {
+        rem = rem - 8;
+        dissect_tlv(tvb, pinfo, offset + 8, sub_tree, rem);
+    }
 }
 /*Dissect IP Multicast Tunnel TLV*/
 static void
@@ -4329,3 +4329,16 @@ proto_reg_handoff_ldp(void)
     dissector_add_uint("udp.port", global_ldp_udp_port, ldp_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

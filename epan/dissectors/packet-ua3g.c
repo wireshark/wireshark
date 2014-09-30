@@ -4533,10 +4533,23 @@ proto_register_ua3g(void)
 void proto_reg_handoff_ua3g(void)
 {
 #if 0 /* Future */
-	dissector_handle_t handle_ua3g = find_dissector("ua3g");
+    dissector_handle_t handle_ua3g = find_dissector("ua3g");
 
-	/* hooking of UA3G on UA */
+    /* hooking of UA3G on UA */
 
-	dissector_add_uint("ua.opcode", 0x15, handle_ua3g);
+    dissector_add_uint("ua.opcode", 0x15, handle_ua3g);
 #endif
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

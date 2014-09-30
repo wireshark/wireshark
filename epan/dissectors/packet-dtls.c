@@ -1025,7 +1025,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   desc  = try_val_to_str(byte, ssl_31_alert_description);
 
   /* now set the text in the record layer line */
-    if (level && desc)
+  if (level && desc)
     {
        col_append_fstr(pinfo->cinfo, COL_INFO,
              "Alert (Level: %s, Description: %s)",
@@ -1239,7 +1239,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                   if (reassembled_length != length)
                     {
                       expert_add_info(pinfo, length_item, &ei_dtls_msg_len_diff_fragment);
-		    }
+                    }
                 }
 
               if (frag_msg && (fragment_length + fragment_offset) == reassembled_length)
@@ -1938,3 +1938,16 @@ proto_reg_handoff_dtls(void)
 
   initialized = TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

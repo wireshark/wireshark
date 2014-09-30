@@ -46,7 +46,7 @@ static dissector_handle_t mtp3_handle;
 static int hf_status = -1;
 static int hf_spare = -1;
 
-#define SSCF_STATUS_OOS	0x01
+#define SSCF_STATUS_OOS 0x01
 #define SSCF_STATUS_PO  0x02
 #define SSCF_STATUS_IS  0x03
 #define SSCF_STATUS_NORMAL 0x04
@@ -57,16 +57,16 @@ static int hf_spare = -1;
 #define SSCF_STATUS_PROVING_NOT_SUCCESSFUL 0x0a
 
 static const value_string sscf_status_vals[] = {
-	{ SSCF_STATUS_OOS,			"Out of Service" },
-	{ SSCF_STATUS_PO,			"Processor Outage" },
-	{ SSCF_STATUS_IS,			"In Service" },
-	{ SSCF_STATUS_NORMAL,			"Normal" },
-	{ SSCF_STATUS_EMERGENCY,		"Emergency" },
-	{ SSCF_STATUS_ALIGNMENT_NOT_SUCCESSFUL, "Alignment Not Successful" },
-	{ SSCF_STATUS_MANAGEMENT_INITIATED,	"Management Initiated" },
-	{ SSCF_STATUS_PROTOCOL_ERROR,		"Protocol Error" },
-	{ SSCF_STATUS_PROVING_NOT_SUCCESSFUL,	"Proving Not Successful" },
-	{ 0,					NULL }
+  { SSCF_STATUS_OOS,                      "Out of Service" },
+  { SSCF_STATUS_PO,                       "Processor Outage" },
+  { SSCF_STATUS_IS,                       "In Service" },
+  { SSCF_STATUS_NORMAL,                   "Normal" },
+  { SSCF_STATUS_EMERGENCY,                "Emergency" },
+  { SSCF_STATUS_ALIGNMENT_NOT_SUCCESSFUL, "Alignment Not Successful" },
+  { SSCF_STATUS_MANAGEMENT_INITIATED,     "Management Initiated" },
+  { SSCF_STATUS_PROTOCOL_ERROR,           "Protocol Error" },
+  { SSCF_STATUS_PROVING_NOT_SUCCESSFUL,   "Proving Not Successful" },
+  { 0,                                    NULL }
 };
 
 static void
@@ -77,7 +77,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *sscf_tree = NULL;
   guint8 sscf_status;
 
-  reported_length = tvb_reported_length(tvb);	/* frame length */
+  reported_length = tvb_reported_length(tvb);  /* frame length */
 
   if (tree) {
     sscf_item = proto_tree_add_item(tree, proto_sscf, tvb, 0, -1, ENC_NA);
@@ -94,13 +94,13 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCF-NNI");
     col_add_fstr(pinfo->cinfo, COL_INFO, "STATUS (%s) ",
-		   val_to_str_const(sscf_status, sscf_status_vals, "Unknown"));
+                 val_to_str_const(sscf_status, sscf_status_vals, "Unknown"));
 
 
     proto_tree_add_item(sscf_tree, hf_status, tvb, SSCF_STATUS_OFFSET,
-			SSCF_STATUS_LENGTH, ENC_BIG_ENDIAN);
+                        SSCF_STATUS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(sscf_tree, hf_spare, tvb, SSCF_SPARE_OFFSET,
-			SSCF_SPARE_LENGTH, ENC_BIG_ENDIAN);
+                        SSCF_SPARE_LENGTH, ENC_BIG_ENDIAN);
   }
 
 }
@@ -110,9 +110,9 @@ proto_register_sscf(void)
 {
   static hf_register_info hf[] =
   { { &hf_status, { "Status", "sscf-nni.status", FT_UINT8, BASE_HEX,
-		    VALS(sscf_status_vals), 0x0, NULL, HFILL} },
+                    VALS(sscf_status_vals), 0x0, NULL, HFILL} },
     { &hf_spare, { "Spare", "sscf-nni.spare", FT_UINT24, BASE_HEX,
-		    NULL, 0x0, NULL, HFILL} }
+                   NULL, 0x0, NULL, HFILL} }
   };
 
   static gint *ett[] = {
@@ -133,3 +133,16 @@ proto_reg_handoff_sscf(void)
 {
   mtp3_handle = find_dissector("mtp3");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

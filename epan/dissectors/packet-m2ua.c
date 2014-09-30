@@ -870,7 +870,7 @@ static const value_string parameter_tag_values[] = {
  *
  * The other option is the old Draft 7 value defined below.
  */
-#define	PROTOCOL_DATA_1_DRAFT_7				0x000e
+#define PROTOCOL_DATA_1_DRAFT_7  0x000e
 static gint protocol_data_1_global = PROTOCOL_DATA_1_PARAMETER_TAG;
 
 static void
@@ -900,7 +900,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 
      /* add tag and length to the m2ua tree */
      proto_tree_add_uint_format_value(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
-		      tag, "Protocol data 1 (0x000e)");
+                                      tag, "Protocol data 1 (0x000e)");
 
      proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
      tag = PROTOCOL_DATA_1_PARAMETER_TAG;
@@ -1144,3 +1144,16 @@ proto_reg_handoff_m2ua(void)
   dissector_add_uint("sctp.ppi",  M2UA_PAYLOAD_PROTOCOL_ID, m2ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2UA, m2ua_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

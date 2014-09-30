@@ -1064,12 +1064,13 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
   rectype_item = proto_tree_add_uint_format_value(tree, hf_erf_rectype, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type,
-					    "0x%02x (Type %d: %s)",
-					    pinfo->pseudo_header->erf.phdr.type,
-					    pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
-					    val_to_str_const(pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
-								 erf_type_vals,
-								 "Unknown Type"));
+                                                  "0x%02x (Type %d: %s)",
+                                                  pinfo->pseudo_header->erf.phdr.type,
+                                                  pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
+                                                  val_to_str_const(
+                                                    pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
+                                                    erf_type_vals,
+                                                    "Unknown Type"));
 
   rectype_tree = proto_item_add_subtree(rectype_item, ett_erf_rectype);
   proto_tree_add_uint(rectype_tree, hf_erf_type, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
@@ -1122,10 +1123,10 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   int         max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
   while(has_more && (i < max)) {
-	  type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
+    type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
 
-	  pi = proto_tree_add_uint(tree, hf_erf_ehdr_t, tvb, 0, 0, (type & 0x7f));
-	  ehdr_tree = proto_item_add_subtree(pi, ett_erf_pseudo_hdr);
+    pi = proto_tree_add_uint(tree, hf_erf_ehdr_t, tvb, 0, 0, (type & 0x7f));
+    ehdr_tree = proto_item_add_subtree(pi, ett_erf_pseudo_hdr);
 
     switch (type & 0x7f) {
     case EXT_HDR_TYPE_CLASSIFICATION:
@@ -1955,3 +1956,16 @@ proto_reg_handoff_erf(void)
 
   sdh_handle = find_dissector("sdh");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

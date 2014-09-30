@@ -40,7 +40,7 @@ void proto_reg_handoff_ajp13(void);
  *
  * You need to be looking at:
  *
- *	http://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
+ *     http://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
  *
  * If you're a wireshark dissector guru, then you can skip the rest of
  * this. I'm writing it all down because I've written 3 dissectors so
@@ -116,14 +116,14 @@ void proto_reg_handoff_ajp13(void);
 
 
 
-#define MTYPE_FORWARD_REQUEST	2
-#define MTYPE_SEND_BODY_CHUNK	3
-#define MTYPE_SEND_HEADERS	4
-#define MTYPE_END_RESPONSE	5
-#define MTYPE_GET_BODY_CHUNK	6
-#define MTYPE_SHUTDOWN		7
-#define MTYPE_CPONG		9
-#define MTYPE_CPING		10
+#define MTYPE_FORWARD_REQUEST   2
+#define MTYPE_SEND_BODY_CHUNK   3
+#define MTYPE_SEND_HEADERS      4
+#define MTYPE_END_RESPONSE      5
+#define MTYPE_GET_BODY_CHUNK    6
+#define MTYPE_SHUTDOWN          7
+#define MTYPE_CPONG             9
+#define MTYPE_CPING             10
 
 static const value_string mtype_codes[] = {
   { MTYPE_FORWARD_REQUEST, "FORWARD REQUEST" },
@@ -1123,3 +1123,16 @@ proto_reg_handoff_ajp13(void)
   ajp13_handle = new_create_dissector_handle(dissect_ajp13, proto_ajp13);
   dissector_add_uint("tcp.port", 8009, ajp13_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

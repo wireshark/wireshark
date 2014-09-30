@@ -52,8 +52,8 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
         proto_tree *subtree = NULL;
         proto_item *ti;
-		asn1_ctx_t asn1_ctx;
-		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        asn1_ctx_t asn1_ctx;
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(application/pkix-cert)");
 
@@ -115,3 +115,16 @@ proto_reg_handoff_cert(void)
         /* Register the PKIX-CERT media type */
         dissector_add_string("media_type", "application/pkix-cert", cert_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */

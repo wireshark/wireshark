@@ -82,3 +82,16 @@ proto_reg_handoff_tkn4int (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_tkn4int, ett_tkn4int, &uuid_tkn4int, ver_tkn4int, tkn4int_dissectors, hf_tkn4int_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

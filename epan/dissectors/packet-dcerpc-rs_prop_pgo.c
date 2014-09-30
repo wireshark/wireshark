@@ -41,7 +41,7 @@ static int hf_rs_prop_pgo_opnum = -1;
 static gint ett_rs_prop_pgo = -1;
 static e_uuid_t uuid_rs_prop_pgo =
   { 0xc23626e8, 0xde34, 0x11ca, {0x8c, 0xbc, 0x08, 0x00, 0x1e, 0x03, 0x94,
-				 0xc7} };
+                                 0xc7} };
 
 static guint16 ver_rs_prop_pgo = 1;
 
@@ -81,6 +81,19 @@ proto_reg_handoff_rs_prop_pgo (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_rs_prop_pgo, ett_rs_prop_pgo, &uuid_rs_prop_pgo,
-		    ver_rs_prop_pgo, rs_prop_pgo_dissectors,
-		    hf_rs_prop_pgo_opnum);
+                    ver_rs_prop_pgo, rs_prop_pgo_dissectors,
+                    hf_rs_prop_pgo_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

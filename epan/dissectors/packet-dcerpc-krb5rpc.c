@@ -44,7 +44,7 @@ static gint ett_krb5rpc = -1;
 
 static e_uuid_t uuid_krb5rpc =
   { 0x8f73de50, 0x768c, 0x11ca, {0xbf, 0xfc, 0x08, 0x00, 0x1e, 0x03, 0x94,
-				 0x31}
+                                 0x31}
 };
 static guint16 ver_krb5rpc = 1;
 static int hf_krb5rpc_opnum = -1;
@@ -60,8 +60,8 @@ static gint ett_krb5rpc_krb5 = -1;
 
 static int
 krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
-				 packet_info * pinfo, proto_tree * tree,
-				 dcerpc_info *di, guint8 *drep)
+                                 packet_info * pinfo, proto_tree * tree,
+                                 dcerpc_info *di, guint8 *drep)
 {
   guint32 keysize, spare1, remain;
   proto_item *item;
@@ -79,10 +79,10 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_rqst_keysize, &keysize);
+                       hf_krb5rpc_sendto_kdc_rqst_keysize, &keysize);
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_rqst_spare1, &spare1);
+                       hf_krb5rpc_sendto_kdc_rqst_spare1, &spare1);
   item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, ENC_NA);
   subtree = proto_item_add_subtree (item, ett_krb5rpc_krb5);
 
@@ -97,8 +97,8 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 
 static int
 krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
-				 packet_info * pinfo, proto_tree * tree,
-				 dcerpc_info *di, guint8 *drep)
+                                 packet_info * pinfo, proto_tree * tree,
+                                 dcerpc_info *di, guint8 *drep)
 {
   guint32 resp_len, maxsize, spare1, keysize, remain;
   proto_item *item;
@@ -120,13 +120,13 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
 			hf_krb5rpc_sendto_kdc_resp_len, &resp_len);
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_resp_max, &maxsize);
+                       hf_krb5rpc_sendto_kdc_resp_max, &maxsize);
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_resp_spare1, &spare1);
+                       hf_krb5rpc_sendto_kdc_resp_spare1, &spare1);
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_resp_keysize, &keysize);
+                       hf_krb5rpc_sendto_kdc_resp_keysize, &keysize);
 
 
   item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, ENC_NA);
@@ -203,5 +203,18 @@ proto_reg_handoff_krb5rpc (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_krb5rpc, ett_krb5rpc, &uuid_krb5rpc, ver_krb5rpc,
-		    krb5rpc_dissectors, hf_krb5rpc_opnum);
+                    krb5rpc_dissectors, hf_krb5rpc_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
