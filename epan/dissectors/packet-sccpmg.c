@@ -58,29 +58,29 @@ void proto_reg_handoff_sccpmg(void);
 
 /* Same as below but with names typed out */
 static const value_string sccpmg_message_type_values[] = {
-  { SCCPMG_MESSAGE_TYPE_SSA,   "SubSystem Allowed" },
-  { SCCPMG_MESSAGE_TYPE_SSP,   "SubSystem Prohibited" },
-  { SCCPMG_MESSAGE_TYPE_SST,   "Subsystem Status Test" },
-  { SCCPMG_MESSAGE_TYPE_SOR,   "Subsystem Out of service Request" },
-  { SCCPMG_MESSAGE_TYPE_SOG,   "Subsystem Out of service Grant" },
-  { SCCPMG_MESSAGE_TYPE_SSC,   "SubSystem Congested (ITU)" },
-  { SCCPMG_MESSAGE_TYPE_SBR,   "Subsystem Backup Routing (ANSI)" },
-  { SCCPMG_MESSAGE_TYPE_SNR,   "Subsystem Normal Routing (ANSI)" },
-  { SCCPMG_MESSAGE_TYPE_SRT,   "Subsystem Routing status Test (ANSI)" },
-  { 0,                       NULL } };
+	{ SCCPMG_MESSAGE_TYPE_SSA,   "SubSystem Allowed" },
+	{ SCCPMG_MESSAGE_TYPE_SSP,   "SubSystem Prohibited" },
+	{ SCCPMG_MESSAGE_TYPE_SST,   "Subsystem Status Test" },
+	{ SCCPMG_MESSAGE_TYPE_SOR,   "Subsystem Out of service Request" },
+	{ SCCPMG_MESSAGE_TYPE_SOG,   "Subsystem Out of service Grant" },
+	{ SCCPMG_MESSAGE_TYPE_SSC,   "SubSystem Congested (ITU)" },
+	{ SCCPMG_MESSAGE_TYPE_SBR,   "Subsystem Backup Routing (ANSI)" },
+	{ SCCPMG_MESSAGE_TYPE_SNR,   "Subsystem Normal Routing (ANSI)" },
+	{ SCCPMG_MESSAGE_TYPE_SRT,   "Subsystem Routing status Test (ANSI)" },
+	{ 0,                       NULL } };
 
 /* Same as above but in acronym for (for the Info column) */
 static const value_string sccpmg_message_type_acro_values[] = {
-  { SCCPMG_MESSAGE_TYPE_SSA,   "SSA" },
-  { SCCPMG_MESSAGE_TYPE_SSP,   "SSP" },
-  { SCCPMG_MESSAGE_TYPE_SST,   "SST" },
-  { SCCPMG_MESSAGE_TYPE_SOR,   "SOR" },
-  { SCCPMG_MESSAGE_TYPE_SOG,   "SOG" },
-  { SCCPMG_MESSAGE_TYPE_SSC,   "SSC" },
-  { SCCPMG_MESSAGE_TYPE_SBR,   "SBR" },
-  { SCCPMG_MESSAGE_TYPE_SNR,   "SNR" },
-  { SCCPMG_MESSAGE_TYPE_SRT,   "SRT" },
-  { 0,                       NULL } };
+	{ SCCPMG_MESSAGE_TYPE_SSA,   "SSA" },
+	{ SCCPMG_MESSAGE_TYPE_SSP,   "SSP" },
+	{ SCCPMG_MESSAGE_TYPE_SST,   "SST" },
+	{ SCCPMG_MESSAGE_TYPE_SOR,   "SOR" },
+	{ SCCPMG_MESSAGE_TYPE_SOG,   "SOG" },
+	{ SCCPMG_MESSAGE_TYPE_SSC,   "SSC" },
+	{ SCCPMG_MESSAGE_TYPE_SBR,   "SBR" },
+	{ SCCPMG_MESSAGE_TYPE_SNR,   "SNR" },
+	{ SCCPMG_MESSAGE_TYPE_SRT,   "SRT" },
+	{ 0,                       NULL } };
 
 
 #define SCCPMG_MESSAGE_TYPE_OFFSET 0
@@ -363,3 +363,15 @@ proto_reg_handoff_sccpmg(void)
 	dissector_add_uint("sccp.ssn", SCCPMG_SSN, sccpmg_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

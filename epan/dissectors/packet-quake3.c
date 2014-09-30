@@ -26,7 +26,7 @@
 
 
 /*
-   All informations used in this decoding were gathered from
+	All informations used in this decoding were gathered from
 	* some own captures of a private server,
 	* the "Server commands howto" document written by id Software
 		(http://www.quake3arena.com/tech/ServerCommandsHowto.html)
@@ -173,7 +173,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	 * encoding is used for them?
 	 */
 	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
-        if (cl_tree) {
+	if (cl_tree) {
 		text_item = proto_tree_add_string(cl_tree,
 				hf_quake3_connectionless_text,
 				tvb, offset, len, text);
@@ -318,13 +318,13 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 		*direction = DIR_UNKNOWN;
 	}
 
-        if (text_tree && command_finished == FALSE) {
+	if (text_tree && command_finished == FALSE) {
 		proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
 					val_to_str_const(command, names_command, "Unknown"));
-        }
+	}
 
-        /*offset += len;*/
+	/*offset += len;*/
 
 }
 
@@ -349,9 +349,9 @@ dissect_quake3_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static const value_string names_reliable[] = {
-        { 0, "Non Reliable" },
-        { 1, "Reliable" },
-        { 0, NULL }
+	{ 0, "Non Reliable" },
+	{ 1, "Reliable" },
+	{ 0, NULL }
 };
 
 
@@ -600,7 +600,7 @@ proto_reg_handoff_quake3(void)
 			dissector_delete_uint("udp.port", master_port+i, quake3_handle);
 	}
 
-        /* set port for future deletes */
+	/* set port for future deletes */
 	server_port = gbl_quake3_server_port;
 	master_port = gbl_quake3_master_port;
 
@@ -613,4 +613,15 @@ proto_reg_handoff_quake3(void)
 			quake3_handle);
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

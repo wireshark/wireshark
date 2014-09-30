@@ -460,7 +460,6 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 }
 
 
-/* Code to actually dissect the packets */
 static void
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -727,7 +726,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 								      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
-                                      "TOM Envelope - Protocol: %s",
+								      "TOM Envelope - Protocol: %s",
 								      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
@@ -855,7 +854,8 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 								      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
-                                      "TOM Envelope - Protocol: %s", val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
+								      "TOM Envelope - Protocol: %s",
+								      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
@@ -915,7 +915,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset-2,
 							      2, ett_llcgprs_ctrlf, NULL,
-                                  "Unconfirmed Information format - UI, N(U) = %u", nu);
+							      "Unconfirmed Information format - UI, N(U) = %u", nu);
 
 			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_U_fmt, tvb, offset-2,
 					    2, ctrl_fld_ui_s);
@@ -958,7 +958,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 									      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
-                                          "TOM Envelope - Protocol: %s",
+									      "TOM Envelope - Protocol: %s",
 									      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
 					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
@@ -1126,8 +1126,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Register the protocol with Wireshark */
-/* this format is require because a script is used to build the C function */
-/* that calls all the protocol registration. */
 
 void
 proto_register_llcgprs(void)
@@ -1359,9 +1357,6 @@ proto_register_llcgprs(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine. */
-/* This format is required because a script is used to find these routines and */
-/* create the code that calls these routines. */
 void
 proto_reg_handoff_llcgprs(void)
 {
@@ -1375,3 +1370,15 @@ proto_reg_handoff_llcgprs(void)
 	sndcp_xid_handle  = find_dissector("sndcpxid");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

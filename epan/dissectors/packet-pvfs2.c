@@ -281,14 +281,14 @@ static int dissect_pvfs_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint32 plen;
+	guint32 plen;
 
-  /*
-   * Get the length of the PVFS-over-TCP packet. Ignore top 32 bits
-   */
-  plen = tvb_get_letohl(tvb, offset + 16);
+	/*
+	 * Get the length of the PVFS-over-TCP packet. Ignore top 32 bits
+	 */
+	plen = tvb_get_letohl(tvb, offset + 16);
 
-  return plen+24;
+	return plen+24;
 }
 
 static int
@@ -1017,7 +1017,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-    proto_tree *tree, guint32 *hash)
+		     proto_tree *tree, guint32 *hash)
 {
 	guint32 fhhash;
 	guint32 i;
@@ -3617,3 +3617,15 @@ proto_reg_handoff_pvfs(void)
 	heur_dissector_add("tcp", dissect_pvfs_heur, proto_pvfs);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

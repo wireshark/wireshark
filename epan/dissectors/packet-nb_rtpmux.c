@@ -48,7 +48,6 @@ static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
 
 static dissector_handle_t rtpdissector;
 
-/* Code to actually dissect the packets */
 static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -99,8 +98,8 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         guint16 dstport, srcport;
         unsigned int length;
         gint captured_length;
-        tvbuff_t* next_tvb;
-		gboolean tbit;
+        tvbuff_t *next_tvb;
+        gboolean tbit;
 
         length = tvb_get_guint8(tvb, offset+2);
         ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset, length+5, ENC_NA);
@@ -108,54 +107,54 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* XXX - what if the T bit is set? */
         proto_tree_add_item(nb_rtpmux_tree, hf_nb_rtpmux_compressed, tvb, offset, 2, ENC_BIG_ENDIAN);
-		tbit = tvb_get_guint8(tvb,offset)>>7;
-		if(tbit == 1){
-			/* 6.4.2.4 Transport Format for multiplexing with RTP header compression */
-			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
-			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
-			proto_tree_add_item(nb_rtpmux_tree, hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        tbit = tvb_get_guint8(tvb,offset)>>7;
+        if(tbit == 1){
+            /* 6.4.2.4 Transport Format for multiplexing with RTP header compression */
+            dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
+            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
+            proto_tree_add_item(nb_rtpmux_tree, hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 2, ENC_BIG_ENDIAN);
-			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
-			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
-			nb_rtpmux_cmp_rtp_tree = proto_tree_add_subtree( nb_rtpmux_tree, tvb, offset+5, 3, ett_nb_rtpmux_cmp_rtp_hdr, NULL, "Compressed RTP header" );
-			/* Sequence Number (SN) */
-			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-			/* Timestamp (TS) */
-			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-			if (length != 0)
-				proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
+            srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
+            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+            nb_rtpmux_cmp_rtp_tree = proto_tree_add_subtree( nb_rtpmux_tree, tvb, offset+5, 3, ett_nb_rtpmux_cmp_rtp_hdr, NULL, "Compressed RTP header" );
+            /* Sequence Number (SN) */
+            proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            /* Timestamp (TS) */
+            proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+            if (length != 0)
+                proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
 
-		}else{
-			/* 6.4.2.3 Transport Format for multiplexing without RTP Header Compression */
-			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
-			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
-			proto_tree_add_item(nb_rtpmux_tree,
-				hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        }else{
+            /* 6.4.2.3 Transport Format for multiplexing without RTP Header Compression */
+            dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
+            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
+            proto_tree_add_item(nb_rtpmux_tree,
+                                hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
-			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+            srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
+            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 
-			if (length != 0)
-			{
-				/* We have an RTP payload. */
-				if (rtpdissector)
-				{
-					captured_length = tvb_length_remaining(tvb, offset + 5);
-					if (captured_length > (gint)length)
-						captured_length = length;
-					next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
-											  length);
+            if (length != 0)
+            {
+                /* We have an RTP payload. */
+                if (rtpdissector)
+                {
+                    captured_length = tvb_length_remaining(tvb, offset + 5);
+                    if (captured_length > (gint)length)
+                        captured_length = length;
+                    next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+                                              length);
 
-					call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
-				}
-				else
-				{
-					proto_tree_add_item(nb_rtpmux_tree,
-						hf_nb_rtpmux_data, tvb, offset+5, length, ENC_NA);
-				}
-			}
-		} /* if tbit */
-		offset += 5+length;
+                    call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
+                }
+                else
+                {
+                    proto_tree_add_item(nb_rtpmux_tree,
+                                        hf_nb_rtpmux_data, tvb, offset+5, length, ENC_NA);
+                }
+            }
+        } /* if tbit */
+        offset += 5+length;
     }
 
     /* Return the amount of data this dissector was able to dissect */
@@ -165,66 +164,63 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
 void
 proto_register_nb_rtpmux(void)
 {
 
     static hf_register_info hf[] = {
         { &hf_nb_rtpmux_compressed,
-            { "Compressed headers(T bit)", "nb_rtpmux.compressed",
-             FT_BOOLEAN, 16, NULL, 0x8000,
+          { "Compressed headers(T bit)", "nb_rtpmux.compressed",
+            FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_dstport,
-            { "Dst port", "nb_rtpmux.dstport",
-             FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Dst port", "nb_rtpmux.dstport",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_length,
-            { "Length", "nb_rtpmux.length",
-             FT_UINT8, BASE_DEC, NULL, 0x00,
+          { "Length", "nb_rtpmux.length",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_nb_r_bit,
-            { "R bit", "nb_rtpmux.r_bit",
-             FT_BOOLEAN, 16, NULL, 0x8000,
+          { "R bit", "nb_rtpmux.r_bit",
+            FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_srcport,
-            { "Src port", "nb_rtpmux.srcport",
-             FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Src port", "nb_rtpmux.srcport",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_data,
-            { "RTP Packet", "nb_rtpmux.data",
-             FT_BYTES, BASE_NONE, NULL, 0x00,
+          { "RTP Packet", "nb_rtpmux.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-       { &hf_nb_rtpmux_cmp_rtp_sequence_no,
-            { "Sequence Number", "nb_rtpmux.cmp_rtp.sequence_no",
-             FT_UINT16, BASE_DEC, NULL, 0x00,
+        { &hf_nb_rtpmux_cmp_rtp_sequence_no,
+          { "Sequence Number", "nb_rtpmux.cmp_rtp.sequence_no",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
-       },
-       { &hf_nb_rtpmux_cmp_rtp_timestamp,
-            { "Timestamp", "nb_rtpmux.cmp_rtp.timestamp",
-             FT_UINT16, BASE_DEC, NULL, 0x00,
+        },
+        { &hf_nb_rtpmux_cmp_rtp_timestamp,
+          { "Timestamp", "nb_rtpmux.cmp_rtp.timestamp",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
-       },
-       { &hf_nb_rtpmux_cmp_rtp_data,
-            { "RTP Data", "nb_rtpmux.cmp_rtp.data",
-             FT_BYTES, BASE_NONE, NULL, 0x00,
+        },
+        { &hf_nb_rtpmux_cmp_rtp_data,
+          { "RTP Data", "nb_rtpmux.cmp_rtp.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL,HFILL }
-       }
+        }
 
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_nb_rtpmux,
-		&ett_nb_rtpmux_cmp_rtp_hdr
+        &ett_nb_rtpmux_cmp_rtp_hdr
     };
 
     /* Register the protocol name and description */
@@ -237,15 +233,6 @@ proto_register_nb_rtpmux(void)
 
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This exact format is required because a script is used to find these
-   routines and create the code that calls these routines.
-
-   This function is also called by preferences whenever "Apply" is pressed
-   (see prefs_register_protocol above) so it should accommodate being called
-   more than once.
-*/
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
@@ -262,3 +249,15 @@ proto_reg_handoff_nb_rtpmux(void)
     rtpdissector = find_dissector("rtp");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -308,3 +308,15 @@ proto_reg_handoff_gsm_um(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

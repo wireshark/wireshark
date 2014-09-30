@@ -116,25 +116,25 @@ static gboolean reassemble_lapdm = TRUE;
 /*
  * Bits in the address field.
  */
-#define	LAPDM_SAPI		0x1c	/* Service Access Point Identifier */
-#define	LAPDM_SAPI_SHIFT	2
-#define	LAPDM_CR		0x02	/* Command/Response bit */
-#define	LAPDM_EA		0x01	/* First Address Extension bit */
-#define	LAPDM_LPD		0x60	/* Link Protocol Discriminator */
+#define LAPDM_SAPI              0x1c    /* Service Access Point Identifier */
+#define LAPDM_SAPI_SHIFT        2
+#define LAPDM_CR                0x02    /* Command/Response bit */
+#define LAPDM_EA                0x01    /* First Address Extension bit */
+#define LAPDM_LPD               0x60    /* Link Protocol Discriminator */
 
 /*
  * Bits in the length field.
  */
-#define	LAPDM_EL		0x01	/* Extended Length = 1 */
-#define	LAPDM_M			0x02	/* More fragments */
-#define	LAPDM_M_SHIFT		1
-#define	LAPDM_LEN		0xfc	/* Length */
-#define	LAPDM_LEN_SHIFT		2
+#define LAPDM_EL                0x01    /* Extended Length = 1 */
+#define LAPDM_M                 0x02    /* More fragments */
+#define LAPDM_M_SHIFT           1
+#define LAPDM_LEN               0xfc    /* Length */
+#define LAPDM_LEN_SHIFT         2
 
 #define LAPDM_HEADER_LEN 3
 
-#define LAPDM_SAPI_RR_CC_MM	0
-#define LAPDM_SAPI_SMS		3
+#define LAPDM_SAPI_RR_CC_MM     0
+#define LAPDM_SAPI_SMS          3
 
 /* Used only for U frames */
 static const xdlc_cf_items lapdm_cf_items = {
@@ -150,33 +150,33 @@ static const xdlc_cf_items lapdm_cf_items = {
 };
 
 static const value_string lapdm_ea_vals[] = {
-    { 0,		"More octets" },
-    { 1,		"Final octet" },
-    { 0,		NULL }
+    { 0,                "More octets" },
+    { 1,                "Final octet" },
+    { 0,                NULL }
 };
 
 static const value_string lapdm_sapi_vals[] = {
-    { LAPDM_SAPI_RR_CC_MM,	"RR/MM/CC" },
-    { LAPDM_SAPI_SMS,		"SMS/SS" },
-    { 0,			NULL }
+    { LAPDM_SAPI_RR_CC_MM,      "RR/MM/CC" },
+    { LAPDM_SAPI_SMS,           "SMS/SS" },
+    { 0,                        NULL }
 };
 
 static const value_string lapdm_lpd_vals[] = {
-    { 0,		"Normal GSM" },
-    { 1,		"Cell broadcast service" },
-    { 0,		NULL }
+    { 0,                "Normal GSM" },
+    { 1,                "Cell broadcast service" },
+    { 0,                NULL }
 };
 
 static const value_string lapdm_m_vals[] = {
-    { 0,		"Last segment" },
-    { 1,		"More segments" },
-    { 0,		NULL }
+    { 0,                "Last segment" },
+    { 1,                "More segments" },
+    { 0,                NULL }
 };
 
 static const value_string lapdm_el_vals[] = {
-    { 0,		"More octets" },
-    { 1,		"Final octet" },
-    { 0,		NULL }
+    { 0,                "More octets" },
+    { 1,                "Final octet" },
+    { 0,                NULL }
 };
 
 
@@ -258,12 +258,12 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     control = dissect_xdlc_control(tvb, 1, pinfo, lapdm_tree, hf_lapdm_control,
-              ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesn't support extended */, NULL, NULL,
-              is_response, FALSE, FALSE);
+                                   ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesn't support extended */, NULL, NULL,
+                                   is_response, FALSE, FALSE);
 
     if (tree) {
         length_ti = proto_tree_add_uint(lapdm_tree, hf_lapdm_length, tvb,
-                    2, 1, length);
+                                        2, 1, length);
         length_tree = proto_item_add_subtree(length_ti, ett_lapdm_length);
 
         proto_tree_add_uint(length_tree, hf_lapdm_len, tvb, 2, 1, length);
@@ -288,55 +288,55 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if( (control & XDLC_I_MASK) == XDLC_I && reassemble_lapdm )
     {
-            fragment_head *fd_m = NULL;
-            tvbuff_t *reassembled = NULL;
-            guint32 fragment_id;
-            gboolean save_fragmented = pinfo->fragmented;
+        fragment_head *fd_m = NULL;
+        tvbuff_t *reassembled = NULL;
+        guint32 fragment_id;
+        gboolean save_fragmented = pinfo->fragmented;
 
-            pinfo->fragmented = m;
+        pinfo->fragmented = m;
 
-            /* Rely on caller to provide a way to group fragments */
-            fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+        /* Rely on caller to provide a way to group fragments */
+        fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
 
-            /* This doesn't seem the best way of doing it as doesn't
-               take N(S) into account, but N(S) isn't always 0 for
-               the first fragment!
-             */
-            fd_m = fragment_add_seq_next (&lapdm_reassembly_table, payload, 0,
-                                pinfo,
-                                fragment_id, /* guint32 ID for fragments belonging together */
-                                NULL,
-                                /*n_s guint32 fragment sequence number */
-                                len, /* guint32 fragment length */
-                                m); /* More fragments? */
+        /* This doesn't seem the best way of doing it as doesn't
+           take N(S) into account, but N(S) isn't always 0 for
+           the first fragment!
+        */
+        fd_m = fragment_add_seq_next (&lapdm_reassembly_table, payload, 0,
+                                      pinfo,
+                                      fragment_id, /* guint32 ID for fragments belonging together */
+                                      NULL,
+                                      /*n_s guint32 fragment sequence number */
+                                      len, /* guint32 fragment length */
+                                      m); /* More fragments? */
 
-            reassembled = process_reassembled_data(payload, 0, pinfo,
-                    "Reassembled LAPDm", fd_m, &lapdm_frag_items,
-                    NULL, lapdm_tree);
+        reassembled = process_reassembled_data(payload, 0, pinfo,
+                                               "Reassembled LAPDm", fd_m, &lapdm_frag_items,
+                                               NULL, lapdm_tree);
 
-            /* Reassembled into this packet
-             */
-            if (fd_m && pinfo->fd->num == fd_m->reassembled_in) {
-                    if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
-                                reassembled, pinfo, tree))
-                        call_dissector(data_handle, reassembled, pinfo, tree);
-            }
-            else {
-                col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
-                proto_tree_add_item(lapdm_tree, hf_lapdm_fragment_data, payload, 0, -1, ENC_NA);
-            }
+        /* Reassembled into this packet
+         */
+        if (fd_m && pinfo->fd->num == fd_m->reassembled_in) {
+            if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
+                                    reassembled, pinfo, tree))
+                call_dissector(data_handle, reassembled, pinfo, tree);
+        }
+        else {
+            col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
+            proto_tree_add_item(lapdm_tree, hf_lapdm_fragment_data, payload, 0, -1, ENC_NA);
+        }
 
-            /* Now reset fragmentation information in pinfo
-             */
-            pinfo->fragmented = save_fragmented;
+        /* Now reset fragmentation information in pinfo
+         */
+        pinfo->fragmented = save_fragmented;
     }
     else
     {
         /* Whole packet
            If we have some data, try and dissect it (only happens for UI, SABM, UA or I frames)
-         */
+        */
         if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
-                payload, pinfo, tree))
+                                payload, pinfo, tree))
             call_dissector(data_handle,payload, pinfo, tree);
     }
 }
@@ -347,126 +347,126 @@ proto_register_lapdm(void)
     static hf_register_info hf[] = {
 
         { &hf_lapdm_address,
-        { "Address Field", "lapdm.address_field", FT_UINT8, BASE_HEX, NULL, 0x0,
-        "Address", HFILL }},
+          { "Address Field", "lapdm.address_field", FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Address", HFILL }},
 
         { &hf_lapdm_ea,
-        { "EA", "lapdm.ea", FT_UINT8, BASE_DEC, VALS(lapdm_ea_vals), LAPDM_EA,
-        "Address field extension bit", HFILL }},
+          { "EA", "lapdm.ea", FT_UINT8, BASE_DEC, VALS(lapdm_ea_vals), LAPDM_EA,
+            "Address field extension bit", HFILL }},
 
         { &hf_lapdm_cr,
-        { "C/R", "lapdm.cr", FT_UINT8, BASE_DEC, NULL, LAPDM_CR,
-        "Command/response field bit", HFILL }},
+          { "C/R", "lapdm.cr", FT_UINT8, BASE_DEC, NULL, LAPDM_CR,
+            "Command/response field bit", HFILL }},
 
         { &hf_lapdm_lpd,
-        { "LPD", "lapdm.lpd", FT_UINT8, BASE_DEC, VALS(lapdm_lpd_vals), LAPDM_LPD,
-        "Link Protocol Discriminator", HFILL }},
+          { "LPD", "lapdm.lpd", FT_UINT8, BASE_DEC, VALS(lapdm_lpd_vals), LAPDM_LPD,
+            "Link Protocol Discriminator", HFILL }},
 
         { &hf_lapdm_sapi,
-        { "SAPI", "lapdm.sapi", FT_UINT8, BASE_DEC, VALS(lapdm_sapi_vals), LAPDM_SAPI,
-        "Service access point identifier", HFILL }},
+          { "SAPI", "lapdm.sapi", FT_UINT8, BASE_DEC, VALS(lapdm_sapi_vals), LAPDM_SAPI,
+            "Service access point identifier", HFILL }},
 
         { &hf_lapdm_control,
-        { "Control Field", "lapdm.control_field", FT_UINT8, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
+          { "Control Field", "lapdm.control_field", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_lapdm_n_r,
-        { "N(R)", "lapdm.control.n_r", FT_UINT8, BASE_DEC,
-        NULL, XDLC_N_R_MASK, NULL, HFILL }},
+          { "N(R)", "lapdm.control.n_r", FT_UINT8, BASE_DEC,
+            NULL, XDLC_N_R_MASK, NULL, HFILL }},
 
         { &hf_lapdm_n_s,
-        { "N(S)", "lapdm.control.n_s", FT_UINT8, BASE_DEC,
-        NULL, XDLC_N_S_MASK, NULL, HFILL }},
+          { "N(S)", "lapdm.control.n_s", FT_UINT8, BASE_DEC,
+            NULL, XDLC_N_S_MASK, NULL, HFILL }},
 
         { &hf_lapdm_p,
-        { "Poll", "lapdm.control.p", FT_BOOLEAN, 8,
-        TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
+          { "Poll", "lapdm.control.p", FT_BOOLEAN, 8,
+            TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
 
         { &hf_lapdm_f,
-        { "Final", "lapdm.control.f", FT_BOOLEAN, 8,
-        TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
+          { "Final", "lapdm.control.f", FT_BOOLEAN, 8,
+            TFS(&tfs_true_false), XDLC_P_F, NULL, HFILL }},
 
         { &hf_lapdm_s_ftype,
-        { "Supervisory frame type", "lapdm.control.s_ftype", FT_UINT8, BASE_HEX,
-        VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
+          { "Supervisory frame type", "lapdm.control.s_ftype", FT_UINT8, BASE_HEX,
+            VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
         { &hf_lapdm_u_modifier_cmd,
-        { "Command", "lapdm.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-        VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+          { "Command", "lapdm.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+            VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
         { &hf_lapdm_u_modifier_resp,
-        { "Response", "lapdm.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-        VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+          { "Response", "lapdm.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+            VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
         { &hf_lapdm_ftype_i,
-        { "Frame type", "lapdm.control.ftype", FT_UINT8, BASE_HEX,
-        VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
+          { "Frame type", "lapdm.control.ftype", FT_UINT8, BASE_HEX,
+            VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
         { &hf_lapdm_ftype_s_u,
-        { "Frame type", "lapdm.control.ftype", FT_UINT8, BASE_HEX,
-        VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+          { "Frame type", "lapdm.control.ftype", FT_UINT8, BASE_HEX,
+            VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
         { &hf_lapdm_length,
-        { "Length Field", "lapdm.length_field", FT_UINT8, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+          { "Length Field", "lapdm.length_field", FT_UINT8, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_lapdm_el,
-        { "EL", "lapdm.el", FT_UINT8, BASE_DEC,
-        VALS(lapdm_el_vals), LAPDM_EL, "Length indicator field extension bit", HFILL }},
+          { "EL", "lapdm.el", FT_UINT8, BASE_DEC,
+            VALS(lapdm_el_vals), LAPDM_EL, "Length indicator field extension bit", HFILL }},
 
         { &hf_lapdm_m,
-        { "M", "lapdm.m", FT_UINT8, BASE_DEC,
-        VALS(lapdm_m_vals), LAPDM_M, "More data bit", HFILL }},
+          { "M", "lapdm.m", FT_UINT8, BASE_DEC,
+            VALS(lapdm_m_vals), LAPDM_M, "More data bit", HFILL }},
 
         { &hf_lapdm_len,
-        { "Length", "lapdm.length", FT_UINT8, BASE_DEC,
-        NULL, LAPDM_LEN, "Length indicator", HFILL }},
+          { "Length", "lapdm.length", FT_UINT8, BASE_DEC,
+            NULL, LAPDM_LEN, "Length indicator", HFILL }},
 
-	/* Fragment reassembly
-	 */
+        /* Fragment reassembly
+         */
         { &hf_lapdm_fragment_data,
-        { "Fragment Data", "lapdm.fragment_data", FT_NONE, BASE_NONE,
-        NULL, 0x00, NULL, HFILL }},
+          { "Fragment Data", "lapdm.fragment_data", FT_NONE, BASE_NONE,
+            NULL, 0x00, NULL, HFILL }},
 
         { &hf_lapdm_fragments,
-        { "Message fragments", "lapdm.fragments", FT_NONE, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragments", HFILL }},
+          { "Message fragments", "lapdm.fragments", FT_NONE, BASE_NONE,
+            NULL, 0x00, "LAPDm Message fragments", HFILL }},
 
         { &hf_lapdm_fragment,
-        { "Message fragment", "lapdm.fragment", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragment", HFILL }},
+          { "Message fragment", "lapdm.fragment", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x00, "LAPDm Message fragment", HFILL }},
 
         { &hf_lapdm_fragment_overlap,
-        { "Message fragment overlap", "lapdm.fragment.overlap", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "LAPDm Message fragment overlaps with other fragment(s)", HFILL }},
+          { "Message fragment overlap", "lapdm.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "LAPDm Message fragment overlaps with other fragment(s)", HFILL }},
 
         { &hf_lapdm_fragment_overlap_conflicts,
-        { "Message fragment overlapping with conflicting data", "lapdm.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "LAPDm Message fragment overlaps with conflicting data", HFILL }},
+          { "Message fragment overlapping with conflicting data", "lapdm.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "LAPDm Message fragment overlaps with conflicting data", HFILL }},
 
         { &hf_lapdm_fragment_multiple_tails,
-        { "Message has multiple tail fragments", "lapdm.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "LAPDm Message fragment has multiple tail fragments", HFILL }},
+          { "Message has multiple tail fragments", "lapdm.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "LAPDm Message fragment has multiple tail fragments", HFILL }},
 
         { &hf_lapdm_fragment_too_long_fragment,
-        { "Message fragment too long", "lapdm.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, "LAPDm Message fragment data goes beyond the packet end", HFILL }},
+          { "Message fragment too long", "lapdm.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "LAPDm Message fragment data goes beyond the packet end", HFILL }},
 
         { &hf_lapdm_fragment_error,
-        { "Message defragmentation error", "lapdm.fragment.error", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x00, "LAPDm Message defragmentation error due to illegal fragments", HFILL }},
+          { "Message defragmentation error", "lapdm.fragment.error", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x00, "LAPDm Message defragmentation error due to illegal fragments", HFILL }},
 
         { &hf_lapdm_fragment_count,
-        { "Message fragment count", "lapdm.fragment.count", FT_UINT32, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }},
+          { "Message fragment count", "lapdm.fragment.count", FT_UINT32, BASE_DEC,
+            NULL, 0x00, NULL, HFILL }},
 
         { &hf_lapdm_reassembled_in,
-        { "Reassembled in", "lapdm.reassembled.in", FT_FRAMENUM, BASE_NONE,
-	NULL, 0x00, "LAPDm Message has been reassembled in this packet.", HFILL }},
+          { "Reassembled in", "lapdm.reassembled.in", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x00, "LAPDm Message has been reassembled in this packet.", HFILL }},
 
         { &hf_lapdm_reassembled_length,
-        { "Reassembled LAPDm length", "lapdm.reassembled.length", FT_UINT32, BASE_DEC,
-        NULL, 0x00, "The total length of the reassembled payload", HFILL }}
+          { "Reassembled LAPDm length", "lapdm.reassembled.length", FT_UINT32, BASE_DEC,
+            NULL, 0x00, "The total length of the reassembled payload", HFILL }}
 
     };
     static gint *ett[] = {
@@ -490,9 +490,9 @@ proto_register_lapdm(void)
 
     lapdm_module = prefs_register_protocol(proto_lapdm, NULL);
     prefs_register_bool_preference(lapdm_module, "reassemble",
-        "Reassemble fragmented LAPDm packets",
-        "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
-        &reassemble_lapdm);
+                                   "Reassemble fragmented LAPDm packets",
+                                   "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
+                                   &reassemble_lapdm);
     register_init_routine (lapdm_defragment_init);
 }
 
@@ -502,3 +502,15 @@ proto_reg_handoff_lapdm(void)
     data_handle = find_dissector("data");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

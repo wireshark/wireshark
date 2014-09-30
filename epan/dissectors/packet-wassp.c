@@ -350,47 +350,47 @@ static int hf_config_radio_tx_power_adj = -1;
 
 /* ============= copy/paste/modify from value_string.[hc] ============== */
 typedef struct _ext_value_string {
-  guint32  value;
-  const gchar   *strptr;
-  int* hf_element;
-  int (*specialfunction)(tvbuff_t *, packet_info *, proto_tree *, guint32,
-	guint32, const struct _ext_value_string *);
-  const struct _ext_value_string *evs;
+	guint32      value;
+	const gchar *strptr;
+	int         *hf_element;
+	int (*specialfunction)(tvbuff_t *, packet_info *, proto_tree *, guint32,
+			       guint32, const struct _ext_value_string *);
+	const struct _ext_value_string *evs;
 } ext_value_string;
 
 
-static const gchar*
+static const gchar *
 match_strextval_idx(guint32 val, const ext_value_string *vs, gint *idx) {
-  gint i = 0;
+	gint i = 0;
 
-  if(vs) {
-    while (vs[i].strptr) {
-      if (vs[i].value == val) {
+	if(vs) {
+		while (vs[i].strptr) {
+			if (vs[i].value == val) {
+				if (idx)
+					*idx = i;
+				return(vs[i].strptr);
+			}
+			i++;
+		}
+	}
+
 	if (idx)
-	  *idx = i;
-	return(vs[i].strptr);
-      }
-      i++;
-    }
-  }
-
-  if (idx)
-    *idx = -1;
-  return NULL;
+		*idx = -1;
+	return NULL;
 }
 
 static const gchar*
 extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char *fmt) {
-  const gchar *ret;
+	const gchar *ret;
 
-  if (!fmt)
-    fmt="Unknown";
+	if (!fmt)
+		fmt="Unknown";
 
-  ret = match_strextval_idx(val, vs, idx);
-  if (ret != NULL)
-    return ret;
+	ret = match_strextval_idx(val, vs, idx);
+	if (ret != NULL)
+		return ret;
 
-  return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+	return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 /* ============= end copy/paste/modify  ============== */
 
@@ -2113,3 +2113,15 @@ proto_reg_handoff_wassp(void)
 	ieee80211_handle = find_dissector("wlan_withoutfcs");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

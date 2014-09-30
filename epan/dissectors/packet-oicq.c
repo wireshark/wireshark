@@ -39,12 +39,12 @@ void proto_register_oicq(void);
 void proto_reg_handoff_oicq(void);
 
 /*
-        Protocol Flag:     8bit unsigned
-        Sender Flag:       16bit unsigned
-        Command Number:    16bit unsigned
-        Sequence Number:   16bit unsigned
-        OICQ  Number:      32bit unsigned
-        Data:              Variable Length data
+	Protocol Flag:     8bit unsigned
+	Sender Flag:       16bit unsigned
+	Command Number:    16bit unsigned
+	Sequence Number:   16bit unsigned
+	OICQ  Number:      32bit unsigned
+	Data:              Variable Length data
 
  *
  */
@@ -121,8 +121,8 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	/* Make sure this packet is for us.                                  */
 	/* heuristic: OICQ iff (([0] == STX) && ([3/4] == <valid_command>) ) */
-        /*  (Supposedly each OICQ message ends with an ETX so a test for     */
-        /*   same could also be part of the heuristic).                      */
+	/*  (Supposedly each OICQ message ends with an ETX so a test for     */
+	/*   same could also be part of the heuristic).                      */
 	if ( (try_val_to_str(tvb_get_guint8(tvb, 0), oicq_flag_vals)    == NULL) ||
 	     (try_val_to_str(tvb_get_ntohs(tvb, 3),  oicq_command_vals) == NULL) )
 		return 0;
@@ -182,7 +182,7 @@ proto_register_oicq(void)
 		{ &hf_oicq_data, {
 			"Data", "oicq.data", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
-        };
+	};
 	static gint *ett[] = {
 		&ett_oicq,
 	};
@@ -202,3 +202,15 @@ proto_reg_handoff_oicq(void)
 	dissector_add_uint("udp.port", UDP_PORT_OICQ, oicq_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

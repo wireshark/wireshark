@@ -816,22 +816,22 @@ typedef enum
     BE_UDEF_130,                        /* Undefined */
     BE_KC128,                           /* Kc128 */
     BE_CSG_ID,                          /* CSG Identifier */
-	BE_REDIR_ATT_FLG,                   /* Redirect Attempt Flag               3.2.2.111    */
-	BE_REROUTE_REJ_CAUSE,               /* Reroute Reject Cause                3.2.2.112    */
-	BE_SEND_SEQN,                       /* Send Sequence Number                3.2.2.113    */
-	BE_REROUTE_OUTCOME,                 /* Reroute complete outcome            3.2.2.114    */
-	BE_GLOBAL_CALL_REF,                 /* Global Call Reference               3.2.2.115    */
-	BE_LCLS_CONF,                       /* LCLS-Configuration                  3.2.2.116    */
-	BE_LCLS_CON_STATUS_CONTROL,         /* LCLS-Connection-Status-Control      3.2.2.117    */
-	BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
-	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
-	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
-	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
-	BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                      3.2.2.122    */
-	BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
-	BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
-	BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
-	BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
+    BE_REDIR_ATT_FLG,                   /* Redirect Attempt Flag               3.2.2.111    */
+    BE_REROUTE_REJ_CAUSE,               /* Reroute Reject Cause                3.2.2.112    */
+    BE_SEND_SEQN,                       /* Send Sequence Number                3.2.2.113    */
+    BE_REROUTE_OUTCOME,                 /* Reroute complete outcome            3.2.2.114    */
+    BE_GLOBAL_CALL_REF,                 /* Global Call Reference               3.2.2.115    */
+    BE_LCLS_CONF,                       /* LCLS-Configuration                  3.2.2.116    */
+    BE_LCLS_CON_STATUS_CONTROL,         /* LCLS-Connection-Status-Control      3.2.2.117    */
+    BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
+    BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
+    BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
+    BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
+    BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                      3.2.2.122    */
+    BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+    BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
+    BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
+    BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -1280,7 +1280,7 @@ static const value_string gsm_a_bssap_channel_rate_and_type_vals[] = {
     { 0x1a,  "Full or Half rate channel, Full rate preferred changes between full and half rate not allowed after first allocation"},
     { 0x1b,  "Full or Half rate channel, Half rate preferred changes between full and half rate not allowed after first allocation"},
     { 0x1f,  "Full or Half rate channel, changes between full and half rate not allowed after first allocation"},
-	{ 0,    NULL }
+    { 0,    NULL }
 };
 
 /* Bits 7-1 indicate the permitted speech version identifier; */
@@ -1337,7 +1337,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
         {
             proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_gsm_a_bssmap_perm_speech_v_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			curr_offset++;
+            curr_offset++;
         }
         while ((len - (curr_offset - offset)) > 0);
     }
@@ -3869,7 +3869,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     if ((!pinfo->fd->flags.visited) && rtp_port != 0) {
         rtp_add_address(pinfo, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->fd->num, FALSE, 0);
-		rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->fd->num);
+        rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->fd->num);
     }
     return(curr_offset - offset);
 }
@@ -4165,7 +4165,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
                                        val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
-				curr_offset++;
+                curr_offset++;
                 consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
@@ -4429,7 +4429,7 @@ be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     guint32 curr_offset;
     curr_offset = offset;
 
-	/* Global Call Reference Identifier */
+    /* Global Call Reference Identifier */
     proto_tree_add_text(tree, tvb, curr_offset, len, "Field Element not decoded yet");
 
     return len;
@@ -4685,24 +4685,24 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL,               /* Undefined */
     be_kc128,           /* Kc128 */
     be_csg_id,                          /* CSG Identifier */
-	NULL,                               /* Redirect Attempt Flag                3.2.2.111    No data */
-	be_reroute_rej_cause,               /* Reroute Reject Cause                 3.2.2.112    */
-	be_send_seqn,                       /* Send Sequence Number                 3.2.2.113    */
-	be_reroute_outcome,                 /* Reroute complete outcome             3.2.2.114    */
-	be_global_call_ref,                 /* Global Call Reference                3.2.2.115    */
-	be_lcls_conf,                       /* LCLS-Configuration                   3.2.2.116    */
-	be_lcls_con_status_control,         /* LCLS-Connection-Status-Control       3.2.2.117    */
-	NULL,                               /* LCLS-Correlation-Not-Needed          3.2.2.118    No data */
-	be_lcls_bss_status,                 /* LCLS-BSS-Status                      3.2.2.119    */
-	NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
-	NULL,                               /* CSFB Indication                      3.2.2.121    No data */
+    NULL,                               /* Redirect Attempt Flag                3.2.2.111    No data */
+    be_reroute_rej_cause,               /* Reroute Reject Cause                 3.2.2.112    */
+    be_send_seqn,                       /* Send Sequence Number                 3.2.2.113    */
+    be_reroute_outcome,                 /* Reroute complete outcome             3.2.2.114    */
+    be_global_call_ref,                 /* Global Call Reference                3.2.2.115    */
+    be_lcls_conf,                       /* LCLS-Configuration                   3.2.2.116    */
+    be_lcls_con_status_control,         /* LCLS-Connection-Status-Control       3.2.2.117    */
+    NULL,                               /* LCLS-Correlation-Not-Needed          3.2.2.118    No data */
+    be_lcls_bss_status,                 /* LCLS-BSS-Status                      3.2.2.119    */
+    NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
+    NULL,                               /* CSFB Indication                      3.2.2.121    No data */
 #if 0
-	BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                       3.2.2.122    */
-	BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
-	BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication            3.2.2.124    */
-	BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information     3.2.2.125    */
+    BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                       3.2.2.122    */
+    BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+    BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication            3.2.2.124    */
+    BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information     3.2.2.125    */
 #endif
-	be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
+    be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
     NULL                                /* NONE */
 
 };
@@ -4930,7 +4930,7 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
     NULL,   /* NONE */
 };
 
-#define NUM_BSS_ELEMENT_FCNS	(int)(sizeof(bssmap_bss_to_bss_element_fcn)/(sizeof bssmap_bss_to_bss_element_fcn[0]))
+#define NUM_BSS_ELEMENT_FCNS   (int)(sizeof(bssmap_bss_to_bss_element_fcn)/(sizeof bssmap_bss_to_bss_element_fcn[0]))
 
 static guint16
 be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -4982,7 +4982,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
             /* dissect the field element */
             curr_offset += (*bssmap_bss_to_bss_element_fcn[idx])(tvb, bss_to_bss_tree, pinfo, curr_offset, ie_len, NULL, 0);
 
-			EXTRANEOUS_DATA_CHECK_EXPERT(ie_len, curr_offset - fe_start_offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+            EXTRANEOUS_DATA_CHECK_EXPERT(ie_len, curr_offset - fe_start_offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 
         }
     }
@@ -5633,7 +5633,7 @@ bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     ELEM_OPT_TLV(BE_L3_HEADER_INFO, GSM_A_PDU_TYPE_BSSMAP, BE_L3_HEADER_INFO, NULL);
     /* Cause    3.2.2.5 MSC-BSS M   3-4 */
     ELEM_MAND_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL);
-	/* CSFB Indication 3.2.2.121 MSC-BSS O 1 */
+    /* CSFB Indication 3.2.2.121 MSC-BSS O 1 */
     ELEM_OPT_T(BE_CSFB_IND, GSM_A_PDU_TYPE_BSSMAP, BE_CSFB_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -7052,7 +7052,7 @@ bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     /* IMSI 3.2.2.6 MSC-BSS O (note 5) 3-10 */
     ELEM_OPT_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
 /*
@@ -7234,7 +7234,7 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     NULL,   /* NONE */
 };
-#define NUM_BSSMAP_MSG_FCNS	(int)(sizeof(bssmap_msg_fcn)/sizeof(bssmap_msg_fcn[0]))
+#define NUM_BSSMAP_MSG_FCNS     (int)(sizeof(bssmap_msg_fcn)/sizeof(bssmap_msg_fcn[0]))
 
 void
 dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -8139,3 +8139,15 @@ proto_reg_handoff_gsm_a_bssmap(void)
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -45,11 +45,11 @@ static int ett_g723 = -1;
 /*		 RFC 3551
 	The least significant two bits of the first
 	octet in the frame determine the frame size and codec type:
-         bits  content                      octets/frame
-         00    high-rate speech (6.3 kb/s)            24
-         01    low-rate speech  (5.3 kb/s)            20
-         10    SID frame                               4
-         11    reserved
+	 bits  content                      octets/frame
+	 00    high-rate speech (6.3 kb/s)            24
+	 01    low-rate speech  (5.3 kb/s)            20
+	 10    SID frame                               4
+	 11    reserved
 
  */
 static const value_string g723_frame_size_and_codec_type_value[] = {
@@ -144,4 +144,15 @@ proto_register_g723(void)
 
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

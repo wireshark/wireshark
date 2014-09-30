@@ -32,8 +32,8 @@
 void proto_register_ipsictl(void);
 void proto_reg_handoff_ipsictl(void);
 
-#define IPSICTL_PORT		5010
-#define IPSICTL_PDU_MAGIC	0x0300
+#define IPSICTL_PORT            5010
+#define IPSICTL_PDU_MAGIC       0x0300
 
 static int proto_ipsictl = -1;
 
@@ -57,16 +57,16 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int           offset = 0;
   int           loffset = 0;
   int           llength = 0;
-  int		remaining_length;
+  int           remaining_length;
   guint16       magic;
   guint16       length;
   guint16       type=0;
   guint16       sequence=0;
-  int		first_sequence=-1;
-  int		last_sequence=-1;
+  int           first_sequence=-1;
+  int           last_sequence=-1;
   guint16       field1=0;
   guint16       pdu=0;
-  int		haspdus=0;
+  int           haspdus=0;
 
   remaining_length=tvb_reported_length_remaining(tvb, offset);
 
@@ -192,33 +192,33 @@ void proto_register_ipsictl(void)
 
   static hf_register_info hf[] = {
     { &hf_ipsictl_pdu,
-      { "PDU",	"ipsictl.pdu",
-	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	"IPSICTL PDU", HFILL }},
+      { "PDU",  "ipsictl.pdu",
+        FT_UINT16,      BASE_DEC,       NULL,   0x0,
+        "IPSICTL PDU", HFILL }},
     { &hf_ipsictl_magic,
-      { "Magic",	"ipsictl.magic",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
-      	"IPSICTL Magic", HFILL }},
+      { "Magic",        "ipsictl.magic",
+        FT_UINT16,      BASE_HEX,       NULL,   0x0,
+        "IPSICTL Magic", HFILL }},
     { &hf_ipsictl_length,
-      { "Length",	"ipsictl.length",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
-      	"IPSICTL Length", HFILL }},
+      { "Length",       "ipsictl.length",
+        FT_UINT16,      BASE_HEX,       NULL,   0x0,
+        "IPSICTL Length", HFILL }},
     { &hf_ipsictl_type,
-      { "Type",	"ipsictl.type",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
-      	"IPSICTL Type", HFILL }},
+      { "Type", "ipsictl.type",
+        FT_UINT16,      BASE_HEX,       NULL,   0x0,
+        "IPSICTL Type", HFILL }},
     { &hf_ipsictl_sequence,
-      { "Sequence",	"ipsictl.sequence",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
-      	"IPSICTL Sequence", HFILL }},
+      { "Sequence",     "ipsictl.sequence",
+        FT_UINT16,      BASE_HEX,       NULL,   0x0,
+        "IPSICTL Sequence", HFILL }},
     { &hf_ipsictl_field1,
-      { "Field1",	"ipsictl.field1",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
-      	"IPSICTL Field1", HFILL }},
+      { "Field1",       "ipsictl.field1",
+        FT_UINT16,      BASE_HEX,       NULL,   0x0,
+        "IPSICTL Field1", HFILL }},
     { &hf_ipsictl_data,
-      { "Data",	"ipsictl.data",
-	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"IPSICTL data", HFILL }},
+      { "Data", "ipsictl.data",
+        FT_BYTES,       BASE_NONE,      NULL,   0x0,
+        "IPSICTL data", HFILL }},
   };
 
   static gint *ett[] = {
@@ -243,3 +243,15 @@ void proto_reg_handoff_ipsictl(void)
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

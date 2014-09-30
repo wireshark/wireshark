@@ -31,8 +31,9 @@
 #include <epan/wmem/wmem.h>
 
 #define UDP_PORT_ACTRACE 2428
-#define NOT_ACTRACE 0
-#define ACTRACE_CAS 1
+
+#define NOT_ACTRACE  0
+#define ACTRACE_CAS  1
 #define ACTRACE_ISDN 2
 
 
@@ -74,15 +75,15 @@ static dissector_handle_t lapd_handle;
 #define ACTRACE_CAS_SOURCE_TABLE	2
 
 static const value_string actrace_cas_source_vals[] = {
-	{ACTRACE_CAS_SOURCE_DSP, "DSP"},
-	{ACTRACE_CAS_SOURCE_USER, "User"},
+	{ACTRACE_CAS_SOURCE_DSP,   "DSP"},
+	{ACTRACE_CAS_SOURCE_USER,  "User"},
 	{ACTRACE_CAS_SOURCE_TABLE, "Table"},
 	{0,   NULL }
 };
 
 static const value_string actrace_cas_source_vals_short[] = {
-	{ACTRACE_CAS_SOURCE_DSP, "D"},
-	{ACTRACE_CAS_SOURCE_USER, "U"},
+	{ACTRACE_CAS_SOURCE_DSP,   "D"},
+	{ACTRACE_CAS_SOURCE_USER,  "U"},
 	{ACTRACE_CAS_SOURCE_TABLE, "T"},
 	{0,   NULL }
 };
@@ -124,89 +125,89 @@ static const value_string actrace_cas_mf_vals[] = {
 static value_string_ext actrace_cas_mf_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_mf_vals);
 
 static const value_string actrace_cas_event_vals[] = {
-	{0, "FUNCTION0"},
-	{1, "FUNCTION1"},
-	{2, "FUNCTION2"},
-	{3, "FUNCTION3"},
-	{4, "EV_PLACE_CALL"},
-	{5, "EV_TIMER_EXPIRED1"},
-	{6, "EV_TIMER_EXPIRED2"},
-	{7, "EV_TIMER_EXPIRED3"},
-	{8, "EV_TIMER_EXPIRED4"},
-	{9, "EV_TIMER_EXPIRED5"},
-	{10, "EV_TIMER_EXPIRED6"},
-	{11, "EV_TIMER_EXPIRED7"},
-	{12, "EV_TIMER_EXPIRED8"},
-	{13, "EV_ANSWER"},
-	{14, "EV_DIAL_TONE_DETECTED"},
-	{15, "EV_DIAL_ENDED"},
-	{16, "EV_DISCONNECT"},
-	{ACTRACE_CAS_EV_11, "EV_CAS_1_1"},
-	{ACTRACE_CAS_EV_10, "EV_CAS_1_0"},
-	{ACTRACE_CAS_EV_01, "EV_CAS_0_1"},
-	{ACTRACE_CAS_EV_00, "EV_CAS_0_0"},
-	{21, "EV_RB_TONE_STARTED"},
-	{22, "EV_RB_TONE_STOPPED"},
-	{23, "EV_BUSY_TONE"},
-	{24, "EV_FAST_BUSY_TONE"},
-	{25, "EV_HELLO_DETECTED"},
-	{26, "EV_DIAL_TONE_STOPPED"},
-	{27, "EV_DISCONNECT_INCOMING"},
-	{28, "EV_RELEASE_CALL"},
-	{29, "EV_DIALED_NUM_DETECTED"},
-	{30, "EV_COUNTER1_EXPIRED"},
-	{31, "EV_COUNTER2_EXPIRED"},
-	{32, "EV_MFRn_1"},
-	{33, "EV_MFRn_2"},
-	{34, "EV_MFRn_3"},
-	{35, "EV_MFRn_4"},
-	{36, "EV_MFRn_5"},
-	{37, "EV_MFRn_6"},
-	{38, "EV_MFRn_7"},
-	{39, "EV_MFRn_8"},
-	{40, "EV_MFRn_9"},
-	{41, "EV_MFRn_10"},
-	{42, "EV_MFRn_11"},
-	{43, "EV_MFRn_12"},
-	{44, "EV_MFRn_13"},
-	{45, "EV_MFRn_14"},
-	{46, "EV_MFRn_15"},
-	{47, "EV_MFRn_1_STOPPED"},
-	{48, "EV_MFRn_2_STOPPED"},
-	{49, "EV_MFRn_3_STOPPED"},
-	{50, "EV_MFRn_4_STOPPED"},
-	{51, "EV_MFRn_5_STOPPED"},
-	{52, "EV_MFRn_6_STOPPED"},
-	{53, "EV_MFRn_7_STOPPED"},
-	{54, "EV_MFRn_8_STOPPED"},
-	{55, "EV_MFRn_9_STOPPED"},
-	{56, "EV_MFRn_10_STOPPED"},
-	{57, "EV_MFRn_11_STOPPED"},
-	{58, "EV_MFRn_12_STOPPED"},
-	{59, "EV_MFRn_13_STOPPED"},
-	{60, "EV_MFRn_14_STOPPED"},
-	{61, "EV_MFRn_15_STOPPED"},
-	{62, "EV_ANI_NUM_DETECTED"},
-	{ACTRACE_CAS_EV_FIRST_DIGIT, "EV_FIRST_DIGIT"},
-	{64, "EV_END_OF_MF_DIGIT"},
-	{65, "EV_ACCEPT"},
-	{66, "EV_REJECT_BUSY"},
-	{67, "EV_REJECT_CONGESTION"},
-	{68, "EV_REJECT_UNALLOCATED"},
-	{69, "EV_REJECT_RESERVE1"},
-	{70, "EV_REJECT_RESERVE2"},
-	{71, "EV_NO_ANI"},
-	{100, "EV_INIT_CHANNEL"},
-	{101, "EV_BUSY_TONE_STOPPED"},
-	{102, "EV_FAST_BUSY_TONE_STOPPED"},
-	{103, "EV_TO_USER"},
-	{104, "SEND_FIRST_DIGIT"},
-	{110, "EV_CLOSE_CHANNEL"},
-	{111, "EV_OPEN_CHANNEL"},
-	{112, "EV_FAIL_DIAL"},
-	{113, "EV_FAIL_SEND_CAS"},
-	{114, "EV_ALARM"},
-	{ACTRACE_CAS_EV_DTMF, "EV_DTMF"},
+	{   0, "FUNCTION0"},
+	{   1, "FUNCTION1"},
+	{   2, "FUNCTION2"},
+	{   3, "FUNCTION3"},
+	{   4, "EV_PLACE_CALL"},
+	{   5, "EV_TIMER_EXPIRED1"},
+	{   6, "EV_TIMER_EXPIRED2"},
+	{   7, "EV_TIMER_EXPIRED3"},
+	{   8, "EV_TIMER_EXPIRED4"},
+	{   9, "EV_TIMER_EXPIRED5"},
+	{  10, "EV_TIMER_EXPIRED6"},
+	{  11, "EV_TIMER_EXPIRED7"},
+	{  12, "EV_TIMER_EXPIRED8"},
+	{  13, "EV_ANSWER"},
+	{  14, "EV_DIAL_TONE_DETECTED"},
+	{  15, "EV_DIAL_ENDED"},
+	{  16, "EV_DISCONNECT"},
+	{ ACTRACE_CAS_EV_11, "EV_CAS_1_1"},
+	{ ACTRACE_CAS_EV_10, "EV_CAS_1_0"},
+	{ ACTRACE_CAS_EV_01, "EV_CAS_0_1"},
+	{ ACTRACE_CAS_EV_00, "EV_CAS_0_0"},
+	{  21, "EV_RB_TONE_STARTED"},
+	{  22, "EV_RB_TONE_STOPPED"},
+	{  23, "EV_BUSY_TONE"},
+	{  24, "EV_FAST_BUSY_TONE"},
+	{  25, "EV_HELLO_DETECTED"},
+	{  26, "EV_DIAL_TONE_STOPPED"},
+	{  27, "EV_DISCONNECT_INCOMING"},
+	{  28, "EV_RELEASE_CALL"},
+	{  29, "EV_DIALED_NUM_DETECTED"},
+	{  30, "EV_COUNTER1_EXPIRED"},
+	{  31, "EV_COUNTER2_EXPIRED"},
+	{  32, "EV_MFRn_1"},
+	{  33, "EV_MFRn_2"},
+	{  34, "EV_MFRn_3"},
+	{  35, "EV_MFRn_4"},
+	{  36, "EV_MFRn_5"},
+	{  37, "EV_MFRn_6"},
+	{  38, "EV_MFRn_7"},
+	{  39, "EV_MFRn_8"},
+	{  40, "EV_MFRn_9"},
+	{  41, "EV_MFRn_10"},
+	{  42, "EV_MFRn_11"},
+	{  43, "EV_MFRn_12"},
+	{  44, "EV_MFRn_13"},
+	{  45, "EV_MFRn_14"},
+	{  46, "EV_MFRn_15"},
+	{  47, "EV_MFRn_1_STOPPED"},
+	{  48, "EV_MFRn_2_STOPPED"},
+	{  49, "EV_MFRn_3_STOPPED"},
+	{  50, "EV_MFRn_4_STOPPED"},
+	{  51, "EV_MFRn_5_STOPPED"},
+	{  52, "EV_MFRn_6_STOPPED"},
+	{  53, "EV_MFRn_7_STOPPED"},
+	{  54, "EV_MFRn_8_STOPPED"},
+	{  55, "EV_MFRn_9_STOPPED"},
+	{  56, "EV_MFRn_10_STOPPED"},
+	{  57, "EV_MFRn_11_STOPPED"},
+	{  58, "EV_MFRn_12_STOPPED"},
+	{  59, "EV_MFRn_13_STOPPED"},
+	{  60, "EV_MFRn_14_STOPPED"},
+	{  61, "EV_MFRn_15_STOPPED"},
+	{  62, "EV_ANI_NUM_DETECTED"},
+	{ ACTRACE_CAS_EV_FIRST_DIGIT, "EV_FIRST_DIGIT"},
+	{  64, "EV_END_OF_MF_DIGIT"},
+	{  65, "EV_ACCEPT"},
+	{  66, "EV_REJECT_BUSY"},
+	{  67, "EV_REJECT_CONGESTION"},
+	{  68, "EV_REJECT_UNALLOCATED"},
+	{  69, "EV_REJECT_RESERVE1"},
+	{  70, "EV_REJECT_RESERVE2"},
+	{  71, "EV_NO_ANI"},
+	{ 100, "EV_INIT_CHANNEL"},
+	{ 101, "EV_BUSY_TONE_STOPPED"},
+	{ 102, "EV_FAST_BUSY_TONE_STOPPED"},
+	{ 103, "EV_TO_USER"},
+	{ 104, "SEND_FIRST_DIGIT"},
+	{ 110, "EV_CLOSE_CHANNEL"},
+	{ 111, "EV_OPEN_CHANNEL"},
+	{ 112, "EV_FAIL_DIAL"},
+	{ 113, "EV_FAIL_SEND_CAS"},
+	{ 114, "EV_ALARM"},
+	{ ACTRACE_CAS_EV_DTMF, "EV_DTMF"},
 	{1010, "EV_TIMER_EXPIRED10"},
 	{1020, "EV_DEBOUNCE_TIMER_EXPIRED"},
 	{1030, "EV_INTER_DIGIT_TIMER_EXPIRED"},
@@ -214,50 +215,50 @@ static const value_string actrace_cas_event_vals[] = {
 };
 static value_string_ext actrace_cas_event_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_event_vals);
 
-#define SEND_CAS 2
+#define SEND_CAS   2
 #define SEND_EVENT 3
 #define CHANGE_COLLECT_TYPE 13
 #define SEND_MF 8
 #define SEND_DEST_NUM 4
 
 static const value_string actrace_cas_function_vals[] = {
-	{0, "NILL"},
-	{1, "SET_TIMER"},
-	{SEND_CAS, "SEND_CAS"},
-	{SEND_EVENT, "SEND_EVENT"},
-	{SEND_DEST_NUM, "SEND_DEST_NUM"},
-	{5, "DEL_TIMER"},
-	{6, "START_COLLECT"},
-	{7, "STOP_COLLECT"},
-	{SEND_MF, "SEND_MF"},
-	{9, "STOP_DIAL_MF"},
-	{10, "SET_COUNTER"},
-	{11, "DEC_COUNTER"},
-	{12, "SEND_PROG_TON"},
+	{ 0,                  "NILL"},
+	{ 1,                  "SET_TIMER"},
+	{ SEND_CAS,           "SEND_CAS"},
+	{ SEND_EVENT,         "SEND_EVENT"},
+	{ SEND_DEST_NUM,      "SEND_DEST_NUM"},
+	{ 5,                  "DEL_TIMER"},
+	{ 6,                  "START_COLLECT"},
+	{ 7,                  "STOP_COLLECT"},
+	{ SEND_MF,            "SEND_MF"},
+	{ 9,                  "STOP_DIAL_MF"},
+	{10,                  "SET_COUNTER"},
+	{11,                  "DEC_COUNTER"},
+	{12,                  "SEND_PROG_TON"},
 	{CHANGE_COLLECT_TYPE, "CHANGE_COLLECT_TYPE"},
-	{14, "GENERATE_CAS_EV"},
+	{14,                  "GENERATE_CAS_EV"},
 	{0, NULL}
 };
 static value_string_ext actrace_cas_function_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_function_vals);
 
 static const value_string actrace_cas_pstn_event_vals[] = {
-	{64, "acEV_PSTN_INTERNAL_ERROR"},
-	{65, "acEV_PSTN_CALL_CONNECTED"},
-	{66, "acEV_PSTN_INCOMING_CALL_DETECTED"},
-	{67, "acEV_PSTN_CALL_DISCONNECTED"},
-	{68, "acEV_PSTN_CALL_RELEASED"},
-	{69, "acEV_PSTN_REMOTE_ALERTING"},
-	{70, "acEV_PSTN_STARTED"},
-	{71, "acEV_PSTN_WARNING"},
-	{72, "acEV_ISDN_PROGRESS_INDICATION"},
-	{73, "acEV_PSTN_PROCEEDING_INDICATION"},
-	{74, "acEV_PSTN_ALARM"},
-	{75, "acEV_RESERVED"},
-	{76, "acEV_PSTN_LINE_INFO"},
-	{77, "acEV_PSTN_LOOP_CONFIRM"},
-	{78, "acEV_PSTN_RESTART_CONFIRM"},
-	{84, "acEV_ISDN_SETUP_ACK_IN"},
-	{85, "acEV_PSTN_CALL_INFORMATION"},
+	{ 64, "acEV_PSTN_INTERNAL_ERROR"},
+	{ 65, "acEV_PSTN_CALL_CONNECTED"},
+	{ 66, "acEV_PSTN_INCOMING_CALL_DETECTED"},
+	{ 67, "acEV_PSTN_CALL_DISCONNECTED"},
+	{ 68, "acEV_PSTN_CALL_RELEASED"},
+	{ 69, "acEV_PSTN_REMOTE_ALERTING"},
+	{ 70, "acEV_PSTN_STARTED"},
+	{ 71, "acEV_PSTN_WARNING"},
+	{ 72, "acEV_ISDN_PROGRESS_INDICATION"},
+	{ 73, "acEV_PSTN_PROCEEDING_INDICATION"},
+	{ 74, "acEV_PSTN_ALARM"},
+	{ 75, "acEV_RESERVED"},
+	{ 76, "acEV_PSTN_LINE_INFO"},
+	{ 77, "acEV_PSTN_LOOP_CONFIRM"},
+	{ 78, "acEV_PSTN_RESTART_CONFIRM"},
+	{ 84, "acEV_ISDN_SETUP_ACK_IN"},
+	{ 85, "acEV_PSTN_CALL_INFORMATION"},
 	{128, "acEV_CAS_SEIZURE_DETECTED"},
 	{129, "acEV_CAS_CHANNEL_BLOCKED"},
 	{130, "acEV_CAS_PROTOCOL_STARTED"},
@@ -283,75 +284,75 @@ static const value_string actrace_cas_collect_type_vals[] = {
 #define SEND_TYPE_TRANSFER_CAPABILITY 6
 
 static const value_string actrace_cas_send_type_vals[] = {
-	{SEND_TYPE_ADDRESS, "ADDRESS"},
-	{SEND_TYPE_SPECIFIC, "SPECIFIC"},
+	{SEND_TYPE_ADDRESS,               "ADDRESS"},
+	{SEND_TYPE_SPECIFIC,              "SPECIFIC"},
 	{SEND_TYPE_INTER_EXCHANGE_SWITCH, "INTER_EXCHANGE_SWITCH"},
-	{SEND_TYPE_ANI, "ANI"},
-	{SEND_TYPE_SOURCE_CATEGORY, "SOURCE_CATEGORY"},
-	{SEND_TYPE_TRANSFER_CAPABILITY, "TRANSFER_CAPABILITY"},
+	{SEND_TYPE_ANI,                   "ANI"},
+	{SEND_TYPE_SOURCE_CATEGORY,       "SOURCE_CATEGORY"},
+	{SEND_TYPE_TRANSFER_CAPABILITY,   "TRANSFER_CAPABILITY"},
 	{0, NULL}
 };
 
 static const value_string actrace_cas_cause_vals[] = {
-	{1, "UNASSIGNED_NUMBER"},
-	{2, "NO_ROUTE_TO_TRANSIT_NET"},
-	{3, "NO_ROUTE_TO_DESTINATION"},
-	{6, "CHANNEL_UNACCEPTABLE"},
-	{7, "CALL_AWARDED_AND"},
-	{8, "PREEMPTION"},
-	{16, "NORMAL_CALL_CLEAR"},
-	{17, "USER_BUSY"},
-	{18, "NO_USER_RESPONDING"},
-	{19, "NO_ANSWER_FROM_USER_ALERTED"},
-	{20, "ACCEPT_DONE"},
-	{21, "CALL_REJECTED"},
-	{22, "NUMBER_CHANGED"},
-	{26, "NON_SELECTED_USER_CLEARING"},
-	{27, "DEST_OUT_OF_ORDER"},
-	{28, "INVALID_NUMBER_FORMAT"},
-	{29, "FACILITY_REJECT"},
-	{30, "RESPONSE_TO_STATUS_ENQUIRY"},
-	{31, "NORMAL_UNSPECIFIED"},
-	{32, "CIRCUIT_CONGESTION"},
-	{33, "USER_CONGESTION"},
-	{34, "NO_CIRCUIT_AVAILABLE"},
-	{38, "NETWORK_OUT_OF_ORDER"},
-	{39, "PERM_FR_MODE_CONN_OUT_OF_S"},
-	{40, "PERM_FR_MODE_CONN_OPERATIONAL"},
-	{41, "NETWORK_TEMPORARY_FAILURE"},
-	{42, "NETWORK_CONGESTION"},
-	{43, "ACCESS_INFORMATION_DISCARDED"},
-	{44, "REQUESTED_CIRCUIT_NOT_AVAILABLE"},
-	{46, "PRECEDENCE_CALL_BLOCKED"},
-	{47, "RESOURCE_UNAVAILABLE_UNSPECIFIED"},
-	{49, "QUALITY_OF_SERVICE_UNAVAILABLE"},
-	{50, "REQUESTED_FAC_NOT_SUBSCRIBED"},
-	{53, "CUG_OUT_CALLS_BARRED"},
-	{55, "CUG_INC_CALLS_BARRED"},
-	{57, "BC_NOT_AUTHORIZED"},
-	{58, "BC_NOT_PRESENTLY_AVAILABLE"},
-	{62, "ACCES_INFO_SUBS_CLASS_INCONS"},
-	{63, "SERVICE_NOT_AVAILABLE"},
-	{65, "BC_NOT_IMPLEMENTED"},
-	{66, "CHANNEL_TYPE_NOT_IMPLEMENTED"},
-	{69, "REQUESTED_FAC_NOT_IMPLEMENTED"},
-	{70, "ONLY_RESTRICTED_INFO_BEARER"},
-	{79, "SERVICE_NOT_IMPLEMENTED_UNSPECIFIED"},
-	{81, "INVALID_CALL_REF"},
-	{82, "IDENTIFIED_CHANNEL_NOT_EXIST"},
-	{83, "SUSPENDED_CALL_BUT_CALL_ID_NOT_EXIST"},
-	{84, "CALL_ID_IN_USE"},
-	{85, "NO_CALL_SUSPENDED"},
-	{86, "CALL_HAVING_CALL_ID_CLEARED"},
-	{87, "NOT_CUG_MEMBER"},
-	{88, "INCOMPATIBLE_DESTINATION"},
-	{90, "CUG_NON_EXISTENT"},
-	{91, "INVALID_TRANSIT_NETWORK_SELECTION"},
-	{95, "INVALID_MESSAGE_UNSPECIFIED"},
-	{96, "MANDATORY_IE_MISSING"},
-	{97, "MESSAGE_TYPE_NON_EXISTENT"},
-	{98, "MESSAGE_STATE_INCONSISTENCY"},
-	{99, "NON_EXISTENT_IE"},
+	{  1, "UNASSIGNED_NUMBER"},
+	{  2, "NO_ROUTE_TO_TRANSIT_NET"},
+	{  3, "NO_ROUTE_TO_DESTINATION"},
+	{  6, "CHANNEL_UNACCEPTABLE"},
+	{  7, "CALL_AWARDED_AND"},
+	{  8, "PREEMPTION"},
+	{ 16, "NORMAL_CALL_CLEAR"},
+	{ 17, "USER_BUSY"},
+	{ 18, "NO_USER_RESPONDING"},
+	{ 19, "NO_ANSWER_FROM_USER_ALERTED"},
+	{ 20, "ACCEPT_DONE"},
+	{ 21, "CALL_REJECTED"},
+	{ 22, "NUMBER_CHANGED"},
+	{ 26, "NON_SELECTED_USER_CLEARING"},
+	{ 27, "DEST_OUT_OF_ORDER"},
+	{ 28, "INVALID_NUMBER_FORMAT"},
+	{ 29, "FACILITY_REJECT"},
+	{ 30, "RESPONSE_TO_STATUS_ENQUIRY"},
+	{ 31, "NORMAL_UNSPECIFIED"},
+	{ 32, "CIRCUIT_CONGESTION"},
+	{ 33, "USER_CONGESTION"},
+	{ 34, "NO_CIRCUIT_AVAILABLE"},
+	{ 38, "NETWORK_OUT_OF_ORDER"},
+	{ 39, "PERM_FR_MODE_CONN_OUT_OF_S"},
+	{ 40, "PERM_FR_MODE_CONN_OPERATIONAL"},
+	{ 41, "NETWORK_TEMPORARY_FAILURE"},
+	{ 42, "NETWORK_CONGESTION"},
+	{ 43, "ACCESS_INFORMATION_DISCARDED"},
+	{ 44, "REQUESTED_CIRCUIT_NOT_AVAILABLE"},
+	{ 46, "PRECEDENCE_CALL_BLOCKED"},
+	{ 47, "RESOURCE_UNAVAILABLE_UNSPECIFIED"},
+	{ 49, "QUALITY_OF_SERVICE_UNAVAILABLE"},
+	{ 50, "REQUESTED_FAC_NOT_SUBSCRIBED"},
+	{ 53, "CUG_OUT_CALLS_BARRED"},
+	{ 55, "CUG_INC_CALLS_BARRED"},
+	{ 57, "BC_NOT_AUTHORIZED"},
+	{ 58, "BC_NOT_PRESENTLY_AVAILABLE"},
+	{ 62, "ACCES_INFO_SUBS_CLASS_INCONS"},
+	{ 63, "SERVICE_NOT_AVAILABLE"},
+	{ 65, "BC_NOT_IMPLEMENTED"},
+	{ 66, "CHANNEL_TYPE_NOT_IMPLEMENTED"},
+	{ 69, "REQUESTED_FAC_NOT_IMPLEMENTED"},
+	{ 70, "ONLY_RESTRICTED_INFO_BEARER"},
+	{ 79, "SERVICE_NOT_IMPLEMENTED_UNSPECIFIED"},
+	{ 81, "INVALID_CALL_REF"},
+	{ 82, "IDENTIFIED_CHANNEL_NOT_EXIST"},
+	{ 83, "SUSPENDED_CALL_BUT_CALL_ID_NOT_EXIST"},
+	{ 84, "CALL_ID_IN_USE"},
+	{ 85, "NO_CALL_SUSPENDED"},
+	{ 86, "CALL_HAVING_CALL_ID_CLEARED"},
+	{ 87, "NOT_CUG_MEMBER"},
+	{ 88, "INCOMPATIBLE_DESTINATION"},
+	{ 90, "CUG_NON_EXISTENT"},
+	{ 91, "INVALID_TRANSIT_NETWORK_SELECTION"},
+	{ 95, "INVALID_MESSAGE_UNSPECIFIED"},
+	{ 96, "MANDATORY_IE_MISSING"},
+	{ 97, "MESSAGE_TYPE_NON_EXISTENT"},
+	{ 98, "MESSAGE_STATE_INCONSISTENCY"},
+	{ 99, "NON_EXISTENT_IE"},
 	{100, "INVALID_IE_CONTENT"},
 	{101, "MESSAGE_NOT_COMPATIBLE"},
 	{102, "RECOVERY_ON_TIMER_EXPIRY"},
@@ -450,7 +451,7 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	proto_tree *actrace_tree;
 	proto_item *ti;
-	int actrace_protocol;
+	int         actrace_protocol;
 
 	/* Initialize variables */
 	actrace_tree = NULL;
@@ -496,11 +497,11 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	gint32 value, function, trunk, bchannel, source, event, curr_state, next_state;
-	gint32 par0, par1, par2;
+	gint32       value, function, trunk, bchannel, source, event, curr_state, next_state;
+	gint32       par0, par1, par2;
 	const gchar *frame_label = NULL;
-	int direction = 0;
-	int offset = 0;
+	int          direction   = 0;
+	int          offset      = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
 
@@ -649,10 +650,10 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				 proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	gint len;
-	gint32 value, trunk;
+	gint      len;
+	gint32    value, trunk;
 	tvbuff_t *next_tvb;
-	int offset = 0;
+	int       offset = 0;
 
 	len = tvb_get_ntohs(tvb, 44);
 
@@ -706,7 +707,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  */
 static int is_actrace(tvbuff_t *tvb, gint offset)
 {
-	gint tvb_len;
+	gint   tvb_len;
 	gint32 source, isdn_header;
 
 	tvb_len = tvb_reported_length(tvb);
@@ -811,9 +812,9 @@ void proto_register_actrace(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_actrace(void)
 {
-	static gboolean actrace_prefs_initialized = FALSE;
+	static gboolean           actrace_prefs_initialized = FALSE;
 	static dissector_handle_t actrace_handle;
-	static guint actrace_udp_port;
+	static guint              actrace_udp_port;
 
 	if (!actrace_prefs_initialized)
 	{
@@ -833,3 +834,15 @@ void proto_reg_handoff_actrace(void)
 	dissector_add_uint("udp.port", global_actrace_udp_port, actrace_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

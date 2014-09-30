@@ -78,8 +78,8 @@ static int hf_kdp_bcst_flag = -1;
 static int hf_kdp_dup_flag = -1;
 
 static void dissect_kdp(tvbuff_t *tvb,
-			packet_info *pinfo,
-			proto_tree *tree) {
+                        packet_info *pinfo,
+                        proto_tree *tree) {
   guint body_len;
   guint8 version = 0;
   guint8 header_len = 0;
@@ -111,9 +111,9 @@ static void dissect_kdp(tvbuff_t *tvb,
       header_len = tvb_get_guint8(tvb, 1) * 4;
       body_len = tvb_reported_length(tvb);
       if (header_len > body_len) {
-	body_len = 0;		/* malformed packet */
+        body_len = 0;           /* malformed packet */
       } else {
-	body_len = body_len - header_len;
+        body_len = body_len - header_len;
       }
       packet_flags = tvb_get_guint8(tvb, 2);
       packet_errors = tvb_get_guint8(tvb, 3);
@@ -132,99 +132,99 @@ static void dissect_kdp(tvbuff_t *tvb,
       proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, ENC_BIG_ENDIAN);
 
       if (header_len > 4) {
-	offset = 4;
-	if (packet_flags & KDP_ACK_FLAG) {
-	  proto_tree_add_item(kdp_tree, hf_kdp_destflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
-	  offset = offset + 4;
-	}
+        offset = 4;
+        if (packet_flags & KDP_ACK_FLAG) {
+          proto_tree_add_item(kdp_tree, hf_kdp_destflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset = offset + 4;
+        }
 
-	if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
-	  proto_tree_add_item(kdp_tree, hf_kdp_srcflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
-	  src_flowid = tvb_get_ntohl(tvb, offset);
-	  offset = offset + 4;
-	}
+        if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
+          proto_tree_add_item(kdp_tree, hf_kdp_srcflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
+          src_flowid = tvb_get_ntohl(tvb, offset);
+          offset = offset + 4;
+        }
 
-	proto_tree_add_item(kdp_tree, hf_kdp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
-	sequence_number = tvb_get_ntohl(tvb, offset);
-	offset = offset + 4;
+        proto_tree_add_item(kdp_tree, hf_kdp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
+        sequence_number = tvb_get_ntohl(tvb, offset);
+        offset = offset + 4;
 
-	if (packet_flags & KDP_ACK_FLAG) {
-	  proto_tree_add_item(kdp_tree, hf_kdp_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
-	  ack_number = tvb_get_ntohl(tvb, offset);
-	  offset = offset + 4;
-	}
-	if (packet_flags & KDP_SYN_FLAG) {
-	  proto_tree_add_item(kdp_tree, hf_kdp_maxsegmentsize, tvb, offset, 4, ENC_BIG_ENDIAN);
-	  offset = offset + 4;
-	}
+        if (packet_flags & KDP_ACK_FLAG) {
+          proto_tree_add_item(kdp_tree, hf_kdp_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
+          ack_number = tvb_get_ntohl(tvb, offset);
+          offset = offset + 4;
+        }
+        if (packet_flags & KDP_SYN_FLAG) {
+          proto_tree_add_item(kdp_tree, hf_kdp_maxsegmentsize, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset = offset + 4;
+        }
 
-	while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
-	  guint8 option_number;
-	  guint8 option_len = 0;
+        while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
+          guint8 option_number;
+          guint8 option_len = 0;
 
-	  option_number = tvb_get_guint8(tvb, offset);
+          option_number = tvb_get_guint8(tvb, offset);
 
-	  proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
-	  offset = offset + 1;
-	  if (option_number > 0) {
-	    option_len = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
-	    offset = offset + 1;
-	  }
+          proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset = offset + 1;
+          if (option_number > 0) {
+            option_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset = offset + 1;
+          }
 
-	  switch (option_number) {
-	  case 0:
-	    break;
-	  case 1:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option1, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  case 2:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  case 3:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  case 4:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, ENC_NA);
-	    break;
-	  case 5:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, ENC_NA);
-	    break;
-	  case 6:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, ENC_NA);
-	    offset = offset + option_len - 2;
-	    break;
-	  case 7:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option7, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  case 8:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option8, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  case 9:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option9, tvb, offset, 2, ENC_BIG_ENDIAN);
-	    offset = offset + 2;
-	    break;
-	  default:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, ENC_NA);
-	    offset = offset + option_len - 2;
-	    break;
-	  }
-	}
+          switch (option_number) {
+          case 0:
+            break;
+          case 1:
+            proto_tree_add_item(kdp_tree, hf_kdp_option1, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          case 2:
+            proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          case 3:
+            proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          case 4:
+            proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, ENC_NA);
+            break;
+          case 5:
+            proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, ENC_NA);
+            break;
+          case 6:
+            proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, ENC_NA);
+            offset = offset + option_len - 2;
+            break;
+          case 7:
+            proto_tree_add_item(kdp_tree, hf_kdp_option7, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          case 8:
+            proto_tree_add_item(kdp_tree, hf_kdp_option8, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          case 9:
+            proto_tree_add_item(kdp_tree, hf_kdp_option9, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset = offset + 2;
+            break;
+          default:
+            proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, ENC_NA);
+            offset = offset + option_len - 2;
+            break;
+          }
+        }
 
-	if (body_len > 0) {
-	  proto_tree_add_item(kdp_tree, hf_kdp_fragment, tvb, offset, 2, ENC_BIG_ENDIAN);
-	  offset = offset + 2;
+        if (body_len > 0) {
+          proto_tree_add_item(kdp_tree, hf_kdp_fragment, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
 
-	  proto_tree_add_item(kdp_tree, hf_kdp_fragtotal, tvb, offset, 2, ENC_BIG_ENDIAN);
-	  offset = offset + 2;
+          proto_tree_add_item(kdp_tree, hf_kdp_fragtotal, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
 
-	  proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, ENC_NA);
-	}
+          proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, ENC_NA);
+        }
       }
     }
   }
@@ -238,30 +238,30 @@ static void dissect_kdp(tvbuff_t *tvb,
       char src_flowid_string[BUFFER_SIZE];
 
       if (packet_flags & KDP_ACK_FLAG) {
-	g_snprintf(ack_string, sizeof(ack_string), "ACK=%x ", ack_number);
+        g_snprintf(ack_string, sizeof(ack_string), "ACK=%x ", ack_number);
       } else {
-	ack_string[0] = '\0';
+        ack_string[0] = '\0';
       }
       if (header_len > 4) {
-	g_snprintf(seq_num_string, sizeof(seq_num_string), "SEQ=%x ", sequence_number);
+        g_snprintf(seq_num_string, sizeof(seq_num_string), "SEQ=%x ", sequence_number);
       } else {
-	seq_num_string[0] = '\0';
+        seq_num_string[0] = '\0';
       }
       if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
-	g_snprintf(src_flowid_string, sizeof(src_flowid_string), "SRC_FLOWID=%x ", src_flowid);
+        g_snprintf(src_flowid_string, sizeof(src_flowid_string), "SRC_FLOWID=%x ", src_flowid);
       } else {
-	src_flowid_string[0] = '\0';
+        src_flowid_string[0] = '\0';
       }
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s%s%serrors=%d",
-		   ((packet_flags & KDP_DROP_FLAG) ? "DROP " : ""),
-		   ((packet_flags & KDP_SYN_FLAG) ? "SYN " : ""),
-		   ((packet_flags & KDP_RST_FLAG) ? "RST " : ""),
-		   ((packet_flags & KDP_BCST_FLAG) ? "BCST " : ""),
-		   ((packet_flags & KDP_DUP_FLAG) ? "DUP " : ""),
-		   ack_string,
-		   seq_num_string,
-		   src_flowid_string,
-		   packet_errors);
+                   ((packet_flags & KDP_DROP_FLAG) ? "DROP " : ""),
+                   ((packet_flags & KDP_SYN_FLAG) ? "SYN " : ""),
+                   ((packet_flags & KDP_RST_FLAG) ? "RST " : ""),
+                   ((packet_flags & KDP_BCST_FLAG) ? "BCST " : ""),
+                   ((packet_flags & KDP_DUP_FLAG) ? "DUP " : ""),
+                   ack_string,
+                   seq_num_string,
+                   src_flowid_string,
+                   packet_errors);
   }
 }
 
@@ -310,87 +310,87 @@ void proto_register_kdp(void) {
     },
     { &hf_kdp_destflowid,
       { "DestFlowID", "kdp.destflowid",
-	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_srcflowid,
       { "SrcFlowID", "kdp.srcflowid",
-	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_sequence,
       { "Sequence", "kdp.sequence",
-	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_ack,
       { "Ack", "kdp.ack",
-	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_maxsegmentsize,
       { "MaxSegmentSize", "kdp.maxsegmentsize",
-	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_optionnumber,
       { "Option Number", "kdp.optionnumber",
-	FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_optionlen,
       { "Option Len", "kdp.option",
-	FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option1,
       { "Option1 - Max Window", "kdp.option1",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option2,
       { "Option2 - TCP Fraction", "kdp.option2",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option3,
       { "Option3 - KDP Version", "kdp.option3",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option4,
       { "Option4 - Enable Reliable", "kdp.option4",
-	FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option5,
       { "Option5 - Disable Reliable", "kdp.option5",
-	FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option6,
       { "Option6 - SACK", "kdp.option6",
-	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option7,
       { "Option7 - COS", "kdp.option7",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option8,
       { "Option8 - BWMIN", "kdp.option8",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option9,
       { "Option9 - INT", "kdp.option9",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option_unknown,
       { "Unknown option", "kdp.option_unknown",
-	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragment,
       { "Fragment", "kdp.fragment",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragtotal,
       { "FragTotal", "kdp.fragtotal",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_body,
       { "Encrypted Body", "kdp.body",
-	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_xml_body,
       { "XML Body", "kdp.xml_body",
-	FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     }
   };
 
@@ -400,8 +400,8 @@ void proto_register_kdp(void) {
   };
 
   proto_kdp = proto_register_protocol("Kontiki Delivery Protocol", /* name */
-                                      "KDP",		/* short name */
-                                      "kdp");		/* abbrev */
+                                      "KDP",            /* short name */
+                                      "kdp");           /* abbrev */
   proto_register_field_array(proto_kdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -413,3 +413,15 @@ proto_reg_handoff_kdp(void) {
   dissector_add_uint("udp.port", KDP_PORT, kdp_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

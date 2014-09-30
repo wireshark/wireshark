@@ -602,11 +602,11 @@ static int
 _glusterfs_gfs3_common_readdir_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *errno_item;
-        guint op_errno;
+	guint op_errno;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_entries, offset);
 
-        if (tree) {
+	if (tree) {
 		op_errno = tvb_get_ntohl(tvb, offset);
 		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
 					    offset, 4, op_errno);
@@ -1460,7 +1460,7 @@ glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb, int offset,
 				  glusterfs_gfs3_3_op_readdir_entry, NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
-        return offset;
+	return offset;
 }
 
 static int
@@ -1637,7 +1637,7 @@ glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
 				  glusterfs_gfs3_3_op_readdirp_entry, NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
-        return offset;
+	return offset;
 }
 
 /* READDIRP and DISCARD both use this */
@@ -2691,3 +2691,15 @@ proto_reg_handoff_glusterfs(void)
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

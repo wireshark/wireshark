@@ -312,7 +312,7 @@ static gint dissect_netsync_cmd_send_data(tvbuff_t *tvb,  gint offset, proto_tre
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_send_data_type, tvb,
 					offset, 1, ENC_BIG_ENDIAN );
-        offset += 1;
+	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_data_id, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
@@ -326,7 +326,7 @@ static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tr
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_type, tvb,
 					offset, 1, ENC_BIG_ENDIAN );
-        offset += 1;
+	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_base_id, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
@@ -473,7 +473,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 
 		proto_tree_add_uint(netsync_tree, hf_netsync_size, tvb,
-                                        offset, size_bytes, size );
+				    offset, size_bytes, size );
 		offset += size_bytes;
 
 		switch (cmd) {
@@ -762,3 +762,15 @@ proto_reg_handoff_netsync(void)
 	dissector_add_uint("tcp.port", global_tcp_port_netsync, netsync_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

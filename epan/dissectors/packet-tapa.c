@@ -467,16 +467,16 @@ dissect_tapa_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static gboolean
 dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   ws_ip* iph = (ws_ip*)data;
+	ws_ip *iph = (ws_ip*)data;
 
-  /* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
-  if (iph && (iph->ip_p == IP_PROTO_IPIP) && ((tvb_get_guint8(tvb, 0) & 0xF0) != 0x40) &&
-      (tvb_get_ntohs(tvb, 2)) < 20) {
-      dissect_tapa_static(tvb, pinfo, tree, data);
-      return TRUE;
-  }
+	/* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
+	if (iph && (iph->ip_p == IP_PROTO_IPIP) && ((tvb_get_guint8(tvb, 0) & 0xF0) != 0x40) &&
+	    (tvb_get_ntohs(tvb, 2)) < 20) {
+		dissect_tapa_static(tvb, pinfo, tree, data);
+		return TRUE;
+	}
 
-  return FALSE;
+	return FALSE;
 }
 
 void
@@ -484,137 +484,137 @@ proto_register_tapa(void)
 {
 	static hf_register_info hf[] = {
 
-	/* TAPA discover header */
+		/* TAPA discover header */
 		{ &hf_tapa_discover_type,
-		{ "Type",	"tapa.discover.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_type_vals),
-			0x0, NULL, HFILL }},
+		  { "Type",	"tapa.discover.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_type_vals),
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_flags,
-		{ "Flags",	"tapa.discover.flags", FT_UINT8, BASE_HEX, NULL,
-			0x0, NULL, HFILL }},
+		  { "Flags",	"tapa.discover.flags", FT_UINT8, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_length,
-		{ "Length",	"tapa.discover.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Length",	"tapa.discover.length", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA discover request */
+		/* TAPA discover request */
 		{ &hf_tapa_discover_req_type,
-		{ "Req type",	"tapa.discover.req.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
-			0x0, NULL, HFILL }},
+		  { "Req type",	"tapa.discover.req.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_req_pad,
-		{ "Req padding",	"tapa.discover.req.pad", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Req padding",	"tapa.discover.req.pad", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_req_length,
-		{ "Req length",	"tapa.discover.req.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Req length",	"tapa.discover.req.length", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_discover_req_value,
-                { "Req value",   "tapa.discover.req.value", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_discover_req_value,
+		  { "Req value",   "tapa.discover.req.value", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA discover reply */
-                { &hf_tapa_discover_reply_switchip,
-                { "Switch Ip",   "tapa.discover.reply.switchip", FT_IPv4, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		/* TAPA discover reply */
+		{ &hf_tapa_discover_reply_switchip,
+		  { "Switch Ip",   "tapa.discover.reply.switchip", FT_IPv4, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_reply_unused,
-		{ "Reply unused",	"tapa.discover.reply.unused", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Reply unused",	"tapa.discover.reply.unused", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_reply_bias,
-		{ "Reply bias",	"tapa.discover.reply.bias", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Reply bias",	"tapa.discover.reply.bias", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_discover_reply_pad,
-                { "Reply pad",   "tapa.discover.reply.pad", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_discover_reply_pad,
+		  { "Reply pad",   "tapa.discover.reply.pad", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA discover new request/reply tlv */
+		/* TAPA discover new request/reply tlv */
 		{ &hf_tapa_discover_newtlv_type,
-		{ "New tlv type",	"tapa.discover.newtlv.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
-			0x0, NULL, HFILL }},
+		  { "New tlv type",	"tapa.discover.newtlv.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_newtlv_pad,
-		{ "New tlv padding",	"tapa.discover.newtlv.pad", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "New tlv padding",	"tapa.discover.newtlv.pad", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_newtlv_length,
-		{ "New tlv length",	"tapa.discover.newtlv.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "New tlv length",	"tapa.discover.newtlv.length", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_discover_newtlv_valuetext,
-                { "New tlv value",   "tapa.discover.newtlv.valuetext", FT_STRING, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_discover_newtlv_valuetext,
+		  { "New tlv value",   "tapa.discover.newtlv.valuetext", FT_STRING, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_discover_newtlv_valuehex,
-                { "New tlv value",   "tapa.discover.newtlv.valuehex", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_discover_newtlv_valuehex,
+		  { "New tlv value",   "tapa.discover.newtlv.valuehex", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA discover unknown packet */
-                { &hf_tapa_discover_unknown,
-                { "Tapa unknown packet",   "tapa.discover.unknown", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		/* TAPA discover unknown packet */
+		{ &hf_tapa_discover_unknown,
+		  { "Tapa unknown packet",   "tapa.discover.unknown", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA tunnel */
-                { &hf_tapa_tunnel_version,
-                { "Tapa tunnel version",   "tapa.tunnel.version", FT_UINT8, BASE_HEX, NULL,
-                        0xF0, NULL, HFILL }},
+		/* TAPA tunnel */
+		{ &hf_tapa_tunnel_version,
+		  { "Tapa tunnel version",   "tapa.tunnel.version", FT_UINT8, BASE_HEX, NULL,
+		    0xF0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_five,
-                { "Tapa tunnel five",   "tapa.tunnel.five", FT_UINT8, BASE_HEX, NULL,
-                        0x0F, NULL, HFILL }},
+		{ &hf_tapa_tunnel_five,
+		  { "Tapa tunnel five",   "tapa.tunnel.five", FT_UINT8, BASE_HEX, NULL,
+		    0x0F, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_type,
-                { "Tapa tunnel type",   "tapa.tunnel.type", FT_UINT8, BASE_HEX, VALS(tapa_tunnel_type_vals),
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_type,
+		  { "Tapa tunnel type",   "tapa.tunnel.type", FT_UINT8, BASE_HEX, VALS(tapa_tunnel_type_vals),
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_zero,
-                { "Tapa tunnel zeroes",   "tapa.tunnel.zero", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_zero,
+		  { "Tapa tunnel zeroes",   "tapa.tunnel.zero", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_dmac,
-                { "Tapa tunnel dest mac",   "tapa.tunnel.dmac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_dmac,
+		  { "Tapa tunnel dest mac",   "tapa.tunnel.dmac", FT_ETHER, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_smac,
-                { "Tapa tunnel src mac",   "tapa.tunnel.smac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_smac,
+		  { "Tapa tunnel src mac",   "tapa.tunnel.smac", FT_ETHER, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA tunnel type 0 */
-                { &hf_tapa_tunnel_0804,
-                { "Tapa tunnel 0804",   "tapa.tunnel.0804", FT_UINT16, BASE_HEX, NULL,
-                        0x0, NULL, HFILL }},
+		/* TAPA tunnel type 0 */
+		{ &hf_tapa_tunnel_0804,
+		  { "Tapa tunnel 0804",   "tapa.tunnel.0804", FT_UINT16, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_tagsetc,
-                { "Tapa tunnel tags, seqno, pad",   "tapa.tunnel.tags", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_tagsetc,
+		  { "Tapa tunnel tags, seqno, pad",   "tapa.tunnel.tags", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	/* TAPA tunnel type 1 */
-                { &hf_tapa_tunnel_seqno,
-                { "Tapa tunnel seqno",   "tapa.tunnel.seqno", FT_UINT16, BASE_DEC, NULL,
-                        0x0, NULL, HFILL }},
+		/* TAPA tunnel type 1 */
+		{ &hf_tapa_tunnel_seqno,
+		  { "Tapa tunnel seqno",   "tapa.tunnel.seqno", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-                { &hf_tapa_tunnel_length,
-                { "Tapa tunnel length",   "tapa.tunnel.length", FT_UINT16, BASE_DEC, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_tapa_tunnel_length,
+		  { "Tapa tunnel length",   "tapa.tunnel.length", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 
-	/* TAPA tunnel remaining stuff */
-                { &hf_tapa_tunnel_remaining,
-                { "Tapa tunnel all data",   "tapa.tunnel.remaining", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		/* TAPA tunnel remaining stuff */
+		{ &hf_tapa_tunnel_remaining,
+		  { "Tapa tunnel all data",   "tapa.tunnel.remaining", FT_BYTES, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-        };
+	};
 	static gint *ett[] = {
 		&ett_tapa_discover,
 		&ett_tapa_discover_req,
 		&ett_tapa_tunnel,
 	};
 
-    proto_tapa = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "tapa");
-    proto_register_field_array(proto_tapa, hf, array_length(hf));
+	proto_tapa = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "tapa");
+	proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	new_register_dissector("tapa", dissect_tapa_static, proto_tapa);
@@ -628,6 +628,18 @@ proto_reg_handoff_tapa(void)
 
 	tapa_handle = find_dissector("tapa");
 	dissector_add_uint("udp.port", PORT_TAPA, tapa_handle);
-    heur_dissector_add( "ip", dissect_tapa_heur, proto_tapa);
+	heur_dissector_add( "ip", dissect_tapa_heur, proto_tapa);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

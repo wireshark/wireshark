@@ -175,43 +175,55 @@ proto_reg_handoff_tsp(void)
 void
 proto_register_tsp(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_tsp_type,
-      { "Type", "tsp.type",
-	FT_UINT8, BASE_DEC, VALS(names_tsp_type), 0x0,
-	"Packet Type", HFILL }},
-    { &hf_tsp_vers,
-      { "Version", "tsp.version",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Protocol Version Number", HFILL }},
-    { &hf_tsp_seq,
-      { "Sequence", "tsp.sequence",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Sequence Number", HFILL }},
-    { &hf_tsp_hopcnt,
-      { "Hop Count", "tsp.hopcnt",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	NULL, HFILL }},
-    { &hf_tsp_time_sec,
-      { "Seconds", "tsp.sec",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	NULL, HFILL }},
-    { &hf_tsp_time_usec,
-      { "Microseconds", "tsp.usec",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	NULL, HFILL }},
-    { &hf_tsp_name,
-      { "Machine Name", "tsp.name",
-	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-	"Sender Machine Name", HFILL }}
-  };
+	static hf_register_info hf[] = {
+		{ &hf_tsp_type,
+		  { "Type", "tsp.type",
+		    FT_UINT8, BASE_DEC, VALS(names_tsp_type), 0x0,
+		    "Packet Type", HFILL }},
+		{ &hf_tsp_vers,
+		  { "Version", "tsp.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Protocol Version Number", HFILL }},
+		{ &hf_tsp_seq,
+		  { "Sequence", "tsp.sequence",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Sequence Number", HFILL }},
+		{ &hf_tsp_hopcnt,
+		  { "Hop Count", "tsp.hopcnt",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_tsp_time_sec,
+		  { "Seconds", "tsp.sec",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_tsp_time_usec,
+		  { "Microseconds", "tsp.usec",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_tsp_name,
+		  { "Machine Name", "tsp.name",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Sender Machine Name", HFILL }}
+	};
 	static gint *ett[] = {
 		&ett_tsp
 	};
 
 	proto_tsp = proto_register_protocol("Time Synchronization Protocol",
-					"TSP", "tsp");
+					    "TSP", "tsp");
 	proto_register_field_array(proto_tsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

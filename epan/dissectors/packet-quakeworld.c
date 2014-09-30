@@ -78,10 +78,10 @@ static gint ett_quakeworld_game_svc = -1;
 static dissector_handle_t data_handle;
 
 /*
-   helper functions, they may ave to go somewhere else
-   they are mostly copied without change from
-	quakeworldsource/client/cmd.c
-	quakeworldsource/client/common.c
+	helper functions, they may ave to go somewhere else
+	they are mostly copied without change from
+	  quakeworldsource/client/cmd.c
+	  quakeworldsource/client/common.c
 */
 
 #define MAX_TEXT_SIZE	2048
@@ -369,12 +369,12 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
 	/* actually, we should look for a eol char and stop already there */
 
-        if (cl_tree) {
+	if (cl_tree) {
 		proto_item *text_item;
-                text_item = proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
+		text_item = proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
 						  tvb, offset, len, text);
 		text_tree = proto_item_add_subtree(text_item, ett_quakeworld_connectionless_text);
-        }
+	}
 
 	if (direction == DIR_C2S) {
 		/* client to server commands */
@@ -564,9 +564,9 @@ dissect_quakeworld_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static const value_string names_reliable[] = {
-        { 0, "Non Reliable" },
-        { 1, "Reliable" },
-        { 0, NULL }
+	{ 0, "Non Reliable" },
+	{ 1, "Reliable" },
+	{ 0, NULL }
 };
 
 
@@ -833,9 +833,21 @@ proto_reg_handoff_quakeworld(void)
 		dissector_delete_uint("udp.port", ServerPort, quakeworld_handle);
 	}
 
-        /* set port for future deletes */
-        ServerPort=gbl_quakeworldServerPort;
+	/* set port for future deletes */
+	ServerPort=gbl_quakeworldServerPort;
 
 	dissector_add_uint("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

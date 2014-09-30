@@ -43,7 +43,7 @@
 #include <epan/oui.h>
 
 #define TURBOCELL_TYPE_BEACON_NON_POLLING  0x00
-#define TURBOCELL_TYPE_BEACON_NORMAL	   0x40
+#define TURBOCELL_TYPE_BEACON_NORMAL       0x40
 #define TURBOCELL_TYPE_BEACON_POLLING      0x80
 #define TURBOCELL_TYPE_BEACON_ISP          0xA0
 
@@ -168,77 +168,77 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     }
 
-        remaining_length=tvb_length_remaining(tvb, 0x14);
+    remaining_length=tvb_length_remaining(tvb, 0x14);
 
-        if (remaining_length > 6) {
+    if (remaining_length > 6) {
 
-            /* If the first character is a printable character that means we have a payload with network info */
-            /* I couldn't find anything in the header that would definitvely indicate if payload is either data or network info */
-            /* Since the frame size is limited this should work ok */
+        /* If the first character is a printable character that means we have a payload with network info */
+        /* I couldn't find anything in the header that would definitvely indicate if payload is either data or network info */
+        /* Since the frame size is limited this should work ok */
 
-            if (tvb_get_guint8(tvb, 0x14)>=0x20){
-                name_item = proto_tree_add_item(turbocell_tree, hf_turbocell_name, tvb, 0x14, 30, ENC_ASCII|ENC_NA);
-                network_tree = proto_item_add_subtree(name_item, ett_network);
+        if (tvb_get_guint8(tvb, 0x14)>=0x20){
+            name_item = proto_tree_add_item(turbocell_tree, hf_turbocell_name, tvb, 0x14, 30, ENC_ASCII|ENC_NA);
+            network_tree = proto_item_add_subtree(name_item, ett_network);
 
-                str_name=tvb_get_stringz_enc(wmem_packet_scope(), tvb, 0x14, &str_len, ENC_ASCII);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
+            str_name=tvb_get_stringz_enc(wmem_packet_scope(), tvb, 0x14, &str_len, ENC_ASCII);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
 
-                while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
-                    proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, ENC_NA);
-                    i++;
-                }
+            while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
+                proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, ENC_NA);
+                i++;
+            }
 
-                /*Couldn't make sense of the apparently random data in the end*/
+            /*Couldn't make sense of the apparently random data in the end*/
 
-                next_tvb = tvb_new_subset_remaining(tvb, 0x34 + 8*i);
+            next_tvb = tvb_new_subset_remaining(tvb, 0x34 + 8*i);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+
+        } else {
+
+            tvbuff_t *volatile msdu_tvb = NULL;
+            guint32 msdu_offset = 0x04;
+            guint16 j = 1;
+            guint16 msdu_length;
+
+            proto_item *parent_item;
+            proto_tree *mpdu_tree;
+            proto_tree *subframe_tree;
+
+            next_tvb = tvb_new_subset(tvb, 0x14, -1, tvb_get_ntohs(tvb, 0x14));
+            parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
+                                                         tvb_reported_length_remaining(next_tvb, 0), "Turbocell Aggregate Frames");
+            mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
+            proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_len, next_tvb, 0x00, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_unknown1, next_tvb, 0x02, 2, ENC_BIG_ENDIAN);
+
+            remaining_length=tvb_length_remaining(next_tvb, msdu_offset);
+
+            do {
+                msdu_length = (tvb_get_letohs(next_tvb, msdu_offset) & 0x0FFF);
+                if (msdu_length==0) break;
+                parent_item = proto_tree_add_uint_format(mpdu_tree, hf_turbocell_aggregate_msdu_header_text,
+                                                         next_tvb,msdu_offset, msdu_length + 0x02,j, "A-MSDU Subframe #%u", j);
+
+                subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
+                j++;
+
+                proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_msdu_len, next_tvb, msdu_offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_unknown2, next_tvb, msdu_offset+1, 1, ENC_BIG_ENDIAN);
+
+                msdu_offset += 0x02;
+                remaining_length -= 0x02;
+                msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, (msdu_length>remaining_length)?remaining_length:msdu_length, msdu_length);
+                call_dissector(eth_handle, msdu_tvb, pinfo, subframe_tree);
+                msdu_offset += msdu_length;
+                remaining_length -= msdu_length;
+            } while (remaining_length > 6);
+
+            if (remaining_length > 2) {
+                next_tvb = tvb_new_subset_remaining(next_tvb, msdu_offset);
                 call_dissector(data_handle, next_tvb, pinfo, tree);
-
-            } else {
-
-                tvbuff_t *volatile msdu_tvb = NULL;
-                guint32 msdu_offset = 0x04;
-                guint16 j = 1;
-                guint16 msdu_length;
-
-                proto_item *parent_item;
-                proto_tree *mpdu_tree;
-                proto_tree *subframe_tree;
-
-                next_tvb = tvb_new_subset(tvb, 0x14, -1, tvb_get_ntohs(tvb, 0x14));
-                parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
-                              tvb_reported_length_remaining(next_tvb, 0), "Turbocell Aggregate Frames");
-                mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
-                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_len, next_tvb, 0x00, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_unknown1, next_tvb, 0x02, 2, ENC_BIG_ENDIAN);
-
-                remaining_length=tvb_length_remaining(next_tvb, msdu_offset);
-
-                do {
-                    msdu_length = (tvb_get_letohs(next_tvb, msdu_offset) & 0x0FFF);
-                    if (msdu_length==0) break;
-                    parent_item = proto_tree_add_uint_format(mpdu_tree, hf_turbocell_aggregate_msdu_header_text,
-                    next_tvb,msdu_offset, msdu_length + 0x02,j, "A-MSDU Subframe #%u", j);
-
-                    subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
-                    j++;
-
-                    proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_msdu_len, next_tvb, msdu_offset, 2, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_unknown2, next_tvb, msdu_offset+1, 1, ENC_BIG_ENDIAN);
-
-                    msdu_offset += 0x02;
-                    remaining_length -= 0x02;
-                    msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, (msdu_length>remaining_length)?remaining_length:msdu_length, msdu_length);
-                    call_dissector(eth_handle, msdu_tvb, pinfo, subframe_tree);
-                    msdu_offset += msdu_length;
-                    remaining_length -= msdu_length;
-                } while (remaining_length > 6);
-
-                if (remaining_length > 2) {
-                    next_tvb = tvb_new_subset_remaining(next_tvb, msdu_offset);
-                    call_dissector(data_handle, next_tvb, pinfo, tree);
-                }
             }
         }
+    }
 }
 
 /* Register the protocol with Wireshark */
@@ -248,50 +248,50 @@ void proto_register_turbocell(void)
 
     static hf_register_info hf[] = {
         { &hf_turbocell_type,
-            { "Packet Type", "turbocell.type",
+          { "Packet Type", "turbocell.type",
             FT_UINT8, BASE_HEX, VALS(turbocell_type_values), 0,
             NULL, HFILL }
         },
         { &hf_turbocell_satmode,
-            { "Satellite Mode", "turbocell.satmode",
+          { "Satellite Mode", "turbocell.satmode",
             FT_UINT8, BASE_HEX, VALS(turbocell_satmode_values), 0xF0,
             NULL, HFILL }
         },
         { &hf_turbocell_nwid,
-            { "Network ID", "turbocell.nwid",
+          { "Network ID", "turbocell.nwid",
             FT_UINT8, BASE_DEC, NULL, 0x0F,
             NULL, HFILL }
         },
         { &hf_turbocell_counter,
-            { "Counter", "turbocell.counter",
+          { "Counter", "turbocell.counter",
             FT_UINT24, BASE_DEC_HEX, NULL, 0,
             "Increments every frame (per station)", HFILL }
         },
         { &hf_turbocell_dst,
-            { "Destination", "turbocell.dst",
+          { "Destination", "turbocell.dst",
             FT_ETHER, BASE_NONE, NULL, 0,
             "Seems to be the destination", HFILL }
         },
 
         { &hf_turbocell_ip,
-            { "IP", "turbocell.ip",
+          { "IP", "turbocell.ip",
             FT_IPv4, BASE_NONE, NULL, 0,
             "IP address of base station ?", HFILL }
         },
 
         { &hf_turbocell_unknown,
-            { "Unknown", "turbocell.unknown",
+          { "Unknown", "turbocell.unknown",
             FT_UINT16, BASE_HEX, NULL, 0,
             "Always 0000", HFILL }
         },
 
         { &hf_turbocell_timestamp,
-            { "Timestamp (in 10 ms)", "turbocell.timestamp",
+          { "Timestamp (in 10 ms)", "turbocell.timestamp",
             FT_UINT24, BASE_DEC_HEX, NULL, 0,
             "Timestamp per station (since connection?)", HFILL }
         },
         { &hf_turbocell_name,
-            { "Network Name", "turbocell.name",
+          { "Network Name", "turbocell.name",
             FT_STRINGZ, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
@@ -301,31 +301,31 @@ void proto_register_turbocell(void)
         STATION(30),STATION(31)
     };
 
-  static hf_register_info aggregate_fields[] = {
+    static hf_register_info aggregate_fields[] = {
         { &hf_turbocell_aggregate_msdu_header_text,
-            {"MAC Service Data Unit (MSDU)",	"turbocell_aggregate.msduheader",
-            FT_UINT16, BASE_DEC, 0, 0x0000, NULL, HFILL }
+          {"MAC Service Data Unit (MSDU)", "turbocell_aggregate.msduheader",
+           FT_UINT16, BASE_DEC, 0, 0x0000, NULL, HFILL }
         },
         { &hf_turbocell_aggregate_msdu_len,
-            {"MSDU length", "turbocell_aggregate.msdulen",
-            FT_UINT16, BASE_DEC_HEX, 0, 0x0FFF, NULL, HFILL }
+          {"MSDU length", "turbocell_aggregate.msdulen",
+           FT_UINT16, BASE_DEC_HEX, 0, 0x0FFF, NULL, HFILL }
         },
         { &hf_turbocell_aggregate_len,
-            { "Total Length", "turbocell_aggregate.len",
+          { "Total Length", "turbocell_aggregate.len",
             FT_UINT16, BASE_DEC_HEX, NULL, 0,
             "Total reported length", HFILL }
         },
         { &hf_turbocell_aggregate_unknown1,
-            { "Unknown", "turbocell_aggregate.unknown1",
+          { "Unknown", "turbocell_aggregate.unknown1",
             FT_UINT16, BASE_HEX, NULL, 0,
             "Always 0x7856", HFILL }
         },
         { &hf_turbocell_aggregate_unknown2,
-            { "Unknown", "turbocell_aggregate.unknown2",
+          { "Unknown", "turbocell_aggregate.unknown2",
             FT_UINT8, BASE_HEX, NULL, 0xF0,
             "have the values 0x4,0xC or 0x8", HFILL }
         },
-  };
+    };
 
     static gint *ett[] = {
         &ett_turbocell,
@@ -337,7 +337,7 @@ void proto_register_turbocell(void)
     proto_turbocell = proto_register_protocol("Turbocell Header", "Turbocell", "turbocell");
 
     proto_aggregate = proto_register_protocol("Turbocell Aggregate Data",
-    "Turbocell Aggregate Data", "turbocell_aggregate");
+                                              "Turbocell Aggregate Data", "turbocell_aggregate");
     proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
     register_dissector("turbocell", dissect_turbocell, proto_turbocell);
@@ -354,3 +354,15 @@ void proto_reg_handoff_turbocell(void)
     data_handle = find_dissector("data");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

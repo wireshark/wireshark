@@ -1128,7 +1128,7 @@ sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len	= len;
+    curr_len    = len;
 
     /* IMSI IMSI 9.4.6  O   TLV 6-10 */
     ELEM_OPT_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1170,7 +1170,7 @@ sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len	= len;
+    curr_len    = len;
 
     /* IMSI IMSI 9.4.6  M   TLV 6-10 */
     ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1189,7 +1189,7 @@ sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len	= len;
+    curr_len    = len;
 
 
     /* IMSI IMSI 9.4.6  M   TLV 6-10 */
@@ -1210,7 +1210,7 @@ sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len	= len;
+    curr_len    = len;
 
     /* IMSI IMSI 9.4.6  M   TLV 6-10 */
     ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1240,7 +1240,7 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len	= len;
+    curr_len    = len;
 
     /* IMSI IMSI 9.4.6  M   TLV 6-10 */
     ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1397,7 +1397,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8          oct;
 
     /* Save pinfo */
-    len	   = tvb_length(tvb);
+    len = tvb_length(tvb);
 
     /* Make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -1447,7 +1447,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_sgsap(void) {
     guint        i;
     guint        last_offset;
-	module_t    *sgsap_module;
+    module_t    *sgsap_module;
 
     /* List of fields */
 
@@ -1568,7 +1568,7 @@ void proto_register_sgsap(void) {
    /* Set default SCTP ports */
     range_convert_str(&global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);
 
-	sgsap_module = prefs_register_protocol(proto_sgsap, proto_reg_handoff_sgsap);
+    sgsap_module = prefs_register_protocol(proto_sgsap, proto_reg_handoff_sgsap);
 
     prefs_register_range_preference(sgsap_module, "sctp_ports",
                                   "SGsAP SCTP port numbers",
@@ -1602,3 +1602,15 @@ proto_reg_handoff_sgsap(void)
     dissector_add_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

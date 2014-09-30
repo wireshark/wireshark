@@ -446,10 +446,10 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 /* Register the protocol with Wireshark */
 static void fix_prefs(void)
 {
-	dissector_delete_uint_range("tcp.port", fix_tcp_range, fix_handle);
+    dissector_delete_uint_range("tcp.port", fix_tcp_range, fix_handle);
     g_free(fix_tcp_range);
     fix_tcp_range = range_copy(global_fix_tcp_range);
-	dissector_add_uint_range("tcp.port", fix_tcp_range, fix_handle);
+    dissector_add_uint_range("tcp.port", fix_tcp_range, fix_handle);
 }
 
 /* this format is require because a script is used to build the C function
@@ -536,3 +536,15 @@ proto_reg_handoff_fix(void)
     dissector_add_for_decode_as("tcp.port", fix_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -1150,7 +1150,7 @@ static int
 aprs_3rd_party( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len )
 {
 	/* If the type of the hf[] entry pointed to by hfindex is FT_BYTES or FT_STRING */
-        /*  then  data_len == -1 is allowed and means "remainder of the tvbuff"         */
+	/*  then  data_len == -1 is allowed and means "remainder of the tvbuff"         */
 	if ( data_len == -1 )
 		{
 		data_len = tvb_reported_length_remaining( tvb, offset );
@@ -1170,7 +1170,7 @@ aprs_default_string( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_
 {
 	/* Assumption: hfindex points to an hf[] entry with type FT_STRING; should be validated ? */
 	/* If the type of the hf[] entry pointed to by hfindex is FT_STRING      */
-        /*  then  data_len == -1 is allowed and means "remainder of the tvbuff"  */
+	/*  then  data_len == -1 is allowed and means "remainder of the tvbuff"  */
 	if ( data_len == -1 )
 		{
 		data_len = tvb_reported_length_remaining( tvb, offset );
@@ -1188,7 +1188,7 @@ aprs_default_bytes( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_l
 {
 	/* Assumption: hfindex points to an hf[] entry with type FT_BYTES; should be validated ? */
 	/* If the type of the hf[] entry pointed to by hfindex is FT_BYTES      */
-        /*  then  data_len == -1 is allowed and means "remainder of the tvbuff" */
+	/*  then  data_len == -1 is allowed and means "remainder of the tvbuff" */
 	if ( data_len == -1 )
 		{
 		data_len = tvb_reported_length_remaining( tvb, offset );
@@ -1969,13 +1969,25 @@ proto_register_aprs( void )
 	proto_register_subtree_array( ett, array_length( ett ) );
 
 	/* Register preferences module */
-        aprs_module = prefs_register_protocol( proto_aprs, NULL);
+	aprs_module = prefs_register_protocol( proto_aprs, NULL);
 
 	/* Register any preference */
-        prefs_register_bool_preference(aprs_module, "showaprslax",
+	prefs_register_bool_preference(aprs_module, "showaprslax",
 		"Allow APRS violations.",
 		"Attempt to display common APRS protocol violations correctly",
 		&gPREF_APRS_LAX );
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

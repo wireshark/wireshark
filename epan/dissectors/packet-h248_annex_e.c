@@ -1087,7 +1087,7 @@ void proto_register_h248_annex_e(void) {
 		&ett_h248_pkg_tonedet_evt_etd,
 		&ett_h248_pkg_tonedet_evt_ltd,
 
-        /* dg 0x0005 */
+		/* dg 0x0005 */
 		&ett_h248_pkg_dg,
 		&ett_h248_pkg_dg_sig_pt,
 		&ett_h248_pkg_dg_sig_d0,
@@ -1177,4 +1177,15 @@ void proto_register_h248_annex_e(void) {
 	h248_register_package(&h248_pkg_tdmc,MERGE_PKG_LOW);		/* 0x000d */
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
