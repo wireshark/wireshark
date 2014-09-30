@@ -327,6 +327,8 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
     /* Copy the rest of the line into a null-terminated buffer. */
     args = wmem_strndup(wmem_packet_scope(), line, linelen);
     p = args;
+    if ((gint)strlen(args) < linelen)
+        linelen = (gint)strlen(args);
 
     /*
      * RFC2428 sect. 2 states ...
