@@ -189,127 +189,130 @@ static dissector_handle_t pres_handle = NULL;
 static reassembly_table ses_reassembly_table;
 
 static const fragment_items ses_frag_items = {
-  /* Segment subtrees */
-  &ett_ses_segment,
-  &ett_ses_segments,
-  /* Segment fields */
-  &hf_ses_segments,
-  &hf_ses_segment,
-  &hf_ses_segment_overlap,
-  &hf_ses_segment_overlap_conflicts,
-  &hf_ses_segment_multiple_tails,
-  &hf_ses_segment_too_long_segment,
-  &hf_ses_segment_error,
-  &hf_ses_segment_count,
-  /* Reassembled in field */
-  &hf_ses_reassembled_in,
-  /* Reassembled length field */
-  &hf_ses_reassembled_length,
-  /* Reassembled data field */
-  NULL,
-  /* Tag */
-  "SES segments"
+	/* Segment subtrees */
+	&ett_ses_segment,
+	&ett_ses_segments,
+	/* Segment fields */
+	&hf_ses_segments,
+	&hf_ses_segment,
+	&hf_ses_segment_overlap,
+	&hf_ses_segment_overlap_conflicts,
+	&hf_ses_segment_multiple_tails,
+	&hf_ses_segment_too_long_segment,
+	&hf_ses_segment_error,
+	&hf_ses_segment_count,
+	/* Reassembled in field */
+	&hf_ses_reassembled_in,
+	/* Reassembled length field */
+	&hf_ses_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/* Tag */
+	"SES segments"
 };
 
 
-const value_string ses_vals[] =
+static const value_string ses_vals[] =
 {
-  {SES_CONNECTION_REQUEST,		"CONNECT (CN) SPDU" },			/* 13 */
-  {SES_CONNECTION_ACCEPT,		"ACCEPT (AC) SPDU" },			/* 14 */
-  {SES_EXCEPTION_REPORT,		"EXCEPTION REPORT (ER) SPDU"   },	/*  0 */
-  {SES_DATA_TRANSFER,			"DATA TRANSFER (DT) SPDU" },		/*  1 */
-  {SES_PLEASE_TOKENS,			"PLEASE TOKENS (PT) SPDU"   },		/*  2 */
-  {SES_EXPEDITED,			"EXPEDITED (EX) SPDU"   },		/*  5 */
-  {SES_PREPARE,				"PREPARE (PR) SPDU"   },		/*  7 */
-  {SES_NOT_FINISHED,			"NOT FINISHED (NF) SPDU"   },		/*  8 */
-  {SES_FINISH,				"FINISH (FN) SPDU"   },			/*  9 */
-  {SES_DISCONNECT,			"DISCONNECT (DN) SPDU"   },		/* 10 */
-  {SES_REFUSE,				"REFUSE (RF) SPDU"   },			/* 12 */
-  {SES_CONNECTION_DATA_OVERFLOW,	"CONNECT DATA OVERFLOW (CDO) SPDU"},	/* 15 */
-  {SES_OVERFLOW_ACCEPT,			"OVERFLOW ACCEPT (OA) SPDU"   },	/* 16 */
-  {SES_GIVE_TOKENS_CONFIRM,		"GIVE TOKENS CONFIRM (GTC) SPDU"},	/* 21 */
-  {SES_GIVE_TOKENS_ACK,			"GIVE TOKENS ACK (GTA) SPDU"   },	/* 22 */
-  {SES_ABORT,				"ABORT (AB) SPDU"   },			/* 25 */
-  {SES_ABORT_ACCEPT,			"ABORT ACCEPT (AA) SPDU"   },		/* 26 */
-  {SES_ACTIVITY_RESUME,			"ACTIVITY RESUME (AR) SPDU"   },	/* 29 */
-  {SES_TYPED_DATA,			"TYPED DATA (TD) SPDU"   },		/* 33 */
-  {SES_RESYNCHRONIZE_ACK,		"RESYNCHRONIZE ACK (RA) SPDU"   },	/* 34 */
-  {SES_MAJOR_SYNC_POINT,		"MAJOR SYNC POINT (MAP) SPDU"   },	/* 41 */
-  {SES_MAJOR_SYNC_ACK,			"MAJOR SYNC ACK (MAA) SPDU"   },	/* 42 */
-  {SES_ACTIVITY_START,			"ACTIVITY START (AS) SPDU"   },		/* 45 */
-  {SES_EXCEPTION_DATA,			"EXCEPTION DATA (ED) SPDU"   },		/* 48 */
-  {SES_MINOR_SYNC_POINT,		"MINOR SYNC POINT (MIP) SPDU"   },	/* 49 */
-  {SES_MINOR_SYNC_ACK,			"MINOR SYNC ACK (MIA) SPDU"   },	/* 50 */
-  {SES_RESYNCHRONIZE,			"RESYNCHRONIZE (RS) SPDU"   },		/* 53 */
-  {SES_ACTIVITY_DISCARD,		"ACTIVITY DISCARD (AD) SPDU"   },	/* 57 */
-  {SES_ACTIVITY_DISCARD_ACK,		"ACTIVITY DISCARD ACK (ADA) SPDU" },	/* 58 */
-  {SES_CAPABILITY,			"CAPABILITY DATA (CD) SPDU"   },	/* 61 */
-  {SES_CAPABILITY_DATA_ACK,		"CAPABILITY DATA ACK (CDA) SPDU" },	/* 62 */
-  {CLSES_UNIT_DATA,			"UNIT DATA (UD) SPDU" },		/* 64 */
-  {0,					NULL }
+	{SES_DATA_TRANSFER,                  "DATA TRANSFER (DT) SPDU" },            /*  1 */
+	{SES_PLEASE_TOKENS,                  "PLEASE TOKENS (PT) SPDU"   },          /*  2 */
+	{SES_EXPEDITED,                      "EXPEDITED (EX) SPDU"   },              /*  5 */
+	{SES_PREPARE,                        "PREPARE (PR) SPDU"   },                /*  7 */
+	{SES_NOT_FINISHED,                   "NOT FINISHED (NF) SPDU"   },           /*  8 */
+	{SES_FINISH,                         "FINISH (FN) SPDU"   },                 /*  9 */
+	{SES_DISCONNECT,                     "DISCONNECT (DN) SPDU"   },             /* 10 */
+	{SES_REFUSE,                         "REFUSE (RF) SPDU"   },                 /* 12 */
+	{SES_CONNECTION_REQUEST,             "CONNECT (CN) SPDU" },                  /* 13 */
+	{SES_CONNECTION_ACCEPT,              "ACCEPT (AC) SPDU" },                   /* 14 */
+	{SES_CONNECTION_DATA_OVERFLOW,       "CONNECT DATA OVERFLOW (CDO) SPDU"},    /* 15 */
+	{SES_OVERFLOW_ACCEPT,                "OVERFLOW ACCEPT (OA) SPDU"   },        /* 16 */
+	{SES_GIVE_TOKENS_CONFIRM,            "GIVE TOKENS CONFIRM (GTC) SPDU"},      /* 21 */
+	{SES_GIVE_TOKENS_ACK,                "GIVE TOKENS ACK (GTA) SPDU"   },       /* 22 */
+	{SES_ABORT,                          "ABORT (AB) SPDU"   },                  /* 25 */
+	{SES_ABORT_ACCEPT,                   "ABORT ACCEPT (AA) SPDU"   },           /* 26 */
+	{SES_ACTIVITY_RESUME,                "ACTIVITY RESUME (AR) SPDU"   },        /* 29 */
+	{SES_TYPED_DATA,                     "TYPED DATA (TD) SPDU"   },             /* 33 */
+	{SES_RESYNCHRONIZE_ACK,              "RESYNCHRONIZE ACK (RA) SPDU"   },      /* 34 */
+	{SES_MAJOR_SYNC_POINT,               "MAJOR SYNC POINT (MAP) SPDU"   },      /* 41 */
+	{SES_MAJOR_SYNC_ACK,                 "MAJOR SYNC ACK (MAA) SPDU"   },        /* 42 */
+	{SES_ACTIVITY_START,                 "ACTIVITY START (AS) SPDU"   },         /* 45 */
+	{SES_EXCEPTION_DATA,                 "EXCEPTION DATA (ED) SPDU"   },         /* 48 */
+	{SES_MINOR_SYNC_POINT,               "MINOR SYNC POINT (MIP) SPDU"   },      /* 49 */
+	{SES_MINOR_SYNC_ACK,                 "MINOR SYNC ACK (MIA) SPDU"   },        /* 50 */
+	{SES_RESYNCHRONIZE,                  "RESYNCHRONIZE (RS) SPDU"   },          /* 53 */
+	{SES_ACTIVITY_DISCARD,               "ACTIVITY DISCARD (AD) SPDU"   },       /* 57 */
+	{SES_ACTIVITY_DISCARD_ACK,           "ACTIVITY DISCARD ACK (ADA) SPDU" },    /* 58 */
+	{SES_CAPABILITY,                     "CAPABILITY DATA (CD) SPDU"   },        /* 61 */
+	{SES_CAPABILITY_DATA_ACK,            "CAPABILITY DATA ACK (CDA) SPDU" },     /* 62 */
+	{CLSES_UNIT_DATA,                    "UNIT DATA (UD) SPDU" },                /* 64 */
+	{SES_EXCEPTION_REPORT,               "EXCEPTION REPORT (ER) SPDU"   },       /* 0x2000 */
+	{0, NULL }
 };
+value_string_ext ses_vals_ext = VALUE_STRING_EXT_INIT(ses_vals);
 
 static const value_string ses_category0_vals[] =
 {
-  {SES_PLEASE_TOKENS,	"Please tokens PDU" },
-  {SES_GIVE_TOKENS,	"Give tokens PDU" },
-  {0,			NULL }
+	{SES_PLEASE_TOKENS,                  "Please tokens PDU" },
+	{SES_GIVE_TOKENS,                    "Give tokens PDU" },
+	{0, NULL }
 };
 
 
 static const value_string param_vals[] =
 {
-  {Connection_Identifier, "Connection Identifier"},
-  {Connect_Accept_Item, "Connect Accept Item"},
-  {Called_SS_user_Reference, "Called SS user Reference"},
-  {Calling_SS_user_Reference, "Calling SS user Reference"},
-  {Common_Reference, "Common Reference"},
-  {Sync_Type_Item, "Sync Type Item"},
-  {Token_Item, "Token Item"},
-  {Transport_Disconnect, "Transport_Disconnect"},
-  {Additional_Reference_Information, "Additional Reference Information"},
-  {Protocol_Options, "Protocol Options"},
-  {TSDU_Maximum_Size, "TSDU Maximum Size"},
-  {Version_Number, "Version Number"},
-  {Initial_Serial_Number, "Initial Serial Number"},
-  {Prepare_Type, "Prepare Type"},
-  {EnclosureItem, "Enclosure Item"},
-  {Token_Setting_Item, "Token Setting Item"},
-  {Resync_Type, "Resync Type"},
-  {Activity_Identifier, "Activity Identifier"},
-  {Serial_Number, "Serial Number"},
-  {Linking_Information, "Linking Information"},
-  {Reflect_Parameter, "Reflect Parameter"},
-  {Reason_Code, "Reason Code"},
-  {Calling_Session_Selector, "Calling Session Selector"},
-  {Called_Session_Selector, "Called Session Selector"},
-  {Second_Resync_Type, "Second Resync Type"},
-  {Second_Serial_Number, "Second Serial Number"},
-  {Second_Initial_Serial_Number, "Second Initial Serial Number"},
-  {Upper_Limit_Serial_Number, "Upper Limit Serial Number"},
-  {Large_Initial_Serial_Number, "Large Initial Serial Number"},
-  {Large_Second_Initial_Serial_Number, "Large Second Initial Serial Number"},
-  {Data_Overflow, "Data Overflow"},
-  {Session_Requirement, "Session Requirement"},
-  {User_Data, "Session user data"},
-  {Extended_User_Data, "Session extended user data"},
-  {0, NULL}
+	{Connection_Identifier,              "Connection Identifier"},              /*   1 */
+	{Connect_Accept_Item,                "Connect Accept Item"},                /*   5 */
+	{Called_SS_user_Reference,           "Called SS user Reference"},           /*   9 */
+	{Calling_SS_user_Reference,          "Calling SS user Reference"},          /*  10 */
+	{Common_Reference,                   "Common Reference"},                   /*  11 */
+	{Additional_Reference_Information,   "Additional Reference Information"},   /*  12 */
+	{Sync_Type_Item,                     "Sync Type Item"},                     /*  15 */
+	{Token_Item,                         "Token Item"},                         /*  16 */
+	{Transport_Disconnect,               "Transport_Disconnect"},               /*  17 */
+	{Protocol_Options,                   "Protocol Options"},                   /*  19 */
+	{Session_Requirement,                "Session Requirement"},                /*  20 */
+	{TSDU_Maximum_Size,                  "TSDU Maximum Size"},                  /*  21 */
+	{Version_Number,                     "Version Number"},                     /*  22 */
+	{Initial_Serial_Number,              "Initial Serial Number"},              /*  23 */
+	{Prepare_Type,                       "Prepare Type"},                       /*  24 */
+	{EnclosureItem,                      "Enclosure Item"},                     /*  25 */
+	{Token_Setting_Item,                 "Token Setting Item"},                 /*  26 */
+	{Resync_Type,                        "Resync Type"},                        /*  27 */
+	{Linking_Information,                "Linking Information"},                /*  33 */
+	{Activity_Identifier,                "Activity Identifier"},                /*  41 */
+	{Serial_Number,                      "Serial Number"},                      /*  42 */
+	{Reflect_Parameter,                  "Reflect Parameter"},                  /*  49 */
+	{Reason_Code,                        "Reason Code"},                        /*  50 */
+	{Calling_Session_Selector,           "Calling Session Selector"},           /*  51 */
+	{Called_Session_Selector,            "Called Session Selector"},            /*  52 */
+	{Second_Resync_Type,                 "Second Resync Type"},                 /*  53 */
+	{Second_Serial_Number,               "Second Serial Number"},               /*  54 */
+	{Second_Initial_Serial_Number,       "Second Initial Serial Number"},       /*  55 */
+	{Upper_Limit_Serial_Number,          "Upper Limit Serial Number"},          /*  56 */
+	{Large_Initial_Serial_Number,        "Large Initial Serial Number"},        /*  57 */
+	{Large_Second_Initial_Serial_Number, "Large Second Initial Serial Number"}, /*  58 */
+	{Data_Overflow,                      "Data Overflow"},                      /*  60 */
+	{User_Data,                          "Session user data"},                  /* 193 */
+	{Extended_User_Data,                 "Session extended user data"},         /* 194 */
+	{0, NULL}
 };
+static value_string_ext param_vals_ext = VALUE_STRING_EXT_INIT(param_vals);
 
 static const value_string reason_vals[] =
 {
-  {reason_not_specified,  "Rejection by called SS-user; reason not specified" },
-  {temporary_congestion,    "Rejection by called SS-user due to temporary congestion"   },
-  {Subsequent,    "Rejection by called SS-user."   },
-  {Session_Selector_unknown,  "Session Selector unknown" },
-  {SS_user_not_attached_to_SSAP,    "SS-user not attached to SSAP"   },
-  {SPM_congestion_at_connect_time,    "SPM congestion at connect time"   },
-  {versions_not_supported,    "Proposed protocol versions not supported"   },
-  {SPM_reason_not_specified,    "Rejection by the SPM; reason not specified"   },
-  {SPM_implementation_restriction,    "Finish PDU"   },
-  {SES_DISCONNECT,    "Rejection by the SPM; implementation restriction stated in the PICS"   },
-  {0,             NULL           }
+	{reason_not_specified,               "Rejection by called SS-user; reason not specified" },
+	{temporary_congestion,               "Rejection by called SS-user due to temporary congestion"   },
+	{Subsequent,                         "Rejection by called SS-user."   },
+	{SES_DISCONNECT,                     "Rejection by the SPM; implementation restriction stated in the PICS"   },
+	{Session_Selector_unknown,           "Session Selector unknown" },
+	{SS_user_not_attached_to_SSAP,       "SS-user not attached to SSAP"   },
+	{SPM_congestion_at_connect_time,     "SPM congestion at connect time"   },
+	{versions_not_supported,             "Proposed protocol versions not supported"   },
+	{SPM_reason_not_specified,           "Rejection by the SPM; reason not specified"   },
+	{SPM_implementation_restriction,     "Finish PDU"   },
+	{0, NULL }
 };
+static value_string_ext reason_vals_ext = VALUE_STRING_EXT_INIT(reason_vals);
 
 /* desegmentation of OSI over ses  */
 static gboolean ses_desegment = TRUE;
@@ -754,7 +757,7 @@ PICS.    */
 			reason_code = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(param_tree, tvb, offset, 1,
 			    "Reason Code: %s",
-			    val_to_str(reason_code, reason_vals, "Unknown (%u)"));
+			    val_to_str_ext(reason_code, &reason_vals_ext, "Unknown (%u)"));
 		}
 		offset++;
 		param_len--;
@@ -855,8 +858,8 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 		param_type = tvb_get_guint8(tvb, offset);
 		param_tree = proto_tree_add_subtree(pg_tree, tvb, offset, -1,
 			ett_ses_param, &ti,
-			val_to_str(param_type, param_vals, "Unknown parameter type (0x%02x)"));
-		param_str = val_to_str_const(param_type, param_vals, "Unknown");
+			val_to_str_ext(param_type, &param_vals_ext, "Unknown parameter type (0x%02x)"));
+		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
 		proto_tree_add_text(param_tree, tvb, offset, 1,
 		    "Parameter type: %s", param_str);
 		offset++;
@@ -931,9 +934,9 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	{
 		param_type = tvb_get_guint8(tvb, offset);
 		param_tree = proto_tree_add_subtree(ses_tree, tvb, offset, -1, ett_ses_param, &ti,
-		    val_to_str(param_type, param_vals,
+		    val_to_str_ext(param_type, &param_vals_ext,
 		      "Unknown parameter type (0x%02x)"));
-		param_str = val_to_str_const(param_type, param_vals, "Unknown");
+		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
 		proto_tree_add_text(param_tree, tvb, offset, 1,
 		    "Parameter type: %s", param_str);
 		offset++;
@@ -1027,7 +1030,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	if(connectionless) {
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
+			    val_to_str_ext(type, &ses_vals_ext, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_clses, tvb, offset,
 				-1, ENC_NA);
@@ -1049,7 +1052,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 	} else {
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
+			    val_to_str_ext(type, &ses_vals_ext, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
 				-1, ENC_NA);
@@ -1176,7 +1179,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, is_clsp ? "CLSES" : "SES");
-  	col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 
 	/*
@@ -1201,6 +1204,74 @@ static void ses_reassemble_init (void)
 		&addresses_reassembly_table_functions);
 }
 
+static gboolean
+dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+{
+	/* must check that this really is a ses packet */
+	int offset = 0;
+	guint8 type;
+	int len_len;
+	guint16 len;
+
+	/* first, check do we have at least 4 bytes (type+length) */
+	if (tvb_captured_length(tvb) < 2)
+		return FALSE;	/* no */
+
+	/* can we recognize session PDU ? Return FALSE if  not */
+	/*   get SPDU type */
+	type = tvb_get_guint8(tvb, offset);
+	/* check SPDU type */
+	if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
+	{
+		return FALSE;  /* no, it isn't a session PDU */
+	}
+
+	/* can we recognize the second session PDU if the first one was
+	 * a Give Tokens PDU? Return FALSE if not */
+	if(tvb_bytes_exist(tvb, 2, 2) && type == SES_GIVE_TOKENS) {
+		/*   get SPDU type */
+		type = tvb_get_guint8(tvb, offset+2);
+		/* check SPDU type */
+		if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
+		{
+			return FALSE;  /* no, it isn't a session PDU */
+		}
+	}
+
+	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be
+	 * misinterpreted as SES.
+	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES),
+	 * so if the parameter type is unknown, it's probably SIMATIC */
+	if(type == 0x32 && tvb_captured_length(tvb) >= 3) {
+		type = tvb_get_guint8(tvb, offset+2);
+		if (try_val_to_str_ext(type, &param_vals_ext) == NULL) {
+			return FALSE; /* it's probably a SIMATIC protocol */
+		}
+	}
+
+	/*  OK,let's check SPDU length  */
+	/*  get length of SPDU */
+	len = get_item_len(tvb, offset+1, &len_len);
+
+	/*  add header length     */
+	len+=len_len;
+	/* do we have enough bytes ? */
+	if (tvb_reported_length(tvb) < len)
+		return FALSE;	/* no */
+
+	/* final check to see if the next SPDU, if present, is also valid */
+	if (tvb_captured_length(tvb) > 1+(guint) len) {
+	  type = tvb_get_guint8(tvb, offset + len + 1);
+	  /* check SPDU type */
+	  if (try_val_to_str_ext(type, &ses_vals_ext) == NULL) {
+	    return FALSE;  /* no, it isn't a session PDU */
+	  }
+	}
+
+	dissect_ses(tvb, pinfo, parent_tree);
+	return TRUE;
+}
+
 void
 proto_register_ses(void)
 {
@@ -1212,8 +1283,8 @@ proto_register_ses(void)
 				"SPDU Type",
 				"ses.type",
 				FT_UINT8,
-				BASE_DEC,
-				VALS(ses_vals),
+				BASE_DEC | BASE_EXT_STRING,
+				&ses_vals_ext,
 				0x0,
 				NULL, HFILL
 			}
@@ -1929,74 +2000,6 @@ proto_register_ses(void)
 	register_dissector("ses", dissect_ses, proto_ses);
 }
 
-static gboolean
-dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
-{
-	/* must check that this really is a ses packet */
-	int offset = 0;
-	guint8 type;
-	int len_len;
-	guint16 len;
-
-	/* first, check do we have at least 4 bytes (type+length) */
-	if (tvb_captured_length(tvb) < 2)
-		return FALSE;	/* no */
-
-	/* can we recognize session PDU ? Return FALSE if  not */
-	/*   get SPDU type */
-	type = tvb_get_guint8(tvb, offset);
-	/* check SPDU type */
-	if (try_val_to_str(type, ses_vals) == NULL)
-	{
-		return FALSE;  /* no, it isn't a session PDU */
-	}
-
-	/* can we recognize the second session PDU if the first one was
-	 * a Give Tokens PDU? Return FALSE if not */
-	if(tvb_bytes_exist(tvb, 2, 2) && type == SES_GIVE_TOKENS) {
-		/*   get SPDU type */
-		type = tvb_get_guint8(tvb, offset+2);
-		/* check SPDU type */
-		if (try_val_to_str(type, ses_vals) == NULL)
-		{
-			return FALSE;  /* no, it isn't a session PDU */
-		}
-	}
-
-	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be
-	 * misinterpreted as SES.
-	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES),
-	 * so if the parameter type is unknown, it's probably SIMATIC */
-	if(type == 0x32 && tvb_captured_length(tvb) >= 3) {
-		type = tvb_get_guint8(tvb, offset+2);
-		if (try_val_to_str(type, param_vals) == NULL) {
-			return FALSE; /* it's probably a SIMATIC protocol */
-		}
-	}
-
-	/*  OK,let's check SPDU length  */
-	/*  get length of SPDU */
-	len = get_item_len(tvb, offset+1, &len_len);
-
-	/*  add header length     */
-	len+=len_len;
-	/* do we have enough bytes ? */
-	if (tvb_reported_length(tvb) < len)
-		return FALSE;	/* no */
-
-	/* final check to see if the next SPDU, if present, is also valid */
-	if (tvb_captured_length(tvb) > 1+(guint) len) {
-	  type = tvb_get_guint8(tvb, offset + len + 1);
-	  /* check SPDU type */
-	  if (try_val_to_str(type, ses_vals) == NULL) {
-	    return FALSE;  /* no, it isn't a session PDU */
-	  }
-	}
-
-	dissect_ses(tvb, pinfo, parent_tree);
-	return TRUE;
-}
-
 void
 proto_reg_handoff_ses(void)
 {
@@ -2026,3 +2029,15 @@ proto_reg_handoff_clses(void)
 	heur_dissector_add("cltp", dissect_ses_heur, proto_clses);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
