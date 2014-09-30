@@ -205,6 +205,7 @@ static const value_string mgcp_return_code_vals[] = {
 	{541, "Invalid or unsupported LocalConnectionOptions"},
 	{0,   NULL }
 };
+static value_string_ext mgcp_return_code_vals_ext = VALUE_STRING_EXT_INIT(mgcp_return_code_vals);
 
 /* TODO: add/use when tested/have capture to test with */
 /*
@@ -250,11 +251,11 @@ static int mgcp_tap = -1;
  * the raw text of the mgcp message, much like the HTTP dissector does.
  *
  */
-static guint global_mgcp_gateway_tcp_port = TCP_PORT_MGCP_GATEWAY;
-static guint global_mgcp_gateway_udp_port = UDP_PORT_MGCP_GATEWAY;
+static guint global_mgcp_gateway_tcp_port   = TCP_PORT_MGCP_GATEWAY;
+static guint global_mgcp_gateway_udp_port   = UDP_PORT_MGCP_GATEWAY;
 static guint global_mgcp_callagent_tcp_port = TCP_PORT_MGCP_CALLAGENT;
 static guint global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
-static gboolean global_mgcp_raw_text = FALSE;
+static gboolean global_mgcp_raw_text      = FALSE;
 static gboolean global_mgcp_message_count = FALSE;
 
 /* Some basic utility functions that are specific to this dissector */
@@ -585,378 +586,6 @@ static void mgcp_init_protocol(void)
 	mgcp_calls = g_hash_table_new(mgcp_call_hash, mgcp_call_equal);
 }
 
-/* Register all the bits needed with the filtering engine */
-void proto_register_mgcp(void)
-{
-    static hf_register_info hf[] =
-    {
-        { &hf_mgcp_req,
-          { "Request", "mgcp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "True if MGCP request", HFILL }},
-        { &hf_mgcp_rsp,
-          { "Response", "mgcp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "TRUE if MGCP response", HFILL }},
-        { &hf_mgcp_req_frame,
-          { "Request Frame", "mgcp.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            NULL, HFILL }},
-        { &hf_mgcp_rsp_frame,
-          { "Response Frame", "mgcp.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            NULL, HFILL }},
-        { &hf_mgcp_time,
-          { "Time from request", "mgcp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
-            "Timedelta between Request and Response", HFILL }},
-        { &hf_mgcp_req_verb,
-          { "Verb", "mgcp.req.verb", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Name of the verb", HFILL }},
-        { &hf_mgcp_req_endpoint,
-          { "Endpoint", "mgcp.req.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Endpoint referenced by the message", HFILL }},
-        { &hf_mgcp_transid,
-          { "Transaction ID", "mgcp.transid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Transaction ID of this message", HFILL }},
-        { &hf_mgcp_version,
-          { "Version", "mgcp.version", FT_STRING, BASE_NONE, NULL, 0x0,
-            "MGCP Version", HFILL }},
-        { &hf_mgcp_rsp_rspcode,
-          { "Response Code", "mgcp.rsp.rspcode", FT_UINT32, BASE_DEC, VALS(mgcp_return_code_vals), 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_rsp_rspstring,
-          { "Response String", "mgcp.rsp.rspstring", FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_params,
-          { "Parameters", "mgcp.params", FT_NONE, BASE_NONE, NULL, 0x0,
-            "MGCP parameters", HFILL }},
-        { &hf_mgcp_param_rspack,
-          { "ResponseAck (K)", "mgcp.param.rspack", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Response Ack", HFILL }},
-        { &hf_mgcp_param_bearerinfo,
-          { "BearerInformation (B)", "mgcp.param.bearerinfo", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Bearer Information", HFILL }},
-        { &hf_mgcp_param_callid,
-          { "CallId (C)", "mgcp.param.callid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Call Id", HFILL }},
-        { &hf_mgcp_param_connectionid,
-          {"ConnectionIdentifier (I)", "mgcp.param.connectionid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Connection Identifier", HFILL }},
-        { &hf_mgcp_param_secondconnectionid,
-          { "SecondConnectionID (I2)", "mgcp.param.secondconnectionid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Second Connection Identifier", HFILL }},
-        { &hf_mgcp_param_notifiedentity,
-          { "NotifiedEntity (N)", "mgcp.param.notifiedentity", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Notified Entity", HFILL }},
-        { &hf_mgcp_param_requestid,
-          { "RequestIdentifier (X)", "mgcp.param.requestid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Request Identifier", HFILL }},
-        { &hf_mgcp_param_localconnoptions,
-          { "LocalConnectionOptions (L)", "mgcp.param.localconnectionoptions", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Local Connection Options", HFILL }},
-        { &hf_mgcp_param_localconnoptions_p,
-          { "Packetization period (p)", "mgcp.param.localconnectionoptions.p", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Packetization period", HFILL }},
-        { &hf_mgcp_param_localconnoptions_a,
-          { "Codecs (a)", "mgcp.param.localconnectionoptions.a", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Codecs", HFILL }},
-        { &hf_mgcp_param_localconnoptions_s,
-          { "Silence Suppression (s)", "mgcp.param.localconnectionoptions.s", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Silence Suppression", HFILL }},
-        { &hf_mgcp_param_localconnoptions_e,
-          { "Echo Cancellation (e)", "mgcp.param.localconnectionoptions.e", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Echo Cancellation", HFILL }},
-        { &hf_mgcp_param_localconnoptions_scrtp,
-          { "RTP ciphersuite (sc-rtp)", "mgcp.param.localconnectionoptions.scrtp", FT_STRING, BASE_NONE, NULL, 0x0,
-            "RTP ciphersuite", HFILL }},
-        { &hf_mgcp_param_localconnoptions_scrtcp,
-          { "RTCP ciphersuite (sc-rtcp)", "mgcp.param.localconnectionoptions.scrtcp", FT_STRING, BASE_NONE, NULL, 0x0,
-            "RTCP ciphersuite", HFILL }},
-        { &hf_mgcp_param_localconnoptions_b,
-          { "Bandwidth (b)", "mgcp.param.localconnectionoptions.b", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Bandwidth", HFILL }},
-        { &hf_mgcp_param_localconnoptions_esccd,
-          { "Content Destination (es-ccd)", "mgcp.param.localconnectionoptions.esccd", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Content Destination", HFILL }},
-        { &hf_mgcp_param_localconnoptions_escci,
-          { "Content Identifier (es-cci)", "mgcp.param.localconnectionoptions.escci", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Content Identifier", HFILL }},
-        { &hf_mgcp_param_localconnoptions_dqgi,
-          { "D-QoS GateID (dq-gi)", "mgcp.param.localconnectionoptions.dqgi", FT_STRING, BASE_NONE, NULL, 0x0,
-            "D-QoS GateID", HFILL }},
-        { &hf_mgcp_param_localconnoptions_dqrd,
-          { "D-QoS Reserve Destination (dq-rd)", "mgcp.param.localconnectionoptions.dqrd", FT_STRING, BASE_NONE, NULL, 0x0,
-            "D-QoS Reserve Destination", HFILL }},
-        { &hf_mgcp_param_localconnoptions_dqri,
-          { "D-QoS Resource ID (dq-ri)", "mgcp.param.localconnectionoptions.dqri", FT_STRING, BASE_NONE, NULL, 0x0,
-            "D-QoS Resource ID", HFILL }},
-        { &hf_mgcp_param_localconnoptions_dqrr,
-          { "D-QoS Resource Reservation (dq-rr)", "mgcp.param.localconnectionoptions.dqrr", FT_STRING, BASE_NONE, NULL, 0x0,
-            "D-QoS Resource Reservation", HFILL }},
-        { &hf_mgcp_param_localconnoptions_k,
-          { "Encryption Key (k)", "mgcp.param.localconnectionoptions.k", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Encryption Key", HFILL }},
-        { &hf_mgcp_param_localconnoptions_gc,
-          { "Gain Control (gc)", "mgcp.param.localconnectionoptions.gc", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Gain Control", HFILL }},
-        { &hf_mgcp_param_localconnoptions_fmtp,
-          { "Media Format (fmtp)", "mgcp.param.localconnectionoptions.fmtp", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Media Format", HFILL }},
-        { &hf_mgcp_param_localconnoptions_nt,
-          { "Network Type (nt)", "mgcp.param.localconnectionoptions.nt", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Network Type", HFILL }},
-        { &hf_mgcp_param_localconnoptions_ofmtp,
-          { "Optional Media Format (o-fmtp)", "mgcp.param.localconnectionoptions.ofmtp", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Optional Media Format", HFILL }},
-        { &hf_mgcp_param_localconnoptions_r,
-          { "Resource Reservation (r)", "mgcp.param.localconnectionoptions.r", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Resource Reservation", HFILL }},
-        { &hf_mgcp_param_localconnoptions_t,
-          { "Type of Service (r)", "mgcp.param.localconnectionoptions.t", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Type of Service", HFILL }},
-        { &hf_mgcp_param_localconnoptions_rcnf,
-          { "Reservation Confirmation (r-cnf)", "mgcp.param.localconnectionoptions.rcnf", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Reservation Confirmation", HFILL }},
-        { &hf_mgcp_param_localconnoptions_rdir,
-          { "Reservation Direction (r-dir)", "mgcp.param.localconnectionoptions.rdir", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Reservation Direction", HFILL }},
-        { &hf_mgcp_param_localconnoptions_rsh,
-          { "Resource Sharing (r-sh)", "mgcp.param.localconnectionoptions.rsh", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Resource Sharing", HFILL }},
-        { &hf_mgcp_param_localconnoptions_mp,
-          { "Multiple Packetization period (mp)", "mgcp.param.localconnectionoptions.mp", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Multiple Packetization period", HFILL }},
-        { &hf_mgcp_param_localconnoptions_fxr,
-          { "FXR (fxr/fx)", "mgcp.param.localconnectionoptions.fxr", FT_STRING, BASE_NONE, NULL, 0x0,
-            "FXR", HFILL }},
-        { &hf_mgcp_param_connectionmode,
-          { "ConnectionMode (M)", "mgcp.param.connectionmode", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Connection Mode", HFILL }},
-        { &hf_mgcp_param_reqevents,
-          { "RequestedEvents (R)", "mgcp.param.reqevents", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Requested Events", HFILL }},
-        { &hf_mgcp_param_signalreq,
-          { "SignalRequests (S)", "mgcp.param.signalreq", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Signal Request", HFILL }},
-        { &hf_mgcp_param_restartmethod,
-          { "RestartMethod (RM)", "mgcp.param.restartmethod", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Restart Method", HFILL }},
-        { &hf_mgcp_param_restartdelay,
-          { "RestartDelay (RD)", "mgcp.param.restartdelay", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Restart Delay", HFILL }},
-        { &hf_mgcp_param_digitmap,
-          { "DigitMap (D)", "mgcp.param.digitmap", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Digit Map", HFILL }},
-        { &hf_mgcp_param_observedevent,
-          { "ObservedEvents (O)", "mgcp.param.observedevents", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Observed Events", HFILL }},
-        { &hf_mgcp_param_connectionparam,
-          { "ConnectionParameters (P)", "mgcp.param.connectionparam", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Connection Parameters", HFILL }},
-        { &hf_mgcp_param_connectionparam_ps,
-          { "Packets sent (PS)", "mgcp.param.connectionparam.ps", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Packets sent (P:PS)", HFILL }},
-        { &hf_mgcp_param_connectionparam_os,
-          { "Octets sent (OS)", "mgcp.param.connectionparam.os", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Octets sent (P:OS)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pr,
-          { "Packets received (PR)", "mgcp.param.connectionparam.pr", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Packets received (P:PR)", HFILL }},
-        { &hf_mgcp_param_connectionparam_or,
-          { "Octets received (OR)", "mgcp.param.connectionparam.or", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Octets received (P:OR)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pl,
-          { "Packets lost (PL)", "mgcp.param.connectionparam.pl", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Packets lost (P:PL)", HFILL }},
-        { &hf_mgcp_param_connectionparam_ji,
-          { "Jitter (JI)", "mgcp.param.connectionparam.ji", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Average inter-packet arrival jitter in milliseconds (P:JI)", HFILL }},
-        { &hf_mgcp_param_connectionparam_la,
-          { "Latency (LA)", "mgcp.param.connectionparam.la", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Average latency in milliseconds (P:LA)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pcrps,
-          { "Remote Packets sent (PC/RPS)", "mgcp.param.connectionparam.pcrps", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Remote Packets sent (P:PC/RPS)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pcros,
-          { "Remote Octets sent (PC/ROS)", "mgcp.param.connectionparam.pcros", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Remote Octets sent (P:PC/ROS)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pcrpl,
-          { "Remote Packets lost (PC/RPL)", "mgcp.param.connectionparam.pcrpl", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Remote Packets lost (P:PC/RPL)", HFILL }},
-        { &hf_mgcp_param_connectionparam_pcrji,
-          { "Remote Jitter (PC/RJI)", "mgcp.param.connectionparam.pcrji", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Remote Jitter (P:PC/RJI)", HFILL }},
-        { &hf_mgcp_param_connectionparam_x,
-          { "Vendor Extension", "mgcp.param.connectionparam.x", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Vendor Extension (P:X-*)", HFILL }},
-        { &hf_mgcp_param_reasoncode,
-          { "ReasonCode (E)", "mgcp.param.reasoncode", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Reason Code", HFILL }},
-        { &hf_mgcp_param_eventstates,
-          { "EventStates (ES)", "mgcp.param.eventstates", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Event States", HFILL }},
-        { &hf_mgcp_param_specificendpoint,
-          { "SpecificEndpointID (Z)", "mgcp.param.specificendpointid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Specific Endpoint ID", HFILL }},
-        { &hf_mgcp_param_secondendpointid,
-          { "SecondEndpointID (Z2)", "mgcp.param.secondendpointid", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Second Endpoint ID", HFILL }},
-        { &hf_mgcp_param_reqinfo,
-          { "RequestedInfo (F)", "mgcp.param.reqinfo", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Requested Info", HFILL }},
-        { &hf_mgcp_param_quarantinehandling,
-          { "QuarantineHandling (Q)", "mgcp.param.quarantinehandling", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Quarantine Handling", HFILL }},
-        { &hf_mgcp_param_detectedevents,
-          { "DetectedEvents (T)", "mgcp.param.detectedevents", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Detected Events", HFILL }},
-        { &hf_mgcp_param_capabilities,
-          { "Capabilities (A)", "mgcp.param.capabilities", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Capabilities", HFILL }},
-        { &hf_mgcp_param_maxmgcpdatagram,
-          {"MaxMGCPDatagram (MD)", "mgcp.param.maxmgcpdatagram", FT_STRING, BASE_NONE, NULL, 0x0,
-           "Maximum MGCP Datagram size", HFILL }},
-        { &hf_mgcp_param_packagelist,
-          {"PackageList (PL)", "mgcp.param.packagelist", FT_STRING, BASE_NONE, NULL, 0x0,
-           "Package List", HFILL }},
-        { &hf_mgcp_param_extension,
-          { "Extension Parameter (non-critical)", "mgcp.param.extension", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Extension Parameter", HFILL }},
-        { &hf_mgcp_param_extension_critical,
-          { "Extension Parameter (critical)", "mgcp.param.extensioncritical", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Critical Extension Parameter", HFILL }},
-        { &hf_mgcp_param_invalid,
-          { "Invalid Parameter", "mgcp.param.invalid", FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_messagecount,
-          { "MGCP Message Count", "mgcp.messagecount", FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Number of MGCP message in a packet", HFILL }},
-        { &hf_mgcp_dup,
-          { "Duplicate Message", "mgcp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_req_dup,
-          { "Duplicate Request", "mgcp.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_req_dup_frame,
-          { "Original Request Frame", "mgcp.req.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "Frame containing original request", HFILL }},
-        { &hf_mgcp_rsp_dup,
-          { "Duplicate Response", "mgcp.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_rsp_dup_frame,
-          { "Original Response Frame", "mgcp.rsp.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "Frame containing original response", HFILL }},
-        { &hf_mgcp_unknown_parameter,
-          { "Unknown parameter", "mgcp.unknown_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_mgcp_malformed_parameter,
-          { "Malformed parameter", "mgcp.rsp.dup.frame", FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-    };
-
-    static gint *ett[] =
-    {
-        &ett_mgcp,
-        &ett_mgcp_param,
-        &ett_mgcp_param_connectionparam,
-        &ett_mgcp_param_localconnectionoptions
-    };
-
-    module_t *mgcp_module;
-
-    /* Register protocol */
-    proto_mgcp = proto_register_protocol("Media Gateway Control Protocol", "MGCP", "mgcp");
-    proto_register_field_array(proto_mgcp, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-    register_init_routine(&mgcp_init_protocol);
-
-    new_register_dissector("mgcp", dissect_mgcp, proto_mgcp);
-
-    /* Register our configuration options */
-    mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
-
-    prefs_register_uint_preference(mgcp_module, "tcp.gateway_port",
-                                   "MGCP Gateway TCP Port",
-                                   "Set the UDP port for gateway messages "
-                                   "(if other than the default of 2427)",
-                                   10, &global_mgcp_gateway_tcp_port);
-
-    prefs_register_uint_preference(mgcp_module, "udp.gateway_port",
-                                   "MGCP Gateway UDP Port",
-                                   "Set the TCP port for gateway messages "
-                                   "(if other than the default of 2427)",
-                                   10, &global_mgcp_gateway_udp_port);
-
-    prefs_register_uint_preference(mgcp_module, "tcp.callagent_port",
-                                   "MGCP Callagent TCP Port",
-                                   "Set the TCP port for callagent messages "
-                                   "(if other than the default of 2727)",
-                                   10, &global_mgcp_callagent_tcp_port);
-
-    prefs_register_uint_preference(mgcp_module, "udp.callagent_port",
-                                   "MGCP Callagent UDP Port",
-                                   "Set the UDP port for callagent messages "
-                                   "(if other than the default of 2727)",
-                                   10, &global_mgcp_callagent_udp_port);
-
-
-    prefs_register_bool_preference(mgcp_module, "display_raw_text",
-                                  "Display raw text for MGCP message",
-                                  "Specifies that the raw text of the "
-                                  "MGCP message should be displayed "
-                                  "instead of (or in addition to) the "
-                                  "dissection tree",
-                                  &global_mgcp_raw_text);
-
-    prefs_register_obsolete_preference(mgcp_module, "display_dissect_tree");
-
-    prefs_register_bool_preference(mgcp_module, "display_mgcp_message_count",
-                                   "Display the number of MGCP messages",
-                                   "Display the number of MGCP messages "
-                                   "found in a packet in the protocol column.",
-                                   &global_mgcp_message_count);
-
-    mgcp_tap = register_tap("mgcp");
-}
-
-/* The registration hand-off routine */
-void proto_reg_handoff_mgcp(void)
-{
-	static gboolean mgcp_prefs_initialized = FALSE;
-	static dissector_handle_t mgcp_tpkt_handle;
-	/*
-	 * Variables to allow for proper deletion of dissector registration when
-	 * the user changes port from the gui.
-	 */
-	static guint gateway_tcp_port;
-	static guint gateway_udp_port;
-	static guint callagent_tcp_port;
-	static guint callagent_udp_port;
-
-	if (!mgcp_prefs_initialized)
-	{
-		/* Get a handle for the SDP dissector. */
-		sdp_handle = find_dissector("sdp");
-		mgcp_handle = new_create_dissector_handle(dissect_mgcp, proto_mgcp);
-		mgcp_tpkt_handle = new_create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
-		mgcp_prefs_initialized = TRUE;
-	}
-	else
-	{
-		dissector_delete_uint("tcp.port", gateway_tcp_port, mgcp_tpkt_handle);
-		dissector_delete_uint("udp.port", gateway_udp_port, mgcp_handle);
-		dissector_delete_uint("tcp.port", callagent_tcp_port, mgcp_tpkt_handle);
-		dissector_delete_uint("udp.port", callagent_udp_port, mgcp_handle);
-	}
-
-	/* Set our port number for future use */
-	gateway_tcp_port = global_mgcp_gateway_tcp_port;
-	gateway_udp_port = global_mgcp_gateway_udp_port;
-
-	callagent_tcp_port = global_mgcp_callagent_tcp_port;
-	callagent_udp_port = global_mgcp_callagent_udp_port;
-
-	dissector_add_uint("tcp.port", global_mgcp_gateway_tcp_port, mgcp_tpkt_handle);
-	dissector_add_uint("udp.port", global_mgcp_gateway_udp_port, mgcp_handle);
-	dissector_add_uint("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
-	dissector_add_uint("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
-}
 
 /*
  * is_mgcp_verb - A function for determining whether there is a
@@ -1349,10 +978,10 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset, (len - tvb_current_offset + offset));
 			returnvalue = tvb_current_offset;
 
-                       /* set the observedEvents or signalReq used in Voip Calls analysis */
-                       if (buf != NULL) {
-                               *buf = tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
-                       }
+			/* set the observedEvents or signalReq used in Voip Calls analysis */
+			if (buf != NULL) {
+				*buf = tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
+			}
 		}
 	}
 	else
@@ -2299,3 +1928,392 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 	return tvb_current_len;
 }
 
+/* Register all the bits needed with the filtering engine */
+
+void proto_register_mgcp(void);
+void proto_reg_handoff_mgcp(void);
+
+void proto_register_mgcp(void)
+{
+	static hf_register_info hf[] =
+		{
+			{ &hf_mgcp_req,
+			  { "Request", "mgcp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			    "True if MGCP request", HFILL }},
+			{ &hf_mgcp_rsp,
+			  { "Response", "mgcp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			    "TRUE if MGCP response", HFILL }},
+			{ &hf_mgcp_req_frame,
+			  { "Request Frame", "mgcp.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_rsp_frame,
+			  { "Response Frame", "mgcp.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_time,
+			  { "Time from request", "mgcp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+			    "Timedelta between Request and Response", HFILL }},
+			{ &hf_mgcp_req_verb,
+			  { "Verb", "mgcp.req.verb", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Name of the verb", HFILL }},
+			{ &hf_mgcp_req_endpoint,
+			  { "Endpoint", "mgcp.req.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Endpoint referenced by the message", HFILL }},
+			{ &hf_mgcp_transid,
+			  { "Transaction ID", "mgcp.transid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Transaction ID of this message", HFILL }},
+			{ &hf_mgcp_version,
+			  { "Version", "mgcp.version", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "MGCP Version", HFILL }},
+			{ &hf_mgcp_rsp_rspcode,
+			  { "Response Code", "mgcp.rsp.rspcode", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &mgcp_return_code_vals_ext, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_rsp_rspstring,
+			  { "Response String", "mgcp.rsp.rspstring", FT_STRING, BASE_NONE, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_params,
+			  { "Parameters", "mgcp.params", FT_NONE, BASE_NONE, NULL, 0x0,
+			    "MGCP parameters", HFILL }},
+			{ &hf_mgcp_param_rspack,
+			  { "ResponseAck (K)", "mgcp.param.rspack", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Response Ack", HFILL }},
+			{ &hf_mgcp_param_bearerinfo,
+			  { "BearerInformation (B)", "mgcp.param.bearerinfo", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Bearer Information", HFILL }},
+			{ &hf_mgcp_param_callid,
+			  { "CallId (C)", "mgcp.param.callid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Call Id", HFILL }},
+			{ &hf_mgcp_param_connectionid,
+			  {"ConnectionIdentifier (I)", "mgcp.param.connectionid", FT_STRING, BASE_NONE, NULL, 0x0,
+			   "Connection Identifier", HFILL }},
+			{ &hf_mgcp_param_secondconnectionid,
+			  { "SecondConnectionID (I2)", "mgcp.param.secondconnectionid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Second Connection Identifier", HFILL }},
+			{ &hf_mgcp_param_notifiedentity,
+			  { "NotifiedEntity (N)", "mgcp.param.notifiedentity", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Notified Entity", HFILL }},
+			{ &hf_mgcp_param_requestid,
+			  { "RequestIdentifier (X)", "mgcp.param.requestid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Request Identifier", HFILL }},
+			{ &hf_mgcp_param_localconnoptions,
+			  { "LocalConnectionOptions (L)", "mgcp.param.localconnectionoptions", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Local Connection Options", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_p,
+			  { "Packetization period (p)", "mgcp.param.localconnectionoptions.p", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Packetization period", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_a,
+			  { "Codecs (a)", "mgcp.param.localconnectionoptions.a", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Codecs", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_s,
+			  { "Silence Suppression (s)", "mgcp.param.localconnectionoptions.s", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Silence Suppression", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_e,
+			  { "Echo Cancellation (e)", "mgcp.param.localconnectionoptions.e", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Echo Cancellation", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_scrtp,
+			  { "RTP ciphersuite (sc-rtp)", "mgcp.param.localconnectionoptions.scrtp", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "RTP ciphersuite", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_scrtcp,
+			  { "RTCP ciphersuite (sc-rtcp)", "mgcp.param.localconnectionoptions.scrtcp", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "RTCP ciphersuite", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_b,
+			  { "Bandwidth (b)", "mgcp.param.localconnectionoptions.b", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Bandwidth", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_esccd,
+			  { "Content Destination (es-ccd)", "mgcp.param.localconnectionoptions.esccd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Content Destination", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_escci,
+			  { "Content Identifier (es-cci)", "mgcp.param.localconnectionoptions.escci", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Content Identifier", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_dqgi,
+			  { "D-QoS GateID (dq-gi)", "mgcp.param.localconnectionoptions.dqgi", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "D-QoS GateID", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_dqrd,
+			  { "D-QoS Reserve Destination (dq-rd)", "mgcp.param.localconnectionoptions.dqrd", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "D-QoS Reserve Destination", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_dqri,
+			  { "D-QoS Resource ID (dq-ri)", "mgcp.param.localconnectionoptions.dqri", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "D-QoS Resource ID", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_dqrr,
+			  { "D-QoS Resource Reservation (dq-rr)", "mgcp.param.localconnectionoptions.dqrr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "D-QoS Resource Reservation", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_k,
+			  { "Encryption Key (k)", "mgcp.param.localconnectionoptions.k", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Encryption Key", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_gc,
+			  { "Gain Control (gc)", "mgcp.param.localconnectionoptions.gc", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Gain Control", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_fmtp,
+			  { "Media Format (fmtp)", "mgcp.param.localconnectionoptions.fmtp", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Media Format", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_nt,
+			  { "Network Type (nt)", "mgcp.param.localconnectionoptions.nt", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Network Type", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_ofmtp,
+			  { "Optional Media Format (o-fmtp)", "mgcp.param.localconnectionoptions.ofmtp", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Optional Media Format", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_r,
+			  { "Resource Reservation (r)", "mgcp.param.localconnectionoptions.r", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Resource Reservation", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_t,
+			  { "Type of Service (r)", "mgcp.param.localconnectionoptions.t", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Type of Service", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_rcnf,
+			  { "Reservation Confirmation (r-cnf)", "mgcp.param.localconnectionoptions.rcnf", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Reservation Confirmation", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_rdir,
+			  { "Reservation Direction (r-dir)", "mgcp.param.localconnectionoptions.rdir", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Reservation Direction", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_rsh,
+			  { "Resource Sharing (r-sh)", "mgcp.param.localconnectionoptions.rsh", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Resource Sharing", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_mp,
+			  { "Multiple Packetization period (mp)", "mgcp.param.localconnectionoptions.mp", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Multiple Packetization period", HFILL }},
+			{ &hf_mgcp_param_localconnoptions_fxr,
+			  { "FXR (fxr/fx)", "mgcp.param.localconnectionoptions.fxr", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "FXR", HFILL }},
+			{ &hf_mgcp_param_connectionmode,
+			  { "ConnectionMode (M)", "mgcp.param.connectionmode", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Connection Mode", HFILL }},
+			{ &hf_mgcp_param_reqevents,
+			  { "RequestedEvents (R)", "mgcp.param.reqevents", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Requested Events", HFILL }},
+			{ &hf_mgcp_param_signalreq,
+			  { "SignalRequests (S)", "mgcp.param.signalreq", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Signal Request", HFILL }},
+			{ &hf_mgcp_param_restartmethod,
+			  { "RestartMethod (RM)", "mgcp.param.restartmethod", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Restart Method", HFILL }},
+			{ &hf_mgcp_param_restartdelay,
+			  { "RestartDelay (RD)", "mgcp.param.restartdelay", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Restart Delay", HFILL }},
+			{ &hf_mgcp_param_digitmap,
+			  { "DigitMap (D)", "mgcp.param.digitmap", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Digit Map", HFILL }},
+			{ &hf_mgcp_param_observedevent,
+			  { "ObservedEvents (O)", "mgcp.param.observedevents", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Observed Events", HFILL }},
+			{ &hf_mgcp_param_connectionparam,
+			  { "ConnectionParameters (P)", "mgcp.param.connectionparam", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Connection Parameters", HFILL }},
+			{ &hf_mgcp_param_connectionparam_ps,
+			  { "Packets sent (PS)", "mgcp.param.connectionparam.ps", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Packets sent (P:PS)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_os,
+			  { "Octets sent (OS)", "mgcp.param.connectionparam.os", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Octets sent (P:OS)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pr,
+			  { "Packets received (PR)", "mgcp.param.connectionparam.pr", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Packets received (P:PR)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_or,
+			  { "Octets received (OR)", "mgcp.param.connectionparam.or", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Octets received (P:OR)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pl,
+			  { "Packets lost (PL)", "mgcp.param.connectionparam.pl", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Packets lost (P:PL)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_ji,
+			  { "Jitter (JI)", "mgcp.param.connectionparam.ji", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Average inter-packet arrival jitter in milliseconds (P:JI)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_la,
+			  { "Latency (LA)", "mgcp.param.connectionparam.la", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Average latency in milliseconds (P:LA)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pcrps,
+			  { "Remote Packets sent (PC/RPS)", "mgcp.param.connectionparam.pcrps", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Remote Packets sent (P:PC/RPS)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pcros,
+			  { "Remote Octets sent (PC/ROS)", "mgcp.param.connectionparam.pcros", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Remote Octets sent (P:PC/ROS)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pcrpl,
+			  { "Remote Packets lost (PC/RPL)", "mgcp.param.connectionparam.pcrpl", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Remote Packets lost (P:PC/RPL)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_pcrji,
+			  { "Remote Jitter (PC/RJI)", "mgcp.param.connectionparam.pcrji", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Remote Jitter (P:PC/RJI)", HFILL }},
+			{ &hf_mgcp_param_connectionparam_x,
+			  { "Vendor Extension", "mgcp.param.connectionparam.x", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Vendor Extension (P:X-*)", HFILL }},
+			{ &hf_mgcp_param_reasoncode,
+			  { "ReasonCode (E)", "mgcp.param.reasoncode", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Reason Code", HFILL }},
+			{ &hf_mgcp_param_eventstates,
+			  { "EventStates (ES)", "mgcp.param.eventstates", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Event States", HFILL }},
+			{ &hf_mgcp_param_specificendpoint,
+			  { "SpecificEndpointID (Z)", "mgcp.param.specificendpointid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Specific Endpoint ID", HFILL }},
+			{ &hf_mgcp_param_secondendpointid,
+			  { "SecondEndpointID (Z2)", "mgcp.param.secondendpointid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Second Endpoint ID", HFILL }},
+			{ &hf_mgcp_param_reqinfo,
+			  { "RequestedInfo (F)", "mgcp.param.reqinfo", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Requested Info", HFILL }},
+			{ &hf_mgcp_param_quarantinehandling,
+			  { "QuarantineHandling (Q)", "mgcp.param.quarantinehandling", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Quarantine Handling", HFILL }},
+			{ &hf_mgcp_param_detectedevents,
+			  { "DetectedEvents (T)", "mgcp.param.detectedevents", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Detected Events", HFILL }},
+			{ &hf_mgcp_param_capabilities,
+			  { "Capabilities (A)", "mgcp.param.capabilities", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Capabilities", HFILL }},
+			{ &hf_mgcp_param_maxmgcpdatagram,
+			  {"MaxMGCPDatagram (MD)", "mgcp.param.maxmgcpdatagram", FT_STRING, BASE_NONE, NULL, 0x0,
+			   "Maximum MGCP Datagram size", HFILL }},
+			{ &hf_mgcp_param_packagelist,
+			  {"PackageList (PL)", "mgcp.param.packagelist", FT_STRING, BASE_NONE, NULL, 0x0,
+			   "Package List", HFILL }},
+			{ &hf_mgcp_param_extension,
+			  { "Extension Parameter (non-critical)", "mgcp.param.extension", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Extension Parameter", HFILL }},
+			{ &hf_mgcp_param_extension_critical,
+			  { "Extension Parameter (critical)", "mgcp.param.extensioncritical", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Critical Extension Parameter", HFILL }},
+			{ &hf_mgcp_param_invalid,
+			  { "Invalid Parameter", "mgcp.param.invalid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_messagecount,
+			  { "MGCP Message Count", "mgcp.messagecount", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    "Number of MGCP message in a packet", HFILL }},
+			{ &hf_mgcp_dup,
+			  { "Duplicate Message", "mgcp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_req_dup,
+			  { "Duplicate Request", "mgcp.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_req_dup_frame,
+			  { "Original Request Frame", "mgcp.req.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			    "Frame containing original request", HFILL }},
+			{ &hf_mgcp_rsp_dup,
+			  { "Duplicate Response", "mgcp.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_rsp_dup_frame,
+			  { "Original Response Frame", "mgcp.rsp.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			    "Frame containing original response", HFILL }},
+			{ &hf_mgcp_unknown_parameter,
+			  { "Unknown parameter", "mgcp.unknown_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
+			    NULL, HFILL }},
+			{ &hf_mgcp_malformed_parameter,
+			  { "Malformed parameter", "mgcp.rsp.dup.frame", FT_STRING, BASE_NONE, NULL, 0x0,
+			    NULL, HFILL }},
+		};
+
+	static gint *ett[] =
+		{
+			&ett_mgcp,
+			&ett_mgcp_param,
+			&ett_mgcp_param_connectionparam,
+			&ett_mgcp_param_localconnectionoptions
+		};
+
+	module_t *mgcp_module;
+
+	/* Register protocol */
+	proto_mgcp = proto_register_protocol("Media Gateway Control Protocol", "MGCP", "mgcp");
+	proto_register_field_array(proto_mgcp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(&mgcp_init_protocol);
+
+	new_register_dissector("mgcp", dissect_mgcp, proto_mgcp);
+
+	/* Register our configuration options */
+	mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
+
+	prefs_register_uint_preference(mgcp_module, "tcp.gateway_port",
+				       "MGCP Gateway TCP Port",
+				       "Set the UDP port for gateway messages "
+				       "(if other than the default of 2427)",
+				       10, &global_mgcp_gateway_tcp_port);
+
+	prefs_register_uint_preference(mgcp_module, "udp.gateway_port",
+				       "MGCP Gateway UDP Port",
+				       "Set the TCP port for gateway messages "
+				       "(if other than the default of 2427)",
+				       10, &global_mgcp_gateway_udp_port);
+
+	prefs_register_uint_preference(mgcp_module, "tcp.callagent_port",
+				       "MGCP Callagent TCP Port",
+				       "Set the TCP port for callagent messages "
+				       "(if other than the default of 2727)",
+				       10, &global_mgcp_callagent_tcp_port);
+
+	prefs_register_uint_preference(mgcp_module, "udp.callagent_port",
+				       "MGCP Callagent UDP Port",
+				       "Set the UDP port for callagent messages "
+				       "(if other than the default of 2727)",
+				       10, &global_mgcp_callagent_udp_port);
+
+
+	prefs_register_bool_preference(mgcp_module, "display_raw_text",
+				       "Display raw text for MGCP message",
+				       "Specifies that the raw text of the "
+				       "MGCP message should be displayed "
+				       "instead of (or in addition to) the "
+				       "dissection tree",
+				       &global_mgcp_raw_text);
+
+	prefs_register_obsolete_preference(mgcp_module, "display_dissect_tree");
+
+	prefs_register_bool_preference(mgcp_module, "display_mgcp_message_count",
+				       "Display the number of MGCP messages",
+				       "Display the number of MGCP messages "
+				       "found in a packet in the protocol column.",
+				       &global_mgcp_message_count);
+
+	mgcp_tap = register_tap("mgcp");
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_mgcp(void)
+{
+	static gboolean mgcp_prefs_initialized = FALSE;
+	static dissector_handle_t mgcp_tpkt_handle;
+	/*
+	 * Variables to allow for proper deletion of dissector registration when
+	 * the user changes port from the gui.
+	 */
+	static guint gateway_tcp_port;
+	static guint gateway_udp_port;
+	static guint callagent_tcp_port;
+	static guint callagent_udp_port;
+
+	if (!mgcp_prefs_initialized)
+	{
+		/* Get a handle for the SDP dissector. */
+		sdp_handle = find_dissector("sdp");
+		mgcp_handle = new_create_dissector_handle(dissect_mgcp, proto_mgcp);
+		mgcp_tpkt_handle = new_create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
+		mgcp_prefs_initialized = TRUE;
+	}
+	else
+	{
+		dissector_delete_uint("tcp.port", gateway_tcp_port,   mgcp_tpkt_handle);
+		dissector_delete_uint("udp.port", gateway_udp_port,   mgcp_handle);
+		dissector_delete_uint("tcp.port", callagent_tcp_port, mgcp_tpkt_handle);
+		dissector_delete_uint("udp.port", callagent_udp_port, mgcp_handle);
+	}
+
+	/* Set our port number for future use */
+	gateway_tcp_port = global_mgcp_gateway_tcp_port;
+	gateway_udp_port = global_mgcp_gateway_udp_port;
+
+	callagent_tcp_port = global_mgcp_callagent_tcp_port;
+	callagent_udp_port = global_mgcp_callagent_udp_port;
+
+	dissector_add_uint("tcp.port", global_mgcp_gateway_tcp_port,   mgcp_tpkt_handle);
+	dissector_add_uint("udp.port", global_mgcp_gateway_udp_port,   mgcp_handle);
+	dissector_add_uint("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
+	dissector_add_uint("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
+}
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
