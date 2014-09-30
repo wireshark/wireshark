@@ -162,7 +162,9 @@ MainWindow::MainWindow(QWidget *parent) :
                 this, SLOT(openStatCommandDialog(QString,const char*,void*)));
     }
     gbl_cur_main_window_ = this;
+#ifdef HAVE_LIBPCAP
     capture_session_init(&cap_session_, (void *)&cfile);
+#endif
     main_ui_->setupUi(this);
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
