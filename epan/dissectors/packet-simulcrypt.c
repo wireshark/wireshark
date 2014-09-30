@@ -67,8 +67,8 @@ static ecm_interpretation tab_ecm_inter[] = {
 static int dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
-                                    tvbuff_t *tvb, proto_tree *tree, int offset,
-                                    int container_data_length, guint16 iftype, gboolean is_subtree);
+				    tvbuff_t *tvb, proto_tree *tree, int offset,
+				    int container_data_length, guint16 iftype, gboolean is_subtree);
 
 /* Wireshark ID of the SIMULCRYPT protocol */
 static guint proto_simulcrypt = -1;
@@ -246,8 +246,14 @@ static const value_string messagetypenames[] = {
 	{ SIMULCRYPT_PSIG_CIM_STREAM_SECTION_PROVISION,   "CIM_STREAM_SECTION_PROVISION"},
 	{ SIMULCRYPT_PSIG_CIM_CHANNEL_RESET,              "CIM_CHANNEL_RESET"},
 
+	/* XXX: Following added (since they seem to have been missing) */
+	{ SIMULCRYPT_PSIG_CIM_STREAM_BW_REQUEST,          "CIM_STREAM_BW_REQUEST"},
+	{ SIMULCRYPT_PSIG_CIM_STREAM_BW_ALLOCATION,       "CIM_STREAM_BW_ALLOCATION"},
+	{ SIMULCRYPT_PSIG_CIM_STREAM_DATA_PROVISION,      "CIM_STREAM_DATA_PROVISION"},
+
 	{ 0, NULL }
 };
+static value_string_ext messagetypenames_ext = VALUE_STRING_EXT_INIT(messagetypenames);
 
 /* Simulcrypt ECMG Parameter Types */
 #define SIMULCRYPT_ECMG_DVB_RESERVED                    0x0000
@@ -310,6 +316,7 @@ static const value_string ecmg_parametertypenames[] = {
 	{ SIMULCRYPT_ECMG_ERROR_INFORMATION,             "ERROR_INFORMATION" },
 	{ 0, NULL }
 };
+static value_string_ext ecmg_parametertypenames_ext = VALUE_STRING_EXT_INIT(ecmg_parametertypenames);
 
 /* Simulcrypt ECMG protocol error values */
 static const value_string ecmg_error_values[] = {
@@ -339,6 +346,7 @@ static const value_string ecmg_error_values[] = {
 	{ 0x7001, "Unrecoverable error" },
 	{ 0, NULL }
 };
+static value_string_ext ecmg_error_values_ext = VALUE_STRING_EXT_INIT(ecmg_error_values);
 
 /* Simulcrypt EMMG Parameter Types */
 #define SIMULCRYPT_EMMG_DVB_RESERVED                    0x0000
@@ -367,6 +375,7 @@ static const value_string emmg_parametertypenames[] = {
 	{ SIMULCRYPT_EMMG_ERROR_INFORMATION,  "ERROR_INFORMATION" },
 	{ 0, NULL }
 };
+static value_string_ext emmg_parametertypenames_ext = VALUE_STRING_EXT_INIT(emmg_parametertypenames);
 
 /* Simulcrypt EMMG protocol error values */
 static const value_string emmg_error_values[] = {
@@ -395,6 +404,7 @@ static const value_string emmg_error_values[] = {
 	{ 0x7001, "Unrecoverable error" },
 	{ 0, NULL }
 };
+static value_string_ext emmg_error_values_ext = VALUE_STRING_EXT_INIT(emmg_error_values);
 
 /* Simulcrypt EIS Parameter Types */
 #define SIMULCRYPT_EIS_DVB_RESERVED                     0x0000
@@ -456,6 +466,7 @@ static const value_string eis_parametertypenames[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext eis_parametertypenames_ext = VALUE_STRING_EXT_INIT(eis_parametertypenames);
 
 /* Simulcrypt EIS protocol error values */
 static const value_string eis_error_values[] = {
@@ -486,6 +497,7 @@ static const value_string eis_error_values[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext eis_error_values_ext = VALUE_STRING_EXT_INIT(eis_error_values);
 
 /* Simulcrypt PSIG Parameter Types */
 #define SIMULCRYPT_PSIG_DVB_RESERVED                    0x0000
@@ -535,6 +547,7 @@ static const value_string psig_parametertypenames[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext psig_parametertypenames_ext = VALUE_STRING_EXT_INIT(psig_parametertypenames);
 
 #if 0
 /* Simulcrypt PSIG protocol error values */
@@ -568,6 +581,7 @@ static const value_string psig_error_values[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext psig_error_values_ext = VALUE_STRING_EXT_INIT(psig_error_values);
 #endif
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
@@ -754,7 +768,7 @@ get_interface (guint16 type)
 
 static void
 dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-                              guint16 plen, guint16 ptype, gchar *pvalue_char)
+			      guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
 	proto_item *simulcrypt_item;
 	proto_tree *simulcrypt_super_cas_id_tree;
@@ -906,7 +920,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 static void
 dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
-                              guint16 plen, guint16 ptype, gchar *pvalue_char)
+			      guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
 	proto_item *simulcrypt_item;
 
@@ -951,7 +965,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 static void
 dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
-                             guint16 plen, guint16 ptype, gchar *pvalue_char)
+			     guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
 	proto_item *simulcrypt_item;
 	proto_tree *simulcrypt_super_cas_id_tree;
@@ -1092,7 +1106,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
 static void
 dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
-                              guint16 plen, guint16 ptype, gchar *pvalue_char)
+			      guint16 plen, guint16 ptype, gchar *pvalue_char)
 {
 	proto_tree *simulcrypt_psig_table_period_pair_tree;
 	proto_tree *simulcrypt_activation_time_tree;
@@ -1217,7 +1231,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Info Type:[%s]",
 		     pinfo->srcport, pinfo->destport,
-		     val_to_str(type, messagetypenames, "Unknown Type:0x%02x"));
+		     val_to_str_ext(type, &messagetypenames_ext, "Unknown Type:0x%02x"));
 
 	if (tree)
 	{
@@ -1278,8 +1292,8 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /* can be used both from the main tree (simulcrypt_message_tree) and the subtrees (created from TLV items) */
 static void
 dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
-                        tvbuff_t *tvb, proto_tree *tree, int offset,
-                        int container_data_length, guint16 iftype, gboolean is_subtree)
+			tvbuff_t *tvb, proto_tree *tree, int offset,
+			int container_data_length, guint16 iftype, gboolean is_subtree)
 {
 	int subtree_offset = 0;
 	proto_tree *simulcrypt_parameter_tree;
@@ -1312,18 +1326,18 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 		/* add length and value info to type */
 		switch (iftype) {
 		case SIMULCRYPT_ECMG_SCS:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str(ptype, ecmg_parametertypenames, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(ptype, &ecmg_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_EMMG_MUX:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str(ptype, emmg_parametertypenames, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(ptype, &emmg_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_EIS_SCS:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str(ptype, eis_parametertypenames, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(ptype, &eis_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_PSIG_MUX:
 		case SIMULCRYPT_MUX_CIM:
 		case SIMULCRYPT_PSIG_CIP:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str(ptype, psig_parametertypenames, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(ptype, &psig_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		default:
 			proto_item_append_text(simulcrypt_item, ": Type=0x%02x", ptype);
@@ -1436,11 +1450,11 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_version,
-		{ "Version", "simulcrypt.version", FT_UINT8, BASE_HEX, NULL, 0x0, 	/* version 1 byte */
+		{ "Version", "simulcrypt.version", FT_UINT8, BASE_HEX, NULL, 0x0,  /* version 1 byte */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_message_type,
-		{ "Message Type", "simulcrypt.message.type", FT_UINT16, BASE_HEX, VALS(messagetypenames), 0x0,		/* type 2 bytes */
+		{ "Message Type", "simulcrypt.message.type", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &messagetypenames_ext, 0x0,  /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_interface,
@@ -1448,7 +1462,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_message_length,
-		{ "Message Length", "simulcrypt.message.len", FT_UINT16, BASE_DEC, NULL, 0x0,		/* length 2 bytes, print as decimal value */
+		{ "Message Length", "simulcrypt.message.len", FT_UINT16, BASE_DEC, NULL, 0x0,  /* length 2 bytes, print as decimal value */
 		NULL, HFILL }},
 
 		{ &hf_simulcrypt_message,
@@ -1460,19 +1474,19 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_parameter_type,
-		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, NULL, 0x0,	/* type 2 bytes */
+		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, NULL, 0x0, /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ecmg_parameter_type,
-		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, VALS(ecmg_parametertypenames), 0x0,	/* type 2 bytes */
+		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ecmg_parametertypenames_ext, 0x0,  /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_emmg_parameter_type,
-		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, VALS(emmg_parametertypenames), 0x0,	/* type 2 bytes */
+		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &emmg_parametertypenames_ext, 0x0,  /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_parameter_length,
-		{ "Parameter Length", "simulcrypt.parameter.len", FT_UINT16, BASE_DEC, NULL, 0x0,		/* length 2 bytes, print as decimal value */
+		{ "Parameter Length", "simulcrypt.parameter.len", FT_UINT16, BASE_DEC, NULL, 0x0,  /* length 2 bytes, print as decimal value */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ca_system_id,
@@ -1612,11 +1626,11 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ecmg_error_status,
-		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, VALS(ecmg_error_values), 0x0,
+		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ecmg_error_values_ext, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_emmg_error_status,
-		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, VALS(emmg_error_values), 0x0,
+		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &emmg_error_values_ext, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_error_information,
@@ -1624,7 +1638,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_eis_parameter_type,
-		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, VALS(eis_parametertypenames), 0x0,	/* type 2 bytes */
+		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &eis_parametertypenames_ext, 0x0, /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_eis_channel_id,
@@ -1732,7 +1746,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_eis_error_status,
-		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, VALS(eis_error_values), 0x0,
+		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &eis_error_values_ext, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_error_description,
@@ -1740,7 +1754,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_psig_parameter_type,
-		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX, VALS(psig_parametertypenames), 0x0,	/* type 2 bytes */
+		{ "Parameter Type", "simulcrypt.parameter.type", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &psig_parametertypenames_ext, 0x0,  /* type 2 bytes */
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_psig_type,
@@ -1872,3 +1886,15 @@ proto_reg_handoff_simulcrypt(void)
 	tab_ecm_inter[ECM_MIKEY_INDEX].ca_system_id=ca_system_id_mikey;
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
