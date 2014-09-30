@@ -214,8 +214,9 @@ struct unicast_4addr_packet_v14 {
 	address dest;
 	address src;
 	guint8  subtype;
+	guint8  reserved;
 };
-#define UNICAST_4ADDR_PACKET_V14_SIZE 17
+#define UNICAST_4ADDR_PACKET_V14_SIZE 18
 
 struct unicast_frag_packet_v12 {
 	guint8   packet_type;
@@ -2152,6 +2153,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	src_addr = tvb_get_ptr(tvb, 10, 6);
 	SET_ADDRESS(&unicast_4addr_packeth->src, AT_ETHER, 6, src_addr);
 	unicast_4addr_packeth->subtype = tvb_get_guint8(tvb, 16);
+	unicast_4addr_packeth->reserved = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
@@ -2192,6 +2194,9 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	/* Skip 1 byte of padding. */
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dest_addr);
