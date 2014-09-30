@@ -429,6 +429,7 @@ get_wireshark_runtime_info(GString *str)
     }
 }
 
+#ifdef HAVE_LIBPCAP
 /*  Check if there's something important to tell the user during startup.
  *  We want to do this *after* showing the main window so that any windows
  *  we pop up will be above the main window.
@@ -465,7 +466,7 @@ check_and_warn_user_startup(const QString &cf_name)
 #endif
 
 }
-
+#endif
 
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
