@@ -41,7 +41,7 @@ typedef struct {
     guint16     port_dst;       /* application port addressing scheme destination port */
 } gsm_sms_udh_fields_t;
 
-void dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
+void dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset, guint32 *length,
                    guint8 *udl, enum character_set cset, guint8 *fill_bits, gsm_sms_udh_fields_t *p_udh_fields);
 
 /* Data structure that can be optionally given to gsm_sms dissector */

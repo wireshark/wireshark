@@ -1086,7 +1086,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                Let's translate it into bytes */
             num_fields <<= 1;
         }
-        dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, cset, &fill_bits, &udh_fields);
+        dis_field_udh(tvb_out, pinfo, tree, &offset, &required_octs, &num_fields, cset, &fill_bits, &udh_fields);
 
         offset = saved_offset;
 
