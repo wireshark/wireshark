@@ -143,6 +143,12 @@ io_step_rawshark_pcap_stdin() {
 }
 
 
+wireshark_io_suite() {
+	# Q: quit after cap, k: start capture immediately
+	DUT="$WIRESHARK"
+	test_step_add "Input file" io_step_input_file
+}
+
 wireshark_gtk_io_suite() {
 	# Q: quit after cap, k: start capture immediately
 	DUT="$WIRESHARK_GTK"

@@ -298,7 +298,7 @@ print_usage(gboolean for_help_option) {
 #ifndef _WIN32
     fprintf(output, "  --display=DISPLAY        X display to use\n");
 #endif
-    fprintf(output, "\nNOTE: Not all options are already implemented in the QT port.\n");
+    fprintf(output, "\nNOTE: Not all options are implemented in the Qt port.\n");
 
 #ifdef _WIN32
     destroy_console();

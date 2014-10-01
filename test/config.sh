@@ -50,13 +50,16 @@ SKIP_CAPTURE=${SKIP_CAPTURE:-1}
 # Override the last two items if we're running Windows
 if [ "$WS_SYSTEM" = "Windows" ] ; then
 	WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR/wireshark-gtk2}
+	WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$SOURCE_DIR/wireshark-qt-release}
 	SKIP_CAPTURE=0
 fi
 
 # Path to the Wireshark binaries, default to source dir if unset
 WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR}
+WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$SOURCE_DIR}
 
 # Tweak the following to your liking.
+WIRESHARK=$WS_QT_BIN_PATH/wireshark
 WIRESHARK_GTK=$WS_BIN_PATH/wireshark-gtk
 TSHARK=$WS_BIN_PATH/tshark
 RAWSHARK=$WS_BIN_PATH/rawshark
@@ -76,7 +79,7 @@ TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-1}
 
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
-TRAFFIC_CAPTURE_DURATION=15
+TRAFFIC_CAPTURE_DURATION=10
 
 # the default is to not capture in promiscuous mode
 # (this makes known trouble with some Windows WLAN adapters)
