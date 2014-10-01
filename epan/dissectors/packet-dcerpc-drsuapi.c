@@ -36,6 +36,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-drsuapi.h"
 
+void proto_register_drsuapi(void);
+void proto_reg_handoff_drsuapi(void);
+
 static int proto_drsuapi = -1;
 static int hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn = -1;
 
@@ -575,7 +578,7 @@ ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offse
 }
 
 static int
-drsuapi_dissect_a_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_a_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     offset=dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, 1, hf_index, FALSE, NULL);
     return offset;
@@ -999,7 +1002,7 @@ drsuapi_dissect_DsBindInfo24_supported_extensions(tvbuff_t *tvb, int offset, pac
 
 
 static int
-drsuapi_dissect_GUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_GUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     offset=dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
@@ -1015,7 +1018,7 @@ drsuapi_dissect_DsBindInfo24_site_guid(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static int
-drsuapi_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
 {
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, NULL);
     return offset;
@@ -1031,7 +1034,7 @@ drsuapi_dissect_DsBindInfo24_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 int
-drsuapi_dissect_DsBindInfo24(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsBindInfo24(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1089,7 +1092,7 @@ drsuapi_dissect_DsBindInfo28_repl_epoch(tvbuff_t *tvb, int offset, packet_info *
 
 
 int
-drsuapi_dissect_DsBindInfo28(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsBindInfo28(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1185,7 +1188,7 @@ drsuapi_dissect_DsBindInfoCtr_info(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 int
-drsuapi_dissect_DsBindInfoCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsBindInfoCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1399,7 +1402,7 @@ drsuapi_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 int
-drsuapi_dissect_DsReplicaSyncRequest1Info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaSyncRequest1Info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1765,7 +1768,7 @@ drsuapi_dissect_DsReplicaSyncRequest1_options(tvbuff_t *tvb, int offset, packet_
 
 
 int
-drsuapi_dissect_DsReplicaSyncRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaSyncRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1938,7 +1941,7 @@ drsuapi_dissect_DsGetNCChangesUsnTriple_usn3(tvbuff_t *tvb, int offset, packet_i
 
 
 int
-drsuapi_dissect_DsGetNCChangesUsnTriple(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesUsnTriple(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1980,7 +1983,7 @@ drsuapi_dissect_DsReplicaCoursor_highest_usn(tvbuff_t *tvb, int offset, packet_i
 
 
 int
-drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2051,7 +2054,7 @@ ucarray_drsuapi_dissect_DsReplicaCoursor05Ctr_array(tvbuff_t *tvb, int offset, p
 
 
 int
-drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2175,7 +2178,7 @@ drsuapi_dissect_DsGetNCChangesRequest5_h1(tvbuff_t *tvb, int offset, packet_info
 
 
 int
-drsuapi_dissect_DsGetNCChangesRequest5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesRequest5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2245,7 +2248,7 @@ unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr14_byte_array(tvbuff_t *
 
 
 int
-drsuapi_dissect_DsGetNCChangesRequest_Ctr14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesRequest_Ctr14(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2285,7 +2288,7 @@ drsuapi_dissect_DsGetNCChangesRequest_Ctr13_data(tvbuff_t *tvb, int offset, pack
 
 
 int
-drsuapi_dissect_DsGetNCChangesRequest_Ctr13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesRequest_Ctr13(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2339,7 +2342,7 @@ unique_ucarray_drsuapi_dissect_DsGetNCChangesRequest_Ctr12_array(tvbuff_t *tvb, 
 
 
 int
-drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesRequest_Ctr12(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2481,7 +2484,7 @@ drsuapi_dissect_DsGetNCChangesRequest8_ctr12(tvbuff_t *tvb, int offset, packet_i
 
 
 int
-drsuapi_dissect_DsGetNCChangesRequest8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesRequest8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2605,7 +2608,7 @@ drsuapi_dissect_DsReplicaCoursorEx_time1(tvbuff_t *tvb, int offset, packet_info 
 
 
 int
-drsuapi_dissect_DsReplicaCoursorEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursorEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2676,7 +2679,7 @@ ucarray_drsuapi_dissect_DsReplicaCoursorEx05Ctr_array(tvbuff_t *tvb, int offset,
 
 
 int
-drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2846,7 +2849,7 @@ drsuapi_dissect_DsGetNCChangesCtr6_u3(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 int
-drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2892,7 +2895,7 @@ drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 int
-drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3166,7 +3169,7 @@ drsuapi_dissect_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name(tvbuff_t *tvb, int
 
 
 int
-drsuapi_dissect_DsReplicaUpdateRefsRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaUpdateRefsRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3626,7 +3629,7 @@ unique_drsuapi_dissect_DsNameString_str(tvbuff_t *tvb, int offset, packet_info *
 
 
 int
-drsuapi_dissect_DsNameString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsNameString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3718,7 +3721,7 @@ unique_ucarray_drsuapi_dissect_DsNameRequest1_names(tvbuff_t *tvb, int offset, p
 
 
 int
-drsuapi_dissect_DsNameRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsNameRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3829,7 +3832,7 @@ unique_drsuapi_dissect_DsNameInfo1_result_name(tvbuff_t *tvb, int offset, packet
 
 
 int
-drsuapi_dissect_DsNameInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsNameInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3885,7 +3888,7 @@ unique_ucarray_drsuapi_dissect_DsNameCtr1_array(tvbuff_t *tvb, int offset, packe
 
 
 int
-drsuapi_dissect_DsNameCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsNameCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4101,7 +4104,7 @@ unique_ucarray_drsuapi_dissect_DsWriteAccountSpnRequest1_spn_names(tvbuff_t *tvb
 
 
 int
-drsuapi_dissect_DsWriteAccountSpnRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsWriteAccountSpnRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4188,7 +4191,7 @@ drsuapi_dissect_DsWriteAccountSpnResult1_status(tvbuff_t *tvb, int offset, packe
 
 
 int
-drsuapi_dissect_DsWriteAccountSpnResult1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsWriteAccountSpnResult1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4374,7 +4377,7 @@ drsuapi_dissect_DsGetDCInfoRequest1_level(tvbuff_t *tvb, int offset, packet_info
 
 
 int
-drsuapi_dissect_DsGetDCInfoRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfoRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4528,7 +4531,7 @@ drsuapi_dissect_DsGetDCInfo1_is_enabled(tvbuff_t *tvb, int offset, packet_info *
 
 
 int
-drsuapi_dissect_DsGetDCInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4592,7 +4595,7 @@ unique_ucarray_drsuapi_dissect_DsGetDCInfoCtr1_array(tvbuff_t *tvb, int offset, 
 
 
 int
-drsuapi_dissect_DsGetDCInfoCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfoCtr1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4777,7 +4780,7 @@ drsuapi_dissect_DsGetDCInfo2_ntds_guid(tvbuff_t *tvb, int offset, packet_info *p
 
 
 int
-drsuapi_dissect_DsGetDCInfo2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfo2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4855,7 +4858,7 @@ unique_ucarray_drsuapi_dissect_DsGetDCInfoCtr2_array(tvbuff_t *tvb, int offset, 
 
 
 int
-drsuapi_dissect_DsGetDCInfoCtr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfoCtr2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -4942,7 +4945,7 @@ unique_drsuapi_dissect_DsGetDCInfo01_server_nt4_account(tvbuff_t *tvb, int offse
 
 
 int
-drsuapi_dissect_DsGetDCInfo01(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfo01(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5006,7 +5009,7 @@ unique_ucarray_drsuapi_dissect_DsGetDCInfoCtr01_array(tvbuff_t *tvb, int offset,
 
 
 int
-drsuapi_dissect_DsGetDCInfoCtr01(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetDCInfoCtr01(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5284,7 +5287,7 @@ drsuapi_dissect_DsReplicaGetInfoRequest1_guid1(tvbuff_t *tvb, int offset, packet
 
 
 int
-drsuapi_dissect_DsReplicaGetInfoRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaGetInfoRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5387,7 +5390,7 @@ drsuapi_dissect_DsReplicaGetInfoRequest2_unknown2(tvbuff_t *tvb, int offset, pac
 
 
 int
-drsuapi_dissect_DsReplicaGetInfoRequest2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaGetInfoRequest2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5638,7 +5641,7 @@ drsuapi_dissect_DsReplicaNeighbour_consecutive_sync_failures(tvbuff_t *tvb, int 
 
 
 int
-drsuapi_dissect_DsReplicaNeighbour(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaNeighbour(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5721,7 +5724,7 @@ ucarray_drsuapi_dissect_DsReplicaNeighbourCtr_array(tvbuff_t *tvb, int offset, p
 
 
 int
-drsuapi_dissect_DsReplicaNeighbourCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaNeighbourCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5778,7 +5781,7 @@ ucarray_drsuapi_dissect_DsReplicaCoursorCtr_array(tvbuff_t *tvb, int offset, pac
 
 
 int
-drsuapi_dissect_DsReplicaCoursorCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursorCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5859,7 +5862,7 @@ drsuapi_dissect_DsReplicaObjMetaData_local_usn(tvbuff_t *tvb, int offset, packet
 
 
 int
-drsuapi_dissect_DsReplicaObjMetaData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaObjMetaData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5922,7 +5925,7 @@ ucarray_drsuapi_dissect_DsReplicaObjMetaDataCtr_array(tvbuff_t *tvb, int offset,
 
 
 int
-drsuapi_dissect_DsReplicaObjMetaDataCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaObjMetaDataCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -5995,7 +5998,7 @@ drsuapi_dissect_DsReplicaKccDsaFailure_last_result(tvbuff_t *tvb, int offset, pa
 
 
 int
-drsuapi_dissect_DsReplicaKccDsaFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaKccDsaFailure(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6056,7 +6059,7 @@ ucarray_drsuapi_dissect_DsReplicaKccDsaFailuresCtr_array(tvbuff_t *tvb, int offs
 
 
 int
-drsuapi_dissect_DsReplicaKccDsaFailuresCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaKccDsaFailuresCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6304,7 +6307,7 @@ drsuapi_dissect_DsReplicaOp_remote_dsa_obj_guid(tvbuff_t *tvb, int offset, packe
 
 
 int
-drsuapi_dissect_DsReplicaOp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaOp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6375,7 +6378,7 @@ ucarray_drsuapi_dissect_DsReplicaOpCtr_array(tvbuff_t *tvb, int offset, packet_i
 
 
 int
-drsuapi_dissect_DsReplicaOpCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaOpCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6517,7 +6520,7 @@ drsuapi_dissect_DsReplicaAttrValMetaData_local_usn(tvbuff_t *tvb, int offset, pa
 
 
 int
-drsuapi_dissect_DsReplicaAttrValMetaData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaAttrValMetaData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6590,7 +6593,7 @@ ucarray_drsuapi_dissect_DsReplicaAttrValMetaDataCtr_array(tvbuff_t *tvb, int off
 
 
 int
-drsuapi_dissect_DsReplicaAttrValMetaDataCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaAttrValMetaDataCtr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6640,7 +6643,7 @@ drsuapi_dissect_DsReplicaCoursor2_last_sync_success(tvbuff_t *tvb, int offset, p
 
 
 int
-drsuapi_dissect_DsReplicaCoursor2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6697,7 +6700,7 @@ ucarray_drsuapi_dissect_DsReplicaCoursor2Ctr_array(tvbuff_t *tvb, int offset, pa
 
 
 int
-drsuapi_dissect_DsReplicaCoursor2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6762,7 +6765,7 @@ unique_drsuapi_dissect_DsReplicaCoursor3_source_dsa_obj_dn(tvbuff_t *tvb, int of
 
 
 int
-drsuapi_dissect_DsReplicaCoursor3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6821,7 +6824,7 @@ ucarray_drsuapi_dissect_DsReplicaCoursor3Ctr_array(tvbuff_t *tvb, int offset, pa
 
 
 int
-drsuapi_dissect_DsReplicaCoursor3Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaCoursor3Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6917,7 +6920,7 @@ unique_drsuapi_dissect_DsReplicaObjMetaData2_originating_dsa_obj_dn(tvbuff_t *tv
 
 
 int
-drsuapi_dissect_DsReplicaObjMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaObjMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -6982,7 +6985,7 @@ ucarray_drsuapi_dissect_DsReplicaObjMetaData2Ctr_array(tvbuff_t *tvb, int offset
 
 
 int
-drsuapi_dissect_DsReplicaObjMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaObjMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7139,7 +7142,7 @@ unique_drsuapi_dissect_DsReplicaAttrValMetaData2_originating_dsa_obj_dn(tvbuff_t
 
 
 int
-drsuapi_dissect_DsReplicaAttrValMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaAttrValMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7214,7 +7217,7 @@ ucarray_drsuapi_dissect_DsReplicaAttrValMetaData2Ctr_array(tvbuff_t *tvb, int of
 
 
 int
-drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7296,7 +7299,7 @@ drsuapi_dissect_DsReplicaConnection04_u5(tvbuff_t *tvb, int offset, packet_info 
 
 
 int
-drsuapi_dissect_DsReplicaConnection04(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaConnection04(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7361,7 +7364,7 @@ ucarray_drsuapi_dissect_DsReplicaConnection04Ctr_array(tvbuff_t *tvb, int offset
 
 
 int
-drsuapi_dissect_DsReplicaConnection04Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplicaConnection04Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7458,7 +7461,7 @@ drsuapi_dissect_DsReplica06_u7(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 int
-drsuapi_dissect_DsReplica06(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplica06(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -7525,7 +7528,7 @@ ucarray_drsuapi_dissect_DsReplica06Ctr_array(tvbuff_t *tvb, int offset, packet_i
 
 
 int
-drsuapi_dissect_DsReplica06Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsReplica06Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;

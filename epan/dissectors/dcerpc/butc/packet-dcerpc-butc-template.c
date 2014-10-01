@@ -35,6 +35,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-butc.h"
 
+void proto_register_budc(void);
+void proto_reg_handoff_budc(void);
+
 static int proto_butc = -1;
 ETH_HF
 

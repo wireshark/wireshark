@@ -1522,7 +1522,7 @@ static void parsetypedefstruct(int pass)
 		FPRINTF(eth_hdr, "int %s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param);\n", dissectorname);
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "int\n");
-		FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)\n", dissectorname);
+		FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)\n", dissectorname);
 		FPRINTF(eth_code, "{\n");
 		FPRINTF(eth_code, "    proto_item *item=NULL;\n");
 		FPRINTF(eth_code, "    proto_tree *tree=NULL;\n");
@@ -2700,12 +2700,12 @@ static void parsefunction(int pass)
 			}
 
 			if((pass==1)&&(bi->flags&BI_IN)){
-				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, di, drep);\n", ptmpstr);
 				FPRINTF(eth_code, " 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);\n");
 				FPRINTF(eth_code, "\n");
 			}
 			if((pass==2)&&(bi->flags&BI_OUT)){
-				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, di, drep);\n", ptmpstr);
 				FPRINTF(eth_code, " 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, di, drep);\n");
 				FPRINTF(eth_code, "\n");
 			}

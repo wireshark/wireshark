@@ -374,7 +374,7 @@ budb_dissect_principal_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 int
-budb_dissect_principal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_principal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -498,7 +498,7 @@ budb_dissect_tapeSet_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 int
-budb_dissect_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -676,7 +676,7 @@ budb_dissect_dumpEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 int
-budb_dissect_dumpEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_dumpEntry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -864,7 +864,7 @@ budb_dissect_tapeEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 int
-budb_dissect_tapeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_tapeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1072,7 +1072,7 @@ budb_dissect_volumeEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 int
-budb_dissect_volumeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_volumeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1158,7 +1158,7 @@ ucarray_ptr_budb_dissect_volumeList_volumeList_val(tvbuff_t *tvb, int offset, pa
 
 
 int
-budb_dissect_volumeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_volumeList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1212,7 +1212,7 @@ ucarray_ptr_budb_dissect_dumpList_dumpList_val(tvbuff_t *tvb, int offset, packet
 
 
 int
-budb_dissect_dumpList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_dumpList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1266,7 +1266,7 @@ ucarray_ptr_budb_dissect_tapeList_tapeList_val(tvbuff_t *tvb, int offset, packet
 
 
 int
-budb_dissect_tapeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_tapeList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1332,7 +1332,7 @@ uvarray_fixedarray_budb_dissect_charListT_charListT_val(tvbuff_t *tvb, int offse
 
 
 int
-budb_dissect_charListT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_charListT(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1436,7 +1436,7 @@ budb_dissect_DbHeader_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 int
-budb_dissect_DbHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_DbHeader(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1620,7 +1620,7 @@ budb_dissect_dbVolume_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 int
-budb_dissect_dbVolume(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_dbVolume(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -1732,7 +1732,7 @@ budb_dissect_structDumpHeader_spare4(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 int
-budb_dissect_structDumpHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_structDumpHeader(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3560,7 +3560,7 @@ fixedarray_budb_dissect_dfs_interfaceDescription_spareText(tvbuff_t *tvb, int of
 
 
 int
-budb_dissect_dfs_interfaceDescription(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_dfs_interfaceDescription(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -3633,7 +3633,7 @@ uvarray_budb_dissect_dfs_interfaceList_dfs_interfaceList_val(tvbuff_t *tvb, int 
 
 
 int
-budb_dissect_dfs_interfaceList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param _U_)
+budb_dissect_dfs_interfaceList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;

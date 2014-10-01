@@ -36,6 +36,9 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-drsuapi.h"
 
+void proto_register_drsuapi(void);
+void proto_reg_handoff_drsuapi(void);
+
 static int proto_drsuapi = -1;
 static int hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn = -1;
 ETH_HF
