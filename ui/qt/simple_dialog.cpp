@@ -46,7 +46,7 @@
 QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
-const char *primary_delimiter_ = "\uffff";
+const char *primary_delimiter_ = UTF8_NONCHARACTER;
 
 const char *
 simple_dialog_primary_start(void) {

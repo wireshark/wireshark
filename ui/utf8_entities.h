@@ -31,14 +31,17 @@
  * and other places
  */
 
-#define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*  183 /   0xb7 */
+#define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*   183 /   0xb7 */
 
-#define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"      /* 8230 / 0x2026 */
-#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
-#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
-#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
+#define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"      /*  8230 / 0x2026 */
+#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /*  8592 / 0x2190 */
+#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /*  8594 / 0x2192 */
+#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /*  8596 / 0x2194 */
 
-#define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /* 8984 / 0x2318 */
+#define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /*  8984 / 0x2318 */
+
+#define UTF8_NONCHARACTER               "\xef\xbf\xbf"      /* 65535 / 0xffff */
+
 #endif /* __UTF8_ENTITIES_H__ */
 
 /*
