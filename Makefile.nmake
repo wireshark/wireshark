@@ -1073,6 +1073,7 @@ clean_setup:
 	rm -r -f gnutls-2.10.3-*-win??ws
 	rm -r -f gnutls-2.12.18-*-win??ws
 	rm -r -f gnutls-3.1.22-*-win??ws
+	rm -r -f gnutls-3.2.15-*-win??ws
 !IF "$(GTK_NAME)" == "gtk2"
 	rm -r -f gtk2
 !ELSE
