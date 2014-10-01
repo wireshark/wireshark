@@ -20,7 +20,7 @@ The following bugs have been fixed:
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 
 * "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
-* "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
+* "Follow TCP Stream" shows only the first HTTP request + response. (ws-buglink:9044[])
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 
@@ -44,10 +44,12 @@ available in the Qt UI yet.
 ** A Polish translation has been added.
 ** The Interfaces dialog has been added.
 ** The interface list is now updated when interfaces appear or disappear.
-** The Conversations dialog has been added.
+** The Conversations and Endpoints dialogs have been added.
 ** A Japanese translation has been added.
 ** It is now possible to manage remote capture interfaces.
 ** Windows: taskbar progress support has been added.
+** Most toolbar actions are in place and work.
+** More command line options are now supported
 
 The following features are new (or have been significantly updated)
 since version 1.11.3:
@@ -87,33 +89,6 @@ since version 1.11.0:
 ** The Follow Stream dialog now supports packet and TCP stream selection.
 ** A Flow Graph (sequence diagram) dialog has been added.
 ** The main window now respects geometry preferences.
-
-
-The following features are new (or have been significantly updated)
-since version 1.10:
-
-* Wireshark now uses the Qt application framework. The new UI should provide
-  a significantly better user experience, particularly on Mac OS X and Windows.
-* The Windows installer now uninstalls the previous version of Wireshark
-  silently.  You can still run the uninstaller manually beforehand if you wish
-  to run it interactively.
-* Expert information is now filterable when the new API is in use.
-* The "Number" column shows related packets and protocol conversation spans
-  (Qt only).
-* When manipulating packets with editcap using the -C <choplen> and/or
-  -s <snaplen> options, it is now possible to also adjust the original frame
-  length using the -L option.
-* You can now pass the -C <choplen> option to editcap multiple times, which
-  allows you to chop bytes from the beginning of a packet as well as at the end
-  of a packet in a single step.
-* You can now specify an optional offset to the -C option for editcap, which
-  allows you to start chopping from that offset instead of from the absolute
-  packet beginning or end.
-* "malformed" display filter has been renamed to "_ws.malformed".  A handful of
-  other filters have been given the "_ws." prefix to note they are Wireshark
-  application specific filters and not dissector filters.
-* The Kerberos dissector has been replaced with an auto generated one from ASN1
-  protocol description, changing a lot of filter names.
 
 //=== Removed Dissectors
 
