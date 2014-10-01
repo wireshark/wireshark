@@ -35,7 +35,7 @@
 /*
  * Update frequency for the splash screen, given in milliseconds.
  */
-int info_update_freq_ = 15;
+int info_update_freq_ = 100;
 
 void splash_update(register_action_e action, const char *message, void *dummy) {
     Q_UNUSED(dummy);
