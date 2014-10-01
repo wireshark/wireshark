@@ -12,17 +12,12 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following bugs have been fixed:
+//The following bugs have been fixed:
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-
-* "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
-* "Follow TCP Stream" shows only the first HTTP request + response. (ws-buglink:9044[])
-* Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
-* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 
 === New and Updated Features
 
@@ -50,45 +45,6 @@ available in the Qt UI yet.
 ** Windows: taskbar progress support has been added.
 ** Most toolbar actions are in place and work.
 ** More command line options are now supported
-
-The following features are new (or have been significantly updated)
-since version 1.11.3:
-
-* Transport name resolution is now disabled by default.
-* Support has been added for all versions of the DCBx protocol.
-* Cleanup of LLDP code, all dissected fields are now navigable.
-
-The following features are new (or have been significantly updated)
-since version 1.11.2:
-
-* Qt port:
-
-** The About dialog has been added
-** The Capture Interfaces dialog has been added.
-** The Decode As dialog has been added. It managed to swallow up the
-User Specified Decodes dialog as well.
-** The Export PDU dialog has been added.
-** Several SCTP dialogs have been added.
-** The statistics tree (the backend for many Statistics and Telephony menu
-items) dialog has been added.
-** The I/O Graph dialog has been added.
-** French translation has updated.
-
-The following features are new (or have been significantly updated)
-since version 1.11.1:
-
-* Mac OS X packaging has been improved.
-
-The following features are new (or have been significantly updated)
-since version 1.11.0:
-
-* Dissector output may be encoded as UTF-8. This includes TShark output.
-
-* Qt port:
-
-** The Follow Stream dialog now supports packet and TCP stream selection.
-** A Flow Graph (sequence diagram) dialog has been added.
-** The main window now respects geometry preferences.
 
 //=== Removed Dissectors
 
@@ -126,9 +82,8 @@ Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 The libwireshark API has undergone some major changes:
 
 * Many of the ep_ and se_ memory allocation routines have been removed.
-* The (long-since-broken) Python bindings support has been removed from
-Wireshark.  If you want to write dissectors in something other than C,
-use Lua.
+* The (long-since-broken) Python bindings support has been removed.  If
+you want to write dissectors in something other than C, use Lua.
 
 
 == Getting Wireshark
@@ -160,13 +115,13 @@ The BER dissector might infinitely loop.
 (ws-buglink:1516[])
 
 Capture filters aren't applied when capturing from named pipes.
-(ws-buglink:1814)
+(ws-buglink:1814[])
 
 Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
 
 The 64-bit Windows installer does not support Kerberos decryption.
-(https://wiki.wireshark.org/Development/Win64[Win64 development page])
+(http://wiki.wireshark.org/Development/Win64[Win64 development page])
 
 Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
 no longer automatically decodes gzip data when following a TCP stream.
@@ -180,16 +135,11 @@ Hex pane display issue after startup.
 Packet list rows are oversized.
 (ws-buglink:4357[])
 
-Summary pane selected frame highlighting not maintained.
-(ws-buglink:4445[])
-
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
 
 The 64-bit version of Wireshark will leak memory on Windows when the display
 depth is set to 16 bits (ws-buglink:9914[])
-
-The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 (ws-buglink:9242[])
 
 == Getting Help
 
