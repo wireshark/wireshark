@@ -666,6 +666,8 @@ proto_register_gif(void)
          * Trailer
          */
         &hfi_trailer,
+
+        &hfi_data_block
     };
 #endif
 
