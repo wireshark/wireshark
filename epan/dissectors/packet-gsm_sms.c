@@ -96,7 +96,6 @@ static gint ett_udh = -1;
 
 static gint ett_udh_tfm = -1;
 static gint ett_udh_tfc = -1;
-static gint ett_ts = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_gsm_sms = -1;
@@ -199,13 +198,13 @@ static gint hf_gsm_sms_formatting_mode_style_italic = -1;
 static gint hf_gsm_sms_formatting_mode_style_underlined = -1;
 static gint hf_gsm_sms_formatting_mode_style_strikethrough = -1;
 static gint hf_gsm_sms_ie_identifier = -1;
-static gint hf_gsm_sms_scts_aux_year = -1;
-static gint hf_gsm_sms_scts_aux_month = -1;
-static gint hf_gsm_sms_scts_aux_day = -1;
-static gint hf_gsm_sms_scts_aux_hour = -1;
-static gint hf_gsm_sms_scts_aux_minutes = -1;
-static gint hf_gsm_sms_scts_aux_seconds = -1;
-static gint hf_gsm_sms_scts_aux_timezone = -1;
+static gint hf_gsm_sms_scts_year = -1;
+static gint hf_gsm_sms_scts_month = -1;
+static gint hf_gsm_sms_scts_day = -1;
+static gint hf_gsm_sms_scts_hour = -1;
+static gint hf_gsm_sms_scts_minutes = -1;
+static gint hf_gsm_sms_scts_seconds = -1;
+static gint hf_gsm_sms_scts_timezone = -1;
 static gint hf_gsm_sms_vp_validity_period_hour = -1;
 static gint hf_gsm_sms_vp_validity_period_minutes = -1;
 static gint hf_gsm_sms_vp_validity_period_seconds = -1;
@@ -435,6 +434,11 @@ static const true_false_string tfs_extended_no_extension = {
     "No extension"
 };
 
+static const true_false_string tfs_no_extension_extended = {
+    "No extension",
+    "Extended"
+};
+
 
 #define NUM_UDH_IEIS        256
 static gint ett_udh_ieis[NUM_UDH_IEIS];
@@ -485,7 +489,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     addrlength = tvb_get_guint8(tvb, offset);
     numdigocts = (addrlength + 1) / 2;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     if (length <= numdigocts)
     {
@@ -788,36 +792,33 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 static void
 dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_tree* subtree;
     guint8 oct;
     guint16 value;
     char   sign;
 
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_ts, NULL, "SCTS AUX Timestamp");
-
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_year, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_year, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_month, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_month, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_day, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_day, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_hour, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_hour, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_minutes, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_minutes, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
-    proto_tree_add_uint(subtree, hf_gsm_sms_scts_aux_seconds, tvb, offset, 1, value);
+    proto_tree_add_uint(tree, hf_gsm_sms_scts_seconds, tvb, offset, 1, value);
     offset++;
 
     oct = tvb_get_guint8(tvb, offset);
@@ -825,7 +826,7 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     sign = (oct & 0x08)?'-':'+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
 
-    proto_tree_add_uint_format_value(tree, hf_gsm_sms_scts_aux_timezone, tvb, offset, 1,
+    proto_tree_add_uint_format_value(tree, hf_gsm_sms_scts_timezone, tvb, offset, 1,
         oct, "GMT %c %d hours %d minutes",
         sign, oct / 4, oct % 4 * 15);
 }
@@ -841,7 +842,7 @@ dis_field_scts(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
 
     offset = *offset_p;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     if (length < 7)
     {
@@ -899,7 +900,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
         switch (vp_form)
         {
         case 1:
-            length = tvb_length_remaining(tvb, offset);
+            length = tvb_reported_length_remaining(tvb, offset);
 
             if (length < 7)
             {
@@ -1017,7 +1018,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
             break;
 
         case 3:
-            length = tvb_length_remaining(tvb, offset);
+            length = tvb_reported_length_remaining(tvb, offset);
 
             if (length < 7)
             {
@@ -1062,7 +1063,7 @@ dis_field_dt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
 
     offset = *offset_p;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     if (length < 7)
     {
@@ -1148,10 +1149,9 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 }
 
 /* 9.2.3.16 */
-static const true_false_string tfs_user_data_length = { "depends on Data-Coding-Scheme", "no User-Data" };
-
 #define DIS_FIELD_UDL(m_tree, m_offset) \
-    proto_tree_add_item(m_tree, hf_gsm_sms_tp_user_data_length, tvb, m_offset, 1, ENC_NA);
+    proto_tree_add_uint_format_value(m_tree, hf_gsm_sms_tp_user_data_length, tvb, m_offset, 1, oct, \
+                                     "(%d) %s", oct, oct ? "depends on Data-Coding-Scheme" : "no User-Data");
 
 /* 9.2.3.17 */
 #define DIS_FIELD_RP(m_tree, hf, m_offset) \
@@ -2037,7 +2037,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     gboolean       udhi;
 
     saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2099,7 +2099,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2214,7 +2214,7 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 
 
     saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2282,7 +2282,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2388,7 +2388,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     udl = 0;
     saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
@@ -2605,7 +2605,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             (msg_type == 0x03) ||
             (msg_type == 0x07))
         {
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
         else
         {
@@ -2623,7 +2623,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             (*msg_fcn)(tvb, pinfo, gsm_sms_tree, offset, gsm_data);
         }
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -2816,16 +2816,16 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_dis_field_addr_extension,
               { "Extension", "gsm_sms.dis_field_addr.extension",
-                FT_BOOLEAN, 8, TFS(&tfs_extended_no_extension), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_no_extension_extended), 0x80,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_dis_field_addr_num_type,
-              { "TP-PID", "gsm_sms.dis_field_addr.num_type",
+              { "Type of number", "gsm_sms.dis_field_addr.num_type",
                 FT_UINT8, BASE_DEC, VALS(dis_field_addr_num_types_vals), 0x70,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_dis_field_addr_num_plan,
-              { "TP-PID", "gsm_sms.dis_field_addr.num_plan",
+              { "Numbering plan", "gsm_sms.dis_field_addr.num_plan",
                 FT_UINT8, BASE_DEC, VALS(dis_field_addr_numbering_plan_vals), 0x0F,
                 NULL, HFILL }
             },
@@ -2865,7 +2865,7 @@ proto_register_gsm_sms(void)
                 NULL, HFILL }
             },
             { &hf_gsm_sms_tp_pid_telematic_interworking,
-              { "Reserved", "gsm_sms.tp.pid.telematic_interworking",
+              { "Telematic interworking", "gsm_sms.tp.pid.telematic_interworking",
                 FT_BOOLEAN, 8, TFS(&tfs_telematic_interworking), 0x20,
                 NULL, HFILL }
             },
@@ -2996,7 +2996,7 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_tp_user_data_length,
               { "TP-User-Data-Length", "gsm_sms.tp.user_data_length",
-                FT_BOOLEAN, FT_NONE, TFS(&tfs_user_data_length), 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_tp_message_number,
@@ -3116,41 +3116,41 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_ie_identifier,
               { "Information Element Identifier", "gsm_sms.ie_identifier",
-                FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(gsm_sms_tp_ud_ie_id_rvals), 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_year,
-              { "Year", "gsm_sms.scts_aux.year",
+            { &hf_gsm_sms_scts_year,
+              { "Year", "gsm_sms.scts.year",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_month,
-              { "Month", "gsm_sms.scts_aux.month",
+            { &hf_gsm_sms_scts_month,
+              { "Month", "gsm_sms.scts.month",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_day,
-              { "Day", "gsm_sms.scts_aux.day",
+            { &hf_gsm_sms_scts_day,
+              { "Day", "gsm_sms.scts.day",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_hour,
-              { "Hour", "gsm_sms.scts_aux.hour",
+            { &hf_gsm_sms_scts_hour,
+              { "Hour", "gsm_sms.scts.hour",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_minutes,
-              { "Minutes", "gsm_sms.scts_aux.minutes",
+            { &hf_gsm_sms_scts_minutes,
+              { "Minutes", "gsm_sms.scts.minutes",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_seconds,
-              { "Seconds", "gsm_sms.scts_aux.seconds",
+            { &hf_gsm_sms_scts_seconds,
+              { "Seconds", "gsm_sms.scts.seconds",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_gsm_sms_scts_aux_timezone,
-              { "Timezone", "gsm_sms.scts_aux.timezone",
+            { &hf_gsm_sms_scts_timezone,
+              { "Timezone", "gsm_sms.scts.timezone",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
@@ -3224,7 +3224,7 @@ proto_register_gsm_sms(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_PARMS        15
+#define NUM_INDIVIDUAL_PARMS        14
     gint *ett[NUM_INDIVIDUAL_PARMS/*+NUM_MSGS*/+NUM_UDH_IEIS+2];
 
     ett[0]  = &ett_gsm_sms;
@@ -3241,7 +3241,6 @@ proto_register_gsm_sms(void)
     ett[11] = &ett_udh;
     ett[12] = &ett_udh_tfm;
     ett[13] = &ett_udh_tfc;
-    ett[14] = &ett_ts;
 
     last_offset = NUM_INDIVIDUAL_PARMS;
 
