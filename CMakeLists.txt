@@ -1464,22 +1464,41 @@ ADD_CUSTOM_COMMAND(
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-		${CMAKE_BINARY_DIR}/wireshark.pod
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
 		< ${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-	COMMAND cat
-		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-		> ${CMAKE_BINARY_DIR}/wireshark.pod
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
 		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
 )
+
+if(WIN32)
+FILE(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template WPT_WIN_PATH)
+FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT ASF_WIN_PATH)
+FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/wireshark.pod WP_WIN_PATH)
+ADD_CUSTOM_COMMAND(
+        OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
+        COMMAND copy /B ${WPT_WIN_PATH} + ${ASF_WIN_PATH} ${WP_WIN_PATH}
+        DEPENDS
+                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+)
+else()
+
+ADD_CUSTOM_COMMAND(
+        OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
+        COMMAND cat
+                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+                > ${CMAKE_BINARY_DIR}/wireshark.pod
+        DEPENDS
+                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+)
+endif()
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/captype 1 )
