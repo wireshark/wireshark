@@ -533,8 +533,7 @@ void WiresharkApplication::clearRecentItems() {
 void WiresharkApplication::cleanup()
 {
     software_update_cleanup();
-    /* write user's recent file to disk
-     * It is no problem to write this file, even if we do not quit */
+    // Write the user's recent file(s) to disk.
     write_profile_recent();
     write_recent();
 }

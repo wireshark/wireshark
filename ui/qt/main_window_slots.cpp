@@ -420,9 +420,9 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
     setWindowIcon(wsApp->normalIcon());
 
     if (global_capture_opts.quit_after_cap) {
-        /* command line asked us to quit after the capture */
-        /* don't pop up a dialog to ask for unsaved files etc. */
-        wsApp->quit();
+        // Command line asked us to quit after capturing.
+        // Don't pop up a dialog to ask for unsaved files etc.
+        exit(0);
     }
 #endif // HAVE_LIBPCAP
 }
@@ -445,9 +445,9 @@ void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     setWindowIcon(wsApp->normalIcon());
 
     if (global_capture_opts.quit_after_cap) {
-        /* command line asked us to quit after the capture */
-        /* don't pop up a dialog to ask for unsaved files etc. */
-        wsApp->quit();
+        // Command line asked us to quit after capturing.
+        // Don't pop up a dialog to ask for unsaved files etc.
+        exit(0);
     }
 #endif // HAVE_LIBPCAP
 }
@@ -471,9 +471,9 @@ void MainWindow::captureCaptureFailed(capture_session *cap_session) {
     setWindowIcon(wsApp->normalIcon());
 
     if (global_capture_opts.quit_after_cap) {
-        /* command line asked us to quit after the capture */
-        /* don't pop up a dialog to ask for unsaved files etc. */
-        wsApp->quit();
+        // Command line asked us to quit after capturing.
+        // Don't pop up a dialog to ask for unsaved files etc.
+        exit(0);
     }
 #endif // HAVE_LIBPCAP
 }
