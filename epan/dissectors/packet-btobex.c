@@ -181,6 +181,7 @@ static int hf_map_application_parameter_data_status_indicator = -1;
 static int hf_map_application_parameter_data_status_value = -1;
 static int hf_map_application_parameter_data_mse_time = -1;
 static int hf_profile = -1;
+static int hf_type = -1;
 
 static expert_field ei_unexpected_data = EI_INIT;
 
@@ -1280,7 +1281,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, item_length - 3, ENC_NA);
+                if (hdr_id == 0x042) { /* hdr type in ASCII string*/
+                    handle_item = proto_tree_add_item(hdr_tree, hf_type, tvb, offset,
+                            item_length - 3, ENC_ASCII | ENC_NA);
+                } else {
+                    handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset,
+                            item_length - 3, ENC_NA);
+                }
 
                 if (((hdr_id == 0x46) || (hdr_id == 0x4a)) && (item_length == 19)) { /* target or who */
                     for(i=0; target_vals[i].strptr != NULL; i++) {
@@ -2499,6 +2506,10 @@ proto_register_btobex(void)
         { &hf_profile,
           { "Profile", "btobex.profile", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &profile_vals_ext, 0x0,
             "Blutooth Profile used in this OBEX session", HFILL }
+        },
+        { &hf_type,
+          { "Type", "btobex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
