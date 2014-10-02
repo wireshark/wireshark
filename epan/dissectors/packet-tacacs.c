@@ -359,8 +359,8 @@ static gint ett_tacplus_flags = -1;
 static gint ett_tacplus_acct_flags = -1;
 
 typedef struct _tacplus_key_entry {
-	address  *s; /* Server address */
-	address  *c; /* client address */
+	address *s; /* Server address */
+	address *c; /* client address */
 	char	*k; /* Key */
 } tacplus_key_entry;
 
@@ -1309,3 +1309,16 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 		md5_finish(&mdcontext,hash);
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

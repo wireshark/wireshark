@@ -236,36 +236,36 @@ static const value_string close_reasons[] = {
 
 
 static const value_string resp_errors[] = {
-  { AGENTX_NO_ERROR, 		"noError" },
-  { AGENTX_TOO_BIG,		"tooBig" },
-  { AGENTX_NO_SUCH_NAME,	"noSuchName" },
-  { AGENTX_BAD_VALUE,		"badValue" },
-  { AGENTX_READ_ONLY,		"readOnly" },
-  { AGENTX_GEN_ERROR,		"genErr" },
-  { AGENTX_NO_ACCESS,		"noAccess" },
-  { AGENTX_WRONG_TYPE, 		"wrongType" },
-  { AGENTX_WRONG_LEN, 		"wrongLength" },
-  { AGENTX_WRONG_ENCODE, 	"wrongEncoding" },
-  { AGENTX_WRONG_VALUE, 	"wrongValue" },
-  { AGENTX_NO_CREATION, 	"noCreation" },
-  { AGENTX_INCONSIST_VALUE, 	"inconsistentValue" },
-  { AGENTX_RES_UNAVAIL, 	"resourceUnavailable" },
-  { AGENTX_COMMIT_FAILED, 	"commitFailed" },
-  { AGENTX_UNDO_FAILED ,	"undoFailed" },
-  { AGENTX_AUTH_ERROR, 		"authorizationError" },
-  { AGENTX_NOTWRITABLE, 	"notWritable" },
-  { AGENTX_INCONSIS_NAME, 	"inconsistentName" },
-  { AGENTX_OPEN_FAILED, 	"openFailed" },
-  { AGENTX_NOT_OPEN, 		"notOpen" },
-  { AGENTX_IDX_WRONT_TYPE, 	"indexWrongType" },
-  { AGENTX_IDX_ALREAY_ALLOC, 	"indexAlreadyAllocated" },
-  { AGENTX_IDX_NONEAVAIL, 	"indexNoneAvailable" },
-  { AGENTX_IDX_NOTALLOC, 	"indexNotAllocated" },
-  { AGENTX_UNSUPP_CONTEXT, 	"unsupportedContext" },
-  { AGENTX_DUP_REGISTR, 	"duplicateRegistration" },
-  { AGENTX_UNKNOWN_REG, 	"unknownRegistration" },
-  { AGENTX_UNKNOWN_CAPS, 	"unknownAgentCaps" },
-  { 0, NULL }
+	{ AGENTX_NO_ERROR, 	   "noError" },
+	{ AGENTX_TOO_BIG,	   "tooBig" },
+	{ AGENTX_NO_SUCH_NAME,	   "noSuchName" },
+	{ AGENTX_BAD_VALUE,	   "badValue" },
+	{ AGENTX_READ_ONLY,	   "readOnly" },
+	{ AGENTX_GEN_ERROR,	   "genErr" },
+	{ AGENTX_NO_ACCESS,	   "noAccess" },
+	{ AGENTX_WRONG_TYPE, 	   "wrongType" },
+	{ AGENTX_WRONG_LEN, 	   "wrongLength" },
+	{ AGENTX_WRONG_ENCODE,	   "wrongEncoding" },
+	{ AGENTX_WRONG_VALUE,	   "wrongValue" },
+	{ AGENTX_NO_CREATION,	   "noCreation" },
+	{ AGENTX_INCONSIST_VALUE,  "inconsistentValue" },
+	{ AGENTX_RES_UNAVAIL,	   "resourceUnavailable" },
+	{ AGENTX_COMMIT_FAILED,    "commitFailed" },
+	{ AGENTX_UNDO_FAILED ,	   "undoFailed" },
+	{ AGENTX_AUTH_ERROR, 	   "authorizationError" },
+	{ AGENTX_NOTWRITABLE,	   "notWritable" },
+	{ AGENTX_INCONSIS_NAME,    "inconsistentName" },
+	{ AGENTX_OPEN_FAILED,	   "openFailed" },
+	{ AGENTX_NOT_OPEN, 	   "notOpen" },
+	{ AGENTX_IDX_WRONT_TYPE,   "indexWrongType" },
+	{ AGENTX_IDX_ALREAY_ALLOC, "indexAlreadyAllocated" },
+	{ AGENTX_IDX_NONEAVAIL,    "indexNoneAvailable" },
+	{ AGENTX_IDX_NOTALLOC,	   "indexNotAllocated" },
+	{ AGENTX_UNSUPP_CONTEXT,   "unsupportedContext" },
+	{ AGENTX_DUP_REGISTR,	   "duplicateRegistration" },
+	{ AGENTX_UNKNOWN_REG,	   "unknownRegistration" },
+	{ AGENTX_UNKNOWN_CAPS,	   "unknownAgentCaps" },
+	{ 0, NULL }
 };
 static value_string_ext resp_errors_ext = VALUE_STRING_EXT_INIT(resp_errors);
 
@@ -914,7 +914,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		break;
 	}
 
-    return tvb_captured_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1148,3 +1148,16 @@ proto_reg_handoff_agentx(void)
 	agentx_tcp_port = global_agentx_tcp_port;
 	dissector_add_uint("tcp.port", agentx_tcp_port, agentx_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

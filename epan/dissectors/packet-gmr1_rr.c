@@ -1761,7 +1761,7 @@ static const gmr1_msg_func_t gmr1_msg_rr_func[NUM_GMR1_MSG_RR] = {
 
 void
 gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
-                       int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
+		       int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
 {
 	const gchar *m = NULL;
 	gint idx;
@@ -2468,3 +2468,16 @@ proto_reg_handoff_gmr1_rr(void)
 {
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

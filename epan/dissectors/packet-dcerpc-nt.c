@@ -1957,3 +1957,16 @@ void dcerpc_smb_init(int proto_dcerpc)
 	expert_register_field_array(expert_dcerpc_nt, ei, array_length(ei));
 	register_init_routine(&init_pol_hash);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

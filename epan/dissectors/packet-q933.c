@@ -134,8 +134,8 @@ static const true_false_string tfs_call_ref_flag = {
 /*	next octet. The bit value "1" indicates that this octet is the last octet		*/
 
 static const true_false_string q933_extension_ind_value = {
-  "last octet",
-  "information continues through the next octet",
+	"last octet",
+	"information continues through the next octet",
 
 };
 
@@ -231,12 +231,12 @@ static const value_string q933_info_element_vals4[] = {
 
 /* Codeset 5 */
 static const value_string q933_info_element_vals5[] = {
-        { Q933_IE_ANSI_REPORT_TYPE,             "Report type (ANSI)" },
-        { Q933_IE_REPORT_TYPE,                  "Report type (CCITT)" },
-        { Q933_IE_ANSI_LINK_INTEGRITY_VERF,     "Keep Alive (ANSI)" },
-        { Q933_IE_LINK_INTEGRITY_VERF,          "Keep Alive (CCITT)" },
-        { Q933_IE_ANSI_PVC_STATUS,              "PVC Status (ANSI)" },
-        { Q933_IE_PVC_STATUS,                   "PVC Status (CCITT)" },
+	{ Q933_IE_ANSI_REPORT_TYPE,             "Report type (ANSI)" },
+	{ Q933_IE_REPORT_TYPE,                  "Report type (CCITT)" },
+	{ Q933_IE_ANSI_LINK_INTEGRITY_VERF,     "Keep Alive (ANSI)" },
+	{ Q933_IE_LINK_INTEGRITY_VERF,          "Keep Alive (CCITT)" },
+	{ Q933_IE_ANSI_PVC_STATUS,              "PVC Status (ANSI)" },
+	{ Q933_IE_PVC_STATUS,                   "PVC Status (CCITT)" },
 	{ 0,					NULL }
 };
 /* Codeset 6 */
@@ -251,14 +251,14 @@ static const value_string q933_info_element_vals7[] = {
 /* Codeset array */
 #define NUM_INFO_ELEMENT_VALS	(Q933_IE_SHIFT_CODESET+1)
 static const value_string *q933_info_element_vals[NUM_INFO_ELEMENT_VALS] = {
-  q933_info_element_vals0,
-  q933_info_element_vals1,
-  q933_info_element_vals2,
-  q933_info_element_vals3,
-  q933_info_element_vals4,
-  q933_info_element_vals5,
-  q933_info_element_vals6,
-  q933_info_element_vals7,
+	q933_info_element_vals0,
+	q933_info_element_vals1,
+	q933_info_element_vals2,
+	q933_info_element_vals3,
+	q933_info_element_vals4,
+	q933_info_element_vals5,
+	q933_info_element_vals6,
+	q933_info_element_vals7,
 };
 
 static const value_string q933_repeat_indication_vals[] = {
@@ -276,7 +276,7 @@ static const value_string q933_repeat_indication_vals[] = {
  */
 static void
 dissect_q933_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	if (len != 2) {
 		proto_tree_add_text(tree, tvb, offset, len,
@@ -466,7 +466,7 @@ dissect_q933_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_q933_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -889,7 +889,7 @@ static const value_string q933_rejection_reason_vals[] = {
 
 static void
 dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value)
+		      proto_tree *tree, int hf_cause_value)
 {
 	guint8 octet;
 	guint8 cause_value;
@@ -1069,7 +1069,7 @@ static const value_string q933_call_state_vals[] = {
 
 static void
 dissect_q933_call_state_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			   proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -1103,15 +1103,15 @@ dissect_q933_call_state_ie(tvbuff_t *tvb, int offset, int len,
 #define Q933_IE_REPORT_TYPE_ASYNC_PVC_STATUS 0x02
 
 static const value_string q933_report_type_vals[] = {
-        { Q933_IE_REPORT_TYPE_FULL_STATUS, "Full Status" },
-        { Q933_IE_REPORT_TYPE_LINK_VERIFY, "Link verify" },
-        { Q933_IE_REPORT_TYPE_ASYNC_PVC_STATUS, "Async PVC Status" },
+	{ Q933_IE_REPORT_TYPE_FULL_STATUS, "Full Status" },
+	{ Q933_IE_REPORT_TYPE_LINK_VERIFY, "Link verify" },
+	{ Q933_IE_REPORT_TYPE_ASYNC_PVC_STATUS, "Async PVC Status" },
 	{ 0,    NULL }
 };
 
 static void
 dissect_q933_report_type_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			    proto_tree *tree)
 {
 	guint8 report_type;
 
@@ -1127,7 +1127,7 @@ dissect_q933_report_type_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q933_link_integrity_verf_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				    proto_tree *tree)
 {
 	guint8 txseq,rxseq;
 
@@ -1146,40 +1146,40 @@ dissect_q933_link_integrity_verf_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a PVC status information element.
  */
 static const value_string q933_pvc_status_vals[] = {
-    {0x00, "Inactive"},
-    {0x02, "Active"},
-    {0x08, "New"},
-    {0x0a, "New, Active"},
-    {0, NULL}
+	{0x00, "Inactive"},
+	{0x02, "Active"},
+	{0x08, "New"},
+	{0x0a, "New, Active"},
+	{0, NULL}
 };
 
 static void
 dissect_q933_pvc_status_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			   proto_tree *tree)
 {
 	guint32 dlci;
-        guint8 dlci_status,dlci_len=2;
+	guint8 dlci_status,dlci_len=2;
 
 	if (len < 3)
 		return;
 
-        dlci = ((tvb_get_guint8(tvb, offset) & 0x3F) << 4) |
-            ((tvb_get_guint8(tvb, offset+1) & 0x78) >> 3);
+	dlci = ((tvb_get_guint8(tvb, offset) & 0x3F) << 4) |
+		((tvb_get_guint8(tvb, offset+1) & 0x78) >> 3);
 
-        /* first determine the DLCI field length */
-        if (len == 4) {
-            dlci = (dlci << 6) | ((tvb_get_guint8(tvb, offset+2) & 0x7E) >> 1);
-            dlci_len++;
-        } else if (len == 5) {
-            dlci = (dlci << 13) | (tvb_get_guint8(tvb, offset+3) & 0x7F) |
-                ((tvb_get_guint8(tvb, offset+4) & 0x7E) >> 1);
-            dlci_len+=2;
-        }
-        dlci_status=tvb_get_guint8(tvb, offset+dlci_len)&0x0a;
+	/* first determine the DLCI field length */
+	if (len == 4) {
+		dlci = (dlci << 6) | ((tvb_get_guint8(tvb, offset+2) & 0x7E) >> 1);
+		dlci_len++;
+	} else if (len == 5) {
+		dlci = (dlci << 13) | (tvb_get_guint8(tvb, offset+3) & 0x7F) |
+			((tvb_get_guint8(tvb, offset+4) & 0x7E) >> 1);
+		dlci_len+=2;
+	}
+	dlci_status=tvb_get_guint8(tvb, offset+dlci_len)&0x0a;
 
 	proto_tree_add_text(tree, tvb, offset, dlci_len, "DLCI: %u", dlci);
 	proto_tree_add_text(tree, tvb, offset+dlci_len, 1, "Status: %s",
-                            val_to_str_const(dlci_status, q933_pvc_status_vals, "Unknown"));
+			    val_to_str_const(dlci_status, q933_pvc_status_vals, "Unknown"));
 }
 
 /*
@@ -1215,7 +1215,7 @@ static const value_string q933_element_type_vals[] = {
 
 static void
 dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				       proto_tree *tree)
 {
 	guint8 octet;
 	int identifier_offset;
@@ -1321,7 +1321,7 @@ static const value_string q933_progress_description_vals[] = {
 
 static void
 dissect_q933_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				   proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -1377,7 +1377,7 @@ static const value_string q933_netid_plan_vals[] = {
 
 static void
 dissect_q933_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			      proto_tree *tree)
 {
 	guint8 octet;
 	int netid_len;
@@ -1433,7 +1433,7 @@ dissect_q933_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 
 static int
 dissect_q933_guint16_value(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, const char *label)
+			   proto_tree *tree, const char *label)
 {
 	guint8 octet;
 	guint16 value;
@@ -1509,7 +1509,7 @@ bad_length:
  */
 static void
 dissect_q933_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	int value_len;
 
@@ -1542,7 +1542,7 @@ dissect_q933_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q933_td_selection_and_int_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				     proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1552,7 +1552,7 @@ dissect_q933_td_selection_and_int_ie(tvbuff_t *tvb, int offset, int len,
 
 static void
 dissect_q933_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				     proto_tree *tree)
 {
 	guint8 octet;
 
@@ -1578,7 +1578,7 @@ static const value_string q933_reverse_charging_indication_vals[] = {
 
 static void
 dissect_q933_reverse_charge_ind_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				   proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1639,7 +1639,7 @@ static const value_string q933_redirection_reason_vals[] = {
 
 static void
 dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hfindex)
+		       proto_tree *tree, int hfindex)
 {
 	guint8 octet;
 
@@ -1701,7 +1701,7 @@ static const value_string q933_odd_even_indicator_vals[] = {
 
 static void
 dissect_q933_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			      proto_tree *tree)
 {
 	guint8 octet;
 
@@ -1759,7 +1759,7 @@ static const value_string q933_audiovisual_characteristics_vals[] = {
 
 static void
 dissect_q933_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -1834,7 +1834,7 @@ static const value_string q933_protocol_discriminator_vals[] = {
 
 static void
 dissect_q933_user_user_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			  proto_tree *tree)
 {
 	guint8 octet;
 
@@ -1869,7 +1869,7 @@ dissect_q933_user_user_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q933_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
-    const char *label)
+		    const char *label)
 {
 	if (len != 0) {
 		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", label,
@@ -2133,7 +2133,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case CS5 | Q933_IE_LINK_INTEGRITY_VERF:
 			case CS5 | Q933_IE_ANSI_LINK_INTEGRITY_VERF:
-                                dissect_q933_link_integrity_verf_ie(tvb,
+				dissect_q933_link_integrity_verf_ie(tvb,
 				    offset + 2, info_element_len,
 				    ie_tree);
 				break;
@@ -2277,3 +2277,16 @@ proto_reg_handoff_q933(void)
 	q933_handle = find_dissector("q933");
 	dissector_add_uint("fr.osinl", NLPID_Q_933, q933_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

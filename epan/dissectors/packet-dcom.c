@@ -2463,7 +2463,7 @@ proto_register_dcom (void)
 	proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
 
-    expert_dcom = expert_register_protocol(proto_dcom);
+	expert_dcom = expert_register_protocol(proto_dcom);
 	expert_register_field_array(expert_dcom, ei, array_length(ei));
 
 	/* preferences */
@@ -2492,3 +2492,16 @@ proto_reg_handoff_dcom (void)
 
 	/* Currently, we have nothing to register for DCOM */
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

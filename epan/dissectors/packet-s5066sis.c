@@ -823,17 +823,17 @@ proto_reg_handoff_s5066(void)
 static guint
 dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source)
 {
-    proto_tree *s5066_tree_address;
+	proto_tree *s5066_tree_address;
 	guint32 addr;
 
-    if (source) {
+	if (source) {
 		s5066_tree_address = proto_tree_add_subtree(tree, tvb, offset, 4, ett_s5066_address, NULL, "Source Address");
 	}
 	else {
 		s5066_tree_address = proto_tree_add_subtree(tree, tvb, offset, 4, ett_s5066_address, NULL, "Destination Address");
 	}
 
-    proto_tree_add_item(s5066_tree_address, hf_s5066_ad_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 	addr = tvb_get_ntohl(tvb, offset);
 	addr = addr & 0x1FFFFFFF;
@@ -1254,13 +1254,13 @@ dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint
 get_s5066_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint16 plen;
+	guint16 plen;
 
-  /* Get the length of the S5066 PDU. */
-  plen = tvb_get_ntohs(tvb, offset + s5066_size_offset);
+	/* Get the length of the S5066 PDU. */
+	plen = tvb_get_ntohs(tvb, offset + s5066_size_offset);
 
-  /* That length doesn't include the sync, version and length fields; add that in. */
-  return plen + s5066_header_size;
+	/* That length doesn't include the sync, version and length fields; add that in. */
+	return plen + s5066_header_size;
 }
 
 static int
@@ -1356,3 +1356,16 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	return tvb_length(tvb);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -58,25 +58,25 @@ void proto_reg_handoff_opsi(void);
 
 /* Internal structure to dissect attributes */
 typedef struct {
-	guint16		attribute_type;		/* attribute code */
-        const char	*tree_text;             /* text for fold out */
-        gint		*tree_id;               /* id for add_item */
-        int*		hf_type_attribute;	/* id for seach option */
-        void		(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
-                               int* hfValue, int offset, int length);
+	guint16		 attribute_type;	/* attribute code */
+	const char	*tree_text;             /* text for fold out */
+	gint		*tree_id;               /* id for add_item */
+	int             *hf_type_attribute;	/* id for seach option */
+	void		(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
+				   int* hfValue, int offset, int length);
 } opsi_attribute_handle_t;
 
 
 /* Attributes codes */
-#define USER_NAME_ATTRIBUTE		1
-#define USER_PASSWD_ATTRIBUTE		2
-#define CHAP_PASSWD_ATTRIBUTE		3
-#define NAS_IP_ADDRESS_ATTRIBUTE	4
-#define NAS_PORT_ATTRIBUTE		5
-#define SERVICE_TYPE_ATTRIBUTE		6
-#define FRAMED_PROTOCOL_ATTRIBUTE	7
-#define FRAMED_ADDRESS_ATTRIBUTE	8
-#define FRAMED_NETMASK_ATTRIBUTE	9
+#define USER_NAME_ATTRIBUTE		 1
+#define USER_PASSWD_ATTRIBUTE		 2
+#define CHAP_PASSWD_ATTRIBUTE		 3
+#define NAS_IP_ADDRESS_ATTRIBUTE	 4
+#define NAS_PORT_ATTRIBUTE		 5
+#define SERVICE_TYPE_ATTRIBUTE		 6
+#define FRAMED_PROTOCOL_ATTRIBUTE	 7
+#define FRAMED_ADDRESS_ATTRIBUTE	 8
+#define FRAMED_NETMASK_ATTRIBUTE	 9
 #define FRAMED_ROUTING_ATTRIBUTE	10
 #define FRAMED_FILTER_ATTRIBUTE		11
 #define FRAMED_MTU_ATTRIBUTE		12
@@ -224,88 +224,88 @@ static expert_field ei_opsi_short_frame = EI_INIT;
 
 /* Code mapping */
 static const value_string opsi_opcode[] = {
-		{ DISCOVER_REQUEST, 	"Discover Request" },
-		{ DISCOVER_RESPONSE, 	"Discover Response" },
-		{ SERVICE_REQUEST, 	"Service Request" },
-		{ SERVICE_ACCEPT,  	"Service Accept" },
-		{ SERVICE_REJECT,  	"Service Reject" },
-		{ TERMINATE_REQUEST, 	"Terminate Request" },
-		{ 0,       		NULL }
-	};
+	{ DISCOVER_REQUEST,  "Discover Request" },
+	{ DISCOVER_RESPONSE, "Discover Response" },
+	{ SERVICE_REQUEST,   "Service Request" },
+	{ SERVICE_ACCEPT,    "Service Accept" },
+	{ SERVICE_REJECT,    "Service Reject" },
+	{ TERMINATE_REQUEST, "Terminate Request" },
+	{ 0, NULL }
+};
 
 static const value_string opsi_service_type_code[] = {
-		{ 1, "Login" },
-       		{ 2, "Framed" },
-       		{ 3, "Callback Login" },
-       		{ 4, "Callback Framed" },
-       		{ 5, "Outbound" },
-       		{ 6, "Administrative" },
-       		{ 7, "NAS Prompt" },
-       		{ 8, "Authenticate Only" },
-       		{ 9, "Callback NAS Prompt" },
-		{ 0,       		NULL }
-	};
+	{ 1, "Login" },
+	{ 2, "Framed" },
+	{ 3, "Callback Login" },
+	{ 4, "Callback Framed" },
+	{ 5, "Outbound" },
+	{ 6, "Administrative" },
+	{ 7, "NAS Prompt" },
+	{ 8, "Authenticate Only" },
+	{ 9, "Callback NAS Prompt" },
+	{ 0, NULL }
+};
 
 static const value_string opsi_framed_protocol_code[] = {
-		{ 1, 	"PPP" },
-       		{ 2,  	"SLIP" },
-        	{ 3,  	"AppleTalk Remote Access Protocol (ARAP)" },
-        	{ 4,  	"Gandalf proprietary SingleLink/MultiLink protocol" },
-       		{ 5,  	"Xylogics proprietary IPX/SLIP" },
-       		{ 255, 	"Ascend ARA" },
-       		{ 256,	"MPP" },
-       		{ 257,	"EURAW" },
-       		{ 258,	"EUUI" },
-       		{ 259, 	"X25" },
-       		{ 260,	"COMB" },
-       		{ 261,	"FR" },
-       		{ 262,	"MP" },
-       		{ 263,	"FR-CIR"},
-        	{ 0,       		NULL }
-	};
+	{   1, "PPP" },
+	{   2, "SLIP" },
+	{   3, "AppleTalk Remote Access Protocol (ARAP)" },
+	{   4, "Gandalf proprietary SingleLink/MultiLink protocol" },
+	{   5, "Xylogics proprietary IPX/SLIP" },
+	{ 255, "Ascend ARA" },
+	{ 256, "MPP" },
+	{ 257, "EURAW" },
+	{ 258, "EUUI" },
+	{ 259, "X25" },
+	{ 260, "COMB" },
+	{ 261, "FR" },
+	{ 262, "MP" },
+	{ 263, "FR-CIR"},
+	{ 0, NULL }
+};
 
 static const value_string opsi_framed_routing_code[] = {
-		{ 0,	"None" },
-		{ 1,	"Broadcast" },
-		{ 2,	"Listen" },
-		{ 3,	"Broadcast-Listen" },
-		{ 4,	"Broadcast V2" },
-		{ 5,	"Listen V2" },
-		{ 6,	"Broadcast-Listen V2" },
-		{ 0,	NULL },
-	};
+	{ 0, "None" },
+	{ 1, "Broadcast" },
+	{ 2, "Listen" },
+	{ 3, "Broadcast-Listen" },
+	{ 4, "Broadcast V2" },
+	{ 5, "Listen V2" },
+	{ 6, "Broadcast-Listen V2" },
+	{ 0, NULL },
+};
 
 static const value_string opsi_framed_compression_code[] = {
-		{ 0,	"None" },
-		{ 1,	"Van Jacobsen TCP/IP" },
-		{ 2, 	"IPX header compression" },
-		{ 0,	NULL }
-	};
+	{ 0, "None" },
+	{ 1, "Van Jacobsen TCP/IP" },
+	{ 2, "IPX header compression" },
+	{ 0, NULL }
+};
 
 static const value_string opsi_nas_port_type_code[] = {
-		{ 0, "Async" },
-      		{ 1, "Sync" },
-      		{ 2, "ISDN Sync" },
-      		{ 3, "ISDN Async V.120" },
-      		{ 4, "ISDN Async V.110" },
-      		{ 5, "Virtual" },
-      		{ 6, "PIAFS" },
-      		{ 7, "HDLC Clear Channel" },
-      		{ 8, "X.25" },
-      		{ 9, "X.75" },
-      		{ 10, "G.3 Fax" },
-      		{ 11, "SDSL - Symmetric DSL" },
-      		{ 12, "ADSL-CAP - Asymmetric DSL, Carrierless Amplitude Phase Modulation" },
-      		{ 13, "ADSL-DMT - Asymmetric DSL, Discrete Multi-Tone" },
-      		{ 14, "IDSL - ISDN Digital Subscriber Line" },
-      		{ 15, "Ethernet" },
-      		{ 16, "xDSL - Digital Subscriber Line of unknown type" },
-      		{ 17, "Cable" },
-      		{ 18, "Wireless - Other" },
-      		{ 19, "Wireless - IEEE 802.11" },
-      		{ 201,"Voice over IP" },
-      		{ 0,       		NULL }
-	};
+	{   0, "Async" },
+	{   1, "Sync" },
+	{   2, "ISDN Sync" },
+	{   3, "ISDN Async V.120" },
+	{   4, "ISDN Async V.110" },
+	{   5, "Virtual" },
+	{   6, "PIAFS" },
+	{   7, "HDLC Clear Channel" },
+	{   8, "X.25" },
+	{   9, "X.75" },
+	{  10, "G.3 Fax" },
+	{  11, "SDSL - Symmetric DSL" },
+	{  12, "ADSL-CAP - Asymmetric DSL, Carrierless Amplitude Phase Modulation" },
+	{  13, "ADSL-DMT - Asymmetric DSL, Discrete Multi-Tone" },
+	{  14, "IDSL - ISDN Digital Subscriber Line" },
+	{  15, "Ethernet" },
+	{  16, "xDSL - Digital Subscriber Line of unknown type" },
+	{  17, "Cable" },
+	{  18, "Wireless - Other" },
+	{  19, "Wireless - IEEE 802.11" },
+	{ 201, "Voice over IP" },
+	{ 0, NULL }
+};
 
 
 /* Structure used to decode OPSI frame attributes	*/
@@ -314,111 +314,111 @@ static const value_string opsi_nas_port_type_code[] = {
 /* in ascending order 					*/
 /*							*/
 static opsi_attribute_handle_t opsi_attributes[] = {
-	{ USER_NAME_ATTRIBUTE,		/* 1 */
-	"User name attribute", &ett_opsi_user_name, &hf_user_name_att, decode_string_attribute },
-	{ USER_PASSWD_ATTRIBUTE,	/* 2 */
-	"User password attribute" , &ett_opsi_user_password, &hf_password_att, decode_string_attribute },
-	{ CHAP_PASSWD_ATTRIBUTE,	/* 3 */
-	"CHAP password attribute", &ett_opsi_chap_password, &hf_chap_password_att, decode_string_attribute },
-	{ NAS_IP_ADDRESS_ATTRIBUTE,	/* 4 */
-	"NAS IP address attribute", &ett_opsi_nas_ip_address, &hf_nas_ip_add_att, decode_ipv4_attribute },
-	{NAS_PORT_ATTRIBUTE,		/* 5 */
-	"NAS port attribute", &ett_opsi_nas_port, &hf_nas_port_att, decode_longint_attribute },
-	{SERVICE_TYPE_ATTRIBUTE,	/* 6 */
-	"Service type attribute", &ett_opsi_service_type, &hf_service_type_att, decode_value_string_attribute },
-	{FRAMED_PROTOCOL_ATTRIBUTE,	/* 7 */
-	"Framed protocol attribute", &ett_opsi_framed_protocol, &hf_framed_protocol_att, decode_value_string_attribute },
-	{FRAMED_ADDRESS_ATTRIBUTE, 	/* 8 */
-	"Framed address attribute", &ett_opsi_framed_address, &hf_framed_address_att, decode_ipv4_attribute },
-	{FRAMED_NETMASK_ATTRIBUTE, 	/* 9 */
-	"Framed netmask attribute", &ett_opsi_framed_netmask, &hf_framed_netmask_att, decode_ipv4_attribute },
-	{FRAMED_ROUTING_ATTRIBUTE, 	/* 10 */
-	"Framed routing attribute", &ett_opsi_framed_routing, &hf_framed_routing_att, decode_value_string_attribute },
-	{FRAMED_FILTER_ATTRIBUTE, 	/* 11 */
-	"Framed filter attribute", &ett_opsi_framed_filter, &hf_framed_filter_att, decode_string_attribute },
-	{FRAMED_MTU_ATTRIBUTE, 		/* 12 */
-	"Framed MTU attribute", &ett_opsi_framed_mtu, &hf_framed_mtu_att, decode_longint_attribute },
-	{FRAMED_COMPRESSION_ATTRIBUTE, 	/* 13 */
-	"Framed compression attribute", &ett_opsi_framed_compression, &hf_framed_compression_att, decode_value_string_attribute },
-	{CALLED_STATION_ID_ATTRIBUTE,	/* 30 */
-	"Called station ID attribute", &ett_opsi_called_station_id, &hf_called_station_att, decode_string_attribute },
-	{CALLING_STATION_ID_ATTRIBUTE,	/* 31 */
-	"Calling station ID attribute", &ett_opsi_calling_station_id, &hf_calling_station_att, decode_string_attribute },
-	{NAS_IDENTIFIER,		/* 32 */
-	"NAS Identifier attribute", &ett_opsi_nas_identifier, &hf_nas_identifier_att, decode_string_attribute },
-	{ACCOUNTING_40_ATTRIBUTE,	/* 40 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_41_ATTRIBUTE,	/* 41 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_42_ATTRIBUTE,	/* 42 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_43_ATTRIBUTE,	/* 43 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_SESSION_ID_ATTRIBUTE,	/* 44 */
+	{ USER_NAME_ATTRIBUTE,		  /* 1 */
+	"User name attribute",		   &ett_opsi_user_name, &hf_user_name_att, decode_string_attribute },
+	{ USER_PASSWD_ATTRIBUTE,	  /* 2 */
+	"User password attribute" ,	   &ett_opsi_user_password, &hf_password_att, decode_string_attribute },
+	{ CHAP_PASSWD_ATTRIBUTE,	  /* 3 */
+	"CHAP password attribute",	   &ett_opsi_chap_password, &hf_chap_password_att, decode_string_attribute },
+	{ NAS_IP_ADDRESS_ATTRIBUTE,	  /* 4 */
+	"NAS IP address attribute",	   &ett_opsi_nas_ip_address, &hf_nas_ip_add_att, decode_ipv4_attribute },
+	{NAS_PORT_ATTRIBUTE,		  /* 5 */
+	"NAS port attribute",		   &ett_opsi_nas_port, &hf_nas_port_att, decode_longint_attribute },
+	{SERVICE_TYPE_ATTRIBUTE,	  /* 6 */
+	"Service type attribute",	   &ett_opsi_service_type, &hf_service_type_att, decode_value_string_attribute },
+	{FRAMED_PROTOCOL_ATTRIBUTE,	  /* 7 */
+	"Framed protocol attribute",	   &ett_opsi_framed_protocol, &hf_framed_protocol_att, decode_value_string_attribute },
+	{FRAMED_ADDRESS_ATTRIBUTE,	  /* 8 */
+	"Framed address attribute",	   &ett_opsi_framed_address, &hf_framed_address_att, decode_ipv4_attribute },
+	{FRAMED_NETMASK_ATTRIBUTE,	  /* 9 */
+	"Framed netmask attribute",	   &ett_opsi_framed_netmask, &hf_framed_netmask_att, decode_ipv4_attribute },
+	{FRAMED_ROUTING_ATTRIBUTE,	  /* 10 */
+	"Framed routing attribute",	   &ett_opsi_framed_routing, &hf_framed_routing_att, decode_value_string_attribute },
+	{FRAMED_FILTER_ATTRIBUTE,	  /* 11 */
+	"Framed filter attribute",	   &ett_opsi_framed_filter, &hf_framed_filter_att, decode_string_attribute },
+	{FRAMED_MTU_ATTRIBUTE,		  /* 12 */
+	"Framed MTU attribute",		   &ett_opsi_framed_mtu, &hf_framed_mtu_att, decode_longint_attribute },
+	{FRAMED_COMPRESSION_ATTRIBUTE,	  /* 13 */
+	"Framed compression attribute",	   &ett_opsi_framed_compression, &hf_framed_compression_att, decode_value_string_attribute },
+	{CALLED_STATION_ID_ATTRIBUTE,	  /* 30 */
+	"Called station ID attribute",	   &ett_opsi_called_station_id, &hf_called_station_att, decode_string_attribute },
+	{CALLING_STATION_ID_ATTRIBUTE,	  /* 31 */
+	"Calling station ID attribute",	   &ett_opsi_calling_station_id, &hf_calling_station_att, decode_string_attribute },
+	{NAS_IDENTIFIER,		  /* 32 */
+	"NAS Identifier attribute",	   &ett_opsi_nas_identifier, &hf_nas_identifier_att, decode_string_attribute },
+	{ACCOUNTING_40_ATTRIBUTE,	  /* 40 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_41_ATTRIBUTE,	  /* 41 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_42_ATTRIBUTE,	  /* 42 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_43_ATTRIBUTE,	  /* 43 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_SESSION_ID_ATTRIBUTE, /* 44 */
 	"Accounting session ID attribute", &ett_opsi_acct_session_id, &hf_acct_session_id_att, decode_string_attribute },
-	{ACCOUNTING_45_ATTRIBUTE,	/* 45 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_46_ATTRIBUTE,	/* 46 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_47_ATTRIBUTE,	/* 47 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_48_ATTRIBUTE,	/* 48 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_49_ATTRIBUTE,	/* 49 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_50_ATTRIBUTE,	/* 50 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_51_ATTRIBUTE,	/* 51 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_52_ATTRIBUTE,	/* 52 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_53_ATTRIBUTE,	/* 53 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_54_ATTRIBUTE,	/* 54 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_55_ATTRIBUTE,	/* 55 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_56_ATTRIBUTE,	/* 56 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_57_ATTRIBUTE,	/* 57 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_58_ATTRIBUTE,	/* 58 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_59_ATTRIBUTE,	/* 59 */
-	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{CHAP_CHALLENGE_ATTRIBUTE,	/* 60 */
-	"CHAP challenge",	&ett_opsi_chap_challenge, &hf_chap_challenge_att, decode_string_attribute },
-	{NAS_PORT_TYPE_ATTRIBUTE,	/* 61 */
-	"NAS port type attribute", &ett_opsi_nas_port_type, &hf_nas_port_type_att, decode_value_string_attribute },
-	{DESIGNATION_NUMBER_ATTRIBUTE,	/* 77 */
-	"Designation number attribute", &ett_opsi_designation_number, &hf_designation_num_att, decode_string_attribute },
-	{NAS_PORT_ID_ATTRIBUTE,		/* 87 */
-	"NAS port ID attribute", &ett_opsi_nas_port_id, &hf_nas_port_id_att, decode_string_attribute },
-	{SMC_AAAID_ATTRIBUTE,		/* 651 */
-	"SMC AAA ID attribute", &ett_opsi_smc_aaa_id, &hf_smc_aaa_id_att, decode_longint_attribute },
-	{SMC_VPNID_ATTRIBUTE,		/* 652 */
-	"SMC VPN ID attribute", &ett_opsi_smc_vpn_id, &hf_smc_vpn_id_att, decode_longint_attribute },
-	{SMC_VPNNAME_ATTRIBUTE,		/* 653 */
-	"SMC VPN name attribute", &ett_opsi_smc_vpn_name, &hf_smc_vpn_name_att, decode_string_attribute },
-	{SMC_RANID_ATTRIBUTE,           /* 654 */
-	"SMC RAN ID attribute", &ett_opsi_smc_ran_id, &hf_smc_ran_id_att, decode_longint_attribute },
-	{SMC_RANIP_ATTRIBUTE,           /* 655 */
-	"SMC RAN IP attribute", &ett_opsi_smc_ran_ip, &hf_smc_ran_ip_att, decode_ipv4_attribute },
-	{SMC_RANNAME_ATTRIBUTE,         /* 656 */
-	"SMC RAN name attribute", &ett_opsi_smc_ran_name, &hf_smc_ran_name_att, decode_string_attribute },
-	{SMC_POPID_ATTRIBUTE,		/* 657 */
-	"SMC POP ID attribute", &ett_opsi_smc_pop_id, &hf_smc_pop_id_att, decode_longint_attribute },
-	{SMC_POPNAME_ATTRIBUTE,		/* 658 */
-	"SMC POP name attribute", &ett_opsi_smc_pop_name, &hf_smc_pop_name_att, decode_string_attribute },
-	{SMC_SMCID_ATTRIBUTE,		/* 659 */
-	"SMC ID attribute", &ett_opsi_smc_id, &hf_smc_id_att, decode_longint_attribute },
-	{SMC_RECEIVE_TIME_ATTRIBUTE,	/* 660 */
-	"SMC receive time attribute", &ett_opsi_smc_receive_time, &hf_smc_receive_time_att, decode_time_attribute },
-	{SMC_STAT_TIME_ATTRIBUTE,	/* 661 */
-	"SMC stat time attribute", &ett_opsi_smc_stat_time, &hf_smc_stat_time_att, decode_longint_attribute },
-	{OPSI_FLAGS_ATTRIBUTE,		/* 674 */
-	"OPSI flags attribute", &ett_opsi_flags, &hf_opsi_flags_att, decode_longint_attribute },
-	{OPSI_APPLICATION_NAME_ATTRIBUTE,/* 675 */
+	{ACCOUNTING_45_ATTRIBUTE,	  /* 45 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_46_ATTRIBUTE,	  /* 46 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_47_ATTRIBUTE,	  /* 47 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_48_ATTRIBUTE,	  /* 48 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_49_ATTRIBUTE,	  /* 49 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_50_ATTRIBUTE,	  /* 50 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_51_ATTRIBUTE,	  /* 51 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_52_ATTRIBUTE,	  /* 52 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_53_ATTRIBUTE,	  /* 53 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_54_ATTRIBUTE,	  /* 54 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_55_ATTRIBUTE,	  /* 55 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_56_ATTRIBUTE,	  /* 56 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_57_ATTRIBUTE,	  /* 57 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_58_ATTRIBUTE,	  /* 58 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{ACCOUNTING_59_ATTRIBUTE,	  /* 59 */
+	"Accounting attribute",		   &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
+	{CHAP_CHALLENGE_ATTRIBUTE,	  /* 60 */
+	"CHAP challenge",		   &ett_opsi_chap_challenge, &hf_chap_challenge_att, decode_string_attribute },
+	{NAS_PORT_TYPE_ATTRIBUTE,	  /* 61 */
+	"NAS port type attribute",	   &ett_opsi_nas_port_type, &hf_nas_port_type_att, decode_value_string_attribute },
+	{DESIGNATION_NUMBER_ATTRIBUTE,	  /* 77 */
+	"Designation number attribute",	   &ett_opsi_designation_number, &hf_designation_num_att, decode_string_attribute },
+	{NAS_PORT_ID_ATTRIBUTE,		  /* 87 */
+	"NAS port ID attribute",	   &ett_opsi_nas_port_id, &hf_nas_port_id_att, decode_string_attribute },
+	{SMC_AAAID_ATTRIBUTE,		  /* 651 */
+	"SMC AAA ID attribute",		   &ett_opsi_smc_aaa_id, &hf_smc_aaa_id_att, decode_longint_attribute },
+	{SMC_VPNID_ATTRIBUTE,		  /* 652 */
+	"SMC VPN ID attribute",		   &ett_opsi_smc_vpn_id, &hf_smc_vpn_id_att, decode_longint_attribute },
+	{SMC_VPNNAME_ATTRIBUTE,		  /* 653 */
+	"SMC VPN name attribute",	   &ett_opsi_smc_vpn_name, &hf_smc_vpn_name_att, decode_string_attribute },
+	{SMC_RANID_ATTRIBUTE,		  /* 654 */
+	"SMC RAN ID attribute",		   &ett_opsi_smc_ran_id, &hf_smc_ran_id_att, decode_longint_attribute },
+	{SMC_RANIP_ATTRIBUTE,		  /* 655 */
+	"SMC RAN IP attribute",		   &ett_opsi_smc_ran_ip, &hf_smc_ran_ip_att, decode_ipv4_attribute },
+	{SMC_RANNAME_ATTRIBUTE,		  /* 656 */
+	"SMC RAN name attribute",	   &ett_opsi_smc_ran_name, &hf_smc_ran_name_att, decode_string_attribute },
+	{SMC_POPID_ATTRIBUTE,		  /* 657 */
+	"SMC POP ID attribute",		   &ett_opsi_smc_pop_id, &hf_smc_pop_id_att, decode_longint_attribute },
+	{SMC_POPNAME_ATTRIBUTE,		  /* 658 */
+	"SMC POP name attribute",	   &ett_opsi_smc_pop_name, &hf_smc_pop_name_att, decode_string_attribute },
+	{SMC_SMCID_ATTRIBUTE,		  /* 659 */
+	"SMC ID attribute",		   &ett_opsi_smc_id, &hf_smc_id_att, decode_longint_attribute },
+	{SMC_RECEIVE_TIME_ATTRIBUTE,	  /* 660 */
+	"SMC receive time attribute",	   &ett_opsi_smc_receive_time, &hf_smc_receive_time_att, decode_time_attribute },
+	{SMC_STAT_TIME_ATTRIBUTE,	  /* 661 */
+	"SMC stat time attribute",	   &ett_opsi_smc_stat_time, &hf_smc_stat_time_att, decode_longint_attribute },
+	{OPSI_FLAGS_ATTRIBUTE,		  /* 674 */
+	"OPSI flags attribute",		   &ett_opsi_flags, &hf_opsi_flags_att, decode_longint_attribute },
+	{OPSI_APPLICATION_NAME_ATTRIBUTE, /* 675 */
 	"OPSI application name attribute", &ett_opsi_application_name, &hf_opsi_application_name_att, decode_string_attribute },
 
 };
@@ -890,3 +890,16 @@ proto_reg_handoff_opsi(void)
 	opsi_handle = new_create_dissector_handle(dissect_opsi, proto_opsi);
 	dissector_add_uint("tcp.port", TCP_PORT_OPSI, opsi_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

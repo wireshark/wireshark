@@ -750,10 +750,10 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static guint
 get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-        /*
-         * Get the length of the TNS message, including header
-         */
-        return tvb_get_ntohs(tvb, offset);
+	/*
+	 * Get the length of the TNS message, including header
+	 */
+	return tvb_get_ntohs(tvb, offset);
 }
 
 static int
@@ -1239,3 +1239,16 @@ proto_reg_handoff_tns(void)
 	dissector_add_uint("tcp.port", TCP_PORT_TNS, tns_handle);
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

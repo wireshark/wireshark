@@ -149,6 +149,7 @@ static gboolean cmpp_desegment = TRUE;
 #define CMPP_PUSH_MT_ROUTE_UPDATE_RESP	0x80000015
 #define CMPP_PUSH_MO_ROUTE_UPDATE_RESP	0x80000016
 #define CMPP_GET_MO_ROUTE_RESP		0x80000017
+
 static const value_string vals_command_Id[] = {		/* Operation	*/
 	{ CMPP_CONNECT,                   "CMPP_CONNECT" },
 	{ CMPP_CONNECT_RESP,              "CMPP_CONNECT_RESP" },
@@ -983,3 +984,16 @@ proto_reg_handoff_cmpp(void)
 	dissector_add_uint("tcp.port", CMPP_ISMG_LONG_PORT, cmpp_handle);
 	dissector_add_uint("tcp.port", CMPP_ISMG_SHORT_PORT, cmpp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

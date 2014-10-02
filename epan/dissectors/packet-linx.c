@@ -239,9 +239,9 @@ static const value_string linx_long_rlnh_names[]={
 };
 
 static const value_string linx_rlnh_reply[] = {
-        { 0, "Version supported"},
-        { 1, "Version NOT supported"},
-        { 0, NULL}
+	{ 0, "Version supported"},
+	{ 1, "Version NOT supported"},
+	{ 0, NULL}
 };
 
 static const value_string linx_boolean[] = {
@@ -392,7 +392,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  :              dst hw addr followed by src hw addr              :
 					  :                                                               :
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  					  :                                                               :
+					  :                                                               :
 					  :         Feature negotiation string (null terminated)          :
 					  :                                                               :
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1044,3 +1044,16 @@ proto_reg_handoff_linx_tcp(void)
 	linx_tcp_handle = create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
 	dissector_add_uint("tcp.port", TCP_PORT_LINX, linx_tcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -114,9 +114,9 @@ static gboolean user_mode                     = FALSE; /* selected user mode ins
 /* ismacryp Parameter Types */
 /*static const value_string parametertypenames[] = {}; */
 static const value_string modetypenames[] = {
-	{ AAC_HBR_MODE, "aac-hbr" },
+	{ AAC_HBR_MODE,     "aac-hbr" },
 	{ MPEG4_VIDEO_MODE, "mpeg4-video" },
-	{ AVC_VIDEO_MODE, "avc-video" },
+	{ AVC_VIDEO_MODE,   "avc-video" },
 	{ 0, NULL}
 };
 /* The following hf_* variables are used to hold the Wireshark IDs of
@@ -1033,3 +1033,16 @@ void proto_reg_handoff_ismacryp(void)
 	}
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

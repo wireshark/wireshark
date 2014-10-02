@@ -175,36 +175,36 @@ static const value_string version_vals[] = {
 };
 
 static const value_string service_vals[] = {
-	{ XTP_TOS_UNSPEC, "Unspecified" },
-	{ XTP_TOS_UNACKED_DGRAM, "Traditional Unacknowledged Datagram Service" },
-	{ XTP_TOS_ACKED_DGRAM, "Acknowledged Datagram Service" },
-	{ XTP_TOS_TRANS, "Transaction Service" },
-	{ XTP_TOS_UNICAST_STREAM, "Traditional Reliable Unicast Stream Service" },
+	{ XTP_TOS_UNSPEC,                   "Unspecified" },
+	{ XTP_TOS_UNACKED_DGRAM,            "Traditional Unacknowledged Datagram Service" },
+	{ XTP_TOS_ACKED_DGRAM,              "Acknowledged Datagram Service" },
+	{ XTP_TOS_TRANS,                    "Transaction Service" },
+	{ XTP_TOS_UNICAST_STREAM,           "Traditional Reliable Unicast Stream Service" },
 	{ XTP_TOS_UNACKED_MULTICAST_STREAM, "Unacknowledged Multicast Stream Service" },
-	{ XTP_TOS_MULTICAST_STREAM, "Reliable Multicast Stream Service" },
+	{ XTP_TOS_MULTICAST_STREAM,         "Reliable Multicast Stream Service" },
 	{ 0, NULL }
 };
 
 static const value_string aformat_vals[] = {
-	{ XTP_ADDR_NULL, "Null Address" },
-	{ XTP_ADDR_IP, "Internet Protocol Address" },
-	{ XTP_ADDR_ISO, "ISO Connectionless Network Layer Protocol Address" },
+	{ XTP_ADDR_NULL,  "Null Address" },
+	{ XTP_ADDR_IP,    "Internet Protocol Address" },
+	{ XTP_ADDR_ISO,   "ISO Connectionless Network Layer Protocol Address" },
 	{ XTP_ADDR_XEROX, "Xerox Network System Address" },
-	{ XTP_ADDR_IPX, "IPX Address" },
+	{ XTP_ADDR_IPX,   "IPX Address" },
 	{ XTP_ADDR_LOCAL, "Local Address" },
-	{ XTP_ADDR_IP6, "Internet Protocol Version 6 Address"  },
+	{ XTP_ADDR_IP6,   "Internet Protocol Version 6 Address"  },
 	{ 0, NULL }
 };
 
 static const value_string pformat_vals[] = {
-	{ XTP_DATA_PKT, "DATA" },
-	{ XTP_CNTL_PKT, "CNTL" },
+	{ XTP_DATA_PKT,  "DATA" },
+	{ XTP_CNTL_PKT,  "CNTL" },
 	{ XTP_FIRST_PKT, "FIRST" },
 	{ XTP_ECNTL_PKT, "ECNTL" },
 	{ XTP_TCNTL_PKT, "TCNTL" },
-	{ XTP_JOIN_PKT, "JOIN<obsolete>" },
+	{ XTP_JOIN_PKT,  "JOIN<obsolete>" },
 	{ XTP_JCNTL_PKT, "JCNTL" },
-	{ XTP_DIAG_PKT, "DIAG" },
+	{ XTP_DIAG_PKT,  "DIAG" },
 	{ 0, NULL }
 };
 
@@ -220,16 +220,16 @@ static const value_string diag_code_vals[] = {
 };
 
 static const value_string diag_val_vals[] = {
-	{ 0, "Unspecified" },
-	{ 1, "No listener" },
-	{ 2, "Options refused" },
-	{ 3, "Address format not supported" },
-	{ 4, "Malformed address format" },
-	{ 5, "Traffic format not supported" },
-	{ 6, "Traffic specification refused" },
-	{ 7, "Malformed traffic format" },
-	{ 8, "No provider for service" },
-	{ 9, "No resource" },
+	{  0, "Unspecified" },
+	{  1, "No listener" },
+	{  2, "Options refused" },
+	{  3, "Address format not supported" },
+	{  4, "Malformed address format" },
+	{  5, "Traffic format not supported" },
+	{  6, "Traffic specification refused" },
+	{  7, "Malformed traffic format" },
+	{  8, "No provider for service" },
+	{  9, "No resource" },
 	{ 10, "Host going down" },
 	{ 11, "Invalid retransmission request" },
 	{ 12, "Context in improper state" },
@@ -327,12 +327,12 @@ static expert_field ei_xtp_spans_bad = EI_INIT;
 /* dissector of each payload */
 static int
 dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *ti, *ti2, *top_ti;
-	proto_tree *xtp_subtree;
-	struct xtp_ip_addr_seg aseg[1];
-	int error = 0;
+	guint32                 len   = tvb_length_remaining(tvb, offset);
+	guint32                 start = offset;
+	proto_item             *ti, *ti2, *top_ti;
+	proto_tree             *xtp_subtree;
+	struct xtp_ip_addr_seg  aseg[1];
+	int                     error = 0;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_aseg, &top_ti, "Address Segment");
 
@@ -443,11 +443,11 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 static int
 dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *top_ti;
-	proto_tree *xtp_subtree;
-	struct xtp_traffic_cntl tcntl[1];
+	guint32                  len   = tvb_length_remaining(tvb, offset);
+	guint32                  start = offset;
+	proto_item              *top_ti;
+	proto_tree              *xtp_subtree;
+	struct xtp_traffic_cntl  tcntl[1];
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
 				ett_xtp_tcntl, &top_ti, "Traffic Control Segment");
@@ -518,12 +518,12 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *ti, *ti2;
-	proto_tree *xtp_subtree;
-	struct xtp_traffic_spec1 tspec[1];
-	int error = 0;
+	guint32                   len   = tvb_length_remaining(tvb, offset);
+	guint32                   start = offset;
+	proto_item               *ti, *ti2;
+	proto_tree               *xtp_subtree;
+	struct xtp_traffic_spec1  tspec[1];
+	int                       error = 0;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_tspec, &ti, "Traffic Specifier");
 
@@ -633,9 +633,9 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 
 static void
 dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_btag) {
-	guint32 len = tvb_length_remaining(tvb, offset);
+	guint32     len = tvb_length_remaining(tvb, offset);
 	proto_tree *xtp_subtree;
-	guint64 btag;
+	guint64     btag;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_data, NULL, "Data Segment");
 
@@ -656,11 +656,11 @@ dissect_xtp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gboolean have_
 static void
 dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *top_ti;
-	proto_tree *xtp_subtree;
-	struct xtp_cntl cntl[1];
+	guint32          len   = tvb_length_remaining(tvb, offset);
+	guint32          start = offset;
+	proto_item      *top_ti;
+	proto_tree      *xtp_subtree;
+	struct xtp_cntl  cntl[1];
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
 				ett_xtp_cntl, &top_ti, "Common Control Segment");
@@ -727,13 +727,13 @@ dissect_xtp_first(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 static void
 dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *top_ti;
-	proto_tree *xtp_subtree;
-	struct xtp_ecntl ecntl[1];
-	guint spans_len;
-	guint i;
+	guint32           len   = tvb_length_remaining(tvb, offset);
+	guint32           start = offset;
+	proto_item       *top_ti;
+	proto_tree       *xtp_subtree;
+	struct xtp_ecntl  ecntl[1];
+	guint             spans_len;
+	guint             i;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len,
 				ett_xtp_ecntl, &top_ti, "Error Control Segment");
@@ -847,12 +847,12 @@ dissect_xtp_jcntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
-	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset;
-	proto_item *ti;
-	proto_tree *xtp_subtree;
-	struct xtp_diag diag[1];
-	guint32 msg_len;
+	guint32          len   = tvb_length_remaining(tvb, offset);
+	guint32          start = offset;
+	proto_item      *ti;
+	proto_tree      *xtp_subtree;
+	struct xtp_diag  diag[1];
+	guint32          msg_len;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_diag, &ti, "Diagnostic Segment");
 
@@ -895,21 +895,21 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 /* main dissector */
 static int
 dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-	guint32 offset, len;
-	proto_item *ti;
-	proto_tree *xtp_tree, *xtp_cmd_tree, *xtp_subtree;
-	struct xtphdr xtph[1];
-	int	error = 0;
-	gchar   *options;
+	guint32        offset, len;
+	proto_item    *ti;
+	proto_tree    *xtp_tree, *xtp_cmd_tree, *xtp_subtree;
+	struct xtphdr  xtph[1];
+	int            error      = 0;
+	gchar         *options;
 	static const char *fstr[] = { "<None>", "NOCHECK", "EDGE", "NOERR", "MULTI", "RES",
 				      "SORT", "NOFLOW", "FASTNAK", "SREQ", "DREQ",
 				      "RCLOSE", "WCLOSE", "EOM", "END", "BTAG" };
-	gint	fpos = 0, returned_length;
-	guint	i, bpos;
-	guint	cmd_options;
-	vec_t	cksum_vec[1];
-	guint16 computed_cksum;
-	gboolean have_btag;
+	gint           fpos       = 0, returned_length;
+	guint          i, bpos;
+	guint          cmd_options;
+	vec_t          cksum_vec[1];
+	guint16        computed_cksum;
+	gboolean       have_btag;
 
 	if ((len = tvb_length(tvb)) < XTP_HEADER_LEN)
 		return 0;
@@ -1124,272 +1124,272 @@ proto_register_xtp(void)
 	static hf_register_info hf[] = {
 		/* command header */
 		{ &hf_xtp_key,
-			{ "Key",           "xtp.key",
-			FT_UINT64, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
+		  { "Key",           "xtp.key",
+		    FT_UINT64, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_xtp_cmd,
-			{ "Command", "xtp.cmd",
-			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Command", "xtp.cmd",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options,
-			{ "Options", "xtp.cmd.options",
-			FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Options", "xtp.cmd.options",
+		    FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_nocheck,
-			{ "NOCHECK", "xtp.cmd.options.nocheck",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_NOCHECK, NULL, HFILL }
+		  { "NOCHECK", "xtp.cmd.options.nocheck",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_NOCHECK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_edge,
-			{ "EDGE", "xtp.cmd.options.edge",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_EDGE, NULL, HFILL }
+		  { "EDGE", "xtp.cmd.options.edge",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_EDGE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noerr,
-			{ "NOERR", "xtp.cmd.options.noerr",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_NOERR, NULL, HFILL }
+		  { "NOERR", "xtp.cmd.options.noerr",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_NOERR, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_multi,
-			{ "MULTI", "xtp.cmd.options.multi",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_MULTI, NULL, HFILL }
+		  { "MULTI", "xtp.cmd.options.multi",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_MULTI, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_res,
-			{ "RES", "xtp.cmd.options.res",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_RES, NULL, HFILL }
+		  { "RES", "xtp.cmd.options.res",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_RES, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sort,
-			{ "SORT", "xtp.cmd.options.sort",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_SORT, NULL, HFILL }
+		  { "SORT", "xtp.cmd.options.sort",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_SORT, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noflow,
-			{ "NOFLOW", "xtp.cmd.options.noflow",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_NOFLOW, NULL, HFILL }
+		  { "NOFLOW", "xtp.cmd.options.noflow",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_NOFLOW, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_fastnak,
-			{ "FASTNAK", "xtp.cmd.options.fastnak",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_FASTNAK, NULL, HFILL }
+		  { "FASTNAK", "xtp.cmd.options.fastnak",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_FASTNAK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sreq,
-			{ "SREQ", "xtp.cmd.options.sreq",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_SREQ, NULL, HFILL }
+		  { "SREQ", "xtp.cmd.options.sreq",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_SREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_dreq,
-			{ "DREQ", "xtp.cmd.options.dreq",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_DREQ, NULL, HFILL }
+		  { "DREQ", "xtp.cmd.options.dreq",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_DREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_rclose,
-			{ "RCLOSE", "xtp.cmd.options.rclose",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_RCLOSE, NULL, HFILL }
+		  { "RCLOSE", "xtp.cmd.options.rclose",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_RCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_wclose,
-			{ "WCLOSE", "xtp.cmd.options.wclose",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_WCLOSE, NULL, HFILL }
+		  { "WCLOSE", "xtp.cmd.options.wclose",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_WCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_eom,
-			{ "EOM", "xtp.cmd.options.eom",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_EOM, NULL, HFILL }
+		  { "EOM", "xtp.cmd.options.eom",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_EOM, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_end,
-			{ "END", "xtp.cmd.options.end",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_END, NULL, HFILL }
+		  { "END", "xtp.cmd.options.end",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_END, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_btag,
-			{ "BTAG", "xtp.cmd.options.btag",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
-			XTP_CMD_OPTIONS_BTAG, NULL, HFILL }
+		  { "BTAG", "xtp.cmd.options.btag",
+		    FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+		    XTP_CMD_OPTIONS_BTAG, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype,
-			{ "Packet type", "xtp.cmd.ptype",
-			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Packet type", "xtp.cmd.ptype",
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype_ver,
-			{ "Version", "xtp.cmd.ptype.ver",
-			FT_UINT8, BASE_DEC, VALS(version_vals), 0x0, NULL, HFILL }
+		  { "Version", "xtp.cmd.ptype.ver",
+		    FT_UINT8, BASE_DEC, VALS(version_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype_pformat,
-			{ "Format", "xtp.cmd.ptype.pformat",
-			FT_UINT8, BASE_DEC, VALS(pformat_vals), 0x0, NULL, HFILL }
+		  { "Format", "xtp.cmd.ptype.pformat",
+		    FT_UINT8, BASE_DEC, VALS(pformat_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_dlen,
-			{ "Data length", "xtp.dlen",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Data length", "xtp.dlen",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_sort,
-			{ "Sort", "xtp.sort",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Sort", "xtp.sort",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_sync,
-			{ "Synchronizing handshake", "xtp.sync",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Synchronizing handshake", "xtp.sync",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_seq,
-			{ "Sequence number", "xtp.seq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Sequence number", "xtp.seq",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* control segment */
 		{ &hf_xtp_cntl_rseq,
-			{ "Received sequence number", "xtp.cntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Received sequence number", "xtp.cntl.rseq",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cntl_alloc,
-			{ "Allocation", "xtp.cntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Allocation", "xtp.cntl.alloc",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cntl_echo,
-			{ "Synchronizing handshake echo", "xtp.cntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Synchronizing handshake echo", "xtp.cntl.echo",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_rseq,
-			{ "Received sequence number", "xtp.ecntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Received sequence number", "xtp.ecntl.rseq",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_alloc,
-			{ "Allocation", "xtp.ecntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Allocation", "xtp.ecntl.alloc",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_echo,
-			{ "Synchronizing handshake echo", "xtp.ecntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Synchronizing handshake echo", "xtp.ecntl.echo",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_nspan,
-			{ "Number of spans", "xtp.ecntl.nspan",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Number of spans", "xtp.ecntl.nspan",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_span_left,
-			{ "Span left edge", "xtp.ecntl.span_le",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Span left edge", "xtp.ecntl.span_le",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_span_right,
-			{ "Span right edge", "xtp.ecntl.span_re",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Span right edge", "xtp.ecntl.span_re",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_rseq,
-			{ "Received sequence number", "xtp.tcntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Received sequence number", "xtp.tcntl.rseq",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_alloc,
-			{ "Allocation", "xtp.tcntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Allocation", "xtp.tcntl.alloc",
+		    FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_echo,
-			{ "Synchronizing handshake echo", "xtp.tcntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Synchronizing handshake echo", "xtp.tcntl.echo",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_rsvd,
-			{ "Reserved", "xtp.tcntl.rsvd",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Reserved", "xtp.tcntl.rsvd",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_xkey,
-			{ "Exchange key", "xtp.tcntl.xkey",
-			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Exchange key", "xtp.tcntl.xkey",
+		    FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		/* traffic specifier */
 		{ &hf_xtp_tspec_tlen,
-			{ "Length", "xtp.tspec.tlen",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Length", "xtp.tspec.tlen",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_service,
-			{ "Service", "xtp.tspec.service",
-			FT_UINT8, BASE_DEC, VALS(service_vals), 0x0, NULL, HFILL }
+		  { "Service", "xtp.tspec.service",
+		    FT_UINT8, BASE_DEC, VALS(service_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_tformat,
-			{ "Format", "xtp.tspec.format",
-			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Format", "xtp.tspec.format",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_traffic,
-			{ "Traffic", "xtp.tspec.traffic",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Traffic", "xtp.tspec.traffic",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_maxdata,
-			{ "Maxdata", "xtp.tspec.maxdata",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Maxdata", "xtp.tspec.maxdata",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_inrate,
-			{ "Incoming rate", "xtp.tspec.inrate",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Incoming rate", "xtp.tspec.inrate",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_inburst,
-			{ "Incoming burst size", "xtp.tspec.inburst",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Incoming burst size", "xtp.tspec.inburst",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_outrate,
-			{ "Outgoing rate", "xtp.tspec.outrate",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Outgoing rate", "xtp.tspec.outrate",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_outburst,
-			{ "Outgoing burst size", "xtp.tspec.outburst",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Outgoing burst size", "xtp.tspec.outburst",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* address segment */
 		{ &hf_xtp_aseg_alen,
-			{ "Length", "xtp.aseg.alen",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Length", "xtp.aseg.alen",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_adomain,
-			{ "Domain", "xtp.aseg.adomain",
-			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Domain", "xtp.aseg.adomain",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_aformat,
-			{ "Format", "xtp.aseg.aformat",
-			FT_UINT8, BASE_DEC, VALS(aformat_vals), 0x0, NULL, HFILL }
+		  { "Format", "xtp.aseg.aformat",
+		    FT_UINT8, BASE_DEC, VALS(aformat_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_address,
-			{ "Traffic", "xtp.aseg.address",
-			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Traffic", "xtp.aseg.address",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_dsthost,
-			{ "Destination host", "xtp.aseg.dsthost",
-			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		  { "Destination host", "xtp.aseg.dsthost",
+		    FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_srchost,
-			{ "Source host", "xtp.aseg.srchost",
-			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		  { "Source host", "xtp.aseg.srchost",
+		    FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_dstport,
-			{ "Destination port", "xtp.aseg.dstport",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Destination port", "xtp.aseg.dstport",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_srcport,
-			{ "Source port", "xtp.aseg.srcport",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		  { "Source port", "xtp.aseg.srcport",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* others */
 		{ &hf_xtp_btag,
-			{ "Beginning tag", "xtp.data.btag",
-			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Beginning tag", "xtp.data.btag",
+		    FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_code,
-			{ "Diagnostic code", "xtp.diag.code",
-			FT_UINT32, BASE_DEC, VALS(diag_code_vals), 0x0, NULL, HFILL }
+		  { "Diagnostic code", "xtp.diag.code",
+		    FT_UINT32, BASE_DEC, VALS(diag_code_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_val,
-			{ "Diagnostic value", "xtp.diag.val",
-			FT_UINT32, BASE_DEC, VALS(diag_val_vals), 0x0, NULL, HFILL }
+		  { "Diagnostic value", "xtp.diag.val",
+		    FT_UINT32, BASE_DEC, VALS(diag_val_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_msg,
-			{ "Message", "xtp.diag.msg",
-			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		  { "Message", "xtp.diag.msg",
+		    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_checksum,
-			{ "Checksum", "xtp.checksum",
-			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		  { "Checksum", "xtp.checksum",
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_data,
-			{ "Data", "xtp.data",
-			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		  { "Data", "xtp.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 
@@ -1409,14 +1409,15 @@ proto_register_xtp(void)
 		&ett_xtp_diag,
 	};
 
-    static ei_register_info ei[] = {
-        { &ei_xtp_spans_bad, { "xtp.spans_bad", PI_MALFORMED, PI_ERROR, "Number of spans incorrect", EXPFILL }},
-    };
+	static ei_register_info ei[] = {
+		{ &ei_xtp_spans_bad,
+		  { "xtp.spans_bad", PI_MALFORMED, PI_ERROR, "Number of spans incorrect", EXPFILL }},
+	};
 
-    expert_module_t* expert_xtp;
+	expert_module_t* expert_xtp;
 
-    expert_xtp = expert_register_protocol(proto_xtp);
-    expert_register_field_array(expert_xtp, ei, array_length(ei));
+	expert_xtp = expert_register_protocol(proto_xtp);
+	expert_register_field_array(expert_xtp, ei, array_length(ei));
 
 	proto_xtp = proto_register_protocol("Xpress Transport Protocol",
 	    "XTP", "xtp");
@@ -1432,3 +1433,16 @@ proto_reg_handoff_xtp(void)
 	xtp_handle = new_create_dissector_handle(dissect_xtp, proto_xtp);
 	dissector_add_uint("ip.proto", IP_PROTO_XTP, xtp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

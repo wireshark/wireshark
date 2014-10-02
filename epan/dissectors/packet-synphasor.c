@@ -555,7 +555,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		/*offset += 2;*/ /* CRC */
 	} /* if (tree) */
 
-    return tvb_length(tvb);
+	return tvb_length(tvb);
 } /* dissect_synphasor() */
 
 /* called for synchrophasors over UDP */
@@ -1348,3 +1348,16 @@ void proto_reg_handoff_synphasor(void)
 	dissector_add_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
 	dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SYNPHASOR, synphasor_udp_handle);
 } /* proto_reg_handoff_synphasor() */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

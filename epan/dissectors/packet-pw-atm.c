@@ -26,7 +26,7 @@
  */
 
 /*
-    DONE:
+   DONE:
         - ATM N-to-One Cell Mode (with CW)
         - ATM N-to-One Cell Mode (no CW)
         - ATM One-to-One Cell Mode
@@ -1982,3 +1982,16 @@ proto_reg_handoff_pw_atm_ata(void)
 	dh_padding	   = find_dissector("pw_padding");
 	dh_data		   = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

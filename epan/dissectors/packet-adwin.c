@@ -428,12 +428,12 @@ typedef enum {
 static const value_string packet_type_mapping[] = {
 	{ APT_UDPH1_old, "UDPH1 old"},
 	{ APT_UDPH1_new, "UDPH1 new"},
-	{ APT_UDPR1, "UDPR1"},
-	{ APT_UDPR2, "UDPR2"},
-	{ APT_UDPR3, "UDPR3"},
-	{ APT_UDPR4, "UDPR4"},
-	{ APT_GDSHP, "GDSHP"},
-	{ APT_GDSHR, "GDSHR"},
+	{ APT_UDPR1,	 "UDPR1"},
+	{ APT_UDPR2,	 "UDPR2"},
+	{ APT_UDPR3,	 "UDPR3"},
+	{ APT_UDPR4,	 "UDPR4"},
+	{ APT_GDSHP,	 "GDSHP"},
+	{ APT_GDSHR,	 "GDSHR"},
 	{ 0, NULL },
 };
 static value_string_ext packet_type_mapping_ext = VALUE_STRING_EXT_INIT(packet_type_mapping);
@@ -515,8 +515,9 @@ typedef struct _adwin_conv_info_t {
 	wmem_map_t *pdus;
 } adwin_conv_info_t;
 
-typedef enum { ADWIN_REQUEST,
-	       ADWIN_RESPONSE
+typedef enum {
+	ADWIN_REQUEST,
+	ADWIN_RESPONSE
 } adwin_direction_t;
 
 static void
@@ -1072,7 +1073,7 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
 				    is_range, "unknown code %d", is_range);
 	}
 	proto_item_set_len(ti, 12);
-    proto_tree_add_item(adwin_debug_tree, hf_adwin_unused,       tvb, 24, 40, ENC_NA);
+	proto_tree_add_item(adwin_debug_tree, hf_adwin_unused,       tvb, 24, 40, ENC_NA);
 }
 
 /* here we determine which type of packet is sent by looking at its
@@ -1459,3 +1460,16 @@ proto_register_adwin(void)
 				       "should be dissected or not",
 				       &global_adwin_dissect_data);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

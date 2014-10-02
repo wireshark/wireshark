@@ -218,96 +218,96 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 
 
 static const value_string code_vals[] = {
-		{PPPOE_CODE_SESSION, "Session Data"                             },
-		{PPPOE_CODE_PADO, "Active Discovery Offer (PADO)"               },
-		{PPPOE_CODE_PADI, "Active Discovery Initiation (PADI)"          },
-		{PPPOE_CODE_PADG, "Active Discovery Session-Grant (PADG)"       },
-		{PPPOE_CODE_PADC, "Active Discovery Session-Credit Resp.(PADC)" },
-		{PPPOE_CODE_PADQ, "Active Discovery Quality (PADQ)"             },
-		{PPPOE_CODE_PADR, "Active Discovery Request (PADR)"             },
-		{PPPOE_CODE_PADS, "Active Discovery Session-confirmation (PADS)"},
-		{PPPOE_CODE_PADT, "Active Discovery Terminate (PADT)"           },
-		{PPPOE_CODE_PADM, "Active Discovery Message (PADM)"             },
-		{PPPOE_CODE_PADN, "Active Discovery Network (PADN)"             },
-		{0,               NULL                                          }
+	{PPPOE_CODE_SESSION, "Session Data"                             },
+	{PPPOE_CODE_PADO, "Active Discovery Offer (PADO)"               },
+	{PPPOE_CODE_PADI, "Active Discovery Initiation (PADI)"          },
+	{PPPOE_CODE_PADG, "Active Discovery Session-Grant (PADG)"       },
+	{PPPOE_CODE_PADC, "Active Discovery Session-Credit Resp.(PADC)" },
+	{PPPOE_CODE_PADQ, "Active Discovery Quality (PADQ)"             },
+	{PPPOE_CODE_PADR, "Active Discovery Request (PADR)"             },
+	{PPPOE_CODE_PADS, "Active Discovery Session-confirmation (PADS)"},
+	{PPPOE_CODE_PADT, "Active Discovery Terminate (PADT)"           },
+	{PPPOE_CODE_PADM, "Active Discovery Message (PADM)"             },
+	{PPPOE_CODE_PADN, "Active Discovery Network (PADN)"             },
+	{0,               NULL                                          }
 };
 
 
 static const value_string tag_vals[] = {
-		{PPPOE_TAG_EOL,        "End-Of-List"       },
-		{PPPOE_TAG_SVC_NAME,   "Service-Name"      },
-		{PPPOE_TAG_AC_NAME,    "AC-Name"           },
-		{PPPOE_TAG_HOST_UNIQ,  "Host-Uniq"         },
-		{PPPOE_TAG_AC_COOKIE,  "AC-Cookie"         },
-		{PPPOE_TAG_VENDOR,     "Vendor-Specific"   },
-		{PPPOE_TAG_CREDITS,    "Credits"           },
-		{PPPOE_TAG_METRICS,    "Metrics"           },
-		{PPPOE_TAG_SEQ_NUM,    "Sequence Number"    },
-		{PPPOE_TAG_CRED_SCALE, "Credit Scale Factor"},
-		{PPPOE_TAG_RELAY_ID,   "Relay-Session-Id"  },
-		{PPPOE_TAG_HURL,       "HURL"              },
-		{PPPOE_TAG_MOTM,       "MOTM"              },
-		{PPPOE_TAG_MAX_PAYLD,  "PPP-Max-Payload"   },
-		{PPPOE_TAG_IP_RT_ADD,  "IP Route Add"      },
-		{PPPOE_TAG_SVC_ERR,    "Service-Name-Error"},
-		{PPPOE_TAG_AC_ERR,     "AC-System-Error"   },
-		{PPPOE_TAG_GENERIC_ERR,"Generic-Error"     },
-		{0,                    NULL                }
+	{PPPOE_TAG_EOL,        "End-Of-List"       },
+	{PPPOE_TAG_SVC_NAME,   "Service-Name"      },
+	{PPPOE_TAG_AC_NAME,    "AC-Name"           },
+	{PPPOE_TAG_HOST_UNIQ,  "Host-Uniq"         },
+	{PPPOE_TAG_AC_COOKIE,  "AC-Cookie"         },
+	{PPPOE_TAG_VENDOR,     "Vendor-Specific"   },
+	{PPPOE_TAG_CREDITS,    "Credits"           },
+	{PPPOE_TAG_METRICS,    "Metrics"           },
+	{PPPOE_TAG_SEQ_NUM,    "Sequence Number"    },
+	{PPPOE_TAG_CRED_SCALE, "Credit Scale Factor"},
+	{PPPOE_TAG_RELAY_ID,   "Relay-Session-Id"  },
+	{PPPOE_TAG_HURL,       "HURL"              },
+	{PPPOE_TAG_MOTM,       "MOTM"              },
+	{PPPOE_TAG_MAX_PAYLD,  "PPP-Max-Payload"   },
+	{PPPOE_TAG_IP_RT_ADD,  "IP Route Add"      },
+	{PPPOE_TAG_SVC_ERR,    "Service-Name-Error"},
+	{PPPOE_TAG_AC_ERR,     "AC-System-Error"   },
+	{PPPOE_TAG_GENERIC_ERR,"Generic-Error"     },
+	{0,                    NULL                }
 };
 
 static const value_string vspec_tag_vals[] = {
-		{PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID,                "Circuit-ID"                    },
-		{PPPOE_TAG_VSPEC_DSLF_REMOTE_ID,                 "Remote-ID"                     },
-		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP,          "Actual-Data-Rate-Up"           },
-		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN,        "Actual-Data-Rate-Down"         },
-		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP,          "Min-Data-Rate-Up"              },
-		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN,        "Min-Data-Rate-Down"            },
-		{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP,   "Attainable-Data-Rate-Up"       },
-		{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, "Attainable-Data-Rate-Down"     },
-		{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP,          "Max-Data-Rate-Up"              },
-		{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN,        "Max-Data-Rate-Down"            },
-		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP,       "Min-Data-Rate-Up-Low-Power"    },
-		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP,     "Min-Data-Rate-Down-Low-Power"  },
-		{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP,          "Max-Interleaving-Delay-Up"     },
-		{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP,          "Actual-Interleaving-Delay-Up"  },
-		{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN,        "Max-Interleaving-Delay-Down"   },
-		{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN,        "Actual-Interleaving-Delay-Down"},
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION, "Access-Loop-Encapsulation"     },
-		{0,                                              NULL                            }
+	{PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID,                "Circuit-ID"                    },
+	{PPPOE_TAG_VSPEC_DSLF_REMOTE_ID,                 "Remote-ID"                     },
+	{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP,          "Actual-Data-Rate-Up"           },
+	{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN,        "Actual-Data-Rate-Down"         },
+	{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP,          "Min-Data-Rate-Up"              },
+	{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN,        "Min-Data-Rate-Down"            },
+	{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP,   "Attainable-Data-Rate-Up"       },
+	{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, "Attainable-Data-Rate-Down"     },
+	{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP,          "Max-Data-Rate-Up"              },
+	{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN,        "Max-Data-Rate-Down"            },
+	{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP,       "Min-Data-Rate-Up-Low-Power"    },
+	{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP,     "Min-Data-Rate-Down-Low-Power"  },
+	{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP,          "Max-Interleaving-Delay-Up"     },
+	{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP,          "Actual-Interleaving-Delay-Up"  },
+	{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN,        "Max-Interleaving-Delay-Down"   },
+	{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN,        "Actual-Interleaving-Delay-Down"},
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION, "Access-Loop-Encapsulation"     },
+	{0,                                              NULL                            }
 };
 
 static const value_string vspec_tag_dslf_access_loop_encap_data_link_vals[] = {
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ATM, "ATM AAL5"},
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ETH, "Ethernet"},
-		{0,                                                     NULL     }
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ATM, "ATM AAL5"},
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ETH, "Ethernet"},
+	{0,                                                     NULL     }
 };
 
 static const value_string vspec_tag_dslf_access_loop_encap_encap_1_vals[] = {
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA,               "NA"                    },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH,     "Untagged Ethernet"     },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH, "Single-tagged Ethernet"},
-		{0,                                                     NULL                               }
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA,               "NA"                    },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH,     "Untagged Ethernet"     },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH, "Single-tagged Ethernet"},
+	{0,                                                     NULL                               }
 };
 
 static const value_string vspec_tag_dslf_access_loop_encap_encap_2_vals[] = {
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_NA,                            "NA"                             },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_LLC,                     "PPPoA LLC"                      },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_NULL,                    "PPPoA Null"                     },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_LLC,                      "IPoA LLC"                       },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_NULL,                     "IPoA Null"                      },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITH_FCS,    "Ethernet over AAL5 LLC w FCS"   },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITHOUT_FCS, "Ethernet over AAL5 LLC w/o FCS" },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITH_FCS,   "Ethernet over AAL5 Null w FCS"  },
-		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITHOUT_FCS,"Ethernet over AAL5 Null w/o FCS"},
-		{0,                                                     NULL                               }
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_NA,                            "NA"                             },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_LLC,                     "PPPoA LLC"                      },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_NULL,                    "PPPoA Null"                     },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_LLC,                      "IPoA LLC"                       },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_NULL,                     "IPoA Null"                      },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITH_FCS,    "Ethernet over AAL5 LLC w FCS"   },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITHOUT_FCS, "Ethernet over AAL5 LLC w/o FCS" },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITH_FCS,   "Ethernet over AAL5 Null w FCS"  },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITHOUT_FCS,"Ethernet over AAL5 Null w/o FCS"},
+	{0,                                                     NULL                               }
 };
 
 static const value_string datarate_scale_vals[] = {
-                {PPPOE_SCALE_KBPS,	"kilobits per second"},
-                {PPPOE_SCALE_MBPS,	"megabits per second"},
-                {PPPOE_SCALE_GBPS,	"gigabits per second"},
-                {PPPOE_SCALE_TBPS,	"terabits per second"},
-		{0,			NULL                 }
+	{PPPOE_SCALE_KBPS,	"kilobits per second"},
+	{PPPOE_SCALE_MBPS,	"megabits per second"},
+	{PPPOE_SCALE_GBPS,	"gigabits per second"},
+	{PPPOE_SCALE_TBPS,	"terabits per second"},
+	{0,			NULL		     }
 };
 
 
@@ -336,7 +336,7 @@ static const value_string datarate_scale_vals[] = {
 /* Dissect Vendor-Specific Tags introduced by the DSLF */
 static void
 dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
-                   int payload_length)
+			   int payload_length)
 {
 	guint8 poe_tag;
 	guint8 poe_tag_length;
@@ -440,12 +440,12 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 /* Dissect discovery protocol tags */
 static void
 dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
-                   int payload_length)
+		   int payload_length)
 {
 	guint16 poe_tag;
 	guint16 poe_tag_length;
 	int tagstart;
-        guint16 poe_rsv = 0;
+	guint16 poe_rsv = 0;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
@@ -535,13 +535,13 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				case PPPOE_TAG_METRICS:
 					if (poe_tag_length == 10)
 					{
-                                                poe_rsv = tvb_get_ntohs(tvb, tagstart+4);
+						poe_rsv = tvb_get_ntohs(tvb, tagstart+4);
 
-                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_mdr_units, tvb,
-                                                                    tagstart+4, 2, ENC_BIG_ENDIAN);
-                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cdr_units, tvb,
-                                                                    tagstart+4, 2, ENC_BIG_ENDIAN);
-                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_mdr_units, tvb,
+								    tagstart+4, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cdr_units, tvb,
+								    tagstart+4, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
 						                    tagstart+4, 2, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_rlq, tvb,
 						                    tagstart+6, 1, ENC_BIG_ENDIAN);
@@ -550,45 +550,45 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_latency, tvb,
 						                    tagstart+8, 2, ENC_BIG_ENDIAN);
 
-                                                /* CDR */
+						/* CDR */
 						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_curr_drate, tvb,
-                                                                         tagstart+10, 2, ENC_BIG_ENDIAN);
+									 tagstart+10, 2, ENC_BIG_ENDIAN);
 
-                                                switch ((poe_rsv & PPPOE_CDR_MASK) >> 1)
-                                                {
-                                                case (PPPOE_SCALE_KBPS):
-                                                    proto_item_append_text(ti, " kbps");
-                                                    break;
-                                                case (PPPOE_SCALE_MBPS):
-                                                    proto_item_append_text(ti, " mbps");
-                                                    break;
-                                                case (PPPOE_SCALE_GBPS):
-                                                    proto_item_append_text(ti, " gbps");
-                                                    break;
-                                                case (PPPOE_SCALE_TBPS):
-                                                    proto_item_append_text(ti, " tbps");
-                                                    break;
-                                                }
+						switch ((poe_rsv & PPPOE_CDR_MASK) >> 1)
+						{
+							case (PPPOE_SCALE_KBPS):
+								proto_item_append_text(ti, " kbps");
+								break;
+							case (PPPOE_SCALE_MBPS):
+								proto_item_append_text(ti, " mbps");
+								break;
+							case (PPPOE_SCALE_GBPS):
+								proto_item_append_text(ti, " gbps");
+								break;
+							case (PPPOE_SCALE_TBPS):
+								proto_item_append_text(ti, " tbps");
+								break;
+						}
 
-                                                /* MDR */
+						/* MDR */
 						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_max_drate, tvb,
 						                    tagstart+12, 2, ENC_BIG_ENDIAN);
 
-                                                switch ((poe_rsv & PPPOE_MDR_MASK) >> 3)
-                                                {
-                                                case (PPPOE_SCALE_KBPS):
-                                                    proto_item_append_text(ti, " kbps");
-                                                    break;
-                                                case (PPPOE_SCALE_MBPS):
-                                                    proto_item_append_text(ti, " mbps");
-                                                    break;
-                                                case (PPPOE_SCALE_GBPS):
-                                                    proto_item_append_text(ti, " gbps");
-                                                    break;
-                                                case (PPPOE_SCALE_TBPS):
-                                                    proto_item_append_text(ti, " tbps");
-                                                    break;
-                                                }
+						switch ((poe_rsv & PPPOE_MDR_MASK) >> 3)
+						{
+							case (PPPOE_SCALE_KBPS):
+								proto_item_append_text(ti, " kbps");
+								break;
+							case (PPPOE_SCALE_MBPS):
+								proto_item_append_text(ti, " mbps");
+								break;
+							case (PPPOE_SCALE_GBPS):
+								proto_item_append_text(ti, " gbps");
+								break;
+							case (PPPOE_SCALE_TBPS):
+								proto_item_append_text(ti, " tbps");
+								break;
+						}
 
 					} else {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics, tvb,
@@ -604,11 +604,11 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
 						}
 
-                        proto_tree_add_expert_format(pppoe_tree, pinfo, &ei_pppoe_tag_length, tvb, tagstart+4, poe_tag_length,
+						proto_tree_add_expert_format(pppoe_tree, pinfo, &ei_pppoe_tag_length, tvb, tagstart+4, poe_tag_length,
 							    "Sequence Number tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
 					break;
-                case PPPOE_TAG_CRED_SCALE:
+				case PPPOE_TAG_CRED_SCALE:
 					if (poe_tag_length == 2) {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
 								    tagstart+4, poe_tag_length, ENC_BIG_ENDIAN);
@@ -619,7 +619,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						proto_tree_add_expert_format(pppoe_tree, pinfo, &ei_pppoe_tag_length, tvb, tagstart+4, poe_tag_length,
 							    "Credit Scale Factor tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
-                    break;
+					break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
 					                    tagstart+4, poe_tag_length, ENC_NA);
@@ -1298,3 +1298,16 @@ void proto_reg_handoff_pppoes(void)
 	/* Get a handle for the PPP dissector */
 	ppp_handle = find_dissector("ppp");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -176,16 +176,16 @@ static expert_field ei_icmp_resp_not_found = EI_INIT;
 #define ICMP_PHOTURIS     40
 
 /* ICMP UNREACHABLE */
-#define ICMP_NET_UNREACH        0	/* Network Unreachable */
-#define ICMP_HOST_UNREACH       1	/* Host Unreachable */
-#define ICMP_PROT_UNREACH       2	/* Protocol Unreachable */
-#define ICMP_PORT_UNREACH       3	/* Port Unreachable */
-#define ICMP_FRAG_NEEDED        4	/* Fragmentation Needed/DF set */
-#define ICMP_SR_FAILED          5	/* Source Route failed */
-#define ICMP_NET_UNKNOWN        6
-#define ICMP_HOST_UNKNOWN       7
-#define ICMP_HOST_ISOLATED      8
-#define ICMP_NET_ANO            9
+#define ICMP_NET_UNREACH         0	/* Network Unreachable */
+#define ICMP_HOST_UNREACH        1	/* Host Unreachable */
+#define ICMP_PROT_UNREACH        2	/* Protocol Unreachable */
+#define ICMP_PORT_UNREACH        3	/* Port Unreachable */
+#define ICMP_FRAG_NEEDED         4	/* Fragmentation Needed/DF set */
+#define ICMP_SR_FAILED           5	/* Source Route failed */
+#define ICMP_NET_UNKNOWN         6
+#define ICMP_HOST_UNKNOWN        7
+#define ICMP_HOST_ISOLATED       8
+#define ICMP_NET_ANO             9
 #define ICMP_HOST_ANO           10
 #define ICMP_NET_UNR_TOS        11
 #define ICMP_HOST_UNR_TOS       12
@@ -193,7 +193,7 @@ static expert_field ei_icmp_resp_not_found = EI_INIT;
 #define ICMP_PREC_VIOLATION     14	/* Precedence violation */
 #define ICMP_PREC_CUTOFF        15	/* Precedence cut off */
 
-#define ICMP_MIP_EXTENSION_PAD	0
+#define ICMP_MIP_EXTENSION_PAD	 0
 #define ICMP_MIP_MOB_AGENT_ADV	16
 #define ICMP_MIP_PREFIX_LENGTHS	19
 #define ICMP_MIP_CHALLENGE	24
@@ -202,57 +202,57 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
 static const value_string icmp_type_str[] = {
-	{ICMP_ECHOREPLY, "Echo (ping) reply"},
-	{1, "Reserved"},
-	{2, "Reserved"},
-	{ICMP_UNREACH, "Destination unreachable"},
+	{ICMP_ECHOREPLY,    "Echo (ping) reply"},
+	{1,		    "Reserved"},
+	{2,		    "Reserved"},
+	{ICMP_UNREACH,	    "Destination unreachable"},
 	{ICMP_SOURCEQUENCH, "Source quench (flow control)"},
-	{ICMP_REDIRECT, "Redirect"},
-	{ICMP_ALTHOST, "Alternate host address"},
-	{ICMP_ECHO, "Echo (ping) request"},
-	{ICMP_RTRADVERT, "Router advertisement"},
-	{ICMP_RTRSOLICIT, "Router solicitation"},
-	{ICMP_TIMXCEED, "Time-to-live exceeded"},
-	{ICMP_PARAMPROB, "Parameter problem"},
-	{ICMP_TSTAMP, "Timestamp request"},
-	{ICMP_TSTAMPREPLY, "Timestamp reply"},
-	{ICMP_IREQ, "Information request"},
-	{ICMP_IREQREPLY, "Information reply"},
-	{ICMP_MASKREQ, "Address mask request"},
-	{ICMP_MASKREPLY, "Address mask reply"},
-	{19, "Reserved (for security)"},
-	{30, "Traceroute"},
-	{31, "Datagram Conversion Error"},
-	{32, "Mobile Host Redirect"},
-	{33, "IPv6 Where-Are-You"},
-	{34, "IPv6 I-Am-Here"},
-	{35, "Mobile Registration Request"},
-	{36, "Mobile Registration Reply"},
-	{37, "Domain Name Request"},
-	{38, "Domain Name Reply"},
-	{39, "SKIP"},
-	{ICMP_PHOTURIS, "Photuris"},
-	{41, "Experimental mobility protocols"},
+	{ICMP_REDIRECT,	    "Redirect"},
+	{ICMP_ALTHOST,	    "Alternate host address"},
+	{ICMP_ECHO,	    "Echo (ping) request"},
+	{ICMP_RTRADVERT,    "Router advertisement"},
+	{ICMP_RTRSOLICIT,   "Router solicitation"},
+	{ICMP_TIMXCEED,	    "Time-to-live exceeded"},
+	{ICMP_PARAMPROB,    "Parameter problem"},
+	{ICMP_TSTAMP,	    "Timestamp request"},
+	{ICMP_TSTAMPREPLY,  "Timestamp reply"},
+	{ICMP_IREQ,	    "Information request"},
+	{ICMP_IREQREPLY,    "Information reply"},
+	{ICMP_MASKREQ,	    "Address mask request"},
+	{ICMP_MASKREPLY,    "Address mask reply"},
+	{19,		    "Reserved (for security)"},
+	{30,		    "Traceroute"},
+	{31,		    "Datagram Conversion Error"},
+	{32,		    "Mobile Host Redirect"},
+	{33,		    "IPv6 Where-Are-You"},
+	{34,		    "IPv6 I-Am-Here"},
+	{35,		    "Mobile Registration Request"},
+	{36,		    "Mobile Registration Reply"},
+	{37,		    "Domain Name Request"},
+	{38,		    "Domain Name Reply"},
+	{39,		    "SKIP"},
+	{ICMP_PHOTURIS,	    "Photuris"},
+	{41,		    "Experimental mobility protocols"},
 	{0, NULL}
 };
 
 static const value_string unreach_code_str[] = {
-	{ICMP_NET_UNREACH, "Network unreachable"},
-	{ICMP_HOST_UNREACH, "Host unreachable"},
-	{ICMP_PROT_UNREACH, "Protocol unreachable"},
-	{ICMP_PORT_UNREACH, "Port unreachable"},
-	{ICMP_FRAG_NEEDED, "Fragmentation needed"},
-	{ICMP_SR_FAILED, "Source route failed"},
-	{ICMP_NET_UNKNOWN, "Destination network unknown"},
-	{ICMP_HOST_UNKNOWN, "Destination host unknown"},
-	{ICMP_HOST_ISOLATED, "Source host isolated"},
-	{ICMP_NET_ANO, "Network administratively prohibited"},
-	{ICMP_HOST_ANO, "Host administratively prohibited"},
-	{ICMP_NET_UNR_TOS, "Network unreachable for TOS"},
-	{ICMP_HOST_UNR_TOS, "Host unreachable for TOS"},
-	{ICMP_PKT_FILTERED, "Communication administratively filtered"},
+	{ICMP_NET_UNREACH,    "Network unreachable"},
+	{ICMP_HOST_UNREACH,   "Host unreachable"},
+	{ICMP_PROT_UNREACH,   "Protocol unreachable"},
+	{ICMP_PORT_UNREACH,   "Port unreachable"},
+	{ICMP_FRAG_NEEDED,    "Fragmentation needed"},
+	{ICMP_SR_FAILED,      "Source route failed"},
+	{ICMP_NET_UNKNOWN,    "Destination network unknown"},
+	{ICMP_HOST_UNKNOWN,   "Destination host unknown"},
+	{ICMP_HOST_ISOLATED,  "Source host isolated"},
+	{ICMP_NET_ANO,	      "Network administratively prohibited"},
+	{ICMP_HOST_ANO,	      "Host administratively prohibited"},
+	{ICMP_NET_UNR_TOS,    "Network unreachable for TOS"},
+	{ICMP_HOST_UNR_TOS,   "Host unreachable for TOS"},
+	{ICMP_PKT_FILTERED,   "Communication administratively filtered"},
 	{ICMP_PREC_VIOLATION, "Host precedence violation"},
-	{ICMP_PREC_CUTOFF, "Precedence cutoff in effect"},
+	{ICMP_PREC_CUTOFF,    "Precedence cutoff in effect"},
 	{0, NULL}
 };
 
@@ -270,7 +270,7 @@ static const value_string alt_host_code_str[] = {
 };
 
 static const value_string rtradvert_code_str[] = {
-	{0, "Normal router advertisement"},
+	{ 0, "Normal router advertisement"},
 	{16, "Does not route common traffic"},
 	{0, NULL}
 };
@@ -299,11 +299,11 @@ static const value_string photuris_code_str[] = {
 };
 
 static const value_string mip_extensions[] = {
-	{ICMP_MIP_EXTENSION_PAD, "One byte padding extension"},	/* RFC 2002 */
-	{ICMP_MIP_MOB_AGENT_ADV, "Mobility Agent Advertisement Extension"},
+	{ICMP_MIP_EXTENSION_PAD,  "One byte padding extension"}, /* RFC 2002 */
+	{ICMP_MIP_MOB_AGENT_ADV,  "Mobility Agent Advertisement Extension"},
 	/* RFC 2002 */
-	{ICMP_MIP_PREFIX_LENGTHS, "Prefix Lengths Extension"},	/* RFC 2002 */
-	{ICMP_MIP_CHALLENGE, "Challenge Extension"},	/* RFC 3012 */
+	{ICMP_MIP_PREFIX_LENGTHS, "Prefix Lengths Extension"},	 /* RFC 2002 */
+	{ICMP_MIP_CHALLENGE,	  "Challenge Extension"},	 /* RFC 3012 */
 	{0, NULL}
 };
 
@@ -312,8 +312,7 @@ static const value_string mip_extensions[] = {
  */
 static const value_string interface_role_str[] = {
 	{0, "IP interface upon which datagram arrived"},
-	{1,
-	 "sub-IP component of an IP interface upon which datagram arrived"},
+	{1, "sub-IP component of an IP interface upon which datagram arrived"},
 	{2, "IP interface through which datagram would be forwarded"},
 	{3, "IP next-hop to which datagram would be forwarded"},
 	{0, NULL}
@@ -326,13 +325,13 @@ static const value_string interface_role_str[] = {
 #define INT_INFO_NAME                           0x02
 #define INT_INFO_MTU                            0x01
 
-#define INTERFACE_INFORMATION_OBJECT_CLASS      2
+#define INTERFACE_INFORMATION_OBJECT_CLASS       2
 
-#define MPLS_STACK_ENTRY_OBJECT_CLASS           1
-#define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS      0
+#define MPLS_STACK_ENTRY_OBJECT_CLASS            1
+#define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS       0
 
-#define MPLS_STACK_ENTRY_C_TYPE                 1
-#define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
+#define MPLS_STACK_ENTRY_C_TYPE                  1
+#define MPLS_EXTENDED_PAYLOAD_C_TYPE             1
 
 #define INET6_ADDRLEN                           16
 
@@ -2016,3 +2015,16 @@ void proto_reg_handoff_icmp(void)
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

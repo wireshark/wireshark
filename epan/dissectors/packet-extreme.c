@@ -277,9 +277,9 @@ static gint ett_edp_null = -1;
 #define PROTO_LONG_NAME "Extreme Discovery Protocol"
 
 static const value_string extreme_pid_vals[] = {
-	{ 0x00bb,	"EDP" },
+	{ 0x00bb, "EDP" },
 
-	{ 0,		NULL }
+	{ 0, NULL }
 };
 
 static const value_string esrp_proto_vals[] = {
@@ -965,7 +965,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 tlv_length;
 	guint16 data_length;
 	guint16 seqno;
-        vec_t cksum_vec[1];
+	vec_t cksum_vec[1];
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
@@ -1450,7 +1450,7 @@ proto_register_edp(void)
 		{ &hf_edp_null,
 		{ "End",	"edp.null", FT_PROTOCOL, BASE_NONE, NULL,
 			0x0, "Last element", HFILL }},
-        };
+	};
 	static gint *ett[] = {
 		&ett_edp,
 		&ett_edp_checksum,
@@ -1495,11 +1495,24 @@ void
 proto_register_extreme_oui(void)
 {
 	static hf_register_info hf[] = {
-	  { &hf_llc_extreme_pid,
-		{ "PID",	"llc.extreme_pid",  FT_UINT16, BASE_HEX,
-		  VALS(extreme_pid_vals), 0x0, NULL, HFILL }
-	  }
+		{ &hf_llc_extreme_pid,
+		  { "PID",	"llc.extreme_pid",  FT_UINT16, BASE_HEX,
+		    VALS(extreme_pid_vals), 0x0, NULL, HFILL }
+		}
 	};
 
 	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "LLC Extreme OUI PID", hf);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

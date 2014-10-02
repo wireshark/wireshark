@@ -1007,9 +1007,9 @@ static const value_string entry_type[] = {
 #define LOG_REM_NAME		2
 	{	LOG_REM_NAME,		"Name Was Removed"	},
 #define LOG_MOD_NAME_OLD	3
-	{	LOG_MOD_NAME_OLD,		"Name Was Modified"	},
+	{	LOG_MOD_NAME_OLD,	"Name Was Modified"	},
 #define LOG_MOD_NAME_NEW	4
-	{	LOG_MOD_NAME_NEW,		"Name Was Modified"	},
+	{	LOG_MOD_NAME_NEW,	"Name Was Modified"	},
 #define LOG_ADD_IBASE		5
 	{	LOG_ADD_IBASE,		"Entry Added To Information Base"	},
 #define LOG_REM_IBASE		6
@@ -1959,3 +1959,16 @@ proto_reg_handoff_niscb(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc, hf_nispluscb_procedure_v1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

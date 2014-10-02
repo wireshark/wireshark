@@ -265,9 +265,9 @@ static int dissect_control_get_recmaster_reply(packet_info *pinfo, proto_tree *t
 }
 
 static const value_string recmode_vals[] = {
-	{0,"NORMAL"},
-	{1,"RECOVERY ACTIVE"},
-	{0,NULL}
+	{0, "NORMAL"},
+	{1, "RECOVERY ACTIVE"},
+	{0, NULL}
 };
 
 static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
@@ -336,8 +336,8 @@ static int dissect_control_process_exist_request(packet_info *pinfo, proto_tree 
 }
 
 static const true_false_string process_exists_tfs = {
-  "Process does NOT exist",
-  "Process Exists"
+	"Process does NOT exist",
+	"Process Exists"
 };
 
 static int dissect_control_process_exist_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
@@ -1249,3 +1249,16 @@ proto_reg_handoff_ctdb(void)
 
 	heur_dissector_add("tcp", dissect_ctdb, proto_ctdb);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

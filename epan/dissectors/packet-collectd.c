@@ -699,7 +699,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	if (values_count != corrected_values_count)
 	{
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
-                      ett_collectd_part_value, NULL,
+		      ett_collectd_part_value, NULL,
 					  "collectd %s segment: %d (%d) value%s <BAD>",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  values_count, corrected_values_count,
@@ -708,7 +708,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	else
 	{
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
-                      ett_collectd_part_value, NULL,
+		      ett_collectd_part_value, NULL,
 					  "collectd %s segment: %d value%s",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  values_count,
@@ -1523,3 +1523,16 @@ void proto_reg_handoff_collectd (void)
 
 	first_run = FALSE;
 } /* void proto_reg_handoff_collectd */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

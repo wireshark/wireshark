@@ -310,23 +310,23 @@ paritystr(guint8 parity)
 }
 
 static const value_string opt_vals[] = {
-	{ PGM_OPT_LENGTH,      "Length" },
-	{ PGM_OPT_END,         "End" },
-	{ PGM_OPT_FRAGMENT,    "Fragment" },
-	{ PGM_OPT_NAK_LIST,    "NakList" },
-	{ PGM_OPT_JOIN,        "Join" },
-	{ PGM_OPT_REDIRECT,    "ReDirect" },
-	{ PGM_OPT_SYN,         "Syn" },
-	{ PGM_OPT_FIN,         "Fin" },
-	{ PGM_OPT_RST,         "Rst" },
-	{ PGM_OPT_PARITY_PRM,  "ParityPrm" },
-	{ PGM_OPT_PARITY_GRP,  "ParityGrp" },
-	{ PGM_OPT_CURR_TGSIZE, "CurrTgsiz" },
-	{ PGM_OPT_PGMCC_DATA,  "CcData" },
+	{ PGM_OPT_LENGTH,	  "Length" },
+	{ PGM_OPT_END,		  "End" },
+	{ PGM_OPT_FRAGMENT,	  "Fragment" },
+	{ PGM_OPT_NAK_LIST,	  "NakList" },
+	{ PGM_OPT_JOIN,		  "Join" },
+	{ PGM_OPT_REDIRECT,	  "ReDirect" },
+	{ PGM_OPT_SYN,		  "Syn" },
+	{ PGM_OPT_FIN,		  "Fin" },
+	{ PGM_OPT_RST,		  "Rst" },
+	{ PGM_OPT_PARITY_PRM,	  "ParityPrm" },
+	{ PGM_OPT_PARITY_GRP,	  "ParityGrp" },
+	{ PGM_OPT_CURR_TGSIZE,	  "CurrTgsiz" },
+	{ PGM_OPT_PGMCC_DATA,	  "CcData" },
 	{ PGM_OPT_PGMCC_FEEDBACK, "CcFeedBack" },
-	{ PGM_OPT_NAK_BO_IVL,  "NakBackOffIvl" },
-	{ PGM_OPT_NAK_BO_RNG,  "NakBackOffRng" },
-	{ PGM_OPT_FRAGMENT,    "Fragment" },
+	{ PGM_OPT_NAK_BO_IVL,	  "NakBackOffIvl" },
+	{ PGM_OPT_NAK_BO_RNG,	  "NakBackOffRng" },
+	{ PGM_OPT_FRAGMENT,	  "Fragment" },
 	{ 0,                   NULL }
 };
 
@@ -363,15 +363,15 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 {
 	proto_item *tf, *ti, *ti_len;
 	proto_tree *opts_tree = NULL;
-	proto_tree *opt_tree = NULL;
-	tvbuff_t *tvb = ptvcursor_tvbuff(cursor);
+	proto_tree *opt_tree  = NULL;
+	tvbuff_t   *tvb       = ptvcursor_tvbuff(cursor);
 
 	gboolean theend = FALSE;
 
 	guint16 opts_total_len;
-	guint8 genopts_type;
-	guint8 genopts_len;
-	guint8 opts_type;
+	guint8  genopts_type;
+	guint8  genopts_len;
+	guint8  opts_type;
 
 	opts_tree = proto_tree_add_subtree_format(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), -1,
 		ett_pgm_opts, &tf, "%s Options", pktname);
@@ -415,7 +415,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 
 		switch(genopts_type) {
 		case PGM_OPT_JOIN:{
-            TLV_CHECK(ett_pgm_opts_join);
+			TLV_CHECK(ett_pgm_opts_join);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -438,7 +438,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PARITY_PRM:{
 			guint8 optdata_po;
 
-            TLV_CHECK(ett_pgm_opts_parityprm);
+			TLV_CHECK(ett_pgm_opts_parityprm);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -465,7 +465,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_PARITY_GRP:{
-            TLV_CHECK(ett_pgm_opts_paritygrp);
+			TLV_CHECK(ett_pgm_opts_paritygrp);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -492,7 +492,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			gboolean firsttime;
 			int i, j, naks, soffset;
 
-            TLV_CHECK(ett_pgm_opts_naklist);
+			TLV_CHECK(ett_pgm_opts_naklist);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -551,7 +551,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PGMCC_DATA:{
 			guint16 optdata_afi;
 
-            TLV_CHECK(ett_pgm_opts_ccdata);
+			TLV_CHECK(ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -592,7 +592,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_PGMCC_FEEDBACK:{
 			guint16 optdata_afi;
 
-            TLV_CHECK(ett_pgm_opts_ccdata);
+			TLV_CHECK(ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -631,7 +631,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_NAK_BO_IVL:{
-            TLV_CHECK(ett_pgm_opts_nak_bo_ivl);
+			TLV_CHECK(ett_pgm_opts_nak_bo_ivl);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -653,7 +653,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_NAK_BO_RNG:{
-            TLV_CHECK(ett_pgm_opts_nak_bo_rng);
+			TLV_CHECK(ett_pgm_opts_nak_bo_rng);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -677,7 +677,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		case PGM_OPT_REDIRECT:{
 			guint16 optdata_afi;
 
-            TLV_CHECK(ett_pgm_opts_redirect);
+			TLV_CHECK(ett_pgm_opts_redirect);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -715,7 +715,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		case PGM_OPT_FRAGMENT:{
-            TLV_CHECK(ett_pgm_opts_fragment);
+			TLV_CHECK(ett_pgm_opts_fragment);
 			ptvcursor_set_tree(cursor, opt_tree);
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
@@ -738,7 +738,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			break;
 		}
 		default:{
-            TLV_CHECK(ett_pgm_opts);
+			TLV_CHECK(ett_pgm_opts);
 			ptvcursor_advance(cursor, genopts_len);
 			break;
 		}
@@ -774,31 +774,31 @@ static const value_string poll_subtype_vals[] = {
 
 static void
 decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, guint16 pgmhdr_sport, guint16 pgmhdr_dport)
+		 proto_tree *tree, guint16 pgmhdr_sport, guint16 pgmhdr_dport)
 {
-  tvbuff_t *next_tvb;
-  int found = 0;
-  heur_dtbl_entry_t *hdtbl_entry;
+	tvbuff_t *next_tvb;
+	int       found = 0;
+	heur_dtbl_entry_t *hdtbl_entry;
 
-  next_tvb = tvb_new_subset_remaining(tvb, offset);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  /* do lookup with the subdissector table */
-  found = dissector_try_uint(subdissector_table, pgmhdr_sport,
-			next_tvb, pinfo, tree);
-  if (found)
-	return;
+	/* do lookup with the subdissector table */
+	found = dissector_try_uint(subdissector_table, pgmhdr_sport,
+				   next_tvb, pinfo, tree);
+	if (found)
+		return;
 
-  found = dissector_try_uint(subdissector_table, pgmhdr_dport,
-			next_tvb, pinfo, tree);
-  if (found)
-	return;
+	found = dissector_try_uint(subdissector_table, pgmhdr_dport,
+				   next_tvb, pinfo, tree);
+	if (found)
+		return;
 
-  /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL))
-	return;
+	/* do lookup with the heuristic subdissector table */
+	if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL))
+		return;
 
-  /* Oh, well, we don't know this; dissect it as data. */
-  call_dissector(data_handle,next_tvb, pinfo, tree);
+	/* Oh, well, we don't know this; dissect it as data. */
+	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 /*
@@ -809,20 +809,20 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 pgmhdr_sport;
 	guint16 pgmhdr_dport;
-	guint8 pgmhdr_type;
-	guint8 pgmhdr_opts;
+	guint8  pgmhdr_type;
+	guint8  pgmhdr_opts;
 	guint16 pgmhdr_cksum;
 	guint16 pgmhdr_tsdulen;
 	guint32 sqn;
 	guint16 afi;
 
-	guint plen = 0;
+	guint       plen   = 0;
 	proto_item *ti;
 	const char *pktname;
 	const char *pollstname;
-	char *gsi;
-	gboolean isdata = FALSE;
-	guint pgmlen, reportedlen;
+	char       *gsi;
+	gboolean    isdata = FALSE;
+	guint       pgmlen, reportedlen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 
@@ -1093,349 +1093,349 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_pgm(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_pgm_main_sport,
-      { "Source Port", "pgm.hdr.sport", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_dport,
-      { "Destination Port", "pgm.hdr.dport", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_port,
-      { "Port", "pgm.port", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_type,
-      { "Type", "pgm.hdr.type", FT_UINT8, BASE_HEX,
-	  VALS(type_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_main_opts,
-      { "Options", "pgm.hdr.opts", FT_UINT8, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_opts_opt,
-      { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, 8,
-	  TFS(&opts_present), PGM_OPT, NULL, HFILL }},
-    { &hf_pgm_main_opts_netsig,
-      { "Network Significant Options", "pgm.hdr.opts.netsig",
-	  FT_BOOLEAN, 8,
-	  TFS(&opts_present), PGM_OPT_NETSIG, NULL, HFILL }},
-    { &hf_pgm_main_opts_varlen,
-      { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen",
-	  FT_BOOLEAN, 8,
-	  TFS(&opts_present), PGM_OPT_VAR_PKTLEN, NULL, HFILL }},
-    { &hf_pgm_main_opts_parity,
-      { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, 8,
-	  TFS(&opts_present), PGM_OPT_PARITY, NULL, HFILL }},
-    { &hf_pgm_main_cksum,
-      { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_cksum_bad,
-      { "Bad Checksum", "pgm.hdr.cksum_bad", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_gsi,
-      { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_main_tsdulen,
-      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16,
-	  BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_sqn,
-      { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_trail,
-      { "Trailing Edge Sequence Number", "pgm.spm.trail", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_lead,
-      { "Leading Edge Sequence Number", "pgm.spm.lead", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_pathafi,
-      { "Path NLA AFI", "pgm.spm.pathafi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_res,
-      { "Reserved", "pgm.spm.res", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_path,
-      { "Path NLA", "pgm.spm.path", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_spm_path6,
-      { "Path NLA", "pgm.spm.path", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_pgm_main_sport,
+		  { "Source Port", "pgm.hdr.sport", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_dport,
+		  { "Destination Port", "pgm.hdr.dport", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_port,
+		  { "Port", "pgm.port", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_type,
+		  { "Type", "pgm.hdr.type", FT_UINT8, BASE_HEX,
+		    VALS(type_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_opts,
+		  { "Options", "pgm.hdr.opts", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_opts_opt,
+		  { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, 8,
+		    TFS(&opts_present), PGM_OPT, NULL, HFILL }},
+		{ &hf_pgm_main_opts_netsig,
+		  { "Network Significant Options", "pgm.hdr.opts.netsig",
+		    FT_BOOLEAN, 8,
+		    TFS(&opts_present), PGM_OPT_NETSIG, NULL, HFILL }},
+		{ &hf_pgm_main_opts_varlen,
+		  { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen",
+		    FT_BOOLEAN, 8,
+		    TFS(&opts_present), PGM_OPT_VAR_PKTLEN, NULL, HFILL }},
+		{ &hf_pgm_main_opts_parity,
+		  { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, 8,
+		    TFS(&opts_present), PGM_OPT_PARITY, NULL, HFILL }},
+		{ &hf_pgm_main_cksum,
+		  { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_cksum_bad,
+		  { "Bad Checksum", "pgm.hdr.cksum_bad", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_gsi,
+		  { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_main_tsdulen,
+		  { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16,
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_sqn,
+		  { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_trail,
+		  { "Trailing Edge Sequence Number", "pgm.spm.trail", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_lead,
+		  { "Leading Edge Sequence Number", "pgm.spm.lead", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_pathafi,
+		  { "Path NLA AFI", "pgm.spm.pathafi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_res,
+		  { "Reserved", "pgm.spm.res", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_path,
+		  { "Path NLA", "pgm.spm.path", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_spm_path6,
+		  { "Path NLA", "pgm.spm.path", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 #if 0
-    { &hf_pgm_data_sqn,
-      { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_data_sqn,
+		  { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 #endif
 #if 0
-    { &hf_pgm_data_trail,
-      { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_data_trail,
+		  { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
 #endif
-    { &hf_pgm_nak_sqn,
-      { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_srcafi,
-      { "Source NLA AFI", "pgm.nak.srcafi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_srcres,
-      { "Reserved", "pgm.nak.srcres", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_src,
-      { "Source NLA", "pgm.nak.src", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_src6,
-      { "Source NLA", "pgm.nak.src", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_grpafi,
-      { "Multicast Group AFI", "pgm.nak.grpafi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_grpres,
-      { "Reserved", "pgm.nak.grpres", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_grp,
-      { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_nak_grp6,
-      { "Multicast Group NLA", "pgm.nak.grp", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_sqn,
-      { "Sequence Number", "pgm.poll.sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_round,
-      { "Round", "pgm.poll.round", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_subtype,
-      { "Subtype", "pgm.poll.subtype", FT_UINT16, BASE_HEX,
-	  VALS(poll_subtype_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_pathafi,
-      { "Path NLA AFI", "pgm.poll.pathafi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_res,
-      { "Reserved", "pgm.poll.res", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_path,
-      { "Path NLA", "pgm.poll.path", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_path6,
-      { "Path NLA", "pgm.poll.path", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_backoff_ivl,
-      { "Back-off Interval", "pgm.poll.backoff_ivl", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_rand_str,
-      { "Random String", "pgm.poll.rand_str", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_poll_matching_bmask,
-      { "Matching Bitmask", "pgm.poll.matching_bmask", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_polr_sqn,
-      { "Sequence Number", "pgm.polr.sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_polr_round,
-      { "Round", "pgm.polr.round", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_polr_res,
-      { "Reserved", "pgm.polr.res", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_ack_sqn,
-      { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32,
-	  BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_ack_bitmap,
-      { "Packet Bitmap", "pgm.ack.bitmap", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_type,
-      { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX,
-          VALS(opt_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_len,
-      { "Length", "pgm.opts.len", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_tlen,
-      { "Total Length", "pgm.opts.tlen", FT_UINT16, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_genopt_end,
-      { "Option end", "pgm.genopts.end", FT_BOOLEAN, 8,
-          TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
-    { &hf_pgm_genopt_type,
-      { "Type", "pgm.genopts.type", FT_UINT8, BASE_HEX,
-          VALS(opt_vals), 0x7f, NULL, HFILL }},
-    { &hf_pgm_genopt_len,
-      { "Length", "pgm.genopts.len", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_genopt_opx,
-      { "Option Extensibility Bits", "pgm.genopts.opx", FT_UINT8, BASE_HEX,
-          VALS(opx_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_parity_prm_po,
-      { "Parity Parameters", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_parity_prm_prmtgsz,
-      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
-          FT_UINT32, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_join_res,
-      { "Reserved", "pgm.opts.join.res", FT_UINT8, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_join_minjoin,
-      { "Minimum Sequence Number", "pgm.opts.join.min_join",
-          FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_parity_grp_res,
-      { "Reserved", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_parity_grp_prmgrp,
-      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
-          FT_UINT32, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_res,
-      { "Reserved", "pgm.opts.nak.op", FT_UINT8, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_list,
-      { "List", "pgm.opts.nak.list", FT_BYTES, BASE_NONE,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_res,
-      { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_tsp,
-      { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_afi,
-      { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_res2,
-      { "Reserved", "pgm.opts.ccdata.res2", FT_UINT16, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_acker,
-      { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccdata_acker6,
-      { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_res,
-      { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_tsp,
-      { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_afi,
-      { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_lossrate,
-      { "Loss Rate", "pgm.opts.ccdata.lossrate", FT_UINT16, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_acker,
-      { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_ccfeedbk_acker6,
-      { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_ivl_res,
-      { "Reserved", "pgm.opts.nak_bo_ivl.res", FT_UINT8, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_ivl_bo_ivl,
-      { "Back-off Interval", "pgm.opts.nak_bo_ivl.bo_ivl", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn,
-      { "Back-off Interval Sequence Number", "pgm.opts.nak_bo_ivl.bo_ivl_sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_rng_res,
-      { "Reserved", "pgm.opts.nak_bo_rng.res", FT_UINT8, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_rng_min_bo_ivl,
-      { "Min Back-off Interval", "pgm.opts.nak_bo_rng.min_bo_ivl", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_nak_bo_rng_max_bo_ivl,
-      { "Max Back-off Interval", "pgm.opts.nak_bo_rng.max_bo_ivl", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_redirect_res,
-      { "Reserved", "pgm.opts.redirect.res", FT_UINT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_redirect_afi,
-      { "DLR AFI", "pgm.opts.redirect.afi", FT_UINT16, BASE_DEC,
-	  VALS(afn_vals), 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_redirect_res2,
-      { "Reserved", "pgm.opts.redirect.res2", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_redirect_dlr,
-      { "DLR", "pgm.opts.redirect.dlr", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_redirect_dlr6,
-      { "DLR", "pgm.opts.redirect.dlr", FT_IPv6, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_fragment_res,
-      { "Reserved", "pgm.opts.fragment.res", FT_UINT8, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_fragment_first_sqn,
-      { "First Sequence Number", "pgm.opts.fragment.first_sqn", FT_UINT32, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_fragment_offset,
-      { "Fragment Offset", "pgm.opts.fragment.fragment_offset", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }},
-    { &hf_pgm_opt_fragment_total_length,
-      { "Total Length", "pgm.opts.fragment.total_length", FT_UINT32, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL }}
-  };
-  static gint *ett[] = {
-	&ett_pgm,
-	&ett_pgm_optbits,
-	&ett_pgm_spm,
-	&ett_pgm_data,
-	&ett_pgm_nak,
-	&ett_pgm_poll,
-	&ett_pgm_polr,
-	&ett_pgm_ack,
-	&ett_pgm_opts,
-	&ett_pgm_opts_join,
-	&ett_pgm_opts_parityprm,
-	&ett_pgm_opts_paritygrp,
-	&ett_pgm_opts_naklist,
-	&ett_pgm_opts_ccdata,
-	&ett_pgm_opts_nak_bo_ivl,
-	&ett_pgm_opts_nak_bo_rng,
-	&ett_pgm_opts_redirect,
-	&ett_pgm_opts_fragment
-  };
-  static ei_register_info ei[] = {
-	{ &ei_pgm_opt_type, { "pgm.opts.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid option", EXPFILL }},
-	{ &ei_pgm_opt_tlen, { "pgm.opts.tlen.invalid", PI_PROTOCOL, PI_WARN, "Total Length invalid", EXPFILL }},
-	{ &ei_pgm_genopt_len, { "pgm.genopts.len.invalid", PI_PROTOCOL, PI_WARN, "Option length invalid", EXPFILL }},
-	{ &ei_address_format_invalid, { "pgm.address_format_invalid", PI_PROTOCOL, PI_WARN, "Can't handle this address format", EXPFILL }},
-  };
+		{ &hf_pgm_nak_sqn,
+		  { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_srcafi,
+		  { "Source NLA AFI", "pgm.nak.srcafi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_srcres,
+		  { "Reserved", "pgm.nak.srcres", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_src,
+		  { "Source NLA", "pgm.nak.src", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_src6,
+		  { "Source NLA", "pgm.nak.src", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_grpafi,
+		  { "Multicast Group AFI", "pgm.nak.grpafi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_grpres,
+		  { "Reserved", "pgm.nak.grpres", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_grp,
+		  { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_nak_grp6,
+		  { "Multicast Group NLA", "pgm.nak.grp", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_sqn,
+		  { "Sequence Number", "pgm.poll.sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_round,
+		  { "Round", "pgm.poll.round", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_subtype,
+		  { "Subtype", "pgm.poll.subtype", FT_UINT16, BASE_HEX,
+		    VALS(poll_subtype_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_pathafi,
+		  { "Path NLA AFI", "pgm.poll.pathafi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_res,
+		  { "Reserved", "pgm.poll.res", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_path,
+		  { "Path NLA", "pgm.poll.path", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_path6,
+		  { "Path NLA", "pgm.poll.path", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_backoff_ivl,
+		  { "Back-off Interval", "pgm.poll.backoff_ivl", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_rand_str,
+		  { "Random String", "pgm.poll.rand_str", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_poll_matching_bmask,
+		  { "Matching Bitmask", "pgm.poll.matching_bmask", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_polr_sqn,
+		  { "Sequence Number", "pgm.polr.sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_polr_round,
+		  { "Round", "pgm.polr.round", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_polr_res,
+		  { "Reserved", "pgm.polr.res", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_ack_sqn,
+		  { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32,
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_ack_bitmap,
+		  { "Packet Bitmap", "pgm.ack.bitmap", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_type,
+		  { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX,
+		    VALS(opt_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_len,
+		  { "Length", "pgm.opts.len", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_tlen,
+		  { "Total Length", "pgm.opts.tlen", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_genopt_end,
+		  { "Option end", "pgm.genopts.end", FT_BOOLEAN, 8,
+		    TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
+		{ &hf_pgm_genopt_type,
+		  { "Type", "pgm.genopts.type", FT_UINT8, BASE_HEX,
+		    VALS(opt_vals), 0x7f, NULL, HFILL }},
+		{ &hf_pgm_genopt_len,
+		  { "Length", "pgm.genopts.len", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_genopt_opx,
+		  { "Option Extensibility Bits", "pgm.genopts.opx", FT_UINT8, BASE_HEX,
+		    VALS(opx_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_parity_prm_po,
+		  { "Parity Parameters", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_parity_prm_prmtgsz,
+		  { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
+		    FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_join_res,
+		  { "Reserved", "pgm.opts.join.res", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_join_minjoin,
+		  { "Minimum Sequence Number", "pgm.opts.join.min_join",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_parity_grp_res,
+		  { "Reserved", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_parity_grp_prmgrp,
+		  { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
+		    FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_res,
+		  { "Reserved", "pgm.opts.nak.op", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_list,
+		  { "List", "pgm.opts.nak.list", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_res,
+		  { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_tsp,
+		  { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_afi,
+		  { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_res2,
+		  { "Reserved", "pgm.opts.ccdata.res2", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_acker,
+		  { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccdata_acker6,
+		  { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_res,
+		  { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_tsp,
+		  { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_afi,
+		  { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_lossrate,
+		  { "Loss Rate", "pgm.opts.ccdata.lossrate", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_acker,
+		  { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_ccfeedbk_acker6,
+		  { "Acker", "pgm.opts.ccdata.acker", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_ivl_res,
+		  { "Reserved", "pgm.opts.nak_bo_ivl.res", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_ivl_bo_ivl,
+		  { "Back-off Interval", "pgm.opts.nak_bo_ivl.bo_ivl", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn,
+		  { "Back-off Interval Sequence Number", "pgm.opts.nak_bo_ivl.bo_ivl_sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_rng_res,
+		  { "Reserved", "pgm.opts.nak_bo_rng.res", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_rng_min_bo_ivl,
+		  { "Min Back-off Interval", "pgm.opts.nak_bo_rng.min_bo_ivl", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_nak_bo_rng_max_bo_ivl,
+		  { "Max Back-off Interval", "pgm.opts.nak_bo_rng.max_bo_ivl", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_redirect_res,
+		  { "Reserved", "pgm.opts.redirect.res", FT_UINT8, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_redirect_afi,
+		  { "DLR AFI", "pgm.opts.redirect.afi", FT_UINT16, BASE_DEC,
+		    VALS(afn_vals), 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_redirect_res2,
+		  { "Reserved", "pgm.opts.redirect.res2", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_redirect_dlr,
+		  { "DLR", "pgm.opts.redirect.dlr", FT_IPv4, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_redirect_dlr6,
+		  { "DLR", "pgm.opts.redirect.dlr", FT_IPv6, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_fragment_res,
+		  { "Reserved", "pgm.opts.fragment.res", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_fragment_first_sqn,
+		  { "First Sequence Number", "pgm.opts.fragment.first_sqn", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_fragment_offset,
+		  { "Fragment Offset", "pgm.opts.fragment.fragment_offset", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_pgm_opt_fragment_total_length,
+		  { "Total Length", "pgm.opts.fragment.total_length", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }}
+	};
+	static gint *ett[] = {
+		&ett_pgm,
+		&ett_pgm_optbits,
+		&ett_pgm_spm,
+		&ett_pgm_data,
+		&ett_pgm_nak,
+		&ett_pgm_poll,
+		&ett_pgm_polr,
+		&ett_pgm_ack,
+		&ett_pgm_opts,
+		&ett_pgm_opts_join,
+		&ett_pgm_opts_parityprm,
+		&ett_pgm_opts_paritygrp,
+		&ett_pgm_opts_naklist,
+		&ett_pgm_opts_ccdata,
+		&ett_pgm_opts_nak_bo_ivl,
+		&ett_pgm_opts_nak_bo_rng,
+		&ett_pgm_opts_redirect,
+		&ett_pgm_opts_fragment
+	};
+	static ei_register_info ei[] = {
+		{ &ei_pgm_opt_type, { "pgm.opts.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid option", EXPFILL }},
+		{ &ei_pgm_opt_tlen, { "pgm.opts.tlen.invalid", PI_PROTOCOL, PI_WARN, "Total Length invalid", EXPFILL }},
+		{ &ei_pgm_genopt_len, { "pgm.genopts.len.invalid", PI_PROTOCOL, PI_WARN, "Option length invalid", EXPFILL }},
+		{ &ei_address_format_invalid, { "pgm.address_format_invalid", PI_PROTOCOL, PI_WARN, "Can't handle this address format", EXPFILL }},
+	};
 
-  module_t *pgm_module;
-  expert_module_t* expert_pgm;
+	module_t *pgm_module;
+	expert_module_t* expert_pgm;
 
-  proto_pgm = proto_register_protocol("Pragmatic General Multicast",
-				       "PGM", "pgm");
+	proto_pgm = proto_register_protocol("Pragmatic General Multicast",
+					    "PGM", "pgm");
 
-  proto_register_field_array(proto_pgm, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  expert_pgm = expert_register_protocol(proto_pgm);
-  expert_register_field_array(expert_pgm, ei, array_length(ei));
+	proto_register_field_array(proto_pgm, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_pgm = expert_register_protocol(proto_pgm);
+	expert_register_field_array(expert_pgm, ei, array_length(ei));
 
 	/* subdissector code */
-  subdissector_table = register_dissector_table("pgm.port",
-		"PGM port", FT_UINT16, BASE_DEC);
-  register_heur_dissector_list("pgm", &heur_subdissector_list);
+	subdissector_table = register_dissector_table("pgm.port",
+						      "PGM port", FT_UINT16, BASE_DEC);
+	register_heur_dissector_list("pgm", &heur_subdissector_list);
 
-  /*
-   * Register configuration preferences for UDP encapsulation
-   * (Note: Initially the ports are set to zero and the ports
-   *        are not registered so the dissecting of PGM
-   *        encapsulated in UDP packets is off by default;
-   *        dissector_add_for_decode_as is called so that pgm
-   *        is available for 'decode-as'
-   */
-  pgm_module = prefs_register_protocol(proto_pgm, proto_reg_handoff_pgm);
+	/*
+	 * Register configuration preferences for UDP encapsulation
+	 * (Note: Initially the ports are set to zero and the ports
+	 *        are not registered so the dissecting of PGM
+	 *        encapsulated in UDP packets is off by default;
+	 *        dissector_add_for_decode_as is called so that pgm
+	 *        is available for 'decode-as'
+	 */
+	pgm_module = prefs_register_protocol(proto_pgm, proto_reg_handoff_pgm);
 
-  prefs_register_bool_preference(pgm_module, "check_checksum",
-	        "Check the validity of the PGM checksum when possible",
-		"Whether to check the validity of the PGM checksum",
-	        &pgm_check_checksum);
+	prefs_register_bool_preference(pgm_module, "check_checksum",
+				       "Check the validity of the PGM checksum when possible",
+				       "Whether to check the validity of the PGM checksum",
+				       &pgm_check_checksum);
 
-  prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
-		"PGM Encap Unicast Port (standard is 3055)",
-		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This option is off, i.e. port is 0, by default)",
-		10, &udp_encap_ucast_port);
+	prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
+				       "PGM Encap Unicast Port (standard is 3055)",
+				       "PGM Encap is PGM packets encapsulated in UDP packets"
+				       " (Note: This option is off, i.e. port is 0, by default)",
+				       10, &udp_encap_ucast_port);
 
-  prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
-		"PGM Encap Multicast Port (standard is 3056)",
-		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This option is off, i.e. port is 0, by default)",
-		10, &udp_encap_mcast_port);
+	prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
+				       "PGM Encap Multicast Port (standard is 3056)",
+				       "PGM Encap is PGM packets encapsulated in UDP packets"
+				       " (Note: This option is off, i.e. port is 0, by default)",
+				       10, &udp_encap_mcast_port);
 
 }
 
@@ -1447,32 +1447,45 @@ proto_register_pgm(void)
 void
 proto_reg_handoff_pgm(void)
 {
-  static gboolean initialized = FALSE;
-  static dissector_handle_t pgm_handle;
-  static guint old_udp_encap_ucast_port;
-  static guint old_udp_encap_mcast_port;
+	static gboolean initialized = FALSE;
+	static dissector_handle_t pgm_handle;
+	static guint old_udp_encap_ucast_port;
+	static guint old_udp_encap_mcast_port;
 
-  if (! initialized) {
-    pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
-    dissector_add_for_decode_as("udp.port", pgm_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
-    data_handle = find_dissector("data");
-    initialized = TRUE;
-  } else {
-    if (old_udp_encap_ucast_port != 0) {
-      dissector_delete_uint("udp.port", old_udp_encap_ucast_port, pgm_handle);
-    }
-    if (old_udp_encap_mcast_port != 0) {
-      dissector_delete_uint("udp.port", old_udp_encap_mcast_port, pgm_handle);
-    }
-  }
+	if (! initialized) {
+		pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
+		dissector_add_for_decode_as("udp.port", pgm_handle);
+		dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
+		data_handle = find_dissector("data");
+		initialized = TRUE;
+	} else {
+		if (old_udp_encap_ucast_port != 0) {
+			dissector_delete_uint("udp.port", old_udp_encap_ucast_port, pgm_handle);
+		}
+		if (old_udp_encap_mcast_port != 0) {
+			dissector_delete_uint("udp.port", old_udp_encap_mcast_port, pgm_handle);
+		}
+	}
 
-  if (udp_encap_ucast_port != 0) {
-    dissector_add_uint("udp.port", udp_encap_ucast_port, pgm_handle);
-  }
-  if (udp_encap_mcast_port != 0) {
-    dissector_add_uint("udp.port", udp_encap_mcast_port, pgm_handle);
-  }
-  old_udp_encap_ucast_port = udp_encap_ucast_port;
-  old_udp_encap_mcast_port = udp_encap_mcast_port;
+	if (udp_encap_ucast_port != 0) {
+		dissector_add_uint("udp.port", udp_encap_ucast_port, pgm_handle);
+	}
+	if (udp_encap_mcast_port != 0) {
+		dissector_add_uint("udp.port", udp_encap_mcast_port, pgm_handle);
+	}
+	old_udp_encap_ucast_port = udp_encap_ucast_port;
+	old_udp_encap_mcast_port = udp_encap_mcast_port;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
