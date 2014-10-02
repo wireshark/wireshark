@@ -46,6 +46,8 @@ static int hf_canopen_em_err_field = -1;
 static int hf_canopen_nmt_ctrl_cs = -1;
 static int hf_canopen_nmt_ctrl_node_id = -1;
 static int hf_canopen_nmt_guard_state = -1;
+static int hf_canopen_nmt_guard_toggle = -1;
+static int hf_canopen_sync_counter = -1;
 static int hf_canopen_time_stamp = -1;
 static int hf_canopen_time_stamp_ms = -1;
 static int hf_canopen_time_stamp_days = -1;
@@ -76,7 +78,7 @@ static gint ett_canopen_type = -1;
 
 static const value_string CAN_open_bcast_msg_type_vals[] = {
     { FC_NMT,              "NMT"},
-    { FC_SYNC,             "Sync"},
+    { FC_SYNC,             "SYNC"},
     { FC_TIME_STAMP,       "TIME STAMP"},
     { 0, NULL}
 };
@@ -270,10 +272,17 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         case MT_NMT_ERR_CTRL:
             if (tvb_reported_length(tvb) > 0) {
                 proto_tree_add_item(canopen_type_tree,
+                    hf_canopen_nmt_guard_toggle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(canopen_type_tree,
                     hf_canopen_nmt_guard_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             }
             break;
         case MT_SYNC:
+            /* Show optional counter parameter if present */
+            if (tvb_reported_length(tvb) > 0) {
+                proto_tree_add_item(canopen_type_tree,
+                    hf_canopen_sync_counter, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            }
             break;
         case MT_TIME_STAMP:
             /* calculate the real time stamp */
@@ -414,9 +423,20 @@ proto_register_canopen(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_canopen_nmt_guard_toggle,
+          { "Reserved/Toggle", "canopen.nmt_guard.toggle",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }
+        },
         { &hf_canopen_nmt_guard_state,
           { "State", "canopen.nmt_guard.state",
             FT_UINT8, BASE_HEX, VALS(nmt_guard_state), 0x7F,
+            NULL, HFILL }
+        },
+        /* SYNC */
+        { &hf_canopen_sync_counter,
+          { "Counter", "canopen.sync.counter",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_canopen_time_stamp,
