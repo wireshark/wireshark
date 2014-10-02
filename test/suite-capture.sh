@@ -418,8 +418,11 @@ wireshark_capture_suite() {
 	# that use Wayland or Mir directly, unless they also depend
 	# on the DISPLAY environment variable.
 	#
-	if [[ $WS_SYSTEM != Windows && $WS_SYSTEM != Darwin ]] && [ -z "$DISPLAY" ]; then
-		echo -n ' (X server not available)'
+	#if [[ $WS_SYSTEM != Windows && $WS_SYSTEM != Darwin ]] && [ -z "$DISPLAY" ]; then
+
+	# Qt requires XKEYBOARD and Xrender, which our buildbots don't provide
+	if [[ $WS_SYSTEM != "Windows" && $WS_SYSTEM != "Darwin" ]]; then
+		echo -n " (assuming Xvnc, which doesn't support Xrender)"
 		test_step_skipped
 		return
 	fi
