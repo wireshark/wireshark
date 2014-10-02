@@ -284,7 +284,7 @@ nlsp_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
  */
 static void
 dissect_area_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			 int length)
 {
 	while (length > 0) {
 		if (length < 4) {
@@ -326,7 +326,7 @@ dissect_area_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
  */
 static void
 dissect_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+		     int length)
 {
 	while (length > 0) {
 		if (length < 6) {
@@ -357,7 +357,7 @@ dissect_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int of
  */
 static void
 dissect_hello_local_mtu_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			    int length)
 {
 	if (length < 4) {
 		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
@@ -439,7 +439,7 @@ static const value_string nlsp_hello_circuit_type_vals[] = {
 
 static void
 nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int hello_type, int header_length)
+			int offset, int hello_type, int header_length)
 {
 	guint16		packet_length;
 	int 		len;
@@ -517,7 +517,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static void
 dissect_lsp_mgt_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			 int length)
 {
 	guint8 name_length;
 
@@ -625,7 +625,7 @@ static const value_string media_type_vals[] = {
 
 static void
 dissect_lsp_link_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			  int length)
 {
 	guint8 flags_cost;
 
@@ -721,7 +721,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
  */
 static void
 dissect_lsp_svcs_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			  int length)
 {
 	if (length < 1) {
 		proto_tree_add_expert_format(tree, pinfo, &ei_nlsp_short_packet, tvb, offset, -1,
@@ -796,7 +796,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
  */
 static void
 dissect_lsp_ext_routes_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			   int length)
 {
 	while (length > 0) {
 		if (length < 1) {
@@ -906,7 +906,7 @@ static const nlsp_clv_handle_t clv_l1_lsp_opts[] = {
 
 static void
 nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int header_length)
+		      int offset, int header_length)
 {
 	guint16		packet_length;
 	guint16		remaining_lifetime;
@@ -1001,7 +1001,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static void
 dissect_csnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			 int length)
 {
 	proto_tree *subtree;
 
@@ -1037,7 +1037,7 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 
 static void
 dissect_psnp_lsp_entries(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    int length)
+			 int length)
 {
 	proto_tree *subtree;
 
@@ -1105,7 +1105,7 @@ static const nlsp_clv_handle_t clv_l1_csnp_opts[] = {
  */
 static void
 nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int header_length)
+		       int offset, int header_length)
 {
 	guint16		packet_length;
 	int 		len;
@@ -1185,7 +1185,7 @@ static const nlsp_clv_handle_t clv_l1_psnp_opts[] = {
  */
 static void
 nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int header_length)
+		       int offset, int header_length)
 {
 	guint16		packet_length;
 	int 		len;
@@ -1329,152 +1329,408 @@ void
 proto_register_nlsp(void)
 {
 	static hf_register_info hf[] = {
-	    { &hf_nlsp_irpd,
-	      { "NetWare Link Services Protocol Discriminator",	"nlsp.irpd",
-	        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_irpd,
+		  { "NetWare Link Services Protocol Discriminator", "nlsp.irpd",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_header_length,
-	      { "PDU Header Length", "nlsp.header_length",
-	        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_header_length,
+		  { "PDU Header Length", "nlsp.header_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_minor_version,
-	      { "Minor Version", "nlsp.minor_version", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_minor_version,
+		  { "Minor Version", "nlsp.minor_version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_nr,
-	      { "Multi-homed Non-routing Server", "nlsp.nr", FT_BOOLEAN, 8,
-	        NULL, 0x80, NULL, HFILL }},
+		{ &hf_nlsp_nr,
+		  { "Multi-homed Non-routing Server", "nlsp.nr",
+		    FT_BOOLEAN, 8, NULL, 0x80,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_type,
-	      { "Packet Type", "nlsp.type", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_packet_type_vals), PACKET_TYPE_MASK, NULL, HFILL }},
+		{ &hf_nlsp_type,
+		  { "Packet Type", "nlsp.type",
+		    FT_UINT8, BASE_DEC, VALS(nlsp_packet_type_vals), PACKET_TYPE_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_major_version,
-	      { "Major Version", "nlsp.major_version", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_major_version,
+		  { "Major Version", "nlsp.major_version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_packet_length,
-	      { "Packet Length", "nlsp.packet_length",
-	        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_packet_length,
+		  { "Packet Length", "nlsp.packet_length",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_hello_state,
-	      { "State", "nlsp.hello.state", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_hello_state_vals), NLSP_HELLO_STATE_MASK,
-		NULL, HFILL }},
+		{ &hf_nlsp_hello_state,
+		  { "State", "nlsp.hello.state",
+		    FT_UINT8, BASE_DEC, VALS(nlsp_hello_state_vals), NLSP_HELLO_STATE_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_hello_multicast,
-	      { "Multicast Routing", "nlsp.hello.multicast", FT_BOOLEAN, 8,
-	        TFS(&tfs_supported_not_supported), NLSP_HELLO_MULTICAST_MASK,
-		"If set, this router supports multicast routing", HFILL }},
+		{ &hf_nlsp_hello_multicast,
+		  { "Multicast Routing", "nlsp.hello.multicast",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), NLSP_HELLO_MULTICAST_MASK,
+		    "If set, this router supports multicast routing", HFILL }
+		},
 
-	    { &hf_nlsp_hello_circuit_type,
-	      { "Circuit Type", "nlsp.hello.circuit_type", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_hello_circuit_type_vals), NLSP_HELLO_CTYPE_MASK,
-		NULL, HFILL }},
+		{ &hf_nlsp_hello_circuit_type,
+		  { "Circuit Type", "nlsp.hello.circuit_type",
+		    FT_UINT8, BASE_DEC, VALS(nlsp_hello_circuit_type_vals), NLSP_HELLO_CTYPE_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_hello_holding_timer,
-	      { "Holding Timer", "nlsp.hello.holding_timer", FT_UINT8, BASE_DEC,
-	        NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_hello_holding_timer,
+		  { "Holding Timer", "nlsp.hello.holding_timer",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_hello_priority,
-	      { "Priority", "nlsp.hello.priority", FT_UINT8, BASE_DEC,
-	        NULL, NLSP_HELLO_PRIORITY_MASK,
-		NULL, HFILL }},
+		{ &hf_nlsp_hello_priority,
+		  { "Priority", "nlsp.hello.priority",
+		    FT_UINT8, BASE_DEC, NULL, NLSP_HELLO_PRIORITY_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_sequence_number,
-	      { "Sequence Number", "nlsp.sequence_number",
-	        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_lsp_sequence_number,
+		  { "Sequence Number", "nlsp.sequence_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_checksum,
-	      { "Checksum", "nlsp.lsp.checksum",
-	        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nlsp_lsp_checksum,
+		  { "Checksum", "nlsp.lsp.checksum",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_p,
-	      { "Partition Repair", "nlsp.lsp.partition_repair", FT_BOOLEAN, 8,
-	        TFS(&tfs_supported_not_supported), NLSP_LSP_PARTITION_MASK,
-		"If set, this router supports the optional Partition Repair function", HFILL }},
+		{ &hf_nlsp_lsp_p,
+		  { "Partition Repair", "nlsp.lsp.partition_repair",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), NLSP_LSP_PARTITION_MASK,
+		    "If set, this router supports the optional Partition Repair function", HFILL }
+		},
 
-	    { &hf_nlsp_lsp_attached_flag,
-	      { "Attached Flag", "nlsp.lsp.attached_flag", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_attached_flag_vals), NLSP_LSP_ATT_MASK, NULL, HFILL }},
+		{ &hf_nlsp_lsp_attached_flag,
+		  { "Attached Flag", "nlsp.lsp.attached_flag",
+		    FT_UINT8, BASE_DEC, VALS(nlsp_attached_flag_vals), NLSP_LSP_ATT_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_lspdbol,
-	      { "LSP Database Overloaded", "nlsp.lsp.lspdbol", FT_BOOLEAN, 8,
-	        NULL, NLSP_LSP_OVERFLOW_MASK, NULL, HFILL }},
+		{ &hf_nlsp_lsp_lspdbol,
+		  { "LSP Database Overloaded", "nlsp.lsp.lspdbol",
+		    FT_BOOLEAN, 8, NULL, NLSP_LSP_OVERFLOW_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_router_type,
-	      { "Router Type", "nlsp.lsp.router_type", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_router_type_vals), NLSP_LSP_ROUTER_TYPE_MASK,
-	        NULL, HFILL }},
+		{ &hf_nlsp_lsp_router_type,
+		  { "Router Type", "nlsp.lsp.router_type",
+		    FT_UINT8, BASE_DEC, VALS(nlsp_router_type_vals), NLSP_LSP_ROUTER_TYPE_MASK,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_link_info_clv_flags_cost_present,
-	      { "Cost present", "nlsp.lsp.link_info_clv.flags.cost_present", FT_BOOLEAN, 8,
-	        TFS(&tfs_no_yes), 0x80, NULL, HFILL }},
+		{ &hf_nlsp_lsp_link_info_clv_flags_cost_present,
+		  { "Cost present", "nlsp.lsp.link_info_clv.flags.cost_present",
+		    FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x80,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_link_info_clv_flags_cost_metric,
-	      { "Cost metric", "nlsp.lsp.link_info_clv.flags.cost_metric", FT_BOOLEAN, 8,
-	        TFS(&tfs_internal_external), 0x40, NULL, HFILL }},
+		{ &hf_nlsp_lsp_link_info_clv_flags_cost_metric,
+		  { "Cost metric", "nlsp.lsp.link_info_clv.flags.cost_metric",
+		    FT_BOOLEAN, 8, TFS(&tfs_internal_external), 0x40,
+		    NULL, HFILL }
+		},
 
-	    { &hf_nlsp_lsp_link_info_clv_flags_cost,
-	      { "Cost", "nlsp.lsp.link_info_clv.flags.cost", FT_UINT8, BASE_DEC,
-	        NULL, 0x3F, NULL, HFILL }},
+		{ &hf_nlsp_lsp_link_info_clv_flags_cost,
+		  { "Cost", "nlsp.lsp.link_info_clv.flags.cost",
+		    FT_UINT8, BASE_DEC, NULL, 0x3F,
+		    NULL, HFILL }
+		},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_nlsp_unknown_code, { "Unknown code", "nlsp.unknown_code", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_area_address_network_number, { "Area address network number", "nlsp.area_address.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_area_address_mask, { "Area address mask", "nlsp.area_address.mask", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_neighbor, { "Neighbor", "nlsp.neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_hello_local_mtu_mtu_size, { "MTU Size", "nlsp.hello_local_mtu.mtu_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_hello_sending_router_system_id, { "Sending Router System ID", "nlsp.hello.sending_router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_hello_local_wan_circuit_id, { "Local WAN Circuit ID", "nlsp.hello.local_wan_circuit_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_hello_designated_router_system_id, { "Designated Router System ID", "nlsp.hello.designated_router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_hello_designated_router_pseudonode_id, { "Designated Router Pseudonode ID", "nlsp.hello.designated_router_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_mgt_info_network_number, { "Network number", "nlsp.mgt_info.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_mgt_info_node_number, { "Node number", "nlsp.mgt_info.node_number", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_mgt_info_ipx_version_number, { "IPX version number", "nlsp.mgt_info.ipx_version_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_mgt_info_name_length, { "Name length", "nlsp.mgt_info.name_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_mgt_info_name, { "Name", "nlsp.mgt_info.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_router_system_id, { "Router System ID", "nlsp.link_info.router_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_router_pseudonode_id, { "Router Pseudonode ID", "nlsp.link_info.router_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_mtu_size, { "MTU Size", "nlsp.link_info.mtu_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_delay, { "Delay", "nlsp.link_info.delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_throughput, { "Throughput", "nlsp.link_info.throughput", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_link_info_media_type, { "Media type", "nlsp.link_info.media_type", FT_UINT16, BASE_DEC, VALS(media_type_vals), 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_hops_to_reach_the_service, { "Hops to reach the service", "nlsp.svcs_info.hops_to_reach_the_service", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_network_number, { "Network number", "nlsp.svcs_info.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_node_number, { "Node number", "nlsp.svcs_info.node_number", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_socket, { "Socket", "nlsp.svcs_info.socket", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ipx_socket_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_type, { "Type", "nlsp.svcs_info.type", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &novell_server_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_nlsp_svcs_info_service_name, { "Service Name", "nlsp.svcs_info.service_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_ext_routes_hops, { "Hops", "nlsp.ext_routes.hops", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_ext_routes_network_number, { "Network number", "nlsp.ext_routes.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_ext_routes_rip_delay, { "RIP delay", "nlsp.ext_routes.rip_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_remaining_lifetime, { "Remaining Lifetime", "nlsp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_lsp_id_system_id, { "LSP ID system ID", "nlsp.lsp_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_lsp_id_source_id, { "LSP ID source ID", "nlsp.csnp.lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.csnp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.csnp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_lsp_sequence_number, { "LSP Sequence Number", "nlsp.csnp.lsp_sequence_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_remaining_lifetime, { "Remaining Lifetime", "nlsp.csnp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_lsp_checksum, { "LSP checksum", "nlsp.csnp.lsp_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_lsp_id_source_id, { "LSP ID source ID", "nlsp.psnp.lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_lsp_id_pseudonode_id, { "LSP ID pseudonode ID", "nlsp.psnp.lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_lsp_id_lsp_number, { "LSP ID LSP number", "nlsp.psnp.lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_lsp_sequence_number, { "LSP Sequence Number", "nlsp.psnp.lsp_sequence_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_remaining_lifetime, { "Remaining Lifetime", "nlsp.psnp.remaining_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_lsp_checksum, { "LSP checksum", "nlsp.psnp.lsp_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_source_id_system_id, { "Source ID system ID", "nlsp.csnp.source_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_source_id_pseudonode_id, { "Source ID pseudonode ID", "nlsp.csnp.source_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_start_lsp_id_source_id, { "Start LSP ID source ID", "nlsp.csnp.start_lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_start_lsp_id_pseudonode_id, { "Start LSP ID pseudonode ID", "nlsp.csnp.start_lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_start_lsp_id_lsp_number, { "Start LSP ID LSP number", "nlsp.csnp.start_lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_end_lsp_id_source_id, { "End LSP ID source ID", "nlsp.csnp.end_lsp_id_source_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_end_lsp_id_pseudonode_id, { "End LSP ID pseudonode ID", "nlsp.csnp.end_lsp_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_csnp_end_lsp_id_lsp_number, { "End LSP ID LSP number", "nlsp.csnp.end_lsp_id_lsp_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_source_id_system_id, { "Source ID system ID", "nlsp.psnp.source_id_system_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_nlsp_psnp_source_id_pseudonode_id, { "Source ID pseudonode ID", "nlsp.psnp.source_id_pseudonode_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_nlsp_unknown_code,
+		  { "Unknown code", "nlsp.unknown_code",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_area_address_network_number,
+		  { "Area address network number", "nlsp.area_address.network_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_area_address_mask,
+		  { "Area address mask", "nlsp.area_address.mask",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_neighbor,
+		  { "Neighbor", "nlsp.neighbor",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_hello_local_mtu_mtu_size,
+		  { "MTU Size", "nlsp.hello_local_mtu.mtu_size",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_hello_sending_router_system_id,
+		  { "Sending Router System ID", "nlsp.hello.sending_router_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_hello_local_wan_circuit_id,
+		  { "Local WAN Circuit ID", "nlsp.hello.local_wan_circuit_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_hello_designated_router_system_id,
+		  { "Designated Router System ID", "nlsp.hello.designated_router_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_hello_designated_router_pseudonode_id,
+		  { "Designated Router Pseudonode ID", "nlsp.hello.designated_router_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_mgt_info_network_number,
+		  { "Network number", "nlsp.mgt_info.network_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_mgt_info_node_number,
+		  { "Node number", "nlsp.mgt_info.node_number",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_mgt_info_ipx_version_number,
+		  { "IPX version number", "nlsp.mgt_info.ipx_version_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_mgt_info_name_length,
+		  { "Name length", "nlsp.mgt_info.name_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_mgt_info_name,
+		  { "Name", "nlsp.mgt_info.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_router_system_id,
+		  { "Router System ID", "nlsp.link_info.router_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_router_pseudonode_id,
+		  { "Router Pseudonode ID", "nlsp.link_info.router_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_mtu_size,
+		  { "MTU Size", "nlsp.link_info.mtu_size",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_delay,
+		  { "Delay", "nlsp.link_info.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_throughput,
+		  { "Throughput", "nlsp.link_info.throughput",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_link_info_media_type,
+		  { "Media type", "nlsp.link_info.media_type",
+		    FT_UINT16, BASE_DEC, VALS(media_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_hops_to_reach_the_service,
+		  { "Hops to reach the service", "nlsp.svcs_info.hops_to_reach_the_service",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_network_number,
+		  { "Network number", "nlsp.svcs_info.network_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_node_number,
+		  { "Node number", "nlsp.svcs_info.node_number",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_socket,
+		  { "Socket", "nlsp.svcs_info.socket",
+		    FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ipx_socket_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_type,
+		  { "Type", "nlsp.svcs_info.type",
+		    FT_UINT16, BASE_DEC|BASE_EXT_STRING, &novell_server_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_svcs_info_service_name,
+		  { "Service Name", "nlsp.svcs_info.service_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_ext_routes_hops,
+		  { "Hops", "nlsp.ext_routes.hops",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_ext_routes_network_number,
+		  { "Network number", "nlsp.ext_routes.network_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_ext_routes_rip_delay,
+		  { "RIP delay", "nlsp.ext_routes.rip_delay",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_remaining_lifetime,
+		  { "Remaining Lifetime", "nlsp.remaining_lifetime",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_lsp_id_system_id,
+		  { "LSP ID system ID", "nlsp.lsp_id_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_lsp_id_pseudonode_id,
+		  { "LSP ID pseudonode ID", "nlsp.lsp_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_lsp_id_lsp_number,
+		  { "LSP ID LSP number", "nlsp.lsp_id_lsp_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_lsp_id_source_id,
+		  { "LSP ID source ID", "nlsp.csnp.lsp_id_source_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_lsp_id_pseudonode_id,
+		  { "LSP ID pseudonode ID", "nlsp.csnp.lsp_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_lsp_id_lsp_number,
+		  { "LSP ID LSP number", "nlsp.csnp.lsp_id_lsp_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_lsp_sequence_number,
+		  { "LSP Sequence Number", "nlsp.csnp.lsp_sequence_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_remaining_lifetime,
+		  { "Remaining Lifetime", "nlsp.csnp.remaining_lifetime",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_lsp_checksum,
+		  { "LSP checksum", "nlsp.csnp.lsp_checksum",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_lsp_id_source_id,
+		  { "LSP ID source ID", "nlsp.psnp.lsp_id_source_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_lsp_id_pseudonode_id,
+		  { "LSP ID pseudonode ID", "nlsp.psnp.lsp_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_lsp_id_lsp_number,
+		  { "LSP ID LSP number", "nlsp.psnp.lsp_id_lsp_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_lsp_sequence_number,
+		  { "LSP Sequence Number", "nlsp.psnp.lsp_sequence_number",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_remaining_lifetime,
+		  { "Remaining Lifetime", "nlsp.psnp.remaining_lifetime",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_lsp_checksum,
+		  { "LSP checksum", "nlsp.psnp.lsp_checksum",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_source_id_system_id,
+		  { "Source ID system ID", "nlsp.csnp.source_id_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_source_id_pseudonode_id,
+		  { "Source ID pseudonode ID", "nlsp.csnp.source_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_start_lsp_id_source_id,
+		  { "Start LSP ID source ID", "nlsp.csnp.start_lsp_id_source_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_start_lsp_id_pseudonode_id,
+		  { "Start LSP ID pseudonode ID", "nlsp.csnp.start_lsp_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_start_lsp_id_lsp_number,
+		  { "Start LSP ID LSP number", "nlsp.csnp.start_lsp_id_lsp_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_end_lsp_id_source_id,
+		  { "End LSP ID source ID", "nlsp.csnp.end_lsp_id_source_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_end_lsp_id_pseudonode_id,
+		  { "End LSP ID pseudonode ID", "nlsp.csnp.end_lsp_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_csnp_end_lsp_id_lsp_number,
+		  { "End LSP ID LSP number", "nlsp.csnp.end_lsp_id_lsp_number",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_source_id_system_id,
+		  { "Source ID system ID", "nlsp.psnp.source_id_system_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_nlsp_psnp_source_id_pseudonode_id,
+		  { "Source ID pseudonode ID", "nlsp.psnp.source_id_pseudonode_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_nlsp,
@@ -1522,3 +1778,16 @@ proto_reg_handoff_nlsp(void)
 	nlsp_handle = create_dissector_handle(dissect_nlsp, proto_nlsp);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NLSP, nlsp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

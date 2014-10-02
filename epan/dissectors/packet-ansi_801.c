@@ -919,7 +919,7 @@ rev_reject(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	str = val_to_str_const((oct & 0xf0) >> 4, for_req_type_strings, "Reserved");
 
-    proto_tree_add_uint_format_value(tree, hf_ansi_801_reject_request_type, tvb, offset, 1, oct,
+	proto_tree_add_uint_format_value(tree, hf_ansi_801_reject_request_type, tvb, offset, 1, oct,
 			    "(%u) %s", (oct & 0xf0) >> 4, str);
 
 	switch ((oct & 0x0e) >> 1)
@@ -944,8 +944,8 @@ rev_pr_ms_information(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	guint32      value;
 	guint32      saved_offset;
 	const gchar *str = NULL;
-    proto_item* ti;
-    proto_tree *gps_tree, *loc_tree;
+	proto_item* ti;
+	proto_tree *gps_tree, *loc_tree;
 
 	saved_offset = offset;
 
@@ -972,7 +972,7 @@ rev_pr_ms_information(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	offset += 2;
 
 	ti = proto_tree_add_item(tree, hf_ansi_801_gps_acq_cap, tvb, offset, 3, ENC_BIG_ENDIAN);
-    gps_tree = proto_item_add_subtree(ti, ett_gps);
+	gps_tree = proto_item_add_subtree(ti, ett_gps);
 
 	proto_tree_add_item(gps_tree, hf_ansi_801_reserved_24_F80000, tvb, offset, 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(gps_tree, hf_ansi_801_gps_autonomous_acquisition_capable, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -984,7 +984,7 @@ rev_pr_ms_information(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	proto_tree_add_item(gps_tree, hf_ansi_801_gps_acquisition_assistance, tvb, offset, 3, ENC_BIG_ENDIAN);
 
 	ti = proto_tree_add_item(tree, hf_ansi_801_loc_calc_cap, tvb, offset, 3, ENC_BIG_ENDIAN);
-    loc_tree = proto_item_add_subtree(ti, ett_loc);
+	loc_tree = proto_item_add_subtree(ti, ett_loc);
 
 	proto_tree_add_item(loc_tree, hf_ansi_801_pre_programmed_location, tvb, offset, 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(loc_tree, hf_ansi_801_reserved_24_700, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -1134,7 +1134,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 		}
 
 		item = proto_tree_add_uint_format_value(tree, hf_ansi_801_for_req_type, tvb, offset, 1,
-                            oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+							oct & 0x0f, "%s (%u)", str, oct & 0x0f);
 	}
 	else
 	{
@@ -1193,7 +1193,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	}
 
 	item = proto_tree_add_uint_format_value(tree, hf_ansi_801_for_rsp_type, tvb, offset, 1,
-                                         oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+						oct & 0x0f, "%s (%u)", str, oct & 0x0f);
 	subtree = proto_item_add_subtree(item, ett_for_rsp_type[idx]);
 
 	offset++;
@@ -1240,7 +1240,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 		}
 
 		item = proto_tree_add_uint_format_value(tree, hf_ansi_801_rev_req_type, tvb, offset, 1,
-                                             oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+							oct & 0x0f, "%s (%u)", str, oct & 0x0f);
 	}
 	else
 	{
@@ -1298,7 +1298,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	}
 
 	item = proto_tree_add_uint_format_value(tree, hf_ansi_801_rev_rsp_type, tvb, offset, 1,
-                                            oct & 0x0f, "%s (%u)", str, oct & 0x0f);
+						oct & 0x0f, "%s (%u)", str, oct & 0x0f);
 	subtree = proto_item_add_subtree(item, ett_rev_rsp_type[idx]);
 	offset++;
 
@@ -1615,281 +1615,636 @@ proto_register_ansi_801(void)
 	gint  last_offset;
 
 	/* Setup list of header fields */
-	static hf_register_info hf[] =
-		{
-			{ &hf_ansi_801_for_req_type,
-			  { "Forward Request Type",		"ansi_801.for_req_type",
-			    FT_UINT8, BASE_DEC, NULL, 0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_for_rsp_type,
-			  { "Forward Response Type",		"ansi_801.for_rsp_type",
-			    FT_UINT8, BASE_DEC, NULL, 0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_rev_req_type,
-			  { "Reverse Request Type",		"ansi_801.rev_req_type",
-			    FT_UINT8, BASE_DEC, NULL, 0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_rev_rsp_type,
-			  { "Reverse Response Type",		"ansi_801.rev_rsp_type",
-			    FT_UINT8, BASE_DEC, NULL, 0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_for_sess_tag,
-			  { "Forward Session Tag",		"ansi_801.for_sess_tag",
-			    FT_UINT8, BASE_DEC, NULL, 0x1f,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_rev_sess_tag,
-			  { "Reverse Session Tag",		"ansi_801.rev_sess_tag",
-			    FT_UINT8, BASE_DEC, NULL, 0x1f,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_sess_tag,
-			  { "Session Tag",			"ansi_801.sess_tag",
-			    FT_UINT8, BASE_DEC, NULL, 0x1f,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_time_ref_cdma,
-			  { "CDMA system time at the time the solution is valid (TIME_REF_CDMA)", "ansi_801.time_ref_cdma",
-			    FT_UINT32, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_lat,
-			  { "Latitude (LAT)", "ansi_801.lat",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_long,
-			  { "Longitude (LONG)", "ansi_801.long",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_loc_uncrtnty_ang,
-			  { "Angle of axis with respect to True North for pos uncertainty (LOC_UNCRTNTY_ANG)", "ansi_801.loc_uncrtnty_ang",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_loc_uncrtnty_a,
-			  { "Std dev of axis along angle specified for pos uncertainty (LOC_UNCRTNTY_A)", "ansi_801.loc_uncrtnty_a",
-			    FT_UINT8, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_loc_uncrtnty_p,
-			  { "Std dev of axis perpendicular to angle specified for pos uncertainty (LOC_UNCRTNTY_P)", "ansi_801.loc_uncrtnty_p",
-			    FT_UINT8, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_fix_type,
-			  { "Fix type (FIX_TYPE)", "ansi_801.fix_type",
-			    FT_BOOLEAN, BASE_NONE, TFS(&ansi_801_fix_type_vals), 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_velocity_incl,
-			  { "Velocity information included (VELOCITY_INCL)", "ansi_801.velocity_incl",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_velocity_hor,
-			  { "Horizontal velocity magnitude (VELOCITY_HOR)", "ansi_801.velocity_hor",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_heading,
-			  { "Heading (HEADING)", "ansi_801.heading",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_velocity_ver,
-			  { "Vertical velocity (VELOCITY_VER)", "ansi_801.velocity_ver",
-			    FT_FLOAT, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_clock_incl,
-			  { "Clock information included (CLOCK_INCL)", "ansi_801.clock_incl",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_clock_bias,
-			  { "Clock bias (CLOCK_BIAS)", "ansi_801.clock_bias",
-			    FT_INT24, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_clock_drift,
-			  { "Clock drift (CLOCK_DRIFT)", "ansi_801.clock_drift",
-			    FT_INT16, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_height_incl,
-			  { "Height information included (HEIGHT_INCL)", "ansi_801.height_incl",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_height,
-			  { "Height (HEIGHT)", "ansi_801.height",
-			    FT_INT16, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_loc_uncrtnty_v,
-			  { "Std dev of vertical error for pos uncertainty (LOC_UNCRTNTY_V)", "ansi_801.loc_uncrtnty_v",
-			    FT_UINT8, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_reserved_bits,
-			  { "Reserved bit(s)","ansi_801.reerved_bits",
-			    FT_UINT8,BASE_DEC, NULL, 0x0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_bad_sv_present,
-			  { "Bad GPS satellites present (BAD_SV_PRESENT)", "ansi_801.bad_sv_present",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_num_bad_sv,
-			  { "Number of bad GPS satellites (NUM_BAD_SV)", "ansi_801.num_bad_sv",
-			    FT_UINT8, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_bad_sv_prn_num,
-			  { "Satellite PRN number (SV_PRN_NUM)", "ansi_801.bad_sv_prn_num",
-			    FT_UINT8, BASE_DEC, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_dopp_req,
-			  { "Doppler (0th order) term requested (DOPP_REQ)", "ansi_801.dopp_req",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_add_dopp_req,
-			  { "Additional Doppler terms requested (ADD_DOPP_REQ)", "ansi_801.add_dopp_req",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_code_ph_par_req,
-			  { "Code phase parameters requested (CODE_PH_PAR_REQ)", "ansi_801.code_ph_par_req",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_az_el_req,
-			  { "Azimuth and elevation angle requested (AZ_EL_REQ)", "ansi_801.az_el_req",
-			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_pref_resp_qual,
-			  { "Preferred response quality (PREF_RESP_QUAL)", "ansi_801.pref_resp_qual",
-			    FT_UINT24, BASE_DEC, NULL, 0xe00000,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_num_fixes,
-			  { "Number of fixes (NUM_FIXES)", "ansi_801.num_fixes",
-			    FT_UINT24, BASE_DEC, NULL, 0x1fe000,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_t_betw_fixes,
-			  { "Time between fixes (T_BETW_FIXES) (in seconds)", "ansi_801.t_betw_fixes",
-			    FT_UINT24, BASE_DEC, NULL, 0x001fe0,
-			    NULL, HFILL }
-			},
-			{ &hf_ansi_801_offset_req,
-			  { "Offset requested (OFFSET_REQ)", "ansi_801.offset_req",
-			    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000010,
-			    NULL, HFILL }
-			},
+	static hf_register_info hf[] = {
+		{ &hf_ansi_801_for_req_type,
+		  { "Forward Request Type", "ansi_801.for_req_type",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_rsp_type,
+		  { "Forward Response Type", "ansi_801.for_rsp_type",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_req_type,
+		  { "Reverse Request Type", "ansi_801.rev_req_type",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_rsp_type,
+		  { "Reverse Response Type", "ansi_801.rev_rsp_type",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_sess_tag,
+		  { "Forward Session Tag", "ansi_801.for_sess_tag",
+		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_sess_tag,
+		  { "Reverse Session Tag", "ansi_801.rev_sess_tag",
+		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_sess_tag,
+		  { "Session Tag", "ansi_801.sess_tag",
+		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_time_ref_cdma,
+		  { "CDMA system time at the time the solution is valid (TIME_REF_CDMA)", "ansi_801.time_ref_cdma",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lat,
+		  { "Latitude (LAT)", "ansi_801.lat",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_long,
+		  { "Longitude (LONG)", "ansi_801.long",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_loc_uncrtnty_ang,
+		  { "Angle of axis with respect to True North for pos uncertainty (LOC_UNCRTNTY_ANG)", "ansi_801.loc_uncrtnty_ang",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_loc_uncrtnty_a,
+		  { "Std dev of axis along angle specified for pos uncertainty (LOC_UNCRTNTY_A)", "ansi_801.loc_uncrtnty_a",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_loc_uncrtnty_p,
+		  { "Std dev of axis perpendicular to angle specified for pos uncertainty (LOC_UNCRTNTY_P)", "ansi_801.loc_uncrtnty_p",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_fix_type,
+		  { "Fix type (FIX_TYPE)", "ansi_801.fix_type",
+		    FT_BOOLEAN, BASE_NONE, TFS(&ansi_801_fix_type_vals), 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_velocity_incl,
+		  { "Velocity information included (VELOCITY_INCL)", "ansi_801.velocity_incl",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_velocity_hor,
+		  { "Horizontal velocity magnitude (VELOCITY_HOR)", "ansi_801.velocity_hor",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_heading,
+		  { "Heading (HEADING)", "ansi_801.heading",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_velocity_ver,
+		  { "Vertical velocity (VELOCITY_VER)", "ansi_801.velocity_ver",
+		    FT_FLOAT, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_clock_incl,
+		  { "Clock information included (CLOCK_INCL)", "ansi_801.clock_incl",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_clock_bias,
+		  { "Clock bias (CLOCK_BIAS)", "ansi_801.clock_bias",
+		    FT_INT24, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_clock_drift,
+		  { "Clock drift (CLOCK_DRIFT)", "ansi_801.clock_drift",
+		    FT_INT16, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_height_incl,
+		  { "Height information included (HEIGHT_INCL)", "ansi_801.height_incl",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_height,
+		  { "Height (HEIGHT)", "ansi_801.height",
+		    FT_INT16, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_loc_uncrtnty_v,
+		  { "Std dev of vertical error for pos uncertainty (LOC_UNCRTNTY_V)", "ansi_801.loc_uncrtnty_v",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved_bits,
+		  { "Reserved bit(s)","ansi_801.reerved_bits",
+		    FT_UINT8,BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_bad_sv_present,
+		  { "Bad GPS satellites present (BAD_SV_PRESENT)", "ansi_801.bad_sv_present",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_num_bad_sv,
+		  { "Number of bad GPS satellites (NUM_BAD_SV)", "ansi_801.num_bad_sv",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_bad_sv_prn_num,
+		  { "Satellite PRN number (SV_PRN_NUM)", "ansi_801.bad_sv_prn_num",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_dopp_req,
+		  { "Doppler (0th order) term requested (DOPP_REQ)", "ansi_801.dopp_req",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_add_dopp_req,
+		  { "Additional Doppler terms requested (ADD_DOPP_REQ)", "ansi_801.add_dopp_req",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_code_ph_par_req,
+		  { "Code phase parameters requested (CODE_PH_PAR_REQ)", "ansi_801.code_ph_par_req",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_az_el_req,
+		  { "Azimuth and elevation angle requested (AZ_EL_REQ)", "ansi_801.az_el_req",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_pref_resp_qual,
+		  { "Preferred response quality (PREF_RESP_QUAL)", "ansi_801.pref_resp_qual",
+		    FT_UINT24, BASE_DEC, NULL, 0xe00000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_num_fixes,
+		  { "Number of fixes (NUM_FIXES)", "ansi_801.num_fixes",
+		    FT_UINT24, BASE_DEC, NULL, 0x1fe000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_t_betw_fixes,
+		  { "Time between fixes (T_BETW_FIXES) (in seconds)", "ansi_801.t_betw_fixes",
+		    FT_UINT24, BASE_DEC, NULL, 0x001fe0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_offset_req,
+		  { "Offset requested (OFFSET_REQ)", "ansi_801.offset_req",
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x000010,
+		    NULL, HFILL }
+		},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ansi_801_desired_pilot_phase_resolution, { "Desired pilot phase resolution", "ansi_801.desired_pilot_phase_resolution", FT_BOOLEAN, 24, TFS(&tfs_desired_pilot_phase_resolution), 0x08, NULL, HFILL }},
-      { &hf_ansi_801_reserved_24_7, { "Reserved", "ansi_801.reserved", FT_UINT24, BASE_HEX, NULL, 0x07, NULL, HFILL }},
-      { &hf_ansi_801_for_req_loc_height_information, { "Height information", "ansi_801.height_incl", FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x10, NULL, HFILL }},
-      { &hf_ansi_801_for_req_loc_clock_correction_for_gps_time, { "Clock correction for GPS time", "ansi_801.clock_correction_for_gps_time", FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x08, NULL, HFILL }},
-      { &hf_ansi_801_for_req_loc_velocity_information, { "Velocity information", "ansi_801.velocity_information", FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x04, NULL, HFILL }},
-      { &hf_ansi_801_reserved24_3, { "Reserved", "ansi_801.reserved", FT_UINT24, BASE_HEX, NULL, 0x03, NULL, HFILL }},
-      { &hf_ansi_801_use_action_time_indicator, { "Use action time indicator", "ansi_801.use_action_time_indicator", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-      { &hf_ansi_801_action_time, { "Action time", "ansi_801.action_time", FT_UINT8, BASE_DEC, NULL, 0x7E, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_7F, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
-      { &hf_ansi_801_cancellation_type, { "Cancellation Type", "ansi_801.cancellation_type", FT_UINT8, BASE_DEC, VALS(for_req_type_strings), 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_0F, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
-      { &hf_ansi_801_reject_request_type, { "Reject request type", "ansi_801.reject_request_type", FT_UINT8, BASE_DEC, VALS(rev_req_type_strings), 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_reject_reason, { "Reject reason", "ansi_801.reject_reason", FT_UINT8, BASE_DEC, NULL, 0x0E, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_01, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
-      { &hf_ansi_801_bs_ls_rev, { "BS_LS_REV", "ansi_801.bs_ls_rev", FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
-      { &hf_ansi_801_gps_capability_indicator, { "GPSC_ID: GPS capability indicator", "ansi_801.gps_capability_indicator", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
-      { &hf_ansi_801_afltc_id, { "AFLTC_ID: Advanced forward link trilateration capability indicator", "ansi_801.afltc_id", FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
-      { &hf_ansi_801_apdc_id, { "APDC_ID: Autonomous position determination capability indicator: Autonomous Location Technology Identifier", "ansi_801.apdc_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ansi_801_ref_bit_num, { "REF_BIT_NUM", "ansi_801.ref_bit_num", FT_UINT16, BASE_DEC, NULL, 0xffe0, NULL, HFILL }},
-      { &hf_ansi_801_num_dr_p, { "NUM_DR_P: Number of data records in this part", "ansi_801.num_dr_p", FT_UINT16, BASE_DEC, NULL, 0x001e, NULL, HFILL }},
-      { &hf_ansi_801_dr_size, { "DR_SIZE: Data record size", "ansi_801.dr_size", FT_UINT24, BASE_DEC, NULL, 0x0001FE, NULL, HFILL }},
-      { &hf_ansi_801_part_num, { "PART_NUM: The part number", "ansi_801.part_num", FT_UINT16, BASE_DEC, NULL, 0x01c0, NULL, HFILL }},
-      { &hf_ansi_801_total_parts, { "TOTAL_PARTS: Total number of parts", "ansi_801.total_parts", FT_UINT16, BASE_DEC, NULL, 0x38, NULL, HFILL }},
-      { &hf_ansi_801_data_records, { "Data records", "ansi_801.data_records", FT_UINT16, BASE_DEC, NULL, 0x07, NULL, HFILL }},
-      { &hf_ansi_801_num_sv_p32, { "NUM_SV_P: Number of satellites in this part", "ansi_801.num_sv_p", FT_UINT32, BASE_DEC, NULL, 0xfc000000, NULL, HFILL }},
-      { &hf_ansi_801_week_num, { "WEEK_NUM: The GPS week number of the almanac", "ansi_801.week_num", FT_UINT32, BASE_DEC, NULL, 0x03fc0000, NULL, HFILL }},
-      { &hf_ansi_801_toa, { "TOA: The reference time of the almanac", "ansi_801.toa", FT_UINT32, BASE_DEC, NULL, 0x0003fc00, NULL, HFILL }},
-      { &hf_ansi_801_part_num32, { "PART_NUM: The part number", "ansi_801.part_num", FT_UINT32, BASE_DEC, NULL, 0x000003e0, NULL, HFILL }},
-      { &hf_ansi_801_total_parts32, { "TOTAL_PARTS: The total number of parts", "ansi_801.total_parts", FT_UINT32, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
-      { &hf_ansi_801_num_sv_p16, { "NUM_SV_P: Number of satellites in this part", "ansi_801.num_sv_p", FT_UINT16, BASE_DEC, NULL, 0xfc00, NULL, HFILL }},
-      { &hf_ansi_801_part_num16, { "PART_NUM: The part number", "ansi_801.part_num", FT_UINT16, BASE_DEC, NULL, 0x03e0, NULL, HFILL }},
-      { &hf_ansi_801_total_parts16, { "TOTAL_PARTS: The total number of parts", "ansi_801.total_parts", FT_UINT16, BASE_DEC, NULL, 0x001f, NULL, HFILL }},
-      { &hf_ansi_801_coordinate_type_requested, { "Coordinate type requested", "ansi_801.coordinate_type_requested", FT_BOOLEAN, 8, TFS(&tfs_spherical_cartesian), 0x80, NULL, HFILL }},
-      { &hf_ansi_801_extended_base_station_almanac, { "Extended base station almanac", "ansi_801.extended_base_station_almanac", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80, NULL, HFILL }},
-      { &hf_ansi_801_alpha_and_beta_parameters, { "Alpha and Beta parameters", "ansi_801.alpha_and_beta_parameters", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80, NULL, HFILL }},
-      { &hf_ansi_801_subframes_4_and_5, { "Subframes 4 and 5", "ansi_801.subframes_4_and_5", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80, NULL, HFILL }},
-      { &hf_ansi_801_rev_req_loc_height_information, { "Height information", "ansi_801.height_information", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80, NULL, HFILL }},
-      { &hf_ansi_801_rev_req_loc_clock_correction_for_gps_time, { "Clock correction for GPS time", "ansi_801.clock_correction_for_gps_time", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40, NULL, HFILL }},
-      { &hf_ansi_801_rev_req_loc_velocity_information, { "Velocity information", "ansi_801.velocity_information", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_1F, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
-      { &hf_ansi_801_ms_ls_rev, { "MS_LS_REV", "ansi_801.ms_ls_rev", FT_UINT16, BASE_DEC, NULL, 0xfc00, NULL, HFILL }},
-      { &hf_ansi_801_ms_mode, { "MS_MODE", "ansi_801.ms_mode", FT_UINT16, BASE_DEC, NULL, 0x03c0, NULL, HFILL }},
-      { &hf_ansi_801_pilot_ph_cap, { "PILOT_PH_CAP", "ansi_801.pilot_ph_cap", FT_UINT16, BASE_DEC, NULL, 0x003f, NULL, HFILL }},
-      { &hf_ansi_801_gps_acq_cap, { "GPS_ACQ_CAP", "ansi_801.gps_acq_cap", FT_UINT24, BASE_HEX, NULL, 0x000FFF, NULL, HFILL }},
-      { &hf_ansi_801_reserved_24_F80000, { "Reserved", "ansi_801.reserved", FT_UINT24, BASE_HEX, NULL, 0xf80000, NULL, HFILL }},
-      { &hf_ansi_801_gps_autonomous_acquisition_capable, { "GPS Autonomous Acquisition Capable", "ansi_801.gps_autonomous_acquisition_capable", FT_BOOLEAN, 24, NULL, 0x040000, NULL, HFILL }},
-      { &hf_ansi_801_gps_almanac_correction, { "GPS Almanac Correction", "ansi_801.gps_almanac_correction", FT_BOOLEAN, 24, NULL, 0x020000, NULL, HFILL }},
-      { &hf_ansi_801_gps_navigation_message_bits, { "GPS Navigation Message Bits", "ansi_801.gps_navigation_message_bits", FT_BOOLEAN, 24, NULL, 0x010000, NULL, HFILL }},
-      { &hf_ansi_801_gps_ephemeris, { "GPS Ephemeris", "ansi_801.gps_ephemeris", FT_BOOLEAN, 24, NULL, 0x008000, NULL, HFILL }},
-      { &hf_ansi_801_gps_almanac, { "GPS Almanac", "ansi_801.gps_almanac", FT_BOOLEAN, 24, NULL, 0x004000, NULL, HFILL }},
-      { &hf_ansi_801_gps_sensitivity_assistance, { "GPS Sensitivity Assistance", "ansi_801.gps_sensitivity_assistance", FT_BOOLEAN, 24, NULL, 0x002000, NULL, HFILL }},
-      { &hf_ansi_801_gps_acquisition_assistance, { "GPS Acquisition Assistance", "ansi_801.gps_acquisition_assistance", FT_BOOLEAN, 24, NULL, 0x001000, NULL, HFILL }},
-      { &hf_ansi_801_loc_calc_cap, { "LOC_CALC_CAP", "ansi_801.loc_calc_cap", FT_UINT24, BASE_HEX, NULL, 0x000FFF, NULL, HFILL }},
-      { &hf_ansi_801_pre_programmed_location, { "Pre-programmed Location", "ansi_801.pre_programmed_location", FT_BOOLEAN, 24, NULL, 0x000800, NULL, HFILL }},
-      { &hf_ansi_801_reserved_24_700, { "Reserved", "ansi_801.reserved", FT_UINT24, BASE_HEX, NULL, 0x000700, NULL, HFILL }},
-      { &hf_ansi_801_hybrid_gps_and_aflt_lcc, { "Hybrid GPS and AFLT Location Calculation Capable", "ansi_801.hybrid_gps_and_aflt_lcc", FT_BOOLEAN, 24, NULL, 0x000080, NULL, HFILL }},
-      { &hf_ansi_801_autonomous_location_calculation_capable, { "Autonomous Location Calculation Capable", "ansi_801.autonomous_lcc", FT_BOOLEAN, 24, NULL, 0x000040, NULL, HFILL }},
-      { &hf_ansi_801_lcc_using_gps_almanac_correction, { "Location Calculation Capable using GPS Almanac Correction", "ansi_801.lcc_using_gps_almanac_correction", FT_BOOLEAN, 24, NULL, 0x000020, NULL, HFILL }},
-      { &hf_ansi_801_lcc_using_gps_ephemeris_assistance, { "Location Calculation Capable using GPS Ephemeris Assistance", "ansi_801.lcc_using_gps_ephemeris_assistance", FT_BOOLEAN, 24, NULL, 0x000010, NULL, HFILL }},
-      { &hf_ansi_801_lcc_using_gps_almanac_assistance, { "Location Calculation Capable using GPS Almanac Assistance", "ansi_801.lcc_using_gps_almanac_assistance", FT_BOOLEAN, 24, NULL, 0x000008, NULL, HFILL }},
-      { &hf_ansi_801_aflt_lcc, { "Advanced Forward Link Trilateration (AFLT) Location Calculation Capable", "ansi_801.aflt_lcc", FT_BOOLEAN, 24, NULL, 0x000004, NULL, HFILL }},
-      { &hf_ansi_801_lcc_using_location_assistance_cartesian, { "Location Calculation Capable using Location Assistance - Cartesian", "ansi_801.lcc_using_location_assistance.cartesian", FT_BOOLEAN, 24, NULL, 0x000002, NULL, HFILL }},
-      { &hf_ansi_801_lcc_capable_using_location_assistance_spherical, { "Location Calculation Capable using Location Assistance - Spherical", "ansi_801.lcc_using_location_assistance.spherical", FT_BOOLEAN, 24, NULL, 0x000001, NULL, HFILL }},
-      { &hf_ansi_801_ref_pn, { "REF_PN", "ansi_801.ref_pn", FT_UINT24, BASE_DEC, NULL, 0xff8000, NULL, HFILL }},
-      { &hf_ansi_801_mob_sys_t_offset, { "MOB_SYS_T_OFFSET", "ansi_801.mob_sys_t_offset", FT_UINT24, BASE_DEC, NULL, 0x007ffe, NULL, HFILL }},
-      { &hf_ansi_801_reserved24_1, { "Reserved", "ansi_801.reserved", FT_UINT24, BASE_HEX, NULL, 0x000001, NULL, HFILL }},
-      { &hf_ansi_801_no_outstanding_request_element, { "No outstanding request element", "ansi_801.no_outstanding_request_element", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_07, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_F0, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_for_request_length, { "Length", "ansi_801.for_request_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ansi_801_reserved8_E0, { "Reserved", "ansi_801.reserved", FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
-      { &hf_ansi_801_unsolicited_response_indicator, { "Unsolicited response indicator", "ansi_801.unsolicited_response_indicator", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-      { &hf_ansi_801_for_response_length, { "Length", "ansi_801.for_response_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ansi_801_rev_request_length, { "Length", "ansi_801.rev_request_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ansi_801_rev_response_length, { "Length", "ansi_801.rev_response_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ansi_801_session_start, { "Session Start", "ansi_801.session_start", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
-      { &hf_ansi_801_session_end, { "Session End", "ansi_801.session_end", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
-      { &hf_ansi_801_session_source, { "Session Source", "ansi_801.session_source", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
-      { &hf_ansi_801_pd_message_type, { "PD Message Type", "ansi_801.pd_message_type", FT_UINT8, BASE_DEC, NULL, 0xFF, NULL, HFILL }},
-      { &hf_ansi_801_pd_message_len, { "PD Message Length", "ansi_801.pd_message_len", FT_UINT16, BASE_DEC, NULL, 0xffc0, NULL, HFILL }},
-      { &hf_ansi_801_regulatory_services_indicator, { "Regulatory Services Indicator", "ansi_801.regulatory_services_indicator", FT_UINT16, BASE_DEC, VALS(regulatory_services_indicator_vals), 0x0030, NULL, HFILL }},
-      { &hf_ansi_801_for_message_number_requests16, { "Number Requests", "ansi_801.for_message_number_requests", FT_UINT16, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
-      { &hf_ansi_801_for_message_number_responsesF0, { "Number Responses", "ansi_801.for_message_number_responses", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_for_message_number_requests8, { "Number Requests", "ansi_801.for_message_number_requests", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_for_message_number_responses0F, { "Number Responses", "ansi_801.for_message_number_responses", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
-      { &hf_ansi_801_rev_message_number_requests16, { "Number Requests", "ansi_801.rev_message_number_requests", FT_UINT16, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
-      { &hf_ansi_801_rev_message_number_responsesF0, { "Number Responses", "ansi_801.rev_message_number_responses", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_rev_message_number_requests8, { "Number Requests", "ansi_801.rev_message_number_requests", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
-      { &hf_ansi_801_rev_message_number_responses0F, { "Number Responses", "ansi_801.rev_message_number_responses", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_ansi_801_desired_pilot_phase_resolution,
+		  { "Desired pilot phase resolution", "ansi_801.desired_pilot_phase_resolution",
+		    FT_BOOLEAN, 24, TFS(&tfs_desired_pilot_phase_resolution), 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved_24_7,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT24, BASE_HEX, NULL, 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_req_loc_height_information,
+		  { "Height information", "ansi_801.height_incl",
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_req_loc_clock_correction_for_gps_time,
+		  { "Clock correction for GPS time", "ansi_801.clock_correction_for_gps_time",
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_req_loc_velocity_information,
+		  { "Velocity information", "ansi_801.velocity_information",
+		    FT_BOOLEAN, 24, TFS(&tfs_requested_not_requested), 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved24_3,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT24, BASE_HEX, NULL, 0x03,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_use_action_time_indicator,
+		  { "Use action time indicator", "ansi_801.use_action_time_indicator",
+		    FT_BOOLEAN, 8, NULL, 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_action_time,
+		  { "Action time", "ansi_801.action_time",
+		    FT_UINT8, BASE_DEC, NULL, 0x7E,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_7F,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_cancellation_type,
+		  { "Cancellation Type", "ansi_801.cancellation_type",
+		    FT_UINT8, BASE_DEC, VALS(for_req_type_strings), 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_0F,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reject_request_type,
+		  { "Reject request type", "ansi_801.reject_request_type",
+		    FT_UINT8, BASE_DEC, VALS(rev_req_type_strings), 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reject_reason,
+		  { "Reject reason", "ansi_801.reject_reason",
+		    FT_UINT8, BASE_DEC, NULL, 0x0E,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_01,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_bs_ls_rev,
+		  { "BS_LS_REV", "ansi_801.bs_ls_rev",
+		    FT_UINT8, BASE_HEX, NULL, 0xfc,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_capability_indicator,
+		  { "GPSC_ID: GPS capability indicator", "ansi_801.gps_capability_indicator",
+		    FT_UINT8, BASE_DEC, NULL, 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_afltc_id,
+		  { "AFLTC_ID: Advanced forward link trilateration capability indicator", "ansi_801.afltc_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_apdc_id,
+		  { "APDC_ID: Autonomous position determination capability indicator: Autonomous Location Technology Identifier", "ansi_801.apdc_id",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_ref_bit_num,
+		  { "REF_BIT_NUM", "ansi_801.ref_bit_num",
+		    FT_UINT16, BASE_DEC, NULL, 0xffe0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_num_dr_p,
+		  { "NUM_DR_P: Number of data records in this part", "ansi_801.num_dr_p",
+		    FT_UINT16, BASE_DEC, NULL, 0x001e,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_dr_size,
+		  { "DR_SIZE: Data record size", "ansi_801.dr_size",
+		    FT_UINT24, BASE_DEC, NULL, 0x0001FE,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_part_num,
+		  { "PART_NUM: The part number", "ansi_801.part_num",
+		    FT_UINT16, BASE_DEC, NULL, 0x01c0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_total_parts,
+		  { "TOTAL_PARTS: Total number of parts", "ansi_801.total_parts",
+		    FT_UINT16, BASE_DEC, NULL, 0x38,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_data_records,
+		  { "Data records", "ansi_801.data_records",
+		    FT_UINT16, BASE_DEC, NULL, 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_num_sv_p32,
+		  { "NUM_SV_P: Number of satellites in this part", "ansi_801.num_sv_p",
+		    FT_UINT32, BASE_DEC, NULL, 0xfc000000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_week_num,
+		  { "WEEK_NUM: The GPS week number of the almanac", "ansi_801.week_num",
+		    FT_UINT32, BASE_DEC, NULL, 0x03fc0000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_toa,
+		  { "TOA: The reference time of the almanac", "ansi_801.toa",
+		    FT_UINT32, BASE_DEC, NULL, 0x0003fc00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_part_num32,
+		  { "PART_NUM: The part number", "ansi_801.part_num",
+		    FT_UINT32, BASE_DEC, NULL, 0x000003e0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_total_parts32,
+		  { "TOTAL_PARTS: The total number of parts", "ansi_801.total_parts",
+		    FT_UINT32, BASE_DEC, NULL, 0x0000001f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_num_sv_p16,
+		  { "NUM_SV_P: Number of satellites in this part", "ansi_801.num_sv_p",
+		    FT_UINT16, BASE_DEC, NULL, 0xfc00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_part_num16,
+		  { "PART_NUM: The part number", "ansi_801.part_num",
+		    FT_UINT16, BASE_DEC, NULL, 0x03e0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_total_parts16,
+		  { "TOTAL_PARTS: The total number of parts", "ansi_801.total_parts",
+		    FT_UINT16, BASE_DEC, NULL, 0x001f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_coordinate_type_requested,
+		  { "Coordinate type requested", "ansi_801.coordinate_type_requested",
+		    FT_BOOLEAN, 8, TFS(&tfs_spherical_cartesian), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_extended_base_station_almanac,
+		  { "Extended base station almanac", "ansi_801.extended_base_station_almanac",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_alpha_and_beta_parameters,
+		  { "Alpha and Beta parameters", "ansi_801.alpha_and_beta_parameters",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_subframes_4_and_5,
+		  { "Subframes 4 and 5", "ansi_801.subframes_4_and_5",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_req_loc_height_information,
+		  { "Height information", "ansi_801.height_information",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_req_loc_clock_correction_for_gps_time,
+		  { "Clock correction for GPS time", "ansi_801.clock_correction_for_gps_time",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_req_loc_velocity_information,
+		  { "Velocity information", "ansi_801.velocity_information",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_1F,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_ms_ls_rev,
+		  { "MS_LS_REV", "ansi_801.ms_ls_rev",
+		    FT_UINT16, BASE_DEC, NULL, 0xfc00,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_ms_mode,
+		  { "MS_MODE", "ansi_801.ms_mode",
+		    FT_UINT16, BASE_DEC, NULL, 0x03c0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_pilot_ph_cap,
+		  { "PILOT_PH_CAP", "ansi_801.pilot_ph_cap",
+		    FT_UINT16, BASE_DEC, NULL, 0x003f,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_acq_cap,
+		  { "GPS_ACQ_CAP", "ansi_801.gps_acq_cap",
+		    FT_UINT24, BASE_HEX, NULL, 0x000FFF,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved_24_F80000,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT24, BASE_HEX, NULL, 0xf80000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_autonomous_acquisition_capable,
+		  { "GPS Autonomous Acquisition Capable", "ansi_801.gps_autonomous_acquisition_capable",
+		    FT_BOOLEAN, 24, NULL, 0x040000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_almanac_correction,
+		  { "GPS Almanac Correction", "ansi_801.gps_almanac_correction",
+		    FT_BOOLEAN, 24, NULL, 0x020000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_navigation_message_bits,
+		  { "GPS Navigation Message Bits", "ansi_801.gps_navigation_message_bits",
+		    FT_BOOLEAN, 24, NULL, 0x010000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_ephemeris,
+		  { "GPS Ephemeris", "ansi_801.gps_ephemeris",
+		    FT_BOOLEAN, 24, NULL, 0x008000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_almanac,
+		  { "GPS Almanac", "ansi_801.gps_almanac",
+		    FT_BOOLEAN, 24, NULL, 0x004000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_sensitivity_assistance,
+		  { "GPS Sensitivity Assistance", "ansi_801.gps_sensitivity_assistance",
+		    FT_BOOLEAN, 24, NULL, 0x002000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_gps_acquisition_assistance,
+		  { "GPS Acquisition Assistance", "ansi_801.gps_acquisition_assistance",
+		    FT_BOOLEAN, 24, NULL, 0x001000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_loc_calc_cap,
+		  { "LOC_CALC_CAP", "ansi_801.loc_calc_cap",
+		    FT_UINT24, BASE_HEX, NULL, 0x000FFF,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_pre_programmed_location,
+		  { "Pre-programmed Location", "ansi_801.pre_programmed_location",
+		    FT_BOOLEAN, 24, NULL, 0x000800,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved_24_700,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT24, BASE_HEX, NULL, 0x000700,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_hybrid_gps_and_aflt_lcc,
+		  { "Hybrid GPS and AFLT Location Calculation Capable", "ansi_801.hybrid_gps_and_aflt_lcc",
+		    FT_BOOLEAN, 24, NULL, 0x000080,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_autonomous_location_calculation_capable,
+		  { "Autonomous Location Calculation Capable", "ansi_801.autonomous_lcc",
+		    FT_BOOLEAN, 24, NULL, 0x000040,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lcc_using_gps_almanac_correction,
+		  { "Location Calculation Capable using GPS Almanac Correction", "ansi_801.lcc_using_gps_almanac_correction",
+		    FT_BOOLEAN, 24, NULL, 0x000020,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lcc_using_gps_ephemeris_assistance,
+		  { "Location Calculation Capable using GPS Ephemeris Assistance", "ansi_801.lcc_using_gps_ephemeris_assistance",
+		    FT_BOOLEAN, 24, NULL, 0x000010,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lcc_using_gps_almanac_assistance,
+		  { "Location Calculation Capable using GPS Almanac Assistance", "ansi_801.lcc_using_gps_almanac_assistance",
+		    FT_BOOLEAN, 24, NULL, 0x000008,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_aflt_lcc,
+		  { "Advanced Forward Link Trilateration (AFLT) Location Calculation Capable", "ansi_801.aflt_lcc",
+		    FT_BOOLEAN, 24, NULL, 0x000004,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lcc_using_location_assistance_cartesian,
+		  { "Location Calculation Capable using Location Assistance - Cartesian", "ansi_801.lcc_using_location_assistance.cartesian",
+		    FT_BOOLEAN, 24, NULL, 0x000002,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_lcc_capable_using_location_assistance_spherical,
+		  { "Location Calculation Capable using Location Assistance - Spherical", "ansi_801.lcc_using_location_assistance.spherical",
+		    FT_BOOLEAN, 24, NULL, 0x000001,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_ref_pn,
+		  { "REF_PN", "ansi_801.ref_pn",
+		    FT_UINT24, BASE_DEC, NULL, 0xff8000,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_mob_sys_t_offset,
+		  { "MOB_SYS_T_OFFSET", "ansi_801.mob_sys_t_offset",
+		    FT_UINT24, BASE_DEC, NULL, 0x007ffe,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved24_1,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT24, BASE_HEX, NULL, 0x000001,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_no_outstanding_request_element,
+		  { "No outstanding request element", "ansi_801.no_outstanding_request_element",
+		    FT_BOOLEAN, 8, NULL, 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_07,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_F0,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_request_length,
+		  { "Length", "ansi_801.for_request_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_reserved8_E0,
+		  { "Reserved", "ansi_801.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xE0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_unsolicited_response_indicator,
+		  { "Unsolicited response indicator", "ansi_801.unsolicited_response_indicator",
+		    FT_BOOLEAN, 8, NULL, 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_response_length,
+		  { "Length", "ansi_801.for_response_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_request_length,
+		  { "Length", "ansi_801.rev_request_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_response_length,
+		  { "Length", "ansi_801.rev_response_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_session_start,
+		  { "Session Start", "ansi_801.session_start",
+		    FT_BOOLEAN, 8, NULL, 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_session_end,
+		  { "Session End", "ansi_801.session_end",
+		    FT_BOOLEAN, 8, NULL, 0x40,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_session_source,
+		  { "Session Source", "ansi_801.session_source",
+		    FT_BOOLEAN, 8, NULL, 0x20,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_pd_message_type,
+		  { "PD Message Type", "ansi_801.pd_message_type",
+		    FT_UINT8, BASE_DEC, NULL, 0xFF,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_pd_message_len,
+		  { "PD Message Length", "ansi_801.pd_message_len",
+		    FT_UINT16, BASE_DEC, NULL, 0xffc0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_regulatory_services_indicator,
+		  { "Regulatory Services Indicator", "ansi_801.regulatory_services_indicator",
+		    FT_UINT16, BASE_DEC, VALS(regulatory_services_indicator_vals), 0x0030,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_message_number_requests16,
+		  { "Number Requests", "ansi_801.for_message_number_requests",
+		    FT_UINT16, BASE_DEC, NULL, 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_message_number_responsesF0,
+		  { "Number Responses", "ansi_801.for_message_number_responses",
+		    FT_UINT8, BASE_DEC, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_message_number_requests8,
+		  { "Number Requests", "ansi_801.for_message_number_requests",
+		    FT_UINT8, BASE_DEC, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_for_message_number_responses0F,
+		  { "Number Responses", "ansi_801.for_message_number_responses",
+		    FT_UINT8, BASE_DEC, NULL, 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_message_number_requests16,
+		  { "Number Requests", "ansi_801.rev_message_number_requests",
+		    FT_UINT16, BASE_DEC, NULL, 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_message_number_responsesF0,
+		  { "Number Responses", "ansi_801.rev_message_number_responses",
+		    FT_UINT8, BASE_DEC, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_message_number_requests8,
+		  { "Number Requests", "ansi_801.rev_message_number_requests",
+		    FT_UINT8, BASE_DEC, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_ansi_801_rev_message_number_responses0F,
+		  { "Number Responses", "ansi_801.rev_message_number_responses",
+		    FT_UINT8, BASE_DEC, NULL, 0x0F,
+		    NULL, HFILL }
+		},
 
-		};
+	};
 
 
 	/* Setup protocol subtree array */
@@ -1897,8 +2252,8 @@ proto_register_ansi_801(void)
 	gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_FOR_REQ_TYPE+NUM_FOR_RSP_TYPE+NUM_REV_REQ_TYPE+NUM_REV_RSP_TYPE];
 
 	ett[0] = &ett_ansi_801;
-    ett[1] = &ett_gps;
-    ett[2] = &ett_loc;
+	ett[1] = &ett_gps;
+	ett[2] = &ett_loc;
 
 	last_offset = NUM_INDIVIDUAL_PARAMS;
 
@@ -1947,3 +2302,16 @@ proto_reg_handoff_ansi_801(void)
 	dissector_add_uint("ansi_a.pld",   ANSI_801_FORWARD, ansi_801_handle);
 	dissector_add_uint("ansi_a.pld",   ANSI_801_REVERSE, ansi_801_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

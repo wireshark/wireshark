@@ -144,7 +144,7 @@ static gint ett_q2931_ie_ext = -1;
 static gint ett_q2931_nsap = -1;
 
 static void dissect_q2931_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, guint8 info_element, guint8 info_element_ext);
+			     proto_tree *tree, guint8 info_element, guint8 info_element_ext);
 
 /*
  * Q.2931 message types.
@@ -340,7 +340,7 @@ static const true_false_string tfs_q2931_handling_instructions = { "Follow expli
 
 static void
 dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, guint8 info_element)
+		       proto_tree *tree, guint8 info_element)
 {
 	gboolean non_locking_shift;
 	guint8 codeset;
@@ -434,7 +434,7 @@ static const value_string q2931_sscs_type_vals[] = {
 
 static void
 dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				proto_tree *tree)
 {
 	guint8 aal_type;
 	guint8 identifier;
@@ -623,7 +623,7 @@ static const value_string q2931_atm_td_subfield_vals[] = {
 
 static void
 dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			       proto_tree *tree)
 {
 	guint8 identifier;
 	guint32 value;
@@ -740,7 +740,7 @@ static const value_string q2931_up_conn_config_vals[] = {
 
 static void
 dissect_q2931_bband_bearer_cap_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	guint8 octet;
 
@@ -778,7 +778,7 @@ static const value_string q2931_hi_layer_info_type_vals[] = {
 
 static void
 dissect_q2931_bband_hi_layer_info_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				     proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -847,7 +847,7 @@ static const value_string lane_pid_vals[] = {
  */
 static void
 dissect_q2931_bband_low_layer_info_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				      proto_tree *tree)
 {
 	guint8 octet;
 	guint8 uil2_protocol;
@@ -1141,7 +1141,7 @@ static const value_string q2931_rejection_reason_vals[] = {
 
 static void
 dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+		       proto_tree *tree)
 {
 	guint8 octet;
 	guint8 cause_value;
@@ -1301,7 +1301,7 @@ static const value_string q2931_call_state_vals[] = {
 
 static void
 dissect_q2931_call_state_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			    proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1350,7 +1350,7 @@ static const value_string q2931_screening_indicator_vals[] = {
 
 static void
 dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			proto_tree *tree)
 {
 	guint8 octet;
 	guint8 numbering_plan;
@@ -1418,7 +1418,7 @@ static const value_string q2931_odd_even_indicator_vals[] = {
 
 static void
 dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			       proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1451,7 +1451,7 @@ static const value_string q2931_preferred_exclusive_vals[] = {
 
 static void
 dissect_q2931_connection_identifier_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				       proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1477,7 +1477,7 @@ dissect_q2931_connection_identifier_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				   proto_tree *tree)
 {
 	guint8 identifier;
 	guint16 value;
@@ -1522,7 +1522,7 @@ static const value_string q2931_qos_parameter_vals[] = {
 
 static void
 dissect_q2931_qos_parameter_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+			       proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1546,7 +1546,7 @@ static const value_string q2931_bband_rpt_indicator_vals[] = {
 
 static void
 dissect_q2931_bband_rpt_indicator(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				  proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1566,7 +1566,7 @@ static const value_string q2931_class_vals[] = {
 
 static void
 dissect_q2931_restart_indicator(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1579,7 +1579,7 @@ dissect_q2931_restart_indicator(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				     proto_tree *tree)
 {
 	guint8 identifier;
 
@@ -1622,7 +1622,7 @@ static const value_string q2931_netid_plan_vals[] = {
 
 static void
 dissect_q2931_transit_network_sel_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				     proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1668,7 +1668,7 @@ static const value_string q2931_bwd_e2e_oam_f5_flow_indicator_vals[] = {
 
 static void
 dissect_q2931_oam_traffic_descriptor_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+					proto_tree *tree)
 {
 	guint8 octet;
 
@@ -1700,7 +1700,7 @@ static const value_string q2931_endpoint_reference_type_vals[] = {
 
 static void
 dissect_q2931_endpoint_reference_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				    proto_tree *tree)
 {
 	guint16 value;
 
@@ -1736,7 +1736,7 @@ static const value_string q2931_endpoint_reference_party_state_vals[] = {
 
 static void
 dissect_q2931_endpoint_state_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+				proto_tree *tree)
 {
 	if (len == 0)
 		return;
@@ -1746,7 +1746,7 @@ dissect_q2931_endpoint_state_ie(tvbuff_t *tvb, int offset, int len,
 
 static void
 dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, guint8 info_element)
+			  proto_tree *tree, guint8 info_element)
 {
 	switch (info_element) {
 
@@ -1850,7 +1850,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
 
 static void
 dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
-    guint8 info_element, guint8 info_element_ext)
+		 guint8 info_element, guint8 info_element_ext)
 {
 	proto_item	*ti;
 	proto_tree	*ie_tree;
@@ -1885,21 +1885,21 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 static void
 dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int		offset = 0;
-	proto_tree	*q2931_tree = NULL;
-	proto_item	*ti;
-	proto_tree	*ext_tree;
-	guint8		call_ref_len;
-	guint8		call_ref[15];
-	guint8		message_type;
-	guint8		message_type_ext;
-	guint16		message_len;
-	guint8		info_element;
-	guint8		info_element_ext;
-	guint16		info_element_len;
+	int	    offset     = 0;
+	proto_tree *q2931_tree = NULL;
+	proto_item *ti;
+	proto_tree *ext_tree;
+	guint8	    call_ref_len;
+	guint8	    call_ref[15];
+	guint8	    message_type;
+	guint8	    message_type_ext;
+	guint16	    message_len;
+	guint8	    info_element;
+	guint8	    info_element_ext;
+	guint16	    info_element_len;
 #if 0
-	int		codeset;
-	gboolean	non_locking_shift;
+	int	    codeset;
+	gboolean    non_locking_shift;
 #endif
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.2931");
@@ -2001,133 +2001,473 @@ proto_register_q2931(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_q2931_discriminator,
-		  { "Protocol discriminator", "q2931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  	NULL, HFILL }},
+		  { "Protocol discriminator", "q2931.disc",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_call_ref_len,
-		  { "Call reference value length", "q2931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  	NULL, HFILL }},
+		  { "Call reference value length", "q2931.call_ref_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_call_ref_flag,
-		  { "Call reference flag", "q2931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
-		  	NULL, HFILL }},
+		  { "Call reference flag", "q2931.call_ref_flag",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_call_ref,
-		  { "Call reference value", "q2931.call_ref", FT_BYTES, BASE_NONE, NULL, 0x0,
-		  	NULL, HFILL }},
+		  { "Call reference value", "q2931.call_ref",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_message_type,
-		  { "Message type", "q2931.message_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_message_type_vals_ext, 0x0,
-		  	NULL, HFILL }},
+		  { "Message type", "q2931.message_type",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_message_type_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_message_type_ext,
-		  { "Message type extension", "q2931.message_type_ext", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  	NULL, HFILL }},
+		  { "Message type extension", "q2931.message_type_ext",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_message_flag,
-		  { "Flag", "q2931.message_flag", FT_BOOLEAN, 8, TFS(&tos_msg_flag), Q2931_MSG_TYPE_EXT_FOLLOW_INST,
-		  	NULL, HFILL }},
+		  { "Flag", "q2931.message_flag",
+		    FT_BOOLEAN, 8, TFS(&tos_msg_flag), Q2931_MSG_TYPE_EXT_FOLLOW_INST,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_message_action_indicator,
-		  { "Action indicator", "q2931.message_action_indicator", FT_UINT8, BASE_DEC, VALS(msg_action_ind_vals), Q2931_MSG_TYPE_EXT_ACTION_IND,
-		  	NULL, HFILL }},
+		  { "Action indicator", "q2931.message_action_indicator",
+		    FT_UINT8, BASE_DEC, VALS(msg_action_ind_vals), Q2931_MSG_TYPE_EXT_ACTION_IND,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_message_len,
-		  { "Message length", "q2931.message_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-		  	NULL, HFILL }},
+		  { "Message length", "q2931.message_len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_ie_handling_instructions,
-		  { "Handling Instructions", "q2931.ie_handling_instructions", FT_BOOLEAN, 8, TFS(&tfs_q2931_handling_instructions), Q2931_IE_COMPAT_FOLLOW_INST,
-		  	NULL, HFILL }},
+		  { "Handling Instructions", "q2931.ie_handling_instructions",
+		    FT_BOOLEAN, 8, TFS(&tfs_q2931_handling_instructions), Q2931_IE_COMPAT_FOLLOW_INST,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_ie_coding_standard,
-		  { "Coding standard", "q2931.ie_coding_standard", FT_UINT8, BASE_DEC, VALS(coding_std_vals), Q2931_IE_COMPAT_CODING_STD,
-		  	NULL, HFILL }},
+		  { "Coding standard", "q2931.ie_coding_standard",
+		    FT_UINT8, BASE_DEC, VALS(coding_std_vals), Q2931_IE_COMPAT_CODING_STD,
+		    NULL, HFILL }
+		},
 
 		{ &hf_q2931_ie_action_indicator,
-		  { "Action indicator", "q2931.ie_action_indicator", FT_UINT8, BASE_DEC, VALS(ie_action_ind_vals), Q2931_IE_COMPAT_ACTION_IND,
-		  	NULL, HFILL }},
+		  { "Action indicator", "q2931.ie_action_indicator",
+		    FT_UINT8, BASE_DEC, VALS(ie_action_ind_vals), Q2931_IE_COMPAT_ACTION_IND,
+		    NULL, HFILL }
+		},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_q2931_aal_type, { "AAL type", "q2931.aal_type", FT_UINT8, BASE_HEX, VALS(q9231_aal_type_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_user_defined_aal_information, { "User defined AAL information", "q2931.user_defined_aal_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_subtype, { "Subtype", "q2931.aal1.subtype", FT_UINT8, BASE_HEX, VALS(q9231_aal1_subtype_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_cbr_rate, { "CBR rate", "q2931.aal1.cbr_rate", FT_UINT8, BASE_HEX, VALS(q9231_aal1_cbr_rate_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_multiplier, { "Multiplier", "q2931.aal1.multiplier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_source_clock_frequency_recovery_method, { "Source clock frequency recovery method", "q2931.aal1.source_clock_frequency_recovery_method", FT_UINT8, BASE_HEX, VALS(q2931_aal1_src_clk_rec_meth_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_error_correction_method, { "Error correction method", "q2931.aal1.error_correction_method", FT_UINT8, BASE_HEX, VALS(q2931_aal1_err_correction_method_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_structured_data_transfer_block_size, { "Structured data transfer block size", "q2931.aal1.structured_data_transfer_block_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_partially_filled_cells_method, { "Partially filled cells method", "q2931.aal1.partially_filled_cells_method", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_forward_max_cpcs_sdu_size, { "Forward maximum CPCS-SDU size", "q2931.aal1.forward_max_cpcs_sdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_backward_max_cpcs_sdu_size, { "Backward maximum CPCS-SDU size", "q2931.aal1.backward_max_cpcs_sdu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_mode, { "Mode", "q2931.aal1.mode", FT_UINT8, BASE_HEX, VALS(q2931_aal_mode_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_aal1_sscs_type, { "SSCS type", "q2931.aal1.sscs_type", FT_UINT8, BASE_HEX, VALS(q2931_sscs_type_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_bearer_class, { "Bearer class", "q2931.bearer_class", FT_UINT8, BASE_HEX, VALS(q2931_bearer_class_vals), 0x1F, NULL, HFILL }},
-      { &hf_q2931_atm_transfer_capability, { "ATM Transfer Capability", "q2931.atm_transfer_capability", FT_UINT8, BASE_HEX, VALS(q2931_transfer_capability_vals), 0x1F, NULL, HFILL }},
-      { &hf_q2931_susceptibility_to_clipping, { "Susceptibility to clipping", "q2931.susceptibility_to_clipping", FT_UINT8, BASE_HEX, VALS(q2931_susc_clip_vals), 0x60, NULL, HFILL }},
-      { &hf_q2931_user_plane_connection_configuration, { "User-plane connection configuration", "q2931.user_plane_connection_configuration", FT_UINT8, BASE_HEX, VALS(q2931_up_conn_config_vals), 0x03, NULL, HFILL }},
-      { &hf_q2931_high_layer_information_type, { "High layer information type", "q2931.high_layer_information_type", FT_UINT8, BASE_HEX, VALS(q2931_hi_layer_info_type_vals), 0x7F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_user_info_l1_proto, { "User information layer 1 protocol", "q2931.bband_low_layer_info.user_info_l1_proto", FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_user_info_l2_proto, { "User information layer 2 protocol", "q2931.bband_low_layer_info.user_info_l2_proto", FT_UINT8, BASE_HEX, VALS(q2931_uil2_vals), 0x1F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_user_specified_l2_proto, { "User-specified layer 2 protocol information", "q2931.bband_low_layer_info.user_specified_l2_proto", FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_mode, { "Mode", "q2931.bband_low_layer_info.mode", FT_UINT8, BASE_HEX, VALS(q2931_mode_vals), 0x60, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_window_size, { "Window size", "q2931.bband_low_layer_info.window_size", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_user_info_l3_proto, { "User information layer 3 protocol", "q2931.bband_low_layer_info.user_info_l3_proto", FT_UINT8, BASE_HEX, VALS(q2931_uil3_vals), 0x1F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_default_packet_size, { "Default packet size", "q2931.bband_low_layer_info.default_packet_size", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_packet_window_size, { "Packet window size", "q2931.bband_low_layer_info.packet_window_size", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
-      { &hf_q2931_bband_low_layer_info_additional_l3_proto, { "Additional layer 3 protocol information", "q2931.bband_low_layer_info.additional_l3_proto", FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_organization_code, { "Organization Code", "q2931.bband_low_layer_info.organization_code", FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_ethernet_type, { "Ethernet type", "q2931.bband_low_layer_info.ethernet_type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_lane_protocol_id, { "LANE Protocol ID", "q2931.bband_low_layer_info.lane_protocol_id", FT_UINT16, BASE_HEX, VALS(lane_pid_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_protocol_id, { "Protocol ID", "q2931.bband_low_layer_info.protocol_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_location, { "Location", "q2931.cause.location", FT_UINT8, BASE_HEX, VALS(q2931_cause_location_vals), 0x0F, NULL, HFILL }},
-      { &hf_q2931_cause_value, { "Cause value", "q2931.cause.value", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_cause_code_vals_ext, 0x7F, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_reason, { "Rejection reason", "q2931.cause.rejection.reason", FT_UINT8, BASE_HEX, VALS(q2931_rejection_reason_vals), 0x7C, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_condition, { "Condition", "q2931.cause.rejection.condition", FT_UINT8, BASE_HEX, VALS(q2931_cause_condition_vals), 0x03, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_user_specific_diagnostic, { "User specific diagnostic", "q2931.cause.rejection.user_specific_diagnostic", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_missing_information_element, { "Missing information element", "q2931.cause.rejection.missing_information_element", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_insufficient_information_element, { "Insufficient information element", "q2931.cause.rejection.insufficient_information_element", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_rejection_diagnostic, { "Diagnostic", "q2931.cause.rejection.diagnostic", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_information_element, { "Information element", "q2931.cause.information_element", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_cell_rate_subfield_identifier, { "Cell rate subfield identifier", "q2931.cause.cell_rate_subfield_identifier", FT_UINT8, BASE_HEX, VALS(q2931_atm_td_subfield_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_vpci, { "VPCI", "q2931.cause.vpci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_vci, { "VCI", "q2931.cause.vci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_message_type, { "Message type", "q2931.cause.message_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_message_type_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_q2931_cause_timer, { "Timer", "q2931.cause.timer", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_call_state, { "Call state", "q2931.call_state", FT_UINT8, BASE_HEX, VALS(q2931_call_state_vals), 0x3F, NULL, HFILL }},
-      { &hf_q2931_number_type, { "Type of number", "q2931.number.type", FT_UINT8, BASE_HEX, VALS(q2931_number_type_vals), 0x70, NULL, HFILL }},
-      { &hf_q2931_number_plan, { "Numbering plan", "q2931.number.plan", FT_UINT8, BASE_HEX, VALS(q2931_numbering_plan_vals), 0x0F, NULL, HFILL }},
-      { &hf_q2931_number_presentation_indicator, { "Presentation indicator", "q2931.number.presentation_indicator", FT_UINT8, BASE_HEX, VALS(q2931_presentation_indicator_vals), 0x60, NULL, HFILL }},
-      { &hf_q2931_number_screening_indicator, { "Screening indicator", "q2931.number.screening_indicator", FT_UINT8, BASE_HEX, VALS(q2931_screening_indicator_vals), 0x03, NULL, HFILL }},
-      { &hf_q2931_number_string, { "Number", "q2931.number.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_number_bytes, { "Number", "q2931.number.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_party_subaddr_type_of_subaddress, { "Type of subaddress", "q2931.party_subaddr.type_of_subaddress", FT_UINT8, BASE_HEX, VALS(q2931_subaddress_type_vals), 0x70, NULL, HFILL }},
-      { &hf_q2931_party_subaddr_odd_even_indicator, { "Odd/even indicator", "q2931.party_subaddr.odd_even_indicator", FT_UINT8, BASE_HEX, VALS(q2931_odd_even_indicator_vals), 0x10, NULL, HFILL }},
-      { &hf_q2931_party_subaddr_subaddress, { "Subaddress", "q2931.party_subaddr.subaddress", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_conn_id_vp_associated_signalling, { "VP-associated signalling", "q2931.conn_id.vp_associated_signalling", FT_UINT8, BASE_HEX, VALS(q2931_vp_associated_signalling_vals), 0x18, NULL, HFILL }},
-      { &hf_q2931_conn_id_preferred_exclusive, { "Preferred/exclusive", "q2931.conn_id.preferred_exclusive", FT_UINT8, BASE_HEX, VALS(q2931_preferred_exclusive_vals), 0x07, NULL, HFILL }},
-      { &hf_q2931_conn_id_vpci, { "VPCI", "q2931.conn_id.vpci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_conn_id_vci, { "VCI", "q2931.conn_id.vci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_e2e_transit_delay_cumulative, { "Cumulative transit delay", "q2931.e2e_transit_delay.cumulative", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_e2e_transit_delay_maximum_end_to_end, { "Maximum end-to-end transit delay", "q2931.e2e_transit_delay.maximum_end_to_end", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_qos_class_forward, { "QOS class forward", "q2931.qos_class_forward", FT_UINT8, BASE_HEX, VALS(q2931_qos_parameter_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_qos_class_backward, { "QOS class backward", "q2931.qos_class_backward", FT_UINT8, BASE_HEX, VALS(q2931_qos_parameter_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_broadband_repeat_indicator, { "Broadband repeat indicator", "q2931.broadband_repeat_indicator", FT_UINT8, BASE_HEX, VALS(q2931_bband_rpt_indicator_vals), 0x0F, NULL, HFILL }},
-      { &hf_q2931_restart_indicator, { "Restart indicator", "q2931.restart_indicator", FT_UINT8, BASE_HEX, VALS(q2931_class_vals), 0x07, NULL, HFILL }},
-      { &hf_q2931_transit_network_sel_type, { "Type of network identification", "q2931.transit_network_sel.type", FT_UINT8, BASE_HEX, VALS(q2931_netid_type_vals), 0x70, NULL, HFILL }},
-      { &hf_q2931_transit_network_sel_plan, { "Network identification plan", "q2931.transit_network_sel.plan", FT_UINT8, BASE_HEX, VALS(q2931_netid_plan_vals), 0x0F, NULL, HFILL }},
-      { &hf_q2931_transit_network_sel_network_id, { "Network identification", "q2931.transit_network_sel.network_identification", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_oam_traffic_descriptor_shaping_indicator, { "Shaping indicator", "q2931.oam_traffic_descriptor.shaping_indicator", FT_UINT8, BASE_HEX, VALS(q2931_shaping_indicator_vals), 0x60, NULL, HFILL }},
-      { &hf_q2931_oam_traffic_descriptor_management_indicator, { "User-Network fault management indicator", "q2931.oam_traffic_descriptor.management_indicator", FT_UINT8, BASE_HEX, VALS(q2931_user_net_fault_mgmt_vals), 0x07, NULL, HFILL }},
-      { &hf_q2931_oam_traffic_descriptor_forward_f5_flow_indicator, { "Forward end-to-end OAM F5 flow indicator", "q2931.oam_traffic_descriptor.forward_f5_flow_indicator", FT_UINT8, BASE_HEX, VALS(q2931_fwd_e2e_oam_f5_flow_indicator_vals), 0x70, NULL, HFILL }},
-      { &hf_q2931_oam_traffic_descriptor_backward_f5_flow_indicator, { "Backward end-to-end OAM F5 flow indicator", "q2931.oam_traffic_descriptor.backward_f5_flow_indicator", FT_UINT8, BASE_HEX, VALS(q2931_bwd_e2e_oam_f5_flow_indicator_vals), 0x07, NULL, HFILL }},
-      { &hf_q2931_endpoint_reference_type, { "Endpoint reference type", "q2931.endpoint_reference.type", FT_UINT8, BASE_HEX, VALS(q2931_endpoint_reference_type_vals), 0x0, NULL, HFILL }},
-      { &hf_q2931_endpoint_reference_identifier_value, { "Endpoint reference identifier value", "q2931.endpoint_reference.identifier_value", FT_UINT16, BASE_DEC, NULL, 0x7FFF, NULL, HFILL }},
-      { &hf_q2931_endpoint_state, { "Endpoint reference party-state", "q2931.endpoint_state", FT_UINT8, BASE_HEX, VALS(q2931_endpoint_reference_party_state_vals), 0x3F, NULL, HFILL }},
-      { &hf_q2931_information_element, { "Information element", "q2931.information_element", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0, NULL, HFILL }},
-      { &hf_q2931_information_element_extension, { "Information element extension", "q2931.information_element.extension", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_information_element_length, { "Length", "q2931.information_element.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q2931_information_element_data, { "Data", "q2931.information_element.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_q2931_aal_type,
+		  { "AAL type", "q2931.aal_type",
+		    FT_UINT8, BASE_HEX, VALS(q9231_aal_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_user_defined_aal_information,
+		  { "User defined AAL information", "q2931.user_defined_aal_information",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_subtype,
+		  { "Subtype", "q2931.aal1.subtype",
+		    FT_UINT8, BASE_HEX, VALS(q9231_aal1_subtype_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_cbr_rate,
+		  { "CBR rate", "q2931.aal1.cbr_rate",
+		    FT_UINT8, BASE_HEX, VALS(q9231_aal1_cbr_rate_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_multiplier,
+		  { "Multiplier", "q2931.aal1.multiplier",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_source_clock_frequency_recovery_method,
+		  { "Source clock frequency recovery method", "q2931.aal1.source_clock_frequency_recovery_method",
+		    FT_UINT8, BASE_HEX, VALS(q2931_aal1_src_clk_rec_meth_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_error_correction_method,
+		  { "Error correction method", "q2931.aal1.error_correction_method",
+		    FT_UINT8, BASE_HEX, VALS(q2931_aal1_err_correction_method_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_structured_data_transfer_block_size,
+		  { "Structured data transfer block size", "q2931.aal1.structured_data_transfer_block_size",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_partially_filled_cells_method,
+		  { "Partially filled cells method", "q2931.aal1.partially_filled_cells_method",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_forward_max_cpcs_sdu_size,
+		  { "Forward maximum CPCS-SDU size", "q2931.aal1.forward_max_cpcs_sdu_size",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_backward_max_cpcs_sdu_size,
+		  { "Backward maximum CPCS-SDU size", "q2931.aal1.backward_max_cpcs_sdu_size",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_mode,
+		  { "Mode", "q2931.aal1.mode",
+		    FT_UINT8, BASE_HEX, VALS(q2931_aal_mode_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_aal1_sscs_type,
+		  { "SSCS type", "q2931.aal1.sscs_type",
+		    FT_UINT8, BASE_HEX, VALS(q2931_sscs_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bearer_class,
+		  { "Bearer class", "q2931.bearer_class",
+		    FT_UINT8, BASE_HEX, VALS(q2931_bearer_class_vals), 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_atm_transfer_capability,
+		  { "ATM Transfer Capability", "q2931.atm_transfer_capability",
+		    FT_UINT8, BASE_HEX, VALS(q2931_transfer_capability_vals), 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_susceptibility_to_clipping,
+		  { "Susceptibility to clipping", "q2931.susceptibility_to_clipping",
+		    FT_UINT8, BASE_HEX, VALS(q2931_susc_clip_vals), 0x60,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_user_plane_connection_configuration,
+		  { "User-plane connection configuration", "q2931.user_plane_connection_configuration",
+		    FT_UINT8, BASE_HEX, VALS(q2931_up_conn_config_vals), 0x03,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_high_layer_information_type,
+		  { "High layer information type", "q2931.high_layer_information_type",
+		    FT_UINT8, BASE_HEX, VALS(q2931_hi_layer_info_type_vals), 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_user_info_l1_proto,
+		  { "User information layer 1 protocol", "q2931.bband_low_layer_info.user_info_l1_proto",
+		    FT_UINT8, BASE_HEX, NULL, 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_user_info_l2_proto,
+		  { "User information layer 2 protocol", "q2931.bband_low_layer_info.user_info_l2_proto",
+		    FT_UINT8, BASE_HEX, VALS(q2931_uil2_vals), 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_user_specified_l2_proto,
+		  { "User-specified layer 2 protocol information", "q2931.bband_low_layer_info.user_specified_l2_proto",
+		    FT_UINT8, BASE_HEX, NULL, 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_mode,
+		  { "Mode", "q2931.bband_low_layer_info.mode",
+		    FT_UINT8, BASE_HEX, VALS(q2931_mode_vals), 0x60,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_window_size,
+		  { "Window size", "q2931.bband_low_layer_info.window_size",
+		    FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_user_info_l3_proto,
+		  { "User information layer 3 protocol", "q2931.bband_low_layer_info.user_info_l3_proto",
+		    FT_UINT8, BASE_HEX, VALS(q2931_uil3_vals), 0x1F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_default_packet_size,
+		  { "Default packet size", "q2931.bband_low_layer_info.default_packet_size",
+		    FT_UINT8, BASE_DEC, NULL, 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_packet_window_size,
+		  { "Packet window size", "q2931.bband_low_layer_info.packet_window_size",
+		    FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_bband_low_layer_info_additional_l3_proto,
+		  { "Additional layer 3 protocol information", "q2931.bband_low_layer_info.additional_l3_proto",
+		    FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_organization_code,
+		  { "Organization Code", "q2931.bband_low_layer_info.organization_code",
+		    FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_ethernet_type,
+		  { "Ethernet type", "q2931.bband_low_layer_info.ethernet_type",
+		    FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_lane_protocol_id,
+		  { "LANE Protocol ID", "q2931.bband_low_layer_info.lane_protocol_id",
+		    FT_UINT16, BASE_HEX, VALS(lane_pid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_protocol_id,
+		  { "Protocol ID", "q2931.bband_low_layer_info.protocol_id",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_location,
+		  { "Location", "q2931.cause.location",
+		    FT_UINT8, BASE_HEX, VALS(q2931_cause_location_vals), 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_value,
+		  { "Cause value", "q2931.cause.value",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_cause_code_vals_ext, 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_reason,
+		  { "Rejection reason", "q2931.cause.rejection.reason",
+		    FT_UINT8, BASE_HEX, VALS(q2931_rejection_reason_vals), 0x7C,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_condition,
+		  { "Condition", "q2931.cause.rejection.condition",
+		    FT_UINT8, BASE_HEX, VALS(q2931_cause_condition_vals), 0x03,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_user_specific_diagnostic,
+		  { "User specific diagnostic", "q2931.cause.rejection.user_specific_diagnostic",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_missing_information_element,
+		  { "Missing information element", "q2931.cause.rejection.missing_information_element",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_insufficient_information_element,
+		  { "Insufficient information element", "q2931.cause.rejection.insufficient_information_element",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_rejection_diagnostic,
+		  { "Diagnostic", "q2931.cause.rejection.diagnostic",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_information_element,
+		  { "Information element", "q2931.cause.information_element",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_cell_rate_subfield_identifier,
+		  { "Cell rate subfield identifier", "q2931.cause.cell_rate_subfield_identifier",
+		    FT_UINT8, BASE_HEX, VALS(q2931_atm_td_subfield_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_vpci,
+		  { "VPCI", "q2931.cause.vpci",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_vci,
+		  { "VCI", "q2931.cause.vci",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_message_type,
+		  { "Message type", "q2931.cause.message_type",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_message_type_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_cause_timer,
+		  { "Timer", "q2931.cause.timer",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_call_state,
+		  { "Call state", "q2931.call_state",
+		    FT_UINT8, BASE_HEX, VALS(q2931_call_state_vals), 0x3F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_type,
+		  { "Type of number", "q2931.number.type",
+		    FT_UINT8, BASE_HEX, VALS(q2931_number_type_vals), 0x70,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_plan,
+		  { "Numbering plan", "q2931.number.plan",
+		    FT_UINT8, BASE_HEX, VALS(q2931_numbering_plan_vals), 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_presentation_indicator,
+		  { "Presentation indicator", "q2931.number.presentation_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_presentation_indicator_vals), 0x60,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_screening_indicator,
+		  { "Screening indicator", "q2931.number.screening_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_screening_indicator_vals), 0x03,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_string,
+		  { "Number", "q2931.number.string",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_number_bytes,
+		  { "Number", "q2931.number.bytes",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_party_subaddr_type_of_subaddress,
+		  { "Type of subaddress", "q2931.party_subaddr.type_of_subaddress",
+		    FT_UINT8, BASE_HEX, VALS(q2931_subaddress_type_vals), 0x70,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_party_subaddr_odd_even_indicator,
+		  { "Odd/even indicator", "q2931.party_subaddr.odd_even_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_odd_even_indicator_vals), 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_party_subaddr_subaddress,
+		  { "Subaddress", "q2931.party_subaddr.subaddress",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_conn_id_vp_associated_signalling,
+		  { "VP-associated signalling", "q2931.conn_id.vp_associated_signalling",
+		    FT_UINT8, BASE_HEX, VALS(q2931_vp_associated_signalling_vals), 0x18,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_conn_id_preferred_exclusive,
+		  { "Preferred/exclusive", "q2931.conn_id.preferred_exclusive",
+		    FT_UINT8, BASE_HEX, VALS(q2931_preferred_exclusive_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_conn_id_vpci,
+		  { "VPCI", "q2931.conn_id.vpci",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_conn_id_vci,
+		  { "VCI", "q2931.conn_id.vci",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_e2e_transit_delay_cumulative,
+		  { "Cumulative transit delay", "q2931.e2e_transit_delay.cumulative",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_e2e_transit_delay_maximum_end_to_end,
+		  { "Maximum end-to-end transit delay", "q2931.e2e_transit_delay.maximum_end_to_end",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_qos_class_forward,
+		  { "QOS class forward", "q2931.qos_class_forward",
+		    FT_UINT8, BASE_HEX, VALS(q2931_qos_parameter_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_qos_class_backward,
+		  { "QOS class backward", "q2931.qos_class_backward",
+		    FT_UINT8, BASE_HEX, VALS(q2931_qos_parameter_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_broadband_repeat_indicator,
+		  { "Broadband repeat indicator", "q2931.broadband_repeat_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_bband_rpt_indicator_vals), 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_restart_indicator,
+		  { "Restart indicator", "q2931.restart_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_class_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_transit_network_sel_type,
+		  { "Type of network identification", "q2931.transit_network_sel.type",
+		    FT_UINT8, BASE_HEX, VALS(q2931_netid_type_vals), 0x70,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_transit_network_sel_plan,
+		  { "Network identification plan", "q2931.transit_network_sel.plan",
+		    FT_UINT8, BASE_HEX, VALS(q2931_netid_plan_vals), 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_transit_network_sel_network_id,
+		  { "Network identification", "q2931.transit_network_sel.network_identification",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_oam_traffic_descriptor_shaping_indicator,
+		  { "Shaping indicator", "q2931.oam_traffic_descriptor.shaping_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_shaping_indicator_vals), 0x60,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_oam_traffic_descriptor_management_indicator,
+		  { "User-Network fault management indicator", "q2931.oam_traffic_descriptor.management_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_user_net_fault_mgmt_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_oam_traffic_descriptor_forward_f5_flow_indicator,
+		  { "Forward end-to-end OAM F5 flow indicator", "q2931.oam_traffic_descriptor.forward_f5_flow_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_fwd_e2e_oam_f5_flow_indicator_vals), 0x70,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_oam_traffic_descriptor_backward_f5_flow_indicator,
+		  { "Backward end-to-end OAM F5 flow indicator", "q2931.oam_traffic_descriptor.backward_f5_flow_indicator",
+		    FT_UINT8, BASE_HEX, VALS(q2931_bwd_e2e_oam_f5_flow_indicator_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_endpoint_reference_type,
+		  { "Endpoint reference type", "q2931.endpoint_reference.type",
+		    FT_UINT8, BASE_HEX, VALS(q2931_endpoint_reference_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_endpoint_reference_identifier_value,
+		  { "Endpoint reference identifier value", "q2931.endpoint_reference.identifier_value",
+		    FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_endpoint_state,
+		  { "Endpoint reference party-state", "q2931.endpoint_state",
+		    FT_UINT8, BASE_HEX, VALS(q2931_endpoint_reference_party_state_vals), 0x3F,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_information_element,
+		  { "Information element", "q2931.information_element",
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q2931_info_element_vals_ext, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_information_element_extension,
+		  { "Information element extension", "q2931.information_element.extension",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_information_element_length,
+		  { "Length", "q2931.information_element.length",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_q2931_information_element_data,
+		  { "Data", "q2931.information_element.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_q2931,
@@ -2143,3 +2483,16 @@ proto_register_q2931(void)
 
 	register_dissector("q2931", dissect_q2931, proto_q2931);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
