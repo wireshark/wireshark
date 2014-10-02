@@ -1,4 +1,5 @@
 = Wireshark wireshark-version:[] Release Notes
+// AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
 This is an experimental release intended to test new features for the next
 stable release.
@@ -10,7 +11,7 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-=== Bug Fixes
+//=== Bug Fixes
 
 //The following bugs have been fixed:
 
@@ -60,7 +61,7 @@ corosync/totemnet
 corosync/totemsrp
 ceph
 Stateless Transport Tunneling
-CP 'Cooper' 2179
+CP ``Cooper'' 2179
 S7 Communication
 KNXnetIP
 Dynamic Source Routing (RFC 4728)
