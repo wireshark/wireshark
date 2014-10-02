@@ -428,11 +428,26 @@ void extcap_cleanup(capture_options * capture_opts) {
 				"Extcap [%s] - Closing spawned PID: %d", interface_opts.name,
 				interface_opts.extcap_pid);
 
+		if (interface_opts.extcap_child_watch > 0)
+		{
+			g_source_remove(interface_opts.extcap_child_watch);
+			interface_opts.extcap_child_watch = 0;
+		}
+
+#ifdef WIN32
+		if (interface_opts.extcap_pid != INVALID_HANDLE_VALUE)
+		{
+			TerminateProcess(interface_opts.extcap_pid, 0);
+			g_spawn_close_pid(interface_opts.extcap_pid);
+			interface_opts.extcap_pid = INVALID_HANDLE_VALUE;
+		}
+#else
 		if (interface_opts.extcap_pid != (GPid)-1 )
 		{
 			g_spawn_close_pid(interface_opts.extcap_pid);
 			interface_opts.extcap_pid = (GPid)-1;
 		}
+#endif
 	}
 }
 
@@ -449,6 +464,34 @@ extcap_arg_cb(gpointer key, gpointer value, gpointer data) {
 	}
 }
 
+static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
+{
+	guint i;
+	interface_options interface_opts;
+	capture_options *capture_opts = (capture_options *)user_data;
+
+	/* Close handle to child process. */
+	g_spawn_close_pid(pid);
+
+	/* Update extcap_pid in interface options structure. */
+	for (i = 0; i < capture_opts->ifaces->len; i++)
+	{
+		interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+		if (interface_opts.extcap_pid == pid)
+		{
+#ifdef WIN32
+			interface_opts.extcap_pid = INVALID_HANDLE_VALUE;
+#else
+			interface_opts.extcap_pid = (GPid)-1;
+#endif
+			interface_opts.extcap_child_watch = 0;
+			capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
+			g_array_insert_val(capture_opts->ifaces, i, interface_opts);
+			break;
+		}
+	}
+}
+
 /* call mkfifo for each extcap,
  * returns FALSE if there's an error creating a FIFO */
 gboolean
@@ -460,7 +503,13 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 	for (i = 0; i < capture_opts->ifaces->len; i++)
 	{
 		GPtrArray *args = NULL;
+#ifdef WIN32
+		GPid pid = INVALID_HANDLE_VALUE;
+#else
 		GPid pid = 0;
+#endif
+		gchar **tmp;
+		int tmp_i;
 
 		interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
 
@@ -487,17 +536,94 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 		add_arg(NULL);
 #undef add_arg
 
+		/* Dump commandline parameters sent to extcap. */
+		for (tmp = (gchar **)args->pdata, tmp_i = 0; *tmp && **tmp; ++tmp_i, ++tmp)
+		{
+			g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", tmp_i, *tmp);
+		}
+
 		/* Wireshark for windows crashes here sometimes *
 		 * Access violation reading location 0x...      */
 		g_spawn_async(NULL, (gchar **)args->pdata, NULL,
-					(GSpawnFlags) 0, NULL, NULL,
+					(GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
 					&pid,NULL);
 
 		g_ptr_array_foreach(args, (GFunc)g_free, NULL);
 		g_ptr_array_free(args, TRUE);
 		interface_opts.extcap_pid = pid;
+		interface_opts.extcap_child_watch =
+			g_child_watch_add(pid, extcap_child_watch_cb, (gpointer)capture_opts);
 		capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
 		g_array_insert_val(capture_opts->ifaces, i, interface_opts);
+
+#ifdef WIN32
+		/* On Windows, wait for extcap to connect to named pipe.
+		 * Some extcaps will present UAC screen to user.
+		 * 30 second timeout should be reasonable timeout for extcap to
+		 * connect to named pipe (including user interaction).
+		 * Wait on multiple object in case of extcap termination
+		 * without opening pipe.
+		 *
+		 * Minimum supported version of Windows: XP / Server 2003.
+		 */
+		if (pid != INVALID_HANDLE_VALUE)
+		{
+			DWORD dw;
+			HANDLE handles[2];
+			OVERLAPPED ov;
+			ov.Pointer = 0;
+			ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+			ConnectNamedPipe(pipe_h, &ov);
+			handles[0] = ov.hEvent;
+			handles[1] = pid;
+
+			if (GetLastError() == ERROR_PIPE_CONNECTED)
+			{
+				g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap connected to pipe");
+			}
+			else
+			{
+				dw = WaitForMultipleObjects(2, handles, FALSE, 30000);
+				if (dw == WAIT_OBJECT_0)
+				{
+					/* ConnectNamedPipe finished. */
+					DWORD code;
+
+					code = GetLastError();
+					if (code == ERROR_IO_PENDING)
+					{
+						DWORD dummy;
+						if (!GetOverlappedResult(ov.hEvent, &ov, &dummy, TRUE))
+						{
+							code = GetLastError();
+						}
+						else
+						{
+							code = ERROR_SUCCESS;
+						}
+					}
+
+					g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe code: %d", code);
+				}
+				else if (dw == (WAIT_OBJECT_0 + 1))
+				{
+					/* extcap process terminated. */
+					g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe!");
+				}
+				else if (dw == WAIT_TIMEOUT)
+				{
+					g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds!");
+				}
+				else
+				{
+					g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+				}
+			}
+
+			CloseHandle(ov.hEvent);
+		}
+#endif
 	}
 
 	return TRUE;
@@ -535,7 +661,7 @@ gboolean extcap_create_pipe(char ** fifo)
 	/* create a namedPipe*/
 	pipe_h = CreateNamedPipe(
 				utf_8to16(pipename),
-				PIPE_ACCESS_DUPLEX,
+				PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
 				PIPE_TYPE_MESSAGE| PIPE_READMODE_MESSAGE | PIPE_WAIT,
 				5, 65536, 65536,
 				300,

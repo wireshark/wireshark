@@ -221,6 +221,7 @@ typedef struct interface_options_tag {
     gchar *extcap_fifo;
     GHashTable *extcap_args;
     GPid extcap_pid;
+    guint extcap_child_watch;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     int buffer_size;
