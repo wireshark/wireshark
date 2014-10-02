@@ -88,7 +88,10 @@
 #define ISIS_LSP_CLV_METRIC_VALUE(x)        ((x)&0x3f)
 
 /* Sub-TLVs under Router Capability and MT Capability TLVs
-   As per RFC 7176 section 2.3 */
+   As per RFC 7176 section 2.3
+   http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-242
+ */
+#define ISIS_TE_NODE_CAP_DESC     1
 #define NICKNAME                  6
 #define TREES                     7
 #define TREE_IDENTIFIER           8
@@ -255,6 +258,14 @@ static int hf_isis_lsp_ip_reachability_delay_metric_ie = -1;
 static int hf_isis_lsp_ip_reachability_distribution = -1;
 static int hf_isis_lsp_ip_reachability_error_metric_ie = -1;
 static int hf_isis_lsp_ip_reachability_expense_metric_ie = -1;
+static int hf_isis_lsp_rt_capable_router_id =-1;
+static int hf_isis_lsp_rt_capable_flag_s =-1;
+static int hf_isis_lsp_rt_capable_flag_d =-1;
+static int isis_lsp_clv_te_node_cap_b_bit = -1;
+static int isis_lsp_clv_te_node_cap_e_bit = -1;
+static int isis_lsp_clv_te_node_cap_m_bit = -1;
+static int isis_lsp_clv_te_node_cap_g_bit = -1;
+static int isis_lsp_clv_te_node_cap_p_bit = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -293,6 +304,7 @@ static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
 static gint ett_isis_lsp_clv_rt_capable = -1;   /* CLV 242 */
+static gint ett_isis_lsp_clv_te_node_cap_desc = -1;
 static gint ett_isis_lsp_clv_trill_version = -1;
 static gint ett_isis_lsp_clv_trees = -1;
 static gint ett_isis_lsp_clv_root_id = -1;
@@ -860,12 +872,31 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
     guint16 rt_block;
-    proto_tree *rt_tree;
+    proto_tree *rt_tree, *cap_tree;
 
     guint16 root_id;
 
     switch (subtype) {
 
+    case ISIS_TE_NODE_CAP_DESC:
+        /* 1 TE Node Capability Descriptor [RFC5073] */
+        cap_tree = proto_tree_add_subtree(tree, tvb, offset-2, sublen+2,
+            ett_isis_lsp_clv_te_node_cap_desc, NULL, "TE Node Capability Descriptor");
+        /*
+         *    0        B bit: P2MP Branch LSR capability       [RFC5073]
+         *    1        E bit: P2MP Bud LSR capability          [RFC5073]
+         *    2        M bit: MPLS-TE support                  [RFC5073]
+         *    3        G bit: GMPLS support                    [RFC5073]
+         *    4        P bit: P2MP RSVP-TE support             [RFC5073]
+         *    5-7      Unassigned                              [RFC5073]
+         */
+
+        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_b_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_e_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_m_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_g_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_p_bit, tvb, offset, 1, ENC_NA);
+        return(0);
     case TRILL_VERSION:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
                     ett_isis_lsp_clv_trill_version, NULL, "TRILL version (t=%u, l=%u)", subtype, sublen);
@@ -1030,8 +1061,13 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 {
     guint8 subtype, subtlvlen;
 
-    length -= 5;    /* Ignoring the 5 reserved bytes */
-    offset += 5;
+    proto_tree_add_item(tree, hf_isis_lsp_rt_capable_router_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    length -= 4;
+    proto_tree_add_item(tree, hf_isis_lsp_rt_capable_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isis_lsp_rt_capable_flag_d, tvb, offset, 1, ENC_BIG_ENDIAN);
+    length -= 1;
+    offset += 1;
 
     while (length>=2) {
         subtype   = tvb_get_guint8(tvb, offset);
@@ -2625,6 +2661,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         dissect_lsp_mt_reachable_IPv6_prefx_clv
     },
     {
+        ISIS_CLV_RT_CAPABLE,
+        "Router Capability",
+        &ett_isis_lsp_clv_rt_capable,
+        dissect_isis_rt_capable_clv
+    },
+    {
         0,
         "",
         NULL,
@@ -2704,7 +2746,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         case DATA_MISSING :
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
                     "Packet length %d went beyond packet",
-                     tvb_length_remaining(tvb, offset_checksum));
+                     tvb_reported_length_remaining(tvb, offset_checksum));
         break;
         case CKSUM_NOT_OK :
             it_cksum = proto_tree_add_uint_format_value(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
@@ -2767,7 +2809,7 @@ dissect_isis_l1_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_lsp(tvb, pinfo, tree, 0,
         clv_l1_lsp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static int
@@ -2776,7 +2818,7 @@ dissect_isis_l2_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     isis_data_t* isis = (isis_data_t*)data;
     dissect_isis_lsp(tvb, pinfo, tree, 0,
         clv_l2_lsp_opts, isis->header_length, isis->system_id_len);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void
@@ -3473,6 +3515,46 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 8, TFS(&tfs_external_internal), 0x40,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_rt_capable_router_id,
+            { "Router ID", "isis.lsp.rt_capable.router_id",
+              FT_UINT32, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_flag_s,
+            { "S bit", "isis.lsp.rt_capable.flag_s",
+              FT_BOOLEAN, 8, NULL, 0x01,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_rt_capable_flag_d,
+            { "D bit", "isis.lsp.rt_capable.flag_d",
+              FT_BOOLEAN, 8, NULL, 0x02,
+              NULL, HFILL }
+        },
+        { &isis_lsp_clv_te_node_cap_b_bit,
+            { "B bit: P2MP Branch LSR capability", "isis.lsp.te_node_cap.b_bit",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              NULL, HFILL }
+        },
+        { &isis_lsp_clv_te_node_cap_e_bit,
+            { "E bit: P2MP Bud LSR capability", "isis.lsp.te_node_cap.e_bit",
+              FT_BOOLEAN, 8, NULL, 0x40,
+              NULL, HFILL }
+        },
+        { &isis_lsp_clv_te_node_cap_m_bit,
+            { "M bit: MPLS-TE support", "isis.lsp.te_node_cap.m_bit",
+              FT_BOOLEAN, 8, NULL, 0x20,
+              NULL, HFILL }
+        },
+        { &isis_lsp_clv_te_node_cap_g_bit,
+            { "G bit: GMPLS support", "isis.lsp.te_node_cap.g_bit",
+              FT_BOOLEAN, 8, NULL, 0x10,
+              NULL, HFILL }
+        },
+        { &isis_lsp_clv_te_node_cap_p_bit,
+            { "P bit: P2MP RSVP-TE support", "isis.lsp.te_node_cap.p_bit",
+              FT_BOOLEAN, 8, NULL, 0x08,
+              NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -3510,6 +3592,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_is,
         &ett_isis_lsp_part_of_clv_mt_is,
         &ett_isis_lsp_clv_rt_capable, /*CLV 242*/
+        &ett_isis_lsp_clv_te_node_cap_desc,
         &ett_isis_lsp_clv_trill_version,
         &ett_isis_lsp_clv_trees,
         &ett_isis_lsp_clv_root_id,

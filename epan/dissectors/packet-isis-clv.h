@@ -32,6 +32,8 @@
  * all PDU Types.
  *
  * list taken from rfc3359 plus some memory from veterans ;-)
+ *
+ * http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#tlv-codepoints
  */
 
 #define ISIS_CLV_AREA_ADDRESS        1   /* iso10589 */
