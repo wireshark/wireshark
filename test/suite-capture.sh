@@ -512,7 +512,7 @@ capture_suite() {
 	test_remark_add "Capture - need some traffic on interface: \"$TRAFFIC_CAPTURE_IFACE\""
 	test_suite_add "Dumpcap capture" dumpcap_capture_suite
 	test_suite_add "TShark capture" tshark_capture_suite
-	test_suite_add "Wireshark capture" wireshark_capture_suite
+	#test_suite_add "Wireshark capture" wireshark_capture_suite
 	test_suite_add "Wireshark 1 capture" wireshark_gtk_capture_suite
 }
 
