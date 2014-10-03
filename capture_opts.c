@@ -70,7 +70,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->default_options.extcap          = NULL;
   capture_opts->default_options.extcap_fifo     = NULL;
   capture_opts->default_options.extcap_args     = NULL;
-  capture_opts->default_options.extcap_pid      = (GPid)-1;
+  capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -610,7 +610,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
     interface_opts.extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
     interface_opts.extcap_args = NULL;
-    interface_opts.extcap_pid = (GPid)-1;
+    interface_opts.extcap_pid = INVALID_EXTCAP_PID;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
@@ -1046,7 +1046,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     g_free(interface_opts.extcap_fifo);
     if (interface_opts.extcap_args)
         g_hash_table_unref(interface_opts.extcap_args);
-    if (interface_opts.extcap_pid > 0)
+    if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
         g_spawn_close_pid(interface_opts.extcap_pid);
 #endif
 #ifdef HAVE_PCAP_REMOTE
@@ -1094,7 +1094,7 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.extcap = g_strdup(device.if_info.extcap);
       interface_opts.extcap_fifo = NULL;
       interface_opts.extcap_args = device.external_cap_args_settings;
-      interface_opts.extcap_pid = (GPid)-1;
+      interface_opts.extcap_pid = INVALID_EXTCAP_PID;
       if (interface_opts.extcap_args)
          g_hash_table_ref(interface_opts.extcap_args);
 #endif

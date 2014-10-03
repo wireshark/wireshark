@@ -206,6 +206,12 @@ typedef struct link_row_tag {
     gint dlt;
 } link_row;
 
+#ifdef WIN32
+#define INVALID_EXTCAP_PID INVALID_HANDLE_VALUE
+#else
+#define INVALID_EXTCAP_PID (GPid)-1
+#endif
+
 typedef struct interface_options_tag {
     gchar *name; /* the name of the interface provided to winpcap/libpcap to specify the interface */
     gchar *descr;
@@ -220,7 +226,7 @@ typedef struct interface_options_tag {
     gchar *extcap;
     gchar *extcap_fifo;
     GHashTable *extcap_args;
-    GPid extcap_pid;
+    GPid extcap_pid; /* pid of running process or INVALID_EXTCAP_PID */
     guint extcap_child_watch;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)

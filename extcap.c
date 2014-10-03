@@ -434,20 +434,18 @@ void extcap_cleanup(capture_options * capture_opts) {
 			interface_opts.extcap_child_watch = 0;
 		}
 
+		if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
+		{
 #ifdef WIN32
-		if (interface_opts.extcap_pid != INVALID_HANDLE_VALUE)
-		{
 			TerminateProcess(interface_opts.extcap_pid, 0);
-			g_spawn_close_pid(interface_opts.extcap_pid);
-			interface_opts.extcap_pid = INVALID_HANDLE_VALUE;
-		}
-#else
-		if (interface_opts.extcap_pid != (GPid)-1 )
-		{
-			g_spawn_close_pid(interface_opts.extcap_pid);
-			interface_opts.extcap_pid = (GPid)-1;
-		}
 #endif
+			g_spawn_close_pid(interface_opts.extcap_pid);
+			interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+		}
+
+		/* Make sure modified interface_opts is saved in capture_opts. */
+		capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, icnt);
+		g_array_insert_val(capture_opts->ifaces, icnt, interface_opts);
 	}
 }
 
@@ -479,11 +477,7 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 		interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
 		if (interface_opts.extcap_pid == pid)
 		{
-#ifdef WIN32
-			interface_opts.extcap_pid = INVALID_HANDLE_VALUE;
-#else
-			interface_opts.extcap_pid = (GPid)-1;
-#endif
+			interface_opts.extcap_pid = INVALID_EXTCAP_PID;
 			interface_opts.extcap_child_watch = 0;
 			capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
 			g_array_insert_val(capture_opts->ifaces, i, interface_opts);
@@ -503,11 +497,7 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 	for (i = 0; i < capture_opts->ifaces->len; i++)
 	{
 		GPtrArray *args = NULL;
-#ifdef WIN32
-		GPid pid = INVALID_HANDLE_VALUE;
-#else
-		GPid pid = 0;
-#endif
+		GPid pid = INVALID_EXTCAP_PID;
 		gchar **tmp;
 		int tmp_i;
 
@@ -566,7 +556,7 @@ extcaps_init_initerfaces(capture_options *capture_opts)
 		 *
 		 * Minimum supported version of Windows: XP / Server 2003.
 		 */
-		if (pid != INVALID_HANDLE_VALUE)
+		if (pid != INVALID_EXTCAP_PID)
 		{
 			DWORD dw;
 			HANDLE handles[2];
