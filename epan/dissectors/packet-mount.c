@@ -170,8 +170,8 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			host=ip_to_str((const guint8 *)pinfo->dst.data);
 			len=tvb_get_ntohl(tvb, offset);
-                        if (len >= ITEM_LABEL_LENGTH)
-                                THROW(ReportedBoundsError);
+			if (len >= ITEM_LABEL_LENGTH)
+				THROW(ReportedBoundsError);
 
 			name=(unsigned char *)g_malloc(strlen(host)+1+len+1+200);
 			ptr=name;
@@ -356,53 +356,53 @@ dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 #define	PC_ERROR_VDISABLE	0x0200
 
 static const true_false_string tos_error_all = {
-  "All info invalid",
-  "Some or all info valid"
+	"All info invalid",
+	"Some or all info valid"
 };
 
 static const true_false_string tos_error_link_max = {
-  "LINK_MAX invalid",
-  "LINK_MAX valid"
+	"LINK_MAX invalid",
+	"LINK_MAX valid"
 };
 
 static const true_false_string tos_error_max_canon = {
-  "MAX_CANON invalid",
-  "MAX_CANON valid"
+	"MAX_CANON invalid",
+	"MAX_CANON valid"
 };
 
 static const true_false_string tos_error_max_input = {
-  "MAX_INPUT invalid",
-  "MAX_INPUT valid"
+	"MAX_INPUT invalid",
+	"MAX_INPUT valid"
 };
 
 static const true_false_string tos_error_name_max = {
-  "NAME_MAX invalid",
-  "NAME_MAX valid"
+	"NAME_MAX invalid",
+	"NAME_MAX valid"
 };
 
 static const true_false_string tos_error_path_max = {
-  "PATH_MAX invalid",
-  "PATH_MAX valid"
+	"PATH_MAX invalid",
+	"PATH_MAX valid"
 };
 
 static const true_false_string tos_error_pipe_buf = {
-  "PIPE_BUF invalid",
-  "PIPE_BUF valid"
+	"PIPE_BUF invalid",
+	"PIPE_BUF valid"
 };
 
 static const true_false_string tos_chown_restricted = {
-  "Only a privileged user can change the ownership of a file",
-  "Users may give away their own files"
+	"Only a privileged user can change the ownership of a file",
+	"Users may give away their own files"
 };
 
 static const true_false_string tos_no_trunc = {
-  "File names that are too long will get an error",
-  "File names that are too long will be truncated"
+	"File names that are too long will get an error",
+	"File names that are too long will be truncated"
 };
 
 static const true_false_string tos_error_vdisable = {
-  "VDISABLE invalid",
-  "VDISABLE valid"
+	"VDISABLE invalid",
+	"VDISABLE valid"
 };
 
 
@@ -747,30 +747,30 @@ dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 /* Mount protocol version 1, RFC 1094 */
 static const vsff mount1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",
-		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
-    { MOUNTPROC_DUMP,       "DUMP",
-		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",
-		dissect_mount_dirpath_call, NULL },
-    { MOUNTPROC_UMNTALL,   "UMNTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, dissect_mount_export_reply },
-    { 0, NULL, NULL, NULL }
+	{ 0, "NULL", NULL, NULL },
+	{ MOUNTPROC_MNT,        "MNT",
+	  dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+	{ MOUNTPROC_DUMP,       "DUMP",
+	  NULL, dissect_mount_dump_reply },
+	{ MOUNTPROC_UMNT,      "UMNT",
+	  dissect_mount_dirpath_call, NULL },
+	{ MOUNTPROC_UMNTALL,   "UMNTALL",
+	  NULL, NULL },
+	{ MOUNTPROC_EXPORT,    "EXPORT",
+	  NULL, dissect_mount_export_reply },
+	{ MOUNTPROC_EXPORTALL, "EXPORTALL",
+	  NULL, dissect_mount_export_reply },
+	{ 0, NULL, NULL, NULL }
 };
 static const value_string mount1_proc_vals[] = {
-    { 0, "NULL" },
-    { MOUNTPROC_MNT,       "MNT" },
-    { MOUNTPROC_DUMP,      "DUMP" },
-    { MOUNTPROC_UMNT,      "UMNT" },
-    { MOUNTPROC_UMNTALL,   "UMNTALL" },
-    { MOUNTPROC_EXPORT,    "EXPORT" },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL" },
-    { 0, NULL }
+	{ 0, "NULL" },
+	{ MOUNTPROC_MNT,       "MNT" },
+	{ MOUNTPROC_DUMP,      "DUMP" },
+	{ MOUNTPROC_UMNT,      "UMNT" },
+	{ MOUNTPROC_UMNTALL,   "UMNTALL" },
+	{ MOUNTPROC_EXPORT,    "EXPORT" },
+	{ MOUNTPROC_EXPORTALL, "EXPORTALL" },
+	{ 0, NULL }
 };
 /* end of mount version 1 */
 
@@ -779,33 +779,33 @@ static const value_string mount1_proc_vals[] = {
    mount V2 is V1 plus MOUNTPROC_PATHCONF to fetch information for the
    POSIX "pathconf()" call. */
 static const vsff mount2_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",
-		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
-    { MOUNTPROC_DUMP,       "DUMP",
-		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",
-		dissect_mount_dirpath_call, NULL },
-    { MOUNTPROC_UMNTALL,   "UMNTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_PATHCONF,  "PATHCONF",
-		dissect_mount_dirpath_call, dissect_mount_pathconf_reply },
-    { 0, NULL, NULL, NULL }
+	{ 0, "NULL", NULL, NULL },
+	{ MOUNTPROC_MNT,        "MNT",
+	  dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+	{ MOUNTPROC_DUMP,       "DUMP",
+	  NULL, dissect_mount_dump_reply },
+	{ MOUNTPROC_UMNT,      "UMNT",
+	  dissect_mount_dirpath_call, NULL },
+	{ MOUNTPROC_UMNTALL,   "UMNTALL",
+	  NULL, NULL },
+	{ MOUNTPROC_EXPORT,    "EXPORT",
+	  NULL, dissect_mount_export_reply },
+	{ MOUNTPROC_EXPORTALL, "EXPORTALL",
+	  NULL, dissect_mount_export_reply },
+	{ MOUNTPROC_PATHCONF,  "PATHCONF",
+	  dissect_mount_dirpath_call, dissect_mount_pathconf_reply },
+	{ 0, NULL, NULL, NULL }
 };
 static const value_string mount2_proc_vals[] = {
-    { 0, "NULL" },
-    { MOUNTPROC_MNT,       "MNT" },
-    { MOUNTPROC_DUMP,      "DUMP" },
-    { MOUNTPROC_UMNT,      "UMNT" },
-    { MOUNTPROC_UMNTALL,   "UMNTALL" },
-    { MOUNTPROC_EXPORT,    "EXPORT" },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL" },
-    { MOUNTPROC_PATHCONF,  "PATHCONF" },
-    { 0, NULL }
+	{ 0, "NULL" },
+	{ MOUNTPROC_MNT,       "MNT" },
+	{ MOUNTPROC_DUMP,      "DUMP" },
+	{ MOUNTPROC_UMNT,      "UMNT" },
+	{ MOUNTPROC_UMNTALL,   "UMNTALL" },
+	{ MOUNTPROC_EXPORT,    "EXPORT" },
+	{ MOUNTPROC_EXPORTALL, "EXPORTALL" },
+	{ MOUNTPROC_PATHCONF,  "PATHCONF" },
+	{ 0, NULL }
 };
 /* end of mount version 2 */
 
@@ -840,36 +840,36 @@ static const value_string mount3_proc_vals[] = {
    MOUNTPROC_EXPORTLIST and MOUNTPROC_STATVFS */
 
 static const vsff sgi_mount1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",
-		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
-    { MOUNTPROC_DUMP,       "DUMP",
-		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",
-		dissect_mount_dirpath_call, NULL },
-    { MOUNTPROC_UMNTALL,   "UMNTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTLIST,"EXPORTLIST",
-		NULL, dissect_mount_exportlist_reply },
-    { MOUNTPROC_STATVFS,   "STATVFS",
-		dissect_mount_dirpath_call, dissect_mount_statvfs_reply },
-    { 0, NULL, NULL, NULL }
+	{ 0, "NULL", NULL, NULL },
+	{ MOUNTPROC_MNT,        "MNT",
+	  dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+	{ MOUNTPROC_DUMP,       "DUMP",
+	  NULL, dissect_mount_dump_reply },
+	{ MOUNTPROC_UMNT,      "UMNT",
+	  dissect_mount_dirpath_call, NULL },
+	{ MOUNTPROC_UMNTALL,   "UMNTALL",
+	  NULL, NULL },
+	{ MOUNTPROC_EXPORT,    "EXPORT",
+	  NULL, dissect_mount_export_reply },
+	{ MOUNTPROC_EXPORTALL, "EXPORTALL",
+	  NULL, dissect_mount_export_reply },
+	{ MOUNTPROC_EXPORTLIST,"EXPORTLIST",
+	  NULL, dissect_mount_exportlist_reply },
+	{ MOUNTPROC_STATVFS,   "STATVFS",
+	  dissect_mount_dirpath_call, dissect_mount_statvfs_reply },
+	{ 0, NULL, NULL, NULL }
 };
 static const value_string sgi_mount1_proc_vals[] = {
-    { 0, "NULL" },
-    { MOUNTPROC_MNT,        "MNT" },
-    { MOUNTPROC_DUMP,       "DUMP" },
-    { MOUNTPROC_UMNT,       "UMNT" },
-    { MOUNTPROC_UMNTALL,    "UMNTALL" },
-    { MOUNTPROC_EXPORT,     "EXPORT" },
-    { MOUNTPROC_EXPORTALL,  "EXPORTALL" },
-    { MOUNTPROC_EXPORTLIST, "EXPORTLIST" },
-    { MOUNTPROC_STATVFS,    "STATVFS" },
-    { 0, NULL }
+	{ 0, "NULL" },
+	{ MOUNTPROC_MNT,        "MNT" },
+	{ MOUNTPROC_DUMP,       "DUMP" },
+	{ MOUNTPROC_UMNT,       "UMNT" },
+	{ MOUNTPROC_UMNTALL,    "UMNTALL" },
+	{ MOUNTPROC_EXPORT,     "EXPORT" },
+	{ MOUNTPROC_EXPORTALL,  "EXPORTALL" },
+	{ MOUNTPROC_EXPORTLIST, "EXPORTLIST" },
+	{ MOUNTPROC_STATVFS,    "STATVFS" },
+	{ 0, NULL }
 };
 /* end of SGI mount protocol version 1 */
 
@@ -1106,3 +1106,16 @@ proto_reg_handoff_mount(void)
 	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc, hf_mount_procedure_v3);
 	rpc_init_proc_table(SGI_MOUNT_PROGRAM, 1, sgi_mount1_proc, hf_sgi_mount_procedure_v1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

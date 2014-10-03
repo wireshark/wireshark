@@ -984,3 +984,16 @@ proto_reg_handoff_mpa(void)
 	heur_dissector_add("tcp", dissect_iwarp_mpa, proto_iwarp_mpa);
 	ddp_rdmap_handle = find_dissector("iwarp_ddp_rdmap");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

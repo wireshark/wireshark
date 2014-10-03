@@ -182,26 +182,26 @@ static gint ett_ltp_fragment	= -1;
 static gint ett_ltp_fragments	= -1;
 
 static const fragment_items ltp_frag_items = {
-    /*Fragment subtrees*/
-    &ett_ltp_fragment,
-    &ett_ltp_fragments,
-    /*Fragment Fields*/
-    &hf_ltp_fragments,
-    &hf_ltp_fragment,
-    &hf_ltp_fragment_overlap,
-    &hf_ltp_fragment_overlap_conflicts,
-    &hf_ltp_fragment_multiple_tails,
-    &hf_ltp_fragment_too_long_fragment,
-    &hf_ltp_fragment_error,
-    &hf_ltp_fragment_count,
-    /*Reassembled in field*/
-    &hf_ltp_reassembled_in,
-    /*Reassembled length field*/
-    &hf_ltp_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    /*Tag*/
-    "LTP fragments"
+	/*Fragment subtrees*/
+	&ett_ltp_fragment,
+	&ett_ltp_fragments,
+	/*Fragment Fields*/
+	&hf_ltp_fragments,
+	&hf_ltp_fragment,
+	&hf_ltp_fragment_overlap,
+	&hf_ltp_fragment_overlap_conflicts,
+	&hf_ltp_fragment_multiple_tails,
+	&hf_ltp_fragment_too_long_fragment,
+	&hf_ltp_fragment_error,
+	&hf_ltp_fragment_count,
+	/*Reassembled in field*/
+	&hf_ltp_reassembled_in,
+	/*Reassembled length field*/
+	&hf_ltp_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/*Tag*/
+	"LTP fragments"
 };
 
 static int
@@ -438,10 +438,10 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 				"Negative reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
-    /* Each reception claim is at least 2 bytes, so if the count is larger than the
-     * max number of claims we can possibly squeeze into the remaining tvbuff, then
-     * the packet is malformed.
-     */
+	/* Each reception claim is at least 2 bytes, so if the count is larger than the
+	 * max number of claims we can possibly squeeze into the remaining tvbuff, then
+	 * the packet is malformed.
+	 */
 	if (rcpt_clm_cnt > tvb_length_remaining(tvb, frame_offset + segment_offset) / 2) {
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
 		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
@@ -988,7 +988,7 @@ proto_reg_handoff_ltp(void)
 
 	if (!initialized) {
 		ltp_handle = new_create_dissector_handle(dissect_ltp, proto_ltp);
-        bundle_handle = find_dissector("bundle");
+		bundle_handle = find_dissector("bundle");
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", currentPort, ltp_handle);
@@ -1000,3 +1000,16 @@ proto_reg_handoff_ltp(void)
 	dissector_add_uint("udp.port", currentPort, ltp_handle);
 	dissector_add_uint("dccp.port", currentPort, ltp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -653,3 +653,16 @@ proto_reg_handoff_epl_v1(void)
 	epl_v1_handle = new_create_dissector_handle(dissect_epl_v1, proto_epl_v1);
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

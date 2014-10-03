@@ -142,68 +142,68 @@ static expert_field ei_dcc_len = EI_INIT;
 
 /* Lookup string tables */
 static const value_string dcc_op_vals[] = {
-	{DCC_OP_INVALID, "Invalid Op"},
-	{DCC_OP_NOP, 	"No-Op"},
-	{DCC_OP_REPORT, "Report and Query"},
-	{DCC_OP_QUERY, "Query"},
+	{DCC_OP_INVALID,    "Invalid Op"},
+	{DCC_OP_NOP,	    "No-Op"},
+	{DCC_OP_REPORT,	    "Report and Query"},
+	{DCC_OP_QUERY,	    "Query"},
 	{DCC_OP_QUERY_RESP, "Server Response"},
-	{DCC_OP_ADMN, "Admin"},
-	{DCC_OP_OK, "Ok"},
-	{DCC_OP_ERROR, "Server Failing"},
-	{DCC_OP_DELETE, "Delete Checksum(s)"},
+	{DCC_OP_ADMN,	    "Admin"},
+	{DCC_OP_OK,	    "Ok"},
+	{DCC_OP_ERROR,	    "Server Failing"},
+	{DCC_OP_DELETE,	    "Delete Checksum(s)"},
 	{0, NULL}
 };
 
 static const value_string dcc_cktype_vals[] = {
-	{DCC_CK_INVALID, "Invalid/Deleted from DB when seen"},
-	{DCC_CK_IP, 	"MD5 of binary source IPv6 address"},
-	{DCC_CK_ENV_FROM, "MD5 of envelope Mail From value"},
-	{DCC_CK_FROM, "MD5 of header From: line"},
-	{DCC_CK_SUB, "MD5 of substitute header line"},
+	{DCC_CK_INVALID,    "Invalid/Deleted from DB when seen"},
+	{DCC_CK_IP,	    "MD5 of binary source IPv6 address"},
+	{DCC_CK_ENV_FROM,   "MD5 of envelope Mail From value"},
+	{DCC_CK_FROM,	    "MD5 of header From: line"},
+	{DCC_CK_SUB,	    "MD5 of substitute header line"},
 	{DCC_CK_MESSAGE_ID, "MD5 of header Message-ID: line"},
-	{DCC_CK_RECEIVED, "MD5 of last header Received: line"},
-	{DCC_CK_BODY, "MD5 of body"},
-	{DCC_CK_FUZ1, "MD5 of filtered body - FUZ1"},
-	{DCC_CK_FUZ2, "MD5 of filtered body - FUZ2"},
-	{DCC_CK_FUZ3, "MD5 of filtered body - FUZ3"},
-	{DCC_CK_FUZ4, "MD5 of filtered body - FUZ4"},
-	{DCC_CK_SRVR_ID, "hostname for server-ID check "},
-	{DCC_CK_ENV_TO, "MD5 of envelope Rcpt To value"},
+	{DCC_CK_RECEIVED,   "MD5 of last header Received: line"},
+	{DCC_CK_BODY,	    "MD5 of body"},
+	{DCC_CK_FUZ1,	    "MD5 of filtered body - FUZ1"},
+	{DCC_CK_FUZ2,	    "MD5 of filtered body - FUZ2"},
+	{DCC_CK_FUZ3,	    "MD5 of filtered body - FUZ3"},
+	{DCC_CK_FUZ4,	    "MD5 of filtered body - FUZ4"},
+	{DCC_CK_SRVR_ID,    "hostname for server-ID check "},
+	{DCC_CK_ENV_TO,	    "MD5 of envelope Rcpt To value"},
 	{0, NULL},
 };
 
 static const value_string dcc_adminop_vals[] = {
-	{DCC_AOP_OK, "Never sent"},
-	{DCC_AOP_STOP, "Stop Gracefully"},
-	{DCC_AOP_NEW_IDS, "Load keys and client IDs"},
-	{DCC_AOP_FLOD, "Flood control"},
-	{DCC_AOP_DB_UNLOCK, "Start Switch to new database"},
-	{DCC_AOP_DB_NEW, "Finish Switch to new database"},
-	{DCC_AOP_STATS, "Return counters"},
+	{DCC_AOP_OK,	      "Never sent"},
+	{DCC_AOP_STOP,	      "Stop Gracefully"},
+	{DCC_AOP_NEW_IDS,     "Load keys and client IDs"},
+	{DCC_AOP_FLOD,	      "Flood control"},
+	{DCC_AOP_DB_UNLOCK,   "Start Switch to new database"},
+	{DCC_AOP_DB_NEW,      "Finish Switch to new database"},
+	{DCC_AOP_STATS,	      "Return counters"},
 	{DCC_AOP_STATS_CLEAR, "Return and zero counters"},
-	{DCC_AOP_TRACE_ON, "Enable tracing"},
-	{DCC_AOP_TRACE_OFF, "Disable tracing"},
+	{DCC_AOP_TRACE_ON,    "Enable tracing"},
+	{DCC_AOP_TRACE_OFF,   "Disable tracing"},
 	{DCC_AOP_CUR_CLIENTS, "List clients"},
 	{0, NULL},
 };
 
 static const value_string dcc_target_vals[] = {
 	{DCC_TGTS_TOO_MANY, "Targets (>= 16777200)"},
-	{DCC_TGTS_OK, "Certified not spam"},
-	{DCC_TGTS_OK2, "Half certified not spam"},
-	{DCC_TGTS_DEL, "Deleted checksum"},
-	{DCC_TGTS_INVALID, "Invalid"},
+	{DCC_TGTS_OK,	    "Certified not spam"},
+	{DCC_TGTS_OK2,	    "Half certified not spam"},
+	{DCC_TGTS_DEL,	    "Deleted checksum"},
+	{DCC_TGTS_INVALID,  "Invalid"},
 	{0, NULL},
 };
 
 static const value_string dcc_floodop_vals[] = {
-	{DCC_AOP_FLOD_CHECK, "Check"},
-	{DCC_AOP_FLOD_SHUTDOWN, "Shutdown"},
-	{DCC_AOP_FLOD_HALT, "Halt"},
-	{DCC_AOP_FLOD_RESUME, "Resume"},
-	{DCC_AOP_FLOD_REWIND, "Rewind"},
-	{DCC_AOP_FLOD_LIST, "List"},
-	{DCC_AOP_FLOD_STATS, "Stats"},
+	{DCC_AOP_FLOD_CHECK,	   "Check"},
+	{DCC_AOP_FLOD_SHUTDOWN,	   "Shutdown"},
+	{DCC_AOP_FLOD_HALT,	   "Halt"},
+	{DCC_AOP_FLOD_RESUME,	   "Resume"},
+	{DCC_AOP_FLOD_REWIND,	   "Rewind"},
+	{DCC_AOP_FLOD_LIST,	   "List"},
+	{DCC_AOP_FLOD_STATS,	   "Stats"},
 	{DCC_AOP_FLOD_STATS_CLEAR, "Clear Stats"},
 	{0,NULL},
 };
@@ -588,3 +588,16 @@ proto_reg_handoff_dcc(void)
 {
 	heur_dissector_add("udp", dissect_dcc, proto_dcc);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

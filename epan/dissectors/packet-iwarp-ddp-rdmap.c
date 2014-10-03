@@ -190,21 +190,21 @@ static gint ett_iwarp_rdma_term_ctrl = -1;
 static gint ett_iwarp_rdma_term_hdrct = -1;
 
 static const value_string rdmap_messages[] = {
-		{ RDMA_WRITE, "Write" },
-		{ RDMA_READ_REQUEST, "Read Request" },
-		{ RDMA_READ_RESPONSE, "Read Response" },
-		{ RDMA_SEND, "Send" },
-		{ RDMA_SEND_INVALIDATE, "Send with Invalidate" },
-		{ RDMA_SEND_SE, "Send with SE" },
+		{ RDMA_WRITE,		   "Write" },
+		{ RDMA_READ_REQUEST,	   "Read Request" },
+		{ RDMA_READ_RESPONSE,	   "Read Response" },
+		{ RDMA_SEND,		   "Send" },
+		{ RDMA_SEND_INVALIDATE,	   "Send with Invalidate" },
+		{ RDMA_SEND_SE,		   "Send with SE" },
 		{ RDMA_SEND_SE_INVALIDATE, "Send with SE and Invalidate" },
-		{ RDMA_TERMINATE, "Terminate" },
+		{ RDMA_TERMINATE,	   "Terminate" },
 		{ 0, NULL	}
 };
 
 static const value_string layer_names[] = {
 		{ IWARP_LAYER_RDMA, "RDMA" },
-		{ IWARP_LAYER_DDP, "DDP" },
-		{ IWARP_LAYER_LLP, "LLP" },
+		{ IWARP_LAYER_DDP,  "DDP" },
+		{ IWARP_LAYER_LLP,  "LLP" },
 		{ 0, NULL }
 };
 
@@ -904,3 +904,16 @@ proto_reg_handoff_iwarp_ddp_rdmap(void)
 {
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

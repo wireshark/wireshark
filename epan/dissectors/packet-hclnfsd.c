@@ -644,64 +644,64 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 /* NULL as function pointer means: take the generic one. */
 
 static const vsff hclnfsd1_proc[] = {
-    { HCLNFSDPROC_NULL, "NULL",
-	 	NULL, NULL },
-    { HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE",
-		dissect_hclnfsd_spool_inquire_call, NULL },
-    { HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE",
-		dissect_hclnfsd_spool_file_call, NULL },
-    { HCLNFSDPROC_AUTHORIZE, "AUTHORIZE",
-		dissect_hclnfsd_authorize_call, dissect_hclnfsd_authorize_reply },
-    { HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB",
-		dissect_hclnfsd_grp_name_to_numb_call, dissect_hclnfsd_grp_name_to_numb_reply },
-    { HCLNFSDPROC_GRP_TO_NUMBER, "GRP_TO_NUMBER",
-		dissect_hclnfsd_grp_to_number_call, dissect_hclnfsd_grp_to_number_reply },
-    { HCLNFSDPROC_RETURN_HOST, "RETURN_HOST",
-		dissect_hclnfsd_return_host_call, dissect_hclnfsd_return_host_reply },
-    { HCLNFSDPROC_UID_TO_NAME, "UID_TO_NAME",
-		dissect_hclnfsd_uid_to_name_call, dissect_hclnfsd_uid_to_name_reply },
-    { HCLNFSDPROC_NAME_TO_UID, "NAME_TO_UID",
-		dissect_hclnfsd_name_to_uid_call, dissect_hclnfsd_name_to_uid_reply },
-    { HCLNFSDPROC_SHARE, "SHARE",
-		dissect_hclnfsd_share_call, dissect_hclnfsd_share_reply },
-    { HCLNFSDPROC_UNSHARE, "UNSHARE",
-		dissect_hclnfsd_unshare_call, dissect_hclnfsd_unshare_reply },
-    { HCLNFSDPROC_LOCK, "LOCK",
-		dissect_hclnfsd_lock_call, dissect_hclnfsd_lock_reply },
-    { HCLNFSDPROC_REMOVE, "REMOVE",
-		dissect_hclnfsd_remove_call, NULL },
-    { HCLNFSDPROC_UNLOCK, "UNLOCK",
-		dissect_hclnfsd_unlock_call, dissect_hclnfsd_unlock_reply },
-    { HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS",
-		NULL, dissect_hclnfsd_get_printers_reply },
-    { HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ",
-		dissect_hclnfsd_get_printq_call, dissect_hclnfsd_get_printq_reply },
-    { HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB",
-		NULL, NULL },
-    { HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS",
-		NULL, NULL },
-    { 0, NULL, NULL, NULL }
+	{ HCLNFSDPROC_NULL, "NULL",
+	  NULL, NULL },
+	{ HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE",
+	  dissect_hclnfsd_spool_inquire_call, NULL },
+	{ HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE",
+	  dissect_hclnfsd_spool_file_call, NULL },
+	{ HCLNFSDPROC_AUTHORIZE, "AUTHORIZE",
+	  dissect_hclnfsd_authorize_call, dissect_hclnfsd_authorize_reply },
+	{ HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB",
+	  dissect_hclnfsd_grp_name_to_numb_call, dissect_hclnfsd_grp_name_to_numb_reply },
+	{ HCLNFSDPROC_GRP_TO_NUMBER, "GRP_TO_NUMBER",
+	  dissect_hclnfsd_grp_to_number_call, dissect_hclnfsd_grp_to_number_reply },
+	{ HCLNFSDPROC_RETURN_HOST, "RETURN_HOST",
+	  dissect_hclnfsd_return_host_call, dissect_hclnfsd_return_host_reply },
+	{ HCLNFSDPROC_UID_TO_NAME, "UID_TO_NAME",
+	  dissect_hclnfsd_uid_to_name_call, dissect_hclnfsd_uid_to_name_reply },
+	{ HCLNFSDPROC_NAME_TO_UID, "NAME_TO_UID",
+	  dissect_hclnfsd_name_to_uid_call, dissect_hclnfsd_name_to_uid_reply },
+	{ HCLNFSDPROC_SHARE, "SHARE",
+	  dissect_hclnfsd_share_call, dissect_hclnfsd_share_reply },
+	{ HCLNFSDPROC_UNSHARE, "UNSHARE",
+	  dissect_hclnfsd_unshare_call, dissect_hclnfsd_unshare_reply },
+	{ HCLNFSDPROC_LOCK, "LOCK",
+	  dissect_hclnfsd_lock_call, dissect_hclnfsd_lock_reply },
+	{ HCLNFSDPROC_REMOVE, "REMOVE",
+	  dissect_hclnfsd_remove_call, NULL },
+	{ HCLNFSDPROC_UNLOCK, "UNLOCK",
+	  dissect_hclnfsd_unlock_call, dissect_hclnfsd_unlock_reply },
+	{ HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS",
+	  NULL, dissect_hclnfsd_get_printers_reply },
+	{ HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ",
+	  dissect_hclnfsd_get_printq_call, dissect_hclnfsd_get_printq_reply },
+	{ HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB",
+	  NULL, NULL },
+	{ HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS",
+	  NULL, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 static const value_string hclnfsd1_proc_vals[] = {
-    { HCLNFSDPROC_NULL, "NULL" },
-    { HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE" },
-    { HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE" },
-    { HCLNFSDPROC_AUTHORIZE, "AUTHORIZE" },
-    { HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB" },
-    { HCLNFSDPROC_GRP_TO_NUMBER, "GRP_TO_NUMBER" },
-    { HCLNFSDPROC_RETURN_HOST, "RETURN_HOST" },
-    { HCLNFSDPROC_UID_TO_NAME, "UID_TO_NAME" },
-    { HCLNFSDPROC_NAME_TO_UID, "NAME_TO_UID" },
-    { HCLNFSDPROC_SHARE, "SHARE" },
-    { HCLNFSDPROC_UNSHARE, "UNSHARE" },
-    { HCLNFSDPROC_LOCK, "LOCK" },
-    { HCLNFSDPROC_REMOVE, "REMOVE" },
-    { HCLNFSDPROC_UNLOCK, "UNLOCK" },
-    { HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS" },
-    { HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ" },
-    { HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB" },
-    { HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS" },
-    { 0, NULL }
+	{ HCLNFSDPROC_NULL,		"NULL" },
+	{ HCLNFSDPROC_SPOOL_INQUIRE,	"SPOOL_INQUIRE" },
+	{ HCLNFSDPROC_SPOOL_FILE,	"SPOOL_FILE" },
+	{ HCLNFSDPROC_AUTHORIZE,	"AUTHORIZE" },
+	{ HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB" },
+	{ HCLNFSDPROC_GRP_TO_NUMBER,	"GRP_TO_NUMBER" },
+	{ HCLNFSDPROC_RETURN_HOST,	"RETURN_HOST" },
+	{ HCLNFSDPROC_UID_TO_NAME,	"UID_TO_NAME" },
+	{ HCLNFSDPROC_NAME_TO_UID,	"NAME_TO_UID" },
+	{ HCLNFSDPROC_SHARE,		"SHARE" },
+	{ HCLNFSDPROC_UNSHARE,		"UNSHARE" },
+	{ HCLNFSDPROC_LOCK,		"LOCK" },
+	{ HCLNFSDPROC_REMOVE,		"REMOVE" },
+	{ HCLNFSDPROC_UNLOCK,		"UNLOCK" },
+	{ HCLNFSDPROC_GET_PRINTERS,	"GET_PRINTERS" },
+	{ HCLNFSDPROC_GET_PRINTQ,	"GET_PRINTQ" },
+	{ HCLNFSDPROC_CANCEL_PRJOB,	"CANCEL_PRJOB" },
+	{ HCLNFSDPROC_ZAP_LOCKS,	"ZAP_LOCKS" },
+	{ 0, NULL }
 };
 /* end of hclnfsd version 1 */
 
@@ -889,3 +889,16 @@ proto_reg_handoff_hclnfsd(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc, hf_hclnfsd_procedure_v1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

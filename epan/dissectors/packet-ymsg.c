@@ -174,23 +174,23 @@ enum yahoo_service { /* these are easier to see in hex */
 
 /* Message flags */
 enum yahoo_status {
-        YAHOO_STATUS_AVAILABLE	    = 0,
-        YAHOO_STATUS_BRB,
-        YAHOO_STATUS_BUSY,
-        YAHOO_STATUS_NOTATHOME,
-        YAHOO_STATUS_NOTATDESK,
-        YAHOO_STATUS_NOTINOFFICE,
-        YAHOO_STATUS_ONPHONE,
-        YAHOO_STATUS_ONVACATION,
-        YAHOO_STATUS_OUTTOLUNCH,
-        YAHOO_STATUS_STEPPEDOUT,
-        YAHOO_STATUS_INVISIBLE	    = 12,
-        YAHOO_STATUS_CUSTOM	    = 99,
-        YAHOO_STATUS_IDLE	    = 999,
-        YAHOO_STATUS_WEBLOGIN	    = 0x5a55aa55,
-        YAHOO_STATUS_OFFLINE	    = 0x5a55aa56, /* don't ask */
-        YAHOO_STATUS_TYPING	    = 0x16,
-        YAHOO_STATUS_DISCONNECTED   = -1 /* in ymsg 15. doesn't mean the normal sense of 'disconnected' */
+	YAHOO_STATUS_AVAILABLE	    = 0,
+	YAHOO_STATUS_BRB,
+	YAHOO_STATUS_BUSY,
+	YAHOO_STATUS_NOTATHOME,
+	YAHOO_STATUS_NOTATDESK,
+	YAHOO_STATUS_NOTINOFFICE,
+	YAHOO_STATUS_ONPHONE,
+	YAHOO_STATUS_ONVACATION,
+	YAHOO_STATUS_OUTTOLUNCH,
+	YAHOO_STATUS_STEPPEDOUT,
+	YAHOO_STATUS_INVISIBLE	    = 12,
+	YAHOO_STATUS_CUSTOM	    = 99,
+	YAHOO_STATUS_IDLE	    = 999,
+	YAHOO_STATUS_WEBLOGIN	    = 0x5a55aa55,
+	YAHOO_STATUS_OFFLINE	    = 0x5a55aa56, /* don't ask */
+	YAHOO_STATUS_TYPING	    = 0x16,
+	YAHOO_STATUS_DISCONNECTED   = -1 /* in ymsg 15. doesn't mean the normal sense of 'disconnected' */
 };
 
 enum ypacket_status {
@@ -524,7 +524,7 @@ proto_register_ymsg(void)
 		{ &hf_ymsg_content_line_value, {
 				"Value", "ymsg.content-line.value", FT_STRING, BASE_NONE,
 				NULL, 0, "Content line value", HFILL }}
-        };
+	};
 	static gint *ett[] = {
 		&ett_ymsg,
 		&ett_ymsg_content,
@@ -563,3 +563,16 @@ proto_reg_handoff_ymsg(void)
 	 */
 	heur_dissector_add("tcp", dissect_ymsg, proto_ymsg);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

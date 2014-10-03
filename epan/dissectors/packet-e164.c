@@ -37,53 +37,53 @@
 void proto_register_e164(void);
 
 const value_string E164_country_code_value[] = {
-	{ 0x00, "Reserved"},
-	{ 0x01, "Americas"},
-	{ 0x07, "Russian Federation, Kazakstan (Republic of)"},
-	{ 0x020, "Egypt (Arab Republic of)"},
-	{ 0x027, "South Africa (Republic of)"},
-	{ 0x030, "Greece"},
-	{ 0x031, "Netherlands (Kingdom of the)"},
-	{ 0x032, "Belgium"},
-	{ 0x033, "France"},
-	{ 0x034, "Spain"},
-	{ 0x036, "Hungary (Republic of)"},
-	{ 0x039, "Italy"},
-	{ 0x040, "Romania"},
-	{ 0x041, "Switzerland (Confederation of)"},
-	{ 0x043, "Austria"},
-	{ 0x044, "United Kingdom of Great Britain and Northern Ireland"},
-	{ 0x045, "Denmark"},
-	{ 0x046, "Sweden"},
-	{ 0x047, "Norway"},
-	{ 0x048, "Poland (Republic of)"},
-	{ 0x049, "Germany (Federal Republic of)"},
-	{ 0x051, "Peru"},
-	{ 0x052, "Mexico"},
-	{ 0x053, "Cuba"},
-	{ 0x054, "Argentine Republic"},
-	{ 0x055, "Brazil (Federative Republic of)"},
-	{ 0x056, "Chile"},
-	{ 0x057, "Colombia (Republic of)"},
-	{ 0x058, "Venezuela(Bolivarian Republic of)"},
-	{ 0x060, "Malaysia"},
-	{ 0x061, "Australia"},
-	{ 0x062, "Indonesia (Republic of)"},
-	{ 0x063, "Philippines (Republic of the)"},
-	{ 0x064, "New Zealand"},
-	{ 0x065, "Singapore (Republic of)"},
-	{ 0x066, "Thailand"},
-	{ 0x081, "Japan"},
-	{ 0x082, "Korea (Republic of)"},
-	{ 0x084, "Viet Nam (Socialist Republic of)"},
-	{ 0x086, "China (People's Republic of)"},
-	{ 0x090, "Turkey"},
-	{ 0x091, "India (Republic of)"},
-	{ 0x092, "Pakistan (Islamic Republic of)"},
-	{ 0x093, "Afghanistan"},
-	{ 0x094, "Sri Lanka (Democratic Socialist Republic of)"},
-	{ 0x095, "Myanmar (the Republic of the Union of)"},
-	{ 0x098, "Iran (Islamic Republic of)"},
+	{ 0x0000, "Reserved"},
+	{ 0x0001, "Americas"},
+	{ 0x0007, "Russian Federation, Kazakstan (Republic of)"},
+	{ 0x0020, "Egypt (Arab Republic of)"},
+	{ 0x0027, "South Africa (Republic of)"},
+	{ 0x0030, "Greece"},
+	{ 0x0031, "Netherlands (Kingdom of the)"},
+	{ 0x0032, "Belgium"},
+	{ 0x0033, "France"},
+	{ 0x0034, "Spain"},
+	{ 0x0036, "Hungary (Republic of)"},
+	{ 0x0039, "Italy"},
+	{ 0x0040, "Romania"},
+	{ 0x0041, "Switzerland (Confederation of)"},
+	{ 0x0043, "Austria"},
+	{ 0x0044, "United Kingdom of Great Britain and Northern Ireland"},
+	{ 0x0045, "Denmark"},
+	{ 0x0046, "Sweden"},
+	{ 0x0047, "Norway"},
+	{ 0x0048, "Poland (Republic of)"},
+	{ 0x0049, "Germany (Federal Republic of)"},
+	{ 0x0051, "Peru"},
+	{ 0x0052, "Mexico"},
+	{ 0x0053, "Cuba"},
+	{ 0x0054, "Argentine Republic"},
+	{ 0x0055, "Brazil (Federative Republic of)"},
+	{ 0x0056, "Chile"},
+	{ 0x0057, "Colombia (Republic of)"},
+	{ 0x0058, "Venezuela(Bolivarian Republic of)"},
+	{ 0x0060, "Malaysia"},
+	{ 0x0061, "Australia"},
+	{ 0x0062, "Indonesia (Republic of)"},
+	{ 0x0063, "Philippines (Republic of the)"},
+	{ 0x0064, "New Zealand"},
+	{ 0x0065, "Singapore (Republic of)"},
+	{ 0x0066, "Thailand"},
+	{ 0x0081, "Japan"},
+	{ 0x0082, "Korea (Republic of)"},
+	{ 0x0084, "Viet Nam (Socialist Republic of)"},
+	{ 0x0086, "China (People's Republic of)"},
+	{ 0x0090, "Turkey"},
+	{ 0x0091, "India (Republic of)"},
+	{ 0x0092, "Pakistan (Islamic Republic of)"},
+	{ 0x0093, "Afghanistan"},
+	{ 0x0094, "Sri Lanka (Democratic Socialist Republic of)"},
+	{ 0x0095, "Myanmar (the Republic of the Union of)"},
+	{ 0x0098, "Iran (Islamic Republic of)"},
 	{ 0x0210, "Spare code"},
 	{ 0x0211, "South Sudan (Republic of)"},
 	{ 0x0212, "Morocco (Kingdom of)"},
@@ -390,12 +390,12 @@ const value_string E164_International_Networks_882_vals[] = {
 static value_string_ext E164_International_Networks_882_vals_ext = VALUE_STRING_EXT_INIT(E164_International_Networks_882_vals);
 
 const value_string E164_International_Networks_883_vals[] = {
-	{ 0x100, "MediaLincc Ltd"},
-	{ 0x110, "Aicent Inc"},
-	{ 0x120, "Telenor Connexion AB"},
-	{ 0x130, "France Telecom Orange"},
-	{ 0x140, "Multiregional TransitTelecom (MTT)"},
-	{ 0x150, "BodyTrace Netherlands B.V"},
+	{ 0x0100, "MediaLincc Ltd"},
+	{ 0x0110, "Aicent Inc"},
+	{ 0x0120, "Telenor Connexion AB"},
+	{ 0x0130, "France Telecom Orange"},
+	{ 0x0140, "Multiregional TransitTelecom (MTT)"},
+	{ 0x0150, "BodyTrace Netherlands B.V"},
 	{ 0x5100, "Voxbone SA"},
 	{ 0x5110, "Bandwith.com Inc"},
 	{ 0x5120, "MTX Connect Ltd"},
@@ -417,27 +417,27 @@ static int ett_e164_msisdn = -1;
 void
 dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_info_t e164_info)
 {
-    proto_item *pi;
+	proto_item *pi;
 
 	switch (e164_info.e164_number_type) {
 	case CALLING_PARTY_NUMBER:
 		proto_tree_add_string(tree, hf_E164_calling_party_number, tvb, offset,
-				length, e164_info.E164_number_str);
+				      length, e164_info.E164_number_str);
 		break;
 
 	case CALLED_PARTY_NUMBER:
 		proto_tree_add_string(tree, hf_E164_called_party_number, tvb, offset,
-				length, e164_info.E164_number_str);
+				      length, e164_info.E164_number_str);
 		break;
 
 	default:
 		break;
 	}
 
-    if(e164_info.nature_of_address == E164_NA_INTERNATIONAL_NUMBER){
-        pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, e164_info.E164_number_str);
-        PROTO_ITEM_SET_HIDDEN(pi);
-    }
+	if (e164_info.nature_of_address == E164_NA_INTERNATIONAL_NUMBER) {
+		pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, e164_info.E164_number_str);
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
 }
 
 void
@@ -455,7 +455,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 
 	/* Get the first 3 digits of the MSISDN */
 	switch (encoding) {
-	    case E164_ENC_BINARY:
+	case E164_ENC_BINARY:
 		/* Dissect country code after removing non significant zeros */
 		while (address_digit_pair == 0) {
 			cc_offset = cc_offset + 1;
@@ -466,7 +466,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 			cc = cc >> 4;
 		}
 		break;
-	    case E164_ENC_BCD:
+	case E164_ENC_BCD:
 		cc = address_digit_pair &0x0f;
 		cc = cc << 4;
 		cc = cc | (address_digit_pair &0xf0)>>4;
@@ -476,7 +476,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 			cc = cc | (address_digit_pair &0x0f);
 		}
 		break;
-	    case E164_ENC_UTF8:
+	case E164_ENC_UTF8:
 		/* XXX - do we need to worry about leading 0s? */
 		cc  = (tvb_get_guint8(tvb, cc_offset)   - '0') << 8;
 		cc |= (tvb_get_guint8(tvb, cc_offset+1) - '0') << 4;
@@ -618,13 +618,13 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 	case 0x881:
 		/* Get the 1-digit ID code */
 		switch (encoding) {
-		    case E164_ENC_BINARY:
+		case E164_ENC_BINARY:
 			id_code = tvb_get_guint8(tvb, cc_offset + 1) & 0x0f;
 			break;
-		    case E164_ENC_BCD:
+		case E164_ENC_BCD:
 			id_code = (tvb_get_guint8(tvb, cc_offset + 1) & 0xf0) >> 4;
 			break;
-		    case E164_ENC_UTF8:
+		case E164_ENC_UTF8:
 			id_code = tvb_get_guint8(tvb, cc_offset + cc_length) - '0';
 			break;
 		}
@@ -634,15 +634,15 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 	case 0x882:
 		/* Get the 2-digit ID code */
 		switch (encoding) {
-		    case E164_ENC_BINARY:
+		case E164_ENC_BINARY:
 			id_code = tvb_get_ntohs(tvb, cc_offset + 1);
 			id_code = (id_code & 0x0ff0) >> 4;
 			break;
-		    case E164_ENC_BCD:
+		case E164_ENC_BCD:
 			id_code  = tvb_get_guint8(tvb, cc_offset + 1) & 0xf0;
 			id_code |= tvb_get_guint8(tvb, cc_offset + 2) & 0x0f;
 			break;
-		    case E164_ENC_UTF8:
+		case E164_ENC_UTF8:
 			id_code  = (tvb_get_guint8(tvb, cc_offset+cc_length)   - '0') << 4;
 			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+1) - '0');
 			break;
@@ -653,16 +653,16 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 	case 0x883:
 		/* Get the 3-digit ID code */
 		switch (encoding) {
-		    case E164_ENC_BINARY:
+		case E164_ENC_BINARY:
 			id_code = tvb_get_ntohs(tvb, cc_offset + 1);
 			id_code = id_code & 0x0fff;
 			break;
-		    case E164_ENC_BCD:
+		case E164_ENC_BCD:
 			id_code  = (tvb_get_guint8(tvb, cc_offset + 1) & 0xf0) << 4;
 			id_code |= (tvb_get_guint8(tvb, cc_offset + 2) & 0x0f) << 4;
 			id_code |= (tvb_get_guint8(tvb, cc_offset + 2) & 0xf0) >> 4;
 			break;
-		    case E164_ENC_UTF8:
+		case E164_ENC_UTF8:
 			id_code  = (tvb_get_guint8(tvb, cc_offset+cc_length)   - '0') << 8;
 			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+1) - '0') << 4;
 			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+2) - '0');
@@ -671,13 +671,13 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		if ((id_code & 0x0ff0) == 0x510) {
 			/* Get the 4th digit of the ID code */
 			switch (encoding) {
-			    case E164_ENC_BINARY:
+			case E164_ENC_BINARY:
 				id_code = (id_code << 4) | ((tvb_get_guint8(tvb, cc_offset + 3) & 0xf0) >> 4);
 				break;
-			    case E164_ENC_BCD:
+			case E164_ENC_BCD:
 				id_code = (id_code << 4) | (tvb_get_guint8(tvb, cc_offset + 3) & 0x0f);
 				break;
-			    case E164_ENC_UTF8:
+			case E164_ENC_UTF8:
 				id_code = (id_code << 4) | (tvb_get_guint8(tvb, cc_offset + cc_length + 3) - '0');
 				break;
 			}
@@ -702,14 +702,14 @@ dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 	const gchar *msisdn_str;
 
 	switch (encoding) {
-	    case E164_ENC_UTF8:
+	case E164_ENC_UTF8:
 		msisdn_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
 		break;
-	    case E164_ENC_BCD:
+	case E164_ENC_BCD:
 		msisdn_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, length, NULL, FALSE);
 		break;
-	    case E164_ENC_BINARY:
-	    default:
+	case E164_ENC_BINARY:
+	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
@@ -724,9 +724,6 @@ dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 
 /*
  * Register the protocol with Wireshark.
- *
- * This format is required because a script is used to build the C function
- * that calls all the protocol registration.
  */
 
 void
@@ -770,3 +767,16 @@ proto_register_e164(void)
 	proto_register_field_array(proto_e164, hf, array_length(hf));
 	proto_register_subtree_array(ett_e164_array, array_length(ett_e164_array));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -590,110 +590,110 @@ proto_reg_handoff_lapd(void);
 void
 proto_register_lapd(void)
 {
-    static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 
-	{ &hf_lapd_direction,
-	  { "Direction", "lapd.direction", FT_UINT8, BASE_DEC, VALS(lapd_direction_vals), 0x0,
-	  	NULL, HFILL }},
+		{ &hf_lapd_direction,
+		  { "Direction", "lapd.direction", FT_UINT8, BASE_DEC, VALS(lapd_direction_vals), 0x0,
+		    NULL, HFILL }},
 
-	{ &hf_lapd_address,
-	  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"Address", HFILL }},
+		{ &hf_lapd_address,
+		  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    "Address", HFILL }},
 
-	{ &hf_lapd_sapi,
-	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
-	  	"Service Access Point Identifier", HFILL }},
+		{ &hf_lapd_sapi,
+		  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
+		    "Service Access Point Identifier", HFILL }},
 
-	{ &hf_lapd_gsm_sapi,
-	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_gsm_sapi_vals), LAPD_SAPI,
-	  	"Service Access Point Identifier", HFILL }},
+		{ &hf_lapd_gsm_sapi,
+		  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_gsm_sapi_vals), LAPD_SAPI,
+		    "Service Access Point Identifier", HFILL }},
 
-	{ &hf_lapd_cr,
-	  { "C/R", "lapd.cr", FT_UINT16, BASE_DEC, NULL, LAPD_CR,
-	  	"Command/Response bit", HFILL }},
+		{ &hf_lapd_cr,
+		  { "C/R", "lapd.cr", FT_UINT16, BASE_DEC, NULL, LAPD_CR,
+		    "Command/Response bit", HFILL }},
 
-	{ &hf_lapd_ea1,
-	  { "EA1", "lapd.ea1", FT_UINT16, BASE_DEC, NULL, LAPD_EA1,
-	  	"First Address Extension bit", HFILL }},
+		{ &hf_lapd_ea1,
+		  { "EA1", "lapd.ea1", FT_UINT16, BASE_DEC, NULL, LAPD_EA1,
+		    "First Address Extension bit", HFILL }},
 
-	{ &hf_lapd_tei,
-	  { "TEI", "lapd.tei", FT_UINT16, BASE_DEC, NULL, LAPD_TEI,
-	  	"Terminal Endpoint Identifier", HFILL }},
+		{ &hf_lapd_tei,
+		  { "TEI", "lapd.tei", FT_UINT16, BASE_DEC, NULL, LAPD_TEI,
+		    "Terminal Endpoint Identifier", HFILL }},
 
-	{ &hf_lapd_ea2,
-	  { "EA2", "lapd.ea2", FT_UINT16, BASE_DEC, NULL, LAPD_EA2,
-	  	"Second Address Extension bit", HFILL }},
+		{ &hf_lapd_ea2,
+		  { "EA2", "lapd.ea2", FT_UINT16, BASE_DEC, NULL, LAPD_EA2,
+		    "Second Address Extension bit", HFILL }},
 
-	{ &hf_lapd_control,
-	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	NULL, HFILL }},
+		{ &hf_lapd_control,
+		  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
-	{ &hf_lapd_n_r,
-	    { "N(R)", "lapd.control.n_r", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
+		{ &hf_lapd_n_r,
+		  { "N(R)", "lapd.control.n_r", FT_UINT16, BASE_DEC,
+		    NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_n_s,
-	    { "N(S)", "lapd.control.n_s", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
+		{ &hf_lapd_n_s,
+		  { "N(S)", "lapd.control.n_s", FT_UINT16, BASE_DEC,
+		    NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_p,
-	    { "Poll", "lapd.control.p", FT_BOOLEAN, 8,
-		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		{ &hf_lapd_p,
+		  { "Poll", "lapd.control.p", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
-	{ &hf_lapd_p_ext,
-	    { "Poll", "lapd.control.p", FT_BOOLEAN, 16,
-		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
+		{ &hf_lapd_p_ext,
+		  { "Poll", "lapd.control.p", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
-	{ &hf_lapd_f,
-	    { "Final", "lapd.control.f", FT_BOOLEAN, 8,
-		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		{ &hf_lapd_f,
+		  { "Final", "lapd.control.f", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
-	{ &hf_lapd_f_ext,
-	    { "Final", "lapd.control.f", FT_BOOLEAN, 16,
-		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
+		{ &hf_lapd_f_ext,
+		  { "Final", "lapd.control.f", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
-	{ &hf_lapd_s_ftype,
-	    { "Supervisory frame type", "lapd.control.s_ftype", FT_UINT16, BASE_HEX,
-		VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
+		{ &hf_lapd_s_ftype,
+		  { "Supervisory frame type", "lapd.control.s_ftype", FT_UINT16, BASE_HEX,
+		    VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_u_modifier_cmd,
-	    { "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		{ &hf_lapd_u_modifier_cmd,
+		  { "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_u_modifier_resp,
-	    { "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		{ &hf_lapd_u_modifier_resp,
+		  { "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_ftype_i,
-	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
+		{ &hf_lapd_ftype_i,
+		  { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
+		    VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_ftype_s_u,
-	    { "Frame type", "lapd.control.ftype", FT_UINT8, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+		{ &hf_lapd_ftype_s_u,
+		  { "Frame type", "lapd.control.ftype", FT_UINT8, BASE_HEX,
+		    VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_ftype_s_u_ext,
-	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+		{ &hf_lapd_ftype_s_u_ext,
+		  { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
+		    VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
-	{ &hf_lapd_checksum,
-	    { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+		{ &hf_lapd_checksum,
+		  { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX,
+		    NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
-	{ &hf_lapd_checksum_good,
-	    { "Good Checksum", "lapd.checksum_good", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+		{ &hf_lapd_checksum_good,
+		  { "Good Checksum", "lapd.checksum_good", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
-	{ &hf_lapd_checksum_bad,
-	    { "Bad Checksum", "lapd.checksum_bad", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
-    };
-    static gint *ett[] = {
-        &ett_lapd,
-        &ett_lapd_address,
-        &ett_lapd_control,
-        &ett_lapd_checksum
-    };
+		{ &hf_lapd_checksum_bad,
+		  { "Bad Checksum", "lapd.checksum_bad", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_lapd,
+		&ett_lapd_address,
+		&ett_lapd_control,
+		&ett_lapd_checksum
+	};
 
 	static ei_register_info ei[] = {
 		{ &ei_lapd_abort, { "lapd.abort.expert", PI_PROTOCOL, PI_ERROR, "Formatted message", EXPFILL }},
@@ -704,7 +704,7 @@ proto_register_lapd(void)
 	expert_module_t* expert_lapd;
 
 	proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
-					 "LAPD", "lapd");
+					     "LAPD", "lapd");
 	proto_register_field_array (proto_lapd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_lapd = expert_register_protocol(proto_lapd);
@@ -721,14 +721,14 @@ proto_register_lapd(void)
 	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
 
 	prefs_register_bool_preference(lapd_module, "use_gsm_sapi_values",
-		"Use GSM SAPI values",
-		"Use SAPI values as specified in TS 48 056",
-		&global_lapd_gsm_sapis);
+				       "Use GSM SAPI values",
+				       "Use SAPI values as specified in TS 48 056",
+				       &global_lapd_gsm_sapis);
 	prefs_register_uint_preference(lapd_module, "rtp_payload_type",
-		"RTP payload type for embedded LAPD",
-		"RTP payload type for embedded LAPD. It must be one of the dynamic types "
-		"from 96 to 127. Set it to 0 to disable.",
-		 10, &pref_lapd_rtp_payload_type);
+				       "RTP payload type for embedded LAPD",
+				       "RTP payload type for embedded LAPD. It must be one of the dynamic types "
+				       "from 96 to 127. Set it to 0 to disable.",
+				       10, &pref_lapd_rtp_payload_type);
 }
 
 void
@@ -760,3 +760,16 @@ proto_reg_handoff_lapd(void)
 	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
 		dissector_add_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

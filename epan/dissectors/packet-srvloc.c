@@ -184,21 +184,21 @@ static const true_false_string tfs_srvloc_flags_v2_reqmulti = {
     "Not multicast or broadcast"
 };
 
-#define TCP_PORT_SRVLOC	427
-#define UDP_PORT_SRVLOC	427
+#define TCP_PORT_SRVLOC 427
+#define UDP_PORT_SRVLOC 427
 
 /* Define function types */
 
-#define SRVREQ		1
-#define SRVRPLY		2
-#define SRVREG		3
-#define SRVDEREG	4
-#define SRVACK		5
-#define ATTRRQST	6
-#define ATTRRPLY	7
-#define DAADVERT	8
-#define SRVTYPERQST	9
-#define	SRVTYPERPLY	10
+#define SRVREQ           1
+#define SRVRPLY          2
+#define SRVREG           3
+#define SRVDEREG         4
+#define SRVACK           5
+#define ATTRRQST         6
+#define ATTRRPLY         7
+#define DAADVERT         8
+#define SRVTYPERQST      9
+#define SRVTYPERPLY     10
 #define SAADVERT        11 /* SLPv2, section 8 */
 
 /* Create protocol header structure */
@@ -206,31 +206,31 @@ static const true_false_string tfs_srvloc_flags_v2_reqmulti = {
 /* bradh: looks like never used. */
 /* bradh: comment it out for now since it doesn't work for v2
 struct srvloc_hdr {
-    guint8	version;
-    guint8	function;
-    guint16	length;
-    guint8	flags;
-    guint8	dialect;
-    guchar	language[2];
-    guint16	encoding;
-    guint16	xid;
+    guint8      version;
+    guint8      function;
+    guint16     length;
+    guint8      flags;
+    guint8      dialect;
+    guchar      language[2];
+    guint16     encoding;
+    guint16     xid;
 };
 */
 
 /* List to resolve function numbers to names */
 
 static const value_string srvloc_functions[] = {
-    { SRVREQ, "Service Request" },
-    { SRVRPLY, "Service Reply" },
-    { SRVREG, "Service Registration" },
-    { SRVDEREG, "Service Deregister" },
-    { SRVACK, "Service Acknowledge" },
-    { ATTRRQST, "Attribute Request" },
-    { ATTRRPLY, "Attribute Reply" },
-    { DAADVERT, "DA Advertisement" },
+    { SRVREQ,      "Service Request" },
+    { SRVRPLY,     "Service Reply" },
+    { SRVREG,      "Service Registration" },
+    { SRVDEREG,    "Service Deregister" },
+    { SRVACK,      "Service Acknowledge" },
+    { ATTRRQST,    "Attribute Request" },
+    { ATTRRPLY,    "Attribute Reply" },
+    { DAADVERT,    "DA Advertisement" },
     { SRVTYPERQST, "Service Type Request" },
     { SRVTYPERPLY, "Service Type Reply" },
-    { SAADVERT, "SA Advertisement" }, /* v2 only */
+    { SAADVERT,    "SA Advertisement" }, /* v2 only */
     { 0, NULL }
 };
 
@@ -239,11 +239,11 @@ static const value_string srvloc_functions[] = {
 
 /* Define flag masks */
 
-#define FLAG_O		0x80
-#define FLAG_M		0x40
-#define FLAG_U		0x20
-#define FLAG_A		0x10
-#define FLAG_F		0x08
+#define FLAG_O          0x80
+#define FLAG_M          0x40
+#define FLAG_U          0x20
+#define FLAG_A          0x10
+#define FLAG_F          0x08
 
 /* it all changes for Version 2 */
 #define FLAG_O_V2       0x8000
@@ -252,62 +252,62 @@ static const value_string srvloc_functions[] = {
 
 /* Define Error Codes  - Version 1*/
 
-#define SUCCESS		0
-#define LANG_NOT_SPTD	1
-#define PROT_PARSE_ERR	2
-#define INVLD_REG	3
-#define SCOPE_NOT_SPTD	4
-#define CHRSET_NOT_UND	5
-#define AUTH_ABSENT	6
-#define AUTH_FAILED	7
+#define SUCCESS         0
+#define LANG_NOT_SPTD   1
+#define PROT_PARSE_ERR  2
+#define INVLD_REG       3
+#define SCOPE_NOT_SPTD  4
+#define CHRSET_NOT_UND  5
+#define AUTH_ABSENT     6
+#define AUTH_FAILED     7
 
 /* List to resolve error codes to names */
 
 static const value_string srvloc_errs[] = {
-    { SUCCESS, "No Error" },
-    { LANG_NOT_SPTD, "Language not supported" },
+    { SUCCESS,        "No Error" },
+    { LANG_NOT_SPTD,  "Language not supported" },
     { PROT_PARSE_ERR, "Protocol parse error" },
-    { INVLD_REG, "Invalid registration" },
+    { INVLD_REG,      "Invalid registration" },
     { SCOPE_NOT_SPTD, "Scope not supported" },
     { CHRSET_NOT_UND, "Character set not understood" },
-    { AUTH_ABSENT, "Authentication absent" },
-    { AUTH_FAILED, "Authentication failed" },
+    { AUTH_ABSENT,    "Authentication absent" },
+    { AUTH_FAILED,    "Authentication failed" },
     { 0, NULL }
 };
 
 /* Define Error Codes for Version 2 */
 
-#define LANGUAGE_NOT_SUPPORTED 	1
-#define PARSE_ERROR 		2
-#define INVALID_REGISTRATION	3
-#define SCOPE_NOT_SUPPORTED	4
-#define AUTHENTICATION_UNKNOWN	5
-#define AUTHENTICATION_ABSENT	6
-#define AUTHENTICATION_FAILED	7
-#define VER_NOT_SUPPORTED	9
-#define INTERNAL_ERROR		10
-#define DA_BUSY_NOW		11
-#define OPTION_NOT_UNDERSTOOD	12
-#define INVALID_UPDATE		13
-#define MSG_NOT_SUPPORTED	14
-#define REFRESH_REJECTED	15
+#define LANGUAGE_NOT_SUPPORTED   1
+#define PARSE_ERROR              2
+#define INVALID_REGISTRATION     3
+#define SCOPE_NOT_SUPPORTED      4
+#define AUTHENTICATION_UNKNOWN   5
+#define AUTHENTICATION_ABSENT    6
+#define AUTHENTICATION_FAILED    7
+#define VER_NOT_SUPPORTED        9
+#define INTERNAL_ERROR          10
+#define DA_BUSY_NOW             11
+#define OPTION_NOT_UNDERSTOOD   12
+#define INVALID_UPDATE          13
+#define MSG_NOT_SUPPORTED       14
+#define REFRESH_REJECTED        15
 
 static const value_string srvloc_errs_v2[] = {
-    { SUCCESS, "No Error" },
+    { SUCCESS,                "No Error" },
     { LANGUAGE_NOT_SUPPORTED, "No data in the requested language" },
-    { PARSE_ERROR, "The message fails to obey SLP syntax." },
-    { INVALID_REGISTRATION, "The SrvReg has problems" },
-    { SCOPE_NOT_SUPPORTED, "Scope list not supported" },
+    { PARSE_ERROR,            "The message fails to obey SLP syntax." },
+    { INVALID_REGISTRATION,   "The SrvReg has problems" },
+    { SCOPE_NOT_SUPPORTED,    "Scope list not supported" },
     { AUTHENTICATION_UNKNOWN, "Unsupported SLP SPI." },
-    { AUTHENTICATION_ABSENT, "URL and ATTR authentication not provided"},
-    { AUTHENTICATION_FAILED, "Authentication error"},
-    { VER_NOT_SUPPORTED, "Unsupported version number in message header" },
-    { INTERNAL_ERROR, "The DA (or SA) is too sick to respond" },
-    { DA_BUSY_NOW, "UA or SA SHOULD retry" },
-    { OPTION_NOT_UNDERSTOOD, "Unknown option from the mandatory range"},
-    { INVALID_UPDATE, "Invalid SrvReg" },
-    { MSG_NOT_SUPPORTED, "No support for AttrRqst or SrvTypeRqst" },
-    { REFRESH_REJECTED, "SrvReg sent too soon"},
+    { AUTHENTICATION_ABSENT,  "URL and ATTR authentication not provided"},
+    { AUTHENTICATION_FAILED,  "Authentication error"},
+    { VER_NOT_SUPPORTED,      "Unsupported version number in message header" },
+    { INTERNAL_ERROR,         "The DA (or SA) is too sick to respond" },
+    { DA_BUSY_NOW,            "UA or SA SHOULD retry" },
+    { OPTION_NOT_UNDERSTOOD,  "Unknown option from the mandatory range"},
+    { INVALID_UPDATE,         "Invalid SrvReg" },
+    { MSG_NOT_SUPPORTED,      "No support for AttrRqst or SrvTypeRqst" },
+    { REFRESH_REJECTED,       "SrvReg sent too soon"},
     { 0, NULL }
 };
 
@@ -315,7 +315,7 @@ static const value_string srvloc_errs_v2[] = {
  * Character encodings.
  * This is a small subset of what's in
  *
- *	http://www.iana.org/assignments/character-sets
+ *      http://www.iana.org/assignments/character-sets
  *
  * XXX - we should do something useful with this, i.e. properly
  * handle strings based on the character set they're in.
@@ -328,55 +328,55 @@ static const value_string srvloc_errs_v2[] = {
  * character set handling for strings, and it should be stuck with
  * the task of figuring out how to properly handle them.
  */
-#define CHARSET_ASCII		3
-#define CHARSET_ISO_10646_UTF_1	27
-#define CHARSET_ISO_646_BASIC	28
-#define CHARSET_ISO_646_IRV	30
-#define CHARSET_ISO_8859_1	4
-#define CHARSET_ISO_10646_UCS_2	1000	/* a/k/a Unicode */
-#define CHARSET_UTF_7		1012
-#define CHARSET_UTF_8		106
+#define CHARSET_ASCII           3
+#define CHARSET_ISO_10646_UTF_1 27
+#define CHARSET_ISO_646_BASIC   28
+#define CHARSET_ISO_646_IRV     30
+#define CHARSET_ISO_8859_1      4
+#define CHARSET_ISO_10646_UCS_2 1000    /* a/k/a Unicode */
+#define CHARSET_UTF_7           1012
+#define CHARSET_UTF_8           106
 
 static const value_string charsets[] = {
-	{ CHARSET_ASCII, "US-ASCII" },
-	{ CHARSET_ISO_10646_UTF_1, "ISO 10646 UTF-1" },
-	{ CHARSET_ISO_646_BASIC, "ISO 646 basic:1983" },
-	{ CHARSET_ISO_646_IRV, "ISO 646 IRV:1983" },
-	{ CHARSET_ISO_8859_1, "ISO 8859-1" },
-	{ CHARSET_ISO_10646_UCS_2, "Unicode" },
-	{ CHARSET_UTF_7, "UTF-7" },
-	{ CHARSET_UTF_8, "UTF-8" },
-	{ 0, NULL }
+        { CHARSET_ASCII,           "US-ASCII" },
+        { CHARSET_ISO_10646_UTF_1, "ISO 10646 UTF-1" },
+        { CHARSET_ISO_646_BASIC,   "ISO 646 basic:1983" },
+        { CHARSET_ISO_646_IRV,     "ISO 646 IRV:1983" },
+        { CHARSET_ISO_8859_1,      "ISO 8859-1" },
+        { CHARSET_ISO_10646_UCS_2, "Unicode" },
+        { CHARSET_UTF_7,           "UTF-7" },
+        { CHARSET_UTF_8,           "UTF-8" },
+        { 0, NULL }
 };
 
 static int
 dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    struct tm 	*stamp;
-    time_t 	seconds;
-    double 	floatsec;
-    guint16 	length;
+    struct tm   *stamp;
+    time_t      seconds;
+    double      floatsec;
+    guint16     length;
 
     seconds = (time_t)(tvb_get_ntohl(tvb, offset) - 2208988800u); /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
     stamp = gmtime(&seconds);
     if (stamp != NULL) {
-      floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
-      proto_tree_add_text(tree, tvb, offset, 8,
-                          "Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
-                          stamp->tm_year + 1900, stamp->tm_mon + 1,
-                          stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
-                          floatsec);
+        floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
+        proto_tree_add_text(tree, tvb, offset, 8,
+                            "Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
+                            stamp->tm_year + 1900, stamp->tm_mon + 1,
+                            stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
+                            floatsec);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 8, "Timestamp not representable");
+        proto_tree_add_text(tree, tvb, offset, 8, "Timestamp not representable");
     }
     proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Descriptor: %u",
-			tvb_get_ntohs(tvb, offset + 8));
+                        tvb_get_ntohs(tvb, offset + 8));
     length = tvb_get_ntohs(tvb, offset + 10);
     proto_tree_add_text(tree, tvb, offset + 10, 2, "Authenticator length: %u",
-			length);
+                        length);
     offset += 12;
     proto_tree_add_text(tree, tvb, offset, length, "Authentication block: %s",
-			tvb_format_text(tvb, offset, length));
+                        tvb_format_text(tvb, offset, length));
     offset += length;
     return offset;
 }
@@ -429,13 +429,13 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 /*
  * XXX - is this trying to guess the byte order?
  *
- *	http://www.iana.org/assignments/character-sets
+ *      http://www.iana.org/assignments/character-sets
  *
  * says of ISO-10646-UCS-2, which has the code 1000 (this routine is used
  * with CHARSET_ISO_10646_UCS_2, which is #defined to be 1000):
  *
- *	this needs to specify network byte order: the standard
- *	does not specify (it is a 16-bit integer space)
+ *      this needs to specify network byte order: the standard
+ *      does not specify (it is a 16-bit integer space)
  *
  * Does that mean that in SRVLOC, ISO-10646-UCS-2 is always big-endian?
  * If so, can we just use "tvb_get_string_enc()" and be
@@ -446,47 +446,47 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 static const guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
-  const guint8	*ascii_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-  int	i, j=0;
-  guint8	c_char, c_char1;
-  guint8	*byte_array;
+    const guint8 *ascii_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+    int           i, j       = 0;
+    guint8        c_char, c_char1;
+    guint8       *byte_array;
 
-  /* XXX - Is this the correct behavior? */
-  if (length < 1)
-    return "";
+    /* XXX - Is this the correct behavior? */
+    if (length < 1)
+        return "";
 
-  if (endianness) {
-      byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length*2 + 1);
-      for (i = length; i > 0; i--) {
-        c_char = ascii_text[i];
-        if (c_char != 0) {
-            i--;
-            c_char1 = ascii_text[i];
-            if (c_char1 == 0) {
+    if (endianness) {
+        byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length*2 + 1);
+        for (i = length; i > 0; i--) {
+            c_char = ascii_text[i];
+            if (c_char != 0) {
                 i--;
                 c_char1 = ascii_text[i];
+                if (c_char1 == 0) {
+                    i--;
+                    c_char1 = ascii_text[i];
+                }
+                byte_array[j] = c_char1;
+                j++;
+                byte_array[j] = c_char;
+                j++;
             }
-            byte_array[j] = c_char1;
-            j++;
-            byte_array[j] = c_char;
-            j++;
         }
-      }
-  }
-  else
-  {
-      byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length + 1);
-      for (i = 0; i < length; i++) {
-        c_char = ascii_text[i];
-        if (c_char != 0) {
-            byte_array[j] = c_char;
-            j++;
+    }
+    else
+    {
+        byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length + 1);
+        for (i = 0; i < length; i++) {
+            c_char = ascii_text[i];
+            if (c_char != 0) {
+                byte_array[j] = c_char;
+                j++;
+            }
         }
-      }
-  }
+    }
 
-  byte_array[j]=0;
-  return byte_array;
+    byte_array[j]=0;
+    return byte_array;
 }
 
 /*
@@ -509,7 +509,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     int     i, svc, ss, type_len, foffset=offset;
     guint32 prot;
     const guint8  *byte_value;
-    proto_tree 	*srvloc_tree;
+    proto_tree  *srvloc_tree;
     char *tmp;
 
     static const value_string srvloc_svc[] = {
@@ -563,11 +563,11 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
                     svc = tvb_get_guint8(tvb, foffset+1);
-        			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-        				    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
+                                proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
+                                            "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
                     ss = tvb_get_guint8(tvb, foffset+5);
-        			proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
-        				    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
+                                proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
+                                            "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
                     foffset += 9;
                     if (svc == 50) {
                         if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
@@ -636,11 +636,11 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
             svc = tvb_get_guint8(tvb, foffset+1);
-			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-				    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
+                                    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
             ss = tvb_get_guint8(tvb, foffset+3);
-			proto_tree_add_text(srvloc_tree, tvb, foffset+3, 1,
-				    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
+                        proto_tree_add_text(srvloc_tree, tvb, foffset+3, 1,
+                                    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
             foffset += 5;
             if (svc == 50) {
                 if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
@@ -752,14 +752,14 @@ static int
 dissect_url_entry_v1(tvbuff_t *tvb, int offset, proto_tree *tree,
                      guint16 encoding, guint16 flags)
 {
-    guint16	url_len;
+    guint16     url_len;
 
     proto_tree_add_item(tree, hf_srvloc_url_lifetime, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
+                        ENC_BIG_ENDIAN);
     offset += 2;
     url_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2,
-			url_len);
+                        url_len);
     offset += 2;
     add_v1_string(tree, hf_srvloc_url_url, tvb, offset, url_len, encoding);
     offset += url_len;
@@ -771,30 +771,30 @@ dissect_url_entry_v1(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int
 dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    guint8	reserved;
-    guint16	url_len;
-    guint8	num_auths;
+    guint8      reserved;
+    guint16     url_len;
+    guint8      num_auths;
 
     reserved = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_srvloc_url_reserved, tvb, offset, 1,
-			reserved);
+                        reserved);
     offset += 1;
     proto_tree_add_item(tree, hf_srvloc_url_lifetime, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
+                        ENC_BIG_ENDIAN);
     offset += 2;
     url_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2,
-			url_len);
+                        url_len);
     offset += 2;
     proto_tree_add_item(tree, hf_srvloc_url_url, tvb, offset, url_len, ENC_ASCII|ENC_NA);
     offset += url_len;
     num_auths = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_srvloc_url_numauths, tvb, offset, 1,
-			num_auths);
+                        num_auths);
     offset += 1;
     while (num_auths > 0) {
-	offset = dissect_authblk_v2(tvb, offset, tree);
-	num_auths--;
+        offset = dissect_authblk_v2(tvb, offset, tree);
+        num_auths--;
     }
     return offset;
 }
@@ -1428,14 +1428,14 @@ void
 proto_register_srvloc(void)
 {
     static hf_register_info hf[] = {
-	/* Helper functions for the Version 1 Header*/
+        /* Helper functions for the Version 1 Header*/
         {&hf_srvloc_error,
             {"Error Code", "srvloc.err",
             FT_UINT16, BASE_DEC, VALS(srvloc_errs), 0x0,
             NULL, HFILL }
         },
 
-	/* Helper function for the Version 2 Header */
+        /* Helper function for the Version 2 Header */
         {&hf_srvloc_error_v2,
             {"Error Code", "srvloc.errv2",
             FT_UINT16, BASE_DEC, VALS(srvloc_errs_v2), 0x0,
@@ -1462,29 +1462,29 @@ proto_register_srvloc(void)
             NULL, HFILL }
         },
 
-	/* Helper functions for URL and URL Entry parsing - both versions */
-	{&hf_srvloc_url_reserved,
-	 {"Reserved", "srvloc.url.reserved",
-	  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
-	},
-	{&hf_srvloc_url_lifetime,
-	 {"URL lifetime", "srvloc.url.lifetime",
-	  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-	},
-	{&hf_srvloc_url_urllen,
-	 {"URL Length", "srvloc.url.urllen",
-	  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-	},
-	{&hf_srvloc_url_url,
-	 {"URL", "srvloc.url.url",
-	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
-	},
-	{&hf_srvloc_url_numauths,
-	 {"Num Auths", "srvloc.url.numauths",
-	  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
-	},
+        /* Helper functions for URL and URL Entry parsing - both versions */
+        {&hf_srvloc_url_reserved,
+         {"Reserved", "srvloc.url.reserved",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        {&hf_srvloc_url_lifetime,
+         {"URL lifetime", "srvloc.url.lifetime",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        {&hf_srvloc_url_urllen,
+         {"URL Length", "srvloc.url.urllen",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        {&hf_srvloc_url_url,
+         {"URL", "srvloc.url.url",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        {&hf_srvloc_url_numauths,
+         {"Num Auths", "srvloc.url.numauths",
+          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
 
-	/* Helper functions for the common header fields */
+        /* Helper functions for the common header fields */
         {&hf_srvloc_function,
             {"Function", "srvloc.function",
             FT_UINT8, BASE_DEC, VALS(srvloc_functions), 0x0,
@@ -1509,25 +1509,25 @@ proto_register_srvloc(void)
             NULL, HFILL }
         },
 
-	{ &hf_srvloc_flags_v1_overflow,
-	  { "Overflow", "srvloc.flags_v1.overflow.", FT_BOOLEAN, 8,
-	    TFS(&tfs_srvloc_flags_overflow), FLAG_O, "Can whole packet fit into a datagram?", HFILL }},
+        { &hf_srvloc_flags_v1_overflow,
+          { "Overflow", "srvloc.flags_v1.overflow.", FT_BOOLEAN, 8,
+            TFS(&tfs_srvloc_flags_overflow), FLAG_O, "Can whole packet fit into a datagram?", HFILL }},
 
-	{ &hf_srvloc_flags_v1_monolingual,
-	  { "Monolingual", "srvloc.flags_v1.monolingual", FT_BOOLEAN, 8,
-	    TFS(&tfs_srvloc_flags_v1_monolingual), FLAG_M, "Can whole packet fit into a datagram?", HFILL }},
+        { &hf_srvloc_flags_v1_monolingual,
+          { "Monolingual", "srvloc.flags_v1.monolingual", FT_BOOLEAN, 8,
+            TFS(&tfs_srvloc_flags_v1_monolingual), FLAG_M, "Can whole packet fit into a datagram?", HFILL }},
 
-	{ &hf_srvloc_flags_v1_url_auth,
-	  { "URL Authentication", "srvloc.flags_v1.url_auth", FT_BOOLEAN, 8,
-	    TFS(&tfs_srvloc_flags_v1_url_auth), FLAG_U, "Can whole packet fit into a datagram?", HFILL }},
+        { &hf_srvloc_flags_v1_url_auth,
+          { "URL Authentication", "srvloc.flags_v1.url_auth", FT_BOOLEAN, 8,
+            TFS(&tfs_srvloc_flags_v1_url_auth), FLAG_U, "Can whole packet fit into a datagram?", HFILL }},
 
-	{ &hf_srvloc_flags_v1_attribute_auth,
-	  { "Attribute Authentication", "srvloc.flags_v1.attribute_auth", FT_BOOLEAN, 8,
-	    TFS(&tfs_srvloc_flags_v1_attribute_auth), FLAG_A, "Can whole packet fit into a datagram?", HFILL }},
+        { &hf_srvloc_flags_v1_attribute_auth,
+          { "Attribute Authentication", "srvloc.flags_v1.attribute_auth", FT_BOOLEAN, 8,
+            TFS(&tfs_srvloc_flags_v1_attribute_auth), FLAG_A, "Can whole packet fit into a datagram?", HFILL }},
 
-	{ &hf_srvloc_flags_v1_fresh,
-	  { "Fresh Registration", "srvloc.flags_v1.fresh", FT_BOOLEAN, 8,
-	    TFS(&tfs_srvloc_flags_fresh), FLAG_F, "Is this a new registration?", HFILL }},
+        { &hf_srvloc_flags_v1_fresh,
+          { "Fresh Registration", "srvloc.flags_v1.fresh", FT_BOOLEAN, 8,
+            TFS(&tfs_srvloc_flags_fresh), FLAG_F, "Is this a new registration?", HFILL }},
 
         {&hf_srvloc_flags_v2,
             {"Flags", "srvloc.flags_v2",
@@ -1535,334 +1535,334 @@ proto_register_srvloc(void)
              NULL, HFILL }
          },
 
-	{ &hf_srvloc_flags_v2_overflow,
-	  { "Overflow", "srvloc.flags_v2.overflow", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_overflow), FLAG_O_V2, "Can whole packet fit into a datagram?", HFILL }},
+        { &hf_srvloc_flags_v2_overflow,
+          { "Overflow", "srvloc.flags_v2.overflow", FT_BOOLEAN, 16,
+            TFS(&tfs_srvloc_flags_overflow), FLAG_O_V2, "Can whole packet fit into a datagram?", HFILL }},
 
-	{ &hf_srvloc_flags_v2_fresh,
-	  { "Fresh Registration", "srvloc.flags_v2.fresh", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_fresh), FLAG_F_V2, "Is this a new registration?", HFILL }},
+        { &hf_srvloc_flags_v2_fresh,
+          { "Fresh Registration", "srvloc.flags_v2.fresh", FT_BOOLEAN, 16,
+            TFS(&tfs_srvloc_flags_fresh), FLAG_F_V2, "Is this a new registration?", HFILL }},
 
-	{ &hf_srvloc_flags_v2_reqmulti,
-	  { "Multicast requested", "srvloc.flags_v2.reqmulti", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_v2_reqmulti), FLAG_R_V2, "Do we want multicast?", HFILL }},
+        { &hf_srvloc_flags_v2_reqmulti,
+          { "Multicast requested", "srvloc.flags_v2.reqmulti", FT_BOOLEAN, 16,
+            TFS(&tfs_srvloc_flags_v2_reqmulti), FLAG_R_V2, "Do we want multicast?", HFILL }},
 
-	/* collection of helper functions for dissect_authblk_v2 */
-	{ &hf_srvloc_authblkv2_bsd,
-	  { "BSD", "srvloc.authblkv2_bsd", FT_UINT16, BASE_HEX, NULL, 0x0,
-	    "Block Structure Descriptor", HFILL}
-	},
-	{ &hf_srvloc_authblkv2_len,
-	  { "Length", "srvloc.authblkv2_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Authentication Block", HFILL}
-	},
-	{ &hf_srvloc_authblkv2_timestamp,
-	  { "Timestamp", "srvloc.authblkv2.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-	    NULL, 0, "Timestamp on Authentication Block", HFILL }
-	},
-	{ &hf_srvloc_authblkv2_slpspilen,
-	  { "SLP SPI Length", "srvloc.authblkv2.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the SLP SPI", HFILL}
-	},
-	{ &hf_srvloc_authblkv2_slpspi,
-	  { "SLP SPI", "srvloc.authblkv2.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* collection of helper functions for dissect_authblk_v2 */
+        { &hf_srvloc_authblkv2_bsd,
+          { "BSD", "srvloc.authblkv2_bsd", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "Block Structure Descriptor", HFILL}
+        },
+        { &hf_srvloc_authblkv2_len,
+          { "Length", "srvloc.authblkv2_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Authentication Block", HFILL}
+        },
+        { &hf_srvloc_authblkv2_timestamp,
+          { "Timestamp", "srvloc.authblkv2.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+            NULL, 0, "Timestamp on Authentication Block", HFILL }
+        },
+        { &hf_srvloc_authblkv2_slpspilen,
+          { "SLP SPI Length", "srvloc.authblkv2.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the SLP SPI", HFILL}
+        },
+        { &hf_srvloc_authblkv2_slpspi,
+          { "SLP SPI", "srvloc.authblkv2.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* collection of helper functions for Service Request */
-	{ &hf_srvloc_srvreq_prlistlen,
-	  { "Previous Response List Length", "srvloc.srvreq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Previous Response List", HFILL}
-	},
-	{ &hf_srvloc_srvreq_prlist,
-	  { "Previous Response List", "srvloc.srvreq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreq_srvtypelen,
-	  { "Service Type Length", "srvloc.srvreq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Service Type List", HFILL}
-	},
-	{ &hf_srvloc_srvreq_srvtypelist,
-	  { "Service Type List", "srvloc.srvreq.srvtypelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreq_scopelistlen,
-	  { "Scope List Length", "srvloc.srvreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Scope List", HFILL}
-	},
-	{ &hf_srvloc_srvreq_scopelist,
-	  { "Scope List", "srvloc.srvreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreq_predicatelen,
-	  { "Predicate Length", "srvloc.srvreq.predicatelen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Predicate", HFILL}
-	},
-	{ &hf_srvloc_srvreq_predicate,
-	  { "Predicate", "srvloc.srvreq.predicate", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreq_slpspilen,
-	  { "SLP SPI Length", "srvloc.srvreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the SLP SPI", HFILL}
-	},
-	{ &hf_srvloc_srvreq_slpspi,
-	  { "SLP SPI", "srvloc.srvreq.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* collection of helper functions for Service Request */
+        { &hf_srvloc_srvreq_prlistlen,
+          { "Previous Response List Length", "srvloc.srvreq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Previous Response List", HFILL}
+        },
+        { &hf_srvloc_srvreq_prlist,
+          { "Previous Response List", "srvloc.srvreq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreq_srvtypelen,
+          { "Service Type Length", "srvloc.srvreq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Service Type List", HFILL}
+        },
+        { &hf_srvloc_srvreq_srvtypelist,
+          { "Service Type List", "srvloc.srvreq.srvtypelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreq_scopelistlen,
+          { "Scope List Length", "srvloc.srvreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Scope List", HFILL}
+        },
+        { &hf_srvloc_srvreq_scopelist,
+          { "Scope List", "srvloc.srvreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreq_predicatelen,
+          { "Predicate Length", "srvloc.srvreq.predicatelen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Predicate", HFILL}
+        },
+        { &hf_srvloc_srvreq_predicate,
+          { "Predicate", "srvloc.srvreq.predicate", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreq_slpspilen,
+          { "SLP SPI Length", "srvloc.srvreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the SLP SPI", HFILL}
+        },
+        { &hf_srvloc_srvreq_slpspi,
+          { "SLP SPI", "srvloc.srvreq.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* Helper function for Service Request */
-	{ &hf_srvloc_srvrply_urlcount,
-	  { "Number of URLs", "srvloc.srvreq.urlcount", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* Helper function for Service Request */
+        { &hf_srvloc_srvrply_urlcount,
+          { "Number of URLs", "srvloc.srvreq.urlcount", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* Helper functions for Service Registration */
-	{ &hf_srvloc_srvreg_srvtypelen,
-	  { "Service Type Length", "srvloc.srvreq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_srvtype,
-	  { "Service Type", "srvloc.srvreq.srvtype", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_scopelistlen,
-	  { "Scope List Length", "srvloc.srvreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_scopelist,
-	  { "Scope List", "srvloc.srvreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_attrlistlen,
-	  { "Attribute List Length", "srvloc.srvreq.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_attrlist,
-	  { "Attribute List", "srvloc.srvreq.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvreg_attrauthcount,
-	  { "Attr Auths", "srvloc.srvreq.attrauthcount", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Number of Attribute Authentication Blocks", HFILL}
-	},
+        /* Helper functions for Service Registration */
+        { &hf_srvloc_srvreg_srvtypelen,
+          { "Service Type Length", "srvloc.srvreq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_srvtype,
+          { "Service Type", "srvloc.srvreq.srvtype", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_scopelistlen,
+          { "Scope List Length", "srvloc.srvreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_scopelist,
+          { "Scope List", "srvloc.srvreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_attrlistlen,
+          { "Attribute List Length", "srvloc.srvreq.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_attrlist,
+          { "Attribute List", "srvloc.srvreq.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvreg_attrauthcount,
+          { "Attr Auths", "srvloc.srvreq.attrauthcount", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Number of Attribute Authentication Blocks", HFILL}
+        },
 
-	/* Helper functions for Service Deregistration */
-	{ &hf_srvloc_srvdereg_scopelistlen,
-	  { "Scope List Length", "srvloc.srvdereq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvdereg_scopelist,
-	  { "Scope List", "srvloc.srvdereq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvdereg_taglistlen,
-	  { "Tag List Length", "srvloc.srvdereq.taglistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvdereg_taglist,
-	  { "Tag List", "srvloc.srvdereq.taglist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* Helper functions for Service Deregistration */
+        { &hf_srvloc_srvdereg_scopelistlen,
+          { "Scope List Length", "srvloc.srvdereq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvdereg_scopelist,
+          { "Scope List", "srvloc.srvdereq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvdereg_taglistlen,
+          { "Tag List Length", "srvloc.srvdereq.taglistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvdereg_taglist,
+          { "Tag List", "srvloc.srvdereq.taglist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
 
-	/* collection of helper functions for Attribute Request */
-	{ &hf_srvloc_attrreq_prlistlen,
-	  { "Previous Response List Length", "srvloc.attrreq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Previous Response List", HFILL}
-	},
-	{ &hf_srvloc_attrreq_prlist,
-	  { "Previous Response List", "srvloc.attrreq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_urllen,
-	  { "URL Length", "srvloc.attrreq.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_url,
-	  { "Service URL", "srvloc.attrreq.url", FT_STRING, BASE_NONE, NULL, 0x0,
-	    "URL of service", HFILL}
-	},
-	{ &hf_srvloc_attrreq_scopelistlen,
-	  { "Scope List Length", "srvloc.attrreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Scope List", HFILL}
-	},
-	{ &hf_srvloc_attrreq_scopelist,
-	  { "Scope List", "srvloc.attrreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_attrlistlen,
-	  { "Attribute List Length", "srvloc.attrreq.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_attrlist,
-	  { "Attribute List", "srvloc.attrreq.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_taglistlen,
-	  { "Tag List Length", "srvloc.attrreq.taglistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_taglist,
-	  { "Tag List", "srvloc.attrreq.taglist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrreq_slpspilen,
-	  { "SLP SPI Length", "srvloc.attrreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the SLP SPI", HFILL}
-	},
-	{ &hf_srvloc_attrreq_slpspi,
-	  { "SLP SPI", "srvloc.attrreq.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* collection of helper functions for Attribute Request */
+        { &hf_srvloc_attrreq_prlistlen,
+          { "Previous Response List Length", "srvloc.attrreq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Previous Response List", HFILL}
+        },
+        { &hf_srvloc_attrreq_prlist,
+          { "Previous Response List", "srvloc.attrreq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_urllen,
+          { "URL Length", "srvloc.attrreq.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_url,
+          { "Service URL", "srvloc.attrreq.url", FT_STRING, BASE_NONE, NULL, 0x0,
+            "URL of service", HFILL}
+        },
+        { &hf_srvloc_attrreq_scopelistlen,
+          { "Scope List Length", "srvloc.attrreq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Scope List", HFILL}
+        },
+        { &hf_srvloc_attrreq_scopelist,
+          { "Scope List", "srvloc.attrreq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_attrlistlen,
+          { "Attribute List Length", "srvloc.attrreq.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_attrlist,
+          { "Attribute List", "srvloc.attrreq.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_taglistlen,
+          { "Tag List Length", "srvloc.attrreq.taglistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_taglist,
+          { "Tag List", "srvloc.attrreq.taglist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrreq_slpspilen,
+          { "SLP SPI Length", "srvloc.attrreq.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the SLP SPI", HFILL}
+        },
+        { &hf_srvloc_attrreq_slpspi,
+          { "SLP SPI", "srvloc.attrreq.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* collection of helper functions for Attribute Reply */
-	{ &hf_srvloc_attrrply_attrlistlen,
-	  { "Attribute List Length", "srvloc.attrrply.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Attribute List", HFILL}
-	},
-	{ &hf_srvloc_attrrply_attrlist,
-	  { "Attribute List", "srvloc.attrrply.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_attrrply_attrauthcount,
-	  { "Attr Auths", "srvloc.srvreq.attrauthcount", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Number of Attribute Authentication Blocks", HFILL}
-	},
+        /* collection of helper functions for Attribute Reply */
+        { &hf_srvloc_attrrply_attrlistlen,
+          { "Attribute List Length", "srvloc.attrrply.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Attribute List", HFILL}
+        },
+        { &hf_srvloc_attrrply_attrlist,
+          { "Attribute List", "srvloc.attrrply.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_attrrply_attrauthcount,
+          { "Attr Auths", "srvloc.srvreq.attrauthcount", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Number of Attribute Authentication Blocks", HFILL}
+        },
 
-	/* collection of helper functions for DA Advertisement */
-	{ &hf_srvloc_daadvert_timestamp,
-	  { "DAADVERT Timestamp", "srvloc.daadvert.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-	    NULL, 0, "Timestamp on DA Advert", HFILL }
-	},
-	{ &hf_srvloc_daadvert_urllen,
-	  { "URL Length", "srvloc.daadvert.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_url,
-	  { "URL", "srvloc.daadvert.url", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_scopelistlen,
-	  { "Scope List Length", "srvloc.daadvert.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Scope List", HFILL}
-	},
-	{ &hf_srvloc_daadvert_scopelist,
-	  { "Scope List", "srvloc.daadvert.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_attrlistlen,
-	  { "Attribute List Length", "srvloc.daadvert.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_attrlist,
-	  { "Attribute List", "srvloc.daadvert.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_slpspilen,
-	  { "SLP SPI Length", "srvloc.daadvert.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the SLP SPI", HFILL}
-	},
-	{ &hf_srvloc_daadvert_slpspi,
-	  { "SLP SPI", "srvloc.daadvert.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_daadvert_authcount,
-	  { "Auths", "srvloc.daadvert.authcount", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Number of Authentication Blocks", HFILL}
-	},
+        /* collection of helper functions for DA Advertisement */
+        { &hf_srvloc_daadvert_timestamp,
+          { "DAADVERT Timestamp", "srvloc.daadvert.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+            NULL, 0, "Timestamp on DA Advert", HFILL }
+        },
+        { &hf_srvloc_daadvert_urllen,
+          { "URL Length", "srvloc.daadvert.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_url,
+          { "URL", "srvloc.daadvert.url", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_scopelistlen,
+          { "Scope List Length", "srvloc.daadvert.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Scope List", HFILL}
+        },
+        { &hf_srvloc_daadvert_scopelist,
+          { "Scope List", "srvloc.daadvert.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_attrlistlen,
+          { "Attribute List Length", "srvloc.daadvert.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_attrlist,
+          { "Attribute List", "srvloc.daadvert.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_slpspilen,
+          { "SLP SPI Length", "srvloc.daadvert.slpspilen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the SLP SPI", HFILL}
+        },
+        { &hf_srvloc_daadvert_slpspi,
+          { "SLP SPI", "srvloc.daadvert.slpspi", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_daadvert_authcount,
+          { "Auths", "srvloc.daadvert.authcount", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Number of Authentication Blocks", HFILL}
+        },
 
-	/* collection of helper functions for Service Type Request */
-	{ &hf_srvloc_srvtypereq_prlistlen,
-	  { "Previous Response List Length", "srvloc.srvtypereq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of Previous Response List", HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_prlist,
-	  { "Previous Response List", "srvloc.srvtypereq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_nameauthlistlen,
-	  { "Naming Authority List Length", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Naming Authority List", HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_nameauthlistlenall,
-	  { "Naming Authority List Length (All Naming Authorities)", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Naming Authority List", HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_nameauthlist,
-	  { "Naming Authority List", "srvloc.srvtypereq.nameauthlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_scopelistlen,
-	  { "Scope List Length", "srvloc.srvtypereq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Scope List", HFILL}
-	},
-	{ &hf_srvloc_srvtypereq_scopelist,
-	  { "Scope List", "srvloc.srvtypereq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* collection of helper functions for Service Type Request */
+        { &hf_srvloc_srvtypereq_prlistlen,
+          { "Previous Response List Length", "srvloc.srvtypereq.prlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Previous Response List", HFILL}
+        },
+        { &hf_srvloc_srvtypereq_prlist,
+          { "Previous Response List", "srvloc.srvtypereq.prlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvtypereq_nameauthlistlen,
+          { "Naming Authority List Length", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Naming Authority List", HFILL}
+        },
+        { &hf_srvloc_srvtypereq_nameauthlistlenall,
+          { "Naming Authority List Length (All Naming Authorities)", "srvloc.srvtypereq.nameauthlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Naming Authority List", HFILL}
+        },
+        { &hf_srvloc_srvtypereq_nameauthlist,
+          { "Naming Authority List", "srvloc.srvtypereq.nameauthlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvtypereq_scopelistlen,
+          { "Scope List Length", "srvloc.srvtypereq.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Scope List", HFILL}
+        },
+        { &hf_srvloc_srvtypereq_scopelist,
+          { "Scope List", "srvloc.srvtypereq.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* collection of helper functions for Service Type Replies */
-	{ &hf_srvloc_srvtyperply_srvtypelen,
-	  { "Service Type Length", "srvloc.srvtypereq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Service Type", HFILL}
-	},
-	{ &hf_srvloc_srvtyperply_srvtype,
-	  { "Service Type", "srvloc.srvtyperply.srvtype", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_srvtyperply_srvtypelistlen,
-	  { "Service Type List Length", "srvloc.srvtypereq.srvtypelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Service Type List", HFILL}
-	},
-	{ &hf_srvloc_srvtyperply_srvtypelist,
-	  { "Service Type List", "srvloc.srvtyperply.srvtypelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
+        /* collection of helper functions for Service Type Replies */
+        { &hf_srvloc_srvtyperply_srvtypelen,
+          { "Service Type Length", "srvloc.srvtypereq.srvtypelen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Service Type", HFILL}
+        },
+        { &hf_srvloc_srvtyperply_srvtype,
+          { "Service Type", "srvloc.srvtyperply.srvtype", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_srvtyperply_srvtypelistlen,
+          { "Service Type List Length", "srvloc.srvtypereq.srvtypelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Service Type List", HFILL}
+        },
+        { &hf_srvloc_srvtyperply_srvtypelist,
+          { "Service Type List", "srvloc.srvtyperply.srvtypelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
 
-	/* collection of helper functions for SA Advertisement */
-	{ &hf_srvloc_saadvert_urllen,
-	  { "URL Length", "srvloc.saadvert.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_saadvert_url,
-	  { "URL", "srvloc.saadvert.url", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_saadvert_scopelistlen,
-	  { "Scope List Length", "srvloc.saadvert.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Length of the Scope List", HFILL}
-	},
-	{ &hf_srvloc_saadvert_scopelist,
-	  { "Scope List", "srvloc.saadvert.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_saadvert_attrlistlen,
-	  { "Attribute List Length", "srvloc.saadvert.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_saadvert_attrlist,
-	  { "Attribute List", "srvloc.saadvert.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	},
-	{ &hf_srvloc_saadvert_authcount,
-	  { "Auths", "srvloc.saadvert.authcount", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Number of Authentication Blocks", HFILL}
-	},
-	{ &hf_srvloc_add_ref_ip,
-	  { "IP Address", "srvloc.list.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-	    "IP Address of SLP server", HFILL}
-	},
-	{ &hf_srvloc_srvrply_svcname,
-	  { "Service Name Value", "srvloc.srvrply.svcname", FT_STRING, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL}
-	}
+        /* collection of helper functions for SA Advertisement */
+        { &hf_srvloc_saadvert_urllen,
+          { "URL Length", "srvloc.saadvert.urllen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_saadvert_url,
+          { "URL", "srvloc.saadvert.url", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_saadvert_scopelistlen,
+          { "Scope List Length", "srvloc.saadvert.scopelistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of the Scope List", HFILL}
+        },
+        { &hf_srvloc_saadvert_scopelist,
+          { "Scope List", "srvloc.saadvert.scopelist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_saadvert_attrlistlen,
+          { "Attribute List Length", "srvloc.saadvert.attrlistlen", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_saadvert_attrlist,
+          { "Attribute List", "srvloc.saadvert.attrlist", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_srvloc_saadvert_authcount,
+          { "Auths", "srvloc.saadvert.authcount", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Number of Authentication Blocks", HFILL}
+        },
+        { &hf_srvloc_add_ref_ip,
+          { "IP Address", "srvloc.list.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
+            "IP Address of SLP server", HFILL}
+        },
+        { &hf_srvloc_srvrply_svcname,
+          { "Service Name Value", "srvloc.srvrply.svcname", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        }
     };
 
     static gint *ett[] = {
-	&ett_srvloc,
-	&ett_srvloc_attr,
-	&ett_srvloc_flags,
+        &ett_srvloc,
+        &ett_srvloc_attr,
+        &ett_srvloc_flags,
     };
     static ei_register_info ei[] = {
         { &ei_srvloc_error, { "srvloc.err.expert", PI_RESPONSE_CODE, PI_ERROR, "Error", EXPFILL }},
@@ -1874,17 +1874,17 @@ proto_register_srvloc(void)
     expert_module_t* expert_srvloc;
 
     proto_srvloc = proto_register_protocol("Service Location Protocol",
-					   "SRVLOC", "srvloc");
+                                           "SRVLOC", "srvloc");
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_srvloc = expert_register_protocol(proto_srvloc);
     expert_register_field_array(expert_srvloc, ei, array_length(ei));
-	srvloc_module = prefs_register_protocol(proto_srvloc, NULL);
-	prefs_register_bool_preference(srvloc_module, "desegment_tcp",
-	    "Reassemble SRVLOC messages spanning multiple TCP segments",
-	    "Whether the SRVLOC dissector should reassemble messages spanning multiple TCP segments. "
-	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-	    &srvloc_desegment);
+        srvloc_module = prefs_register_protocol(proto_srvloc, NULL);
+        prefs_register_bool_preference(srvloc_module, "desegment_tcp",
+            "Reassemble SRVLOC messages spanning multiple TCP segments",
+            "Whether the SRVLOC dissector should reassemble messages spanning multiple TCP segments. "
+            "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+            &srvloc_desegment);
 }
 
 void
@@ -1894,6 +1894,19 @@ proto_reg_handoff_srvloc(void)
     srvloc_handle = new_create_dissector_handle(dissect_srvloc, proto_srvloc);
     dissector_add_uint("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
     srvloc_tcp_handle = new_create_dissector_handle(dissect_srvloc_tcp,
-						proto_srvloc);
+                                                proto_srvloc);
     dissector_add_uint("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

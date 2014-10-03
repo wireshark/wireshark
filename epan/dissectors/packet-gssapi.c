@@ -69,7 +69,7 @@ static gboolean gssapi_reassembly = TRUE;
 typedef struct _gssapi_conv_info_t {
 	gssapi_oid_value *oid;
 
-        wmem_tree_t *frags;
+	wmem_tree_t *frags;
 
 	gboolean do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
 	int first_frame;
@@ -381,9 +381,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  }
 		  if (!oidvalue)
 		  {
-                    proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
-					  "Unknown header (class=%d, pc=%d, tag=%d)",
-					  appclass, pc, tag);
+			  proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
+					      "Unknown header (class=%d, pc=%d, tag=%d)",
+					      appclass, pc, tag);
 		    return_offset = tvb_length(gss_tvb);
 		    goto done;
 		  } else {
@@ -692,3 +692,16 @@ proto_reg_handoff_gssapi(void)
 	gssapi_handle = find_dissector("gssapi");
 	dissector_add_string("dns.tsig.mac", "gss.microsoft.com", gssapi_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

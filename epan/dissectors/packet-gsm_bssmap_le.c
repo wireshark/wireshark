@@ -58,15 +58,15 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 	{ 2, "Reserved" },
 	{ 3, "Reserved" },
 	{ 4, "Reserved" },
-	{ BSSMAP_LE_PERFORM_LOCATION_REQUEST, "Perform Location Request" },
-	{ BSSMAP_LE_PERFORM_LOCATION_RESPONSE, "Perform Location Response" },
-	{ BSSMAP_LE_PERFORM_LOCATION_ABORT, "Perform Location Abort" },
-	{ BSSMAP_LE_PERFORM_LOCATION_INFORMATION, "Perform Location Information" },
+	{ BSSMAP_LE_PERFORM_LOCATION_REQUEST,	     "Perform Location Request" },
+	{ BSSMAP_LE_PERFORM_LOCATION_RESPONSE,	     "Perform Location Response" },
+	{ BSSMAP_LE_PERFORM_LOCATION_ABORT,	     "Perform Location Abort" },
+	{ BSSMAP_LE_PERFORM_LOCATION_INFORMATION,    "Perform Location Information" },
 	{ BSSMAP_LE_CONNECTION_ORIENTED_INFORMATION, "Connection Oriented Information" },
-	{ BSSMAP_LE_CONNECTIONLESS_INFORMATION, "Connectionless Information" },
-	{ BSSMAP_LE_RESET, "Reset" },
-	{ BSSMAP_LE_RESET_ACKNOWLEDGE, "Reset Acknowledge" },
-	{ 0, NULL }    /*Null terminated list. Make sure we add this to our value/string structures. */
+	{ BSSMAP_LE_CONNECTIONLESS_INFORMATION,	     "Connectionless Information" },
+	{ BSSMAP_LE_RESET,			     "Reset" },
+	{ BSSMAP_LE_RESET_ACKNOWLEDGE,		     "Reset Acknowledge" },
+	{ 0, NULL }
 };
 
 /* Information Element definitions */
@@ -102,36 +102,36 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 #define BSSMAP_LE_IMEI                                       128
 
 static const value_string gsm_bssmap_le_elem_strings[] = {
-	{ DE_BMAPLE_LCSQOS, "LCS QoS" },
-	{ DE_BMAPLE_LCS_PRIO, "LCS Priority" },
-	{ DE_BMAPLE_LOC_TYPE, "Location Type" },
-	{ DE_BMAPLE_GANSS_LOC_TYPE, "GANSS Location Type" },
-	{ DE_BMAPLE_GEO_LOC, "Geographic Location" },
-	{ DE_BMAPLE_POS_DATA, "Positioning Data" },
-	{ DE_BMAPLE_GANSS_POS_DATA, "GANSS Positioning Data" },
-	{ DE_BMAPLE_VELOC_DATA, "Velocity Data" },
-	{ DE_BMAPLE_LCS_CAUSE, "LCS Cause" },
-	{ DE_BMAPLE_LCS_CLIENT_TYPE, "LCS Client Type" },
-	{ DE_BMAPLE_APDU, "APDU" },
-	{ DE_BMAPLE_NETWORK_ELEM_ID, "Network Element Identity" },
-	{ DE_BMAPLE_REQ_GPS_ASSIST_D, "Requested GPS Assistance Data" },
-	{ DE_BMAPLE_REQ_GNSS_ASSIST_D, "Requested GANSS Assistance Data" },
-	{ DE_BMAPLE_DECIPH_KEYS, "Deciphering Keys" },
-	{ DE_BMAPLE_RETURN_ERROR_REQ, "Return Error Request" },
+	{ DE_BMAPLE_LCSQOS,		"LCS QoS" },
+	{ DE_BMAPLE_LCS_PRIO,		"LCS Priority" },
+	{ DE_BMAPLE_LOC_TYPE,		"Location Type" },
+	{ DE_BMAPLE_GANSS_LOC_TYPE,	"GANSS Location Type" },
+	{ DE_BMAPLE_GEO_LOC,		"Geographic Location" },
+	{ DE_BMAPLE_POS_DATA,		"Positioning Data" },
+	{ DE_BMAPLE_GANSS_POS_DATA,	"GANSS Positioning Data" },
+	{ DE_BMAPLE_VELOC_DATA,		"Velocity Data" },
+	{ DE_BMAPLE_LCS_CAUSE,		"LCS Cause" },
+	{ DE_BMAPLE_LCS_CLIENT_TYPE,	"LCS Client Type" },
+	{ DE_BMAPLE_APDU,		"APDU" },
+	{ DE_BMAPLE_NETWORK_ELEM_ID,	"Network Element Identity" },
+	{ DE_BMAPLE_REQ_GPS_ASSIST_D,	"Requested GPS Assistance Data" },
+	{ DE_BMAPLE_REQ_GNSS_ASSIST_D,	"Requested GANSS Assistance Data" },
+	{ DE_BMAPLE_DECIPH_KEYS,	"Deciphering Keys" },
+	{ DE_BMAPLE_RETURN_ERROR_REQ,	"Return Error Request" },
 	{ DE_BMAPLE_RETURN_ERROR_CAUSE, "Return Error Cause" },
-	{ DE_BMAPLE_SEGMENTATION, "Segmentation" },
-	{ DE_BMAPLE_CLASSMARK_TYPE_3, "Classmark Information Type 3" },
-	{ DE_BMAPLE_CAUSE, "Cause" },
-	{ DE_BMAPLE_CELL_IDENTIFIER, "Cell Identifier" },
-	{ DE_BMAPLE_CHOSEN_CHANNEL, "Chosen Channel" },
-	{ DE_BMAPLE_IMSI, "IMSI" },
-	{ DE_BMAPLE_RES1, "Reserved" },
-	{ DE_BMAPLE_RES2, "Reserved" },
-	{ DE_BMAPLE_RES3, "Reserved" },
-	{ DE_BMAPLE_LCS_CAPABILITY, "LCS Capability" },
-	{ DE_BMAPLE_PACKET_MEAS_REP, "Packet Measurement Report" },
-	{ DE_BMAPLE_MEAS_CELL_ID, "Cell Identity List" },
-	{ DE_BMAPLE_IMEI, "IMEI" },
+	{ DE_BMAPLE_SEGMENTATION,	"Segmentation" },
+	{ DE_BMAPLE_CLASSMARK_TYPE_3,	"Classmark Information Type 3" },
+	{ DE_BMAPLE_CAUSE,		"Cause" },
+	{ DE_BMAPLE_CELL_IDENTIFIER,	"Cell Identifier" },
+	{ DE_BMAPLE_CHOSEN_CHANNEL,	"Chosen Channel" },
+	{ DE_BMAPLE_IMSI,		"IMSI" },
+	{ DE_BMAPLE_RES1,		"Reserved" },
+	{ DE_BMAPLE_RES2,		"Reserved" },
+	{ DE_BMAPLE_RES3,		"Reserved" },
+	{ DE_BMAPLE_LCS_CAPABILITY,	"LCS Capability" },
+	{ DE_BMAPLE_PACKET_MEAS_REP,	"Packet Measurement Report" },
+	{ DE_BMAPLE_MEAS_CELL_ID,	"Cell Identity List" },
+	{ DE_BMAPLE_IMEI,		"IMEI" },
 	{ 0, NULL }
 };
 value_string_ext gsm_bssmap_le_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_le_elem_strings);
@@ -235,8 +235,8 @@ gint ett_gsm_bssmap_le_elem[NUM_GSM_BSSMAP_LE_ELEM];
 static guint16
 de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint8	apdu_protocol_id;
+	guint32   curr_offset;
+	guint8    apdu_protocol_id;
 	tvbuff_t *APDU_tvb;
 
 	curr_offset = offset;
@@ -468,7 +468,7 @@ static guint16
 de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint8 bitCount;
+	guint8  bitCount;
 
 	bitCount = offset<<3;
 	curr_offset = offset;
@@ -561,7 +561,7 @@ static guint16
 de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *data_tvb;
-	guint32	curr_offset;
+	guint32   curr_offset;
 
 	curr_offset = offset;
 
@@ -903,8 +903,8 @@ void
 dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static gsm_a_tap_rec_t	tap_rec[4];
-	static gsm_a_tap_rec_t	*tap_p;
-	static guint			tap_current=0;
+	static gsm_a_tap_rec_t *tap_p;
+	static guint		tap_current=0;
 	guint8	oct;
 	guint32	offset, saved_offset;
 	guint32	len;
@@ -912,7 +912,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*bssmap_le_item = NULL;
 	proto_tree	*bssmap_le_tree = NULL;
 	const gchar	*str;
-	sccp_msg_info_t* sccp_msg_p;
+	sccp_msg_info_t *sccp_msg_p;
 
 	sccp_msg_p = pinfo->sccp_info;
 
@@ -1011,8 +1011,8 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_gsm_bssmap_le(void)
 {
-	guint		i;
-	guint		last_offset;
+	guint i;
+	guint last_offset;
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
@@ -1052,59 +1052,59 @@ proto_register_gsm_bssmap_le(void)
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_acq_ass,
-          { "Acquisition Assistance", "gsm_bssmap_le.acq_ass",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
-            NULL, HFILL }
+		  { "Acquisition Assistance", "gsm_bssmap_le.acq_ass",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ref_time,
-          { "Reference Time", "gsm_bssmap_le.ref_time",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
-            NULL, HFILL }
+		  { "Reference Time", "gsm_bssmap_le.ref_time",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ref_loc,
-          { "Reference Location", "gsm_bssmap_le.ref_loc",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20,
-            NULL, HFILL }
+		  { "Reference Location", "gsm_bssmap_le.ref_loc",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_dgps_corr,
-          { "DGPS Corrections", "gsm_bssmap_le.gps_corr",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x08,
-            NULL, HFILL }
+		  { "DGPS Corrections", "gsm_bssmap_le.gps_corr",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x08,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_nav_mod,
-          { "Navigation Model", "gsm_bssmap_le.nav_mod",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x10,
-            NULL, HFILL }
+		  { "Navigation Model", "gsm_bssmap_le.nav_mod",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x10,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_iono_mod,
-          { "Ionospheric Model", "gsm_bssmap_le.iono_mod",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
-            NULL, HFILL }
+		  { "Ionospheric Model", "gsm_bssmap_le.iono_mod",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_utc_mod,
-          { "UTC Model", "gsm_bssmap_le.utc_mod",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
-            NULL, HFILL }
+		  { "UTC Model", "gsm_bssmap_le.utc_mod",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_almanac,
-          { "Almanac", "gsm_bssmap_le.almanac",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
-            NULL, HFILL }
+		  { "Almanac", "gsm_bssmap_le.almanac",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ephemeris_ext_chk,
-          { "Ephemeris Extension Check", "gsm_bssmap_le.ephemeris_ext_chk",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
-            NULL, HFILL }
+		  { "Ephemeris Extension Check", "gsm_bssmap_le.ephemeris_ext_chk",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ephemeris_ext,
-          { "Ephemeris Extension", "gsm_bssmap_le.ephemeris_ext",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
-            NULL, HFILL }
+		  { "Ephemeris Extension", "gsm_bssmap_le.ephemeris_ext",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_real_time_int,
-          { "Real-Time Integrity", "gsm_bssmap_le.real_time_int",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
-            NULL, HFILL }
+		  { "Real-Time Integrity", "gsm_bssmap_le.real_time_int",
+		    FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_lcs_cause_value,
 		  { "Cause Value", "gsm_bssmap_le.lcsCauseValue",
@@ -1207,3 +1207,16 @@ proto_reg_handoff_gsm_bssmap_le(void)
 
 	gsm_bsslap_handle = find_dissector("gsm_bsslap");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

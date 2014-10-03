@@ -87,7 +87,7 @@ static int
 dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void
 dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-    proto_tree *tree, proto_item *ti, guint8 type);
+		      proto_tree *tree, proto_item *ti, guint8 type);
 
 #define SUMMARY_ADVERT		0x01
 #define SUBSET_ADVERT		0x02
@@ -105,37 +105,37 @@ static const value_string type_vals[] = {
 static void
 set_vtp_info_col(tvbuff_t *tvb, packet_info *pinfo)
 {
-        switch (tvb_get_guint8(tvb, 1)) {
+	switch (tvb_get_guint8(tvb, 1)) {
 
-        case SUMMARY_ADVERT:
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                    "Summary Advertisement, Revision: %u", tvb_get_ntohl(tvb, 36));
+	case SUMMARY_ADVERT:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+		    "Summary Advertisement, Revision: %u", tvb_get_ntohl(tvb, 36));
 
-                if (tvb_get_guint8(tvb, 2) > 0) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                            ", Followers: %u", tvb_get_guint8(tvb, 2));
-                }
+		if (tvb_get_guint8(tvb, 2) > 0) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			    ", Followers: %u", tvb_get_guint8(tvb, 2));
+		}
 
-                break;
+		break;
 
-        case SUBSET_ADVERT:
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                    "Subset Advertisement, Revision: %u, Seq: %u",
-                    tvb_get_ntohl(tvb, 36), tvb_get_guint8(tvb, 2));
-                break;
+	case SUBSET_ADVERT:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+		    "Subset Advertisement, Revision: %u, Seq: %u",
+		    tvb_get_ntohl(tvb, 36), tvb_get_guint8(tvb, 2));
+		break;
 
-        case ADVERT_REQUEST:
-                col_set_str(pinfo->cinfo, COL_INFO, "Advertisement Request");
-                break;
+	case ADVERT_REQUEST:
+		col_set_str(pinfo->cinfo, COL_INFO, "Advertisement Request");
+		break;
 
-        case JOIN_MSG:
-                col_set_str(pinfo->cinfo, COL_INFO, "Join");
-                break;
+	case JOIN_MSG:
+		col_set_str(pinfo->cinfo, COL_INFO, "Join");
+		break;
 
-        default:
-                col_set_str(pinfo->cinfo, COL_INFO, "Unrecognized VTP message");
-                break;
-        }
+	default:
+		col_set_str(pinfo->cinfo, COL_INFO, "Unrecognized VTP message");
+		break;
+	}
 }
 
 static void
@@ -330,8 +330,8 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 
 	status = tvb_get_guint8(tvb, offset);
 	ti = proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_status, tvb, offset, 1, status);
-    if (status & VLAN_SUSPENDED)
-        proto_item_append_text(ti, " (VLAN suspended)");
+	if (status & VLAN_SUSPENDED)
+	    proto_item_append_text(ti, " (VLAN suspended)");
 	status_tree = proto_item_add_subtree(ti, ett_vtp_vlan_status);
 	proto_tree_add_boolean(status_tree, hf_vtp_vlan_status_vlan_susp, tvb, offset, 1,
 	    status);
@@ -415,7 +415,7 @@ static const value_string backup_crf_mode_vals[] = {
 
 static void
 dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-    proto_tree *tree, proto_item *ti, guint8 type)
+		      proto_tree *tree, proto_item *ti, guint8 type)
 {
 	switch (type) {
 
@@ -652,7 +652,7 @@ proto_register_vtp(void)
 		{ &hf_vtp_vlan_data,
 		{ "Data",	"vtp.vlan_info.data", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-        };
+	};
 
 	static gint *ett[] = {
 		&ett_vtp,
@@ -683,3 +683,16 @@ proto_reg_handoff_vtp(void)
 	vtp_handle = create_dissector_handle(dissect_vtp, proto_vtp);
 	dissector_add_uint("llc.cisco_pid", 0x2003, vtp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

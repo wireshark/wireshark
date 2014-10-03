@@ -683,10 +683,10 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static guint
 get_winsrepl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    guint pdu_len;
+	guint pdu_len;
 
-    pdu_len=tvb_get_ntohl(tvb, offset);
-    return pdu_len+4;
+	pdu_len=tvb_get_ntohl(tvb, offset);
+	return pdu_len+4;
 }
 
 static int
@@ -885,3 +885,16 @@ proto_reg_handoff_winsrepl(void)
 	winsrepl_handle = new_create_dissector_handle(dissect_winsrepl, proto_winsrepl);
 	dissector_add_uint("tcp.port", glb_winsrepl_tcp_port, winsrepl_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

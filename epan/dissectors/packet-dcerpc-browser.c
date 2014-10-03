@@ -54,11 +54,11 @@ static gint ett_dcerpc_browser = -1;
 
 static int
 dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di, guint8 *drep)
+			     packet_info *pinfo, proto_tree *tree,
+			     dcerpc_info *di, guint8 *drep)
 {
-    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-                                     di->hf_index, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+				     di->hf_index, NULL);
 	return offset;
 }
 
@@ -73,8 +73,8 @@ dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
 */
 
 static e_uuid_t uuid_dcerpc_browser = {
-        0x6bffd098, 0xa112, 0x3610,
-        { 0x98, 0x33, 0x01, 0x28, 0x92, 0x02, 0x01, 0x62 }
+	0x6bffd098, 0xa112, 0x3610,
+	{ 0x98, 0x33, 0x01, 0x28, 0x92, 0x02, 0x01, 0x62 }
 };
 
 static guint16 ver_dcerpc_browser = 0;
@@ -257,7 +257,7 @@ dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_UNIQUE, "unknown string",
-                        hf_browser_unknown_string, 0);
+			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_UNIQUE, "unknown string",
@@ -723,7 +723,7 @@ dissect_browser_TYPE_10(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_browser_unknown_long, NULL);
 
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 		dissect_browser_TYPE_11_array, NDR_POINTER_UNIQUE,
 		"unknown TYPE_11_ARRAY", -1);
 
@@ -896,7 +896,7 @@ dissect_browser_browserr_set_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_REF, "unknown string",
-                        hf_browser_unknown_string, 0);
+			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
 			NDR_POINTER_UNIQUE, "unknown string",
@@ -1182,3 +1182,16 @@ proto_reg_handoff_dcerpc_browser(void)
                          &uuid_dcerpc_browser, ver_dcerpc_browser,
                          dcerpc_browser_dissectors, hf_browser_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

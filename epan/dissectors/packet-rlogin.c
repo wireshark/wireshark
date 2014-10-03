@@ -69,11 +69,11 @@ static int hf_data = -1;
 
 static const value_string control_message_vals[] =
 {
-    { 0x02,     "Clear buffer"        },
-    { 0x10,     "Raw mode"            },
-    { 0x20,     "Cooked mode"         },
-    { 0x80,     "Window size request" },
-    { 0, NULL }
+	{ 0x02,     "Clear buffer"        },
+	{ 0x10,     "Raw mode"            },
+	{ 0x20,     "Cooked mode"         },
+	{ 0x80,     "Window size request" },
+	{ 0, NULL }
 };
 
 
@@ -179,10 +179,10 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 
 /* Dissect details of packet */
 static void rlogin_display(rlogin_hash_entry_t *hash_info,
-                           tvbuff_t *tvb,
-                           packet_info *pinfo,
-                           proto_tree *tree,
-                           struct tcpinfo *tcpinfo)
+			   tvbuff_t *tvb,
+			   packet_info *pinfo,
+			   proto_tree *tree,
+			   struct tcpinfo *tcpinfo)
 {
 	/* Display the proto tree */
 	int             offset = 0;
@@ -586,3 +586,16 @@ void proto_reg_handoff_rlogin(void)
 	dissector_handle_t rlogin_handle = new_create_dissector_handle(dissect_rlogin,proto_rlogin);
 	dissector_add_uint("tcp.port", RLOGIN_PORT, rlogin_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

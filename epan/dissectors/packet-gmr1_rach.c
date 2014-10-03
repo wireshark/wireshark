@@ -151,7 +151,7 @@ static const value_string rach_precorr_vals[] = {
 
 static void
 dissect_gmr1_rach_kls1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                       int *is_moc)
+		       int *is_moc)
 {
 	proto_item *ec_item = NULL;
 	proto_tree *ec_tree = NULL;
@@ -407,7 +407,7 @@ _parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
 
 static void
 dissect_gmr1_rach_kls2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                       int is_moc)
+		       int is_moc)
 {
 	proto_item *dialed_num_item = NULL;
 	proto_tree *dialed_num_tree = NULL, *gps_pos_tree = NULL;
@@ -713,3 +713,16 @@ proto_reg_handoff_gmr1_rach(void)
 {
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

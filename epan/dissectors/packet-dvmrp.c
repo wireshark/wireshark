@@ -701,7 +701,7 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	if ((tvb_length_remaining(tvb, offset)>=8)
 	 && (((tvb_get_guint8(tvb, 6)==0xff)
 	 && (tvb_get_guint8(tvb, 7)==0x03))
-         || !strict_v3)) {
+	     || !strict_v3)) {
 		offset = dissect_dvmrp_v3(tvb, pinfo, tree, offset);
 	} else {
 		offset = dissect_dvmrp_v1(tvb, pinfo, tree, offset);
@@ -903,3 +903,16 @@ proto_register_dvmrp(void)
 		"Allow only packets with Major=0x03//Minor=0xFF as DVMRP V3 packets",
 		&strict_v3);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

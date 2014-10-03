@@ -59,15 +59,15 @@ struct gw_packet {
 };
 #define GW_PACKET_SIZE 1
 
-#define TUNNEL_DATA 0x01
-#define TUNNEL_IP_REQUEST 0x02
-#define TUNNEL_IP_INVALID 0x03
+#define TUNNEL_DATA		 0x01
+#define TUNNEL_IP_REQUEST	 0x02
+#define TUNNEL_IP_INVALID	 0x03
 #define TUNNEL_KEEPALIVE_REQUEST 0x04
-#define TUNNEL_KEEPALIVE_REPLY 0x05
+#define TUNNEL_KEEPALIVE_REPLY	 0x05
 
-#define DATA_TYPE_NEIGH 1
+#define DATA_TYPE_NEIGH	 1
 #define DATA_TYPE_SEC_IF 2
-#define DATA_TYPE_HNA 3
+#define DATA_TYPE_HNA	 3
 
 struct vis_packet_v22 {
 	address sender_ip;
@@ -144,18 +144,18 @@ static int hf_bat_batman_flags_unidirectional = -1;
 static int hf_bat_batman_flags_directlink = -1;
 
 static const value_string gw_packettypenames[] = {
-	{ TUNNEL_DATA, "DATA" },
-	{ TUNNEL_IP_REQUEST, "IP_REQUEST" },
-	{ TUNNEL_IP_INVALID, "IP_INVALID" },
+	{ TUNNEL_DATA,		    "DATA" },
+	{ TUNNEL_IP_REQUEST,	    "IP_REQUEST" },
+	{ TUNNEL_IP_INVALID,	    "IP_INVALID" },
 	{ TUNNEL_KEEPALIVE_REQUEST, "KEEPALIVE_REQUEST" },
-	{ TUNNEL_KEEPALIVE_REPLY, "KEEPALIVE_REPLY" },
+	{ TUNNEL_KEEPALIVE_REPLY,   "KEEPALIVE_REPLY" },
 	{ 0, NULL }
 };
 
 static const value_string vis_packettypenames[] = {
-	{ DATA_TYPE_NEIGH, "NEIGH" },
+	{ DATA_TYPE_NEIGH,  "NEIGH" },
 	{ DATA_TYPE_SEC_IF, "SEC_IF" },
-	{ DATA_TYPE_HNA, "HNA" },
+	{ DATA_TYPE_HNA,    "HNA" },
 	{ 0, NULL }
 };
 
@@ -185,8 +185,8 @@ static int bat_follow_tap = -1;
 
 /* values changed by preferences */
 static guint global_bat_batman_udp_port = BAT_BATMAN_PORT;
-static guint global_bat_gw_udp_port = BAT_GW_PORT;
-static guint global_bat_vis_udp_port = BAT_VIS_PORT;
+static guint global_bat_gw_udp_port	= BAT_GW_PORT;
+static guint global_bat_vis_udp_port	= BAT_VIS_PORT;
 
 
 
@@ -219,7 +219,7 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto
 	guint8 s = (gwflags & 0x80) >> 7;
 	guint8 downbits = (gwflags & 0x78) >> 3;
 	guint8 upbits = (gwflags & 0x07);
-	guint down, up;
+	guint  down, up;
 
 	down = 32 * (s + 2) * (1 << downbits);
 	up = ((upbits + 1) * down) / 8;
@@ -942,3 +942,16 @@ void proto_reg_handoff_bat(void)
 	dissector_add_uint("udp.port", gw_udp_port, gw_handle);
 	dissector_add_uint("udp.port", vis_udp_port, vis_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
