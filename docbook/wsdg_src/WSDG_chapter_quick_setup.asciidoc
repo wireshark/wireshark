@@ -114,25 +114,16 @@ problems.
 
 ==== Install Qt
 
-The main Wireshark application uses the Qt windowing toolkit. The installation
-package is quite large and you must currently
-http://qt-project.org/downloads[download] and install it separately.
+The main Wireshark application uses the Qt windowing toolkit. To install Qt
+download the *Online Installer* from the Qt Project
+http://qt-project.org/downloads[download page] and select a component that
+matches your target system and compiler. For example, the ``msvc2013 64-bit
+OpenGL'' component is used to build the official 64-bit packages.
 
-Note that the Qt package also includes the Qt Creator IDE, which may be useful
+Note that the Qt package also includes the Qt Creator IDE, which is useful
 for designing graphical components and includes an interactive debugger.
 You'll need to build wireshark using nmake before you'll be able to build the
 Wireshark project (ui/qt/Wireshark.pro), however.
-
-[WARNING]
-.Don't use the default full-package Qt installer
-====
-The default (suggested) full-package Qt installer is built with the MinGW
-toolchain, which is not currently supported by Wireshark's build process on
-Windows and so will not work.  Instead, you will want to use the installer for
-the toolchain you are using (e.g. Qt <version> for Windows 32-bit (VS 2013,
-OpenGL) if you are using the toolchain set up by these quick-start
-instructions).
-====
 
 
 [[ChSetupCygwin]]
