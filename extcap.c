@@ -520,17 +520,17 @@ gboolean extcap_create_pipe(char ** fifo)
 
 	gchar *pipename = NULL;
 
-	LPSECURITY_ATTRIBUTES security = NULL;
+	SECURITY_ATTRIBUTES security;
 	/* create pipename */
 	current_time = time(NULL);
 	strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
 	pipename = g_strconcat ( "\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, "_", timestr, NULL );
 
 	/* Security struct to enable Inheritable HANDLE */
-	security = (LPSECURITY_ATTRIBUTES)g_malloc0(sizeof(LPSECURITY_ATTRIBUTES));
-	security->nLength = sizeof(LPSECURITY_ATTRIBUTES);
-	security->bInheritHandle = TRUE;
-	security->lpSecurityDescriptor = NULL;
+	memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
+	security.nLength = sizeof(SECURITY_ATTRIBUTES);
+	security.bInheritHandle = TRUE;
+	security.lpSecurityDescriptor = NULL;
 
 	/* create a namedPipe*/
 	pipe_h = CreateNamedPipe(
@@ -539,7 +539,7 @@ gboolean extcap_create_pipe(char ** fifo)
 				PIPE_TYPE_MESSAGE| PIPE_READMODE_MESSAGE | PIPE_WAIT,
 				5, 65536, 65536,
 				300,
-				security);
+				&security);
 
 	if (pipe_h == INVALID_HANDLE_VALUE)
 	{
