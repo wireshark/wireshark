@@ -45,7 +45,7 @@ typedef enum {
     ENDP_COLUMN_GEOIP10,
     ENDP_COLUMN_GEOIP11,
     ENDP_COLUMN_GEOIP12,
-    ENDP_COLUMN_GEOIP13,
+    ENDP_COLUMN_GEOIP13
 } geoip_column_type_e;
 #define ENDP_NUM_GEOIP_COLUMNS 13
 #else
