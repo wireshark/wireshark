@@ -1040,7 +1040,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     break;
   default: /* should not happen */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM unknown");
-    juniper_subtree = proto_tree_add_subtree(tree, tvb, 0, 0 , ett_juniper, NULL, "Juniper unknown ATM PIC");
+    proto_tree_add_subtree(tree, tvb, 0, 0 , ett_juniper, NULL, "Juniper unknown ATM PIC");
     return;
   }
 
