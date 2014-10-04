@@ -2432,8 +2432,6 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 		/* Get DSCP value */
 		proto_tree_add_item(tree, hf_media_dscp, tvb, offset, 3, ENC_BIG_ENDIAN);
 
-		offset += 3;
-		tlvLen -= 3;
 		break;
 	}
 	case 3:	/* Location Identification */
