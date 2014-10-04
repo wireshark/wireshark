@@ -298,24 +298,24 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 switch(opt_err_type) {
                                         case DSR_RERR_TYPE_UNREACHABLE:
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unreach_addr, tvb, offset_in_option, 4, ENC_NA); /* Opt err unreachable node address */
-                                                offset_in_option += 4;
+                                                /*offset_in_option += 4;*/
                                                 break;
                                         case DSR_RERR_TYPE_FLOWSTATENOTSUPPORTED:
                                                 break;
                                         case DSR_RERR_TYPE_OPTIONNOTSUPPORTED:
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unsupportedoption, tvb, offset_in_option, 1, ENC_BIG_ENDIAN); /* Opt err unsupported opt */
-                                                offset_in_option += 1;
+                                                /*offset_in_option += 1;*/
                                                 break;
                                         case DSR_RERR_TYPE_UNKNOWNFLOW:
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_dest, tvb, offset_in_option, 4, ENC_NA);/* Opt err unknown flow original ip destination address */
                                                 offset_in_option += 4;
 
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_id, tvb, offset_in_option, 2, ENC_BIG_ENDIAN);/* Opt err unknown flow flow id */
-                                                offset_in_option += 1;
+                                                /*offset_in_option += 1;*/
                                                 break;
                                         case DSR_RERR_TYPE_DEFAULTFLOWUNKNOWN:
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_defaultflowunknown_dest, tvb, offset_in_option, 4, ENC_NA);/* opt err default flow unknown original ip destination address */
-                                                offset_in_option += 4;
+                                                /*offset_in_option += 4;*/
                                                 break;
                                 }
                                 break;
@@ -338,7 +338,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                                 if(opt_len >= 6) {
                                         proto_tree_add_item(opt_tree, hf_dsr_opt_ack_req_address, tvb, offset_in_option, 4, ENC_NA); /* Opt ack req id */
-                                        offset_in_option += 4;
+                                        /*offset_in_option += 4;*/
                                 }
                                 break;
                         case DSR_OPT_TYPE_ACK:
@@ -363,7 +363,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset_in_option += 4;
 
                                 proto_tree_add_item(opt_tree, hf_dsr_opt_ack_dest, tvb, offset_in_option, 4, ENC_NA); /* Opt ack dest address */
-                                offset_in_option += 4;
+                                /*offset_in_option += 4;*/
                                 break;
                         case DSR_OPT_TYPE_SRCRT:
                                 opt_tree = proto_tree_add_subtree(options_tree, tvb, offset_in_option, 1, ett_dsr_srcrt_opt, &ti, "Source route"); /* Opt subtree */
@@ -405,14 +405,14 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_tree_add_item(opt_tree, hf_dsr_optlen, tvb, offset_in_option , 1, ENC_BIG_ENDIAN); /* Opt len */
                                 opt_len = tvb_get_guint8(tvb, offset_in_option );
                                 proto_item_set_len(ti, opt_len+2);
-                                offset_in_option += 1;
-                                offset_in_option += opt_len;
+                                /*offset_in_option += 1;
+                                offset_in_option += opt_len;*/
                                 break;
                         case DSR_OPT_TYPE_PAD1:
                                 opt_tree = proto_tree_add_subtree(options_tree, tvb, offset_in_option, 1, ett_dsr_pad1_opt, &ti, "Pad1"); /* Opt subtree */
 
                                 proto_tree_add_item(opt_tree, hf_dsr_opttype, tvb, offset_in_option , 1, ENC_BIG_ENDIAN); /* Opt type */
-                                offset_in_option += 1;
+                                /*offset_in_option += 1;*/
                                 break;
 
                         case DSR_FS_OPT_TYPE_TIMEOUT :
@@ -428,7 +428,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset_in_option += 1;
 
                                 proto_tree_add_item(opt_tree, hf_dsr_fs_opt_timeout_timeout, tvb, offset_in_option, 2, ENC_BIG_ENDIAN); /* Timeout */
-                                offset_in_option += 2;
+                                /*offset_in_option += 2;*/
                                 break;
                         case DSR_FS_OPT_TYPE_DESTFLOWID:
                                 opt_tree = proto_tree_add_subtree(options_tree, tvb, offset_in_option, 1, ett_dsr_fs_destflowid_opt, &ti, "Destination and flow id"); /* Opt subtree */
@@ -446,7 +446,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset_in_option += 2;
 
                                 proto_tree_add_item(opt_tree, hf_dsr_fs_opt_destflowid_dest, tvb, offset_in_option, 4, ENC_NA); /* Original IP Dest Address */
-                                offset_in_option += 4;
+                                /*offset_in_option += 4;*/
                                 break;
                 }
                 if (opt_type != DSR_OPT_TYPE_PAD1)
