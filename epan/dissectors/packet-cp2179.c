@@ -62,6 +62,8 @@ F = 16-bit CRC
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 
+void proto_reg_handoff_cp2179(void);
+void proto_register_cp2179(void);
 
 /* CP2179 function codes */
 #define BASIC_SCAN                          0x00
@@ -984,8 +986,6 @@ dissect_cp2179(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     return length;
 }
-
-void proto_reg_handoff_cp2179(void);
 
 void
 proto_register_cp2179(void)
