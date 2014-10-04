@@ -905,7 +905,7 @@ typedef enum _c_flags {
 typedef enum _c_pgpool_flags {
 	C_PGPOOL_FLAG_HASHPSPOOL   = 1 << 0, /* hash pg seed and pool together (instead of adding) */
 	C_PGPOOL_FLAG_FULL         = 1 << 1, /* pool is full */
-	C_PGPOOL_FLAG_FAKE_EC_POOL = 1 << 2, /* require ReplicatedPG to act like an EC pg */
+	C_PGPOOL_FLAG_FAKE_EC_POOL = 1 << 2 /* require ReplicatedPG to act like an EC pg */
 } c_pgpool_flags;
 
 /** Macros to create value_stings.
