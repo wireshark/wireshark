@@ -4662,7 +4662,6 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
              */
             {
                 guint8 private_so_len = tvb_get_guint8(tvb, offset+l+1);
-                k = tvb_get_guint8(tvb, offset+l) & 0x80;
                 rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb, offset+l,
                                           tvb_get_guint8(tvb, offset+l+1),
                                           tree_type, &ti2, "Private Subobject: %d", j);
@@ -4683,7 +4682,6 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
 
         default: /* Unknown subobject */
         defaultsub:
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l,
                                       tvb_get_guint8(tvb, offset+l+1),
