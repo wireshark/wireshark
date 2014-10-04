@@ -65,13 +65,13 @@ enum
     col_l_show_,
     col_l_friendly_name_,
     col_l_local_name_,
-    col_l_comment_,
+    col_l_comment_
 };
 
 enum
 {
     col_r_show_,
-    col_r_host_dev_,
+    col_r_host_dev_
 };
 
 enum {
