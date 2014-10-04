@@ -1320,24 +1320,29 @@ static gint
 dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, gint current_offset,
                 gint line_end_offset)
 {
-    int semi_offset, quote_offset;
+    gint semi_offset, start_quote_offset, end_quote_offset;
     gboolean first_time = TRUE;
 
     while (line_end_offset > current_offset){
         /* Do we have a quoted string ? */
-        quote_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '"');
-        if(quote_offset>0){
+        start_quote_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '"');
+        if(start_quote_offset>0){
             /* Find end of quoted string */
-            quote_offset = tvb_find_guint8(tvb, quote_offset+1, line_end_offset - current_offset, '"');
+            end_quote_offset = tvb_find_guint8(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), '"');
             /* Find parameter end */
-            semi_offset = tvb_find_guint8(tvb, quote_offset+1, line_end_offset - quote_offset, ';');
+            if (end_quote_offset>0)
+                semi_offset = tvb_find_guint8(tvb, end_quote_offset+1, line_end_offset - (end_quote_offset+1), ';');
+            else {
+                /* XXX expert info about unterminated string */
+                semi_offset = tvb_find_guint8(tvb, start_quote_offset+1, line_end_offset - (start_quote_offset+1), ';');
+            }
         }else{
             /* Find parameter end */
             semi_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
         }
         if(semi_offset == -1){
             if(first_time == TRUE){
-            /* It was only on parameter no need to split it up */
+            /* It was only one parameter no need to split it up */
             return line_end_offset;
             }
             /* Last parameter */
