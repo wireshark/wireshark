@@ -71,24 +71,6 @@ extern gboolean simple_dialog_check_get(gpointer dialog);
  */
 extern void display_queued_messages(void);
 
-/*
- * Alert box, with optional "don't show this message again" variable
- * and checkbox, and optional secondary text.
- */
-extern void simple_message_box(ESD_TYPE_E type, gboolean *notagain,
-                               const char *secondary_msg,
-                               const char *msg_format, ...) G_GNUC_PRINTF(4, 5);
-
-/*
- * Error alert box, taking a format and a va_list argument.
- */
-extern void vsimple_error_message_box(const char *msg_format, va_list ap);
-
-/*
- * Error alert box, taking a format and a list of arguments.
- */
-extern void simple_error_message_box(const char *msg_format, ...);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
