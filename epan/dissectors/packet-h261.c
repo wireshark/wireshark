@@ -255,3 +255,16 @@ proto_reg_handoff_h261(void)
 	dissector_add_uint("rtp.pt", PT_H261, h261_handle);
 	dissector_add_uint("iax2.codec", AST_FORMAT_H261, h261_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

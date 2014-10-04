@@ -247,7 +247,7 @@ elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
 
 void
 gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct, const gchar **msg_str,
-                    int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
+		    int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
 {
 	switch (pd) {
 	case GMR1_PD_RR:
@@ -373,3 +373,16 @@ proto_register_gmr1_common(void)
 
 	proto_register_field_array(proto_gmr1_common, hf, array_length(hf));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

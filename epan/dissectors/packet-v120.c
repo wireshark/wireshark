@@ -107,13 +107,13 @@ static const xdlc_cf_items v120_cf_items_ext = {
 static void
 dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*v120_tree, *address_tree;
-	proto_item	*ti, *tc;
-	int		is_response;
-	int		v120len;
-	guint8	byte0, byte1;
-	guint16	control;
-	tvbuff_t	*next_tvb;
+	proto_tree *v120_tree, *address_tree;
+	proto_item *ti, *tc;
+	int	    is_response;
+	int	    v120len;
+	guint8      byte0, byte1;
+	guint16     control;
+	tvbuff_t   *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V.120");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -179,8 +179,8 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	int header_len;
-	guint8 byte0;
+	int         header_len;
+	guint8      byte0;
 	proto_tree *h_tree;
 	proto_item *tc;
 
@@ -211,7 +211,7 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 	}
 
 	proto_item_append_text(tc, " B: %d F: %d",
-			byte0 & 0x02 ? 1:0, byte0 & 0x01 ? 1:0);
+			       byte0 & 0x02 ? 1:0, byte0 & 0x01 ? 1:0);
 
 	return header_len;
 }
@@ -219,127 +219,140 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 void
 proto_register_v120(void)
 {
-    static hf_register_info hf[] = {
-	{ &hf_v120_address,
-	  { "Link Address", "v120.address", FT_UINT16, BASE_HEX, NULL,
-		  0x0, NULL, HFILL }},
-	{ &hf_v120_rc,
-	  { "R/C", "v120.rc", FT_BOOLEAN, 16, TFS(&tfs_response_command),
-		  0x0002, NULL, HFILL }},
-	{ &hf_v120_lli,
-	  { "LLI", "v120.lli", FT_UINT16, BASE_HEX, NULL,
-		  0xfefc, NULL, HFILL }},
-	{ &hf_v120_ea0,
-	  { "EA0", "v120.ea0", FT_BOOLEAN, 16, TFS(&tfs_error_ok),
-		  0x0001, NULL, HFILL }},
-	{ &hf_v120_ea1,
-	  { "EA1", "v120.ea1", FT_BOOLEAN, 16, TFS(&tfs_ok_error),
-		  0x0100, NULL, HFILL }},
-	{ &hf_v120_control,
-	  { "Control Field", "v120.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	NULL, HFILL }},
-	{ &hf_v120_n_r,
-	    { "N(R)", "v120.control.n_r", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
-	{ &hf_v120_n_s,
-	    { "N(S)", "v120.control.n_s", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
-	{ &hf_v120_p,
-	    { "Poll", "v120.control.p", FT_BOOLEAN, 8,
-		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
-	{ &hf_v120_p_ext,
-	    { "Poll", "v120.control.p", FT_BOOLEAN, 16,
-		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
-	{ &hf_v120_f,
-	    { "Final", "v120.control.f", FT_BOOLEAN, 8,
-		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
-	{ &hf_v120_f_ext,
-	    { "Final", "v120.control.f", FT_BOOLEAN, 16,
-		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
-	{ &hf_v120_s_ftype,
-	    { "Supervisory frame type", "v120.control.s_ftype", FT_UINT16, BASE_HEX,
-		VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
-	{ &hf_v120_u_modifier_cmd,
-	    { "Command", "v120.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
-	{ &hf_v120_u_modifier_resp,
-	    { "Response", "v120.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
-	{ &hf_v120_ftype_i,
-	    { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
-	{ &hf_v120_ftype_s_u,
-	    { "Frame type", "v120.control.ftype", FT_UINT8, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
-	{ &hf_v120_ftype_s_u_ext,
-	    { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
-	{ &hf_v120_header8,
-	  { "Header", "v120.header", FT_UINT8, BASE_HEX, NULL, 0x0,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_ext8,
-	  { "Extension octet", "v120.header.ext", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_break8,
-	  { "Break condition", "v120.header.break", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_error_control8,
-	  { "Error control C1/C2", "v120.error_control", FT_UINT8, BASE_HEX, NULL, 0x0C,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_segb8,
-	  { "Bit B", "v120.header.segb", FT_BOOLEAN, 8, TFS(&tfs_segmentation_no_segmentation), 0x02,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_segf8,
-	  { "Bit F", "v120.header.segf", FT_BOOLEAN, 8, TFS(&tfs_segmentation_no_segmentation), 0x01,
-	  	NULL, HFILL }},
-	{ &hf_v120_header16,
-	  { "Header", "v120.header", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_ext16,
-	  { "Extension octet", "v120.header.ext", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x80,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_break16,
-	  { "Break condition", "v120.header.break", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x40,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_error_control16,
-	  { "Error control C1/C2", "v120.error_control", FT_UINT16, BASE_HEX, NULL, 0x0C,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_segb16,
-	  { "Bit B", "v120.header.segb", FT_BOOLEAN, 16, TFS(&tfs_segmentation_no_segmentation), 0x02,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_segf16,
-	  { "Bit F", "v120.header.segf", FT_BOOLEAN, 16, TFS(&tfs_segmentation_no_segmentation), 0x01,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_e,
-	  { "E", "v120.header.e", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_dr,
-	  { "DR", "v120.header.dr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_sr,
-	  { "SR", "v120.header.sr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000,
-	  	NULL, HFILL }},
-	{ &hf_v120_header_rr,
-	  { "RR", "v120.header.rr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,
-	  	NULL, HFILL }},
-    };
-    static gint *ett[] = {
-        &ett_v120,
-        &ett_v120_address,
-        &ett_v120_control,
-        &ett_v120_header,
-    };
+	static hf_register_info hf[] = {
+		{ &hf_v120_address,
+		  { "Link Address", "v120.address", FT_UINT16, BASE_HEX, NULL,
+		    0x0, NULL, HFILL }},
+		{ &hf_v120_rc,
+		  { "R/C", "v120.rc", FT_BOOLEAN, 16, TFS(&tfs_response_command),
+		    0x0002, NULL, HFILL }},
+		{ &hf_v120_lli,
+		  { "LLI", "v120.lli", FT_UINT16, BASE_HEX, NULL,
+		    0xfefc, NULL, HFILL }},
+		{ &hf_v120_ea0,
+		  { "EA0", "v120.ea0", FT_BOOLEAN, 16, TFS(&tfs_error_ok),
+		    0x0001, NULL, HFILL }},
+		{ &hf_v120_ea1,
+		  { "EA1", "v120.ea1", FT_BOOLEAN, 16, TFS(&tfs_ok_error),
+		    0x0100, NULL, HFILL }},
+		{ &hf_v120_control,
+		  { "Control Field", "v120.control", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_v120_n_r,
+		  { "N(R)", "v120.control.n_r", FT_UINT16, BASE_DEC,
+		    NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
+		{ &hf_v120_n_s,
+		  { "N(S)", "v120.control.n_s", FT_UINT16, BASE_DEC,
+		    NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
+		{ &hf_v120_p,
+		  { "Poll", "v120.control.p", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		{ &hf_v120_p_ext,
+		  { "Poll", "v120.control.p", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
+		{ &hf_v120_f,
+		  { "Final", "v120.control.f", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		{ &hf_v120_f_ext,
+		  { "Final", "v120.control.f", FT_BOOLEAN, 16,
+		    TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
+		{ &hf_v120_s_ftype,
+		  { "Supervisory frame type", "v120.control.s_ftype", FT_UINT16, BASE_HEX,
+		    VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
+		{ &hf_v120_u_modifier_cmd,
+		  { "Command", "v120.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		{ &hf_v120_u_modifier_resp,
+		  { "Response", "v120.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		{ &hf_v120_ftype_i,
+		  { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
+		    VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
+		{ &hf_v120_ftype_s_u,
+		  { "Frame type", "v120.control.ftype", FT_UINT8, BASE_HEX,
+		    VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+		{ &hf_v120_ftype_s_u_ext,
+		  { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
+		    VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+		{ &hf_v120_header8,
+		  { "Header", "v120.header", FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_v120_header_ext8,
+		  { "Extension octet", "v120.header.ext", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+		    NULL, HFILL }},
+		{ &hf_v120_header_break8,
+		  { "Break condition", "v120.header.break", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+		    NULL, HFILL }},
+		{ &hf_v120_header_error_control8,
+		  { "Error control C1/C2", "v120.error_control", FT_UINT8, BASE_HEX, NULL, 0x0C,
+		    NULL, HFILL }},
+		{ &hf_v120_header_segb8,
+		  { "Bit B", "v120.header.segb", FT_BOOLEAN, 8, TFS(&tfs_segmentation_no_segmentation), 0x02,
+		    NULL, HFILL }},
+		{ &hf_v120_header_segf8,
+		  { "Bit F", "v120.header.segf", FT_BOOLEAN, 8, TFS(&tfs_segmentation_no_segmentation), 0x01,
+		    NULL, HFILL }},
+		{ &hf_v120_header16,
+		  { "Header", "v120.header", FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_v120_header_ext16,
+		  { "Extension octet", "v120.header.ext", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x80,
+		    NULL, HFILL }},
+		{ &hf_v120_header_break16,
+		  { "Break condition", "v120.header.break", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x40,
+		    NULL, HFILL }},
+		{ &hf_v120_header_error_control16,
+		  { "Error control C1/C2", "v120.error_control", FT_UINT16, BASE_HEX, NULL, 0x0C,
+		    NULL, HFILL }},
+		{ &hf_v120_header_segb16,
+		  { "Bit B", "v120.header.segb", FT_BOOLEAN, 16, TFS(&tfs_segmentation_no_segmentation), 0x02,
+		    NULL, HFILL }},
+		{ &hf_v120_header_segf16,
+		  { "Bit F", "v120.header.segf", FT_BOOLEAN, 16, TFS(&tfs_segmentation_no_segmentation), 0x01,
+		    NULL, HFILL }},
+		{ &hf_v120_header_e,
+		  { "E", "v120.header.e", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+		    NULL, HFILL }},
+		{ &hf_v120_header_dr,
+		  { "DR", "v120.header.dr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
+		    NULL, HFILL }},
+		{ &hf_v120_header_sr,
+		  { "SR", "v120.header.sr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000,
+		    NULL, HFILL }},
+		{ &hf_v120_header_rr,
+		  { "RR", "v120.header.rr", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,
+		    NULL, HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_v120,
+		&ett_v120_address,
+		&ett_v120_control,
+		&ett_v120_header,
+	};
 
-    proto_v120 = proto_register_protocol("Async data over ISDN (V.120)",
-					 "V.120", "v120");
-    proto_register_field_array (proto_v120, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_v120 = proto_register_protocol("Async data over ISDN (V.120)",
+					     "V.120", "v120");
+	proto_register_field_array (proto_v120, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("v120", dissect_v120, proto_v120);
+	register_dissector("v120", dissect_v120, proto_v120);
 }
 
 void
 proto_reg_handoff_v120(void)
 {
-    data_handle = find_dissector("data");
+	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

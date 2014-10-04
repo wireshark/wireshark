@@ -222,24 +222,24 @@ proto_register_smb_mailslot(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_opcode,
-			{ "Opcode", "mailslot.opcode", FT_UINT16, BASE_DEC,
-			VALS(opcode_vals), 0, "MAILSLOT OpCode", HFILL }},
+		  { "Opcode", "mailslot.opcode", FT_UINT16, BASE_DEC,
+		    VALS(opcode_vals), 0, "MAILSLOT OpCode", HFILL }},
 
 		{ &hf_priority,
-			{ "Priority", "mailslot.priority", FT_UINT16, BASE_DEC,
-			NULL, 0, "MAILSLOT Priority of transaction", HFILL }},
+		  { "Priority", "mailslot.priority", FT_UINT16, BASE_DEC,
+		    NULL, 0, "MAILSLOT Priority of transaction", HFILL }},
 
 		{ &hf_class,
-			{ "Class", "mailslot.class", FT_UINT16, BASE_DEC,
-			VALS(class_vals), 0, "MAILSLOT Class of transaction", HFILL }},
+		  { "Class", "mailslot.class", FT_UINT16, BASE_DEC,
+		    VALS(class_vals), 0, "MAILSLOT Class of transaction", HFILL }},
 
 		{ &hf_size,
-			{ "Size", "mailslot.size", FT_UINT16, BASE_DEC,
-			NULL, 0, "MAILSLOT Total size of mail data", HFILL }},
+		  { "Size", "mailslot.size", FT_UINT16, BASE_DEC,
+		    NULL, 0, "MAILSLOT Total size of mail data", HFILL }},
 
 		{ &hf_name,
-			{ "Mailslot Name", "mailslot.name", FT_STRING, BASE_NONE,
-			NULL, 0, "MAILSLOT Name of mailslot", HFILL }},
+		  { "Mailslot Name", "mailslot.name", FT_STRING, BASE_NONE,
+		    NULL, 0, "MAILSLOT Name of mailslot", HFILL }},
 
 	};
 
@@ -262,3 +262,16 @@ proto_reg_handoff_smb_mailslot(void)
 	netlogon_handle = find_dissector("smb_netlogon");
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

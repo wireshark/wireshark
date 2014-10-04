@@ -101,16 +101,16 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	gint len, next_offset;
 
 	/*DST-REF is always 0 */
-	offset+=2;
+	offset += 2;
 
 	/*SRC-REF*/
 	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+	offset += 2;
 
 	/* class options */
 	/*class = tvb_get_guint8(tvb, offset);*/
 	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	offset += 1;
 
 	if(tvb_length_remaining(tvb, offset) > 0) {
 		len = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
@@ -129,17 +129,17 @@ dissect_x224_cc(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 
 	/*DST-REF */
 	proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+	offset += 2;
 
 	/*SRC-REF*/
 	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+	offset += 2;
 
 	/* class options */
 	klass = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 	x224_info->klass = klass;
-	offset+=1;
+	offset += 1;
 
 	return offset;
 }
@@ -148,7 +148,7 @@ static int
 dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
-	tvbuff_t *next_tvb;
+	tvbuff_t   *next_tvb;
 
 	switch (x224_info->klass >>4) {
 	case 2:
@@ -156,7 +156,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	case 4:
 		/*DST-REF */
 		proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset += 2;
 		break;
 	}
 
@@ -167,7 +167,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	/* EOT / NR */
 	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_x224_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	offset += 1;
 
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -179,11 +179,11 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 static int
 dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
-	int offset = 0 ;
-	guint8 code, length;
-	conversation_t *conversation;
+	proto_tree       *tree   = NULL;
+	proto_item       *item   = NULL;
+	int               offset = 0 ;
+	guint8            code, length;
+	conversation_t   *conversation;
 	x224_conv_info_t *x224_info;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.224");
@@ -198,12 +198,12 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
 	/* length indicator */
 	proto_tree_add_item(tree, hf_x224_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	offset += 1;
 
 	/* code */
 	code = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_x224_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	offset += 1;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
 			val_to_str(code>>4, code_vals, "Unknown code :%x"),
@@ -229,7 +229,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 		x224_info->klass=0;
 
 		conversation_add_proto_data(conversation, proto_x224, x224_info);
-       }
+	}
 
 	switch (code>>4) {
 	case X224_CODE_CR:
@@ -322,3 +322,16 @@ proto_reg_handoff_x224(void)
 {
 	t125_handle = find_dissector("t125");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

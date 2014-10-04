@@ -97,82 +97,82 @@ static dissector_handle_t data_handle;
 #define ITDM_CTL_CMD_AFI_REQ  1
 
 static const value_string sop_eop_vals[] = {
-	{ 0x0, "Middle of Packet" },
-	{ 0x1, "End of Packet" },
-	{ 0x2, "Start of Packet" },
-	{ 0x3, "Complete Packet" },
-	{ 0, NULL }
+  { 0x0, "Middle of Packet" },
+  { 0x1, "End of Packet" },
+  { 0x2, "Start of Packet" },
+  { 0x3, "Complete Packet" },
+  { 0, NULL }
 };
 
 static const true_false_string ack_tfs = {
-	"Acknowledging a command from remote node",
-	"Normal Command"
+  "Acknowledging a command from remote node",
+  "Normal Command"
 };
 
 static const value_string chcmd_vals[] = {
-	{ 0x0, "Reserved" },
-	{ 0x1, "New Channel ID" },
-	{ 0x2, "Close Channel ID" },
-	{ 0x3, "Relocate Channel ID" },
-	{ 0x4, "Cyclic Reaffirmation" },
-	{ 0x5, "Packet Rate Integrity Check" },
-	{ 0x6, "Reserved" },
-	{ 0x7, "Reserved" },
-	{ 0x8, "Reserved" },
-	{ 0x9, "Reserved" },
-	{ 0xa, "Reserved" },
-	{ 0xb, "Reserved" },
-	{ 0xc, "Reserved" },
-	{ 0xd, "Reserved" },
-	{ 0xe, "Reserved" },
-	{ 0xf, "Reserved" },
-	{ 0, NULL }
+  { 0x0, "Reserved" },
+  { 0x1, "New Channel ID" },
+  { 0x2, "Close Channel ID" },
+  { 0x3, "Relocate Channel ID" },
+  { 0x4, "Cyclic Reaffirmation" },
+  { 0x5, "Packet Rate Integrity Check" },
+  { 0x6, "Reserved" },
+  { 0x7, "Reserved" },
+  { 0x8, "Reserved" },
+  { 0x9, "Reserved" },
+  { 0xa, "Reserved" },
+  { 0xb, "Reserved" },
+  { 0xc, "Reserved" },
+  { 0xd, "Reserved" },
+  { 0xe, "Reserved" },
+  { 0xf, "Reserved" },
+  { 0, NULL }
 };
 
 static const value_string itdm_ctl_command_vals[] = {
-	{ 0x0, "Not Used" },
-	{ 0x1, "AFI_REQ: Alloc Flow ID Req" },
-	{ 0x2, "AFI_RSP: Alloc Flow ID Rsp - Req Accepted." },
-	{ 0x3, "DFI_REQ: Dealloc Flow ID Req" },
-	{ 0x4, "DFI_RSP: Dealloc Flow ID Rsp - Req Accepted." },
+  { 0x0, "Not Used" },
+  { 0x1, "AFI_REQ: Alloc Flow ID Req" },
+  { 0x2, "AFI_RSP: Alloc Flow ID Rsp - Req Accepted." },
+  { 0x3, "DFI_REQ: Dealloc Flow ID Req" },
+  { 0x4, "DFI_RSP: Dealloc Flow ID Rsp - Req Accepted." },
 
-	{ 0x10, "AFI_RSP: Reject: Data Mode Field value Not Supported." },
-	{ 0x11, "AFI_RSP: Reject: Explicit Multi-timeslot value Not Supported." },
-	{ 0x12, "AFI_RSP: Reject: Packet Rate value Not Supported." },
-	{ 0x13, "AFI_RSP: Reject: Checksum Invalid." },
-	{ 0x14, "AFI_RSP: Reject: No more flows available." },
+  { 0x10, "AFI_RSP: Reject: Data Mode Field value Not Supported." },
+  { 0x11, "AFI_RSP: Reject: Explicit Multi-timeslot value Not Supported." },
+  { 0x12, "AFI_RSP: Reject: Packet Rate value Not Supported." },
+  { 0x13, "AFI_RSP: Reject: Checksum Invalid." },
+  { 0x14, "AFI_RSP: Reject: No more flows available." },
 
-	{ 0x20, "DFI_RSP: Reject: Data Mode Field value does not match Flow ID." },
-	{ 0x21, "DFI_RSP: Reject: Explicit Multi-timeslots value does not match." },
-	{ 0x22, "DFI_RSP: Reject: Packet Rate value does not match." },
-	{ 0x23, "DFI_RSP: Reject: Checksum Invalid." },
-	{ 0x24, "DFI_RSP: Reject: Flow ID invalid (out of range)." },
-	{ 0x25, "DFI_RSP: Reject: Flow ID not currently allocated." },
-	{ 0x26, "DFI_RSP: Reject: Other Flow ID in pair has active connections." },
-	{ 0, NULL }
+  { 0x20, "DFI_RSP: Reject: Data Mode Field value does not match Flow ID." },
+  { 0x21, "DFI_RSP: Reject: Explicit Multi-timeslots value does not match." },
+  { 0x22, "DFI_RSP: Reject: Packet Rate value does not match." },
+  { 0x23, "DFI_RSP: Reject: Checksum Invalid." },
+  { 0x24, "DFI_RSP: Reject: Flow ID invalid (out of range)." },
+  { 0x25, "DFI_RSP: Reject: Flow ID not currently allocated." },
+  { 0x26, "DFI_RSP: Reject: Other Flow ID in pair has active connections." },
+  { 0, NULL }
 };
 
 static const value_string itdm_ctl_data_mode_vals[] = {
-	{ 0, "Not Used." },
-	{ 1, "I-TDM 1ms Data Mode." },
-	{ 2, "I-TDM 125usec Data Mode." },
-	{ 3, "I-TDM Explicit Multi-timeslot Data Mode." },
-	{ 4, "I-TDM CAS Signaling Data Mode." },
-	{ 0, NULL }
+  { 0, "Not Used." },
+  { 1, "I-TDM 1ms Data Mode." },
+  { 2, "I-TDM 125usec Data Mode." },
+  { 3, "I-TDM Explicit Multi-timeslot Data Mode." },
+  { 4, "I-TDM CAS Signaling Data Mode." },
+  { 0, NULL }
 };
 
 static const value_string itdm_ctl_pktrate_vals[] = {
-	{ 0x447A0000, "I-TDM 1ms Data Mode." },
-	{ 0x45FA0000, "I-TDM 125usec/EMTS Data Mode." },
-	{ 0x43A6AAAB, "I-TDM T1 CAS Mode." },
-	{ 0x43FA0000, "I-TDM E1 CAS Mode." },
-	{ 0, NULL }
+  { 0x447A0000, "I-TDM 1ms Data Mode." },
+  { 0x45FA0000, "I-TDM 125usec/EMTS Data Mode." },
+  { 0x43A6AAAB, "I-TDM T1 CAS Mode." },
+  { 0x43FA0000, "I-TDM E1 CAS Mode." },
+  { 0, NULL }
 };
 
 static void
 dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tvbuff_t	*next_tvb;
+  tvbuff_t  *next_tvb;
   proto_item *itdm_item = NULL;
   proto_tree *itdm_tree = NULL;
   int offset;
@@ -217,49 +217,49 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree)
   {
-	itdm_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
-	itdm_tree = proto_item_add_subtree(itdm_item, ett_itdm);
+  itdm_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
+  itdm_tree = proto_item_add_subtree(itdm_item, ett_itdm);
 
-	proto_tree_add_item(itdm_tree, hf_itdm_timestamp, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_tree, hf_itdm_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	proto_tree_add_item(itdm_tree, hf_itdm_sop_eop, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset += 3;
-	proto_tree_add_item(itdm_tree, hf_itdm_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_tree, hf_itdm_act, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_tree, hf_itdm_chcmd, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	proto_tree_add_item(itdm_tree, hf_itdm_chid, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset += 3;
-	if (chcmd == ITDM_CMD_PACKET_RATE)
-	{
-		proto_tree_add_item(itdm_tree, hf_itdm_pktrate, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-	}
-	else
-	{
-		proto_tree_add_item(itdm_tree, hf_itdm_chloc1, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-		if (chcmd == ITDM_CMD_CYCLIC_REAF ||
-		    chcmd == ITDM_CMD_NEW_CHAN ||
-		    chcmd == ITDM_CMD_CLOSE_CHAN)
-		{
-			proto_tree_add_item(itdm_tree, hf_itdm_cxnsize, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
-		}
-		else
-		{
-			proto_tree_add_item(itdm_tree, hf_itdm_chloc2, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
-		}
-	}
+  proto_tree_add_item(itdm_tree, hf_itdm_timestamp, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_tree, hf_itdm_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(itdm_tree, hf_itdm_sop_eop, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
+  offset += 3;
+  proto_tree_add_item(itdm_tree, hf_itdm_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_tree, hf_itdm_act, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_tree, hf_itdm_chcmd, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(itdm_tree, hf_itdm_chid, tvb, offset, 3, ENC_BIG_ENDIAN);
+  offset += 3;
+  if (chcmd == ITDM_CMD_PACKET_RATE)
+  {
+    proto_tree_add_item(itdm_tree, hf_itdm_pktrate, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+  }
+  else
+  {
+    proto_tree_add_item(itdm_tree, hf_itdm_chloc1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    if (chcmd == ITDM_CMD_CYCLIC_REAF ||
+        chcmd == ITDM_CMD_NEW_CHAN ||
+        chcmd == ITDM_CMD_CLOSE_CHAN)
+    {
+      proto_tree_add_item(itdm_tree, hf_itdm_cxnsize, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    }
+    else
+    {
+      proto_tree_add_item(itdm_tree, hf_itdm_chloc2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    }
+  }
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -269,7 +269,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tvbuff_t	*next_tvb;
+  tvbuff_t  *next_tvb;
   proto_item *itdm_ctl_item = NULL;
   proto_tree *itdm_ctl_tree = NULL;
   int offset;
@@ -309,48 +309,48 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree)
   {
-	itdm_ctl_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
-	itdm_ctl_tree = proto_item_add_subtree(itdm_ctl_item, ett_itdm_ctl);
+  itdm_ctl_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
+  itdm_ctl_tree = proto_item_add_subtree(itdm_ctl_item, ett_itdm_ctl);
 
-	/* These eventually should go into a SFP.0 dissector... */
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_timestamp, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_sop_eop, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset += 3;
+  /* These eventually should go into a SFP.0 dissector... */
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_timestamp, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_seqnum, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_sop_eop, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_last_pack, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_pktlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_chksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_uid, tvb, offset, 3, ENC_BIG_ENDIAN);
+  offset += 3;
 
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_transid, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_transid, tvb, offset, 4, ENC_BIG_ENDIAN);
+  offset += 4;
 
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_command, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	if (command != ITDM_CTL_CMD_AFI_REQ) {
-		proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_flowid, tvb, offset, 3, ENC_BIG_ENDIAN);
-	}
-	offset += 3;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_dm, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	/* rsvd.. */
-	offset += 1;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_emts, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_pktrate, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-	if (command != ITDM_CTL_CMD_AFI_REQ) {
-		proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_ptid, tvb, offset, 4, ENC_BIG_ENDIAN);
-	}
-	offset += 4;
-	/* rsvd.. */
-	offset += 2;
-	proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_cksum, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  if (command != ITDM_CTL_CMD_AFI_REQ) {
+    proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_flowid, tvb, offset, 3, ENC_BIG_ENDIAN);
+  }
+  offset += 3;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_dm, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  /* rsvd.. */
+  offset += 1;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_emts, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_pktrate, tvb, offset, 4, ENC_BIG_ENDIAN);
+  offset += 4;
+  if (command != ITDM_CTL_CMD_AFI_REQ) {
+    proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_ptid, tvb, offset, 4, ENC_BIG_ENDIAN);
+  }
+  offset += 4;
+  /* rsvd.. */
+  offset += 2;
+  proto_tree_add_item(itdm_ctl_tree, hf_itdm_ctl_cksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -362,21 +362,21 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 flowid;
 
-	/* ZZZ for now, 125 usec mode and I-TDM control protocol
-	 * need to add 1ms mode */
-	if (tvb_length(tvb) < 18)
-		return;
+  /* ZZZ for now, 125 usec mode and I-TDM control protocol
+   * need to add 1ms mode */
+  if (tvb_length(tvb) < 18)
+    return;
 
-	/* See if this packet is a data flow or the I-TDM control flow. */
-	flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
+  /* See if this packet is a data flow or the I-TDM control flow. */
+  flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
 
-	/* gbl_ItdmCTLFlowNo is the configurable flow number where
-	 * the control protocol resides... Usually 0.
-	 */
-	if (flowid == gbl_ItdmCTLFlowNo)
-		dissect_itdm_control(tvb, pinfo, tree);
-	else
-		dissect_itdm_125usec(tvb, pinfo, tree);
+  /* gbl_ItdmCTLFlowNo is the configurable flow number where
+   * the control protocol resides... Usually 0.
+   */
+  if (flowid == gbl_ItdmCTLFlowNo)
+    dissect_itdm_control(tvb, pinfo, tree);
+  else
+    dissect_itdm_125usec(tvb, pinfo, tree);
 }
 
 void
@@ -385,52 +385,52 @@ proto_register_itdm(void)
 
   static hf_register_info hf[] = {
     { &hf_itdm_timestamp,{ "Timestamp", "itdm.timestamp",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_seqnum,{ "Sequence Number", "itdm.seqnum",
-			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_sop_eop,{ "Start/End of Packet", "itdm.sop_eop",
-			FT_UINT8, BASE_DEC, VALS(sop_eop_vals), 0xc0, NULL, HFILL } },
+      FT_UINT8, BASE_DEC, VALS(sop_eop_vals), 0xc0, NULL, HFILL } },
     { &hf_itdm_last_pack,{ "Last Packet", "itdm.last_pack",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20, NULL, HFILL } },
     { &hf_itdm_pktlen,{ "Packet Length", "itdm.pktlen",
-			FT_UINT16, BASE_DEC, NULL, 0x07ff, NULL, HFILL } },
+      FT_UINT16, BASE_DEC, NULL, 0x07ff, NULL, HFILL } },
     { &hf_itdm_chksum,{ "Checksum", "itdm.chksum",
-			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_uid,{ "Flow ID", "itdm.uid",
-			FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_ack,{ "ACK", "itdm.ack",
-			FT_BOOLEAN, 8, TFS(&ack_tfs), 0x20, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&ack_tfs), 0x20, NULL, HFILL } },
     { &hf_itdm_act,{ "Activate", "itdm.act",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10, NULL, HFILL } },
+      FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10, NULL, HFILL } },
     { &hf_itdm_chcmd,{ "Channel Command", "itdm.chcmd",
-			FT_UINT8, BASE_DEC, VALS(chcmd_vals), 0x0f, NULL, HFILL } },
+      FT_UINT8, BASE_DEC, VALS(chcmd_vals), 0x0f, NULL, HFILL } },
     { &hf_itdm_chid,{ "Channel ID", "itdm.chid",
-			FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_chloc1,{ "Channel Location 1", "itdm.chloc1",
-			FT_UINT16, BASE_DEC, NULL, 0x1ff, NULL, HFILL } },
+      FT_UINT16, BASE_DEC, NULL, 0x1ff, NULL, HFILL } },
     { &hf_itdm_chloc2,{ "Channel Location 2", "itdm.chloc2",
-			FT_UINT16, BASE_DEC, NULL, 0x1ff, NULL, HFILL } },
+      FT_UINT16, BASE_DEC, NULL, 0x1ff, NULL, HFILL } },
     { &hf_itdm_pktrate,{ "IEEE 754 Packet Rate", "itdm.pktrate",
-			 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+       FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_cxnsize, { "Connection Size", "itdm.cxnsize",
-			 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_itdm_ctl_transid, { "Transaction ID", "itdm.ctl_transid",
-			 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+       FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_command, { "Control Command", "itdm.ctl_cmd",
-			 FT_UINT8, BASE_DEC, VALS(itdm_ctl_command_vals), 0x0, NULL, HFILL } },
+       FT_UINT8, BASE_DEC, VALS(itdm_ctl_command_vals), 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_flowid, { "Allocated Flow ID", "itdm.ctl_flowid",
-			 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+       FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_dm, { "I-TDM Data Mode", "itdm.ctl_dm",
-			 FT_UINT8, BASE_DEC, VALS(itdm_ctl_data_mode_vals), 0x0, NULL, HFILL } },
+       FT_UINT8, BASE_DEC, VALS(itdm_ctl_data_mode_vals), 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_emts, { "I-TDM Explicit Multi-timeslot Size", "itdm.ctlemts",
-			 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_pktrate, { "I-TDM Packet Rate", "itdm.ctl_pktrate",
-			 FT_UINT32, BASE_HEX, VALS(itdm_ctl_pktrate_vals), 0x0, NULL, HFILL } },
+       FT_UINT32, BASE_HEX, VALS(itdm_ctl_pktrate_vals), 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_ptid, { "Paired Transaction ID", "itdm.ctl_ptid",
-			 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+       FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_itdm_ctl_cksum, { "ITDM Control Message Checksum", "itdm.ctl_cksum",
-			 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } }
+       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } }
   };
 
   static gint *ett[] = {
@@ -462,18 +462,31 @@ proto_register_itdm(void)
 void
 proto_reg_handoff_itdm(void)
 {
-	static gboolean Initialized=FALSE;
-	static dissector_handle_t itdm_handle;
-	static guint ItdmMPLSLabel;
+  static gboolean Initialized=FALSE;
+  static dissector_handle_t itdm_handle;
+  static guint ItdmMPLSLabel;
 
-	if (!Initialized) {
-		itdm_handle = find_dissector("itdm");
-		data_handle = find_dissector("data");
-		Initialized=TRUE;
-	} else {
-		dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);
-	}
+  if (!Initialized) {
+    itdm_handle = find_dissector("itdm");
+    data_handle = find_dissector("data");
+    Initialized=TRUE;
+  } else {
+    dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);
+  }
 
-	ItdmMPLSLabel = gbl_ItdmMPLSLabel;
-	dissector_add_uint("mpls.label", gbl_ItdmMPLSLabel, itdm_handle);
+  ItdmMPLSLabel = gbl_ItdmMPLSLabel;
+  dissector_add_uint("mpls.label", gbl_ItdmMPLSLabel, itdm_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -44,9 +44,9 @@ static gint ett_isdn = -1;
 #define DCHANNEL_DPNSS	1	/* DPNSS link layer */
 
 static const enum_val_t dchannel_protocol_options[] = {
-    { "lapd", "LAPD", DCHANNEL_LAPD },
-    { "DPNSS", "DPNSS", DCHANNEL_DPNSS },
-    { NULL, NULL, 0 }
+	{ "lapd",  "LAPD",  DCHANNEL_LAPD },
+	{ "DPNSS", "DPNSS", DCHANNEL_DPNSS },
+	{ NULL, NULL, 0 }
 };
 
 static int dchannel_protocol = DCHANNEL_LAPD;
@@ -58,16 +58,16 @@ static dissector_handle_t v120_handle;
 static dissector_handle_t data_handle;
 
 static const value_string channel_vals[] = {
-	{ 0,	"D" },
-	{ 1,	"B1" },
-	{ 2,	"B2" },
-	{ 3,	"B3" },
-	{ 4,	"B4" },
-	{ 5,	"B5" },
-	{ 6,	"B6" },
-	{ 7,	"B7" },
-	{ 8,	"B8" },
-	{ 9,	"B9" },
+	{  0,	"D" },
+	{  1,	"B1" },
+	{  2,	"B2" },
+	{  3,	"B3" },
+	{  4,	"B4" },
+	{  5,	"B5" },
+	{  6,	"B6" },
+	{  7,	"B7" },
+	{  8,	"B8" },
+	{  9,	"B9" },
 	{ 10,	"B10" },
 	{ 11,	"B11" },
 	{ 12,	"B12" },
@@ -248,3 +248,16 @@ proto_reg_handoff_isdn(void)
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_ISDN, isdn_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

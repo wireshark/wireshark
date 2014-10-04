@@ -105,23 +105,23 @@ dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static const value_string names_nfsacl_aclent_type[] = {
 #define NA_USER_OBJ 0x1
-	{ NA_USER_OBJ, "NA_USER_OBJ" },
+	{ NA_USER_OBJ,			 "NA_USER_OBJ" },
 #define NA_USER 0x2
-	{ NA_USER, "NA_USER" },
+	{ NA_USER,			 "NA_USER" },
 #define NA_GROUP_OBJ 0x4
-	{ NA_GROUP_OBJ, "NA_GROUP_OBJ" },
+	{ NA_GROUP_OBJ,			 "NA_GROUP_OBJ" },
 #define NA_GROUP 0x8
-	{ NA_GROUP, "NA_GROUP" },
+	{ NA_GROUP,			 "NA_GROUP" },
 #define NA_CLASS_OBJ 0x10
-	{ NA_CLASS_OBJ, "NA_CLASS_OBJ" },
+	{ NA_CLASS_OBJ,			 "NA_CLASS_OBJ" },
 #define NA_OTHER_OBJ 0x20
-	{ NA_OTHER_OBJ, "NA_OTHER_OBJ" },
+	{ NA_OTHER_OBJ,			 "NA_OTHER_OBJ" },
 #define NA_ACL_DEFAULT 0x1000
-	{ NA_ACL_DEFAULT, "NA_ACL_DEFAULT" },
-	{ NA_ACL_DEFAULT | NA_USER_OBJ, "Default NA_USER_OBJ" },
-	{ NA_ACL_DEFAULT | NA_USER, "Default NA_USER" },
+	{ NA_ACL_DEFAULT,		 "NA_ACL_DEFAULT" },
+	{ NA_ACL_DEFAULT | NA_USER_OBJ,	 "Default NA_USER_OBJ" },
+	{ NA_ACL_DEFAULT | NA_USER,	 "Default NA_USER" },
 	{ NA_ACL_DEFAULT | NA_GROUP_OBJ, "Default NA_GROUP_OBJ" },
-	{ NA_ACL_DEFAULT | NA_GROUP, "Default NA_GROUP" },
+	{ NA_ACL_DEFAULT | NA_GROUP,	 "Default NA_GROUP" },
 	{ NA_ACL_DEFAULT | NA_CLASS_OBJ, "Default NA_CLASS_OBJ" },
 	{ NA_ACL_DEFAULT | NA_OTHER_OBJ, "Default NA_OTHER_OBJ" },
 	{ 0, NULL },
@@ -604,3 +604,16 @@ proto_reg_handoff_nfsacl(void)
 	rpc_init_proc_table(NFSACL_PROGRAM, 2, nfsacl2_proc, hf_nfsacl_procedure_v2);
 	rpc_init_proc_table(NFSACL_PROGRAM, 3, nfsacl3_proc, hf_nfsacl_procedure_v3);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

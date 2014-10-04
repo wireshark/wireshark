@@ -186,7 +186,7 @@ static dcerpc_sub_dissector dcerpc_pnp_dissectors[] = {
 		"PNP_SetActiveService", NULL, NULL },
 	{ PNP_DELETE_SERVICE_DEVICES,
 		"PNP_DeleteServiceDevices", NULL, NULL },
-        { 0, NULL, NULL,  NULL }
+	{ 0, NULL, NULL,  NULL }
 };
 
 
@@ -194,17 +194,17 @@ void
 proto_register_dcerpc_pnp(void)
 {
 
-        static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 
 		{ &hf_pnp_opnum,
 		  { "Operation", "pnp.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, NULL, HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 	};
 
 
-        static gint *ett[] = {
-                &ett_dcerpc_pnp,
-        };
+	static gint *ett[] = {
+		&ett_dcerpc_pnp,
+	};
 
 
 	proto_dcerpc_pnp = proto_register_protocol(
@@ -212,7 +212,7 @@ proto_register_dcerpc_pnp(void)
 
 	proto_register_field_array(proto_dcerpc_pnp, hf, array_length(hf));
 
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 
 }
 
@@ -226,3 +226,16 @@ proto_reg_handoff_dcerpc_pnp(void)
 		proto_dcerpc_pnp, ett_dcerpc_pnp, &uuid_dcerpc_pnp,
 		ver_dcerpc_pnp, dcerpc_pnp_dissectors, hf_pnp_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -165,7 +165,7 @@ mon_id_len(tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	if (tree)
 	{
@@ -176,10 +176,10 @@ dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	proto_item* sub_item;
-	proto_tree* sub_tree;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 	gint32 res;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_res, tvb,
@@ -201,8 +201,8 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 static int
 dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_item* sub_item;
-	proto_tree* sub_tree;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_my_id, tvb,
 				offset, my_id_len(tvb,offset), ENC_NA);
@@ -217,10 +217,10 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	proto_item* sub_item;
-	proto_tree* sub_tree;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_mon, tvb,
 				offset, mon_id_len(tvb,offset), ENC_NA);
@@ -243,7 +243,7 @@ dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 	offset = dissect_stat_mon_id(tvb,offset,pinfo,tree,data);
@@ -253,7 +253,7 @@ dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	offset = dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,offset);
 
@@ -261,10 +261,10 @@ dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	proto_item* sub_item;
-	proto_tree* sub_tree;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 	int start_offset = offset;
 
 	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_chge, tvb,
@@ -282,7 +282,7 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	offset = dissect_stat_my_id(tvb,offset,tree);
 
@@ -293,20 +293,20 @@ dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 /* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff stat1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { STATPROC_STAT,   "STAT",
-		dissect_stat_stat, dissect_stat_stat_res },
-    { STATPROC_MON,   "MON",
-		dissect_stat_mon, dissect_stat_stat_res },
-    { STATPROC_UNMON, "UNMON",
-		dissect_stat_mon_id, dissect_stat_state },
-    { STATPROC_UNMON_ALL, "UNMON_ALL",
-		dissect_stat_umon_all, dissect_stat_state },
-    { STATPROC_SIMU_CRASH, "SIMU_CRASH",
-		NULL, NULL },
-    { STATPROC_NOTIFY, "NOTIFY",
-		dissect_stat_notify, NULL },
-    { 0, NULL, NULL, NULL }
+	{ 0, "NULL", NULL, NULL },
+	{ STATPROC_STAT,       "STAT",
+	  dissect_stat_stat, dissect_stat_stat_res },
+	{ STATPROC_MON,        "MON",
+	  dissect_stat_mon, dissect_stat_stat_res },
+	{ STATPROC_UNMON,      "UNMON",
+	  dissect_stat_mon_id, dissect_stat_state },
+	{ STATPROC_UNMON_ALL,  "UNMON_ALL",
+	  dissect_stat_umon_all, dissect_stat_state },
+	{ STATPROC_SIMU_CRASH, "SIMU_CRASH",
+	  NULL, NULL },
+	{ STATPROC_NOTIFY,     "NOTIFY",
+	  dissect_stat_notify, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 /* end of stat version 1 */
 
@@ -359,3 +359,16 @@ proto_reg_handoff_stat(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(STAT_PROGRAM, 1, stat1_proc, hfi_stat_procedure_v1.id);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

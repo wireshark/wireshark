@@ -53,15 +53,15 @@ static gint ett_nbd = -1;
 static gboolean nbd_desegment = TRUE;
 
 typedef struct _nbd_transaction_t {
-        guint32 req_frame;
-        guint32 rep_frame;
-        nstime_t req_time;
+	guint32 req_frame;
+	guint32 rep_frame;
+	nstime_t req_time;
 	guint32 datalen;
 	guint8 type;
 } nbd_transaction_t;
 typedef struct _nbd_conv_info_t {
-        wmem_tree_t *unacked_pdus;    /* indexed by handle, whichs wraps quite frequently  */
-        wmem_tree_t *acked_pdus;    /* indexed by packet# and handle */
+	wmem_tree_t *unacked_pdus;    /* indexed by handle, whichs wraps quite frequently  */
+	wmem_tree_t *acked_pdus;    /* indexed by packet# and handle */
 } nbd_conv_info_t;
 
 
@@ -418,38 +418,38 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 void proto_register_nbd(void)
 {
-        static hf_register_info hf[] = {
-	{ &hf_nbd_magic,
-	{ "Magic", "nbd.magic", FT_UINT32, BASE_HEX,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_nbd_type,
-	{ "Type", "nbd.type", FT_UINT32, BASE_DEC,
-		VALS(nbd_type_vals), 0x0, NULL, HFILL }},
-	{ &hf_nbd_error,
-	{ "Error", "nbd.error", FT_UINT32, BASE_DEC,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_nbd_len,
-	{ "Length", "nbd.len", FT_UINT32, BASE_DEC,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_nbd_handle,
-	{ "Handle", "nbd.handle", FT_UINT64, BASE_HEX,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_nbd_from,
-	{ "From", "nbd.from", FT_UINT64, BASE_HEX,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_nbd_response_in,
-	{ "Response In", "nbd.response_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0x0, "The response to this NBD request is in this frame", HFILL }},
-	{ &hf_nbd_response_to,
-	{ "Request In", "nbd.response_to", FT_FRAMENUM, BASE_NONE,
-		NULL, 0x0, "This is a response to the NBD request in this frame", HFILL }},
-	{ &hf_nbd_time,
-	{ "Time", "nbd.time", FT_RELATIVE_TIME, BASE_NONE,
-		NULL, 0x0, "The time between the Call and the Reply", HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_nbd_magic,
+		  { "Magic", "nbd.magic", FT_UINT32, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_type,
+		  { "Type", "nbd.type", FT_UINT32, BASE_DEC,
+		    VALS(nbd_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_nbd_error,
+		  { "Error", "nbd.error", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_len,
+		  { "Length", "nbd.len", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_handle,
+		  { "Handle", "nbd.handle", FT_UINT64, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_from,
+		  { "From", "nbd.from", FT_UINT64, BASE_HEX,
+		    NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_response_in,
+		  { "Response In", "nbd.response_in", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x0, "The response to this NBD request is in this frame", HFILL }},
+		{ &hf_nbd_response_to,
+		  { "Request In", "nbd.response_to", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x0, "This is a response to the NBD request in this frame", HFILL }},
+		{ &hf_nbd_time,
+		  { "Time", "nbd.time", FT_RELATIVE_TIME, BASE_NONE,
+		    NULL, 0x0, "The time between the Call and the Reply", HFILL }},
 
-	{ &hf_nbd_data,
-	{ "Data", "nbd.data", FT_BYTES, BASE_NONE,
-		NULL, 0x0, NULL, HFILL }},
+		{ &hf_nbd_data,
+		  { "Data", "nbd.data", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 	};
 
@@ -467,10 +467,10 @@ void proto_register_nbd(void)
 
 	nbd_module = prefs_register_protocol(proto_nbd, NULL);
 	prefs_register_bool_preference(nbd_module, "desegment_nbd_messages",
-		"Reassemble NBD messages spanning multiple TCP segments",
-		"Whether the NBD dissector should reassemble messages spanning multiple TCP segments."
-		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings",
-		&nbd_desegment);
+				       "Reassemble NBD messages spanning multiple TCP segments",
+				       "Whether the NBD dissector should reassemble messages spanning multiple TCP segments."
+				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings",
+				       &nbd_desegment);
 
 }
 
@@ -479,3 +479,16 @@ proto_reg_handoff_nbd(void)
 {
 	heur_dissector_add("tcp", dissect_nbd_tcp_heur, proto_nbd);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

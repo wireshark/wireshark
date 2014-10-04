@@ -76,15 +76,15 @@ static const value_string error_type_vals[] = {
 static int
 dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	int         offset = 0;
 	proto_tree *x29_tree;
 	proto_item *ti;
-	gboolean *q_bit_set;
-	guint8 msg_code;
-	guint8 error_type;
-	guint8 type_ref;
-	gint next_offset;
-	int linelen;
+	gboolean   *q_bit_set;
+	guint8      msg_code;
+	guint8      error_type;
+	guint8      type_ref;
+	gint        next_offset;
+	int         linelen;
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
@@ -274,3 +274,16 @@ proto_reg_handoff_x29(void)
 	x29_handle = new_create_dissector_handle(dissect_x29, proto_x29);
 	dissector_add_uint("x.25.spi", NLPID_SPI_X_29, x29_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -50,25 +50,25 @@ void proto_reg_handoff_mstp(void);
 
 /* MS/TP Frame Type */
 /* Frame Types 8 through 127 are reserved by ASHRAE. */
-#define MSTP_TOKEN 0
-#define MSTP_POLL_FOR_MASTER 1
-#define MSTP_REPLY_TO_POLL_FOR_MASTER 2
-#define MSTP_TEST_REQUEST 3
-#define MSTP_TEST_RESPONSE 4
-#define MSTP_BACNET_DATA_EXPECTING_REPLY 5
+#define MSTP_TOKEN                           0
+#define MSTP_POLL_FOR_MASTER                 1
+#define MSTP_REPLY_TO_POLL_FOR_MASTER        2
+#define MSTP_TEST_REQUEST                    3
+#define MSTP_TEST_RESPONSE                   4
+#define MSTP_BACNET_DATA_EXPECTING_REPLY     5
 #define MSTP_BACNET_DATA_NOT_EXPECTING_REPLY 6
-#define MSTP_REPLY_POSTPONED 7
+#define MSTP_REPLY_POSTPONED                 7
 
 static const value_string
 bacnet_mstp_frame_type_name[] = {
-	{MSTP_TOKEN, "Token"},
-	{MSTP_POLL_FOR_MASTER, "Poll For Master"},
-	{MSTP_REPLY_TO_POLL_FOR_MASTER, "Reply To Poll For Master"},
-	{MSTP_TEST_REQUEST, "Test_Request"},
-	{MSTP_TEST_RESPONSE, "Test_Response"},
-	{MSTP_BACNET_DATA_EXPECTING_REPLY, "BACnet Data Expecting Reply"},
+	{MSTP_TOKEN,                           "Token"},
+	{MSTP_POLL_FOR_MASTER,                 "Poll For Master"},
+	{MSTP_REPLY_TO_POLL_FOR_MASTER,        "Reply To Poll For Master"},
+	{MSTP_TEST_REQUEST,                    "Test_Request"},
+	{MSTP_TEST_RESPONSE,                   "Test_Response"},
+	{MSTP_BACNET_DATA_EXPECTING_REPLY,     "BACnet Data Expecting Reply"},
 	{MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, "BACnet Data Not Expecting Reply"},
-	{MSTP_REPLY_POSTPONED, "Reply Postponed"},
+	{MSTP_REPLY_POSTPONED,                 "Reply Postponed"},
 	/* Frame Types 128 through 255: Proprietary Frames */
 	{0, NULL }
 };
@@ -457,3 +457,16 @@ proto_reg_handoff_mstp(void)
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_EXPECTING_REPLY, bacnet_handle);
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, bacnet_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

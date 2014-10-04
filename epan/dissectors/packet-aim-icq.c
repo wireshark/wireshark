@@ -84,57 +84,57 @@ static struct
 	const char *name;
 	int (*dissector) (tvbuff_t *, packet_info *, proto_tree *);
 } icq_calls [] = {
-	{ 0x0001, "Server Error Reply", NULL },
-	{ 0x0064, "Set User Home Info Reply", NULL },
-	{ 0x006e, "Set User Work Info Reply", NULL },
-	{ 0x0078, "Set User More Info Reply", NULL },
-	{ 0x0082, "Set User Notes Info Reply", NULL },
-	{ 0x0087, "Set User Email Info Reply", NULL },
-	{ 0x008c, "Set User Interests Info Reply", NULL },
-	{ 0x0096, "Set User Affiliations Info Reply", NULL },
-	{ 0x00a0, "Set User Permissions Reply", NULL },
-	{ 0x00aa, "Set User Password Reply", NULL },
-	{ 0x00b4, "Unregister Account Reply", NULL },
-	{ 0x00be, "Set User Homepage Category Reply", NULL },
-	{ 0x00c8, "User Basic Info Reply", NULL },
-	{ 0x00d2, "User Work Info Reply", NULL },
-	{ 0x00dc, "User More Info Reply", NULL },
-	{ 0x00e6, "User Notes Info Reply", NULL },
-	{ 0x00eb, "User Extended Email Reply", NULL },
-	{ 0x00f0, "User Interests Info Reply", NULL },
-	{ 0x00fa, "User Affiliations Info Reply", NULL },
-	{ 0x0104, "Short User Info Reply", NULL },
-	{ 0x010e, "User Homepage Category Reply", NULL },
-	{ 0x01a4, "Search: User found", NULL },
-	{ 0x0302, "Registration Stats Reply", NULL },
-	{ 0x0366, "Random Search Server Reply", NULL },
-	{ 0x03ea, "Set User Home Info Request", NULL },
-	{ 0x03f3, "Set User Work Info Request", NULL },
-	{ 0x03fd, "Set User More Info Request", NULL },
-	{ 0x0406, "Set User Notes Request", NULL },
+	{ 0x0001, "Server Error Reply",			  NULL },
+	{ 0x0064, "Set User Home Info Reply",		  NULL },
+	{ 0x006e, "Set User Work Info Reply",		  NULL },
+	{ 0x0078, "Set User More Info Reply",		  NULL },
+	{ 0x0082, "Set User Notes Info Reply",		  NULL },
+	{ 0x0087, "Set User Email Info Reply",		  NULL },
+	{ 0x008c, "Set User Interests Info Reply",	  NULL },
+	{ 0x0096, "Set User Affiliations Info Reply",	  NULL },
+	{ 0x00a0, "Set User Permissions Reply",		  NULL },
+	{ 0x00aa, "Set User Password Reply",		  NULL },
+	{ 0x00b4, "Unregister Account Reply",		  NULL },
+	{ 0x00be, "Set User Homepage Category Reply",	  NULL },
+	{ 0x00c8, "User Basic Info Reply",		  NULL },
+	{ 0x00d2, "User Work Info Reply",		  NULL },
+	{ 0x00dc, "User More Info Reply",		  NULL },
+	{ 0x00e6, "User Notes Info Reply",		  NULL },
+	{ 0x00eb, "User Extended Email Reply",		  NULL },
+	{ 0x00f0, "User Interests Info Reply",		  NULL },
+	{ 0x00fa, "User Affiliations Info Reply",	  NULL },
+	{ 0x0104, "Short User Info Reply",		  NULL },
+	{ 0x010e, "User Homepage Category Reply",	  NULL },
+	{ 0x01a4, "Search: User found",			  NULL },
+	{ 0x0302, "Registration Stats Reply",		  NULL },
+	{ 0x0366, "Random Search Server Reply",		  NULL },
+	{ 0x03ea, "Set User Home Info Request",		  NULL },
+	{ 0x03f3, "Set User Work Info Request",		  NULL },
+	{ 0x03fd, "Set User More Info Request",		  NULL },
+	{ 0x0406, "Set User Notes Request",		  NULL },
 	{ 0x040b, "Set User Extended Email Info Request", NULL },
-	{ 0x0410, "Set User Interests Info Request", NULL },
-	{ 0x041a, "Set User Affiliations Info Request", NULL },
-	{ 0x0424, "Set User Permissions Info Request", NULL },
-	{ 0x042e, "Change User Password Request", NULL },
-	{ 0x0442, "Set User Homepage Category Request", NULL },
-	{ 0x04b2, "Fullinfo Request", NULL },
-	{ 0x04ba, "Short User Info Request", NULL },
-	{ 0x04c4, "Unregister User Request", NULL },
-	{ 0x0515, "Search By Details Request", NULL },
-	{ 0x0569, "Search By UIN Request", NULL },
-	{ 0x055f, "Whitepages Search Request", NULL },
-	{ 0x0573, "Search By Email Request", NULL },
-	{ 0x074e, "Random Chat User Search Request", NULL },
-	{ 0x0898, "Server Variable Request (XML)", NULL },
-	{ 0x0aa5, "Registration Report Request", NULL },
-	{ 0x0aaf, "Shortcut Bar Stats Report Request", NULL },
-	{ 0x0c3a, "Save Info Request", NULL },
-	{ 0x1482, "Send SMS Request", NULL },
-	{ 0x2008, "Spam Report Request", NULL },
-	{ 0x08a2, "Server Variable Reply (XML)", NULL },
-	{ 0x0c3f, "Set Fullinfo Reply", NULL },
-	{ 0x2012, "User Spam Report Reply", NULL },
+	{ 0x0410, "Set User Interests Info Request",	  NULL },
+	{ 0x041a, "Set User Affiliations Info Request",	  NULL },
+	{ 0x0424, "Set User Permissions Info Request",	  NULL },
+	{ 0x042e, "Change User Password Request",	  NULL },
+	{ 0x0442, "Set User Homepage Category Request",	  NULL },
+	{ 0x04b2, "Fullinfo Request",			  NULL },
+	{ 0x04ba, "Short User Info Request",		  NULL },
+	{ 0x04c4, "Unregister User Request",		  NULL },
+	{ 0x0515, "Search By Details Request",		  NULL },
+	{ 0x0569, "Search By UIN Request",		  NULL },
+	{ 0x055f, "Whitepages Search Request",		  NULL },
+	{ 0x0573, "Search By Email Request",		  NULL },
+	{ 0x074e, "Random Chat User Search Request",	  NULL },
+	{ 0x0898, "Server Variable Request (XML)",	  NULL },
+	{ 0x0aa5, "Registration Report Request",	  NULL },
+	{ 0x0aaf, "Shortcut Bar Stats Report Request",	  NULL },
+	{ 0x0c3a, "Save Info Request",			  NULL },
+	{ 0x1482, "Send SMS Request",			  NULL },
+	{ 0x2008, "Spam Report Request",		  NULL },
+	{ 0x08a2, "Server Variable Reply (XML)",	  NULL },
+	{ 0x0c3f, "Set Fullinfo Reply",			  NULL },
+	{ 0x2012, "User Spam Report Reply",		  NULL },
 	{ 0, NULL, NULL },
 };
 
@@ -198,10 +198,10 @@ static int dissect_aim_icq_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static const aim_subtype aim_fnac_family_icq[] = {
-	{ 0x0001, "Error", dissect_aim_snac_error },
-	{ 0x0002, "ICQ Request", dissect_aim_icq_tlv },
-	{ 0x0003, "ICQ Response", dissect_aim_icq_tlv },
-	{ 0x0006, "Auth Request", NULL },
+	{ 0x0001, "Error",         dissect_aim_snac_error },
+	{ 0x0002, "ICQ Request",   dissect_aim_icq_tlv },
+	{ 0x0003, "ICQ Response",  dissect_aim_icq_tlv },
+	{ 0x0006, "Auth Request",  NULL },
 	{ 0x0007, "Auth Response", NULL },
 	{ 0, NULL, NULL }
 };
@@ -253,3 +253,16 @@ proto_reg_handoff_aim_icq(void)
 {
 	aim_init_family(proto_aim_icq, ett_aim_icq, FAMILY_ICQ, aim_fnac_family_icq);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

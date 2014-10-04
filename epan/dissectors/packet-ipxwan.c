@@ -159,7 +159,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str(packet_type, ipxwan_packet_type_vals,
 		        "Unknown packet type %u"));
 
-    if (tree) {
+	if (tree) {
 		proto_tree_add_uint(ipxwan_tree, hf_ipxwan_packet_type, tvb,
 			offset, 1, packet_type);
 		offset += 1;
@@ -463,3 +463,16 @@ proto_reg_handoff_ipxwan(void)
 	    proto_ipxwan);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXWAN, ipxwan_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

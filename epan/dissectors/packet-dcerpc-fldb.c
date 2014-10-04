@@ -47,10 +47,8 @@ static gint ett_fldb_vlconf_cell = -1;
 static gint ett_fldb_afsNameString_t = -1;
 
 
-
 static e_uuid_t uuid_fldb =
-  { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x2e, 0x00, 0x00,
-				 0x01}
+  { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x2e, 0x00, 0x00, 0x01}
 };
 static guint16 ver_fldb = 4;
 
@@ -193,65 +191,66 @@ static int hf_fldb_voltype = -1;
 static guint32 st;
 static const guint8 *st_str;
 
-#define AFS_FLAG_RETURNTOKEN           1
-#define AFS_FLAG_TOKENJUMPQUEUE        2
-#define AFS_FLAG_SKIPTOKEN             4
-#define AFS_FLAG_NOOPTIMISM           0x8
-#define AFS_FLAG_TOKENID              0x10
-#define AFS_FLAG_RETURNBLOCKER        0x20
-#define AFS_FLAG_ASYNCGRANT           0x40
-#define AFS_FLAG_NOREVOKE             0x80
-#define AFS_FLAG_MOVE_REESTABLISH     0x100
-#define AFS_FLAG_SERVER_REESTABLISH   0x200
-#define AFS_FLAG_NO_NEW_EPOCH         0x400
-#define AFS_FLAG_MOVE_SOURCE_OK       0x800
-#define AFS_FLAG_SYNC                 0x1000
-#define AFS_FLAG_ZERO                 0x2000
-#define AFS_FLAG_SKIPSTATUS           0x4000
-#define AFS_FLAG_FORCEREVOCATIONS     0x8000
-#define AFS_FLAG_FORCEVOLQUIESCE      0x10000
-#define AFS_FLAG_FORCEREVOCATIONDOWN  0x20000
+#define AFS_FLAG_RETURNTOKEN         0x00001
+#define AFS_FLAG_TOKENJUMPQUEUE      0x00002
+#define AFS_FLAG_SKIPTOKEN           0x00004
+#define AFS_FLAG_NOOPTIMISM          0x00008
+#define AFS_FLAG_TOKENID             0x00010
+#define AFS_FLAG_RETURNBLOCKER       0x00020
+#define AFS_FLAG_ASYNCGRANT          0x00040
+#define AFS_FLAG_NOREVOKE            0x00080
+#define AFS_FLAG_MOVE_REESTABLISH    0x00100
+#define AFS_FLAG_SERVER_REESTABLISH  0x00200
+#define AFS_FLAG_NO_NEW_EPOCH        0x00400
+#define AFS_FLAG_MOVE_SOURCE_OK      0x00800
+#define AFS_FLAG_SYNC                0x01000
+#define AFS_FLAG_ZERO                0x02000
+#define AFS_FLAG_SKIPSTATUS          0x04000
+#define AFS_FLAG_FORCEREVOCATIONS    0x08000
+#define AFS_FLAG_FORCEVOLQUIESCE     0x10000
+#define AFS_FLAG_FORCEREVOCATIONDOWN 0x20000
 
-#define AFS_FLAG_SEC_SERVICE             0x1
-#define AFS_FLAG_CONTEXT_NEW_IF          0x2
-#define AFS_FLAG_CONTEXT_DO_RESET        0x4
-#define AFS_FLAG_CONTEXT_NEW_ACL_IF      0x8
-#define AFS_FLAG_CONTEXT_NEW_TKN_TYPES  0x10
+#define AFS_FLAG_SEC_SERVICE           0x01
+#define AFS_FLAG_CONTEXT_NEW_IF        0x02
+#define AFS_FLAG_CONTEXT_DO_RESET      0x04
+#define AFS_FLAG_CONTEXT_NEW_ACL_IF    0x08
+#define AFS_FLAG_CONTEXT_NEW_TKN_TYPES 0x10
 
-#define VLSF_NEWREPSITE     0x01
-#define VLSF_SPARE1     0x02
-#define VLSF_SPARE2     0x04	/* used for VLSF_RWVOL in flprocs.c */
-#define VLSF_SPARE3     0x08	/* used for VLSF_BACKVOL in flprocs.c */
-#define VLSF_SAMEASPREV         0x10
-#define VLSF_DEFINED    0x20
-#define VLSF_PARTIALADDRS       0x40
+#define VLSF_NEWREPSITE   0x01
+#define VLSF_SPARE1       0x02
+#define VLSF_SPARE2       0x04    /* used for VLSF_RWVOL in flprocs.c */
+#define VLSF_SPARE3       0x08    /* used for VLSF_BACKVOL in flprocs.c */
+#define VLSF_SAMEASPREV   0x10
+#define VLSF_DEFINED      0x20
+#define VLSF_PARTIALADDRS 0x40
 #define VLSF_ZEROIXHERE         0x80000000
 
 #define MACRO_ST_CLEAR(name) \
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_st, &st); \
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");              \
-  if (st){                                                              \
+  if (st) {                                                              \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
-  } else{                                                                \
+  } else {                                                                \
       col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);      \
   }
 
+
 static int
-dissect_afsnetaddr (tvbuff_t * tvb, int offset,
-		    packet_info * pinfo, proto_tree * parent_tree,
-		    dcerpc_info *di, guint8 * drep)
+dissect_afsnetaddr (tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *parent_tree,
+                    dcerpc_info *di, guint8 *drep)
 {
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
-  guint16 type;
-  guint8 data;
-  int i;
+  proto_item *item       = NULL;
+  proto_tree *tree       = NULL;
+  int         old_offset = offset;
+  guint16     type;
+  guint8      data;
+  int         i;
 
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
-				  ett_fldb_afsnetaddr, &item, "afsNetAddr:");
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1,
+                                     ett_fldb_afsnetaddr, &item, "afsNetAddr:");
     }
 
 /*                 unsigned16 type;
@@ -260,54 +259,46 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 
   offset =
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_afsnetaddr_type, &type);
+                        hf_fldb_afsnetaddr_type, &type);
 
   if (type)
     {
-	col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u ", type);
-
+      col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u ", type);
 
       for (i = 0; i < 14; i++)
-	{
+        {
+          offset =
+            dissect_ndr_uint8 (tvb, offset, pinfo, tree, di, drep,
+                               hf_fldb_afsnetaddr_data, &data);
 
-	  offset =
-	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, di, drep,
-			       hf_fldb_afsnetaddr_data, &data);
+          switch (i)
+            {
+            case 1:
+              if (data)
+                {
+                  col_append_fstr (pinfo->cinfo, COL_INFO, " Port:%u", data);
+                }
+              break;
+            case 2:
+                col_append_fstr (pinfo->cinfo, COL_INFO, " IP:%u.", data);
+              break;
+            case 3:
+                col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
+              break;
+            case 4:
+                col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
+              break;
+            case 5:
+                col_append_fstr (pinfo->cinfo, COL_INFO, "%u", data);
+              break;
+            }
 
-
-	  switch (i)
-	    {
-	    case 1:
-	      if (data)
-		{
-		  col_append_fstr (pinfo->cinfo, COL_INFO, " Port:%u",
-				     data);
-		}
-	      break;
-	    case 2:
-		col_append_fstr (pinfo->cinfo, COL_INFO, " IP:%u.", data);
-	      break;
-	    case 3:
-		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
-	      break;
-	    case 4:
-		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
-	      break;
-	    case 5:
-		col_append_fstr (pinfo->cinfo, COL_INFO, "%u", data);
-	      break;
-	    }
-
-	}
-
+        }
     }
   else
     {
-
-      offset += 14;		/* space left after reading in type for the array. */
+      offset += 14;             /* space left after reading in type for the array. */
     }
-
-
 
   proto_item_set_len (item, offset - old_offset);
 
@@ -316,50 +307,47 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 
 
 static int
-dissect_vlconf_cell (tvbuff_t * tvb, int offset,
-		     packet_info * pinfo, proto_tree * parent_tree,
-		     dcerpc_info *di, guint8 * drep)
+dissect_vlconf_cell (tvbuff_t *tvb, int offset,
+                     packet_info *pinfo, proto_tree *parent_tree,
+                     dcerpc_info *di, guint8 *drep)
 {
-
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
-#define MAXVLCELLCHARS  128
-#define MAXVLHOSTSPERCELL  64
+  proto_item   *item       = NULL;
+  proto_tree   *tree       = NULL;
+  int           old_offset = offset;
+#define MAXVLCELLCHARS    128
+#define MAXVLHOSTSPERCELL 64
   const guint8 *name, *hostname;
-  int i;
-  guint32 cellid_high, cellid_low, numservers, spare1, spare2, spare3, spare4,
+  int           i;
+  guint32       cellid_high, cellid_low, numservers, spare1, spare2, spare3, spare4,
     spare5;
 
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
-				  ett_fldb_vlconf_cell, &item, "vlconf_cell:");
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1,
+                                     ett_fldb_vlconf_cell, &item, "vlconf_cell:");
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
   proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII|ENC_NA);
   name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, MAXVLCELLCHARS, ENC_ASCII); /* XXX why 114 above and 128 here?? */
-  offset += MAXVLCELLCHARS;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+  offset += MAXVLCELLCHARS;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
-
 
   /* afsHyper CellID;                     identifier for that cell  */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_cellid_high, &cellid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_cellid_high, &cellid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_cellid_low, &cellid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_cellid_low, &cellid_low);
   col_append_fstr (pinfo->cinfo, COL_INFO, " CellID:%u-%u", cellid_high,
-		     cellid_low);
-
+                     cellid_low);
 
   /* unsigned32 numServers;              *Num active servers for the cell */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_numservers, &numservers);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_numservers, &numservers);
   col_append_fstr (pinfo->cinfo, COL_INFO, " numServers:%u", numservers);
 
   /*    afsNetAddr hostAddr[MAXVLHOSTSPERCELL]; *addresses for cell's servers */
@@ -368,71 +356,67 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
       offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
     }
 
-
   /* hostnam hostName[MAXVLHOSTSPERCELL];        *Names for cell's servers* */
 
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
     {
       proto_tree_add_item (tree, hf_fldb_vlconf_cell_hostname, tvb, offset,
-			     64, ENC_ASCII|ENC_NA);
+                             64, ENC_ASCII|ENC_NA);
       hostname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 64, ENC_ASCII);
-      offset += 64;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+      offset += 64;             /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
       col_append_fstr (pinfo->cinfo, COL_INFO, " hostName: %s", hostname);
     }
 
   /*     unsigned32 spare1; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_spare1, &spare1);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_spare1, &spare1);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
-
 
   /*     unsigned32 spare2; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_spare2, &spare2);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_spare2, &spare2);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
 
   /*     unsigned32 spare3; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_spare3, &spare3);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_spare3, &spare3);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
-
 
   /*     unsigned32 spare4; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_spare4, &spare4);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_spare4, &spare4);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
   /*     unsigned32 spare5; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vlconf_cell_spare5, &spare5);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vlconf_cell_spare5, &spare5);
   col_append_fstr (pinfo->cinfo, COL_INFO, " spare5:%u", spare5);
-
 
   proto_item_set_len (item, offset - old_offset);
 
   return offset;
 }
 
-static int
-dissect_afsNameString_t (tvbuff_t * tvb, int offset,
-			 packet_info * pinfo, proto_tree * parent_tree,
-			 dcerpc_info *di, guint8 * drep)
-{
 
+static int
+dissect_afsNameString_t (tvbuff_t *tvb, int offset,
+                         packet_info *pinfo, proto_tree *parent_tree,
+                         dcerpc_info *di, guint8 *drep)
+{
 /*
 typedef [string] byte   NameString_t[AFS_NAMEMAX];
 */
 
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
-#define AFS_NAMEMAX    256
-  guint32 string_size;
+  proto_item   *item       = NULL;
+  proto_tree   *tree       = NULL;
+  int           old_offset = offset;
+#define AFS_NAMEMAX 256
+  guint32       string_size;
   const guint8 *namestring;
 
   if (di->conformant_run)
@@ -440,205 +424,202 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
       return offset;
     }
 
-
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
-				  ett_fldb_afsNameString_t, &item, "afsNameString_t:");    }
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1,
+                                     ett_fldb_afsNameString_t, &item, "afsNameString_t:");    }
 
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			       hf_fldb_afsNameString_t_principalName_size,
-			       &string_size);
+  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                               hf_fldb_afsNameString_t_principalName_size,
+                               &string_size);
   col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
       proto_tree_add_item (tree,
-			     hf_fldb_afsNameString_t_principalName_string,
-			     tvb, offset, string_size, ENC_ASCII|ENC_NA);
+                             hf_fldb_afsNameString_t_principalName_string,
+                             tvb, offset, string_size, ENC_ASCII|ENC_NA);
       namestring = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_size, ENC_ASCII);
       offset += string_size;
-	col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
+        col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }
   else
     {
-	col_append_fstr (pinfo->cinfo, COL_INFO,
-			 " :FIXME!: Invalid string length of  %u",
-			 string_size);
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+                         " :FIXME!: Invalid string length of  %u",
+                         string_size);
     }
   proto_item_set_len (item, offset - old_offset);
   return offset;
 }
 
 
-
 static int
-dissect_afsflags (tvbuff_t * tvb, int offset,
-		  packet_info * pinfo, proto_tree * parent_tree,
-		  dcerpc_info *di, guint8 * drep)
+dissect_afsflags (tvbuff_t *tvb, int offset,
+                  packet_info *pinfo, proto_tree *parent_tree,
+                  dcerpc_info *di, guint8 *drep)
 {
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
-  guint32 afsflags;
+  proto_item *item       = NULL;
+  proto_tree *tree       = NULL;
+  int         old_offset = offset;
+  guint32     afsflags;
 
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_afsflags, &item, "afsFlags:");
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fldb_afsflags, &item, "afsFlags:");
     }
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_afsflags_flags, &afsflags);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_afsflags_flags, &afsflags);
   if (afsflags)
     {
       col_append_str (pinfo->cinfo, COL_INFO, " afsFlags=");
       if ((afsflags & AFS_FLAG_RETURNTOKEN) == AFS_FLAG_RETURNTOKEN)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
+        }
       if ((afsflags & AFS_FLAG_TOKENJUMPQUEUE) == AFS_FLAG_TOKENJUMPQUEUE)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
+        }
       if ((afsflags & AFS_FLAG_SKIPTOKEN) == AFS_FLAG_SKIPTOKEN)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
+        }
       if ((afsflags & AFS_FLAG_NOOPTIMISM) == AFS_FLAG_NOOPTIMISM)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
+        }
       if ((afsflags & AFS_FLAG_TOKENID) == AFS_FLAG_TOKENID)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
+        }
       if ((afsflags & AFS_FLAG_RETURNBLOCKER) == AFS_FLAG_RETURNBLOCKER)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
+        }
       if ((afsflags & AFS_FLAG_ASYNCGRANT) == AFS_FLAG_ASYNCGRANT)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
+        }
       if ((afsflags & AFS_FLAG_NOREVOKE) == AFS_FLAG_NOREVOKE)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
+        }
       if ((afsflags & AFS_FLAG_MOVE_REESTABLISH) == AFS_FLAG_MOVE_REESTABLISH)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
+        }
       if ((afsflags & AFS_FLAG_SERVER_REESTABLISH) ==
-	  AFS_FLAG_SERVER_REESTABLISH)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
-	  if ((afsflags & AFS_FLAG_NO_NEW_EPOCH) == AFS_FLAG_NO_NEW_EPOCH)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
-	    }
-	  if ((afsflags & AFS_FLAG_MOVE_SOURCE_OK) == AFS_FLAG_MOVE_SOURCE_OK)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
-	    }
-	  if ((afsflags & AFS_FLAG_SYNC) == AFS_FLAG_SYNC)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
-	    }
-	  if ((afsflags & AFS_FLAG_ZERO) == AFS_FLAG_ZERO)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
-	    }
-	  if ((afsflags & AFS_FLAG_SKIPSTATUS) == AFS_FLAG_SKIPSTATUS)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
-	    }
-	  if ((afsflags & AFS_FLAG_FORCEREVOCATIONS) ==
-	      AFS_FLAG_FORCEREVOCATIONS)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
-	    }
-	  if ((afsflags & AFS_FLAG_FORCEVOLQUIESCE) ==
-	      AFS_FLAG_FORCEVOLQUIESCE)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
-	    }
-	  if ((afsflags & AFS_FLAG_SEC_SERVICE) == AFS_FLAG_SEC_SERVICE)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
-	    }
-	  if ((afsflags & AFS_FLAG_CONTEXT_NEW_ACL_IF) ==
-	      AFS_FLAG_CONTEXT_NEW_ACL_IF)
-	    {
-	      col_append_str (pinfo->cinfo, COL_INFO,
-				":CONTEXT_NEW_ACL_IF");
-	    }
+          AFS_FLAG_SERVER_REESTABLISH)
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
+          if ((afsflags & AFS_FLAG_NO_NEW_EPOCH) == AFS_FLAG_NO_NEW_EPOCH)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
+            }
+          if ((afsflags & AFS_FLAG_MOVE_SOURCE_OK) == AFS_FLAG_MOVE_SOURCE_OK)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
+            }
+          if ((afsflags & AFS_FLAG_SYNC) == AFS_FLAG_SYNC)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
+            }
+          if ((afsflags & AFS_FLAG_ZERO) == AFS_FLAG_ZERO)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
+            }
+          if ((afsflags & AFS_FLAG_SKIPSTATUS) == AFS_FLAG_SKIPSTATUS)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
+            }
+          if ((afsflags & AFS_FLAG_FORCEREVOCATIONS) ==
+              AFS_FLAG_FORCEREVOCATIONS)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
+            }
+          if ((afsflags & AFS_FLAG_FORCEVOLQUIESCE) ==
+              AFS_FLAG_FORCEVOLQUIESCE)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
+            }
+          if ((afsflags & AFS_FLAG_SEC_SERVICE) == AFS_FLAG_SEC_SERVICE)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
+            }
+          if ((afsflags & AFS_FLAG_CONTEXT_NEW_ACL_IF) ==
+              AFS_FLAG_CONTEXT_NEW_ACL_IF)
+            {
+              col_append_str (pinfo->cinfo, COL_INFO,
+                                ":CONTEXT_NEW_ACL_IF");
+            }
 
-	}
+        }
     }
 
   proto_item_set_len (item, offset - old_offset);
 
   return offset;
-
 }
 
 
 static int
-dissect_siteflags (tvbuff_t * tvb, int offset,
-		   packet_info * pinfo, proto_tree * parent_tree,
-		   dcerpc_info *di, guint8 * drep)
+dissect_siteflags (tvbuff_t *tvb, int offset,
+                   packet_info *pinfo, proto_tree *parent_tree,
+                   dcerpc_info *di, guint8 *drep)
 {
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
-  guint32 siteflags;
+  proto_item *item       = NULL;
+  proto_tree *tree       = NULL;
+  int         old_offset = offset;
+  guint32     siteflags;
 
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_siteflags, &item, "SiteFlags:");
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fldb_siteflags, &item, "SiteFlags:");
     }
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_siteflags,
-			&siteflags);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_siteflags,
+                        &siteflags);
 
   if (siteflags)
     {
       col_append_str (pinfo->cinfo, COL_INFO, " SiteFlags");
       if ((siteflags & VLSF_NEWREPSITE) == VLSF_NEWREPSITE)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":NEWREPSITE");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":NEWREPSITE");
+        }
       if ((siteflags & VLSF_SPARE1) == VLSF_SPARE1)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE1");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SPARE1");
+        }
       if ((siteflags & VLSF_SPARE2) == VLSF_SPARE2)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE2");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SPARE2");
+        }
       if ((siteflags & VLSF_SPARE3) == VLSF_SPARE3)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE3");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SPARE3");
+        }
       if ((siteflags & VLSF_SAMEASPREV) == VLSF_SAMEASPREV)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":SAMEASPREV");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":SAMEASPREV");
+        }
       if ((siteflags & VLSF_DEFINED) == VLSF_DEFINED)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":DEFINED");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":DEFINED");
+        }
       if ((siteflags & VLSF_PARTIALADDRS) == VLSF_PARTIALADDRS)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":PARTIALADDRS ");
-	}
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":PARTIALADDRS ");
+        }
       if ((siteflags & VLSF_ZEROIXHERE) == VLSF_ZEROIXHERE)
-	{
-	  col_append_str (pinfo->cinfo, COL_INFO, ":ZEROIXHERE");
+        {
+          col_append_str (pinfo->cinfo, COL_INFO, ":ZEROIXHERE");
 
-	}
+        }
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -647,50 +628,49 @@ dissect_siteflags (tvbuff_t * tvb, int offset,
 }
 
 
-
 static int
-dissect_vldbentry (tvbuff_t * tvb, int offset,
-		   packet_info * pinfo, proto_tree * parent_tree,
-		   dcerpc_info *di, guint8 * drep)
+dissect_vldbentry (tvbuff_t *tvb, int offset,
+                   packet_info *pinfo, proto_tree *parent_tree,
+                   dcerpc_info *di, guint8 *drep)
 {
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
-  int old_offset = offset;
+  proto_item   *item       = NULL;
+  proto_tree   *tree       = NULL;
+  int           old_offset = offset;
   const guint8 *volumename, *siteprincipal, *charspares, *lockername;
-  guint32 volumetype, nservers, sitepartition, sitemaxreplicalatency,
-    volids_high, volids_low, voltypes, cloneid_high, cloneid_low,
-    maxtotallatency, hardmaxtotallatency, minimumpouncedally,
-    defaultmaxreplicalatency, reclaimdally, whenlocked, spare1, spare2,
-    spare3, spare4;
-  e_uuid_t siteowner, siteobjid;
-  gint i;
+  guint32       volumetype, nservers, sitepartition, sitemaxreplicalatency;
+  guint32       volids_high, volids_low, voltypes, cloneid_high, cloneid_low;
+  guint32       maxtotallatency, hardmaxtotallatency, minimumpouncedally;
+  guint32       defaultmaxreplicalatency, reclaimdally, whenlocked;
+  guint32       spare1, spare2, spare3, spare4;
+  e_uuid_t      siteowner, siteobjid;
+  gint          i;
 #define MAXNSERVERS 16
 #define MAXVOLTYPES 8
 #define MAXLOCKNAMELEN 64
 
   if (parent_tree)
     {
-      tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_fldb_vldbentry, &item, "vldbentry:");
+      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fldb_vldbentry, &item, "vldbentry:");
     }
 
 /*    byte            name[114];      Volume name  */
 
   proto_tree_add_item (tree, hf_fldb_vldbentry_volumename, tvb, offset, 114,
-		       ENC_ASCII|ENC_NA);
+                       ENC_ASCII|ENC_NA);
   volumename = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 114, ENC_ASCII);
-  offset += 110;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", volumename);
+  offset += 110;                /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", volumename);
 
   /* unsigned32      volumeType; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_volumetype, &volumetype);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_volumetype, &volumetype);
     col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", volumetype);
 
   /*unsigned32      nServers; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_nservers, &nservers);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_nservers, &nservers);
     col_append_fstr (pinfo->cinfo, COL_INFO, " nServers:%u", nservers);
 
   /* afsNetAddr      siteAddr[MAXNSERVERS]; 16 */
@@ -705,15 +685,14 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_sitepartition, &sitepartition);
+        dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_sitepartition, &sitepartition);
       if (sitepartition)
-	{
-	    col_append_fstr (pinfo->cinfo, COL_INFO, " LFS:%u",
-			     sitepartition);
-	}
+        {
+            col_append_fstr (pinfo->cinfo, COL_INFO, " LFS:%u",
+                             sitepartition);
+        }
     }
-
 
   /* unsigned32      siteFlags[MAXNSERVERS]; */
   for (i = 0; i < MAXNSERVERS; i++)
@@ -725,23 +704,23 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_sitemaxreplicalatency,
-			    &sitemaxreplicalatency);
+        dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_sitemaxreplicalatency,
+                            &sitemaxreplicalatency);
       if (sitemaxreplicalatency)
-	{
-	    col_append_fstr (pinfo->cinfo, COL_INFO, " MaxRepLat%d:%u", i,
-			     sitemaxreplicalatency);
-	}
+        {
+            col_append_fstr (pinfo->cinfo, COL_INFO, " MaxRepLat%d:%u", i,
+                             sitemaxreplicalatency);
+        }
     }
   /* kerb_princ_name sitePrincipal[MAXNSERVERS];      principal  */
   for (i = 0; i < MAXNSERVERS; i++)
     {
       proto_tree_add_item (tree, hf_fldb_vldbentry_siteprincipal, tvb,
-			   offset, 64, ENC_ASCII|ENC_NA);
+                           offset, 64, ENC_ASCII|ENC_NA);
       siteprincipal = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 64, ENC_ASCII);
       offset += 64;
-	col_append_fstr (pinfo->cinfo, COL_INFO, " Princ: %s", siteprincipal);
+        col_append_fstr (pinfo->cinfo, COL_INFO, " Princ: %s", siteprincipal);
     }
 
   /* afsUUID         siteOwner[MAXNSERVERS]; */
@@ -749,33 +728,31 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_siteowner, &siteowner);
-	col_append_fstr (pinfo->cinfo, COL_INFO,
-			 " SiteOwner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			 siteowner.Data1, siteowner.Data2, siteowner.Data3,
-			 siteowner.Data4[0], siteowner.Data4[1],
-			 siteowner.Data4[2], siteowner.Data4[3],
-			 siteowner.Data4[4], siteowner.Data4[5],
-			 siteowner.Data4[6], siteowner.Data4[7]);
+        dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_siteowner, &siteowner);
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+                         " SiteOwner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                         siteowner.Data1, siteowner.Data2, siteowner.Data3,
+                         siteowner.Data4[0], siteowner.Data4[1],
+                         siteowner.Data4[2], siteowner.Data4[3],
+                         siteowner.Data4[4], siteowner.Data4[5],
+                         siteowner.Data4[6], siteowner.Data4[7]);
     }
-
 
 /*                afsUUID         siteObjID[MAXNSERVERS]; */
   for (i = 0; i < MAXNSERVERS; i++)
     {
       offset =
-	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_siteobjid, &siteobjid);
-	col_append_fstr (pinfo->cinfo, COL_INFO,
-			 " SiteObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			 siteobjid.Data1, siteobjid.Data2, siteobjid.Data3,
-			 siteobjid.Data4[0], siteobjid.Data4[1],
-			 siteobjid.Data4[2], siteobjid.Data4[3],
-			 siteobjid.Data4[4], siteobjid.Data4[5],
-			 siteobjid.Data4[6], siteobjid.Data4[7]);
+        dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_siteobjid, &siteobjid);
+        col_append_fstr (pinfo->cinfo, COL_INFO,
+                         " SiteObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                         siteobjid.Data1, siteobjid.Data2, siteobjid.Data3,
+                         siteobjid.Data4[0], siteobjid.Data4[1],
+                         siteobjid.Data4[2], siteobjid.Data4[3],
+                         siteobjid.Data4[4], siteobjid.Data4[5],
+                         siteobjid.Data4[6], siteobjid.Data4[7]);
     }
-
 
   /* afsHyper        VolIDs[MAXVOLTYPES]; */
   /* XXX for these hypers, I will skip trying to use non portable guint64, and just read both, and use only low.
@@ -783,174 +760,158 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXVOLTYPES; i++)
     {
       offset =
-	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_volids_high, &volids_high);
+        dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_volids_high, &volids_high);
       offset =
-	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_volids_low, &volids_low);
-	col_append_fstr (pinfo->cinfo, COL_INFO, " VolIDs%d:%u", i,
-			 volids_low);
+        dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_volids_low, &volids_low);
+        col_append_fstr (pinfo->cinfo, COL_INFO, " VolIDs%d:%u", i,
+                         volids_low);
     }
-
 
   /* unsigned32      VolTypes[MAXVOLTYPES]; */
   for (i = 0; i < MAXVOLTYPES; i++)
     {
       offset =
-	dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			    hf_fldb_vldbentry_voltypes, &voltypes);
+        dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                            hf_fldb_vldbentry_voltypes, &voltypes);
       if (voltypes)
-	{
-	    col_append_fstr (pinfo->cinfo, COL_INFO, " VolTypes:%d:%u", i,
-			     voltypes);
-	}
+        {
+            col_append_fstr (pinfo->cinfo, COL_INFO, " VolTypes:%d:%u", i,
+                             voltypes);
+        }
     }
 
   /* afsHyper        cloneId;         Used during cloning  */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_cloneid_high, &cloneid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_cloneid_high, &cloneid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_cloneid_low, &cloneid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_cloneid_low, &cloneid_low);
   if (cloneid_low)
     {
-	col_append_fstr (pinfo->cinfo, COL_INFO, " CloneId:%u", cloneid_low);
+        col_append_fstr (pinfo->cinfo, COL_INFO, " CloneId:%u", cloneid_low);
     }
 
   /*  unsigned32      flags;           General flags  */
   offset = dissect_afsflags (tvb, offset, pinfo, tree, di, drep);
 
-
-
   /* unsigned32      maxTotalLatency; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_maxtotallatency, &maxtotallatency);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_maxtotallatency, &maxtotallatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " MaxTotLat:%u",
-		     maxtotallatency);
-
+                     maxtotallatency);
 
   /* unsigned32      hardMaxTotalLatency; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_hardmaxtotallatency,
-			&hardmaxtotallatency);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_hardmaxtotallatency,
+                        &hardmaxtotallatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " HardMaxTotLat:%u",
-		     hardmaxtotallatency);
-
+                     hardmaxtotallatency);
 
   /* unsigned32      minimumPounceDally; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_minimumpouncedally,
-			&minimumpouncedally);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_minimumpouncedally,
+                        &minimumpouncedally);
     col_append_fstr (pinfo->cinfo, COL_INFO, " minPounceDally:%u",
-		     minimumpouncedally);
-
+                     minimumpouncedally);
 
   /* unsigned32      defaultMaxReplicaLatency; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_defaultmaxreplicalatency,
-			&defaultmaxreplicalatency);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_defaultmaxreplicalatency,
+                        &defaultmaxreplicalatency);
     col_append_fstr (pinfo->cinfo, COL_INFO, " defaultMaxReplicaLatency:%u",
-		     defaultmaxreplicalatency);
+                     defaultmaxreplicalatency);
 
   /* unsigned32      reclaimDally; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_reclaimdally, &reclaimdally);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_reclaimdally, &reclaimdally);
     col_append_fstr (pinfo->cinfo, COL_INFO, " reclaimDally:%u",
-		     reclaimdally);
-
+                     reclaimdally);
 
   /*   unsigned32      WhenLocked; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_whenlocked, &whenlocked);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_whenlocked, &whenlocked);
     col_append_fstr (pinfo->cinfo, COL_INFO, " WhenLocked:%u", whenlocked);
-
 
   /*                unsigned32      spare1; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_spare1, &spare1);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_spare1, &spare1);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
 
   /*                unsigned32      spare2; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_spare2, &spare2);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_spare2, &spare2);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
-
 
   /*                unsigned32      spare3; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_spare3, &spare3);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_spare3, &spare3);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
 
   /*                unsigned32      spare4; */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_vldbentry_spare4, &spare4);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_vldbentry_spare4, &spare4);
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
 
   /* byte            LockerName[MAXLOCKNAMELEN]; */
   proto_tree_add_item (tree, hf_fldb_vldbentry_lockername, tvb, offset,
-		       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA);
+                       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA);
   lockername = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, MAXLOCKNAMELEN, ENC_ASCII);
-  offset += MAXLOCKNAMELEN;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+  offset += MAXLOCKNAMELEN;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
     col_append_fstr (pinfo->cinfo, COL_INFO, " LockerName: %s", lockername);
 
   /*     byte            charSpares[50]; */
   proto_tree_add_item (tree, hf_fldb_vldbentry_charspares, tvb, offset, 50,
-		       ENC_ASCII|ENC_NA);
+                       ENC_ASCII|ENC_NA);
   charspares = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 50, ENC_ASCII);
-  offset += 50;			/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+  offset += 50;                 /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
     col_append_fstr (pinfo->cinfo, COL_INFO, " charSpares:%s", charspares);
-
-
 
   proto_item_set_len (item, offset - old_offset);
 
   return offset;
-
-
 }
 
+
 static int
-fldb_dissect_getcellinfo_resp (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
 
-
 /* [out] vlconf_cell *MyCell */
   offset = dissect_vlconf_cell (tvb, offset, pinfo, tree, di, drep);
-
 
   return offset;
 }
 
 
-
 static int
-fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
-				  packet_info * pinfo, proto_tree * tree,
-				  dcerpc_info *di, guint8 * drep)
+fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, int offset,
+                                  packet_info *pinfo, proto_tree *tree,
+                                  dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
-
 
   /*
    *     [in] volumeName volName,
@@ -959,15 +920,14 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
   offset += 4;
   offset = dissect_afsNameString_t (tvb, offset, pinfo, tree, di, drep);
 
-
   return offset;
-
 }
 
+
 static int
-fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
-				  packet_info * pinfo, proto_tree * tree,
-				  dcerpc_info *di, guint8 * drep)
+fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, int offset,
+                                  packet_info *pinfo, proto_tree *tree,
+                                  dcerpc_info *di, guint8 *drep)
 {
   /*
      [out] vldbentry *entry
@@ -983,17 +943,16 @@ fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
   return offset;
 }
 
+
 static int
-fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
-
-
 
   /*
    *   [in] afsNetAddr *OldAddr,
@@ -1002,7 +961,6 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
 
   offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
 
-
   /*
    *
    * [in] afsNetAddr *OldAddr,
@@ -1010,18 +968,19 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
    unsigned8 data[14];
    */
 
-
   return offset;
 }
+
+
 static int
-fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   const guint8 *namestring;
-  e_uuid_t owner, objid;
-  guint32 creationquota, creationuses, deletedflag, spare2, spare3, spare4,
-    spare5;
+  e_uuid_t      owner, objid;
+  guint32       creationquota, creationuses, deletedflag;
+  guint32       spare2, spare3, spare4, spare5;
 
   if (di->conformant_run)
     {
@@ -1047,7 +1006,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 
   /* handle byte KerbPrin[64]. */
 
-  offset += 48;			/* part of kerbprin before name... */
+  offset += 48;                 /* part of kerbprin before name... */
 
   proto_tree_add_item (tree, hf_fldb_namestring, tvb, offset, 64, ENC_ASCII|ENC_NA);
   namestring = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 64, ENC_ASCII);
@@ -1056,59 +1015,59 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_owner, &owner);
   col_append_fstr (pinfo->cinfo, COL_INFO,
-		     " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-		     owner.Data1, owner.Data2, owner.Data3, owner.Data4[0],
-		     owner.Data4[1], owner.Data4[2], owner.Data4[3],
-		     owner.Data4[4], owner.Data4[5], owner.Data4[6],
-		     owner.Data4[7]);
+                     " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                     owner.Data1, owner.Data2, owner.Data3, owner.Data4[0],
+                     owner.Data4[1], owner.Data4[2], owner.Data4[3],
+                     owner.Data4[4], owner.Data4[5], owner.Data4[6],
+                     owner.Data4[7]);
 
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_objid,
-			&objid);
+                        &objid);
   col_append_fstr (pinfo->cinfo, COL_INFO,
-		     " ObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-		     objid.Data1, objid.Data2, objid.Data3, objid.Data4[0],
-		     objid.Data4[1], objid.Data4[2], objid.Data4[3],
-		     objid.Data4[4], objid.Data4[5], objid.Data4[6],
-		     objid.Data4[7]);
+                     " ObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                     objid.Data1, objid.Data2, objid.Data3, objid.Data4[0],
+                     objid.Data4[1], objid.Data4[2], objid.Data4[3],
+                     objid.Data4[4], objid.Data4[5], objid.Data4[6],
+                     objid.Data4[7]);
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_creationquota,
-			&creationquota);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_creationquota,
+                        &creationquota);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_creationuses,
-			&creationuses);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_creationuses,
+                        &creationuses);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_deletedflag,
-			&deletedflag);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_deletedflag,
+                        &deletedflag);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare2,
-			&spare2);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_spare2,
+                        &spare2);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare3,
-			&spare3);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_spare3,
+                        &spare3);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare4,
-			&spare4);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_spare4,
+                        &spare4);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_spare5,
-			&spare5);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_spare5,
+                        &spare5);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
-		     " CreationQuota:%u CreationUses:%u DeletedFlag:%u Spare2:%u Spare3:%u Spare4:%u Spare5:%u",
-		     creationquota, creationuses, deletedflag, spare2, spare3,
-		     spare4, spare5);
+                     " CreationQuota:%u CreationUses:%u DeletedFlag:%u Spare2:%u Spare3:%u Spare4:%u Spare5:%u",
+                     creationquota, creationuses, deletedflag, spare2, spare3,
+                     spare4, spare5);
 
   MACRO_ST_CLEAR ("GetSiteInfo reply");
 
   return offset;
-
 }
 
+
 static int
-fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
-			     packet_info * pinfo, proto_tree * tree,
-			     dcerpc_info *di, guint8 * drep)
+fldb_dissect_listentry_rqst (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             dcerpc_info *di, guint8 *drep)
 {
   guint32 var1, previous_index;
 
@@ -1116,7 +1075,6 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
     {
       return offset;
     }
-
 
   /*
    *               [in] unsigned32 previous_index,
@@ -1126,26 +1084,25 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_listentry_rqst_previous_index,
-			&previous_index);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_listentry_rqst_previous_index,
+                        &previous_index);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_listentry_rqst_var1, &var1);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_listentry_rqst_var1, &var1);
 
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :PrevIndex: %u",
-		     previous_index);
-
+                     previous_index);
 
   return offset;
-
 }
 
+
 static int
-fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
-			     packet_info * pinfo, proto_tree * tree,
-			     dcerpc_info *di, guint8 * drep)
+fldb_dissect_listentry_resp (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             dcerpc_info *di, guint8 *drep)
 {
   guint32 count, next_index;
 
@@ -1154,7 +1111,6 @@ fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
   /*
    *               [out] unsigned32 *count,
    *               [out] unsigned32 *next_index,
@@ -1162,20 +1118,20 @@ fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_listentry_resp_count, &count);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_listentry_resp_count, &count);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_listentry_resp_next_index, &next_index);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_listentry_resp_next_index, &next_index);
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
-
 }
 
+
 static int
-fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
-			   packet_info * pinfo, proto_tree * tree,
-			   dcerpc_info *di, guint8 * drep)
+fldb_dissect_setlock_rqst (tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree,
+                           dcerpc_info *di, guint8 *drep)
 {
   guint32 fsid_high, fsid_low, voltype, voloper;
 
@@ -1184,31 +1140,31 @@ fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_setlock_rqst_fsid_high, &fsid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_setlock_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_setlock_rqst_fsid_low, &fsid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_setlock_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_setlock_rqst_voltype, &voltype);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_setlock_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_setlock_rqst_voloper, &voloper);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_setlock_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
-		     " :FSID:%u/%u VolType:0x%x VolOper:%u", fsid_high,
-		     fsid_low, voltype, voloper);
+                     " :FSID:%u/%u VolType:0x%x VolOper:%u", fsid_high,
+                     fsid_low, voltype, voloper);
 
   return offset;
-
 }
+
+
 static int
-fldb_dissect_setlock_resp (tvbuff_t * tvb, int offset,
-			   packet_info * pinfo, proto_tree * tree,
-			   dcerpc_info *di, guint8 * drep)
+fldb_dissect_setlock_resp (tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree,
+                           dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
@@ -1217,36 +1173,36 @@ fldb_dissect_setlock_resp (tvbuff_t * tvb, int offset,
 
   MACRO_ST_CLEAR ("SetLock reply");
 
-
-
   return offset;
 }
+
+
 static int
-fldb_dissect_deleteentry_resp (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_deleteentry_resp (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
 
-
   MACRO_ST_CLEAR ("DeleteEntry reply");
 
   return offset;
 }
 
-static int
-fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
-{
 
+static int
+fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
+{
 /*
                 [in] afsHyper *Volid,
-		[in] unsigned32 voltype
+                [in] unsigned32 voltype
 */
+
   guint32 fsid_high, fsid_low, voltype, voloper;
 
   if (di->conformant_run)
@@ -1254,33 +1210,31 @@ fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
-
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_deleteentry_rqst_fsid_high, &fsid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_deleteentry_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_deleteentry_rqst_fsid_low, &fsid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_deleteentry_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_deleteentry_rqst_voltype, &voltype);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_deleteentry_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_deleteentry_rqst_voloper, &voloper);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_deleteentry_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
-		     fsid_low);
+                     fsid_low);
 
 
   return offset;
-
 }
 
+
 static int
-fldb_dissect_createentry_resp (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_createentry_resp (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
@@ -1292,26 +1246,26 @@ fldb_dissect_createentry_resp (tvbuff_t * tvb, int offset,
   return offset;
 }
 
+
 static int
-fldb_dissect_createentry_rqst (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_createentry_rqst (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
 
-
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
-
 }
 
+
 static int
-fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
-				packet_info * pinfo, proto_tree * tree,
-				dcerpc_info *di, guint8 * drep)
+fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, int offset,
+                                packet_info *pinfo, proto_tree *tree,
+                                dcerpc_info *di, guint8 *drep)
 {
   guint32 volid_high, volid_low, voltype;
 
@@ -1320,35 +1274,33 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
-
 /*
-		[in] afsHyper *Volid,
-		[in] unsigned32 voltype,
+                [in] afsHyper *Volid,
+                [in] unsigned32 voltype,
 */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_high,
-			&volid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_high,
+                        &volid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_low,
-			&volid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_volid_low,
+                        &volid_low);
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_voltype,
-			&voltype);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_voltype,
+                        &voltype);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " VolID:%u/%u VolType:0x%x",
-		     volid_high, volid_low, voltype);
+                     volid_high, volid_low, voltype);
 
   return offset;
-
 }
 
+
 static int
-fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
-				   packet_info * pinfo, proto_tree * tree,
-				   dcerpc_info *di, guint8 * drep)
+fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, int offset,
+                                   packet_info *pinfo, proto_tree *tree,
+                                   dcerpc_info *di, guint8 *drep)
 {
 /*              [in] unsigned32 numWanted,
                 [in] afsNetAddr *ServerAddr,
@@ -1361,35 +1313,35 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
     }
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_numwanted,
-			&numwanted);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_numwanted,
+                        &numwanted);
   col_append_fstr (pinfo->cinfo, COL_INFO, " numWanted:%u", numwanted);
-
 
   offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, di, drep);
 
   return offset;
 }
 
+
 static int
-fldb_dissect_getentrybyid_resp (tvbuff_t * tvb, int offset,
-				packet_info * pinfo, proto_tree * tree,
-				dcerpc_info *di, guint8 * drep)
+fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, int offset,
+                                packet_info *pinfo, proto_tree *tree,
+                                dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
 
-
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
   return offset;
 }
 
+
 static int
-fldb_dissect_releaselock_resp (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_releaselock_resp (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
@@ -1404,9 +1356,9 @@ fldb_dissect_releaselock_resp (tvbuff_t * tvb, int offset,
 
 
 static int
-fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
-			       packet_info * pinfo, proto_tree * tree,
-			       dcerpc_info *di, guint8 * drep)
+fldb_dissect_releaselock_rqst (tvbuff_t *tvb, int offset,
+                               packet_info *pinfo, proto_tree *tree,
+                               dcerpc_info *di, guint8 *drep)
 {
   guint32 fsid_high, fsid_low, voltype, voloper;
 
@@ -1415,46 +1367,47 @@ fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_releaselock_rqst_fsid_high, &fsid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_releaselock_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_releaselock_rqst_fsid_low, &fsid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_releaselock_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_releaselock_rqst_voltype, &voltype);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_releaselock_rqst_voltype, &voltype);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_releaselock_rqst_voloper, &voloper);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_releaselock_rqst_voloper, &voloper);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
-		     fsid_low);
+                     fsid_low);
 
   return offset;
 
 }
+
+
 static int
-fldb_dissect_replaceentry_resp (tvbuff_t * tvb, int offset,
-				packet_info * pinfo, proto_tree * tree,
-				dcerpc_info *di, guint8 * drep)
+fldb_dissect_replaceentry_resp (tvbuff_t *tvb, int offset,
+                                packet_info *pinfo, proto_tree *tree,
+                                dcerpc_info *di, guint8 *drep)
 {
   if (di->conformant_run)
     {
       return offset;
     }
 
-
   MACRO_ST_CLEAR ("ReplaceEntry reply");
-
 
   return offset;
 }
+
+
 static int
-fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
-				      packet_info * pinfo, proto_tree * tree,
-				      dcerpc_info *di, guint8 * drep)
+fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, int offset,
+                                      packet_info *pinfo, proto_tree *tree,
+                                      dcerpc_info *di, guint8 *drep)
 {
   guint32 nextstartp, flagsp;
 
@@ -1463,17 +1416,12 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
       return offset;
     }
 
-
-
-
-
   /*    [out] unsigned32 *nextStartP, */
 /* XXX */
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_nextstartp,
-			&nextstartp);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_nextstartp,
+                        &nextstartp);
   col_append_fstr (pinfo->cinfo, COL_INFO, " nextStartP:%u", nextstartp);
-
 
   /*  [out] vldbentry *entry, */
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
@@ -1482,18 +1430,19 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
   /* [out] unsigned32 *flagsP */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_fldb_flagsp,
-			&flagsp);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_flagsp,
+                        &flagsp);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " flagsp:%u", flagsp);
 
   return offset;
 }
 
+
 static int
-fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
-				packet_info * pinfo, proto_tree * tree,
-				dcerpc_info *di, guint8 * drep)
+fldb_dissect_replaceentry_rqst (tvbuff_t *tvb, int offset,
+                                packet_info *pinfo, proto_tree *tree,
+                                dcerpc_info *di, guint8 *drep)
 {
   guint32 fsid_high, fsid_low, voltype;
 
@@ -1510,18 +1459,17 @@ fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
    */
 
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_replaceentry_rqst_fsid_high, &fsid_high);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_replaceentry_rqst_fsid_high, &fsid_high);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_replaceentry_rqst_fsid_low, &fsid_low);
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_replaceentry_rqst_fsid_low, &fsid_low);
   offset =
-    dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_fldb_replaceentry_rqst_voltype, &voltype);
-
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
+                        hf_fldb_replaceentry_rqst_voltype, &voltype);
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " FSID:%u/%u Name:", fsid_high,
-		     fsid_low);
+                   fsid_low);
 
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, di, drep);
 
@@ -1992,10 +1940,24 @@ proto_register_fldb (void)
   proto_register_subtree_array (ett, array_length (ett));
 }
 
+
 void
 proto_reg_handoff_fldb (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_fldb, ett_fldb, &uuid_fldb, ver_fldb,
-		    fldb_dissectors, hf_fldb_opnum);
+                    fldb_dissectors, hf_fldb_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

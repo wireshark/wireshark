@@ -288,7 +288,7 @@ proto_register_yhoo(void)
 		{ &hf_yhoo_version, {
 				"Version", "yhoo.version", FT_STRING, BASE_NONE,
 				NULL, 0, "Packet version identifier", HFILL }},
-        };
+	};
 	static gint *ett[] = {
 		&ett_yhoo,
 	};
@@ -313,3 +313,16 @@ proto_reg_handoff_yhoo(void)
 	 */
 	heur_dissector_add("tcp", dissect_yhoo, proto_yhoo);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -59,35 +59,35 @@ static gint ett_message = -1;
  * 'nDescriptor* descriptors[MAXDESCRIPTORS]' array
  */
 static const value_string descriptors[] = {
-	{1, "ack"},
-	{2, "req_info"},
-	{3, "login_deny"},
-	{4, "login_ignore"},
-	{5, "login_accept"},
-	{6, "login1"},
-	{7, "logout"},
-	{8, "sn_ConsoleOut"},
-	{9, "client_cen"},
-	{10, "version"},
-	{11, "login2"},
-	{20, "req_id"},
-	{21, "id_req_handler"},
-	{22, "net_destroy"},
-	{23, "net_control"},
-	{24, "net_sync"},
-	{25, "ready to get objects"},
-	{26, "net_clear"},
-	{27, "sync_ack"},
-	{28, "sync_msg"},
-	{40, "password_request"},
-	{41, "password_answer"},
-	{50, "small_server"},
-	{51, "big_server"},
-	{52, "small_request"},
-	{53, "big_request"},
-	{54, "big_server_master"},
-	{55, "big_request_master"},
-	{60, "transfer config"},
+	{  1, "ack"},
+	{  2, "req_info"},
+	{  3, "login_deny"},
+	{  4, "login_ignore"},
+	{  5, "login_accept"},
+	{  6, "login1"},
+	{  7, "logout"},
+	{  8, "sn_ConsoleOut"},
+	{  9, "client_cen"},
+	{ 10, "version"},
+	{ 11, "login2"},
+	{ 20, "req_id"},
+	{ 21, "id_req_handler"},
+	{ 22, "net_destroy"},
+	{ 23, "net_control"},
+	{ 24, "net_sync"},
+	{ 25, "ready to get objects"},
+	{ 26, "net_clear"},
+	{ 27, "sync_ack"},
+	{ 28, "sync_msg"},
+	{ 40, "password_request"},
+	{ 41, "password_answer"},
+	{ 50, "small_server"},
+	{ 51, "big_server"},
+	{ 52, "small_request"},
+	{ 53, "big_request"},
+	{ 54, "big_server_master"},
+	{ 55, "big_request_master"},
+	{ 60, "transfer config"},
 	{200, "Chat"},
 	{201, "ePlayerNetID"},
 	{202, "player_removed_from_game"},
@@ -145,8 +145,8 @@ static void
 add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 {
 	gchar *data = NULL;
-	gchar tmp;
-	int i;
+	gchar  tmp;
+	int    i;
 
 	if (!tree)
 		return;
@@ -179,10 +179,10 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 static gint
 add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, wmem_strbuf_t * info)
 {
-	guint16 descriptor_id, message_id;
-	gint data_len;
-	proto_item *msg;
-	proto_tree *msg_tree;
+	guint16      descriptor_id, message_id;
+	gint         data_len;
+	proto_item  *msg;
+	proto_tree  *msg_tree;
 	const gchar *descriptor;
 
 	descriptor_id = tvb_get_ntohs(tvb, offset);
@@ -230,12 +230,12 @@ add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, wmem_strbuf_t * info
 static gint
 dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
-	proto_item *ti;
-	proto_tree *armagetronad_tree;
-	guint16 sender;
-	gint offset = 0;
+	proto_item    *ti;
+	proto_tree    *armagetronad_tree;
+	guint16        sender;
+	gint           offset = 0;
 	wmem_strbuf_t *info;
-	gsize new_len;
+	gsize          new_len;
 
 	if (!is_armagetronad_packet(tvb))
 		return 0;
@@ -329,3 +329,16 @@ void proto_reg_handoff_armagetronad(void)
 	dissector_add_uint("udp.port", UDP_PORT_ARMAGETRONAD, armagetronad_handle);
 	dissector_add_uint("udp.port", UDP_PORT_MASTER, armagetronad_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -503,3 +503,16 @@ void proto_reg_handoff_gsm_ipa(void)
 	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_handle);
 	dissector_add_uint_range("tcp.port", ipa_tcp_ports, ipa_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

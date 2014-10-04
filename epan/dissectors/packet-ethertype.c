@@ -247,14 +247,14 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 static int
 dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	const char		*description;
-	tvbuff_t		*volatile next_tvb;
-	guint			length_before;
-	gint			captured_length, reported_length;
-	volatile gboolean	dissector_found = FALSE;
-	const char		*volatile saved_proto;
-	void			*pd_save;
-	ethertype_data_t* ethertype_data;
+	const char	  *description;
+	tvbuff_t	  *volatile next_tvb;
+	guint		   length_before;
+	gint		   captured_length, reported_length;
+	volatile gboolean  dissector_found = FALSE;
+	const char	  *volatile saved_proto;
+	void		  *pd_save;
+	ethertype_data_t  *ethertype_data;
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
@@ -408,3 +408,16 @@ proto_reg_handoff_ethertype(void)
 {
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

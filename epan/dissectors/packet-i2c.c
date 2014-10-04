@@ -189,7 +189,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *i2c_tree = NULL;
-	int is_event, bus, flags, addr, len;
+	int         is_event, bus, flags, addr, len;
 
 	is_event = pinfo->pseudo_header->i2c.is_event;
 	flags = pinfo->pseudo_header->i2c.flags;
@@ -261,8 +261,8 @@ void
 proto_register_i2c(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_i2c_bus, { "Bus ID", "i2c.bus", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-		{ &hf_i2c_addr, { "Target address", "i2c.addr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_i2c_bus,   { "Bus ID", "i2c.bus", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_i2c_addr,  { "Target address", "i2c.addr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_i2c_event, { "Event", "i2c.event", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_i2c_flags, { "Flags", "i2c.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
@@ -283,7 +283,7 @@ proto_register_i2c(void)
 
 	m = prefs_register_protocol(proto_i2c, NULL);
 	prefs_register_enum_preference(m, "type", "Bus/Data type",
-         "How the I2C messages are interpreted",
+			"How the I2C messages are interpreted",
 			&sub_selected, sub_enum_vals, FALSE);
 }
 
@@ -298,3 +298,16 @@ proto_reg_handoff_i2c(void)
 	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

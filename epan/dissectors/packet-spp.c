@@ -106,16 +106,16 @@ spp_datastream(guint8 type)
 static void
 dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*spp_tree = NULL;
-	proto_item	*ti;
-	tvbuff_t	*next_tvb;
-	guint8		conn_ctrl;
-	proto_tree	*cc_tree;
-	guint8		datastream_type;
-	const char	*datastream_type_string;
-	guint16         spp_seq;
-	const char	*spp_msg_string;
-	guint16		low_socket, high_socket;
+	proto_tree *spp_tree = NULL;
+	proto_item *ti;
+	tvbuff_t   *next_tvb;
+	guint8	    conn_ctrl;
+	proto_tree *cc_tree;
+	guint8	    datastream_type;
+	const char *datastream_type_string;
+	guint16     spp_seq;
+	const char *spp_msg_string;
+	guint16	    low_socket, high_socket;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 	col_set_str(pinfo->cinfo, COL_INFO, "SPP");
@@ -282,3 +282,16 @@ proto_reg_handoff_spp(void)
 
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

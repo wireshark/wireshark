@@ -59,7 +59,7 @@ const value_string share_type_vals[] = {
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str;
-	gint len;
+	gint  len;
 
 	/* display a string from the tree and return the new offset */
 
@@ -77,10 +77,10 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 
 int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
 {
-	char *str, *p;
-	int len;
-	int charoffset;
-	guint16 character;
+	char    *str, *p;
+	int      len;
+	int      charoffset;
+	guint16  character;
 
 	/* display a unicode string from the tree and return new offset */
 
@@ -128,7 +128,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 				 const char **data)
 {
-	int compr_len;
+	int           compr_len;
 	const guchar *str = NULL;
 
 	/* The name data MUST start at offset 0 of the tvb */
@@ -154,12 +154,12 @@ static gchar *
 unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 	       guint16 bc)
 {
-	gchar *cur;
-	gchar        *p;
-	guint16       uchar;
-	int           len;
-	int           us_len;
-	gboolean      overflow = FALSE;
+	gchar    *cur;
+	gchar    *p;
+	guint16   uchar;
+	int       len;
+	int       us_len;
+	gboolean  overflow = FALSE;
 
 	cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_UNICODE_STR_LEN+3+1);
 	p = cur;
@@ -224,11 +224,11 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			    gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
 			    guint16 *bcp)
 {
-	gchar *cur;
+	gchar       *cur;
 	const gchar *string;
-	int string_len = 0;
-	int copylen;
-	gboolean overflow = FALSE;
+	int          string_len = 0;
+	int          copylen;
+	gboolean     overflow   = FALSE;
 
 	if (*bcp == 0) {
 		/* Not enough data in buffer */
@@ -296,3 +296,16 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 	*len = string_len;
 	return string;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

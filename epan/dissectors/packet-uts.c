@@ -163,21 +163,21 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 						set_addr(pinfo, SRC, rid, sid, did);	/* if the ACN received it, the address if of the source... the terminal */
 					}
 				}
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, NAK, NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)	&&
 				   sid != GSID && did == GDID) {
 				nak_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Retransmit Request");
 				set_addr(pinfo, DST, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, BEL, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, BEL, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, STX, NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				header_length = offset+2;
 				msgwaiting_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Message Waiting");
 				set_addr(pinfo, DST, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, STX, NULL)) {
 				ack_start = offset;
@@ -194,25 +194,25 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				} else {
 					set_addr(pinfo, SRC, rid, sid, did);		/* if the ACN received it, the address if of the source... the terminal */
 				}
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ENQ, NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				replyrequest_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Reply Request");
 				set_addr(pinfo, SRC, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '?', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				busy_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Busy");
 				set_addr(pinfo, SRC, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ';', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				notbusy_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Not Busy");
 				set_addr(pinfo, SRC, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+3, MATCH, ';', NULL)	&&
@@ -221,15 +221,15 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				ack_start = offset;
 				col_set_str(pinfo->cinfo, COL_INFO, "Not Busy + ACK");
 				set_addr(pinfo, SRC, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)				&&
-				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)			&&
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)		&&
 				   testchar(tvb, pinfo, offset+2, FETCH, 0, &function_code)	&&
 				   testchar(tvb, pinfo, offset+3, MATCH, ETX, NULL)) {
 				ack_start = offset;
 				function_start = offset + 2;
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
 				set_addr(pinfo, SRC, rid, sid, did);
-			} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)		&&
+			} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ETX, NULL)) {
 				function_start = offset;
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
@@ -302,7 +302,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				length = tvb_length_remaining(tvb, stx_start+1);    /* find out how much message remains      */
 				if (etx_start)
 					length = (etx_start - stx_start - 1);       /* and the data part is the rest...       */
-                                                                                    /* whatever preceeds the ETX if it exists */
+										    /* whatever preceeds the ETX if it exists */
 				data_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, stx_start+1, length, ENC_ASCII);	/* copy the string for dissecting */
 				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr,
 							     "Text (%d byte%s)", length, plurality(length, "", "s"));
@@ -323,41 +323,41 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 void
 proto_register_uts(void)
 {
-   static hf_register_info hf[] = {
-        { &hf_rid,
-	  { "RID",	   "uts.rid",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }},
-        { &hf_sid,
-	  { "SID",	   "uts.sid",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",	HFILL }},
-        { &hf_did,
-	  { "DID",	   "uts.did",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }},
-	{ &hf_retxrequest,
-	  { "ReTxRequst",  "uts.retxrequst",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Re-transmit Request",	HFILL }},
-	{ &hf_ack,
-	  { "Ack",	   "uts.ack",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Ack",			HFILL }},
-	{ &hf_replyrequest,
-	  { "ReplyRequst", "uts.replyrequest",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Reply Request",	HFILL }},
-	{ &hf_busy,
-	  { "Busy",	   "uts.busy",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Busy",		HFILL }},
-	{ &hf_notbusy,
-	  { "NotBusy",	   "uts.notbusy",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Not Busy",		HFILL }},
-	{ &hf_msgwaiting,
-	  { "MsgWaiting",  "uts.msgwaiting",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Message Waiting",	HFILL }},
-        { &hf_function,
-	  { "Function",    "uts.function",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Function Code value",		HFILL }},
-	{ &hf_data,
-	  { "Data",	   "uts.data",
-	    FT_STRING,	BASE_NONE,	NULL, 0, "User Data Message",		HFILL }},
-    };
+	static hf_register_info hf[] = {
+		{ &hf_rid,
+		  { "RID",	   "uts.rid",
+		    FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }},
+		{ &hf_sid,
+		  { "SID",	   "uts.sid",
+		    FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",	HFILL }},
+		{ &hf_did,
+		  { "DID",	   "uts.did",
+		    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }},
+		{ &hf_retxrequest,
+		  { "ReTxRequst",  "uts.retxrequst",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Re-transmit Request", HFILL }},
+		{ &hf_ack,
+		  { "Ack",	   "uts.ack",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Ack",		HFILL }},
+		{ &hf_replyrequest,
+		  { "ReplyRequst", "uts.replyrequest",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Reply Request",	HFILL }},
+		{ &hf_busy,
+		  { "Busy",	   "uts.busy",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Busy",		HFILL }},
+		{ &hf_notbusy,
+		  { "NotBusy",	   "uts.notbusy",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Not Busy",		HFILL }},
+		{ &hf_msgwaiting,
+		  { "MsgWaiting",  "uts.msgwaiting",
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Message Waiting",	HFILL }},
+		{ &hf_function,
+		  { "Function",    "uts.function",
+		    FT_UINT8,	BASE_HEX,	NULL, 0, "Function Code value",		HFILL }},
+		{ &hf_data,
+		  { "Data",	   "uts.data",
+		    FT_STRING,	BASE_NONE,	NULL, 0, "User Data Message",		HFILL }},
+	};
 
 	static gint *ett[] = {
 		&ett_uts,
@@ -370,3 +370,16 @@ proto_register_uts(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("uts", dissect_uts, proto_uts);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

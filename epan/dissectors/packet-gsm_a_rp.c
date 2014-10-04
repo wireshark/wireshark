@@ -71,11 +71,11 @@ rp_elem_idx_t;
 
 static const value_string gsm_rp_elem_strings[] = {
 	/* Short Message Service RP Information Elements [5] 8.2 */
-	{ DE_RP_MESSAGE_REF,	"RP-Message Reference" },
-	{ DE_RP_ORIG_ADDR,	"RP-Originator Address" },
-	{ DE_RP_DEST_ADDR,	"RP-Destination Address" },
-	{ DE_RP_USER_DATA,	"RP-User Data" },
-	{ DE_RP_CAUSE,	"RP-Cause" },
+	{ DE_RP_MESSAGE_REF, "RP-Message Reference" },
+	{ DE_RP_ORIG_ADDR,   "RP-Originator Address" },
+	{ DE_RP_DEST_ADDR,   "RP-Destination Address" },
+	{ DE_RP_USER_DATA,   "RP-User Data" },
+	{ DE_RP_CAUSE,	     "RP-Cause" },
 	{ 0, NULL }
 };
 value_string_ext gsm_rp_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rp_elem_strings);
@@ -148,8 +148,8 @@ de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static guint16
 de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	tvbuff_t	*tpdu_tvb;
+	guint32	  curr_offset;
+	tvbuff_t *tpdu_tvb;
 
 	curr_offset = offset;
 
@@ -193,30 +193,30 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
 	switch (oct & 0x7f)
 	{
-	case 1: str = "Unassigned (unallocated) number"; break;
-	case 8: str = "Operator determined barring"; break;
-	case 10: str = "Call barred"; break;
-	case 11: str = "Reserved"; break;
-	case 21: str = "Short message transfer rejected"; break;
-	case 22: str = "Memory capacity exceeded"; break;
-	case 27: str = "Destination out of order"; break;
-	case 28: str = "Unidentified subscriber"; break;
-	case 29: str = "Facility rejected"; break;
-	case 30: str = "Unknown subscriber"; break;
-	case 38: str = "Network out of order"; break;
-	case 41: str = "Temporary failure"; break;
-	case 42: str = "Congestion"; break;
-	case 47: str = "Resources unavailable, unspecified"; break;
-	case 50: str = "Requested facility not subscribed"; break;
-	case 69: str = "Requested facility not implemented"; break;
-	case 81: str = "Invalid short message transfer reference value"; break;
-	case 95: str = "Semantically incorrect message"; break;
-	case 96: str = "Invalid mandatory information"; break;
-	case 97: str = "Message type non-existent or not implemented"; break;
+	case  1: str = "Unassigned (unallocated) number";			   break;
+	case  8: str = "Operator determined barring";				   break;
+	case 10: str = "Call barred";						   break;
+	case 11: str = "Reserved";						   break;
+	case 21: str = "Short message transfer rejected";			   break;
+	case 22: str = "Memory capacity exceeded";				   break;
+	case 27: str = "Destination out of order";				   break;
+	case 28: str = "Unidentified subscriber";				   break;
+	case 29: str = "Facility rejected";					   break;
+	case 30: str = "Unknown subscriber";					   break;
+	case 38: str = "Network out of order";					   break;
+	case 41: str = "Temporary failure";					   break;
+	case 42: str = "Congestion";						   break;
+	case 47: str = "Resources unavailable, unspecified";			   break;
+	case 50: str = "Requested facility not subscribed";			   break;
+	case 69: str = "Requested facility not implemented";			   break;
+	case 81: str = "Invalid short message transfer reference value";	   break;
+	case 95: str = "Semantically incorrect message";			   break;
+	case 96: str = "Invalid mandatory information";				   break;
+	case 97: str = "Message type non-existent or not implemented";		   break;
 	case 98: str = "Message not compatible with short message protocol state"; break;
-	case 99: str = "Information element non-existent or not implemented"; break;
-	case 111: str = "Protocol error, unspecified"; break;
-	case 127: str = "Interworking, unspecified"; break;
+	case 99: str = "Information element non-existent or not implemented";	   break;
+	case 111: str = "Protocol error, unspecified";				   break;
+	case 127: str = "Interworking, unspecified";				   break;
 	default:
 		str = "Reserved";
 		break;
@@ -250,11 +250,11 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
 guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Short Message Service Information Elements [5] 8.2 */
-	de_rp_message_ref,	/* RP-Message Reference */
-	de_rp_orig_addr,	/* RP-Originator Address */
-	de_rp_dest_addr,	/* RP-Destination Address */
-	de_rp_user_data,	/* RP-User Data */
-	de_rp_cause,	/* RP-Cause */
+	de_rp_message_ref, /* RP-Message Reference */
+	de_rp_orig_addr,   /* RP-Originator Address */
+	de_rp_dest_addr,   /* RP-Destination Address */
+	de_rp_user_data,   /* RP-User Data */
+	de_rp_cause,	   /* RP-Cause */
 	NULL,	/* NONE */
 };
 
@@ -440,13 +440,13 @@ static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 static void
 dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8	oct;
-	guint32	offset, saved_offset;
-	guint32	len;
-	gint	idx;
-	proto_item	*rp_item = NULL;
-	proto_tree	*rp_tree = NULL;
-	const gchar	*str;
+	guint8	     oct;
+	guint32	     offset, saved_offset;
+	guint32	     len;
+	gint	     idx;
+	proto_item  *rp_item = NULL;
+	proto_tree  *rp_tree = NULL;
+	const gchar *str;
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
 
@@ -517,23 +517,22 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_gsm_a_rp(void)
 {
-	guint		i;
-	guint		last_offset;
+	guint i;
+	guint last_offset;
 
 	/* Setup list of header fields */
 
-	static hf_register_info hf[] =
-	{
-	{ &hf_gsm_a_rp_msg_type,
-		{ "RP Message Type",	"gsm_a.rp.msg_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_gsm_a_rp_elem_id,
-		{ "Element ID",	"gsm_a.rp.elem_id",
-		FT_UINT8, BASE_HEX, NULL, 0,
-		NULL, HFILL }
-	},
+	static hf_register_info hf[] = {
+		{ &hf_gsm_a_rp_msg_type,
+		  { "RP Message Type",	"gsm_a.rp.msg_type",
+		    FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_rp_elem_id,
+		  { "Element ID",	"gsm_a.rp.elem_id",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -573,10 +572,23 @@ proto_register_gsm_a_rp(void)
 void
 proto_reg_handoff_gsm_a_rp(void)
 {
-    dissector_handle_t	gsm_a_rp_handle;
+	dissector_handle_t	gsm_a_rp_handle;
 
 	gsm_a_rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
 	/* Dissect messages embedded in SIP */
 	dissector_add_string("media_type","application/vnd.3gpp.sms", gsm_a_rp_handle);
 	gsm_sms_handle = find_dissector("gsm_sms");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

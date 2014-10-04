@@ -324,3 +324,16 @@ proto_reg_handoff_ehdlc(void)
 	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -42,37 +42,37 @@ void proto_reg_handoff_netlink(void);
 #define SLL_HEADER_SIZE	16		/* total header length */
 
 static const value_string netlink_family_vals[] = {
-	{ WS_NETLINK_ROUTE,       "Route" },
-	{ WS_NETLINK_UNUSED,      "Unused" },
-	{ WS_NETLINK_USERSOCK,    "user-mode" },
-	{ WS_NETLINK_FIREWALL,    "Unused (formerly: ip_queue)" },
-	{ WS_NETLINK_SOCK_DIAG,   "socket monitoring" },
-	{ WS_NETLINK_NFLOG,       "Netfilter ULOG" },
-	{ WS_NETLINK_XFRM,        "IPsec" },
-	{ WS_NETLINK_SELINUX,     "SELinux events" },
-	{ WS_NETLINK_ISCSI,       "Open-iSCSI" },
-	{ WS_NETLINK_AUDIT,       "Auditing" },
-	{ WS_NETLINK_FIB_LOOKUP,  "FIB lookup" },
-	{ WS_NETLINK_CONNECTOR,   "Kernel connector" },
-	{ WS_NETLINK_NETFILTER,   "Netfilter" },
-	{ WS_NETLINK_IP6_FW,      "Unused (formerly: ip6_queue)" },
-	{ WS_NETLINK_DNRTMSG,     "DECnet routing messages" },
+	{ WS_NETLINK_ROUTE,	     "Route" },
+	{ WS_NETLINK_UNUSED,	     "Unused" },
+	{ WS_NETLINK_USERSOCK,	     "user-mode" },
+	{ WS_NETLINK_FIREWALL,	     "Unused (formerly: ip_queue)" },
+	{ WS_NETLINK_SOCK_DIAG,	     "socket monitoring" },
+	{ WS_NETLINK_NFLOG,	     "Netfilter ULOG" },
+	{ WS_NETLINK_XFRM,	     "IPsec" },
+	{ WS_NETLINK_SELINUX,	     "SELinux events" },
+	{ WS_NETLINK_ISCSI,	     "Open-iSCSI" },
+	{ WS_NETLINK_AUDIT,	     "Auditing" },
+	{ WS_NETLINK_FIB_LOOKUP,     "FIB lookup" },
+	{ WS_NETLINK_CONNECTOR,	     "Kernel connector" },
+	{ WS_NETLINK_NETFILTER,	     "Netfilter" },
+	{ WS_NETLINK_IP6_FW,	     "Unused (formerly: ip6_queue)" },
+	{ WS_NETLINK_DNRTMSG,	     "DECnet routing messages" },
 	{ WS_NETLINK_KOBJECT_UEVENT, "Kernel messages" },
-	{ WS_NETLINK_GENERIC,      "Generic" },
-	{ WS_NETLINK_SCSITRANSPORT, "SCSI Transports" },
-	{ WS_NETLINK_ECRYPTFS,     "ecryptfs" },
-	{ WS_NETLINK_RDMA,         "RDMA" },
-	{ WS_NETLINK_CRYPTO,       "Crypto layer" },
+	{ WS_NETLINK_GENERIC,	     "Generic" },
+	{ WS_NETLINK_SCSITRANSPORT,  "SCSI Transports" },
+	{ WS_NETLINK_ECRYPTFS,	     "ecryptfs" },
+	{ WS_NETLINK_RDMA,	     "RDMA" },
+	{ WS_NETLINK_CRYPTO,	     "Crypto layer" },
 	{ 0, NULL }
 };
 
 value_string_ext netlink_family_vals_ext = VALUE_STRING_EXT_INIT(netlink_family_vals);
 
 static const value_string type_vals[] = {
-	{ WS_NLMSG_NOOP,	"nothing" },
-	{ WS_NLMSG_ERROR,	"error" },
-	{ WS_NLMSG_DONE,	"end of a dump" },
-	{ WS_NLMSG_OVERRUN,	"data lost" },
+	{ WS_NLMSG_NOOP,    "nothing" },
+	{ WS_NLMSG_ERROR,   "error" },
+	{ WS_NLMSG_DONE,    "end of a dump" },
+	{ WS_NLMSG_OVERRUN, "data lost" },
 	{ 0, NULL }
 };
 
@@ -177,9 +177,9 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 static int
 dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data _U_)
 {
-	guint16 protocol, hatype;
+	guint16     protocol, hatype;
 	proto_item *ti;
-	tvbuff_t *next_tvb;
+	tvbuff_t   *next_tvb;
 	proto_tree *fh_tree = NULL;
 
 	int offset;
@@ -324,3 +324,16 @@ proto_reg_handoff_netlink(void)
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETLINK, netlink_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

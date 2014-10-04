@@ -184,120 +184,120 @@ static const value_string tnef_Priority_vals[] = {
 };
 
 static const value_string tnef_Types_vals[] = {
-	 {  ATP_TRIPLES, "Triples" },
-	 {  ATP_STRING,  "String"},
-	 {  ATP_TEXT,    "Text" },
-	 {  ATP_DATE,    "Date"},
-	 {  ATP_SHORT,   "Short"},
-	 {  ATP_LONG,    "Long"},
-	 {  ATP_BYTE,    "Byte"},
-	 {  ATP_WORD,    "Word"},
-	 {  ATP_DWORD,   "DWord"},
-	 {  ATP_MAX,     "Max"},
-	 { 0, NULL }
+  {  ATP_TRIPLES, "Triples" },
+  {  ATP_STRING,  "String"},
+  {  ATP_TEXT,    "Text" },
+  {  ATP_DATE,    "Date"},
+  {  ATP_SHORT,   "Short"},
+  {  ATP_LONG,    "Long"},
+  {  ATP_BYTE,    "Byte"},
+  {  ATP_WORD,    "Word"},
+  {  ATP_DWORD,   "DWord"},
+  {  ATP_MAX,     "Max"},
+  { 0, NULL }
 };
 
 static const value_string weekday_vals[] = {
-	{0, "Sunday"},
-	{1, "Monday"},
-	{2, "Tuesday"},
-	{3, "Wednesday"},
-	{4, "Thursday"},
-	{5, "Friday"},
-	{6, "Saturday"},
-	{0, NULL}
+  {0, "Sunday"},
+  {1, "Monday"},
+  {2, "Tuesday"},
+  {3, "Wednesday"},
+  {4, "Thursday"},
+  {5, "Friday"},
+  {6, "Saturday"},
+  {0, NULL}
 };
 
 static const value_string tnef_Attribute_vals[] = {
-	{  ATT_OWNER, "ATT_OWNER" },
-	{  ATT_SENT_FOR, "ATT_SENT_FOR" },
-	{  ATT_DELEGATE, "ATT_DELEGATE" },
-	{  ATT_OWNER, "ATT_OWNER" },
-	{  ATT_DATE_START, "ATT_DATE_START" },
-	{  ATT_DATE_END, "ATT_DATE_END" },
-	{  ATT_AID_OWNER, "ATT_AID_OWNER" },
-	{  ATT_REQUEST_RES, "ATT_REQUEST_RES" },
-	{  ATT_FROM, "ATT_FROM" },
-	{  ATT_SUBJECT, "ATT_SUBJECT" },
-	{  ATT_DATE_SENT, "ATT_DATE_SENT" },
-	{  ATT_DATE_RECD, "ATT_DATE_RECD" },
-	{  ATT_MESSAGE_STATUS, "ATT_MESSAGE_STATUS" },
-	{  ATT_MESSAGE_CLASS, "ATT_MESSAGE_CLASS" },
-	{  ATT_MESSAGE_ID, "ATT_MESSAGE_ID" },
-	{  ATT_PARENT_ID, "ATT_PARENT_ID" },
-	{  ATT_CONVERSATION_ID, "ATT_CONVERSATION_ID" },
-	{  ATT_BODY, "ATT_BODY" },
-	{  ATT_PRIORITY, "ATT_PRIORITY" },
-	{  ATT_ATTACH_DATA, "ATT_ATTACH_DATA" },
-	{  ATT_ATTACH_TITLE, "ATT_ATTACH_TITLE" },
-	{  ATT_ATTACH_META_FILE, "ATT_ATTACH_META_FILE" },
-	{  ATT_ATTACH_CREATE_DATE, "ATT_ATTACH_CREATE_DATE" },
-	{  ATT_ATTACH_MODIFY_DATE, "ATT_ATTACH_MODIFY_DATE" },
-	{  ATT_DATE_MODIFIED, "ATT_DATE_MODIFIED" },
-	{  ATT_ATTACH_TRANSPORT_FILENAME, "ATT_ATTACH_TRANSPORT_FILENAME" },
-	{  ATT_ATTACH_REND_DATA, "ATT_ATTACH_REND_DATA" },
-	{  ATT_MAPI_PROPS, "ATT_MAPI_PROPS" },
-	{  ATT_RECIP_TABLE, "ATT_RECIP_TABLE" },
-	{  ATT_ATTACHMENT, "ATT_ATTACHMENT" },
-	{  ATT_TNEF_VERSION, "ATT_TNEF_VERSION" },
-	{  ATT_OEM_CODEPAGE, "ATT_OEM_CODEPAGE" },
-	{  ATT_ORIGINAL_MESSAGE_CLASS, "ATT_ORIGINAL_MESSAGE_CLASS" },
-	{ 0, NULL }
+  {  ATT_OWNER,                     "ATT_OWNER" },
+  {  ATT_SENT_FOR,                  "ATT_SENT_FOR" },
+  {  ATT_DELEGATE,                  "ATT_DELEGATE" },
+  {  ATT_OWNER,                     "ATT_OWNER" },
+  {  ATT_DATE_START,                "ATT_DATE_START" },
+  {  ATT_DATE_END,                  "ATT_DATE_END" },
+  {  ATT_AID_OWNER,                 "ATT_AID_OWNER" },
+  {  ATT_REQUEST_RES,               "ATT_REQUEST_RES" },
+  {  ATT_FROM,                      "ATT_FROM" },
+  {  ATT_SUBJECT,                   "ATT_SUBJECT" },
+  {  ATT_DATE_SENT,                 "ATT_DATE_SENT" },
+  {  ATT_DATE_RECD,                 "ATT_DATE_RECD" },
+  {  ATT_MESSAGE_STATUS,            "ATT_MESSAGE_STATUS" },
+  {  ATT_MESSAGE_CLASS,             "ATT_MESSAGE_CLASS" },
+  {  ATT_MESSAGE_ID,                "ATT_MESSAGE_ID" },
+  {  ATT_PARENT_ID,                 "ATT_PARENT_ID" },
+  {  ATT_CONVERSATION_ID,           "ATT_CONVERSATION_ID" },
+  {  ATT_BODY,                      "ATT_BODY" },
+  {  ATT_PRIORITY,                  "ATT_PRIORITY" },
+  {  ATT_ATTACH_DATA,               "ATT_ATTACH_DATA" },
+  {  ATT_ATTACH_TITLE,              "ATT_ATTACH_TITLE" },
+  {  ATT_ATTACH_META_FILE,          "ATT_ATTACH_META_FILE" },
+  {  ATT_ATTACH_CREATE_DATE,        "ATT_ATTACH_CREATE_DATE" },
+  {  ATT_ATTACH_MODIFY_DATE,        "ATT_ATTACH_MODIFY_DATE" },
+  {  ATT_DATE_MODIFIED,             "ATT_DATE_MODIFIED" },
+  {  ATT_ATTACH_TRANSPORT_FILENAME, "ATT_ATTACH_TRANSPORT_FILENAME" },
+  {  ATT_ATTACH_REND_DATA,          "ATT_ATTACH_REND_DATA" },
+  {  ATT_MAPI_PROPS,                "ATT_MAPI_PROPS" },
+  {  ATT_RECIP_TABLE,               "ATT_RECIP_TABLE" },
+  {  ATT_ATTACHMENT,                "ATT_ATTACHMENT" },
+  {  ATT_TNEF_VERSION,              "ATT_TNEF_VERSION" },
+  {  ATT_OEM_CODEPAGE,              "ATT_OEM_CODEPAGE" },
+  {  ATT_ORIGINAL_MESSAGE_CLASS,    "ATT_ORIGINAL_MESSAGE_CLASS" },
+  { 0, NULL }
 };
 
 static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packet_info *pinfo, proto_tree *tree, gboolean single, guint encoding)
 {
-	 proto_item *item;
-	 guint32 length, count, i;
+  proto_item *item;
+  guint32     length, count, i;
 
-	 count = tvb_get_letohl(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  count = tvb_get_letohl(tvb, offset);
+  proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-	 if(count > 1) {
-		 if(single) {
-			 item = proto_tree_add_expert_format(tree, pinfo, &ei_tnef_expect_single_item, tvb, offset, 4,
-						    "Expecting a single item but found %d", count);
-			 tree = proto_item_add_subtree(item, ett_tnef_counted_items);
-		 }
-	 }
+  if(count > 1) {
+    if(single) {
+      item = proto_tree_add_expert_format(tree, pinfo, &ei_tnef_expect_single_item, tvb, offset, 4,
+                                          "Expecting a single item but found %d", count);
+      tree = proto_item_add_subtree(item, ett_tnef_counted_items);
+    }
+  }
 
-	 offset += 4;
+  offset += 4;
 
-	 for(i = 0; i < count; i++) {
+  for(i = 0; i < count; i++) {
 
-		 length = tvb_get_letohl(tvb, offset);
-		 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		 offset += 4;
+    length = tvb_get_letohl(tvb, offset);
+    proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
 
-		 proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
-		 offset += length;
+    proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
+    offset += length;
 
-		 /* XXX: may be padding ? */
+    /* XXX: may be padding ? */
 
-	 }
+  }
 
-	 return offset;
+  return offset;
 }
 
 static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	 guint16 length;
+  guint16 length;
 
-	 length = tvb_get_letohs(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	 offset += 2;
+  length = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
 
-	 proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII|ENC_NA);
-	 offset += length;
+  proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII|ENC_NA);
+  offset += length;
 
-	 length = tvb_get_letohs(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	 offset += 2;
+  length = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
 
-	 proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII|ENC_NA);
-	 offset += length;
+  proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII|ENC_NA);
+  offset += length;
 
-	 return offset;
+  return offset;
 }
 
 
@@ -332,170 +332,170 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *item, *prop_item;
-	proto_tree *prop_tree, *tag_tree;
-	guint32     /*count,*/ tag, tag_kind, tag_length;
-	guint16     padding;
-	gint        offset, start_offset;
+  proto_item *item, *prop_item;
+  proto_tree *prop_tree, *tag_tree;
+  guint32     /*count,*/ tag, tag_kind, tag_length;
+  guint16     padding;
+  gint        offset, start_offset;
 
-	guint8      drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
-	static dcerpc_info di;
-	static dcerpc_call_value call_data;
+  guint8      drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
+  static dcerpc_info di;
+  static dcerpc_call_value call_data;
 
-	offset = 0;
+  offset = 0;
 
-	di.conformant_run = 0;
-	/* we need di->call_data->flags.NDR64 == 0 */
-	di.call_data = &call_data;
-    di.dcerpc_procedure_name = "";
+  di.conformant_run = 0;
+  /* we need di->call_data->flags.NDR64 == 0 */
+  di.call_data = &call_data;
+  di.dcerpc_procedure_name = "";
 
-	/* first the count */
-	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	/*count = tvb_get_letohl(tvb, offset);*/
+  /* first the count */
+  proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  /*count = tvb_get_letohl(tvb, offset);*/
 
-	offset += 4;
+  offset += 4;
 
-	while(tvb_reported_length_remaining(tvb, offset) > 0 ) {
+  while(tvb_reported_length_remaining(tvb, offset) > 0 ) {
 
-		start_offset = offset;
+    start_offset = offset;
 
-		/* get the property tag */
+    /* get the property tag */
 
-		prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, ENC_NA);
-		prop_tree = proto_item_add_subtree(prop_item, ett_tnef_property);
+    prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, ENC_NA);
+    prop_tree = proto_item_add_subtree(prop_item, ett_tnef_property);
 
-		item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		tag_tree = proto_item_add_subtree(item, ett_tnef_property_tag);
+    item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    tag_tree = proto_item_add_subtree(item, ett_tnef_property_tag);
 
-		/* add a nice name to the property */
-		tag = tvb_get_letohl(tvb, offset);
-		proto_item_append_text(prop_item, " %s", val_to_str(tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
+    /* add a nice name to the property */
+    tag = tvb_get_letohl(tvb, offset);
+    proto_item_append_text(prop_item, " %s", val_to_str(tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
 
-		proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+    proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
 
-		proto_tree_add_item(tag_tree, hf_tnef_property_tag_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+    proto_tree_add_item(tag_tree, hf_tnef_property_tag_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
 
-		if(tag & 0x80000000) {
+    if(tag & 0x80000000) {
 
-			/* it is a named property */
-			proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, ENC_LITTLE_ENDIAN);
-			offset += 16;
+      /* it is a named property */
+      proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+      offset += 16;
 
-			tag_kind = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			offset += 4;
+      tag_kind = tvb_get_letohl(tvb, offset);
+      proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
 
-			if(tag_kind == 0) {
-				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-				offset += 4;
+      if(tag_kind == 0) {
+        proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
 
-				proto_item_append_text(prop_item, " [Named Property]");
-			} else {
-				char *name_string = NULL;
+        proto_item_append_text(prop_item, " [Named Property]");
+      } else {
+        char *name_string = NULL;
 
-				tag_length = tvb_get_letohl(tvb, offset);
-				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-				offset += 4;
+        tag_length = tvb_get_letohl(tvb, offset);
+        proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
 
-				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-				offset += tag_length;
+        proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        offset += tag_length;
 
-				if((padding = (4 - tag_length % 4)) != 4) {
-					proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
-					offset += padding;
-				}
+        if((padding = (4 - tag_length % 4)) != 4) {
+          proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
+          offset += padding;
+        }
 
-				proto_item_append_text(prop_item, " [Named Property: %s]", name_string);
+        proto_item_append_text(prop_item, " [Named Property: %s]", name_string);
 
-			}
-		}
+      }
+    }
 
-		switch(tag) {
-			/* handle any specific tags here */
-		default:
-			/* otherwise just use the type */
-			switch(tag & 0x0000ffff) {
-			case PT_I2:
-				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_i, 0);
-				break;
-			case PT_LONG:
-				offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_l, 0);
-				break;
-			case PT_BOOLEAN:
-				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_b, 0);
-				break;
-			case PT_STRING8:
-				/* XXX - code page? */
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, ENC_ASCII|ENC_NA);
-				break;
-			case PT_BINARY:
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, ENC_NA);
-				break;
-			case PT_UNICODE:
-				offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, ENC_UTF_16|ENC_NA);
-				break;
-			case PT_CLSID:
-				offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_lpguid, 0);
-				break;
-			case PT_SYSTIME:
-				offset = nspi_dissect_struct_FILETIME(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_ft,0);
-				break;
-			case PT_ERROR:
-				offset = nspi_dissect_enum_MAPISTATUS(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_err, 0);
-				break;
-			 case PT_MV_I2:
-				 offset = nspi_dissect_struct_SShortArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVi,0);
-				 break;
-			 case PT_MV_LONG:
-				 offset = nspi_dissect_struct_MV_LONG_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVl,0);
-				 break;
-			 case PT_MV_STRING8:
-				 offset = nspi_dissect_struct_SLPSTRArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszA,0);
-				 break;
-			 case PT_MV_BINARY:
-				 offset = nspi_dissect_struct_SBinaryArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVbin,0);
-				 break;
-			 case PT_MV_CLSID:
-				 offset = nspi_dissect_struct_SGuidArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVguid,0);
-				 break;
-			 case PT_MV_UNICODE:
-				 offset = nspi_dissect_struct_MV_UNICODE_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszW,0);
-				 break;
-			 case PT_MV_SYSTIME:
-				 offset = nspi_dissect_struct_SDateTimeArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVft,0);
-				 break;
-			 case PT_NULL:
-				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_null, 0);
-				 break;
-			 case PT_OBJECT:
-				 offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_object, 0);
-				 break;
-			}
-		}
+    switch(tag) {
+      /* handle any specific tags here */
+    default:
+      /* otherwise just use the type */
+      switch(tag & 0x0000ffff) {
+      case PT_I2:
+        offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_i, 0);
+        break;
+      case PT_LONG:
+        offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_l, 0);
+        break;
+      case PT_BOOLEAN:
+        offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_b, 0);
+        break;
+      case PT_STRING8:
+        /* XXX - code page? */
+        offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, ENC_ASCII|ENC_NA);
+        break;
+      case PT_BINARY:
+        offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, ENC_NA);
+        break;
+      case PT_UNICODE:
+        offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, ENC_UTF_16|ENC_NA);
+        break;
+      case PT_CLSID:
+        offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_lpguid, 0);
+        break;
+      case PT_SYSTIME:
+        offset = nspi_dissect_struct_FILETIME(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_ft,0);
+        break;
+      case PT_ERROR:
+        offset = nspi_dissect_enum_MAPISTATUS(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_err, 0);
+        break;
+      case PT_MV_I2:
+        offset = nspi_dissect_struct_SShortArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVi,0);
+        break;
+      case PT_MV_LONG:
+        offset = nspi_dissect_struct_MV_LONG_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVl,0);
+        break;
+      case PT_MV_STRING8:
+        offset = nspi_dissect_struct_SLPSTRArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszA,0);
+        break;
+      case PT_MV_BINARY:
+        offset = nspi_dissect_struct_SBinaryArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVbin,0);
+        break;
+      case PT_MV_CLSID:
+        offset = nspi_dissect_struct_SGuidArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVguid,0);
+        break;
+      case PT_MV_UNICODE:
+        offset = nspi_dissect_struct_MV_UNICODE_STRUCT(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVszW,0);
+        break;
+      case PT_MV_SYSTIME:
+        offset = nspi_dissect_struct_SDateTimeArray(tvb,offset,pinfo,prop_tree,&di,drep,hf_tnef_PropValue_MVft,0);
+        break;
+      case PT_NULL:
+        offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_null, 0);
+        break;
+      case PT_OBJECT:
+        offset = PIDL_dissect_uint32(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_object, 0);
+        break;
+      }
+    }
 
-		/* we may need to pad to a 4-byte boundary */
-		if((padding = (4 - (offset - start_offset) % 4)) != 4) {
+    /* we may need to pad to a 4-byte boundary */
+    if((padding = (4 - (offset - start_offset) % 4)) != 4) {
 
-			/* we need to pad */
-			proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
+      /* we need to pad */
+      proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
 
-			offset += padding;
-		}
+      offset += padding;
+    }
 
-		proto_item_set_len(prop_item, offset - start_offset);
-	}
+    proto_item_set_len(prop_item, offset - start_offset);
+  }
 }
 
 
 static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item  *attr_item, *item;
-  proto_tree  *attr_tree, *tag_tree, *props_tree, *addr_tree, *date_tree;
+  proto_item *attr_item, *item;
+  proto_tree *attr_tree, *tag_tree, *props_tree, *addr_tree, *date_tree;
   guint32     tag, length, signature;
   gint        offset, start_offset;
-  tvbuff_t    *next_tvb;
+  tvbuff_t   *next_tvb;
 
   if(tree){
     item = proto_tree_add_item(tree, proto_tnef, tvb, 0, -1, ENC_NA);
@@ -555,56 +555,56 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch(tag) {
     case ATT_OEM_CODEPAGE:
-	    proto_tree_add_item(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, ENC_LITTLE_ENDIAN);
-	    break;
+      proto_tree_add_item(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, ENC_LITTLE_ENDIAN);
+      break;
     case ATT_TNEF_VERSION:
-	    proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
-	    break;
+      proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
+      break;
     case ATT_MESSAGE_CLASS:
-	    proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
-	    break;
+      proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
+      break;
     case ATT_ORIGINAL_MESSAGE_CLASS:
-	    proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
-	    break;
+      proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
+      break;
     case ATT_MAPI_PROPS:
-	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);
-	    props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props);
+      item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);
+      props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props);
 
-	    next_tvb = tvb_new_subset_length(tvb, offset, length);
+      next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-	    dissect_mapiprops(next_tvb, pinfo, props_tree);
+      dissect_mapiprops(next_tvb, pinfo, props_tree);
 
-	    break;
+      break;
     case ATT_OWNER:
     case ATT_SENT_FOR:
-	    addr_tree = proto_item_add_subtree(item, ett_tnef_attribute_address);
+      addr_tree = proto_item_add_subtree(item, ett_tnef_attribute_address);
 
-	    (void)dissect_counted_address(tvb, offset, pinfo, addr_tree);
+      (void)dissect_counted_address(tvb, offset, pinfo, addr_tree);
 
-	    break;
+      break;
     case ATT_PRIORITY:
-	    proto_tree_add_item(attr_tree, hf_tnef_priority, tvb, offset, length, ENC_LITTLE_ENDIAN);
-	    break;
+      proto_tree_add_item(attr_tree, hf_tnef_priority, tvb, offset, length, ENC_LITTLE_ENDIAN);
+      break;
     default:
-	    /* just do it on the type */
-	    switch((tag >> 16) & 0xffff) {
-	    case ATP_DATE:
-		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, ENC_NA);
-		    date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date);
+      /* just do it on the type */
+      switch((tag >> 16) & 0xffff) {
+      case ATP_DATE:
+        item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, ENC_NA);
+        date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date);
 
-		    next_tvb = tvb_new_subset_length(tvb, offset, length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-		    dissect_DTR(next_tvb, pinfo, date_tree);
+        dissect_DTR(next_tvb, pinfo, date_tree);
 
-		    break;
-	    case ATP_STRING:
-		    proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA);
-		    proto_item_append_text(attr_item, " %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
-		    break;
-	    default:
-		    proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, ENC_NA);
-		    break;
-	    }
+        break;
+      case ATP_STRING:
+        proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA);
+        proto_item_append_text(attr_item, " %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
+        break;
+      default:
+        proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, ENC_NA);
+        break;
+      }
     }
 
     offset += length;
@@ -836,3 +836,16 @@ proto_reg_handoff_tnef(void)
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_TNEF, tnef_file_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

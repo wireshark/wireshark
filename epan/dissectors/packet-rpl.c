@@ -397,7 +397,7 @@ proto_register_rpl(void)
 		&ett_rpl_unkn
 	};
 
-        proto_rpl = proto_register_protocol("Remote Program Load",
+	proto_rpl = proto_register_protocol("Remote Program Load",
 	    "RPL", "rpl");
 	proto_register_field_array(proto_rpl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -413,3 +413,16 @@ proto_reg_handoff_rpl(void)
 	rpl_handle = find_dissector("rpl");
 	dissector_add_uint("llc.dsap", SAP_RPL, rpl_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -394,3 +394,16 @@ proto_reg_handoff_asf(void)
 	asf_handle  = new_create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

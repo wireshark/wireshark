@@ -66,7 +66,7 @@ char *
 find_sid_name(const char *sid)
 {
 	sid_name *sn;
-	sid_name old_sn;
+	sid_name  old_sn;
 
 	old_sn.sid=(char*)sid;
 	sn=(sid_name *)g_hash_table_lookup(sid_name_table, &old_sn);
@@ -80,7 +80,7 @@ static void
 add_sid_name_mapping(char *sid, char *name)
 {
 	sid_name *sn;
-	sid_name old_sn;
+	sid_name  old_sn;
 
 	old_sn.sid=sid;
 	sn=(sid_name *)g_hash_table_lookup(sid_name_table, &old_sn);
@@ -409,5 +409,18 @@ sid_name_snooping=0;
 void
 proto_register_smb_sidsnooping(void)
 {
-  	register_init_routine(sid_snooping_init);
+	register_init_routine(sid_snooping_init);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

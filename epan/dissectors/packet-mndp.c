@@ -73,47 +73,47 @@ static int hf_mndp_interfacename = -1;
 
 /* ============= copy/paste/modify from value_string.[hc] ============== */
 typedef struct _ext_value_string {
-  guint32  value;
-  const gchar   *strptr;
-  int* hf_element;
-  int (*specialfunction)(tvbuff_t *, packet_info *, proto_tree *, guint32,
-	guint32, const struct _ext_value_string *);
-  const struct _ext_value_string *evs;
+	guint32  value;
+	const gchar   *strptr;
+	int* hf_element;
+	int (*specialfunction)(tvbuff_t *, packet_info *, proto_tree *, guint32,
+			       guint32, const struct _ext_value_string *);
+	const struct _ext_value_string *evs;
 } ext_value_string;
 
 
 static const gchar*
 match_strextval_idx(guint32 val, const ext_value_string *vs, gint *idx) {
-  gint i = 0;
+	gint i = 0;
 
-  if(vs) {
-    while (vs[i].strptr) {
-      if (vs[i].value == val) {
+	if(vs) {
+		while (vs[i].strptr) {
+			if (vs[i].value == val) {
+				if (idx)
+					*idx = i;
+				return(vs[i].strptr);
+			}
+			i++;
+		}
+	}
+
 	if (idx)
-	  *idx = i;
-	return(vs[i].strptr);
-      }
-      i++;
-    }
-  }
-
-  if (idx)
-    *idx = -1;
-  return NULL;
+		*idx = -1;
+	return NULL;
 }
 
 static const gchar*
 extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char *fmt) {
-  const gchar *ret;
+	const gchar *ret;
 
-  if (!fmt)
-    fmt="Unknown";
+	if (!fmt)
+		fmt="Unknown";
 
-  ret = match_strextval_idx(val, vs, idx);
-  if (ret != NULL)
-    return ret;
+	ret = match_strextval_idx(val, vs, idx);
+	if (ret != NULL)
+		return ret;
 
-  return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+	return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 /* ============= end copy/paste/modify  ============== */
 
@@ -122,24 +122,23 @@ static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	guint32 offset, guint32 length, const ext_value_string *value_array);
 
 static const ext_value_string mndp_body_tlv_vals[] = {
-	{ 1, "MAC-Address", &hf_mndp_mac, NULL, NULL },
-	{ 5, "Identity", &hf_mndp_identity, NULL, NULL },
-	{ 7, "Version", &hf_mndp_version, NULL, NULL },
-	{ 8, "Platform", &hf_mndp_platform, NULL, NULL },
-	{ 10, "Uptime", &hf_mndp_uptime, NULL, (ext_value_string *)TRUE },
-	{ 11, "Software-ID", &hf_mndp_softwareid, NULL, NULL },
-	{ 12, "Board", &hf_mndp_board, NULL, NULL },
-	{ 14, "Unpack", &hf_mndp_unpack, NULL, NULL },
-	{ 15, "IPv6-Address", &hf_mndp_ipv6address, NULL, NULL },
+	{  1, "MAC-Address",	&hf_mndp_mac,		NULL, NULL },
+	{  5, "Identity",	&hf_mndp_identity,	NULL, NULL },
+	{  7, "Version",	&hf_mndp_version,	NULL, NULL },
+	{  8, "Platform",	&hf_mndp_platform,	NULL, NULL },
+	{ 10, "Uptime",		&hf_mndp_uptime,	NULL, (ext_value_string *)TRUE },
+	{ 11, "Software-ID",	&hf_mndp_softwareid,	NULL, NULL },
+	{ 12, "Board",		&hf_mndp_board,		NULL, NULL },
+	{ 14, "Unpack",		&hf_mndp_unpack,	NULL, NULL },
+	{ 15, "IPv6-Address",	&hf_mndp_ipv6address,	NULL, NULL },
 	{ 16, "Interface name", &hf_mndp_interfacename, NULL, NULL },
 
-	{ 0,	NULL, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL, NULL }
 };
 
 static const value_string mndp_unpack_vals[] = {
 	/* none|simple|uncompressed-headers|uncompressed-all */
 	{ 1,	"None" },
-
 	{ 0,	NULL }
 };
 
@@ -147,13 +146,13 @@ static int
 dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	guint32 offset, guint32 length _U_, const ext_value_string *value_array)
 {
-	guint32 tlv_type;
-	guint32 tlv_length;
+	guint32     tlv_type;
+	guint32     tlv_length;
 	proto_item *tlv_tree;
 	proto_item *type_item;
-	int type_index;
-	guint32 tlv_end;
-	guint encoding_info;
+	int         type_index;
+	guint32     tlv_end;
+	guint       encoding_info;
 
 	tlv_type = tvb_get_ntohs(tvb, offset);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
@@ -368,3 +367,16 @@ proto_reg_handoff_mndp(void)
 	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
 	/* heur_dissector_add("udp", dissect_mndp_heur, proto_mndp); */
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

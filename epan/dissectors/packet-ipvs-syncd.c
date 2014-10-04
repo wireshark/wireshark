@@ -97,10 +97,10 @@ static const value_string state_strings[] = {
 #define IP_VS_CONN_F_NO_CPORT         0x0800    /* no client port set yet */
 
 static const value_string connection_type_strings[] = {
-	{IP_VS_CONN_F_MASQ, "Masquerade"},
+	{IP_VS_CONN_F_MASQ,	 "Masquerade"},
 	{IP_VS_CONN_F_LOCALNODE, "Local Node"},
-	{IP_VS_CONN_F_TUNNEL, "Tunnel"},
-	{IP_VS_CONN_F_DROUTE, "Direct Routing"},
+	{IP_VS_CONN_F_TUNNEL,	 "Tunnel"},
+	{IP_VS_CONN_F_DROUTE,	 "Direct Routing"},
 	{0x00, NULL},
 };
 
@@ -110,9 +110,9 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree;
 	proto_item *item;
-	int offset = 0;
-	guint8 cnt = 0;
-	int conn = 0;
+	int         offset = 0;
+	guint8      cnt    = 0;
+	int         conn   = 0;
 
 	item = proto_tree_add_item(parent_tree, proto_ipvs_syncd, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_ipvs_syncd);
@@ -138,7 +138,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		guint16 flags;
 
 		ctree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_conn, NULL,
-                                                            "Connection #%d", conn+1);
+						      "Connection #%d", conn+1);
 
 		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -337,3 +337,16 @@ proto_reg_handoff_ipvs_syncd(void)
 	ipvs_syncd_handle = create_dissector_handle(dissect_ipvs_syncd, proto_ipvs_syncd);
 	dissector_add_uint("udp.port", IPVS_SYNCD_PORT, ipvs_syncd_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
