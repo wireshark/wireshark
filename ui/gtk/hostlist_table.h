@@ -55,21 +55,21 @@ typedef enum {
 
 /** Hostlist widget */
 typedef struct _hostlist_table {
-	const char          *name;              /**< the name of the table */
-	const char          *filter;            /**< the filter used */
-	gboolean             use_dfilter;       /**< use display filter */
-	GtkWidget           *win;               /**< GTK window */
-	GtkWidget           *page_lb;           /**< page label */
-	GtkWidget           *name_lb;           /**< name label */
-	GtkWidget           *scrolled_window;   /**< the scrolled window */
-	GtkTreeView         *table;             /**< the GTK table */
+    const char          *name;              /**< the name of the table */
+    const char          *filter;            /**< the filter used */
+    gboolean             use_dfilter;       /**< use display filter */
+    GtkWidget           *win;               /**< GTK window */
+    GtkWidget           *page_lb;           /**< page label */
+    GtkWidget           *name_lb;           /**< name label */
+    GtkWidget           *scrolled_window;   /**< the scrolled window */
+    GtkTreeView         *table;             /**< the GTK table */
     const char          *default_titles[ENDP_NUM_COLUMNS+ENDP_NUM_GEOIP_COLUMNS]; /**< Column headers */
-	GtkWidget           *menu;              /**< context menu */
-	gboolean            has_ports;          /**< table has ports */
+    GtkWidget           *menu;              /**< context menu */
+    gboolean            has_ports;          /**< table has ports */
     conv_hash_t         hash;               /**< hostlist hash table */
-	gboolean 	        fixed_col;      	/**< if switched to fixed column */
-	gboolean            resolve_names;      /**< resolve address names? */
-	gboolean            geoip_visible;      /**< if geoip columns are visible */
+    gboolean            fixed_col;          /**< if switched to fixed column */
+    gboolean            resolve_names;      /**< resolve address names? */
+    gboolean            geoip_visible;      /**< if geoip columns are visible */
 } hostlist_table;
 
 /** Init the hostlist table for the single hostlist window.
@@ -93,3 +93,16 @@ extern void init_hostlist_notebook_cb(GtkWidget *w, gpointer d);
 extern void hostlist_endpoint_cb(register_ct_t* table);
 
 #endif /* __HOSTLIST_TABLE_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
