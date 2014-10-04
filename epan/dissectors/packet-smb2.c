@@ -326,6 +326,15 @@ static int hf_smb2_dh2x_buffer_create_guid = -1;
 static int hf_smb2_APP_INSTANCE_buffer_struct_size = -1;
 static int hf_smb2_APP_INSTANCE_buffer_reserved = -1;
 static int hf_smb2_APP_INSTANCE_buffer_app_guid = -1;
+static int hf_smb2_svhdx_open_device_context_version = -1;
+static int hf_smb2_svhdx_open_device_context_has_initiator_id = -1;
+static int hf_smb2_svhdx_open_device_context_reserved = -1;
+static int hf_smb2_svhdx_open_device_context_initiator_id = -1;
+static int hf_smb2_svhdx_open_device_context_flags = -1;
+static int hf_smb2_svhdx_open_device_context_originator_flags = -1;
+static int hf_smb2_svhdx_open_device_context_open_request_id = -1;
+static int hf_smb2_svhdx_open_device_context_initiator_host_name_len = -1;
+static int hf_smb2_svhdx_open_device_context_initiator_host_name = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
@@ -402,6 +411,7 @@ static gint ett_smb2_DH2Q_buffer = -1;
 static gint ett_smb2_DH2C_buffer = -1;
 static gint ett_smb2_dh2x_flags = -1;
 static gint ett_smb2_APP_INSTANCE_buffer = -1;
+static gint ett_smb2_svhdx_open_device_context = -1;
 static gint ett_smb2_find_flags = -1;
 static gint ett_smb2_file_directory_info = -1;
 static gint ett_smb2_both_directory_info = -1;
@@ -1065,6 +1075,11 @@ typedef struct _smb2_function {
 	int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si);
 } smb2_function;
 
+static const true_false_string tfs_smb2_svhdx_has_initiator_id = {
+	"Has an initiator id",
+	"Does not have an initiator id"
+};
+
 static const true_false_string tfs_flags_response = {
 	"This is a RESPONSE",
 	"This is a REQUEST"
@@ -1138,6 +1153,12 @@ static const true_false_string tfs_smb2_ioctl_network_interface_capability_rss =
 static const true_false_string tfs_smb2_ioctl_network_interface_capability_rdma = {
 	"This interface supports RDMA",
 	"This interface does not support RDMA"
+};
+
+static const value_string originator_flags_vals[] = {
+	{ 1, "SVHDX_ORIGINATOR_PVHDPARSER" },
+	{ 4, "SVHDX_ORIGINATOR_VHDMP" },
+	{ 0, NULL }
 };
 
 static const value_string compression_format_vals[] = {
@@ -5438,6 +5459,72 @@ dissect_smb2_APP_INSTANCE_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	report_create_context_malformed_buffer(tvb, pinfo, tree, "APP INSTANCE Response");
 }
 
+/*
+ * Dissect the MS-RSVD stuff that turns up when HyperV uses SMB3.x
+ */
+static void
+dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": SVHDX OPEN DEVICE CONTEXT");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_svhdx_open_device_context, NULL, "SVHDX OPEN DEVICE CONTEXT");
+
+	/* Version */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_version,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* HasInitiatorId */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_has_initiator_id,
+			    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	/* Reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_reserved,
+			    tvb, offset, 3, ENC_NA);
+	offset += 3;
+
+	/* InitiatorId */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_id,
+			    tvb, offset, 16, ENC_NA);
+	offset += 16;
+
+	/* Flags TODO: Dissect these*/
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_flags,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* OriginatorFlags */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_originator_flags,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* OpenRequestId */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_open_request_id,
+			    tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	/* InitiatorHostNameLength */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_host_name_len,
+			    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* InitiatorHostName */
+	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_host_name,
+			    tvb, offset, 126, ENC_ASCII | ENC_NA);
+}
+
+static void
+dissect_smb2_svhdx_open_device_context_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	report_create_context_malformed_buffer(tvb, pinfo, tree, "SHVXD OPEN DEVICE CONTEXT Response");
+}
+
 typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
 
 typedef struct create_context_data_dissectors {
@@ -5476,7 +5563,10 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	  { dissect_smb2_RqLs_buffer_request, dissect_smb2_RqLs_buffer_response } },
 	{ "744D142E-46FA-0890-4AF7-A7EF6AA6BC45", "SMB2_CREATE_APP_INSTANCE_ID",
 		{ dissect_smb2_APP_INSTANCE_buffer_request,
-		  dissect_smb2_APP_INSTANCE_buffer_response } }
+		  dissect_smb2_APP_INSTANCE_buffer_response } },
+	{ "9ecfcb9c-c104-43e6-980e-158da1f6ec83", "SVHDX_OPEN_DEVICE_CONTEXT",
+		{ dissect_smb2_svhdx_open_device_context_request,
+		  dissect_smb2_svhdx_open_device_context_response} }
 };
 
 static struct create_context_data_tag_dissectors*
@@ -5487,6 +5577,7 @@ get_create_context_data_tag_dissectors(const char *tag)
 	};
 
 	size_t i;
+
 	for (i = 0; i<array_length(create_context_dissectors_array); i++) {
 		if (!strcmp(tag, create_context_dissectors_array[i].tag))
 			return &create_context_dissectors_array[i];
@@ -5528,8 +5619,30 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	/* data  offset/length */
 	dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_O_UINT16_S_UINT32, hf_smb2_create_chain_data);
 
-	/* tag string */
-	tag = dissect_smb2_olb_string(pinfo, sub_tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
+	/*
+	 * These things are all either 4-char strings, like DH2C, or GUIDs,
+	 * however, at least one of them appears to be a GUID as a string and
+	 * one appears to be a binary guid. So, check if the the length is
+	 * 16, and if so, pull the GUID and convert it to a string. Otherwise
+	 * call dissect_smb2_olb_string.
+	 */
+	if (tag_olb.len == 16) {
+		e_guid_t tag_guid;
+		proto_item *tag_item;
+		proto_tree *tag_tree;
+
+		tvb_get_letohguid(tvb, tag_olb.off, &tag_guid);
+		tag = guid_to_ep_str(&tag_guid);
+
+		tag_item = proto_tree_add_string(sub_tree, tag_olb.hfindex, tvb, tag_olb.off, tag_olb.len, tag);
+		tag_tree = proto_item_add_subtree(tag_item, ett_smb2_olb);
+		proto_tree_add_item(tag_tree, hf_smb2_olb_offset, tvb, tag_olb.off_offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tag_tree, hf_smb2_olb_length, tvb, tag_olb.len_offset, 2, ENC_LITTLE_ENDIAN);
+
+	} else {
+		/* tag string */
+		tag = dissect_smb2_olb_string(pinfo, sub_tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
+	}
 
 	tag_dissectors = get_create_context_data_tag_dissectors(tag);
 
@@ -8171,6 +8284,42 @@ proto_register_smb2(void)
 		  { "Application Guid", "smb2.app_instance.app_guid", FT_GUID, BASE_NONE,
 		    NULL, 0, NULL, HFILL}},
 
+		{ &hf_smb2_svhdx_open_device_context_version,
+		  { "Version", "smb2.svhdx_open_device_context.version", FT_UINT32, BASE_DEC,
+		    NULL, 0, NULL, HFILL}},
+
+		{ &hf_smb2_svhdx_open_device_context_has_initiator_id,
+		  { "HasInitiatorId", "smb2.svhdx_open_device_context.initiator_has_id", FT_BOOLEAN, 8,
+		    TFS(&tfs_smb2_svhdx_has_initiator_id), 0, "Whether the host has an intiator", HFILL}},
+
+		{ &hf_smb2_svhdx_open_device_context_reserved,
+		  { "Reserved", "smb2.svhdx_open_device_context.reserved", FT_BYTES, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_initiator_id,
+		  { "InitiatorId", "smb2.svhdx_open_device_context.initiator_id", FT_BYTES, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_flags,
+		  { "Flags", "smb2.svhdx_open_device_context.flags", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_originator_flags,
+		  { "OriginatorFlags", "smb2.svhdx_open_device_context.originator_flags", FT_UINT32, BASE_HEX,
+		    VALS(originator_flags_vals), 0, "Originator Flags", HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_open_request_id,
+		  { "OpenRequestId","smb2.svhxd_open_device_context.open_request_id", FT_UINT64, BASE_HEX,
+		     NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_initiator_host_name_len,
+		  { "HostNameLength", "smb2.svhxd_open_device_context.initiator_host_name_len", FT_UINT16, BASE_DEC,
+		     NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_svhdx_open_device_context_initiator_host_name,
+		  { "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, BASE_NONE,
+		     NULL, 0, NULL, HFILL }},
+
 		{ &hf_smb2_transform_signature,
 		  { "Signature", "smb2.header.transform.signature", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
@@ -8274,6 +8423,7 @@ proto_register_smb2(void)
 		&ett_smb2_DH2C_buffer,
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
+		&ett_smb2_svhdx_open_device_context,
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
 	};
