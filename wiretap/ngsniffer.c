@@ -2221,6 +2221,78 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 
    Return value is the number of bytes in outbuf on return.
 */
+
+/*
+ * Make sure we have at least "length" bytes remaining
+ * in the input buffer.
+ */
+#define CHECK_INPUT_POINTER( length ) \
+	if ( pin + (length - 1) >= pin_end ) \
+	{ \
+		*err = WTAP_ERR_UNC_TRUNCATED; \
+		return ( -1 ); \
+	}
+
+/*
+ * Make sure the byte containing the high order part of a buffer
+ * offset is present.
+ *
+ * If it is, then fetch it and combine it with the low-order part.
+ */
+#define FETCH_OFFSET_HIGH \
+	CHECK_INPUT_POINTER( 1 ); \
+	offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
+
+/*
+ * Make sure the output buffer is big enough to get "length"
+ * bytes added to it.
+ */
+#define CHECK_OUTPUT_LENGTH( length ) \
+	if ( pout + length > pout_end ) \
+	{ \
+		*err = WTAP_ERR_UNC_OVERFLOW; \
+		return ( -1 ); \
+	}
+
+/*
+ * Make sure we have another byte to fetch, and then fetch it and
+ * append it to the buffer "length" times.
+ */
+#define APPEND_RLE_BYTE( length ) \
+	/* If length would put us past end of output, avoid overflow */ \
+	CHECK_OUTPUT_LENGTH( length ); \
+	CHECK_INPUT_POINTER( 1 ); \
+	memset( pout, *pin++, length ); \
+	pout += length;
+
+/*
+ * Make sure the specified offset and length refer, in the output
+ * buffer, to data that's entirely within the part of the output
+ * buffer that we've already filled in.
+ *
+ * Then append the string from the specified offset, with the
+ * specified length, to the output buffer.
+ */
+#define APPEND_LZW_STRING( offset, length ) \
+	/* If length would put us past end of output, avoid overflow */ \
+	CHECK_OUTPUT_LENGTH( length ); \
+	/* Check if offset would put us back past begin of buffer */ \
+	if ( pout - offset < outbuf ) \
+	{ \
+		*err = WTAP_ERR_UNC_BAD_OFFSET; \
+		return ( -1 ); \
+	} \
+	/* Check if offset would cause us to copy on top of ourselves */ \
+	if ( pout - offset + length > pout ) \
+	{ \
+		*err = WTAP_ERR_UNC_BAD_OFFSET; \
+		return ( -1 ); \
+	} \
+	/* Copy the string from previous text to output position, \
+	   advance output pointer */ \
+	memcpy( pout, pout - offset, length ); \
+	pout += length;
+
 static int
 SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 		  size_t outlen, int *err)
@@ -2253,11 +2325,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 			/* make sure there are at least *three* bytes
 			   available - the two bytes of the bit value,
 			   plus one byte after it */
-			if ( pin + 2 >= pin_end )
-			{
-				*err = WTAP_ERR_UNC_TRUNCATED;
-				return ( -1 );
-			}
+			CHECK_INPUT_POINTER( 3 );
 			bit_mask  = 0x8000;  /* start with the high bit */
 			bit_value = pletoh16(pin);   /* get the next 16 bits */
 			pin += 2;          /* skip over what we just grabbed */
@@ -2269,11 +2337,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 			/* bit not set - raw byte we just copy */
 
 			/* If length would put us past end of output, avoid overflow */
-			if ( pout + 1 > pout_end )
-			{
-				*err = WTAP_ERR_UNC_OVERFLOW;
-				return ( -1 );
-			}
+			CHECK_OUTPUT_LENGTH( 1 );
 			*(pout++) = *(pin++);
 		}
 		else
@@ -2284,11 +2348,6 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 			code_type = (unsigned int) ((*pin) >> 4 ) & 0xF;
 			code_low  = (unsigned int) ((*pin) & 0xF );
 			pin++;   /* increment over the code byte we just retrieved */
-			if ( pin >= pin_end )
-			{
-				*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-				return ( -1 );
-			}
 
 			/* Based on the code type, decode the compressed string */
 			switch ( code_type )
@@ -2300,16 +2359,10 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				  Total code size: 2 bytes.
 				*/
 				length = code_low + 3;
-				/* If length would put us past end of output, avoid overflow */
-				if ( pout + length > pout_end )
-				{
-					*err = WTAP_ERR_UNC_OVERFLOW;
-					return ( -1 );
-				}
 
-				/* generate the repeated series of bytes */
-				memset( pout, *pin++, length );
-				pout += length;
+				/* check the length and then, if it's OK,
+				   generate the repeated series of bytes */
+				APPEND_RLE_BYTE( length );
 				break;
 			case 1  :   /* RLE long runs */
 				/*
@@ -2319,24 +2372,12 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				  Byte to repeat immediately follows.
 				  Total code size: 3 bytes.
 				*/
+				CHECK_INPUT_POINTER( 1 );
 				length = code_low + ((unsigned int)(*pin++) << 4) + 19;
-				/* If we are already at end of input, there is no byte
-				   to repeat */
-				if ( pin >= pin_end )
-				{
-					*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-					return ( -1 );
-				}
-				/* If length would put us past end of output, avoid overflow */
-				if ( pout + length > pout_end )
-				{
-					*err = WTAP_ERR_UNC_OVERFLOW;
-					return ( -1 );
-				}
 
-				/* generate the repeated series of bytes */
-				memset( pout, *pin++, length );
-				pout += length;
+				/* check the length and then, if it's OK,
+				   generate the repeated series of bytes */
+				APPEND_RLE_BYTE( length );
 				break;
 			case 2  :   /* LZ77 long strings */
 				/*
@@ -2346,39 +2387,15 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				  Length of string immediately follows.
 				  Total code size: 3 bytes.
 				*/
-				offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
-				/* If we are already at end of input, there is no byte
-				   to repeat */
-				if ( pin >= pin_end )
-				{
-					*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-					return ( -1 );
-				}
-				/* Check if offset would put us back past begin of buffer */
-				if ( pout - offset < outbuf )
-				{
-					*err = WTAP_ERR_UNC_BAD_OFFSET;
-					return ( -1 );
-				}
+				FETCH_OFFSET_HIGH;
 
 				/* get length from next byte, make sure it won't overrun buf */
+				CHECK_INPUT_POINTER( 1 );
 				length = (unsigned int)(*pin++) + 16;
-				if ( pout + length > pout_end )
-				{
-					*err = WTAP_ERR_UNC_OVERFLOW;
-					return ( -1 );
-				}
-				/* Check if offset would cause us to copy on top of ourselves */
-				if ( pout - offset + length > pout )
-				{
-					*err = WTAP_ERR_UNC_BAD_OFFSET;
-					return ( -1 );
-				}
 
-				/* Copy the string from previous text to output position,
-				   advance output pointer */
-				memcpy( pout, pout - offset, length );
-				pout += length;
+				/* check the offset and length and then, if
+				   they're OK, copy the data */
+				APPEND_LZW_STRING( offset, length );
 				break;
 			default :   /* (3 to 15): LZ77 short strings */
 				/*
@@ -2388,32 +2405,14 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				  Length of string to repeat is overloaded into code_type.
 				  Total code size: 2 bytes.
 				*/
-				offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
-				/* Check if offset would put us back past begin of buffer */
-				if ( pout - offset < outbuf )
-				{
-					*err = WTAP_ERR_UNC_BAD_OFFSET;
-					return ( -1 );
-				}
+				FETCH_OFFSET_HIGH;
 
-				/* get length from code_type, make sure it won't overrun buf */
+				/* get length from code_type */
 				length = code_type;
-				if ( pout + length > pout_end )
-				{
-					*err = WTAP_ERR_UNC_OVERFLOW;
-					return ( -1 );
-				}
-				/* Check if offset would cause us to copy on top of ourselves */
-				if ( pout - offset + length > pout )
-				{
-					*err = WTAP_ERR_UNC_BAD_OFFSET;
-					return ( -1 );
-				}
 
-				/* Copy the string from previous text to output position,
-				   advance output pointer */
-				memcpy( pout, pout - offset, length );
-				pout += length;
+				/* check the offset and length and then, if
+				   they're OK, copy the data */
+				APPEND_LZW_STRING( offset, length );
 				break;
 			}
 		}
