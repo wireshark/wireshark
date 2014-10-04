@@ -1756,7 +1756,6 @@ dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offs
         *udl -= (((oct + 1)*8) + *fill_bits) / 7;
         if (*fill_bits)
         {
-            oct = tvb_get_guint8(tvb, *offset);
 
             if (cset == GSM_7BITS)
             {
@@ -2505,12 +2504,10 @@ dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
     dis_field_pid(tvb, tree, offset, oct);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
 
     DIS_FIELD_CT(tree, offset);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
 
     DIS_FIELD_MN(tree, offset);
 
