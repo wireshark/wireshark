@@ -2502,11 +2502,6 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
 }
 
 #ifdef HAVE_EXTCAP
-void
-extcap_free_arglist(gpointer data, gpointer user_data _U_)
-{
-  extcap_free_arg ( (extcap_arg *) data );
-}
 
 static GtkWidget *build_extcap_options(const gchar *name, GHashTable *hash) {
   GtkWidget *ret_box = NULL;
