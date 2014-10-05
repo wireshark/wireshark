@@ -146,18 +146,44 @@ void k12_ascii_dump(guint level, guint8 *buf, guint32 len, guint32 buf_offset) {
 
 
 /*
- * the 32 bits .rf5 file contains:
- *  an 8 byte magic number
- *  32bit length
- *  32bit number of records
- *  other 0x200 bytes bytes of uncharted territory
- *     1 or more copies of the num_of_records in there
- *  the records whose first 32bits word is the length
- *     they are stuffed by one to four words every 0x2000 bytes
- *  and a 2 byte terminator FFFF
+ * A 32-bit .rf5 file contains:
+ *
+ *  a 32-bit big-endian file header length (0x0200 = 512);
+ *
+ *  4 unknown bytes, always 0x12 0x05 0x00 0x10;
+ *
+ *  a 32-bit big-endian file length, giving the total length of the file,
+ *  in bytes;
+ *
+ *  a 32-bit big-endian number of records;
+ *
+ *  496 bytes of uncharted territory;
+ *
+ * followed by a sequence of records containing:
+ *
+ *  a 32-bit big-endian record length;
+ *
+ *  a 32-bit big-endian record type;
+ *
+ *  a 32-bit big-endian frame length;
+ *
+ *  a 32-bit big-endian source ID.
+ *
+ * Every 8192 bytes, starting immediately after the 512-byte header,
+ * there's a 16-byte blob; it's not part of the record data.
+ * There's no obvious pattern to the data; it might be junk left
+ * in memory as the file was being written.
+ *
+ * There's a 16-bit terminator FFFF at the end.
  */
 
+/*
+ * We use the first 8 bytes of the file header as a magic number.
+ */
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
+
+#define K12_FILE_HDR_LEN      512
+#define K12_FILE_BLOB_LEN     16
 
 typedef struct {
     guint32 file_len;
@@ -353,9 +379,9 @@ typedef struct _k12_src_desc_t {
 
 /*
  * get_record: Get the next record into a buffer
- *   Every about 0x2000 bytes 0x10 bytes are inserted in the file,
+ *   Every 8192 bytes 16 bytes are inserted in the file,
  *   even in the middle of a record.
- *   This reads the next record without the eventual 0x10 bytes.
+ *   This reads the next record without the eventual 16 bytes.
  *   returns the length of the record + the stuffing (if any)
  *
  *   Returns number of bytes read on success, 0 on EOF, -1 on error;
@@ -363,7 +389,7 @@ typedef struct _k12_src_desc_t {
  *   errors where that's appropriate, *err_info is set to an additional
  *   error string.
  *
- * XXX: works at most with 0x1FFF bytes per record
+ * XXX: works at most with 8191 bytes per record
  */
 static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
                        gboolean is_random, int *err, gchar **err_info) {
@@ -372,21 +398,27 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
     guint bytes_read;
     guint last_read;
     guint left;
-    guint8 junk[0x14];
+    guint8 junk[K12_FILE_BLOB_LEN+4];
     guint8* writep;
 #ifdef DEBUG_K12
     guint actual_len;
 #endif
 
-    /* where the next unknown 0x10 bytes are stuffed to the file */
-    guint junky_offset = 0x2000 - (gint) ( (file_offset - 0x200) % 0x2000 );
+    /*
+     * Where the next unknown 16 bytes are stuffed to the file.
+     * Following the file header, they appear every 8192 bytes,
+     * starting right after the file header, so if the file offset
+     * relative to the file header is a multiple of 8192, the
+     * 16-byte blob is there.
+     */
+    guint junky_offset = 8192 - (gint) ( (file_offset - K12_FILE_HDR_LEN) % 8192 );
 
     K12_DBG(6,("get_record: ENTER: junky_offset=%" G_GINT64_MODIFIER "d, file_offset=%" G_GINT64_MODIFIER "d",junky_offset,file_offset));
 
     /* no buffer is given, lets create it */
     if (buffer == NULL) {
-        buffer = (guint8*)g_malloc(0x2000);
-        buffer_len = 0x2000;
+        buffer = (guint8*)g_malloc(8192);
+        buffer_len = 8192;
         if (is_random) {
             file_data->rand_read_buff = buffer;
             file_data->rand_read_buff_len = buffer_len;
@@ -397,14 +429,27 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
     }
 
     /* Get the record length. */
-    if ( junky_offset == 0x2000 ) {
-        /* the length of the record is 0x10 bytes ahead from we are reading */
-        bytes_read = file_read(junk,0x14,fh);
+    if ( junky_offset == 8192 ) {
+        /*
+         * We're at the beginning of one of the 16-byte blobs,
+         * so we have the blob, followed by a 4-byte record
+         * length.
+         *
+         * Or we may just have the 2-byte FFFF marker.
+         *
+         * Read the blob and the record length.
+         */
+        bytes_read = file_read(junk,K12_FILE_BLOB_LEN+4,fh);
 
+        /*
+         * XXX - if the FFFF end-marker is on an 8192-byte page
+         * boundary, would it be preceded by a 16-byte blob or
+         * not?  This code is assuming it would not be.
+         */
         if (bytes_read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
-        } else if ( bytes_read < 0x14 ){
+        } else if ( bytes_read < K12_FILE_BLOB_LEN+4 ){
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
             *err = file_error(fh, err_info);
             if (*err == 0) {
@@ -413,10 +458,13 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
             return -1;
         }
 
-        memcpy(buffer,&(junk[0x10]),4);
+        memcpy(buffer,&(junk[K12_FILE_BLOB_LEN]),4);
     } else {
-        /* the length of the record is right where we are reading */
-        bytes_read = file_read(buffer, 0x4, fh);
+        /*
+         * We're not at the beginning of one of the blobs, we just
+         * have the record length.
+         */
+        bytes_read = file_read(buffer, 4, fh);
 
         if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
@@ -438,7 +486,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
              */
             K12_DBG(1,("get_record: EOF"));
             return 0;
-        } else if ( bytes_read != 0x4 ) {
+        } else if ( bytes_read != 4 ) {
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
             *err = file_error(fh, err_info);
             if (*err == 0) {
@@ -452,21 +500,25 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
 #ifdef DEBUG_K12
     actual_len = left;
 #endif
-    junky_offset -= 0x4;
+    junky_offset -= 4;
 
     K12_DBG(5,("get_record: GET length=%u",left));
 
     /*
      * Record length must be at least large enough for the length,
-     * hence 4 bytes.
+     * and type, hence 8 bytes.
      *
-     * XXX - Is WTAP_MAX_PACKET_SIZE the right check for a maximum
+     * XXX - is WTAP_MAX_PACKET_SIZE the right check for a maximum
      * record size?  Should we report this error differently?
      */
-    if (left < 4 || left > WTAP_MAX_PACKET_SIZE) {
-        K12_DBG(1,("get_record: Invalid GET length=%u",left));
+    if (left < 8) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("get_record: Invalid GET length=%u",left);
+        *err_info = g_strdup_printf("k12: Record length %u is less than 8 bytes long",left);
+        return -1;
+    }
+    if (left > WTAP_MAX_PACKET_SIZE) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("k12: Record length %u is greater than the maximum %u",left,WTAP_MAX_PACKET_SIZE);
         return -1;
     }
 
@@ -493,6 +545,10 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
         K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
 
         if (junky_offset > left) {
+            /*
+             * The next 16-byte blob is past the end of this record.
+             * Just read the rest of the record.
+             */
             bytes_read += last_read = file_read(writep, left, fh);
 
             if ( last_read != left ) {
@@ -507,6 +563,10 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
                 return bytes_read;
             }
         } else {
+            /*
+             * The next 16-byte blob is part of this record.
+             * Read up to the blob.
+             */
             bytes_read += last_read = file_read(writep, junky_offset, fh);
 
             if ( last_read != junky_offset ) {
@@ -520,9 +580,12 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
 
             writep += last_read;
 
-            bytes_read += last_read = file_read(junk, 0x10, fh);
+            /*
+             * Skip the blob.
+             */
+            bytes_read += last_read = file_read(junk, K12_FILE_BLOB_LEN, fh);
 
-            if ( last_read != 0x10 ) {
+            if ( last_read != K12_FILE_BLOB_LEN ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
                 *err = file_error(fh, err_info);
                 if (*err == 0) {
@@ -532,7 +595,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
             }
 
             left -= junky_offset;
-            junky_offset = 0x2000;
+            junky_offset = 8192;
         }
 
     } while(left);
@@ -770,7 +833,7 @@ static void k12_close(wtap *wth) {
 
 int k12_open(wtap *wth, int *err, gchar **err_info) {
     k12_src_desc_t* rec;
-    guint8 header_buffer[0x200];
+    guint8 header_buffer[K12_FILE_HDR_LEN];
     guint8* read_buffer;
     guint32 type;
     long offset;
@@ -798,7 +861,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     K12_DBG(1,("k12_open: ENTER debug_level=%u",debug_level));
 #endif
 
-    if ( file_read(header_buffer,0x200,wth->fh) != 0x200 ) {
+    if ( file_read(header_buffer,K12_FILE_HDR_LEN,wth->fh) != K12_FILE_HDR_LEN ) {
         K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
         *err = file_error(wth->fh, err_info);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ) {
@@ -812,7 +875,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         }
     }
 
-    offset = 0x200;
+    offset = K12_FILE_HDR_LEN;
 
     file_data = new_k12_file_data();
 
@@ -983,7 +1046,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             K12_DBG(1,("k12_open: K12_REC_STK_FILE"));
             K12_DBG(1,("Field 1: 0x%08x",pntoh32( read_buffer + 0x08 )));
             K12_DBG(1,("Field 2: 0x%08x",pntoh32( read_buffer + 0x0c )));
-            K12_ASCII_DUMP(1, read_buffer, rec_len, 0x10);
+            K12_ASCII_DUMP(1, read_buffer, rec_len, 16);
 
             offset += len;
             continue;
@@ -1027,20 +1090,20 @@ static const gchar dumpy_junk[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, int *err_p) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
-    guint32 junky_offset = (0x2000 - ( (k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
+    guint32 junky_offset = (8192 - ( (k12->file_offset - K12_FILE_HDR_LEN) % 8192 )) % 8192;
 
     if (len > junky_offset) {
         if (junky_offset) {
             if (! wtap_dump_file_write(wdh, buffer, junky_offset, err_p))
                 return FALSE;
         }
-        if (! wtap_dump_file_write(wdh, dumpy_junk, 0x10, err_p))
+        if (! wtap_dump_file_write(wdh, dumpy_junk, K12_FILE_BLOB_LEN, err_p))
             return FALSE;
 
         if (! wtap_dump_file_write(wdh, buffer+junky_offset, len - junky_offset, err_p))
             return FALSE;
 
-        k12->file_offset += len + 0x10;
+        k12->file_offset += len + K12_FILE_BLOB_LEN;
     } else {
         if (! wtap_dump_file_write(wdh, buffer, len, err_p))
             return FALSE;
@@ -1060,7 +1123,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
     int   errxxx; /* dummy */
 
     union {
-        guint8 buffer[0x2000];
+        guint8 buffer[8192];
 
         struct {
             guint32 len;
@@ -1088,7 +1151,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
                     } ds0mask;
 
                     struct {
-                        guint8 unk_data[0x10];
+                        guint8 unk_data[16];
                         guint16 vp;
                         guint16 vc;
                     } atm;
@@ -1165,7 +1228,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 len;
     union {
-        guint8 buffer[0x2000];
+        guint8 buffer[8192];
         struct {
             guint32 len;
             guint32 type;
@@ -1249,7 +1312,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
         return FALSE;
     }
 
-    if (wtap_dump_file_seek(wdh, 0x200, SEEK_SET, err) == -1)
+    if (wtap_dump_file_seek(wdh, K12_FILE_HDR_LEN, SEEK_SET, err) == -1)
         return FALSE;
 
     wdh->subtype_write = k12_dump;
@@ -1257,9 +1320,9 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
 
     k12 = (k12_dump_t *)g_malloc(sizeof(k12_dump_t));
     wdh->priv = (void *)k12;
-    k12->file_len = 0x200;
+    k12->file_len = K12_FILE_HDR_LEN;
     k12->num_of_records = 0;
-    k12->file_offset  = 0x200;
+    k12->file_offset  = K12_FILE_HDR_LEN;
 
     return TRUE;
 }
