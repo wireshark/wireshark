@@ -6394,7 +6394,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb _U_
 int
 lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	guint32 level;
+	guint32 level = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;

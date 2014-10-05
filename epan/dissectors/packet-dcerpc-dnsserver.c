@@ -1400,7 +1400,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb _U_, int offset _U
 int
 dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	guint16 Type;
+	guint16 Type = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
