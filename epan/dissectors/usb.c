@@ -17765,15 +17765,3 @@ static const value_string usb_products_vals[] = {
 };
 value_string_ext ext_usb_products_vals = VALUE_STRING_EXT_INIT(usb_products_vals);
 
-/*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */
