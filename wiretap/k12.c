@@ -505,7 +505,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
     K12_DBG(5,("get_record: GET length=%u",left));
 
     /*
-     * Record length must be at least large enough for the length,
+     * Record length must be at least large enough for the length
      * and type, hence 8 bytes.
      *
      * XXX - is WTAP_MAX_PACKET_SIZE the right check for a maximum
