@@ -22,21 +22,21 @@
  */
 
 /*
-	IGAP "Internet Group membership Authentication Protocol"
-	is defined in draft-hayashi-igap-03.txt.
+        IGAP "Internet Group membership Authentication Protocol"
+        is defined in draft-hayashi-igap-03.txt.
 
-	(Author's memo)
-	 Type  Subtype  Message                     Msize
-	-----------------------------------------------------
-	 ----   0x02    User password               variable
-	 ----   0x03    ----                        00
-	 ----   0x04    Result of MD5 calculation   16
-	 0x41   0x23    Challenge value             ??
-	 0x41   0x24    Authentication result code   1
-	 0x41   0x25    Accounting status code       1
-	 ----   0x42    User password               variable
-	 ----   0x43    ----                        00
-	 ----   0x44    Result of MD5 calculation   16
+        (Author's memo)
+         Type  Subtype  Message                     Msize
+        -----------------------------------------------------
+         ----   0x02    User password               variable
+         ----   0x03    ----                        00
+         ----   0x04    Result of MD5 calculation   16
+         0x41   0x23    Challenge value             ??
+         0x41   0x24    Authentication result code   1
+         0x41   0x25    Accounting status code       1
+         ----   0x42    User password               variable
+         ----   0x43    ----                        00
+         ----   0x44    Result of MD5 calculation   16
 
 */
 
@@ -129,8 +129,8 @@ static const value_string igap_account_status[] = {
     {0, NULL}
 };
 
-#define ACCOUNT_SIZE	16
-#define MESSAGE_SIZE	64
+#define ACCOUNT_SIZE    16
+#define MESSAGE_SIZE    64
 
 /* This function is only called from the IGMP dissector */
 int
@@ -142,10 +142,10 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     guchar account[ACCOUNT_SIZE+1], message[MESSAGE_SIZE+1];
 
     if (!proto_is_protocol_enabled(find_protocol_by_id(proto_igap))) {
-	/* we are not enabled, skip entire packet to be nice
-	   to the igmp layer. (so clicking on IGMP will display the data)
-	   */
-	return offset + tvb_length_remaining(tvb, offset);
+        /* we are not enabled, skip entire packet to be nice
+           to the igmp layer. (so clicking on IGMP will display the data)
+           */
+        return offset + tvb_length_remaining(tvb, offset);
     }
 
     item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
@@ -155,14 +155,14 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     col_clear(pinfo->cinfo, COL_INFO);
 
     type = tvb_get_guint8(tvb, offset);
-	col_add_str(pinfo->cinfo, COL_INFO,
-		     val_to_str(type, igap_types, "Unknown Type: 0x%02x"));
+        col_add_str(pinfo->cinfo, COL_INFO,
+                     val_to_str(type, igap_types, "Unknown Type: 0x%02x"));
     proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
     offset += 1;
 
     tsecs = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint_format_value(tree, hf_max_resp, tvb, offset, 1, tsecs,
-	"%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
+        "%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
     offset += 1;
 
     igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
@@ -172,7 +172,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     offset += 4;
 
     proto_tree_add_uint(tree, hf_version, tvb, offset, 1,
-	tvb_get_guint8(tvb, offset));
+        tvb_get_guint8(tvb, offset));
     offset += 1;
 
     subtype = tvb_get_guint8(tvb, offset);
@@ -180,7 +180,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     offset += 2;
 
     proto_tree_add_uint(tree, hf_challengeid, tvb, offset, 1,
-	tvb_get_guint8(tvb, offset));
+        tvb_get_guint8(tvb, offset));
     offset += 1;
 
     asize = tvb_get_guint8(tvb, offset);
@@ -192,51 +192,51 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     offset += 3;
 
     if (asize > 0) {
-    	if (asize > ACCOUNT_SIZE) {
-    	    /* Bogus account size.
-    	       XXX - flag this? */
-    	    asize = ACCOUNT_SIZE;
-    	}
-	tvb_memcpy(tvb, account, offset, asize);
-	account[asize] = '\0';
-	proto_tree_add_string(tree, hf_account, tvb, offset, asize, account);
+        if (asize > ACCOUNT_SIZE) {
+            /* Bogus account size.
+               XXX - flag this? */
+            asize = ACCOUNT_SIZE;
+        }
+        tvb_memcpy(tvb, account, offset, asize);
+        account[asize] = '\0';
+        proto_tree_add_string(tree, hf_account, tvb, offset, asize, account);
     }
     offset += ACCOUNT_SIZE;
 
     if (msize > 0) {
-    	if (msize > MESSAGE_SIZE) {
-    	    /* Bogus message size.
-    	       XXX - flag this? */
-    	    msize = MESSAGE_SIZE;
-    	}
-	tvb_memcpy(tvb, message, offset, msize);
-	switch (subtype) {
-	case IGAP_SUBTYPE_PASSWORD_JOIN:
-	case IGAP_SUBTYPE_PASSWORD_LEAVE:
-	    /* Challenge field is user's password */
-	    message[msize] = '\0';
-	    proto_tree_add_string(tree, hf_igap_user_password, tvb, offset, msize, message);
-	    break;
-	case IGAP_SUBTYPE_CHALLENGE_RESPONSE_JOIN:
-	case IGAP_SUBTYPE_CHALLENGE_RESPONSE_LEAVE:
-	    /* Challenge field is the results of MD5 calculation */
-	    proto_tree_add_item(tree, hf_igap_result_of_md5_calculation, tvb, offset, msize, ENC_NA);
-	    break;
-	case IGAP_SUBTYPE_CHALLENGE:
-	    /* Challenge field is the challenge value */
-	    proto_tree_add_item(tree, hf_igap_challenge, tvb, offset, msize, ENC_NA);
-	    break;
-	case IGAP_SUBTYPE_AUTH_MESSAGE:
-	    /* Challenge field indicates the result of the authenticaion */
-	    proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, message[0]);
-	    break;
-	case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
-	    /* Challenge field indicates the accounting status */
-	    proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, message[0]);
-	    break;
-	default:
-	    proto_tree_add_item(tree, hf_igap_unknown_message, tvb, offset, msize, ENC_NA);
-	}
+        if (msize > MESSAGE_SIZE) {
+            /* Bogus message size.
+               XXX - flag this? */
+            msize = MESSAGE_SIZE;
+        }
+        tvb_memcpy(tvb, message, offset, msize);
+        switch (subtype) {
+        case IGAP_SUBTYPE_PASSWORD_JOIN:
+        case IGAP_SUBTYPE_PASSWORD_LEAVE:
+            /* Challenge field is user's password */
+            message[msize] = '\0';
+            proto_tree_add_string(tree, hf_igap_user_password, tvb, offset, msize, message);
+            break;
+        case IGAP_SUBTYPE_CHALLENGE_RESPONSE_JOIN:
+        case IGAP_SUBTYPE_CHALLENGE_RESPONSE_LEAVE:
+            /* Challenge field is the results of MD5 calculation */
+            proto_tree_add_item(tree, hf_igap_result_of_md5_calculation, tvb, offset, msize, ENC_NA);
+            break;
+        case IGAP_SUBTYPE_CHALLENGE:
+            /* Challenge field is the challenge value */
+            proto_tree_add_item(tree, hf_igap_challenge, tvb, offset, msize, ENC_NA);
+            break;
+        case IGAP_SUBTYPE_AUTH_MESSAGE:
+            /* Challenge field indicates the result of the authenticaion */
+            proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, message[0]);
+            break;
+        case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
+            /* Challenge field indicates the accounting status */
+            proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, message[0]);
+            break;
+        default:
+            proto_tree_add_item(tree, hf_igap_unknown_message, tvb, offset, msize, ENC_NA);
+        }
     }
     offset += MESSAGE_SIZE;
 
@@ -249,76 +249,115 @@ void
 proto_register_igap(void)
 {
     static hf_register_info hf[] = {
-	{ &hf_type,
-	  { "Type", "igap.type", FT_UINT8, BASE_HEX,
-	    VALS(igap_types), 0, "IGAP Packet Type", HFILL }
-	},
+        { &hf_type,
+          { "Type", "igap.type",
+            FT_UINT8, BASE_HEX, VALS(igap_types), 0,
+            "IGAP Packet Type", HFILL }
+        },
+        { &hf_max_resp,
+          { "Max Response Time", "igap.max_resp",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_checksum,
+          { "Checksum", "igap.checksum",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_checksum_bad,
+          { "Bad Checksum", "igap.checksum_bad",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_maddr,
+          { "Multicast group address", "igap.maddr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_version,
+          { "Version", "igap.version",
+            FT_UINT8, BASE_HEX, VALS(igap_version), 0,
+            "IGAP protocol version", HFILL }
+        },
+        { &hf_subtype,
+          { "Subtype", "igap.subtype",
+            FT_UINT8, BASE_HEX, VALS(igap_subtypes), 0,
+            NULL, HFILL }
+        },
+        { &hf_challengeid,
+          { "Challenge ID", "igap.challengeid",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_asize,
+          { "Account Size", "igap.asize",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Length of the User Account field", HFILL }
+        },
+        { &hf_msize,
+          { "Message Size", "igap.msize",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Length of the Message field", HFILL }
+        },
+        { &hf_account,
+          { "User Account", "igap.account",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
 
-	{ &hf_max_resp,
-	  { "Max Response Time", "igap.max_resp", FT_UINT8, BASE_DEC,
-	    NULL, 0, NULL, HFILL }
-	},
-
-	{ &hf_checksum,
-	  { "Checksum", "igap.checksum", FT_UINT16, BASE_HEX,
-	    NULL, 0, NULL, HFILL }
-	},
-
-	{ &hf_checksum_bad,
-	  { "Bad Checksum", "igap.checksum_bad", FT_BOOLEAN, BASE_NONE,
-	    NULL, 0x0, NULL, HFILL }
-	},
-
-	{ &hf_maddr,
-	  { "Multicast group address", "igap.maddr", FT_IPv4, BASE_NONE,
-	    NULL, 0, NULL, HFILL }
-	},
-
-	{ &hf_version,
-	  { "Version", "igap.version", FT_UINT8, BASE_HEX,
-	    VALS(igap_version), 0, "IGAP protocol version", HFILL }
-	},
-
-	{ &hf_subtype,
-	  { "Subtype", "igap.subtype", FT_UINT8, BASE_HEX,
-	    VALS(igap_subtypes), 0, NULL, HFILL }
-	},
-
-	{ &hf_challengeid,
-	  { "Challenge ID", "igap.challengeid", FT_UINT8, BASE_HEX,
-	    NULL, 0, NULL, HFILL }
-	},
-
-	{ &hf_asize,
-	  { "Account Size", "igap.asize", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Length of the User Account field", HFILL }
-	},
-
-	{ &hf_msize,
-	  { "Message Size", "igap.msize", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Length of the Message field", HFILL }
-	},
-
-	{ &hf_account,
-	  { "User Account", "igap.account", FT_STRING, BASE_NONE,
-	    NULL, 0, NULL, HFILL }
-	},
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_igap_user_password, { "User password", "igap.user_password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_igap_result_of_md5_calculation, { "Result of MD5 calculation", "igap.result_of_md5_calculation", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_igap_challenge, { "Challenge", "igap.challenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_igap_authentication_result, { "Authentication result", "igap.authentication_result", FT_UINT8, BASE_HEX, VALS(igap_auth_result), 0x0, NULL, HFILL }},
-      { &hf_igap_accounting_status, { "Accounting status", "igap.accounting_status", FT_UINT8, BASE_HEX, VALS(igap_account_status), 0x0, NULL, HFILL }},
-      { &hf_igap_unknown_message, { "Unknown message", "igap.unknown_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_igap_user_password,
+          { "User password", "igap.user_password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_igap_result_of_md5_calculation,
+          { "Result of MD5 calculation", "igap.result_of_md5_calculation",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_igap_challenge,
+          { "Challenge", "igap.challenge",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_igap_authentication_result,
+          { "Authentication result", "igap.authentication_result",
+            FT_UINT8, BASE_HEX, VALS(igap_auth_result), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_igap_accounting_status,
+          { "Accounting status", "igap.accounting_status",
+            FT_UINT8, BASE_HEX, VALS(igap_account_status), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_igap_unknown_message,
+          { "Unknown message", "igap.unknown_message",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
-	&ett_igap
+        &ett_igap
     };
 
     proto_igap = proto_register_protocol
-	("Internet Group membership Authentication Protocol",
-	 "IGAP", "igap");
+        ("Internet Group membership Authentication Protocol",
+         "IGAP", "igap");
     proto_register_field_array(proto_igap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
