@@ -194,7 +194,7 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, gint offset,
 }
 
 static int
-dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
+dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 		proto_tree *root, unsigned int flags)
 {
 	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_header_data, tvb,
@@ -208,11 +208,6 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_time(tree, hf_mpeg_pes_pts, tvb,
 				offset, 5, &nst);
 		offset += 5;
-
-		SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
-		col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-					"PTS %ld.%09u",
-					(long) nst.secs, nst.nsecs);
 	}
 	if (flags & DTS_FLAG) {
 		nstime_t nst;
@@ -220,11 +215,6 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_time(tree, hf_mpeg_pes_dts, tvb,
 				offset, 5, &nst);
 		offset += 5;
-
-		SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
-		col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-					"DTS %ld.%09u",
-					(long) nst.secs, nst.nsecs);
 	}
 	if (flags & ESCR_FLAG) {
 		nstime_t nst;
@@ -344,7 +334,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 
 static gint
 dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
-		packet_info *pinfo, proto_tree *root)
+		packet_info *pinfo _U_, proto_tree *root)
 {
 	unsigned int program_mux_rate, stuffing_length;
 
@@ -361,9 +351,6 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 	proto_tree_add_uint(tree, hf_mpeg_pes_program_mux_rate, tvb, offset / 8, 3,
 			program_mux_rate);
 	offset += 3 * 8;
-
-	SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
-	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "%u B/s", program_mux_rate);
 
 	stuffing_length = tvb_get_guint8(tvb, offset / 8) & 0x07;
 	proto_tree_add_item(tree, hf_mpeg_pes_stuffing_length, tvb,
