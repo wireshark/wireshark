@@ -137,16 +137,16 @@ dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree
 }
 
 static const value_string netlink_netfilter_subsystem_vals[] = {
-	{ WS_NFNL_SUBSYS_NONE,		"None" },
-	{ WS_NFNL_SUBSYS_CTNETLINK,	"Conntrack" },
-	{ WS_NFNL_SUBSYS_CTNETLINK_EXP,	"Conntrack expect" },
-	{ WS_NFNL_SUBSYS_QUEUE,		"Netfilter packet queue" },
-	{ WS_NFNL_SUBSYS_ULOG,		"Netfilter userspace logging" },
-	{ WS_NFNL_SUBSYS_OSF,		"OS fingerprint" },
-	{ WS_NFNL_SUBSYS_IPSET,		"IP set" },
-	{ WS_NFNL_SUBSYS_ACCT,		"Extended Netfilter accounting infrastructure" },
+	{ WS_NFNL_SUBSYS_NONE,		    "None" },
+	{ WS_NFNL_SUBSYS_CTNETLINK,	    "Conntrack" },
+	{ WS_NFNL_SUBSYS_CTNETLINK_EXP,	    "Conntrack expect" },
+	{ WS_NFNL_SUBSYS_QUEUE,		    "Netfilter packet queue" },
+	{ WS_NFNL_SUBSYS_ULOG,		    "Netfilter userspace logging" },
+	{ WS_NFNL_SUBSYS_OSF,		    "OS fingerprint" },
+	{ WS_NFNL_SUBSYS_IPSET,		    "IP set" },
+	{ WS_NFNL_SUBSYS_ACCT,		    "Extended Netfilter accounting infrastructure" },
 	{ WS_NFNL_SUBSYS_CTNETLINK_TIMEOUT, "Extended Netfilter Connection Tracking timeout tuning" },
-	{ WS_NFNL_SUBSYS_CTHELPER,	"Connection Tracking Helpers" },
+	{ WS_NFNL_SUBSYS_CTHELPER,	    "Connection Tracking Helpers" },
 	{ 0, NULL }
 };
 
@@ -233,3 +233,16 @@ proto_reg_handoff_netlink_netfilter(void)
 
 	nflog_handle = find_dissector("nflog");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

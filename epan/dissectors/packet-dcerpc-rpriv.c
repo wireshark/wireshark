@@ -142,3 +142,16 @@ proto_reg_handoff_rpriv (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rpriv, ett_rpriv, &uuid_rpriv, ver_rpriv, rpriv_dissectors, hf_rpriv_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

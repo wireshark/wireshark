@@ -1114,42 +1114,42 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 static guint
 m3ua_heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint32 opc, guint32 dpc, guint8 si)
 {
-    switch (si) {
-    case MTP_SI_SCCP:
-	{
-	    if (opc < ITU_PC_MASK && dpc < ITU_PC_MASK &&
-		looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ITU_STANDARD)) {
+  switch (si) {
+  case MTP_SI_SCCP:
+  {
+    if (opc < ITU_PC_MASK && dpc < ITU_PC_MASK &&
+        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ITU_STANDARD)) {
 
-		return ITU_STANDARD;
-	    }
-	    /* Network 0 is reserved in ANSI */
-	    /* Could also check that cluster!=0 for small networks (networks 1-5) */
-	    if ((opc & ANSI_NETWORK_MASK) > 0 && (dpc & ANSI_NETWORK_MASK) > 0 &&
-		looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ANSI_STANDARD)) {
-
-		return ANSI_STANDARD;
-	    }
-	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, CHINESE_ITU_STANDARD)) {
-		return CHINESE_ITU_STANDARD;
-	    }
-	    if (opc < JAPAN_PC_MASK && dpc < JAPAN_PC_MASK &&
-		looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, JAPAN_STANDARD)) {
-
-		return JAPAN_STANDARD;
-	    }
-
-	    return HEURISTIC_FAILED_STANDARD;
-
-	}
-    default:
-	return HEURISTIC_FAILED_STANDARD;
+      return ITU_STANDARD;
     }
+    /* Network 0 is reserved in ANSI */
+    /* Could also check that cluster!=0 for small networks (networks 1-5) */
+    if ((opc & ANSI_NETWORK_MASK) > 0 && (dpc & ANSI_NETWORK_MASK) > 0 &&
+        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ANSI_STANDARD)) {
+
+      return ANSI_STANDARD;
+    }
+    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, CHINESE_ITU_STANDARD)) {
+      return CHINESE_ITU_STANDARD;
+    }
+    if (opc < JAPAN_PC_MASK && dpc < JAPAN_PC_MASK &&
+        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, JAPAN_STANDARD)) {
+
+      return JAPAN_STANDARD;
+    }
+
+    return HEURISTIC_FAILED_STANDARD;
+
+  }
+  default:
+    return HEURISTIC_FAILED_STANDARD;
+  }
 }
 
 static void
 m3ua_reset_mtp3_standard(void)
 {
-    mtp3_standard = m3ua_pref_mtp3_standard;
+  mtp3_standard = m3ua_pref_mtp3_standard;
 }
 
 static void
@@ -1175,22 +1175,22 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   m3ua_pref_mtp3_standard = mtp3_standard;
 
   if (mtp3_heuristic_standard) {
-      heuristic_standard = m3ua_heur_mtp3_standard(payload_tvb, pinfo, opc, dpc, si);
-      if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
-	  gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
-	    "Could not determine Heuristic using %s", val_to_str_const(mtp3_standard, mtp3_standard_vals, "unknown"));
-      } else {
-	  gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
-	    "%s", val_to_str_const(heuristic_standard, mtp3_standard_vals, "unknown"));
+    heuristic_standard = m3ua_heur_mtp3_standard(payload_tvb, pinfo, opc, dpc, si);
+    if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
+      gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
+        "Could not determine Heuristic using %s", val_to_str_const(mtp3_standard, mtp3_standard_vals, "unknown"));
+    } else {
+      gen_item = proto_tree_add_uint_format(tree, hf_heuristic_standard, parameter_tvb, 0, 0, heuristic_standard,
+        "%s", val_to_str_const(heuristic_standard, mtp3_standard_vals, "unknown"));
 
-	  mtp3_standard = heuristic_standard;
+      mtp3_standard = heuristic_standard;
 
-	  /* Register a frame-end routine to ensure mtp3_standard is set
-	   * back even if an exception is thrown.
-	   */
-	  register_frame_end_routine(pinfo, m3ua_reset_mtp3_standard);
-      }
-      PROTO_ITEM_SET_GENERATED(gen_item);
+      /* Register a frame-end routine to ensure mtp3_standard is set
+       * back even if an exception is thrown.
+       */
+      register_frame_end_routine(pinfo, m3ua_reset_mtp3_standard);
+    }
+    PROTO_ITEM_SET_GENERATED(gen_item);
   }
 
   mtp3_tap->addr_dpc.type = (Standard_Type)mtp3_standard;
@@ -2039,79 +2039,79 @@ proto_register_m3ua(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_version,                          { "Version",                      "m3ua.version",                               FT_UINT8,  BASE_DEC,  VALS(protocol_version_values),                0x0, NULL,				HFILL } },
-    { &hf_reserved,                         { "Reserved",                     "m3ua.reserved",                              FT_UINT8,  BASE_HEX,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_v5_message_class,                 { "Message class",                "m3ua.message_class",                         FT_UINT8,  BASE_DEC,  VALS(v5_message_class_values),                0x0, NULL,				HFILL } },
-    { &hf_message_class,                    { "Message class",                "m3ua.message_class",                         FT_UINT8,  BASE_DEC,  VALS(message_class_values),                   0x0, NULL,				HFILL } },
-    { &hf_message_type,                     { "Message Type",                 "m3ua.message_type",                          FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_message_length,                   { "Message length",               "m3ua.message_length",                        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_v5_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v5_parameter_tag_values),                0x0, NULL,				HFILL } },
-    { &hf_v6_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v6_parameter_tag_values),                0x0, NULL,				HFILL } },
-    { &hf_v7_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v7_parameter_tag_values),                0x0, NULL,				HFILL } },
-    { &hf_parameter_tag,                    { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(parameter_tag_values),                   0x0, NULL,				HFILL } },
-    { &hf_parameter_length,                 { "Parameter length",             "m3ua.parameter_length",                      FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_parameter_value,                  { "Parameter value",              "m3ua.parameter_value",                       FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_parameter_padding,                { "Padding",                      "m3ua.parameter_padding",                     FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
+    { &hf_version,                          { "Version",                      "m3ua.version",                               FT_UINT8,  BASE_DEC,  VALS(protocol_version_values),                0x0, NULL,                              HFILL } },
+    { &hf_reserved,                         { "Reserved",                     "m3ua.reserved",                              FT_UINT8,  BASE_HEX,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_v5_message_class,                 { "Message class",                "m3ua.message_class",                         FT_UINT8,  BASE_DEC,  VALS(v5_message_class_values),                0x0, NULL,                              HFILL } },
+    { &hf_message_class,                    { "Message class",                "m3ua.message_class",                         FT_UINT8,  BASE_DEC,  VALS(message_class_values),                   0x0, NULL,                              HFILL } },
+    { &hf_message_type,                     { "Message Type",                 "m3ua.message_type",                          FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_message_length,                   { "Message length",               "m3ua.message_length",                        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_v5_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v5_parameter_tag_values),                0x0, NULL,                              HFILL } },
+    { &hf_v6_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v6_parameter_tag_values),                0x0, NULL,                              HFILL } },
+    { &hf_v7_parameter_tag,                 { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(v7_parameter_tag_values),                0x0, NULL,                              HFILL } },
+    { &hf_parameter_tag,                    { "Parameter Tag",                "m3ua.parameter_tag",                         FT_UINT16, BASE_DEC,  VALS(parameter_tag_values),                   0x0, NULL,                              HFILL } },
+    { &hf_parameter_length,                 { "Parameter length",             "m3ua.parameter_length",                      FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_parameter_value,                  { "Parameter value",              "m3ua.parameter_value",                       FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_parameter_padding,                { "Padding",                      "m3ua.parameter_padding",                     FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
 #if 0
-    { &hf_parameter_trailer,                { "Trailer",                      "m3ua.paramter_trailer",                      FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
+    { &hf_parameter_trailer,                { "Trailer",                      "m3ua.paramter_trailer",                      FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
 #endif
-    { &hf_network_appearance,               { "Network appearance",           "m3ua.network_appearance",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_info_string,                      { "Info string",                  "m3ua.info_string",                           FT_STRING, BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_routing_context,                  { "Routing context",              "m3ua.routing_context",                       FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_diagnostic_information,           { "Diagnostic information",       "m3ua.diagnostic_information",                FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_heartbeat_data,                   { "Heartbeat data",               "m3ua.heartbeat_data",                        FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_v5_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v5_error_code_values),                   0x0, NULL,				HFILL } },
-    { &hf_v6_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v6_error_code_values),                   0x0, NULL,				HFILL } },
-    { &hf_v7_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v7_error_code_values),                   0x0, NULL,				HFILL } },
-    { &hf_error_code,                       { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(error_code_values),                      0x0, NULL,				HFILL } },
-    { &hf_status_type,                      { "Status type",                  "m3ua.status_type",                           FT_UINT16, BASE_DEC,  VALS(status_type_values),                     0x0, NULL,				HFILL } },
-    { &hf_status_info,                      { "Status info",                  "m3ua.status_info",                           FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_asp_identifier,                   { "ASP identifier",               "m3ua.asp_identifier",                        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_affected_point_code_mask,         { "Mask",                         "m3ua.affected_point_code_mask",              FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_affected_point_code_pc,           { "Affected point code",          "m3ua.affected_point_code_pc",                FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_cause,                            { "Unavailability cause",         "m3ua.unavailability_cause",                  FT_UINT16, BASE_DEC,  VALS(unavailability_cause_values),            0x0, NULL,				HFILL } },
-    { &hf_user,                             { "User Identity",                "m3ua.user_identity",                         FT_UINT16, BASE_DEC,  VALS(user_identity_values),                   0x0, NULL,				HFILL } },
-    { &hf_reason,                           { "Reason",                       "m3ua.reason",                                FT_UINT32, BASE_DEC,  VALS(reason_values),                          0x0, NULL,				HFILL } },
-    { &hf_v5_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v5_traffic_mode_type_values),            0x0, NULL,				HFILL } },
-    { &hf_v6_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v6_traffic_mode_type_values),            0x0, NULL,				HFILL } },
-    { &hf_v7_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v7_traffic_mode_type_values),            0x0, NULL,				HFILL } },
-    { &hf_traffic_mode_type,                { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(traffic_mode_type_values),               0x0, NULL,				HFILL } },
-    { &hf_congestion_reserved,              { "Reserved",                     "m3ua.congestion_reserved",                   FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_congestion_level,                 { "Congestion level",             "m3ua.congestion_level",                      FT_UINT8,  BASE_DEC,  VALS(congestion_level_values),                0x0, NULL,				HFILL } },
-    { &hf_concerned_dest_reserved,          { "Reserved",                     "m3ua.concerned_reserved",                    FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_concerned_dest_pc,                { "Concerned DPC",                "m3ua.concerned_dpc",                         FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_local_rk_identifier,              { "Local routing key identifier", "m3ua.local_rk_identifier",                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_dpc_mask,                         { "Mask",                         "m3ua.dpc_mask",                              FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_dpc_pc,                           { "Destination point code",       "m3ua.dpc_pc",                                FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_si,                               { "Service indicator",            "m3ua.si",                                    FT_UINT8,  BASE_DEC,  VALS(user_identity_values),                   0x0, NULL,				HFILL } },
-    { &hf_ssn,                              { "Subsystem number",             "m3ua.ssn",                                   FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_opc_list_mask,                    { "Mask",                         "m3ua.opc_list_mask",                         FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_opc_list_pc,                      { "Originating point code",       "m3ua.opc_list_pc",                           FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_cic_range_mask,                   { "Mask",                         "m3ua.cic_range_mask",                        FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_cic_range_pc,                     { "Originating point code",       "m3ua.cic_range_pc",                          FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_cic_range_lower,                  { "Lower CIC value",              "m3ua.cic_range_lower",                       FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_cic_range_upper,                  { "Upper CIC value",              "m3ua.cic_range_upper",                       FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_li,                               { "Length indicator",             "m3ua.protocol_data_2_li",                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_protocol_data_opc,                { "OPC",                          "m3ua.protocol_data_opc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "Originating Point Code",		HFILL } },
-    { &hf_protocol_data_dpc,                { "DPC",                          "m3ua.protocol_data_dpc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "Destination Point Code",		HFILL } },
-    { &hf_protocol_data_mtp3_opc,           { "OPC",                          "mtp3.opc",                                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_protocol_data_mtp3_dpc,           { "DPC",                          "mtp3.dpc",                                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_protocol_data_mtp3_pc,            { "PC",                           "mtp3.pc",                                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_service_indicator_code_short_vals), 0x0, "Service Indicator",		HFILL } },
-    { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_network_indicator_vals),            0x0, "Network Indicator",		HFILL } },
-    { &hf_protocol_data_mtp3_ni,            { "NI",                           "mtp3.ni",                                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_protocol_data_mp,                 { "MP",                           "m3ua.protocol_data_mp",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Message Priority",		HFILL } },
-    { &hf_protocol_data_sls,                { "SLS",                          "m3ua.protocol_data_sls",                     FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Signalling Link Selection",	HFILL } },
-    { &hf_protocol_data_mtp3_sls,           { "SLS",                          "mtp3.sls",                                   FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_correlation_identifier,           { "Correlation Identifier",       "m3ua.correlation_identifier",                FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_registration_status,              { "Registration status",          "m3ua.registration_status",                   FT_UINT32, BASE_DEC,  VALS(registration_status_values),             0x0, NULL,				HFILL } },
-    { &hf_deregistration_status,            { "Deregistration status",        "m3ua.deregistration_status",                 FT_UINT32, BASE_DEC,  VALS(deregistration_status_values),           0x0, NULL,				HFILL } },
-    { &hf_registration_result_identifier,   { "Local RK-identifier value",    "m3ua.registration_result_identifier",        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_registration_result_status,       { "Registration status",          "m3ua.registration_results_status",           FT_UINT32, BASE_DEC,  VALS(registration_result_status_values),      0x0, NULL,				HFILL } },
-    { &hf_registration_result_context,      { "Routing context",              "m3ua.registration_result_routing_context",   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_v6_deregistration_result_status,  { "De-Registration status",       "m3ua.deregistration_results_status",         FT_UINT32, BASE_DEC,  VALS(v6_deregistration_result_status_values), 0x0, NULL,				HFILL } },
-    { &hf_v6_deregistration_result_context, { "Routing context",              "m3ua.deregistration_result_routing_context", FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
-    { &hf_heuristic_standard,               { "Heuristic standard",           "m3ua.heuristic_standard",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
+    { &hf_network_appearance,               { "Network appearance",           "m3ua.network_appearance",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_info_string,                      { "Info string",                  "m3ua.info_string",                           FT_STRING, BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_routing_context,                  { "Routing context",              "m3ua.routing_context",                       FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_diagnostic_information,           { "Diagnostic information",       "m3ua.diagnostic_information",                FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_heartbeat_data,                   { "Heartbeat data",               "m3ua.heartbeat_data",                        FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_v5_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v5_error_code_values),                   0x0, NULL,                              HFILL } },
+    { &hf_v6_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v6_error_code_values),                   0x0, NULL,                              HFILL } },
+    { &hf_v7_error_code,                    { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(v7_error_code_values),                   0x0, NULL,                              HFILL } },
+    { &hf_error_code,                       { "Error code",                   "m3ua.error_code",                            FT_UINT32, BASE_DEC,  VALS(error_code_values),                      0x0, NULL,                              HFILL } },
+    { &hf_status_type,                      { "Status type",                  "m3ua.status_type",                           FT_UINT16, BASE_DEC,  VALS(status_type_values),                     0x0, NULL,                              HFILL } },
+    { &hf_status_info,                      { "Status info",                  "m3ua.status_info",                           FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_asp_identifier,                   { "ASP identifier",               "m3ua.asp_identifier",                        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_affected_point_code_mask,         { "Mask",                         "m3ua.affected_point_code_mask",              FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_affected_point_code_pc,           { "Affected point code",          "m3ua.affected_point_code_pc",                FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_cause,                            { "Unavailability cause",         "m3ua.unavailability_cause",                  FT_UINT16, BASE_DEC,  VALS(unavailability_cause_values),            0x0, NULL,                              HFILL } },
+    { &hf_user,                             { "User Identity",                "m3ua.user_identity",                         FT_UINT16, BASE_DEC,  VALS(user_identity_values),                   0x0, NULL,                              HFILL } },
+    { &hf_reason,                           { "Reason",                       "m3ua.reason",                                FT_UINT32, BASE_DEC,  VALS(reason_values),                          0x0, NULL,                              HFILL } },
+    { &hf_v5_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v5_traffic_mode_type_values),            0x0, NULL,                              HFILL } },
+    { &hf_v6_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v6_traffic_mode_type_values),            0x0, NULL,                              HFILL } },
+    { &hf_v7_traffic_mode_type,             { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(v7_traffic_mode_type_values),            0x0, NULL,                              HFILL } },
+    { &hf_traffic_mode_type,                { "Traffic mode Type",            "m3ua.traffic_mode_type",                     FT_UINT32, BASE_DEC,  VALS(traffic_mode_type_values),               0x0, NULL,                              HFILL } },
+    { &hf_congestion_reserved,              { "Reserved",                     "m3ua.congestion_reserved",                   FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_congestion_level,                 { "Congestion level",             "m3ua.congestion_level",                      FT_UINT8,  BASE_DEC,  VALS(congestion_level_values),                0x0, NULL,                              HFILL } },
+    { &hf_concerned_dest_reserved,          { "Reserved",                     "m3ua.concerned_reserved",                    FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_concerned_dest_pc,                { "Concerned DPC",                "m3ua.concerned_dpc",                         FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_local_rk_identifier,              { "Local routing key identifier", "m3ua.local_rk_identifier",                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_dpc_mask,                         { "Mask",                         "m3ua.dpc_mask",                              FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_dpc_pc,                           { "Destination point code",       "m3ua.dpc_pc",                                FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_si,                               { "Service indicator",            "m3ua.si",                                    FT_UINT8,  BASE_DEC,  VALS(user_identity_values),                   0x0, NULL,                              HFILL } },
+    { &hf_ssn,                              { "Subsystem number",             "m3ua.ssn",                                   FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_opc_list_mask,                    { "Mask",                         "m3ua.opc_list_mask",                         FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_opc_list_pc,                      { "Originating point code",       "m3ua.opc_list_pc",                           FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_cic_range_mask,                   { "Mask",                         "m3ua.cic_range_mask",                        FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_cic_range_pc,                     { "Originating point code",       "m3ua.cic_range_pc",                          FT_UINT24, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_cic_range_lower,                  { "Lower CIC value",              "m3ua.cic_range_lower",                       FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_cic_range_upper,                  { "Upper CIC value",              "m3ua.cic_range_upper",                       FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_li,                               { "Length indicator",             "m3ua.protocol_data_2_li",                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_protocol_data_opc,                { "OPC",                          "m3ua.protocol_data_opc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "Originating Point Code",          HFILL } },
+    { &hf_protocol_data_dpc,                { "DPC",                          "m3ua.protocol_data_dpc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "Destination Point Code",          HFILL } },
+    { &hf_protocol_data_mtp3_opc,           { "OPC",                          "mtp3.opc",                                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_protocol_data_mtp3_dpc,           { "DPC",                          "mtp3.dpc",                                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_protocol_data_mtp3_pc,            { "PC",                           "mtp3.pc",                                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_service_indicator_code_short_vals), 0x0, "Service Indicator",               HFILL } },
+    { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_network_indicator_vals),            0x0, "Network Indicator",               HFILL } },
+    { &hf_protocol_data_mtp3_ni,            { "NI",                           "mtp3.ni",                                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_protocol_data_mp,                 { "MP",                           "m3ua.protocol_data_mp",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Message Priority",                HFILL } },
+    { &hf_protocol_data_sls,                { "SLS",                          "m3ua.protocol_data_sls",                     FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Signalling Link Selection",       HFILL } },
+    { &hf_protocol_data_mtp3_sls,           { "SLS",                          "mtp3.sls",                                   FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_correlation_identifier,           { "Correlation Identifier",       "m3ua.correlation_identifier",                FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_registration_status,              { "Registration status",          "m3ua.registration_status",                   FT_UINT32, BASE_DEC,  VALS(registration_status_values),             0x0, NULL,                              HFILL } },
+    { &hf_deregistration_status,            { "Deregistration status",        "m3ua.deregistration_status",                 FT_UINT32, BASE_DEC,  VALS(deregistration_status_values),           0x0, NULL,                              HFILL } },
+    { &hf_registration_result_identifier,   { "Local RK-identifier value",    "m3ua.registration_result_identifier",        FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_registration_result_status,       { "Registration status",          "m3ua.registration_results_status",           FT_UINT32, BASE_DEC,  VALS(registration_result_status_values),      0x0, NULL,                              HFILL } },
+    { &hf_registration_result_context,      { "Routing context",              "m3ua.registration_result_routing_context",   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_v6_deregistration_result_status,  { "De-Registration status",       "m3ua.deregistration_results_status",         FT_UINT32, BASE_DEC,  VALS(v6_deregistration_result_status_values), 0x0, NULL,                              HFILL } },
+    { &hf_v6_deregistration_result_context, { "Routing context",              "m3ua.deregistration_result_routing_context", FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
+    { &hf_heuristic_standard,               { "Heuristic standard",           "m3ua.heuristic_standard",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,                              HFILL } },
   };
 
   /* Setup protocol subtree array */
@@ -2162,3 +2162,16 @@ proto_reg_handoff_m3ua(void)
 
   si_dissector_table = find_dissector_table("mtp3.service_indicator");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

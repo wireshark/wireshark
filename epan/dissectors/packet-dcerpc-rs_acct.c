@@ -106,13 +106,13 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector rs_acct_dissectors[] = {
-        { 0, "add",          NULL,                              NULL},
-        { 1, "delete",       NULL,                              NULL},
-        { 2, "rename",       NULL,                              NULL},
-        { 3, "lookup",       rs_acct_dissect_lookup_rqst,       NULL},
-        { 4, "replace",      NULL,                              NULL},
-        { 5, "get_projlist", rs_acct_dissect_get_projlist_rqst, NULL},
-        { 0, NULL, NULL, NULL }
+	{ 0, "add",	     NULL,				NULL},
+	{ 1, "delete",	     NULL,				NULL},
+	{ 2, "rename",	     NULL,				NULL},
+	{ 3, "lookup",	     rs_acct_dissect_lookup_rqst,	NULL},
+	{ 4, "replace",	     NULL,				NULL},
+	{ 5, "get_projlist", rs_acct_dissect_get_projlist_rqst, NULL},
+	{ 0, NULL, NULL, NULL }
 };
 
 void
@@ -151,3 +151,16 @@ proto_reg_handoff_rs_acct (void)
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_acct, ett_rs_acct, &uuid_rs_acct, ver_rs_acct, rs_acct_dissectors, hf_rs_acct_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

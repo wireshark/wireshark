@@ -139,37 +139,37 @@ void
 proto_register_gpef(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_gpef_keycount,
-	{ "Key Count",   "gpef.key_count", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_keycount,
+		  { "Key Count",   "gpef.key_count", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_length1,
-	{ "Length1",   "gpef.efskey.length1", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_length1,
+		  { "Length1",   "gpef.efskey.length1", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_length2,
-	{ "Length2",   "gpef.efskey.length2", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_length2,
+		  { "Length2",   "gpef.efskey.length2", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_sid_offset,
-	{ "SID Offset",   "gpef.efskey.sid_offset", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_sid_offset,
+		  { "SID Offset",   "gpef.efskey.sid_offset", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_cert_offset,
-	{ "Cert Offset",   "gpef.efskey.cert_offset", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_cert_offset,
+		  { "Cert Offset",   "gpef.efskey.cert_offset", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_cert_length,
-	{ "Cert Length",   "gpef.efskey.cert_length", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_cert_length,
+		  { "Cert Length",   "gpef.efskey.cert_length", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey,
-	{ "EfsKey",   "gpef.efskey", FT_NONE, BASE_NONE, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey,
+		  { "EfsKey",   "gpef.efskey", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
-	{ &hf_gpef_efskey_certificate,
-	{ "Certificate", "gpef.efskey.certificate", FT_NONE, BASE_NONE, NULL,
-		0x0, NULL, HFILL }},
+		{ &hf_gpef_efskey_certificate,
+		  { "Certificate", "gpef.efskey.certificate", FT_NONE, BASE_NONE, NULL,
+		    0x0, NULL, HFILL }},
 
 	};
 
@@ -184,3 +184,16 @@ proto_register_gpef(void)
 
 	new_register_dissector("efsblob", dissect_gpef_efsblob, proto_gpef);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

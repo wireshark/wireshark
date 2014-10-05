@@ -74,17 +74,17 @@ static int hf_isl_trailer = -1;
 static gint ett_isl = -1;
 static gint ett_isl_dst = -1;
 
-#define	ISL_HEADER_SIZE	26
+#define ISL_HEADER_SIZE 26
 
-#define	TYPE_ETHER	0x0
-#define	TYPE_TR		0x1
-#define	TYPE_FDDI	0x2
-#define	TYPE_ATM	0x3
+#define TYPE_ETHER      0x0
+#define TYPE_TR         0x1
+#define TYPE_FDDI       0x2
+#define TYPE_ATM        0x3
 
-#define USER_PRIORITY_NORMAL	0x0
-#define USER_PRIORITY_1		0x1
-#define USER_PRIORITY_2	        0x2
-#define USER_PRIORITY_HIGHEST	0x3
+#define USER_PRIORITY_NORMAL    0x0
+#define USER_PRIORITY_1         0x1
+#define USER_PRIORITY_2         0x2
+#define USER_PRIORITY_HIGHEST   0x3
 
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
@@ -105,12 +105,12 @@ capture_isl(const guchar *pd, int offset, int len, packet_counts *ld)
   switch (type) {
 
   case TYPE_ETHER:
-    offset += 14+12;	/* skip the header */
+    offset += 14+12;    /* skip the header */
     capture_eth(pd, offset, len, ld);
     break;
 
   case TYPE_TR:
-    offset += 14+17;	/* skip the header */
+    offset += 14+17;    /* skip the header */
     capture_tr(pd, offset, len, ld);
     break;
 
@@ -121,24 +121,24 @@ capture_isl(const guchar *pd, int offset, int len, packet_counts *ld)
 }
 
 static const value_string type_vals[] = {
-	{TYPE_ETHER, "Ethernet"},
-	{TYPE_TR,    "Token-Ring"},
-	{TYPE_FDDI,  "FDDI"},
-	{TYPE_ATM,   "ATM"},
-	{0,          NULL}
+  {TYPE_ETHER, "Ethernet"},
+  {TYPE_TR,    "Token-Ring"},
+  {TYPE_FDDI,  "FDDI"},
+  {TYPE_ATM,   "ATM"},
+  {0,          NULL}
 };
 
 static const value_string user_vals[] = {
-	{USER_PRIORITY_NORMAL,  "Normal Priority"},
-	{USER_PRIORITY_1,       "Priority 1"},
-	{USER_PRIORITY_2,       "Priority 2"},
-	{USER_PRIORITY_HIGHEST, "Highest Priority"},
-	{0,                     NULL}
+  {USER_PRIORITY_NORMAL,  "Normal Priority"},
+  {USER_PRIORITY_1,       "Priority 1"},
+  {USER_PRIORITY_2,       "Priority 2"},
+  {USER_PRIORITY_HIGHEST, "Highest Priority"},
+  {0,                     NULL}
 };
 
 static const true_false_string explorer_tfs = {
-	"Explorer frame",
-	"Data frame"
+  "Explorer frame",
+  "Data frame"
 };
 
 void
@@ -163,7 +163,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_isl, tvb, 0, ISL_HEADER_SIZE,
-		"ISL");
+                                        "ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
 
     ti = proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 6, ENC_NA);
@@ -204,17 +204,17 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     CATCH_BOUNDS_ERRORS {
       /* Either:
 
-	  the packet doesn't have "length" bytes worth of
-	  captured data left in it - or it may not even have
-	  "length" bytes worth of data in it, period -
-	  so the "tvb_new_subset()" creating "payload_tvb"
-	  threw an exception
+          the packet doesn't have "length" bytes worth of
+          captured data left in it - or it may not even have
+          "length" bytes worth of data in it, period -
+          so the "tvb_new_subset()" creating "payload_tvb"
+          threw an exception
 
          or
 
-	  the packet has exactly "length" bytes worth of
-	  captured data left in it, so the "tvb_new_subset_remaining()"
-	  creating "trailer_tvb" threw an exception.
+          the packet has exactly "length" bytes worth of
+          captured data left in it, so the "tvb_new_subset_remaining()"
+          creating "trailer_tvb" threw an exception.
 
          In either case, this means that all the data in the frame
          is within the length value, so we give all the data to the
@@ -242,7 +242,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, ENC_BIG_ENDIAN);
   }
   col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: %u",
-	       tvb_get_ntohs(tvb, 20) >> 1);
+               tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -290,10 +290,10 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
            restoring the protocol value that was in effect before we
            called the subdissector.
 
-	   Restore the private_data structure in case one of the
-	   called dissectors modified it (and, due to the exception,
-	   was unable to restore it). */
-	pinfo->private_data = pd_save;
+           Restore the private_data structure in case one of the
+           called dissectors modified it (and, due to the exception,
+           was unable to restore it). */
+        pinfo->private_data = pd_save;
 
         show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         pinfo->current_proto = saved_proto;
@@ -331,81 +331,80 @@ void
 proto_register_isl(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_isl_dst,
-	{ "Destination",	"isl.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
-		"Destination Address", HFILL }},
-	{ &hf_isl_type,
-	{ "Type",		"isl.type", FT_UINT8, BASE_DEC,
-		VALS(type_vals), 0xF0, NULL, HFILL }},
-	{ &hf_isl_user_eth,
-	{ "User",		"isl.user_eth", FT_UINT8, BASE_DEC,
-		VALS(user_vals), 0x03, "Priority while passing through switch", HFILL }},
-	{ &hf_isl_user,
-	{ "User",		"isl.user", FT_UINT8, BASE_HEX, NULL, 0x0F,
-		"User-defined bits", HFILL }},
-	{ &hf_isl_src,
-	{ "Source",		"isl.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-		"Source Hardware Address", HFILL }},
-	{ &hf_isl_addr,
-	{ "Source or Destination Address", "isl.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-		"Source or Destination Hardware Address", HFILL }},
-	{ &hf_isl_len,
-	{ "Length",		"isl.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_isl_hsa,
-	{ "HSA",		"isl.hsa", FT_UINT24, BASE_HEX, NULL, 0x0,
-		"High bits of source address", HFILL }},
-	{ &hf_isl_dsap,
-	{ "DSAP",		"isl.dsap", FT_UINT8, BASE_HEX, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_isl_ssap,
-	{ "SSAP",		"isl.ssap", FT_UINT8, BASE_HEX, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_isl_control,
-	{ "Control",		"isl.control", FT_UINT8, BASE_HEX, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_isl_vlan_id,
-	{ "VLAN ID",		"isl.vlan_id", FT_UINT16, BASE_DEC, NULL,
-		0xFFFE, "Virtual LAN ID (Color)", HFILL }},
-	{ &hf_isl_bpdu,
-	{ "BPDU/CDP/VTP",		"isl.bpdu", FT_BOOLEAN, 16,
-		TFS(&tfs_yes_no), 0x0001, "BPDU/CDP/VTP indicator", HFILL }},
-	{ &hf_isl_index,
-	{ "Index",		"isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Port index of packet source", HFILL }},
+    { &hf_isl_dst,
+      { "Destination",        "isl.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Destination Address", HFILL }},
+    { &hf_isl_type,
+      { "Type",               "isl.type", FT_UINT8, BASE_DEC,
+        VALS(type_vals), 0xF0, NULL, HFILL }},
+    { &hf_isl_user_eth,
+      { "User",               "isl.user_eth", FT_UINT8, BASE_DEC,
+        VALS(user_vals), 0x03, "Priority while passing through switch", HFILL }},
+    { &hf_isl_user,
+      { "User",               "isl.user", FT_UINT8, BASE_HEX, NULL, 0x0F,
+        "User-defined bits", HFILL }},
+    { &hf_isl_src,
+      { "Source",             "isl.src", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Source Hardware Address", HFILL }},
+    { &hf_isl_addr,
+      { "Source or Destination Address", "isl.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
+        "Source or Destination Hardware Address", HFILL }},
+    { &hf_isl_len,
+      { "Length",             "isl.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isl_hsa,
+      { "HSA",                "isl.hsa", FT_UINT24, BASE_HEX, NULL, 0x0,
+        "High bits of source address", HFILL }},
+    { &hf_isl_dsap,
+      { "DSAP",               "isl.dsap", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isl_ssap,
+      { "SSAP",               "isl.ssap", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isl_control,
+      { "Control",            "isl.control", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isl_vlan_id,
+      { "VLAN ID",            "isl.vlan_id", FT_UINT16, BASE_DEC, NULL,
+        0xFFFE, "Virtual LAN ID (Color)", HFILL }},
+    { &hf_isl_bpdu,
+      { "BPDU/CDP/VTP",               "isl.bpdu", FT_BOOLEAN, 16,
+        TFS(&tfs_yes_no), 0x0001, "BPDU/CDP/VTP indicator", HFILL }},
+    { &hf_isl_index,
+      { "Index",              "isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Port index of packet source", HFILL }},
 #if 0
-	{ &hf_isl_crc,
-	{ "CRC",		"isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
-		"CRC field of encapsulated frame", HFILL }},
+    { &hf_isl_crc,
+      { "CRC",                "isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "CRC field of encapsulated frame", HFILL }},
 #endif
-	{ &hf_isl_src_vlan_id,
-	{ "Source VLAN ID",	"isl.src_vlan_id", FT_UINT16, BASE_DEC, NULL,
-		0xFFFE, "Source Virtual LAN ID (Color)", HFILL }},
-	{ &hf_isl_explorer,
-	{ "Explorer",		"isl.explorer", FT_BOOLEAN, 16,
-		TFS(&explorer_tfs), 0x0001, NULL, HFILL }},
-	{ &hf_isl_dst_route_descriptor,
-	{ "Destination route descriptor",	"isl.dst_route_desc",
-		FT_UINT16, BASE_HEX, NULL, 0x0,
-		"Route descriptor to be used for forwarding", HFILL }},
-	{ &hf_isl_src_route_descriptor,
-	{ "Source-route descriptor",	"isl.src_route_desc",
-		FT_UINT16, BASE_HEX, NULL, 0x0,
-		"Route descriptor to be used for source learning", HFILL }},
-	{ &hf_isl_fcs_not_incl,
-	{ "FCS Not Included",	"isl.fcs_not_incl", FT_BOOLEAN, 9,
-		NULL, 0x40, NULL, HFILL }},
-	{ &hf_isl_esize,
-	{ "Esize",	"isl.esize", FT_UINT8, BASE_DEC, NULL,
-		0x3F, "Frame size for frames less than 64 bytes", HFILL }},
-	{ &hf_isl_trailer,
-	{ "Trailer",	"isl.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
-		"Ethernet Trailer or Checksum", HFILL }},
-
+    { &hf_isl_src_vlan_id,
+      { "Source VLAN ID",     "isl.src_vlan_id", FT_UINT16, BASE_DEC, NULL,
+        0xFFFE, "Source Virtual LAN ID (Color)", HFILL }},
+    { &hf_isl_explorer,
+      { "Explorer",           "isl.explorer", FT_BOOLEAN, 16,
+        TFS(&explorer_tfs), 0x0001, NULL, HFILL }},
+    { &hf_isl_dst_route_descriptor,
+      { "Destination route descriptor",       "isl.dst_route_desc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Route descriptor to be used for forwarding", HFILL }},
+    { &hf_isl_src_route_descriptor,
+      { "Source-route descriptor",    "isl.src_route_desc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Route descriptor to be used for source learning", HFILL }},
+    { &hf_isl_fcs_not_incl,
+      { "FCS Not Included",   "isl.fcs_not_incl", FT_BOOLEAN, 9,
+        NULL, 0x40, NULL, HFILL }},
+    { &hf_isl_esize,
+      { "Esize",      "isl.esize", FT_UINT8, BASE_DEC, NULL,
+        0x3F, "Frame size for frames less than 64 bytes", HFILL }},
+    { &hf_isl_trailer,
+      { "Trailer",    "isl.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Ethernet Trailer or Checksum", HFILL }},
   };
   static gint *ett[] = {
-	&ett_isl,
-	&ett_isl_dst,
+    &ett_isl,
+    &ett_isl_dst,
   };
 
   proto_isl = proto_register_protocol("Cisco ISL", "ISL", "isl");
@@ -423,3 +422,16 @@ proto_reg_handoff_isl(void)
   tr_handle = find_dissector("tr");
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

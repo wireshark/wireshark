@@ -88,38 +88,38 @@ proto_register_cimetrics(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_cimetrics_mstp_timer,
-			{ "Delta Time", "cimetrics.mstp_timer",
-			FT_UINT16, BASE_DEC, NULL, 0,
-			"Milliseconds", HFILL }
+		  { "Delta Time", "cimetrics.mstp_timer",
+		    FT_UINT16, BASE_DEC, NULL, 0,
+		    "Milliseconds", HFILL }
 		},
 		{ &hf_cimetrics_mstp_value,
-			{ "8-bit value", "cimetrics.mstp_value",
-			FT_UINT8, BASE_DEC, NULL, 0,
-			"value", HFILL }
+		  { "8-bit value", "cimetrics.mstp_value",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "value", HFILL }
 		}
 	};
 	static hf_register_info hf2[] = {
-	  { &hf_llc_cimetrics_pid,
-			{ "PID", "llc.cimetrics_pid",
-			FT_UINT16, BASE_HEX, VALS(cimetrics_pid_vals), 0,
-			NULL, HFILL }
-	  }
+		{ &hf_llc_cimetrics_pid,
+		  { "PID", "llc.cimetrics_pid",
+		    FT_UINT16, BASE_HEX, VALS(cimetrics_pid_vals), 0,
+		    NULL, HFILL }
+		}
 	};
 	static gint *ett[] = {
 		&ett_cimetrics_mstp
 	};
 
 	proto_cimetrics_mstp = proto_register_protocol("Cimetrics MS/TP",
-	    "Cimetrics MS/TP", "cimetrics");
+						       "Cimetrics MS/TP", "cimetrics");
 
 	proto_register_field_array(proto_cimetrics_mstp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("cimetrics", dissect_cimetrics_mstp,
-		proto_cimetrics_mstp);
+			   proto_cimetrics_mstp);
 
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",
-		"LLC Cimetrics OUI PID", hf2);
+		    "LLC Cimetrics OUI PID", hf2);
 }
 
 void
@@ -130,3 +130,16 @@ proto_reg_handoff_cimetrics(void)
 	mstp_handle = find_dissector("cimetrics");
 	dissector_add_uint("llc.cimetrics_pid", 1, mstp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

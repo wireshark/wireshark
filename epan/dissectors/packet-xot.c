@@ -1,7 +1,7 @@
 /* packet-xot.c
  * Routines for X.25 over TCP dissection (RFC 1613)
  *
- * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
+ * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -38,10 +38,10 @@
 /* Some X25 macros from packet-x25.c - some adapted code as well below */
 #define X25_MIN_HEADER_LENGTH 3
 #define X25_MIN_M128_HEADER_LENGTH 4
-#define	X25_NONDATA_BIT			0x01
-#define PACKET_IS_DATA(type)		(!(type & X25_NONDATA_BIT))
-#define X25_MBIT_MOD8			0x10
-#define X25_MBIT_MOD128			0x01
+#define X25_NONDATA_BIT                 0x01
+#define PACKET_IS_DATA(type)            (!(type & X25_NONDATA_BIT))
+#define X25_MBIT_MOD8                   0x10
+#define X25_MBIT_MOD128                 0x01
 
 void proto_register_xot(void);
 void proto_reg_handoff_xot(void);
@@ -187,93 +187,93 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int off
 
 static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  int offset = 0;
-  guint16 version;
-  guint16 plen;
-  guint8 pkt_type;
-  proto_item *ti = NULL;
-  proto_tree *xot_tree = NULL;
-  tvbuff_t   *next_tvb;
+   int offset = 0;
+   guint16 version;
+   guint16 plen;
+   guint8 pkt_type;
+   proto_item *ti = NULL;
+   proto_tree *xot_tree = NULL;
+   tvbuff_t   *next_tvb;
 
-  /*
-   * Dissect the X.25-over-TCP packet.
-   */
-     col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
-     version = tvb_get_ntohs(tvb, offset + 0);
-     plen = tvb_get_ntohs(tvb, offset + 2);
-     col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
-                    version, plen);
-     if (offset == 0 &&
-         tvb_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " TotX25: %d",
-                        tvb_length_remaining(tvb, offset));
+   /*
+    * Dissect the X.25-over-TCP packet.
+    */
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
+   version = tvb_get_ntohs(tvb, offset + 0);
+   plen = tvb_get_ntohs(tvb, offset + 2);
+   col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
+                version, plen);
+   if (offset == 0 &&
+       tvb_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
+      col_append_fstr(pinfo->cinfo, COL_INFO, " TotX25: %d",
+                      tvb_length_remaining(tvb, offset));
 
-     if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, XOT_HEADER_LENGTH,
-					    "X.25 over TCP");
-        xot_tree = proto_item_add_subtree(ti, ett_xot);
+   if (tree) {
+      ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, XOT_HEADER_LENGTH,
+                                          "X.25 over TCP");
+      xot_tree = proto_item_add_subtree(ti, ett_xot);
 
-        proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
-        proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
-     }
+      proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
+      proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
+   }
 
-     offset += XOT_HEADER_LENGTH;
-     /*
-      * Construct a tvbuff containing the amount of the payload we have
-      * available.  Make its reported length the amount of data in the
-      * X.25-over-TCP packet.
-      */
-     if (plen >= X25_MIN_HEADER_LENGTH) {
-        pkt_type = tvb_get_guint8(tvb, offset + 2);
-        if (pkt_type == XOT_PVC_SETUP) {
-           guint init_itf_name_len, resp_itf_name_len, pkt_size;
-           gint hdr_offset = offset;
+   offset += XOT_HEADER_LENGTH;
+   /*
+    * Construct a tvbuff containing the amount of the payload we have
+    * available.  Make its reported length the amount of data in the
+    * X.25-over-TCP packet.
+    */
+   if (plen >= X25_MIN_HEADER_LENGTH) {
+      pkt_type = tvb_get_guint8(tvb, offset + 2);
+      if (pkt_type == XOT_PVC_SETUP) {
+         guint init_itf_name_len, resp_itf_name_len, pkt_size;
+         gint hdr_offset = offset;
 
-           col_set_str(pinfo->cinfo, COL_INFO, "XOT PVC Setup");
-           proto_item_set_len(ti, XOT_HEADER_LENGTH + plen);
+         col_set_str(pinfo->cinfo, COL_INFO, "XOT PVC Setup");
+         proto_item_set_len(ti, XOT_HEADER_LENGTH + plen);
 
-           /* These fields are in overlay with packet-x25.c */
-           proto_tree_add_item(xot_tree, hf_x25_gfi, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
-           proto_tree_add_item(xot_tree, hf_x25_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
-           hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_x25_type, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           hdr_offset += 1;
+         /* These fields are in overlay with packet-x25.c */
+         proto_tree_add_item(xot_tree, hf_x25_gfi, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
+         proto_tree_add_item(xot_tree, hf_x25_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
+         hdr_offset += 2;
+         proto_tree_add_item(xot_tree, hf_x25_type, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         hdr_offset += 1;
 
-           proto_tree_add_item(xot_tree, hf_xot_pvc_version, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           init_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
-           hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           resp_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
-           hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_send_inc_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_send_out_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-           hdr_offset += 1;
-           pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
-           proto_tree_add_uint(xot_tree, hf_xot_pvc_send_inc_pkt_size, tvb, hdr_offset, 1, pkt_size);
-           hdr_offset += 1;
-           pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
-           proto_tree_add_uint(xot_tree, hf_xot_pvc_send_out_pkt_size, tvb, hdr_offset, 1, pkt_size);
-           hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII|ENC_NA);
-           hdr_offset += init_itf_name_len;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
-        } else {
-           next_tvb = tvb_new_subset(tvb, offset,
-                                  MIN(plen, tvb_length_remaining(tvb, offset)), plen);
-           call_dissector(x25_handle, next_tvb, pinfo, tree);
-        }
-     }
+         proto_tree_add_item(xot_tree, hf_xot_pvc_version, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         init_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
+         hdr_offset += 2;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         resp_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
+         hdr_offset += 2;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_send_inc_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_send_out_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
+         hdr_offset += 1;
+         pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
+         proto_tree_add_uint(xot_tree, hf_xot_pvc_send_inc_pkt_size, tvb, hdr_offset, 1, pkt_size);
+         hdr_offset += 1;
+         pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
+         proto_tree_add_uint(xot_tree, hf_xot_pvc_send_out_pkt_size, tvb, hdr_offset, 1, pkt_size);
+         hdr_offset += 1;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII|ENC_NA);
+         hdr_offset += init_itf_name_len;
+         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
+      } else {
+         next_tvb = tvb_new_subset(tvb, offset,
+                                   MIN(plen, tvb_length_remaining(tvb, offset)), plen);
+         call_dissector(x25_handle, next_tvb, pinfo, tree);
+      }
+   }
 
-     return tvb_length(tvb);
+   return tvb_length(tvb);
 }
 
 static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -350,105 +350,118 @@ static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 void
 proto_register_xot(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_xot_version,
-			{ "Version", "xot.version", FT_UINT16, BASE_DEC,
-			NULL, 0, "Version of X.25 over TCP protocol", HFILL }},
+   static hf_register_info hf[] = {
+      { &hf_xot_version,
+        { "Version", "xot.version", FT_UINT16, BASE_DEC,
+          NULL, 0, "Version of X.25 over TCP protocol", HFILL }},
 
-		{ &hf_xot_length,
-			{ "Length", "xot.length", FT_UINT16, BASE_DEC,
-			NULL, 0, "Length of X.25 over TCP packet", HFILL }},
-		/* These fields are in overlay with packet-x25.c */
-		{ &hf_x25_gfi,
-			{ "GFI", "x25.gfi", FT_UINT16, BASE_DEC,
-			NULL, 0xF000, "General Format Identifier", HFILL }},
+      { &hf_xot_length,
+        { "Length", "xot.length", FT_UINT16, BASE_DEC,
+          NULL, 0, "Length of X.25 over TCP packet", HFILL }},
+      /* These fields are in overlay with packet-x25.c */
+      { &hf_x25_gfi,
+        { "GFI", "x25.gfi", FT_UINT16, BASE_DEC,
+          NULL, 0xF000, "General Format Identifier", HFILL }},
 
-		{ &hf_x25_lcn,
-			{ "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC,
-			NULL, 0x0FFF, "Logical Channel Number", HFILL }},
+      { &hf_x25_lcn,
+        { "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC,
+          NULL, 0x0FFF, "Logical Channel Number", HFILL }},
 
-		{ &hf_x25_type,
-			{ "Packet Type", "x25.type", FT_UINT8, BASE_HEX,
-			VALS(vals_x25_type), 0x0, NULL, HFILL }},
+      { &hf_x25_type,
+        { "Packet Type", "x25.type", FT_UINT8, BASE_HEX,
+          VALS(vals_x25_type), 0x0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_version,
-			{ "Version", "xot.pvc.version", FT_UINT8, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_version,
+        { "Version", "xot.pvc.version", FT_UINT8, BASE_HEX,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_status,
-			{ "Status", "xot.pvc.status", FT_UINT8, BASE_HEX,
-			VALS(xot_pvc_status_vals), 0, NULL, HFILL }},
+      { &hf_xot_pvc_status,
+        { "Status", "xot.pvc.status", FT_UINT8, BASE_HEX,
+          VALS(xot_pvc_status_vals), 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_init_itf_name_len,
-			{ "Initiator interface name length", "xot.pvc.init_itf_name_len", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_init_itf_name_len,
+        { "Initiator interface name length", "xot.pvc.init_itf_name_len", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_init_lcn,
-			{ "Initiator LCN", "xot.pvc.init_lcn", FT_UINT8, BASE_DEC,
-			NULL, 0, "Initiator Logical Channel Number", HFILL }},
+      { &hf_xot_pvc_init_lcn,
+        { "Initiator LCN", "xot.pvc.init_lcn", FT_UINT8, BASE_DEC,
+          NULL, 0, "Initiator Logical Channel Number", HFILL }},
 
-		{ &hf_xot_pvc_resp_itf_name_len,
-			{ "Responder interface name length", "xot.pvc.resp_itf_name_len", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_resp_itf_name_len,
+        { "Responder interface name length", "xot.pvc.resp_itf_name_len", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_resp_lcn,
-			{ "Responder LCN", "xot.pvc.resp_lcn", FT_UINT16, BASE_DEC,
-			NULL, 0, "Responder Logical Channel Number", HFILL }},
+      { &hf_xot_pvc_resp_lcn,
+        { "Responder LCN", "xot.pvc.resp_lcn", FT_UINT16, BASE_DEC,
+          NULL, 0, "Responder Logical Channel Number", HFILL }},
 
-		{ &hf_xot_pvc_send_inc_window,
-			{ "Sender incoming window", "xot.pvc.send_inc_window", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_send_inc_window,
+        { "Sender incoming window", "xot.pvc.send_inc_window", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_send_out_window,
-			{ "Sender outgoing window", "xot.pvc.send_out_window", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_send_out_window,
+        { "Sender outgoing window", "xot.pvc.send_out_window", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_send_inc_pkt_size,
-			{ "Sender incoming packet size", "xot.pvc.send_inc_pkt_size", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_send_inc_pkt_size,
+        { "Sender incoming packet size", "xot.pvc.send_inc_pkt_size", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_send_out_pkt_size,
-			{ "Sender outgoing packet size", "xot.pvc.send_out_pkt_size", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_send_out_pkt_size,
+        { "Sender outgoing packet size", "xot.pvc.send_out_pkt_size", FT_UINT8, BASE_DEC,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_init_itf_name,
-			{ "Initiator interface name", "xot.pvc.init_itf_name", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+      { &hf_xot_pvc_init_itf_name,
+        { "Initiator interface name", "xot.pvc.init_itf_name", FT_STRING, BASE_NONE,
+          NULL, 0, NULL, HFILL }},
 
-		{ &hf_xot_pvc_resp_itf_name,
-			{ "Responder interface name", "xot.pvc.resp_itf_name", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }}
-	};
+      { &hf_xot_pvc_resp_itf_name,
+        { "Responder interface name", "xot.pvc.resp_itf_name", FT_STRING, BASE_NONE,
+          NULL, 0, NULL, HFILL }}
+   };
 
-	static gint *ett[] = {
-		&ett_xot
-	};
-	module_t *xot_module;
+   static gint *ett[] = {
+      &ett_xot
+   };
+   module_t *xot_module;
 
-	proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
-	proto_register_field_array(proto_xot, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	xot_handle = new_register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
-	xot_module = prefs_register_protocol(proto_xot, NULL);
+   proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
+   proto_register_field_array(proto_xot, hf, array_length(hf));
+   proto_register_subtree_array(ett, array_length(ett));
+   xot_handle = new_register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
+   xot_module = prefs_register_protocol(proto_xot, NULL);
 
-	prefs_register_bool_preference(xot_module, "desegment",
-	    "Reassemble X.25-over-TCP messages spanning multiple TCP segments",
-	    "Whether the X.25-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
-	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings",
-	    &xot_desegment);
-	prefs_register_bool_preference(xot_module, "x25_desegment",
-	    "Reassemble X.25 packets with More flag to enable safe X.25 reassembly",
-	    "Whether the X.25-over-TCP dissector should reassemble all X.25 packets before calling the X25 dissector. "
-	    "If the TCP packets arrive out-of-order, the X.25 reassembly can otherwise fail. "
-	    "To use this option, you should also enable \"Reassemble X.25-over-TCP messages spanning multiple TCP segments\", \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings and \"Reassemble fragmented X.25 packets\" in the X.25 protocol settings.",
-	    &x25_desegment);
+   prefs_register_bool_preference(xot_module, "desegment",
+      "Reassemble X.25-over-TCP messages spanning multiple TCP segments",
+      "Whether the X.25-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
+      "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings",
+      &xot_desegment);
+   prefs_register_bool_preference(xot_module, "x25_desegment",
+      "Reassemble X.25 packets with More flag to enable safe X.25 reassembly",
+      "Whether the X.25-over-TCP dissector should reassemble all X.25 packets before calling the X25 dissector. "
+      "If the TCP packets arrive out-of-order, the X.25 reassembly can otherwise fail. "
+      "To use this option, you should also enable \"Reassemble X.25-over-TCP messages spanning multiple TCP segments\", \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings and \"Reassemble fragmented X.25 packets\" in the X.25 protocol settings.",
+      &x25_desegment);
 
 }
 
 void
 proto_reg_handoff_xot(void)
 {
-  dissector_add_uint("tcp.port", TCP_PORT_XOT, xot_handle);
+   dissector_add_uint("tcp.port", TCP_PORT_XOT, xot_handle);
 
-  x25_handle = find_dissector("x.25");
+   x25_handle = find_dissector("x.25");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

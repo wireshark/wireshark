@@ -51,10 +51,10 @@ static int hf_h1_empty = -1;
 
 static dissector_handle_t data_handle;
 
-#define EMPTY_BLOCK 	0xFF
-#define OPCODE_BLOCK	0x01
-#define REQUEST_BLOCK	0x03
-#define RESPONSE_BLOCK	0x0F
+#define EMPTY_BLOCK     0xFF
+#define OPCODE_BLOCK    0x01
+#define REQUEST_BLOCK   0x03
+#define RESPONSE_BLOCK  0x0F
 
 static const value_string opcode_vals[] = {
   {3, "Write Request"},
@@ -128,110 +128,110 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, ENC_NA);
       h1_tree = proto_item_add_subtree (ti, ett_h1);
       proto_tree_add_uint (h1_tree, hf_h1_header, tvb, offset, 2,
-			   tvb_get_ntohs(tvb,offset));
+                           tvb_get_ntohs(tvb,offset));
       proto_tree_add_uint (h1_tree, hf_h1_len, tvb, offset + 2, 1,
-			   tvb_get_guint8(tvb,offset+2));
+                           tvb_get_guint8(tvb,offset+2));
     }
 
   while (position < tvb_get_guint8(tvb,offset+2))
     {
       switch (tvb_get_guint8(tvb,offset + position))
-	{
-	  case OPCODE_BLOCK:
-	    if (h1_tree)
-	      {
-		ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, tvb,
-					  offset + position,
-					  tvb_get_guint8(tvb,offset+position+1),
-					  tvb_get_guint8(tvb,offset+position));
-		opcode_tree = proto_item_add_subtree (ti, ett_opcode);
-		proto_tree_add_uint (opcode_tree, hf_h1_oplen, tvb,
-				     offset + position + 1, 1,
-				     tvb_get_guint8(tvb,offset + position + 1));
-		proto_tree_add_uint (opcode_tree, hf_h1_opcode, tvb,
-				     offset + position + 2, 1,
-				     tvb_get_guint8(tvb,offset + position + 2));
-	      }
+        {
+          case OPCODE_BLOCK:
+            if (h1_tree)
+              {
+                ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, tvb,
+                                          offset + position,
+                                          tvb_get_guint8(tvb,offset+position+1),
+                                          tvb_get_guint8(tvb,offset+position));
+                opcode_tree = proto_item_add_subtree (ti, ett_opcode);
+                proto_tree_add_uint (opcode_tree, hf_h1_oplen, tvb,
+                                     offset + position + 1, 1,
+                                     tvb_get_guint8(tvb,offset + position + 1));
+                proto_tree_add_uint (opcode_tree, hf_h1_opcode, tvb,
+                                     offset + position + 2, 1,
+                                     tvb_get_guint8(tvb,offset + position + 2));
+              }
 
-		col_append_str (pinfo->cinfo, COL_INFO,
-				val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-					    opcode_vals,"Unknown Opcode (0x%2.2x)"));
-	    break;
-	  case REQUEST_BLOCK:
-	    if (h1_tree)
-	      {
-		ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, tvb,
-					  offset + position,
-					  tvb_get_guint8(tvb,offset + position + 1),
-					  tvb_get_guint8(tvb,offset + position));
-		org_tree = proto_item_add_subtree (ti, ett_org);
-		proto_tree_add_uint (org_tree, hf_h1_requestlen, tvb,
-				     offset + position + 1, 1,
-				     tvb_get_guint8(tvb,offset + position+1));
-		proto_tree_add_uint (org_tree, hf_h1_org, tvb,
-				     offset + position + 2, 1,
-				     tvb_get_guint8(tvb,offset + position+2));
-		proto_tree_add_uint (org_tree, hf_h1_dbnr, tvb,
-				     offset + position + 3, 1,
-				     tvb_get_guint8(tvb,offset + position+3));
-		proto_tree_add_uint (org_tree, hf_h1_dwnr, tvb,
-				     offset + position + 4, 2,
-				     tvb_get_ntohs(tvb,offset+position+4));
-		proto_tree_add_int (org_tree, hf_h1_dlen, tvb,
-				    offset + position + 6, 2,
-				    tvb_get_ntohs(tvb,offset+position+6));
-	      }
-		col_append_fstr (pinfo->cinfo, COL_INFO, " %s %d",
-				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-					     org_vals,"Unknown Type (0x%2.2x)"),
-				 tvb_get_guint8(tvb,offset + position + 3));
-		col_append_fstr (pinfo->cinfo, COL_INFO, " DW %d",
-				 tvb_get_ntohs(tvb,offset+position+4));
-		col_append_fstr (pinfo->cinfo, COL_INFO, " Count %d",
-				 tvb_get_ntohs(tvb,offset+position+6));
-	    break;
-	  case RESPONSE_BLOCK:
-	    if (h1_tree)
-	      {
-		ti = proto_tree_add_uint (h1_tree, hf_h1_response, tvb,
-					  offset + position,
-					  tvb_get_guint8(tvb,offset + position + 1),
-					  tvb_get_guint8(tvb,offset + position));
-		response_tree = proto_item_add_subtree (ti, ett_response);
-		proto_tree_add_uint (response_tree, hf_h1_response_len, tvb,
-				     offset + position + 1, 1,
-				     tvb_get_guint8(tvb,offset + position+1));
-		proto_tree_add_uint (response_tree, hf_h1_response_value, tvb,
-				     offset + position + 2, 1,
-				     tvb_get_guint8(tvb,offset + position+2));
-	      }
-		col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
-				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-					     returncode_vals,"Unknown Returncode (0x%2.2x"));
-	    break;
-	  case EMPTY_BLOCK:
-	    if (h1_tree)
-	      {
-		ti = proto_tree_add_uint (h1_tree, hf_h1_empty, tvb,
-					  offset + position,
-					  tvb_get_guint8(tvb,offset + position + 1),
-					  tvb_get_guint8(tvb,offset + position));
-		empty_tree = proto_item_add_subtree (ti, ett_empty);
+                col_append_str (pinfo->cinfo, COL_INFO,
+                                val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+                                            opcode_vals,"Unknown Opcode (0x%2.2x)"));
+            break;
+          case REQUEST_BLOCK:
+            if (h1_tree)
+              {
+                ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, tvb,
+                                          offset + position,
+                                          tvb_get_guint8(tvb,offset + position + 1),
+                                          tvb_get_guint8(tvb,offset + position));
+                org_tree = proto_item_add_subtree (ti, ett_org);
+                proto_tree_add_uint (org_tree, hf_h1_requestlen, tvb,
+                                     offset + position + 1, 1,
+                                     tvb_get_guint8(tvb,offset + position+1));
+                proto_tree_add_uint (org_tree, hf_h1_org, tvb,
+                                     offset + position + 2, 1,
+                                     tvb_get_guint8(tvb,offset + position+2));
+                proto_tree_add_uint (org_tree, hf_h1_dbnr, tvb,
+                                     offset + position + 3, 1,
+                                     tvb_get_guint8(tvb,offset + position+3));
+                proto_tree_add_uint (org_tree, hf_h1_dwnr, tvb,
+                                     offset + position + 4, 2,
+                                     tvb_get_ntohs(tvb,offset+position+4));
+                proto_tree_add_int (org_tree, hf_h1_dlen, tvb,
+                                    offset + position + 6, 2,
+                                    tvb_get_ntohs(tvb,offset+position+6));
+              }
+                col_append_fstr (pinfo->cinfo, COL_INFO, " %s %d",
+                                 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+                                             org_vals,"Unknown Type (0x%2.2x)"),
+                                 tvb_get_guint8(tvb,offset + position + 3));
+                col_append_fstr (pinfo->cinfo, COL_INFO, " DW %d",
+                                 tvb_get_ntohs(tvb,offset+position+4));
+                col_append_fstr (pinfo->cinfo, COL_INFO, " Count %d",
+                                 tvb_get_ntohs(tvb,offset+position+6));
+            break;
+          case RESPONSE_BLOCK:
+            if (h1_tree)
+              {
+                ti = proto_tree_add_uint (h1_tree, hf_h1_response, tvb,
+                                          offset + position,
+                                          tvb_get_guint8(tvb,offset + position + 1),
+                                          tvb_get_guint8(tvb,offset + position));
+                response_tree = proto_item_add_subtree (ti, ett_response);
+                proto_tree_add_uint (response_tree, hf_h1_response_len, tvb,
+                                     offset + position + 1, 1,
+                                     tvb_get_guint8(tvb,offset + position+1));
+                proto_tree_add_uint (response_tree, hf_h1_response_value, tvb,
+                                     offset + position + 2, 1,
+                                     tvb_get_guint8(tvb,offset + position+2));
+              }
+                col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
+                                 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+                                             returncode_vals,"Unknown Returncode (0x%2.2x"));
+            break;
+          case EMPTY_BLOCK:
+            if (h1_tree)
+              {
+                ti = proto_tree_add_uint (h1_tree, hf_h1_empty, tvb,
+                                          offset + position,
+                                          tvb_get_guint8(tvb,offset + position + 1),
+                                          tvb_get_guint8(tvb,offset + position));
+                empty_tree = proto_item_add_subtree (ti, ett_empty);
 
-		proto_tree_add_uint (empty_tree, hf_h1_empty_len, tvb,
-				     offset + position + 1, 1,
-				     tvb_get_guint8(tvb,offset + position+1));
-	      }
-	    break;
-	  default:
-	    /* This is not a valid telegram. So cancel dissection
+                proto_tree_add_uint (empty_tree, hf_h1_empty_len, tvb,
+                                     offset + position + 1, 1,
+                                     tvb_get_guint8(tvb,offset + position+1));
+              }
+            break;
+          default:
+            /* This is not a valid telegram. So cancel dissection
                and try the next dissector */
             return FALSE;
-	}
-	if (tvb_get_guint8(tvb,offset + position + 1) < 1)
-	    THROW(ReportedBoundsError);
-	position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
-    }			/* ..while */
+        }
+        if (tvb_get_guint8(tvb,offset + position + 1) < 1)
+            THROW(ReportedBoundsError);
+        position += tvb_get_guint8(tvb,offset + position + 1);  /* Goto next section */
+    }                   /* ..while */
   next_tvb = tvb_new_subset_remaining(tvb, offset+tvb_get_guint8(tvb,offset+2));
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
@@ -310,3 +310,16 @@ proto_reg_handoff_h1(void)
   heur_dissector_add("tcp", dissect_h1, proto_h1);
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -161,3 +161,16 @@ proto_reg_handoff_aim_buddylist(void)
 {
 	aim_init_family(proto_aim_buddylist, ett_aim_buddylist, FAMILY_BUDDYLIST, aim_fnac_family_buddylist);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

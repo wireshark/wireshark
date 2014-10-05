@@ -61,7 +61,7 @@ static int
 dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 			    proto_tree *tree, void *data _U_)
 {
-  	guint   len;
+	guint   len;
 	guint16 channel_id;
 	guint16 data_len;
 	proto_item *ti;
@@ -139,11 +139,11 @@ dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static gboolean
 dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  	guint   len;
+	guint   len;
 	guint16 channel_id;
 	guint16 data_len;
 
-  	len = tvb_length(tvb);
+	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
 	if (len < TURNCHANNEL_HDR_LEN) {
 		  return FALSE;
@@ -218,3 +218,16 @@ proto_reg_handoff_turnchannel(void)
 
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

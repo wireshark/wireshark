@@ -145,47 +145,47 @@ proto_register_sdlc(void)
 	static hf_register_info hf[] = {
 		{ &hf_sdlc_address,
 		  { "Address Field", "sdlc.address", FT_UINT8, BASE_HEX,
-		     NULL, 0x0, "Address", HFILL }},
+		    NULL, 0x0, "Address", HFILL }},
 
 		{ &hf_sdlc_control,
 		  { "Control Field", "sdlc.control", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sdlc_n_r,
-		    { "N(R)", "sdlc.control.n_r", FT_UINT8, BASE_DEC,
-		      NULL, XDLC_N_R_MASK, NULL, HFILL }},
+		  { "N(R)", "sdlc.control.n_r", FT_UINT8, BASE_DEC,
+		    NULL, XDLC_N_R_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_n_s,
-		    { "N(S)", "sdlc.control.n_s", FT_UINT8, BASE_DEC,
-		      NULL, XDLC_N_S_MASK, NULL, HFILL }},
+		  { "N(S)", "sdlc.control.n_s", FT_UINT8, BASE_DEC,
+		    NULL, XDLC_N_S_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_p,
-		    { "Poll", "sdlc.control.p", FT_BOOLEAN, 8,
-		      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		  { "Poll", "sdlc.control.p", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_f,
-		    { "Final", "sdlc.control.f", FT_BOOLEAN, 8,
-		      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
+		  { "Final", "sdlc.control.f", FT_BOOLEAN, 8,
+		    TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_s_ftype,
-		    { "Supervisory frame type", "sdlc.control.s_ftype", FT_UINT8, BASE_HEX,
-		      VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
+		  { "Supervisory frame type", "sdlc.control.s_ftype", FT_UINT8, BASE_HEX,
+		    VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_u_modifier_cmd,
-		    { "Command", "sdlc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-		      VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		  { "Command", "sdlc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_u_modifier_resp,
-		    { "Response", "sdlc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-		      VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
+		  { "Response", "sdlc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_ftype_i,
-		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
-		      VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
+		  { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
+		    VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_ftype_s_u,
-		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
-		      VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
+		  { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
+		    VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_sdlc,
@@ -193,7 +193,7 @@ proto_register_sdlc(void)
 	};
 
 	proto_sdlc = proto_register_protocol(
-	    "Synchronous Data Link Control (SDLC)", "SDLC", "sdlc");
+		"Synchronous Data Link Control (SDLC)", "SDLC", "sdlc");
 	proto_register_field_array(proto_sdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -212,3 +212,16 @@ proto_reg_handoff_sdlc(void)
 	sdlc_handle = create_dissector_handle(dissect_sdlc, proto_sdlc);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SDLC, sdlc_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

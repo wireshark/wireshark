@@ -62,43 +62,43 @@ static gint ett_icp_payload = -1;
 #define CODE_ICP_OP_HIT_OBJ 23
 
 static const value_string opcode_vals[] = {
-{ CODE_ICP_OP_INVALID ,    "ICP_INVALID" },
-{ CODE_ICP_OP_QUERY ,    "ICP_QUERY" },
-{ CODE_ICP_OP_HIT ,    "ICP_HIT" },
-{ CODE_ICP_OP_MISS ,    "ICP_MISS" },
-{ CODE_ICP_OP_ERR ,    "ICP_ERR" },
-{ CODE_ICP_OP_SEND,    "ICP_SEND" },
-{ CODE_ICP_OP_SENDA, "ICP_SENDA"},
-{ CODE_ICP_OP_DATABEG, "ICP_DATABEG"},
-{ CODE_ICP_OP_DATA,    "ICP_DATA"},
-{ CODE_ICP_OP_DATAEND, "ICP_DATA_END"},
-{ CODE_ICP_OP_SECHO ,    "ICP_SECHO"},
-{ CODE_ICP_OP_DECHO ,    "ICP_DECHO"},
-{ CODE_ICP_OP_MISS_NOFETCH ,    "ICP_MISS_NOFETCH"},
-{ CODE_ICP_OP_DENIED ,    "ICP_DENIED"},
-{ CODE_ICP_OP_HIT_OBJ ,    "ICP_HIT_OBJ"},
+{ CODE_ICP_OP_INVALID ,      "ICP_INVALID" },
+{ CODE_ICP_OP_QUERY ,        "ICP_QUERY" },
+{ CODE_ICP_OP_HIT ,          "ICP_HIT" },
+{ CODE_ICP_OP_MISS ,         "ICP_MISS" },
+{ CODE_ICP_OP_ERR ,          "ICP_ERR" },
+{ CODE_ICP_OP_SEND,          "ICP_SEND" },
+{ CODE_ICP_OP_SENDA,         "ICP_SENDA"},
+{ CODE_ICP_OP_DATABEG,       "ICP_DATABEG"},
+{ CODE_ICP_OP_DATA,          "ICP_DATA"},
+{ CODE_ICP_OP_DATAEND,       "ICP_DATA_END"},
+{ CODE_ICP_OP_SECHO ,        "ICP_SECHO"},
+{ CODE_ICP_OP_DECHO ,        "ICP_DECHO"},
+{ CODE_ICP_OP_MISS_NOFETCH , "ICP_MISS_NOFETCH"},
+{ CODE_ICP_OP_DENIED ,       "ICP_DENIED"},
+{ CODE_ICP_OP_HIT_OBJ ,      "ICP_HIT_OBJ"},
 { 0,     NULL}
 };
 
 static void dissect_icp_payload(tvbuff_t *tvb, int offset,
-        proto_tree *pload_tree, guint8 opcode)
+				proto_tree *pload_tree, guint8 opcode)
 {
-  gint stringlength;
-  guint16 objectlength;
+	gint stringlength;
+	guint16 objectlength;
 
-  switch(opcode)
-  {
+	switch(opcode)
+	{
 	case CODE_ICP_OP_QUERY:
 	 	/* 4 byte requester host address */
 		proto_tree_add_text(pload_tree, tvb,offset,4,
-			"Requester Host Address %s",
-			tvb_ip_to_str(tvb, offset));
+				    "Requester Host Address %s",
+				    tvb_ip_to_str(tvb, offset));
 		offset += 4;
 
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
+				    "URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
 		break;
 
 	case CODE_ICP_OP_SECHO:
@@ -110,14 +110,14 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 	case CODE_ICP_OP_DENIED:
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
+				    "URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
 		break;
 
 	case CODE_ICP_OP_HIT_OBJ:
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
+				    "URL: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, stringlength, ENC_ASCII));
 		offset += stringlength;
 
 		/* 2 byte object size */
@@ -131,98 +131,98 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 		if (objectlength > tvb_reported_length_remaining(tvb, offset))
 		{
 			proto_tree_add_text(pload_tree, tvb,offset,0,
-				"Packet is fragmented, rest of object is in next udp packet");
+					    "Packet is fragmented, rest of object is in next udp packet");
 		}
 		break;
 	default:
 		break;
-  }
+	}
 }
 
 static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *icp_tree , *payload_tree;
-  proto_item *ti;
-  guint8 opcode;
-  guint16 message_length;
-  guint32 request_number;
-  guint32 options;
-  guint32 option_data;
+	proto_tree *icp_tree , *payload_tree;
+	proto_item *ti;
+	guint8 opcode;
+	guint16 message_length;
+	guint32 request_number;
+	guint32 options;
+	guint32 option_data;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
-  col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
+	col_clear(pinfo->cinfo, COL_INFO);
 
-  opcode=tvb_get_guint8(tvb, 0);
-  message_length=tvb_get_ntohs(tvb, 2);
-  request_number=tvb_get_ntohl(tvb, 4);
+	opcode=tvb_get_guint8(tvb, 0);
+	message_length=tvb_get_ntohs(tvb, 2);
+	request_number=tvb_get_ntohl(tvb, 4);
 
-  col_add_fstr(pinfo->cinfo,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
-  val_to_str_const(opcode, opcode_vals, "Unknown"), opcode,
-  request_number);
+	col_add_fstr(pinfo->cinfo,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
+		     val_to_str_const(opcode, opcode_vals, "Unknown"), opcode,
+		     request_number);
 
-  if (tree)
-  {
-
-        ti = proto_tree_add_item(tree,proto_icp, tvb, 0, message_length, ENC_NA);
-        icp_tree = proto_item_add_subtree(ti, ett_icp);
-
-        proto_tree_add_uint(icp_tree,hf_icp_opcode, tvb, 0, 1, opcode);
-
-        proto_tree_add_item(icp_tree,hf_icp_version, tvb, 1, 1, ENC_BIG_ENDIAN);
-
-        proto_tree_add_uint(icp_tree,hf_icp_length, tvb, 2, 2, message_length);
-
-        proto_tree_add_uint(icp_tree,hf_icp_request_nr, tvb, 4, 4,
-                request_number);
-
-	options=tvb_get_ntohl(tvb, 8);
-	if ( (opcode == CODE_ICP_OP_QUERY) && ((options & 0x80000000 ) != 0) )
+	if (tree)
 	{
-		proto_tree_add_text(icp_tree, tvb,8,4,
-			"option: ICP_FLAG_HIT_OBJ");
-  	}
-	if ( (opcode == CODE_ICP_OP_QUERY)&& ((options & 0x40000000 ) != 0) )
-	{
-		proto_tree_add_text(icp_tree, tvb,8,4,
-			"option:ICP_FLAG_SRC_RTT");
-  	}
-	if ((opcode != CODE_ICP_OP_QUERY)&& ((options & 0x40000000 ) != 0))
-	{
-		option_data=tvb_get_ntohl(tvb, 12);
-		proto_tree_add_text(icp_tree, tvb,8,8,
-			"option: ICP_FLAG_SCR_RTT RTT=%u",
-			option_data & 0x0000ffff);
+
+		ti = proto_tree_add_item(tree,proto_icp, tvb, 0, message_length, ENC_NA);
+		icp_tree = proto_item_add_subtree(ti, ett_icp);
+
+		proto_tree_add_uint(icp_tree,hf_icp_opcode, tvb, 0, 1, opcode);
+
+		proto_tree_add_item(icp_tree,hf_icp_version, tvb, 1, 1, ENC_BIG_ENDIAN);
+
+		proto_tree_add_uint(icp_tree,hf_icp_length, tvb, 2, 2, message_length);
+
+		proto_tree_add_uint(icp_tree,hf_icp_request_nr, tvb, 4, 4,
+				    request_number);
+
+		options=tvb_get_ntohl(tvb, 8);
+		if ( (opcode == CODE_ICP_OP_QUERY) && ((options & 0x80000000 ) != 0) )
+		{
+			proto_tree_add_text(icp_tree, tvb,8,4,
+					    "option: ICP_FLAG_HIT_OBJ");
+		}
+		if ( (opcode == CODE_ICP_OP_QUERY)&& ((options & 0x40000000 ) != 0) )
+		{
+			proto_tree_add_text(icp_tree, tvb,8,4,
+					    "option:ICP_FLAG_SRC_RTT");
+		}
+		if ((opcode != CODE_ICP_OP_QUERY)&& ((options & 0x40000000 ) != 0))
+		{
+			option_data=tvb_get_ntohl(tvb, 12);
+			proto_tree_add_text(icp_tree, tvb,8,8,
+					    "option: ICP_FLAG_SCR_RTT RTT=%u",
+					    option_data & 0x0000ffff);
+		}
+
+		proto_tree_add_text(icp_tree, tvb, 16, 4,
+				    "Sender Host IP address %s",
+				    tvb_ip_to_str(tvb, 16));
+
+		payload_tree = proto_tree_add_subtree(icp_tree, tvb,
+						      20, message_length - 20,
+						      ett_icp_payload, NULL, "Payload");
+		dissect_icp_payload(tvb, 20, payload_tree, opcode);
 	}
-
-	proto_tree_add_text(icp_tree, tvb, 16, 4,
-			"Sender Host IP address %s",
-			tvb_ip_to_str(tvb, 16));
-
-        payload_tree = proto_tree_add_subtree(icp_tree, tvb,
-                        20, message_length - 20,
-                        ett_icp_payload, NULL, "Payload");
-        dissect_icp_payload(tvb, 20, payload_tree, opcode);
-  }
 }
 void
 proto_register_icp(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_icp_opcode,
-		{ "Opcode", "icp.opcode", FT_UINT8, BASE_HEX, VALS(opcode_vals),
-			0x0, NULL, HFILL }},
+		  { "Opcode", "icp.opcode", FT_UINT8, BASE_HEX, VALS(opcode_vals),
+		    0x0, NULL, HFILL }},
 
 		{ &hf_icp_version,
-		{ "Version", "icp.version", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Version", "icp.version", FT_UINT8, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_icp_length,
-		{ "Length", "icp.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Length", "icp.length", FT_UINT16, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 
 		{ &hf_icp_request_nr,
-		{ "Request Number", "icp.nr", FT_UINT32, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
+		  { "Request Number", "icp.nr", FT_UINT32, BASE_DEC, NULL,
+		    0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_icp,
@@ -230,7 +230,7 @@ proto_register_icp(void)
 	};
 
 	proto_icp = proto_register_protocol("Internet Cache Protocol",
-	    "ICP", "icp");
+					    "ICP", "icp");
 	proto_register_field_array(proto_icp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -243,3 +243,16 @@ proto_reg_handoff_icp(void)
 	icp_handle = create_dissector_handle(dissect_icp, proto_icp);
 	dissector_add_uint("udp.port", UDP_PORT_ICP, icp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

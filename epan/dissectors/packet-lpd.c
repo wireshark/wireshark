@@ -158,47 +158,60 @@ find_printer_string(tvbuff_t *tvb, int offset)
 void
 proto_register_lpd(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_lpd_response,
-      { "Response",           "lpd.response",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      "TRUE if LPD response", HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_lpd_response,
+		  { "Response",           "lpd.response",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if LPD response", HFILL }},
 
-    { &hf_lpd_request,
-      { "Request",            "lpd.request",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      "TRUE if LPD request", HFILL }},
+		{ &hf_lpd_request,
+		  { "Request",            "lpd.request",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if LPD request", HFILL }},
 
-    { &hf_lpd_client_code,
-      { "Client code",            "lpd.client_code",
-    FT_UINT8, BASE_DEC, VALS(lpd_client_code), 0x0,
-      NULL, HFILL }},
+		{ &hf_lpd_client_code,
+		  { "Client code",            "lpd.client_code",
+		    FT_UINT8, BASE_DEC, VALS(lpd_client_code), 0x0,
+		    NULL, HFILL }},
 
-    { &hf_lpd_printer_option,
-      { "Printer/options",            "lpd.printer_option",
-    FT_STRING, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }},
+		{ &hf_lpd_printer_option,
+		  { "Printer/options",            "lpd.printer_option",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_lpd_response_code,
-      { "Response",            "lpd.response_code",
-    FT_UINT8, BASE_DEC, VALS(lpd_server_code), 0x0,
-      NULL, HFILL }},
-  };
-  static gint *ett[] = {
-    &ett_lpd,
-  };
+		{ &hf_lpd_response_code,
+		  { "Response",            "lpd.response_code",
+		    FT_UINT8, BASE_DEC, VALS(lpd_server_code), 0x0,
+		    NULL, HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_lpd,
+	};
 
-  proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "LPD", "lpd");
-  proto_register_field_array(proto_lpd, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "LPD", "lpd");
+	proto_register_field_array(proto_lpd, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_lpd(void)
 {
-  dissector_handle_t lpd_handle;
+	dissector_handle_t lpd_handle;
 
-  lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
-  dissector_add_uint("tcp.port", TCP_PORT_PRINTER, lpd_handle);
-  data_handle = find_dissector("data");
+	lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
+	dissector_add_uint("tcp.port", TCP_PORT_PRINTER, lpd_handle);
+	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

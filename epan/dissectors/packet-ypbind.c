@@ -136,10 +136,10 @@ dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinf
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 static const vsff ypbind1_proc[] = {
-	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
-	{ YPBINDPROC_DOMAIN,	"DOMAIN",		NULL,				NULL },
-	{ YPBINDPROC_SETDOM,	"SETDOMAIN",		NULL,				NULL },
-	{ 0,	NULL,		NULL,				NULL }
+	{ YPBINDPROC_NULL,	"NULL",		NULL,	NULL },
+	{ YPBINDPROC_DOMAIN,	"DOMAIN",	NULL,	NULL },
+	{ YPBINDPROC_SETDOM,	"SETDOMAIN",	NULL,	NULL },
+	{ 0,			NULL,		NULL,	NULL }
 };
 static const value_string ypbind1_proc_vals[] = {
 	{ YPBINDPROC_NULL,	"NULL" },
@@ -150,12 +150,12 @@ static const value_string ypbind1_proc_vals[] = {
 /* end of YPBind version 1 */
 
 static const vsff ypbind2_proc[] = {
-	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
+	{ YPBINDPROC_NULL,	"NULL",		NULL,	NULL },
 	{ YPBINDPROC_DOMAIN,	"DOMAIN",
 		dissect_ypbind_domain_v2_request, dissect_ypbind_domain_v2_reply},
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN",
 		dissect_ypbind_setdomain_v2_request, NULL},
-	{ 0,    NULL,       NULL,               NULL }
+	{ 0,    		NULL,       	NULL,	NULL }
 };
 static const value_string ypbind2_proc_vals[] = {
 	{ YPBINDPROC_NULL,	"NULL" },
@@ -222,3 +222,16 @@ proto_reg_handoff_ypbind(void)
 	rpc_init_proc_table(YPBIND_PROGRAM, 1, ypbind1_proc, hf_ypbind_procedure_v1);
 	rpc_init_proc_table(YPBIND_PROGRAM, 2, ypbind2_proc, hf_ypbind_procedure_v2);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

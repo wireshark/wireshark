@@ -208,7 +208,20 @@ proto_reg_handoff_idp(void)
 
 	idp_handle = create_dissector_handle(dissect_idp, proto_idp);
 	dissector_add_uint("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
-    dissector_add_uint("chdlc.protocol", ETHERTYPE_XNS_IDP, idp_handle);
+	dissector_add_uint("chdlc.protocol", ETHERTYPE_XNS_IDP, idp_handle);
 
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

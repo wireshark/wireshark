@@ -133,29 +133,29 @@ proto_register_tdmoe(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_tdmoe_subaddress,
-		{ "Subaddress",	"tdmoe.subaddress", FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Subaddress",	"tdmoe.subaddress", FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 		{ &hf_tdmoe_samples,
-		{ "Samples",	"tdmoe.samples", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Samples per channel", HFILL }},
+		  { "Samples",	"tdmoe.samples", FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Samples per channel", HFILL }},
 		{ &hf_tdmoe_flags,
-		{ "Flags",	"tdmoe.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Flags",	"tdmoe.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 		{ &hf_tdmoe_yellow_alarm,
-		{ "Yellow Alarm", "tdmoe.yellowalarm", FT_BOOLEAN, 8, NULL, TDMOE_YELLOW_ALARM_BITMASK,
-			NULL, HFILL }},
+		  { "Yellow Alarm", "tdmoe.yellowalarm", FT_BOOLEAN, 8, NULL, TDMOE_YELLOW_ALARM_BITMASK,
+		    NULL, HFILL }},
 		{ &hf_tdmoe_sig_bits_present,
-		{ "Sig bits present", "tdmoe.sig_bits_present", FT_BOOLEAN, 8, NULL, TDMOE_SIGBITS_BITMASK,
-			NULL, HFILL }},
+		  { "Sig bits present", "tdmoe.sig_bits_present", FT_BOOLEAN, 8, NULL, TDMOE_SIGBITS_BITMASK,
+		    NULL, HFILL }},
 		{ &hf_tdmoe_packet_counter,
-		{ "Counter", "tdmoe.counter", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Packet number", HFILL }},
+		  { "Counter", "tdmoe.counter", FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Packet number", HFILL }},
 		{ &hf_tdmoe_channels,
-		{ "Channels", "tdmoe.channels", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Channels", "tdmoe.channels", FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 		{ &hf_tdmoe_sig_bits,
-		{ "Sig bits", "tdmoe.sig_bits", FT_BYTES, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Sig bits", "tdmoe.sig_bits", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_tdmoe,
@@ -168,9 +168,9 @@ proto_register_tdmoe(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	tdmoe_module = prefs_register_protocol(proto_tdmoe, proto_reg_handoff_tdmoe);
 	prefs_register_uint_preference(tdmoe_module, "d_channel",
-		"TDMoE D-Channel",
-		"The TDMoE channel that contains the D-Channel.",
-		10, &pref_tdmoe_d_channel);
+				       "TDMoE D-Channel",
+				       "The TDMoE channel that contains the D-Channel.",
+				       10, &pref_tdmoe_d_channel);
 }
 
 void
@@ -184,3 +184,16 @@ proto_reg_handoff_tdmoe(void)
 	lapd_handle = find_dissector("lapd-bitstream");
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

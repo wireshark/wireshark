@@ -34,16 +34,16 @@ void proto_register_kadm5(void);
 void proto_reg_handoff_kadm5(void);
 
 #define KADM5_PROGRAM			2112
-#define KADM5PROC_NULL			0
-#define KADM5PROC_CREATE_PRINCIPAL	1
-#define KADM5PROC_DELETE_PRINCIPAL	2
-#define KADM5PROC_MODIFY_PRINCIPAL	3
-#define KADM5PROC_RENAME_PRINCIPAL	4
-#define KADM5PROC_GET_PRINCIPAL		5
-#define KADM5PROC_CHPASS_PRINCIPAL	6
-#define KADM5PROC_CHRAND_PRINCIPAL	7
-#define KADM5PROC_CREATE_POLICY		8
-#define KADM5PROC_DELETE_POLICY		9
+#define KADM5PROC_NULL			 0
+#define KADM5PROC_CREATE_PRINCIPAL	 1
+#define KADM5PROC_DELETE_PRINCIPAL	 2
+#define KADM5PROC_MODIFY_PRINCIPAL	 3
+#define KADM5PROC_RENAME_PRINCIPAL	 4
+#define KADM5PROC_GET_PRINCIPAL		 5
+#define KADM5PROC_CHPASS_PRINCIPAL	 6
+#define KADM5PROC_CHRAND_PRINCIPAL	 7
+#define KADM5PROC_CREATE_POLICY		 8
+#define KADM5PROC_DELETE_POLICY		 9
 #define KADM5PROC_MODIFY_POLICY		10
 #define KADM5PROC_GET_POLICY		11
 #define KADM5PROC_GET_PRIVS		12
@@ -143,3 +143,16 @@ proto_reg_handoff_kadm5(void)
 	rpc_init_proc_table(KADM5_PROGRAM, 2, kadm5_v2_proc,
 	    hf_kadm5_procedure_v2);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

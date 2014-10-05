@@ -28,28 +28,28 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#define DDTP_VERSION_ERROR	0
-#define DDTP_VERSION_4		1
-#define DDTP_VERSION_5		2
+#define DDTP_VERSION_ERROR      0
+#define DDTP_VERSION_4          1
+#define DDTP_VERSION_5          2
 
-#define DDTP_ENCRYPT_ERROR	0
-#define DDTP_ENCRYPT_PLAINTEXT	1
-#define DDTP_ENCRYPT_BLOWFISH	2
+#define DDTP_ENCRYPT_ERROR      0
+#define DDTP_ENCRYPT_PLAINTEXT  1
+#define DDTP_ENCRYPT_BLOWFISH   2
 
-#define DDTP_MESSAGE_ERROR	0
-#define DDTP_UPDATE_QUERY	1
-#define DDTP_UPDATE_REPLY	2
-#define DDTP_ALIVE_QUERY	3
-#define DDTP_ALIVE_REPLY	4
+#define DDTP_MESSAGE_ERROR      0
+#define DDTP_UPDATE_QUERY       1
+#define DDTP_UPDATE_REPLY       2
+#define DDTP_ALIVE_QUERY        3
+#define DDTP_ALIVE_REPLY        4
 
-#define DDTP_MARK_ONLINE	0
-#define DDTP_MARK_OFFLINE	1
+#define DDTP_MARK_ONLINE        0
+#define DDTP_MARK_OFFLINE       1
 
-#define DDTP_UPDATE_SUCCEEDED	0
-#define DDTP_UPDATE_FAILED	1
-#define DDTP_INVALID_PASSWORD	2
-#define DDTP_INVALID_ACCOUNT	3
-#define DDTP_INVALID_OPCODE	4
+#define DDTP_UPDATE_SUCCEEDED   0
+#define DDTP_UPDATE_FAILED      1
+#define DDTP_INVALID_PASSWORD   2
+#define DDTP_INVALID_ACCOUNT    3
+#define DDTP_INVALID_OPCODE     4
 
 void proto_register_ddtp (void);
 void proto_reg_handoff_ddtp (void);
@@ -68,7 +68,7 @@ static int ett_ddtp = -1;
 
 static expert_field ei_ddtp_msgtype = EI_INIT;
 
-#define UDP_PORT_DDTP	1052
+#define UDP_PORT_DDTP   1052
 
 /*
  * XXX - is 0 an invalid value?  If so, should we remove it from this
@@ -126,49 +126,49 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
 
     if (try_val_to_str(tvb_get_ntohl(tvb, 0), vals_ddtp_version) == NULL)
-	    return 0;
+            return 0;
 
     /* Indicate what kind of message this is. */
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DDTP");
     /* In case we throw an exception below. */
     col_clear (pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, ENC_NA);
-	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
+        ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, ENC_NA);
+        ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
-	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, ENC_BIG_ENDIAN);
 
     if (tvb_get_ntohl(tvb, 4) == DDTP_ENCRYPT_PLAINTEXT) {
-	    ti = proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, ENC_BIG_ENDIAN);
-	switch (tvb_get_ntohl(tvb, 12)) {
-	case DDTP_MESSAGE_ERROR :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Message Error");
-	    break;
-	case DDTP_UPDATE_QUERY :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Update Query");
-		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4, ENC_BIG_ENDIAN);
-	    break;
-	case DDTP_UPDATE_REPLY :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Update Reply");
-		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4, ENC_BIG_ENDIAN);
-	    break;
-	case DDTP_ALIVE_QUERY :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Alive Query");
-		proto_tree_add_item(ddtp_tree, hf_ddtp_alive, tvb, 16, 4, ENC_BIG_ENDIAN);
-	    break;
-	case DDTP_ALIVE_REPLY :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Alive Reply");
-		proto_tree_add_item(ddtp_tree, hf_ddtp_alive, tvb, 16, 4, ENC_BIG_ENDIAN);
-	    break;
-	default :
-	    col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
-		expert_add_info(pinfo, ti, &ei_ddtp_msgtype);
-	}
+            ti = proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, ENC_BIG_ENDIAN);
+        switch (tvb_get_ntohl(tvb, 12)) {
+        case DDTP_MESSAGE_ERROR :
+            col_set_str(pinfo->cinfo, COL_INFO, "Message Error");
+            break;
+        case DDTP_UPDATE_QUERY :
+            col_set_str(pinfo->cinfo, COL_INFO, "Update Query");
+                proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4, ENC_BIG_ENDIAN);
+            break;
+        case DDTP_UPDATE_REPLY :
+            col_set_str(pinfo->cinfo, COL_INFO, "Update Reply");
+                proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4, ENC_BIG_ENDIAN);
+            break;
+        case DDTP_ALIVE_QUERY :
+            col_set_str(pinfo->cinfo, COL_INFO, "Alive Query");
+                proto_tree_add_item(ddtp_tree, hf_ddtp_alive, tvb, 16, 4, ENC_BIG_ENDIAN);
+            break;
+        case DDTP_ALIVE_REPLY :
+            col_set_str(pinfo->cinfo, COL_INFO, "Alive Reply");
+                proto_tree_add_item(ddtp_tree, hf_ddtp_alive, tvb, 16, 4, ENC_BIG_ENDIAN);
+            break;
+        default :
+            col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
+                expert_add_info(pinfo, ti, &ei_ddtp_msgtype);
+        }
     } else {
-	col_set_str(pinfo->cinfo, COL_INFO, "Encrypted payload");
+        col_set_str(pinfo->cinfo, COL_INFO, "Encrypted payload");
     }
     return tvb_length(tvb);
 }
@@ -177,30 +177,30 @@ void
 proto_register_ddtp(void)
 {
     static hf_register_info hf_ddtp[] = {
-	{ &hf_ddtp_version,
-	    { "Version", "ddtp.version", FT_UINT32, BASE_DEC, VALS(vals_ddtp_version), 0x0,
-		NULL, HFILL }},
-	{ &hf_ddtp_encrypt,
-	    { "Encryption", "ddtp.encrypt", FT_UINT32, BASE_DEC, VALS(vals_ddtp_encrypt), 0x0,
-		"Encryption type", HFILL }},
-	{ &hf_ddtp_hostid,
-	    { "Hostid", "ddtp.hostid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Host ID", HFILL }},
-	{ &hf_ddtp_msgtype,
-	    { "Message type", "ddtp.msgtype", FT_UINT32, BASE_DEC, VALS(vals_ddtp_msgtype), 0x0,
-		NULL, HFILL }},
-	{ &hf_ddtp_opcode,
-	    { "Opcode", "ddtp.opcode", FT_UINT32, BASE_DEC, VALS(vals_ddtp_opcode), 0x0,
-		"Update query opcode", HFILL }},
-	{ &hf_ddtp_ipaddr,
-	    { "IP address", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_ddtp_status,
-	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,
-		"Update reply status", HFILL }},
-	{ &hf_ddtp_alive,
-	    { "Dummy", "ddtp.alive", FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
+        { &hf_ddtp_version,
+          { "Version", "ddtp.version", FT_UINT32, BASE_DEC, VALS(vals_ddtp_version), 0x0,
+            NULL, HFILL }},
+        { &hf_ddtp_encrypt,
+          { "Encryption", "ddtp.encrypt", FT_UINT32, BASE_DEC, VALS(vals_ddtp_encrypt), 0x0,
+            "Encryption type", HFILL }},
+        { &hf_ddtp_hostid,
+          { "Hostid", "ddtp.hostid", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Host ID", HFILL }},
+        { &hf_ddtp_msgtype,
+          { "Message type", "ddtp.msgtype", FT_UINT32, BASE_DEC, VALS(vals_ddtp_msgtype), 0x0,
+            NULL, HFILL }},
+        { &hf_ddtp_opcode,
+          { "Opcode", "ddtp.opcode", FT_UINT32, BASE_DEC, VALS(vals_ddtp_opcode), 0x0,
+            "Update query opcode", HFILL }},
+        { &hf_ddtp_ipaddr,
+          { "IP address", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ddtp_status,
+          { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,
+            "Update reply status", HFILL }},
+        { &hf_ddtp_alive,
+          { "Dummy", "ddtp.alive", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] = { &ett_ddtp };
@@ -212,7 +212,7 @@ proto_register_ddtp(void)
     expert_module_t* expert_ddtp;
 
     proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol",
-					 "DDTP", "ddtp");
+                                         "DDTP", "ddtp");
     proto_register_field_array(proto_ddtp, hf_ddtp, array_length(hf_ddtp));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ddtp = expert_register_protocol(proto_ddtp);
@@ -227,3 +227,16 @@ proto_reg_handoff_ddtp(void)
     ddtp_handle = new_create_dissector_handle(dissect_ddtp, proto_ddtp);
     dissector_add_uint("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

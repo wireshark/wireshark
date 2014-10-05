@@ -187,10 +187,10 @@ static const vsff klm1_proc[] = {
 	{ 0,	NULL,		NULL,				NULL }
 };
 static const value_string klm1_proc_vals[] = {
-	{ KLMPROC_TEST,	"TEST" },
-	{ KLMPROC_LOCK,	"LOCK" },
-	{ KLMPROC_CANCEL,	"CANCEL" },
-	{ KLMPROC_UNLOCK,	"UNLOCK" },
+	{ KLMPROC_TEST,	  "TEST" },
+	{ KLMPROC_LOCK,	  "LOCK" },
+	{ KLMPROC_CANCEL, "CANCEL" },
+	{ KLMPROC_UNLOCK, "UNLOCK" },
 	{ 0,	NULL}
 };
 
@@ -262,3 +262,16 @@ proto_reg_handoff_klm(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(KLM_PROGRAM, 1, klm1_proc, hf_klm_procedure_v1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

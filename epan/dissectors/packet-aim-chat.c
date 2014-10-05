@@ -43,23 +43,23 @@ void proto_reg_handoff_aim_chat(void);
 #define AIM_CHAT_TLV_CLASS_EXCLUSIVE		0x002
 #define AIM_CHAT_TLV_MAX_CONCURRENT_ROOMS	0x003
 #define AIM_CHAT_TLV_MAX_ROOM_NAME_LEN		0x004
-#define AIM_CHAT_TLV_ROOT_ROOMS				0x005
-#define AIM_CHAT_TLV_SEARCH_TAGS			0x006
-#define AIM_CHAT_TLV_CHILD_ROOMS			0x065
+#define AIM_CHAT_TLV_ROOT_ROOMS			0x005
+#define AIM_CHAT_TLV_SEARCH_TAGS		0x006
+#define AIM_CHAT_TLV_CHILD_ROOMS		0x065
 #define AIM_CHAT_TLV_CONTAINS_USER_CLASS	0x066
 #define AIM_CHAT_TLV_CONTAINS_USER_ARRAY	0x067
 
 #if 0
 static const aim_tlv aim_chat_tlvs[] _U_ = {
-	{ AIM_CHAT_TLV_BROWSABLE_TREE, "Browsable tree", dissect_aim_tlv_value_bytes },
-	{ AIM_CHAT_TLV_CLASS_EXCLUSIVE, "Exclusively for class", dissect_aim_tlv_value_userclass },
+	{ AIM_CHAT_TLV_BROWSABLE_TREE,	     "Browsable tree",			dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CLASS_EXCLUSIVE,	     "Exclusively for class",		dissect_aim_tlv_value_userclass },
 	{ AIM_CHAT_TLV_MAX_CONCURRENT_ROOMS, "Max. number of concurrent rooms", dissect_aim_tlv_value_uint8 },
-	{ AIM_CHAT_TLV_MAX_ROOM_NAME_LEN, "Max. length of room name", dissect_aim_tlv_value_uint8 },
-	{ AIM_CHAT_TLV_ROOT_ROOMS, "Root Rooms", dissect_aim_tlv_value_bytes },
-	{ AIM_CHAT_TLV_SEARCH_TAGS, "Search Tags", dissect_aim_tlv_value_bytes },
-	{ AIM_CHAT_TLV_CHILD_ROOMS, "Child Rooms", dissect_aim_tlv_value_bytes },
-	{ AIM_CHAT_TLV_CONTAINS_USER_CLASS, "Contains User Class", dissect_aim_tlv_value_bytes },
-	{ AIM_CHAT_TLV_CONTAINS_USER_ARRAY, "Contains User Array", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_MAX_ROOM_NAME_LEN,    "Max. length of room name",	dissect_aim_tlv_value_uint8 },
+	{ AIM_CHAT_TLV_ROOT_ROOMS,	     "Root Rooms",			dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_SEARCH_TAGS,	     "Search Tags",			dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CHILD_ROOMS,	     "Child Rooms",			dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CONTAINS_USER_CLASS,  "Contains User Class",		dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CONTAINS_USER_ARRAY,  "Contains User Array",		dissect_aim_tlv_value_bytes },
 	{ 0, NULL, NULL }
 };
 #endif
@@ -122,14 +122,14 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 static const aim_subtype aim_fnac_family_chat[] = {
-	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0001, "Error",	      dissect_aim_snac_error },
 	{ 0x0002, "Room Info Update", NULL },
-	{ 0x0003, "User Join", dissect_aim_chat_userinfo_list },
-	{ 0x0004, "User Leave", dissect_aim_chat_userinfo_list },
+	{ 0x0003, "User Join",	      dissect_aim_chat_userinfo_list },
+	{ 0x0004, "User Leave",	      dissect_aim_chat_userinfo_list },
 	{ 0x0005, "Outgoing Message", dissect_aim_chat_outgoing_msg },
 	{ 0x0006, "Incoming Message", dissect_aim_chat_incoming_msg },
-	{ 0x0007, "Evil Request", NULL },
-	{ 0x0008, "Evil Reply", NULL },
+	{ 0x0007, "Evil Request",     NULL },
+	{ 0x0008, "Evil Reply",       NULL },
 	{ 0, NULL, NULL }
 };
 
@@ -163,3 +163,16 @@ proto_reg_handoff_aim_chat(void)
 {
 	aim_init_family(proto_aim_chat, ett_aim_chat, FAMILY_CHAT, aim_fnac_family_chat);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

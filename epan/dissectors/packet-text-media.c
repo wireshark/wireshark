@@ -180,3 +180,16 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "application/x-rtsp-udp-packetpair", text_lines_handle);
 	xml_handle = find_dissector("xml");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

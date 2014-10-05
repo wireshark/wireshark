@@ -129,35 +129,35 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		return 0;
 	}
 
-		ti = proto_tree_add_protocol_format(tree, proto_tpcp, tvb, 0, -1,
-			"Alteon WebSystems - Transparent Proxy Cache Protocol");
+	ti = proto_tree_add_protocol_format(tree, proto_tpcp, tvb, 0, -1,
+					    "Alteon WebSystems - Transparent Proxy Cache Protocol");
 
-		tpcp_tree = proto_item_add_subtree(ti, ett_tpcp);
+	tpcp_tree = proto_item_add_subtree(ti, ett_tpcp);
 
-		proto_tree_add_item(tpcp_tree, hf_tpcp_version, tvb, 0, 1, ENC_NA);
-        type = tvb_get_guint8(tvb, 1);
-		proto_tree_add_item(tpcp_tree, hf_tpcp_type, tvb, 1, 1, ENC_NA);
+	proto_tree_add_item(tpcp_tree, hf_tpcp_version, tvb, 0, 1, ENC_NA);
+	type = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tpcp_tree, hf_tpcp_type, tvb, 1, 1, ENC_NA);
 
-        proto_tree_add_bitmask(tpcp_tree, tvb, 2, hf_tpcp_flags, ett_tpcp_flags, tpcp_flags, ENC_NA);
+	proto_tree_add_bitmask(tpcp_tree, tvb, 2, hf_tpcp_flags, ett_tpcp_flags, tpcp_flags, ENC_NA);
 
-		id = tvb_get_ntohs(tvb, 4);
-		proto_tree_add_item(tpcp_tree, hf_tpcp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
+	id = tvb_get_ntohs(tvb, 4);
+	proto_tree_add_item(tpcp_tree, hf_tpcp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
 
-		cport = tvb_get_ntohs(tvb, 6);
-		proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,
-			"%s", ep_udp_port_to_display(cport));
+	cport = tvb_get_ntohs(tvb, 6);
+	proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,
+					 "%s", ep_udp_port_to_display(cport));
 
-		caddr = tvb_get_ntohl(tvb, 8);
-		proto_tree_add_item(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, ENC_BIG_ENDIAN);
+	caddr = tvb_get_ntohl(tvb, 8);
+	proto_tree_add_item(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-		saddr = tvb_get_ntohl(tvb, 12);
-		proto_tree_add_item(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, ENC_BIG_ENDIAN);
+	saddr = tvb_get_ntohl(tvb, 12);
+	proto_tree_add_item(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, ENC_BIG_ENDIAN);
 
-		if (version == TPCP_VER_2) {
-			proto_tree_add_item(tpcp_tree, hf_tpcp_vaddr, tvb, 16, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tpcp_tree, hf_tpcp_rasaddr, tvb, 20, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tpcp_tree, hf_tpcp_signature, tvb, 24, 4, ENC_BIG_ENDIAN);
-		}
+	if (version == TPCP_VER_2) {
+		proto_tree_add_item(tpcp_tree, hf_tpcp_vaddr, tvb, 16, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_rasaddr, tvb, 20, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tpcp_tree, hf_tpcp_signature, tvb, 24, 4, ENC_BIG_ENDIAN);
+	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
 			val_to_str_const(type, type_vals, "Unknown"),
@@ -253,3 +253,16 @@ proto_reg_handoff_tpcp(void)
 	tpcp_handle = new_create_dissector_handle(dissect_tpcp, proto_tpcp);
 	dissector_add_uint("udp.port", UDP_PORT_TPCP, tpcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

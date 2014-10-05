@@ -149,3 +149,16 @@ proto_reg_handoff_rstat(void)
 	rpc_init_proc_table(RSTAT_PROGRAM, 3, rstat3_proc, hf_rstat_procedure_v3);
 	rpc_init_proc_table(RSTAT_PROGRAM, 4, rstat4_proc, hf_rstat_procedure_v4);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

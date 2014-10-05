@@ -106,39 +106,39 @@ proto_register_ax4000(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ax4000_port,
-			{ "Port Number", "ax4000.port",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }
+		  { "Port Number", "ax4000.port",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_chassis,
-			{ "Chassis Number", "ax4000.chassis",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }
+		  { "Chassis Number", "ax4000.chassis",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_fill,
-			{ "Fill Type", "ax4000.fill",
-			FT_UINT8, BASE_DEC, NULL, 0xc0,
-			NULL, HFILL }
+		  { "Fill Type", "ax4000.fill",
+		    FT_UINT8, BASE_DEC, NULL, 0xc0,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_index,
-			{ "Index", "ax4000.index",
-			FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-			NULL, HFILL }
+		  { "Index", "ax4000.index",
+		    FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_timestamp,
-			{ "Timestamp", "ax4000.timestamp",
-			FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
+		  { "Timestamp", "ax4000.timestamp",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_seq,
-			{ "Sequence Number", "ax4000.seq",
-			FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
+		  { "Sequence Number", "ax4000.seq",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_ax4000_crc,
-			{ "CRC (unchecked)", "ax4000.crc",
-			FT_UINT16, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
+		  { "CRC (unchecked)", "ax4000.crc",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
 		}
 	};
 
@@ -149,7 +149,7 @@ proto_register_ax4000(void)
 
 	/* Register the protocol name and description */
 	proto_ax4000 = proto_register_protocol("AX/4000 Test Block",
-	    "AX4000", "ax4000");
+					       "AX4000", "ax4000");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ax4000, hf, array_length(hf));
@@ -170,3 +170,16 @@ proto_reg_handoff_ax4000(void)
 	dissector_add_uint("tcp.port", AX4000_TCP_PORT, ax4000_handle);
 	dissector_add_uint("udp.port", AX4000_UDP_PORT, ax4000_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

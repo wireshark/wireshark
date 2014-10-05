@@ -143,7 +143,7 @@ static int dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, p
 	}
 
 	call_dissector( ppp_handle, tvb_new_subset_remaining(tvb, 2), pinfo, tree );
-    return tvb_captured_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_pw_hdlc(void)
@@ -239,3 +239,16 @@ void proto_reg_handoff_pw_hdlc(void)
 	ppp_handle = find_dissector( "ppp" );
 	fr_handle = find_dissector( "fr" );
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
