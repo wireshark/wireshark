@@ -10,13 +10,6 @@
 
 
 #include "config.h"
-#ifdef _MSC_VER
-#pragma warning(disable:4005)
-#pragma warning(disable:4013)
-#pragma warning(disable:4018)
-#pragma warning(disable:4101)
-#endif
-
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>

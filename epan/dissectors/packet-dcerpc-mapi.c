@@ -10,13 +10,6 @@
 
 
 #include "config.h"
-#ifdef _MSC_VER
-#pragma warning(disable:4005)
-#pragma warning(disable:4013)
-#pragma warning(disable:4018)
-#pragma warning(disable:4101)
-#endif
-
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -8452,7 +8445,7 @@ mapi_dissect_element_SPropValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_
 int
 mapi_dissect_struct_SPropValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	guint32 ulPropTag;
+	guint32 ulPropTag = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
