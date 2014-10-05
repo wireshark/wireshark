@@ -395,8 +395,8 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
                        gboolean is_random, int *err, gchar **err_info) {
     guint8 *buffer = is_random ? file_data->rand_read_buff : file_data->seq_read_buff;
     guint buffer_len = is_random ? file_data->rand_read_buff_len : file_data->seq_read_buff_len;
+    guint total_read = 0;
     guint bytes_read;
-    guint last_read;
     guint left;
     guint8 junk[K12_FILE_BLOB_LEN+4];
     guint8* writep;
@@ -428,28 +428,23 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
         }
     }
 
-    /* Get the record length. */
     if ( junky_offset == 8192 ) {
         /*
          * We're at the beginning of one of the 16-byte blobs,
-         * so we have the blob, followed by a 4-byte record
-         * length.
+         * so we first need to skip the blob.
          *
          * Or we may just have the 2-byte FFFF marker.
+         * XXX - would the FFFF marker ever be in the 16-byte blob?
          *
-         * Read the blob and the record length.
+         * XXX - what if the blob is in the middle of the record
+         * length?  If the record length is always a multiple of
+         * 4 bytes, that won't happen.
          */
-        bytes_read = file_read(junk,K12_FILE_BLOB_LEN+4,fh);
-
-        /*
-         * XXX - if the FFFF end-marker is on an 8192-byte page
-         * boundary, would it be preceded by a 16-byte blob or
-         * not?  This code is assuming it would not be.
-         */
+        bytes_read = file_read(junk,K12_FILE_BLOB_LEN,fh);
         if (bytes_read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
-        } else if ( bytes_read < K12_FILE_BLOB_LEN+4 ){
+        } else if ( bytes_read < K12_FILE_BLOB_LEN ){
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
             *err = file_error(fh, err_info);
             if (*err == 0) {
@@ -457,44 +452,42 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
             }
             return -1;
         }
-
-        memcpy(buffer,&(junk[K12_FILE_BLOB_LEN]),4);
-    } else {
-        /*
-         * We're not at the beginning of one of the blobs, we just
-         * have the record length.
-         */
-        bytes_read = file_read(buffer, 4, fh);
-
-        if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
-            K12_DBG(1,("get_record: EOF"));
-            return 0;
-	} else if (bytes_read == 4 && buffer[0] == 0xff && buffer[1] == 0xff
-	           && buffer[2] == 0x00 && buffer[3] == 0x00) {
-            /*
-             * In at least one k18 RF5 file, there appears to be a "record"
-             * with a length value of 0xffff0000, followed by a bunch of
-             * data that doesn't appear to be records, including a long
-             * list of numbers.
-             *
-             * We treat a length value of 0xffff0000 as an end-of-file
-             * indication.
-             *
-             * XXX - is this a length indication, or will it appear
-             * at the beginning of an 8KB block, so that we should
-             * check for it above?
-             */
-            K12_DBG(1,("get_record: EOF"));
-            return 0;
-        } else if ( bytes_read != 4 ) {
-            K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-            *err = file_error(fh, err_info);
-            if (*err == 0) {
-                *err = WTAP_ERR_SHORT_READ;
-            }
-            return -1;
-        }
+        total_read += bytes_read;
     }
+
+    /*
+     * Read the record length.
+     */
+    bytes_read = file_read(buffer,4,fh);
+    if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
+        K12_DBG(1,("get_record: EOF"));
+        return 0;
+    } else if (bytes_read == 4 && buffer[0] == 0xff && buffer[1] == 0xff
+                               && buffer[2] == 0x00 && buffer[3] == 0x00) {
+        /*
+         * In at least one k18 RF5 file, there appears to be a "record"
+         * with a length value of 0xffff0000, followed by a bunch of
+         * data that doesn't appear to be records, including a long
+         * list of numbers.
+         *
+         * We treat a length value of 0xffff0000 as an end-of-file
+         * indication.
+         *
+         * XXX - is this a length indication, or will it appear
+         * at the beginning of an 8KB block, so that we should
+         * check for it above?
+         */
+        K12_DBG(1,("get_record: EOF"));
+        return 0;
+    } else if ( bytes_read != 4 ) {
+        K12_DBG(1,("get_record: SHORT READ OR ERROR"));
+        *err = file_error(fh, err_info);
+        if (*err == 0) {
+            *err = WTAP_ERR_SHORT_READ;
+        }
+        return -1;
+    }
+    total_read += bytes_read;
 
     left = pntoh32(buffer + K12_RECORD_LEN);
 #ifdef DEBUG_K12
@@ -549,28 +542,25 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
              * The next 16-byte blob is past the end of this record.
              * Just read the rest of the record.
              */
-            bytes_read += last_read = file_read(writep, left, fh);
-
-            if ( last_read != left ) {
+            bytes_read = file_read(writep, left, fh);
+            if ( bytes_read != left ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
                 *err = file_error(fh, err_info);
                 if (*err == 0) {
                     *err = WTAP_ERR_SHORT_READ;
                 }
                 return -1;
-            } else {
-                K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
-                return bytes_read;
             }
+            total_read += bytes_read;
+            break;
         } else {
             /*
              * The next 16-byte blob is part of this record.
              * Read up to the blob.
              */
-            bytes_read += last_read = file_read(writep, junky_offset, fh);
-
-            if ( last_read != junky_offset ) {
-                K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",last_read, junky_offset));
+            bytes_read = file_read(writep, junky_offset, fh);
+            if ( bytes_read != junky_offset ) {
+                K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",bytes_read, junky_offset));
                 *err = file_error(fh, err_info);
                 if (*err == 0) {
                     *err = WTAP_ERR_SHORT_READ;
@@ -578,14 +568,14 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
                 return -1;
             }
 
-            writep += last_read;
+            total_read += bytes_read;
+            writep += bytes_read;
 
             /*
              * Skip the blob.
              */
-            bytes_read += last_read = file_read(junk, K12_FILE_BLOB_LEN, fh);
-
-            if ( last_read != K12_FILE_BLOB_LEN ) {
+            bytes_read = file_read(junk, K12_FILE_BLOB_LEN, fh);
+            if ( bytes_read != K12_FILE_BLOB_LEN ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
                 *err = file_error(fh, err_info);
                 if (*err == 0) {
@@ -593,6 +583,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
                 }
                 return -1;
             }
+            total_read += bytes_read;
 
             left -= junky_offset;
             junky_offset = 8192;
@@ -601,7 +592,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
     } while(left);
 
     K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
-    return bytes_read;
+    return total_read;
 }
 
 static void
