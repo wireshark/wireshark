@@ -42,105 +42,95 @@ static int hf_docsis_regrspmp_fragment_sequence_number = -1;
 
 static dissector_handle_t docsis_tlv_handle;
 
-
-
 /* Initialize the subtree pointers */
 static gint ett_docsis_regrspmp = -1;
 
+/* Dissection */
 static void
 dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	proto_item *it;
-	proto_tree *regrspmp_tree = NULL;
-	tvbuff_t *next_tvb;
+  proto_item *it;
+  proto_tree *regrspmp_tree = NULL;
+  tvbuff_t *next_tvb;
 
+  col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
 
+  if (tree)
+    {
+      it = proto_tree_add_protocol_format (tree, proto_docsis_regrspmp, tvb, 0, -1,"REG-RSP-MP Message");
+      regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
 
+      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-	col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
-
-		if (tree)
-		{
-			it = proto_tree_add_protocol_format (tree, proto_docsis_regrspmp, tvb, 0, -1,"REG-RSP-MP Message");
-			regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
-
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
-
-		}
-		/* Call Dissector for Appendix C TLV's */
-		next_tvb = tvb_new_subset_remaining (tvb, 5);
-		call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
+    }
+  /* Call Dissector for Appendix C TLV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 5);
+  call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_regrspmp (void)
 {
+  static hf_register_info hf[] = {
+    {&hf_docsis_regrspmp_sid,
+     {"Sid", "docsis_regrspmp.sid",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Reg-Rsp-Mp Sid", HFILL}
+    },
+    {&hf_docsis_regrspmp_response,
+     {"Response", "docsis_regrspmp.response",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Reg-Rsp-Mp Response", HFILL}
+    },
+    {&hf_docsis_regrspmp_number_of_fragments,
+     {"Number of Fragments", "docsis_regrspmp.number_of_fragments",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Reg-Rsp-Mp Number of Fragments", HFILL}
+    },
+    {&hf_docsis_regrspmp_fragment_sequence_number,
+     {"Fragment Sequence Number", "docsis_regrspmp.fragment_sequence_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Reg-Rsp-Mp Fragment Sequence Number", HFILL}
+    },
+  };
 
-	/* Setup list of header fields  See Section 1.6.1 for details*/
-	static hf_register_info hf[] = {
-		{&hf_docsis_regrspmp_sid,
-		{"Sid", "docsis_regrspmp.sid",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Reg-Rsp-Mp Sid", HFILL}
-		},
-		{&hf_docsis_regrspmp_response,
-		{"Response", "docsis_regrspmp.response",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Reg-Rsp-Mp Response", HFILL}
-		},
-		{&hf_docsis_regrspmp_number_of_fragments,
-		{"Number of Fragments", "docsis_regrspmp.number_of_fragments",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Reg-Rsp-Mp Number of Fragments", HFILL}
-		},
-		{&hf_docsis_regrspmp_fragment_sequence_number,
-		{"Fragment Sequence Number", "docsis_regrspmp.fragment_sequence_number",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Reg-Rsp-Mp Fragment Sequence Number", HFILL}
-		},
-	};
+  static gint *ett[] = {
+    &ett_docsis_regrspmp,
+  };
 
-	/* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_docsis_regrspmp,
-	};
+  proto_docsis_regrspmp =
+    proto_register_protocol ("DOCSIS Registration Response Multipart",
+                             "DOCSIS Reg-Rsp-Mp", "docsis_regrspmp");
 
-	/* Register the protocol name and description */
-	proto_docsis_regrspmp =
-		proto_register_protocol ("DOCSIS Registration Response Multipart",
-					"DOCSIS Reg-Rsp-Mp", "docsis_regrspmp");
+  proto_register_field_array (proto_docsis_regrspmp, hf, array_length (hf));
+  proto_register_subtree_array (ett, array_length (ett));
 
-	/* Required function calls to register the header fields and subtrees used */
-	proto_register_field_array (proto_docsis_regrspmp, hf, array_length (hf));
-	proto_register_subtree_array (ett, array_length (ett));
-
-	register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
+  register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-This format is required because a script is used to find these routines and
-create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_regrspmp (void)
 {
-	dissector_handle_t docsis_regrspmp_handle;
+  dissector_handle_t docsis_regrspmp_handle;
 
-	docsis_tlv_handle = find_dissector ("docsis_tlv");
-	docsis_regrspmp_handle = find_dissector ("docsis_regrspmp");
-	dissector_add_uint ("docsis_mgmt", 45, docsis_regrspmp_handle);
+  docsis_tlv_handle = find_dissector ("docsis_tlv");
+  docsis_regrspmp_handle = find_dissector ("docsis_regrspmp");
+  dissector_add_uint ("docsis_mgmt", 45, docsis_regrspmp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

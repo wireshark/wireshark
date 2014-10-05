@@ -43,6 +43,7 @@
 void proto_register_cmctrl_tlv(void);
 void proto_reg_handoff_cmctrl_tlv(void);
 
+/* Initialize the protocol and registered fields */
 static int proto_cmctrl_tlv = -1;
 static int hf_cmctrl_tlv_mute = -1;
 static int hf_cmctrl_tlv_mute_timeout = -1;
@@ -58,17 +59,19 @@ static int hf_ds_event_mask = -1;
 static int hf_us_event_ch_id = -1;
 static int hf_us_event_mask = -1;
 
+/* Initialize the subtree pointers */
 static gint ett_cmctrl_tlv = -1;
 static gint ett_cmctrl_tlv_ds_event = -1;
 static gint ett_cmctrl_tlv_us_event = -1;
 
-
+/* Dissection */
 static void
 dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *event_tree;
   int pos = start;
+
   event_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_ds_event, NULL,
                          "Override Downstream Status Event Event Mask (Length = %u)", len);
@@ -112,6 +115,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   guint8 type, length;
   proto_tree *event_tree;
   int pos = start;
+
   event_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_us_event, NULL,
                          "Override Upstream Status Enable Event Mask (Length = %u)", len);
@@ -152,7 +156,6 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 static void
 dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *tlv_tree;
   int pos = 0;
@@ -248,99 +251,84 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 }
 
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_cmctrl_tlv (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_cmctrl_tlv_mute,
      {"1 Upstream Channel RF Mute", "cmctrl_tlv.mute",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel RF Mute", HFILL}
-     },
+    },
     {&hf_cmctrl_tlv_mute_timeout,
      {"2 RF Mute Timeout Interval", "cmctrl_tlv.mute_timeout",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "RF Mute Timeout Interval", HFILL}
-     },
+    },
     {&hf_cmctrl_tlv_reinit,
      {"3 CM Reinitialize", "cmctrl_tlv.reinit",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "CM Reinitialize", HFILL}
-     },
+    },
     {&hf_cmctrl_tlv_disable_fwd,
      {"4 Disable Forwarding", "cmctrl_tlv.disable_fwd",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Disable Forwarding", HFILL}
-     },
+    },
     {&hf_cmctrl_tlv_ds_event,
      {"5 Override Downstream Events", "cmctrl_tlv.ds_event",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Override Downstream Events", HFILL}
-     },
+    },
     {&hf_ds_event_ch_id,
      {".1 Downstream Channel ID", "cmctrl_tlv.ds_event.chid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream Channel ID", HFILL}
-     },
+    },
     {&hf_ds_event_mask,
      {".2 Downstream Status Event Enable Bitmask", "cmctrl_tlv.ds_event.mask",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Downstream Status Event Enable Bitmask", HFILL}
-     },
+    },
 #if 0
     {&hf_cmctrl_tlv_us_event,
      {"6 Override Upstream Events", "cmctrl_tlv.us_event",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Override Downstream Events", HFILL}
-     },
+    },
 #endif
     {&hf_us_event_ch_id,
      {".1 Upstream Channel ID", "cmctrl_tlv.us_event.chid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
-     },
+    },
     {&hf_us_event_mask,
      {".2 Upstream Status Event Enable Bitmask", "cmctrl_tlv.us_event.mask",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Upstream Status Event Enable Bitmask", HFILL}
-     },
+    },
     {&hf_cmctrl_tlv_event,
      {"7 Override Non-Channel-Specific Events", "cmctrl_tlv.event",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Override Non-Channel-Specific Events", HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_cmctrl_tlv,
     &ett_cmctrl_tlv_ds_event,
     &ett_cmctrl_tlv_us_event,
   };
 
-/* Register the protocol name and description */
   proto_cmctrl_tlv = proto_register_protocol ("DOCSIS CM-CTRL TLV's",
                                               "DOCSIS CM-CTRL TLVs", "cmctrl_tlv");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_cmctrl_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_cmctrl_tlv (void)
 {
@@ -352,3 +340,16 @@ proto_reg_handoff_cmctrl_tlv (void)
   dissector_add_uint ("docsis", 0xFE, cmctrl_tlv_handle);
 #endif
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

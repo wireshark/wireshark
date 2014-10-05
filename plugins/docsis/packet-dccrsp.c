@@ -53,8 +53,7 @@ static int hf_docsis_dccrsp_hmac_digest = -1;
 static gint ett_docsis_dccrsp = -1;
 static gint ett_docsis_dccrsp_cm_jump_time = -1;
 
-
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 {
@@ -64,41 +63,42 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
 
   pos = start;
   dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, NULL,
-            "2 DCC-RSP CM Time Jump Encodings (Length = %u)", len);
+                                            "2 DCC-RSP CM Time Jump Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
-	type = tvb_get_guint8 (tvb, pos++);
-	length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
 
-	switch (type)
-	  {
-	    case DCCRSP_CM_JUMP_TIME_LENGTH:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_length, tvb,
-				       pos, length, ENC_BIG_ENDIAN);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case DCCRSP_CM_JUMP_TIME_START:
-	      if (length == 8)
-		{
-	          proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_start, tvb,
-				   pos, length, ENC_BIG_ENDIAN);
-		}
-              else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    }
-	  pos = pos + length;
-      }
+      switch (type)
+        {
+          case DCCRSP_CM_JUMP_TIME_LENGTH:
+            if (length == 4)
+              {
+                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_length, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case DCCRSP_CM_JUMP_TIME_START:
+            if (length == 8)
+              {
+                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_start, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+        }
+      pos = pos + length;
+    }
 }
+
 static void
 dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
@@ -115,142 +115,128 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       dcc_item =
-	proto_tree_add_protocol_format (tree, proto_docsis_dccrsp, tvb, 0,
-					-1, "DCC-RSP Message");
+        proto_tree_add_protocol_format (tree, proto_docsis_dccrsp, tvb, 0,
+                                        -1, "DCC-RSP Message");
       dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
       proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);
 
       pos = 3;
       while (pos < len)
-	{
-	  type = tvb_get_guint8 (tvb, pos++);
-	  length = tvb_get_guint8 (tvb, pos++);
-	  switch (type)
-	    {
-	    case DCCRSP_CM_JUMP_TIME:
-	      dissect_dccrsp_cm_jump_time (tvb , dcc_tree , pos , length );
-	      break;
-	    case DCCRSP_KEY_SEQ_NUM:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
-				       pos, length, ENC_BIG_ENDIAN);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case DCCRSP_HMAC_DIGEST:
-	      if (length == 20)
-		{
-		  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_hmac_digest, tvb,
-				       pos, length, ENC_NA);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    }			/* switch(type) */
-	  pos = pos + length;
-	}			/* while (pos < len) */
-    }				/* if (tree) */
+        {
+          type = tvb_get_guint8 (tvb, pos++);
+          length = tvb_get_guint8 (tvb, pos++);
+          switch (type)
+            {
+              case DCCRSP_CM_JUMP_TIME:
+                dissect_dccrsp_cm_jump_time (tvb , dcc_tree , pos , length );
+                break;
+              case DCCRSP_KEY_SEQ_NUM:
+                if (length == 1)
+                  {
+                    proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case DCCRSP_HMAC_DIGEST:
+                if (length == 20)
+                  {
+                    proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_hmac_digest, tvb,
+                                         pos, length, ENC_NA);
+                  }
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+            }                   /* switch(type) */
+          pos = pos + length;
+        }                       /* while (pos < len) */
+    }                           /* if (tree) */
 
 }
+
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_dccrsp (void)
 {
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dccrsp_tran_id ,
-      {
-      "Transaction ID",
-      "docsis_dccrsp.tran_id",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "Transaction ID",
+       "docsis_dccrsp.tran_id",
+       FT_UINT16, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
     {&hf_docsis_dccrsp_conf_code ,
-      {
-      "Confirmation Code",
-      "docsis_dccrsp.conf_code",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "Confirmation Code",
+       "docsis_dccrsp.conf_code",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
     {&hf_docsis_dccrsp_cm_jump_time_length ,
-      {
-      "Jump Time Length",
-      "docsis_dccrsp.cm_jump_time_length",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "Jump Time Length",
+       "docsis_dccrsp.cm_jump_time_length",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
     {&hf_docsis_dccrsp_cm_jump_time_start ,
-      {
-      "Jump Time Start",
-      "docsis_dccrsp.cm_jump_time_start",
-      FT_UINT64, BASE_DEC, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "Jump Time Start",
+       "docsis_dccrsp.cm_jump_time_start",
+       FT_UINT64, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
     {&hf_docsis_dccrsp_key_seq_num ,
-      {
-      "Auth Key Sequence Number",
-      "docsis_dccrsp.key_seq_num",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "Auth Key Sequence Number",
+       "docsis_dccrsp.key_seq_num",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
     {&hf_docsis_dccrsp_hmac_digest ,
-      {
-      "HMAC-DigestNumber",
-      "docsis_dccrsp.hmac_digest",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL,
-      HFILL
-      }
+     {
+       "HMAC-DigestNumber",
+       "docsis_dccrsp.hmac_digest",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL,
+       HFILL
+     }
     },
 
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_dccrsp,
     &ett_docsis_dccrsp_cm_jump_time,
   };
 
-/* Register the protocol name and description */
   proto_docsis_dccrsp =
     proto_register_protocol ("DOCSIS Downstream Channel Change Response",
-			     "DOCSIS DCC-RSP", "docsis_dccrsp");
+                             "DOCSIS DCC-RSP", "docsis_dccrsp");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_dccrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_dccrsp", dissect_dccrsp, proto_docsis_dccrsp);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_dccrsp (void)
 {
@@ -260,3 +246,16 @@ proto_reg_handoff_docsis_dccrsp (void)
   dissector_add_uint ("docsis_mgmt", 0x18, docsis_dccrsp_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

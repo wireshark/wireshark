@@ -94,8 +94,6 @@ static int hf_docsis_bpkmattr_sa_query_type = -1;
 static int hf_docsis_bpkmattr_ip_address = -1;
 /* static int hf_docsis_bpkmattr_download_param = -1; */
 
-
-
 /* Initialize the subtree pointers */
 static gint ett_docsis_bpkmattr = -1;
 static gint ett_docsis_bpkmattr_cmid = -1;
@@ -133,8 +131,6 @@ static const value_string bpi_ver_vals[] = {
   {0, NULL},
 };
 
-/* Code to actually dissect the packets */
-
 /* The dissect_attrs() function does the actual work to dissect the
  * attributes.  It's called recursively, to dissect embedded attributes
  */
@@ -158,186 +154,186 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       pos += 2;
       switch (type)
         {
-        case BPKM_RESERVED:
-          break;
-        case BPKM_SERIAL_NUM:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_serial_num, tvb, pos,
-                               length, ENC_ASCII|ENC_NA);
-          break;
-        case BPKM_MANUFACTURER_ID:
-          if (length == 3)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_manf_id, tvb, pos,
+          case BPKM_RESERVED:
+            break;
+          case BPKM_SERIAL_NUM:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_serial_num, tvb, pos,
+                                 length, ENC_ASCII|ENC_NA);
+            break;
+          case BPKM_MANUFACTURER_ID:
+            if (length == 3)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_manf_id, tvb, pos,
+                                   length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_MAC_ADDR:
+            if (length == 6)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_mac_addr, tvb, pos,
+                                   length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_RSA_PUB_KEY:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_rsa_pub_key, tvb, pos,
                                  length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_MAC_ADDR:
-          if (length == 6)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_mac_addr, tvb, pos,
+            break;
+          case BPKM_CM_ID:
+            cmid_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length,
+                                     ett_docsis_bpkmattr_cmid, NULL, "5 CM Identification");
+            cmid_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (cmid_tvb, pinfo, cmid_tree);
+            break;
+          case BPKM_DISPLAY_STR:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_display_str, tvb, pos,
+                                 length, ENC_ASCII|ENC_NA);
+            break;
+          case BPKM_AUTH_KEY:
+            if ((length == 96) || (length == 128))
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_auth_key, tvb, pos,
+                                   length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_TEK:
+            if (length == 8 || length == 16)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_tek, tvb, pos,
+                                   length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_KEY_LIFETIME:
+            if (length == 4)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_key_life, tvb, pos,
+                                   length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_KEY_SEQ_NUM:
+            if (length == 1)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_key_seq, tvb, pos,
+                                   length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_HMAC_DIGEST:
+            if (length == 20)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_hmac_digest, tvb,
+                                   pos, length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_SAID:
+            if (length == 2)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_said, tvb, pos,
+                                   length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_TEK_PARAM:
+            tekp_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_tekp, NULL, "13 TEK Parameters");
+            tekp_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (tekp_tvb, pinfo, tekp_tree);
+            break;
+          case BPKM_OBSOLETED:
+            break;
+          case BPKM_CBC_IV:
+            if (length == 8 || length == 16)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos,
+                                   length, ENC_NA);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_ERROR_CODE:
+            if (length == 1)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_error_code, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_CA_CERT:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_ca_cert, tvb, pos,
                                  length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_RSA_PUB_KEY:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_rsa_pub_key, tvb, pos,
-                               length, ENC_NA);
-          break;
-        case BPKM_CM_ID:
-          cmid_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length,
-                                 ett_docsis_bpkmattr_cmid, NULL, "5 CM Identification");
-          cmid_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (cmid_tvb, pinfo, cmid_tree);
-          break;
-        case BPKM_DISPLAY_STR:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_display_str, tvb, pos,
-                               length, ENC_ASCII|ENC_NA);
-          break;
-        case BPKM_AUTH_KEY:
-          if ((length == 96) || (length == 128))
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_auth_key, tvb, pos,
+            break;
+          case BPKM_CM_CERT:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_cm_cert, tvb, pos,
                                  length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_TEK:
-          if (length == 8 || length == 16)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_tek, tvb, pos,
+            break;
+          case BPKM_SEC_CAPABILITIES:
+            scap_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length,
+                                     ett_docsis_bpkmattr_scap, NULL, "19 Security Capabilities");
+            scap_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (scap_tvb, pinfo, scap_tree);
+            break;
+          case BPKM_CRYPTO_SUITE:
+            if (length == 2)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_CRYPTO_SUITE_LIST:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite_list,
+                                 tvb, pos, length, ENC_NA);
+            break;
+          case BPKM_BPI_VERSION:
+            if (length == 1)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_bpi_version, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_SA_DESCRIPTOR:
+            sadsc_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_sadsc, NULL, "23 SA Descriptor");
+            sadsc_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (sadsc_tvb, pinfo, sadsc_tree);
+            break;
+          case BPKM_SA_TYPE:
+            if (length == 1)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_type, tvb, pos,
+                                   length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_SA_QUERY:
+            saqry_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_saqry, NULL, "25 SA Query");
+            saqry_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (saqry_tvb, pinfo, saqry_tree);
+            break;
+          case BPKM_SA_QUERY_TYPE:
+            if (length == 1)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_query_type, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_IP_ADDRESS:
+            if (length == 4)
+              proto_tree_add_item (tree, hf_docsis_bpkmattr_ip_address, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            else
+              THROW (ReportedBoundsError);
+            break;
+          case BPKM_VENDOR_DEFINED:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
                                  length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_KEY_LIFETIME:
-          if (length == 4)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_key_life, tvb, pos,
-                                 length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_KEY_SEQ_NUM:
-          if (length == 1)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_key_seq, tvb, pos,
-                                 length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_HMAC_DIGEST:
-          if (length == 20)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_hmac_digest, tvb,
-                                 pos, length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_SAID:
-          if (length == 2)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_said, tvb, pos,
-                                 length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_TEK_PARAM:
-          tekp_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_tekp, NULL, "13 TEK Parameters");
-          tekp_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (tekp_tvb, pinfo, tekp_tree);
-          break;
-        case BPKM_OBSOLETED:
-          break;
-        case BPKM_CBC_IV:
-          if (length == 8 || length == 16)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos,
+            break;
+          case BPKM_DNLD_PARAMS:
+            dnld_tree =
+              proto_tree_add_subtree(tree, tvb, pos, length,
+                                     ett_docsis_bpkmattr_dnld, NULL, "28 Download Parameters");
+            dnld_tvb = tvb_new_subset_length (tvb, pos, length);
+            dissect_attrs (dnld_tvb, pinfo, dnld_tree);
+            break;
+          default:
+            proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
                                  length, ENC_NA);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_ERROR_CODE:
-          if (length == 1)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_error_code, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_CA_CERT:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_ca_cert, tvb, pos,
-                               length, ENC_NA);
-          break;
-        case BPKM_CM_CERT:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_cm_cert, tvb, pos,
-                               length, ENC_NA);
-          break;
-        case BPKM_SEC_CAPABILITIES:
-          scap_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length,
-                                 ett_docsis_bpkmattr_scap, NULL, "19 Security Capabilities");
-          scap_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (scap_tvb, pinfo, scap_tree);
-          break;
-        case BPKM_CRYPTO_SUITE:
-          if (length == 2)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_CRYPTO_SUITE_LIST:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite_list,
-                               tvb, pos, length, ENC_NA);
-          break;
-        case BPKM_BPI_VERSION:
-          if (length == 1)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_bpi_version, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_SA_DESCRIPTOR:
-          sadsc_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_sadsc, NULL, "23 SA Descriptor");
-          sadsc_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (sadsc_tvb, pinfo, sadsc_tree);
-          break;
-        case BPKM_SA_TYPE:
-          if (length == 1)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_type, tvb, pos,
-                                 length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_SA_QUERY:
-          saqry_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_saqry, NULL, "25 SA Query");
-          saqry_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (saqry_tvb, pinfo, saqry_tree);
-          break;
-        case BPKM_SA_QUERY_TYPE:
-          if (length == 1)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_query_type, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_IP_ADDRESS:
-          if (length == 4)
-            proto_tree_add_item (tree, hf_docsis_bpkmattr_ip_address, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          else
-            THROW (ReportedBoundsError);
-          break;
-        case BPKM_VENDOR_DEFINED:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
-                               length, ENC_NA);
-          break;
-        case BPKM_DNLD_PARAMS:
-          dnld_tree =
-            proto_tree_add_subtree(tree, tvb, pos, length,
-                                 ett_docsis_bpkmattr_dnld, NULL, "28 Download Parameters");
-          dnld_tvb = tvb_new_subset_length (tvb, pos, length);
-          dissect_attrs (dnld_tvb, pinfo, dnld_tree);
-          break;
-        default:
-          proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
-                               length, ENC_NA);
-          break;
+            break;
         }
       pos += length;            /* switch */
     }                           /* while */
@@ -358,179 +354,167 @@ dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
       dissect_attrs (tvb, pinfo, bpkmattr_tree);
     }
-
 }
 
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_bpkmattr (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_bpkmattr_serial_num,
      {"1 Serial Number", "docsis_bpkmattr.serialnum",
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Serial Number", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_manf_id,
      {"2 Manufacturer Id", "docsis_bpkmattr.manfid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Manufacturer Id", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_mac_addr,
      {"3 Mac Address", "docsis_bpkmattr.macaddr",
       FT_ETHER, BASE_NONE, NULL, 0x0,
       "Mac Address", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_rsa_pub_key,
      {"4 RSA Public Key", "docsis_bpkmattr.rsa_pub_key",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "RSA Public Key", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_cm_id,
      {"5 CM Identification", "docsis_bpkmattr.cmid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Identification", HFILL}
-     },
+    },
 #endif
     {&hf_docsis_bpkmattr_display_str,
      {"6 Display String", "docsis_bpkmattr.dispstr",
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Display String", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_auth_key,
      {"7 Auth Key", "docsis_bpkmattr.auth_key",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Auth Key", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_tek,
      {"8 Traffic Encryption Key", "docsis_bpkmattr.tek",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Traffic Encryption Key", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_key_life,
      {"9 Key Lifetime (s)", "docsis_bpkmattr.keylife",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Key Lifetime (s)", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_key_seq,
      {"10 Key Sequence Number", "docsis_bpkmattr.keyseq",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Key Sequence Number", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_hmac_digest,
      {"11 HMAC Digest", "docsis_bpkmattr.hmacdigest",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "HMAC Digest", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_said,
      {"12 SAID", "docsis_bpkmattr.said",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Security Association ID", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_tek_params,
      {"13 TEK Parameters", "docsis_bpkmattr.tekparams",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "TEK Parameters", HFILL}
-     },
+    },
 #endif
     {&hf_docsis_bpkmattr_cbc_iv,
      {"14 CBC IV", "docsis_bpkmattr.cbciv",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cypher Block Chaining", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_error_code,
      {"16 Error Code", "docsis_bpkmattr.errcode",
       FT_UINT8, BASE_DEC, VALS (error_code_vals), 0x0,
       "Error Code", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_vendor_def,
      {"127 Vendor Defined", "docsis_bpkmattr.vendordef",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Defined", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_ca_cert,
      {"17 CA Certificate", "docsis_bpkmattr.cacert",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CA Certificate", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_cm_cert,
      {"18 CM Certificate", "docsis_bpkmattr.cmcert",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Certificate", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_security_cap,
      {"19 Security Capabilities", "docsis_bpkmattr.seccap",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Security Capabilities", HFILL}
-     },
+    },
 #endif
     {&hf_docsis_bpkmattr_crypto_suite,
      {"20 Cryptographic Suite", "docsis_bpkmattr.cryptosuite",
       FT_UINT16, BASE_HEX, VALS(crypto_suite_attr_vals), 0x0,
       "Cryptographic Suite", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_crypto_suite_list,
      {"21 Cryptographic Suite List", "docsis_bpkmattr.crypto_suite_lst",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cryptographic Suite", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_bpi_version,
      {"22 BPI Version", "docsis_bpkmattr.bpiver",
       FT_UINT8, BASE_DEC, VALS (bpi_ver_vals), 0x0,
       "BPKM Attributes", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_sa_descr,
      {"23 SA Descriptor", "docsis_bpkmattr.sadescr",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Descriptor", HFILL}
-     },
+    },
 #endif
     {&hf_docsis_bpkmattr_sa_type,
      {"24 SA Type", "docsis_bpkmattr.satype",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SA Type", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_sa_query,
      {"25 SA Query", "docsis_bpkmattr.saquery",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Query", HFILL}
-     },
+    },
 #endif
     {&hf_docsis_bpkmattr_sa_query_type,
      {"26 SA Query Type", "docsis_bpkmattr.saquery_type",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "SA Query Type", HFILL}
-     },
+    },
     {&hf_docsis_bpkmattr_ip_address,
      {"27 IP Address", "docsis_bpkmattr.ipaddr",
       FT_IPv4, BASE_NONE, NULL, 0x0,
       "IP Address", HFILL}
-     },
+    },
 #if 0
     {&hf_docsis_bpkmattr_download_param,
      {"28 Download Parameters", "docsis_bpkmattr.dnld_params",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Download Parameters", HFILL}
-     },
+    },
 #endif
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_bpkmattr,
     &ett_docsis_bpkmattr_cmid,
@@ -541,13 +525,11 @@ proto_register_docsis_bpkmattr (void)
     &ett_docsis_bpkmattr_dnld
   };
 
-/* Register the protocol name and description */
   proto_docsis_bpkmattr =
     proto_register_protocol
     ("DOCSIS Baseline Privacy Key Management Attributes", "DOCSIS BPKM-ATTR",
      "docsis_bpkmattr");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_bpkmattr, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
@@ -556,10 +538,6 @@ proto_register_docsis_bpkmattr (void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_bpkmattr (void)
 {
@@ -571,3 +549,16 @@ proto_reg_handoff_docsis_bpkmattr (void)
 #endif
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

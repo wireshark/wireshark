@@ -32,15 +32,13 @@ void proto_reg_handoff_docsis_uccrsp(void);
 static int proto_docsis_uccrsp = -1;
 static int hf_docsis_uccrsp_upchid = -1;
 
-
 /* Initialize the subtree pointers */
 static gint ett_docsis_uccrsp = -1;
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *uccrsp_tree;
   guint8 chid;
@@ -48,66 +46,46 @@ dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   chid = tvb_get_guint8 (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-	    "Upstream Channel Change response  Channel ID = %u (U%u)",
-	    chid, (chid > 0 ? chid - 1 : chid));
+                "Upstream Channel Change response  Channel ID = %u (U%u)",
+                chid, (chid > 0 ? chid - 1 : chid));
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_uccrsp, tvb, 0, -1,
-					"UCC Response");
+        proto_tree_add_protocol_format (tree, proto_docsis_uccrsp, tvb, 0, -1,
+                                        "UCC Response");
       uccrsp_tree = proto_item_add_subtree (it, ett_docsis_uccrsp);
       proto_tree_add_item (uccrsp_tree, hf_docsis_uccrsp_upchid, tvb, 0, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
     }
-
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_uccrsp (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_uccrsp_upchid,
      {"Upstream Channel Id", "docsis_uccrsp.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_uccrsp,
   };
 
-/* Register the protocol name and description */
   proto_docsis_uccrsp =
     proto_register_protocol ("DOCSIS Upstream Channel Change Response",
-			     "DOCSIS UCC-RSP", "docsis_uccrsp");
+                             "DOCSIS UCC-RSP", "docsis_uccrsp");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_uccrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_uccrsp", dissect_uccrsp, proto_docsis_uccrsp);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_uccrsp (void)
 {
@@ -115,5 +93,17 @@ proto_reg_handoff_docsis_uccrsp (void)
 
   docsis_uccrsp_handle = find_dissector ("docsis_uccrsp");
   dissector_add_uint ("docsis_mgmt", 0x09, docsis_uccrsp_handle);
-
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

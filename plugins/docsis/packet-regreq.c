@@ -42,7 +42,6 @@ static dissector_handle_t docsis_tlv_handle;
 static void
 dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *regreq_tree = NULL;
   guint16 sid;
@@ -51,70 +50,48 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   sid = tvb_get_ntohs (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "Registration Request SID = %u",
-	    sid);
+                sid);
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_regreq, tvb, 0, -1,
-					"Registration Request");
+        proto_tree_add_protocol_format (tree, proto_docsis_regreq, tvb, 0, -1,
+                                        "Registration Request");
       regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
       proto_tree_add_item (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
     }
     /* Call Dissector for Appendix C TlV's */
     next_tvb = tvb_new_subset_remaining (tvb, 2);
     call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
-
-
-
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_regreq (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_regreq_sid,
      {"Service Identifier", "docsis_regreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_regreq,
   };
 
-/* Register the protocol name and description */
   proto_docsis_regreq =
     proto_register_protocol ("DOCSIS Registration Requests", "DOCSIS REG-REQ",
-			     "docsis_regreq");
+                             "docsis_regreq");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_regreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_regreq", dissect_regreq, proto_docsis_regreq);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_regreq (void)
 {
@@ -124,5 +101,17 @@ proto_reg_handoff_docsis_regreq (void)
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
   dissector_add_uint ("docsis_mgmt", 0x06, docsis_regreq_handle);
-
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

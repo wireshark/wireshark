@@ -77,108 +77,108 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   upchid = tvb_get_guint8 (tvb, 2);
 
   if (upchid > 0)
-	col_add_fstr (pinfo->cinfo, COL_INFO,
-		      "Ranging Response: SID = %u, Upstream Channel = %u (U%u)",
-		      sid, upchid, upchid - 1);
+    col_add_fstr (pinfo->cinfo, COL_INFO,
+                  "Ranging Response: SID = %u, Upstream Channel = %u (U%u)",
+                  sid, upchid, upchid - 1);
   else
-	col_add_fstr (pinfo->cinfo, COL_INFO,
-		      "Ranging Response: SID = %u, Telephony Return", sid);
+    col_add_fstr (pinfo->cinfo, COL_INFO,
+                  "Ranging Response: SID = %u, Telephony Return", sid);
 
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_rngrsp, tvb, 0, -1,
-					"Ranging Response");
+        proto_tree_add_protocol_format (tree, proto_docsis_rngrsp, tvb, 0, -1,
+                                        "Ranging Response");
       rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_upstream_chid, tvb,
-			   2, 1, ENC_BIG_ENDIAN);
+                           2, 1, ENC_BIG_ENDIAN);
 
       length = tvb_reported_length_remaining (tvb, 0);
       pos = 3;
       while (pos < length)
-	{
-	  tlvtype = tvb_get_guint8 (tvb, pos++);
-	  tlvlen = tvb_get_guint8 (tvb, pos++);
-	  switch (tlvtype)
-	    {
-	    case RNGRSP_TIMING:
-	      if (tlvlen == 4)
-		{
-		  tim = tvb_get_ntohl (tvb, pos);
-		  proto_tree_add_int (rngrsp_tree,
-				      hf_docsis_rngrsp_timing_adj, tvb, pos,
-				      tlvlen, tim);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case RNGRSP_PWR_LEVEL_ADJ:
-	      if (tlvlen == 1)
-		{
-		  pwr = tvb_get_guint8 (tvb, pos);
-		  proto_tree_add_int (rngrsp_tree, hf_docsis_rngrsp_power_adj,
-				      tvb, pos, tlvlen, pwr);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case RNGRSP_OFFSET_FREQ_ADJ:
-	      if (tlvlen == 2)
-		{
-		  proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_freq_adj,
-				       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case RNGRSP_TRANSMIT_EQ_ADJ:
-	      proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_xmit_eq_adj,
-				   tvb, pos, tlvlen, ENC_NA);
-	      break;
-	    case RNGRSP_RANGING_STATUS:
-	      if (tlvlen == 1)
-		proto_tree_add_item (rngrsp_tree,
-				     hf_docsis_rngrsp_ranging_status, tvb,
-				     pos, tlvlen, ENC_BIG_ENDIAN);
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case RNGRSP_DOWN_FREQ_OVER:
-	      if (tlvlen == 4)
-		proto_tree_add_item (rngrsp_tree,
-				     hf_docsis_rngrsp_down_freq_over, tvb,
-				     pos, tlvlen, ENC_BIG_ENDIAN);
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case RNGRSP_UP_CHID_OVER:
-	      if (tlvlen == 1)
-		proto_tree_add_item (rngrsp_tree,
-				     hf_docsis_rngrsp_upstream_ch_over, tvb,
-				     pos, tlvlen, ENC_BIG_ENDIAN);
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
+        {
+          tlvtype = tvb_get_guint8 (tvb, pos++);
+          tlvlen = tvb_get_guint8 (tvb, pos++);
+          switch (tlvtype)
+            {
+              case RNGRSP_TIMING:
+                if (tlvlen == 4)
+                  {
+                    tim = tvb_get_ntohl (tvb, pos);
+                    proto_tree_add_int (rngrsp_tree,
+                                        hf_docsis_rngrsp_timing_adj, tvb, pos,
+                                        tlvlen, tim);
+                  }
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case RNGRSP_PWR_LEVEL_ADJ:
+                if (tlvlen == 1)
+                  {
+                    pwr = tvb_get_guint8 (tvb, pos);
+                    proto_tree_add_int (rngrsp_tree, hf_docsis_rngrsp_power_adj,
+                                        tvb, pos, tlvlen, pwr);
+                  }
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case RNGRSP_OFFSET_FREQ_ADJ:
+                if (tlvlen == 2)
+                  {
+                    proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_freq_adj,
+                                         tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case RNGRSP_TRANSMIT_EQ_ADJ:
+                proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_xmit_eq_adj,
+                                     tvb, pos, tlvlen, ENC_NA);
+                break;
+              case RNGRSP_RANGING_STATUS:
+                if (tlvlen == 1)
+                  proto_tree_add_item (rngrsp_tree,
+                                       hf_docsis_rngrsp_ranging_status, tvb,
+                                       pos, tlvlen, ENC_BIG_ENDIAN);
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case RNGRSP_DOWN_FREQ_OVER:
+                if (tlvlen == 4)
+                  proto_tree_add_item (rngrsp_tree,
+                                       hf_docsis_rngrsp_down_freq_over, tvb,
+                                       pos, tlvlen, ENC_BIG_ENDIAN);
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
+              case RNGRSP_UP_CHID_OVER:
+                if (tlvlen == 1)
+                  proto_tree_add_item (rngrsp_tree,
+                                       hf_docsis_rngrsp_upstream_ch_over, tvb,
+                                       pos, tlvlen, ENC_BIG_ENDIAN);
+                else
+                  {
+                    THROW (ReportedBoundsError);
+                  }
+                break;
 
-	    }			/* switch(tlvtype) */
-	  pos = pos + tlvlen;
-	}			/* while (pos < length) */
-    }				/* if (tree) */
+            }                   /* switch(tlvtype) */
+          pos = pos + tlvlen;
+        }                       /* while (pos < length) */
+    }                           /* if (tree) */
 }
 
 
@@ -252,8 +252,8 @@ proto_register_docsis_rngrsp (void)
 
 /* Register the protocol name and description */
   proto_docsis_rngrsp = proto_register_protocol ("DOCSIS Ranging Response",
-						 "DOCSIS RNG-RSP",
-						 "docsis_rngrsp");
+                                                 "DOCSIS RNG-RSP",
+                                                 "docsis_rngrsp");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_rngrsp, hf, array_length (hf));
@@ -276,3 +276,16 @@ proto_reg_handoff_docsis_rngrsp (void)
   dissector_add_uint ("docsis_mgmt", 0x05, docsis_rngrsp_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

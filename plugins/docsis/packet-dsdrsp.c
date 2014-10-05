@@ -39,11 +39,10 @@ extern value_string docsis_conf_code[];
 /* Initialize the subtree pointers */
 static gint ett_docsis_dsdrsp = -1;
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *dsdrsp_tree;
   guint16 tranid;
@@ -53,80 +52,61 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   confcode = tvb_get_guint8 (tvb, 2);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-	    "Dynamic Service Delete Response Tran id = %u (%s)",
-	    tranid, val_to_str (confcode, docsis_conf_code, "%d"));
+                "Dynamic Service Delete Response Tran id = %u (%s)",
+                tranid, val_to_str (confcode, docsis_conf_code, "%d"));
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_dsdrsp, tvb, 0, -1,
-					"DSD Response");
+        proto_tree_add_protocol_format (tree, proto_docsis_dsdrsp, tvb, 0, -1,
+                                        "DSD Response");
       dsdrsp_tree = proto_item_add_subtree (it, ett_docsis_dsdrsp);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_tranid, tvb, 0, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_confcode, tvb, 2, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_rsvd, tvb, 3, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
     }
 
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_dsdrsp (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dsdrsp_tranid,
      {"Transaction Id", "docsis_dsdrsp.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
     {&hf_docsis_dsdrsp_confcode,
      {"Confirmation Code", "docsis_dsdrsp.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       NULL, HFILL}
-     },
+    },
     {&hf_docsis_dsdrsp_rsvd,
      {"Reserved", "docsis_dsdrsp.rsvd",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_dsdrsp,
   };
 
-/* Register the protocol name and description */
   proto_docsis_dsdrsp =
     proto_register_protocol ("DOCSIS Dynamic Service Delete Response",
-			     "DOCSIS DSD-RSP", "docsis_dsdrsp");
+                             "DOCSIS DSD-RSP", "docsis_dsdrsp");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_dsdrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_dsdrsp", dissect_dsdrsp, proto_docsis_dsdrsp);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_dsdrsp (void)
 {
@@ -136,3 +116,16 @@ proto_reg_handoff_docsis_dsdrsp (void)
   dissector_add_uint ("docsis_mgmt", 0x16, docsis_dsdrsp_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -34,17 +34,15 @@ static int hf_docsis_dsaack_tranid = -1;
 static int hf_docsis_dsaack_response = -1;
 static dissector_handle_t docsis_tlv_handle;
 
-
 /* Initialize the subtree pointers */
 static gint ett_docsis_dsaack = -1;
 
 extern value_string docsis_conf_code[];
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *dsaack_tree = NULL;
   guint16 transid;
@@ -55,19 +53,19 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   response = tvb_get_guint8 (tvb, 2);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-	    "Dynamic Service Add Ack ID = %u (%s)", transid,
-	    val_to_str (response, docsis_conf_code, "%d"));
+                "Dynamic Service Add Ack ID = %u (%s)", transid,
+                val_to_str (response, docsis_conf_code, "%d"));
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_dsaack, tvb, 0, -1,
-					"DSA Acknowledge");
+        proto_tree_add_protocol_format (tree, proto_docsis_dsaack, tvb, 0, -1,
+                                        "DSA Acknowledge");
       dsaack_tree = proto_item_add_subtree (it, ett_docsis_dsaack);
       proto_tree_add_item (dsaack_tree, hf_docsis_dsaack_tranid, tvb, 0, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (dsaack_tree, hf_docsis_dsaack_response, tvb, 2, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
     }
 
   /* Call Dissector for Appendix C TLV's */
@@ -75,56 +73,37 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsaack_tree);
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_dsaack (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dsaack_tranid,
      {"Transaction Id", "docsis_dsaack.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
-     },
+    },
     {&hf_docsis_dsaack_response,
      {"Confirmation Code", "docsis_dsaack.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_dsaack,
   };
 
-/* Register the protocol name and description */
   proto_docsis_dsaack =
     proto_register_protocol ("DOCSIS Dynamic Service Addition Acknowledge",
-			     "DOCSIS DSA-ACK", "docsis_dsaack");
+                             "DOCSIS DSA-ACK", "docsis_dsaack");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_dsaack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_dsaack", dissect_dsaack, proto_docsis_dsaack);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_dsaack (void)
 {
@@ -133,5 +112,17 @@ proto_reg_handoff_docsis_dsaack (void)
   docsis_dsaack_handle = find_dissector ("docsis_dsaack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x11, docsis_dsaack_handle);
-
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

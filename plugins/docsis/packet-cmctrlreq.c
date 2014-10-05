@@ -28,7 +28,6 @@
 void proto_register_docsis_cmctrlreq(void);
 void proto_reg_handoff_docsis_cmctrlreq(void);
 
-
 /* Initialize the protocol and registered fields */
 static int proto_docsis_cmctrlreq = -1;
 static int hf_docsis_cmctrlreq_tranid = -1;
@@ -37,7 +36,7 @@ static dissector_handle_t cmctrl_tlv_handle;
 /* Initialize the subtree pointers */
 static gint ett_docsis_cmctrlreq = -1;
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_cmctrlreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
@@ -49,67 +48,49 @@ dissect_cmctrlreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   transid = tvb_get_ntohs (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-	    "CM Control Request: Transaction-Id = %u", transid);
+                "CM Control Request: Transaction-Id = %u", transid);
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_cmctrlreq, tvb, 0, -1,
-					"CM Control Request");
+        proto_tree_add_protocol_format (tree, proto_docsis_cmctrlreq, tvb, 0, -1,
+                                        "CM Control Request");
       cmctrlreq_tree = proto_item_add_subtree (it, ett_docsis_cmctrlreq);
       proto_tree_add_item (cmctrlreq_tree, hf_docsis_cmctrlreq_tranid, tvb, 0, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
 
     }
-    /* Call Dissector for Appendix C TLV's */
-    next_tvb = tvb_new_subset_remaining (tvb, 2);
-    call_dissector (cmctrl_tlv_handle, next_tvb, pinfo, cmctrlreq_tree);
+  /* Call Dissector for Appendix C TLV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 2);
+  call_dissector (cmctrl_tlv_handle, next_tvb, pinfo, cmctrlreq_tree);
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_docsis_cmctrlreq (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_cmctrlreq_tranid,
      {"Transaction Id", "docsis_cmctrlreq.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_cmctrlreq,
   };
 
-/* Register the protocol name and description */
   proto_docsis_cmctrlreq =
     proto_register_protocol ("DOCSIS CM Control Request",
-			     "DOCSIS CM-CTRL-REQ", "docsis_cmctrlreq");
+                             "DOCSIS CM-CTRL-REQ", "docsis_cmctrlreq");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_cmctrlreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_cmctrlreq", dissect_cmctrlreq, proto_docsis_cmctrlreq);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_cmctrlreq (void)
 {
@@ -119,3 +100,16 @@ proto_reg_handoff_docsis_cmctrlreq (void)
   cmctrl_tlv_handle = find_dissector ("cmctrl_tlv");
   dissector_add_uint ("docsis_mgmt", 0x2A, docsis_cmctrlreq_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

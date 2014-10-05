@@ -35,16 +35,16 @@ static int hf_docsis_bpkmreq_length = -1;
 static int hf_docsis_bpkmreq_ident = -1;
 
 static const value_string code_field_vals[] = {
-  {0, "Reserved"},
-  {1, "Reserved"},
-  {2, "Reserved"},
-  {3, "Reserved"},
-  {4, "Auth Request"},
-  {5, "Auth Reply"},
-  {6, "Auth Reject"},
-  {7, "Key Request"},
-  {8, "Key Reply"},
-  {9, "Key Reject"},
+  { 0, "Reserved"},
+  { 1, "Reserved"},
+  { 2, "Reserved"},
+  { 3, "Reserved"},
+  { 4, "Auth Request"},
+  { 5, "Auth Reply"},
+  { 6, "Auth Reject"},
+  { 7, "Key Request"},
+  { 8, "Key Reply"},
+  { 9, "Key Reject"},
   {10, "Auth Invalid"},
   {11, "TEK Invalid"},
   {12, "Authent Info"},
@@ -54,17 +54,15 @@ static const value_string code_field_vals[] = {
   {0, NULL},
 };
 
-
 /* Initialize the subtree pointers */
 static gint ett_docsis_bpkmreq = -1;
 
 static dissector_handle_t attrs_handle;
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-
   proto_item *it;
   proto_tree *bpkmreq_tree;
   guint8 code;
@@ -73,86 +71,64 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   code = tvb_get_guint8 (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Request (%s)",
-	    val_to_str (code, code_field_vals, "%d"));
+                val_to_str (code, code_field_vals, "%d"));
 
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_bpkmreq, tvb, 0, -1,
-					"BPKM Request Message");
+        proto_tree_add_protocol_format (tree, proto_docsis_bpkmreq, tvb, 0, -1,
+                                        "BPKM Request Message");
       bpkmreq_tree = proto_item_add_subtree (it, ett_docsis_bpkmreq);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_code, tvb, 0, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_ident, tvb, 1, 1,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_length, tvb, 2, 2,
-			   ENC_BIG_ENDIAN);
+                           ENC_BIG_ENDIAN);
     }
 
-  /* Code to Call subdissector */
   attrs_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (attrs_handle, attrs_tvb, pinfo, tree);
-
-
-
 }
 
-
-
-
 /* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-
 void
 proto_register_docsis_bpkmreq (void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_bpkmreq_code,
      {"BPKM Code", "docsis_bpkmreq.code",
       FT_UINT8, BASE_DEC, VALS (code_field_vals), 0x0,
       "BPKM Request Message", HFILL}
-     },
+    },
     {&hf_docsis_bpkmreq_ident,
      {"BPKM Identifier", "docsis_bpkmreq.ident",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
     {&hf_docsis_bpkmreq_length,
      {"BPKM Length", "docsis_bpkmreq.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
-     },
+    },
   };
 
-/* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_bpkmreq,
   };
 
-/* Register the protocol name and description */
   proto_docsis_bpkmreq =
     proto_register_protocol ("DOCSIS Baseline Privacy Key Management Request",
-			     "DOCSIS BPKM-REQ", "docsis_bpkmreq");
+                             "DOCSIS BPKM-REQ", "docsis_bpkmreq");
 
-/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_bpkmreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector ("docsis_bpkmreq", dissect_bpkmreq,
-		      proto_docsis_bpkmreq);
+                      proto_docsis_bpkmreq);
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_docsis_bpkmreq (void)
 {
@@ -161,5 +137,17 @@ proto_reg_handoff_docsis_bpkmreq (void)
   docsis_bpkmreq_handle = find_dissector ("docsis_bpkmreq");
   attrs_handle = find_dissector ("docsis_bpkmattr");
   dissector_add_uint ("docsis_mgmt", 0x0C, docsis_bpkmreq_handle);
-
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
