@@ -40,8 +40,10 @@ class PacketListRecord
 public:
     PacketListRecord(frame_data *frameData);
     // Return the string value for a column. Data is cached if possible.
-    QVariant columnString(capture_file *cap_file, int column);
-    frame_data *frameData();
+    const QVariant columnString(capture_file *cap_file, int column);
+    frame_data *frameData() const { return fdata_; }
+    // packet_list->col_to_text in gtk/packet_list_store.c
+    static int textColumn(int column) { return cinfo_column_.value(column, -1); }
 
     int columnTextSize(const char *str);
     static void resetColumns(column_info *cinfo);
@@ -52,6 +54,8 @@ private:
     QList<QByteArray> col_text_;
 
     frame_data *fdata_;
+    static QMap<int, int> cinfo_column_;
+
 
     /** Has this record been columnized? */
 //    gboolean columnized_;

@@ -1578,7 +1578,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
     main_ui_->actionSummary->setEnabled(capture_in_progress);
 
-    qDebug() << "FIX: packet list heading menu sensitivity";
+    // XXX Fix packet list heading menu sensitivity
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
     //                         !capture_in_progress);
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortDescending",

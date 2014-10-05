@@ -33,7 +33,7 @@
 
 #include <QStringList>
 
-QMap<int, int> cinfo_column_;
+QMap<int, int> PacketListRecord::cinfo_column_;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
@@ -42,7 +42,7 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
 {
 }
 
-QVariant PacketListRecord::columnString(capture_file *cap_file, int column)
+const QVariant PacketListRecord::columnString(capture_file *cap_file, int column)
 {
     // packet_list_store.c:packet_list_get_value
     g_assert(fdata_);
@@ -56,10 +56,6 @@ QVariant PacketListRecord::columnString(capture_file *cap_file, int column)
     }
 
     return col_text_.value(column, QByteArray());
-}
-
-frame_data *PacketListRecord::frameData() {
-    return fdata_;
 }
 
 void PacketListRecord::resetColumns(column_info *cinfo)

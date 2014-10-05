@@ -23,6 +23,10 @@
 #ifndef __FRAME_DATA_H__
 #define __FRAME_DATA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
 #include "ws_symbol_export.h"
@@ -118,6 +122,10 @@ WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
                 guint32 *cum_bytes);
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif  /* __FRAME_DATA__ */
 

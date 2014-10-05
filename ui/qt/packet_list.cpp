@@ -47,12 +47,17 @@
 
 #include "frame_tvbuff.h"
 
-#include <QTreeWidget>
+#include <QContextMenuEvent>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QScrollBar>
 #include <QTabWidget>
 #include <QTextEdit>
-#include <QScrollBar>
-#include <QContextMenuEvent>
-#include <QMessageBox>
+#include <QTreeWidget>
+
+// To do:
+// - Heading context menus
+// - Catch column reordering and rebuild the column list accoringly.
 
 // If we ever add the ability to open multiple capture files we might be
 // able to use something like QMap<capture_file *, PacketList *> to match
@@ -231,15 +236,16 @@ PacketList::PacketList(QWidget *parent) :
 {
     QMenu *submenu, *subsubmenu;
 
-    setItemsExpandable(FALSE);
-    setRootIsDecorated(FALSE);
-    setSortingEnabled(TRUE);
-    setUniformRowHeights(TRUE);
+    setItemsExpandable(false);
+    setRootIsDecorated(false);
+    setSortingEnabled(true);
+    setUniformRowHeights(true);
     setAccessibleName("Packet list");
     setItemDelegateForColumn(0, &related_packet_delegate_);
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
+    sortByColumn(-1, Qt::AscendingOrder);
 
     // XXX We might want to reimplement setParent() and fill in the context
     // menu there.
@@ -387,6 +393,7 @@ PacketList::PacketList(QWidget *parent) :
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
+    connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateAll()));
 }
 
@@ -615,7 +622,7 @@ void PacketList::clear() {
     /* XXX is this correct in all cases?
      * Reset the sort column, use packetlist as model in case the list is frozen.
      */
-    sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(-1, Qt::AscendingOrder);
     setColumnVisibility();
 }
 
@@ -718,7 +725,7 @@ QString &PacketList::getFilterFromRowAndColumn()
 QString PacketList::packetComment()
 {
     int row = currentIndex().row();
-    frame_data *fdata;
+    const frame_data *fdata;
     char *pkt_comment;
 
     if (!cap_file_ || !packet_list_model_) return NULL;

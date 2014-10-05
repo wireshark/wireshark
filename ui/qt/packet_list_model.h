@@ -65,9 +65,11 @@ public:
     int columnTextSize(const char *str);
 
 signals:
+    void goToPacket(int);
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 private:
     capture_file *cap_file_;
@@ -78,6 +80,12 @@ private:
     QMap<int, int> number_to_row_;
 
     int header_height_;
+
+    static int sort_column_;
+    static int text_sort_column_;
+    static Qt::SortOrder sort_order_;
+    static capture_file *sort_cap_file_;
+    static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
 };
 
 #endif // PACKET_LIST_MODEL_H
