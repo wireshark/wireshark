@@ -55152,10 +55152,13 @@ static int dissect_SecondaryULFrequencyUpdateIndication_PDU(tvbuff_t *tvb _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
-static void dissect_NBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  dissect_nbap_NBAP_PDU(tvb, 0, &asn1_ctx, tree, hf_nbap_NBAP_PDU_PDU);
+  offset = dissect_nbap_NBAP_PDU(tvb, offset, &asn1_ctx, tree, hf_nbap_NBAP_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
@@ -55296,8 +55299,8 @@ static void nbap_init(void){
 		lchId_type_table[i+1] = *lch_contents[i];
 	}
 }
-static void
-dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item	*nbap_item = NULL;
 	proto_tree	*nbap_tree = NULL;
@@ -55314,7 +55317,7 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		nbap_hsdsch_channel_info[i].entity = hs;
 	}
 
-	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
+	return dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree, data);
 }
 
 /*--- proto_register_nbap -------------------------------------------*/
@@ -70163,7 +70166,7 @@ void proto_register_nbap(void)
 	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
-	register_dissector("nbap", dissect_nbap, proto_nbap);
+	new_register_dissector("nbap", dissect_nbap, proto_nbap);
 
 	nbap_module = prefs_register_protocol(proto_nbap, NULL);
 

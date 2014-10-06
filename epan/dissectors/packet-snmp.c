@@ -3071,10 +3071,12 @@ dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 /*--- PDUs ---*/
 
-static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_snmp_SMUX_PDUs(FALSE, tvb, 0, &asn1_ctx, tree, hf_snmp_SMUX_PDUs_PDU);
+  offset = dissect_snmp_SMUX_PDUs(FALSE, tvb, offset, &asn1_ctx, tree, hf_snmp_SMUX_PDUs_PDU);
+  return offset;
 }
 
 
@@ -3351,8 +3353,8 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void
-dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
@@ -3361,12 +3363,10 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
-	if (tree) {
-		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_NA);
-		smux_tree = proto_item_add_subtree(item, ett_smux);
-	}
+	item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_NA);
+	smux_tree = proto_item_add_subtree(item, ett_smux);
 
-	dissect_SMUX_PDUs_PDU(tvb, pinfo, smux_tree);
+	return dissect_SMUX_PDUs_PDU(tvb, pinfo, smux_tree, data);
 }
 
 
@@ -3903,7 +3903,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2428 "../../asn1/snmp/packet-snmp-template.c"
+#line 2426 "../../asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3943,7 +3943,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2444 "../../asn1/snmp/packet-snmp-template.c"
+#line 2442 "../../asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
@@ -4141,7 +4141,7 @@ proto_reg_handoff_smux(void)
 {
 	dissector_handle_t smux_handle;
 
-	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
+	smux_handle = new_create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
 

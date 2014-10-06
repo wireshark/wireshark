@@ -618,15 +618,21 @@ dissect_atn_cm_CMGroundMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 /*--- PDUs ---*/
 
-static void dissect_CMAircraftMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CMAircraftMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cm_CMAircraftMessage(tvb, 0, &asn1_ctx, tree, hf_atn_cm_CMAircraftMessage_PDU);
+  offset = dissect_atn_cm_CMAircraftMessage(tvb, offset, &asn1_ctx, tree, hf_atn_cm_CMAircraftMessage_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
-static void dissect_CMGroundMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CMGroundMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cm_CMGroundMessage(tvb, 0, &asn1_ctx, tree, hf_atn_cm_CMGroundMessage_PDU);
+  offset = dissect_atn_cm_CMGroundMessage(tvb, offset, &asn1_ctx, tree, hf_atn_cm_CMGroundMessage_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -658,13 +664,13 @@ dissect_atn_cm(
 						dissect_CMGroundMessage_PDU(
 							tvb,
 							pinfo,
-							sub_tree);
+							sub_tree, NULL);
 						break;
 				case dm:
 						dissect_CMAircraftMessage_PDU(
 							tvb,
 							pinfo,
-							sub_tree);
+							sub_tree, NULL);
 						break;
 				default:
 						break;
@@ -693,7 +699,7 @@ dissect_atn_cm_heur(
 								dissect_CMGroundMessage_PDU(
 									tvb,
 									pinfo,
-									NULL);
+									NULL, NULL);
 								/* no exception thrown: looks like it is a CM PDU */
 								is_atn_cm = TRUE; }
 						CATCH_ALL {
@@ -705,7 +711,7 @@ dissect_atn_cm_heur(
 								dissect_CMAircraftMessage_PDU(
 										tvb,
 										pinfo,
-										NULL);
+										NULL, NULL);
 								/* no exception thrown: looks like it is a CM PDU */
 								is_atn_cm = TRUE;}
 						CATCH_ALL {

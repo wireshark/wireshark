@@ -43086,10 +43086,13 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
-static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  dissect_rnsap_RNSAP_PDU(tvb, 0, &asn1_ctx, tree, hf_rnsap_RNSAP_PDU_PDU);
+  offset = dissect_rnsap_RNSAP_PDU(tvb, offset, &asn1_ctx, tree, hf_rnsap_RNSAP_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
@@ -43137,8 +43140,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   return (dissector_try_string(rnsap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
-static void
-dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item	*rnsap_item = NULL;
 	proto_tree	*rnsap_tree = NULL;
@@ -43150,7 +43153,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
 
-	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
+	return dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree, data);
 }
 
 /*--- proto_register_rnsap -------------------------------------------*/
@@ -55349,7 +55352,7 @@ void proto_register_rnsap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("rnsap", dissect_rnsap, proto_rnsap);
+  new_register_dissector("rnsap", dissect_rnsap, proto_rnsap);
 
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);

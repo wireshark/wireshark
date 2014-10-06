@@ -180,7 +180,7 @@ USSD-Res
 UU-Data
 VelocityEstimate
 #.END
-#.REGISTER
+#.REGISTER_NEW
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 # This table creates the value_sting to name GSM MAP operation codes and errors

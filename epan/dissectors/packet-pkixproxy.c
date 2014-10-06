@@ -134,10 +134,12 @@ dissect_pkixproxy_ProxyCertInfoExtension(gboolean implicit_tag _U_, tvbuff_t *tv
 
 /*--- PDUs ---*/
 
-static void dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pkixproxy_ProxyCertInfoExtension(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixproxy_ProxyCertInfoExtension_PDU);
+  offset = dissect_pkixproxy_ProxyCertInfoExtension(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixproxy_ProxyCertInfoExtension_PDU);
+  return offset;
 }
 
 
@@ -205,7 +207,7 @@ void proto_reg_handoff_pkixproxy(void) {
 
 /*--- Included file: packet-pkixproxy-dis-tab.c ---*/
 #line 1 "../../asn1/pkixproxy/packet-pkixproxy-dis-tab.c"
-  register_ber_oid_dissector("1.3.6.1.5.5.7.1.14", dissect_ProxyCertInfoExtension_PDU, proto_pkixproxy, "id-pe-proxyCertInfo");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.1.14", dissect_ProxyCertInfoExtension_PDU, proto_pkixproxy, "id-pe-proxyCertInfo");
 
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/

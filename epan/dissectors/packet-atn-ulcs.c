@@ -182,10 +182,11 @@ static int dissect_atn_ulcs_T_externalt_encoding_arbitrary(
 		proto_tree *tree _U_,
 		int hf_index _U_);
 
-static void dissect_ACSE_apdu_PDU(
+static int dissect_ACSE_apdu_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
+		proto_tree *tree _U_,
+    void *data _U_);
 
 guint32 dissect_per_object_descriptor_t(
 		tvbuff_t *tvb,
@@ -279,7 +280,7 @@ static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
 static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
 
 /*--- End of included file: packet-atn-ulcs-hf.c ---*/
-#line 197 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 198 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 
 /*--- Included file: packet-atn-ulcs-ett.c ---*/
@@ -311,7 +312,7 @@ static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
 static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
 
 /*--- End of included file: packet-atn-ulcs-ett.c ---*/
-#line 199 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 200 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 static gint ett_atn_ulcs = -1;
 static gint ett_atn_acse = -1;
 
@@ -408,7 +409,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
 							dissect_ACSE_apdu_PDU(
 									tvb_new_subset_remaining(tvb_usr, 0),
 									pinfo,
-									atn_ulcs_tree);
+									atn_ulcs_tree, NULL);
 							break;
 						case  3: /* USER data; call subdissector for CM, CPDLC ...  */
 
@@ -1583,20 +1584,26 @@ dissect_atn_ulcs_ACSE_apdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 /*--- PDUs ---*/
 
-static void dissect_Fully_encoded_data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Fully_encoded_data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_ulcs_Fully_encoded_data(tvb, 0, &asn1_ctx, tree, hf_atn_ulcs_Fully_encoded_data_PDU);
+  offset = dissect_atn_ulcs_Fully_encoded_data(tvb, offset, &asn1_ctx, tree, hf_atn_ulcs_Fully_encoded_data_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
-static void dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_ulcs_ACSE_apdu(tvb, 0, &asn1_ctx, tree, hf_atn_ulcs_ACSE_apdu_PDU);
+  offset = dissect_atn_ulcs_ACSE_apdu(tvb, offset, &asn1_ctx, tree, hf_atn_ulcs_ACSE_apdu_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
-#line 203 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 204 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 #if 0
 /* re-implementing external data: packet-per.c */
@@ -2001,7 +2008,7 @@ dissect_atn_ulcs(
 				dissect_Fully_encoded_data_PDU(
 						tvb,
 						pinfo,
-						atn_ulcs_tree);
+						atn_ulcs_tree, NULL);
 
 				return offset +
 					tvb_reported_length_remaining(tvb, offset ) ;
@@ -2109,7 +2116,7 @@ dissect_atn_ulcs(
 				dissect_ACSE_apdu_PDU(
 						tvb_new_subset_remaining(tvb, offset),
 						pinfo,
-						atn_ulcs_tree);
+						atn_ulcs_tree, NULL);
 
 				return offset +
 						tvb_reported_length_remaining(tvb, offset );
@@ -2481,7 +2488,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 795 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 796 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2569,7 +2576,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 853 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 854 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,

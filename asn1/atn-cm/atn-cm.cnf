@@ -6,7 +6,7 @@
 
 #.EXPORTS
 
-#.PDU
+#.PDU_NEW
 	CMAircraftMessage
 	CMGroundMessage
 #.END

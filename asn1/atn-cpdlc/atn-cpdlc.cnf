@@ -11,7 +11,7 @@
 #.OMIT_ASSIGNMENT
 #.END
 
-#.PDU
+#.PDU_NEW
   AircraftPDUs
 	GroundPDUs
 	ProtectedAircraftPDUs

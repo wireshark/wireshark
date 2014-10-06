@@ -3745,60 +3745,82 @@ dissect_ldap_PasswordPolicyResponseValue(gboolean implicit_tag _U_, tvbuff_t *tv
 
 /*--- PDUs ---*/
 
-static void dissect_SearchControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SearchControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SearchControlValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SearchControlValue_PDU);
+  offset = dissect_ldap_SearchControlValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SearchControlValue_PDU);
+  return offset;
 }
-static void dissect_SortKeyList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SortKeyList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SortKeyList(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SortKeyList_PDU);
+  offset = dissect_ldap_SortKeyList(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SortKeyList_PDU);
+  return offset;
 }
-static void dissect_SortResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SortResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SortResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SortResult_PDU);
+  offset = dissect_ldap_SortResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SortResult_PDU);
+  return offset;
 }
-static void dissect_DirSyncControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DirSyncControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_DirSyncControlValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_DirSyncControlValue_PDU);
+  offset = dissect_ldap_DirSyncControlValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_DirSyncControlValue_PDU);
+  return offset;
 }
-static void dissect_PasswdModifyRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PasswdModifyRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_PasswdModifyRequestValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_PasswdModifyRequestValue_PDU);
+  offset = dissect_ldap_PasswdModifyRequestValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_PasswdModifyRequestValue_PDU);
+  return offset;
 }
-static void dissect_CancelRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CancelRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_CancelRequestValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_CancelRequestValue_PDU);
+  offset = dissect_ldap_CancelRequestValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_CancelRequestValue_PDU);
+  return offset;
 }
-static void dissect_SyncRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SyncRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SyncRequestValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SyncRequestValue_PDU);
+  offset = dissect_ldap_SyncRequestValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SyncRequestValue_PDU);
+  return offset;
 }
-static void dissect_SyncStateValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SyncStateValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SyncStateValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SyncStateValue_PDU);
+  offset = dissect_ldap_SyncStateValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SyncStateValue_PDU);
+  return offset;
 }
-static void dissect_SyncDoneValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SyncDoneValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SyncDoneValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SyncDoneValue_PDU);
+  offset = dissect_ldap_SyncDoneValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SyncDoneValue_PDU);
+  return offset;
 }
-static void dissect_SyncInfoValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SyncInfoValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_SyncInfoValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SyncInfoValue_PDU);
+  offset = dissect_ldap_SyncInfoValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_SyncInfoValue_PDU);
+  return offset;
 }
-static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_PasswordPolicyResponseValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_PasswordPolicyResponseValue_PDU);
+  offset = dissect_ldap_PasswordPolicyResponseValue(FALSE, tvb, offset, &asn1_ctx, tree, hf_ldap_PasswordPolicyResponseValue_PDU);
+  return offset;
 }
 
 
@@ -4866,6 +4888,15 @@ register_ldap_name_dissector(const char *attr_type_p, dissector_t dissector, int
 	register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
 }
 
+void
+new_register_ldap_name_dissector(const char *attr_type_p, new_dissector_t dissector, int proto)
+{
+        dissector_handle_t dissector_handle;
+
+        dissector_handle=new_create_dissector_handle(dissector, proto);
+        register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
+}
+
 
 /*--- proto_register_ldap -------------------------------------------*/
 void proto_register_ldap(void) {
@@ -5710,7 +5741,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2229 "../../asn1/ldap/packet-ldap-template.c"
+#line 2238 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5784,7 +5815,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2243 "../../asn1/ldap/packet-ldap-template.c"
+#line 2252 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5936,21 +5967,21 @@ proto_reg_handoff_ldap(void)
 
 /*--- Included file: packet-ldap-dis-tab.c ---*/
 #line 1 "../../asn1/ldap/packet-ldap-dis-tab.c"
-  register_ber_oid_dissector("1.2.840.113556.1.4.319", dissect_SearchControlValue_PDU, proto_ldap, "pagedResultsControl");
-  register_ber_oid_dissector("1.2.840.113556.1.4.473", dissect_SortKeyList_PDU, proto_ldap, "sortKeyList");
-  register_ber_oid_dissector("1.2.840.113556.1.4.474", dissect_SortResult_PDU, proto_ldap, "sortResult");
-  register_ber_oid_dissector("1.2.840.113556.1.4.841", dissect_DirSyncControlValue_PDU, proto_ldap, "dirsync");
-  register_ber_oid_dissector("1.3.6.1.4.1.4203.1.11.1", dissect_PasswdModifyRequestValue_PDU, proto_ldap, "passwdModifyOID");
-  register_ber_oid_dissector("1.3.6.1.1.8", dissect_CancelRequestValue_PDU, proto_ldap, "cancelRequestOID");
-  register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.1", dissect_SyncRequestValue_PDU, proto_ldap, "syncRequestOID");
-  register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.2", dissect_SyncStateValue_PDU, proto_ldap, "syncStateOID");
-  register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.3", dissect_SyncDoneValue_PDU, proto_ldap, "syncDoneOID");
-  register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.4", dissect_SyncInfoValue_PDU, proto_ldap, "syncInfoOID");
-  register_ber_oid_dissector("1.3.6.1.4.1.42.2.27.8.5.1", dissect_PasswordPolicyResponseValue_PDU, proto_ldap, "passwordPolicy");
+  new_register_ber_oid_dissector("1.2.840.113556.1.4.319", dissect_SearchControlValue_PDU, proto_ldap, "pagedResultsControl");
+  new_register_ber_oid_dissector("1.2.840.113556.1.4.473", dissect_SortKeyList_PDU, proto_ldap, "sortKeyList");
+  new_register_ber_oid_dissector("1.2.840.113556.1.4.474", dissect_SortResult_PDU, proto_ldap, "sortResult");
+  new_register_ber_oid_dissector("1.2.840.113556.1.4.841", dissect_DirSyncControlValue_PDU, proto_ldap, "dirsync");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.4203.1.11.1", dissect_PasswdModifyRequestValue_PDU, proto_ldap, "passwdModifyOID");
+  new_register_ber_oid_dissector("1.3.6.1.1.8", dissect_CancelRequestValue_PDU, proto_ldap, "cancelRequestOID");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.1", dissect_SyncRequestValue_PDU, proto_ldap, "syncRequestOID");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.2", dissect_SyncStateValue_PDU, proto_ldap, "syncStateOID");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.3", dissect_SyncDoneValue_PDU, proto_ldap, "syncDoneOID");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.4", dissect_SyncInfoValue_PDU, proto_ldap, "syncInfoOID");
+  new_register_ber_oid_dissector("1.3.6.1.4.1.42.2.27.8.5.1", dissect_PasswordPolicyResponseValue_PDU, proto_ldap, "passwordPolicy");
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2392 "../../asn1/ldap/packet-ldap-template.c"
+#line 2401 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

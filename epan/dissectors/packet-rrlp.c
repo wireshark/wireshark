@@ -7144,10 +7144,13 @@ dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 /*--- PDUs ---*/
 
-static void dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_rrlp_PDU(tvb, 0, &asn1_ctx, tree, hf_rrlp_PDU_PDU);
+  offset = dissect_rrlp_PDU(tvb, offset, &asn1_ctx, tree, hf_rrlp_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -10715,7 +10718,7 @@ void proto_register_rrlp(void) {
 
   /* Register protocol */
   proto_rrlp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("rrlp", dissect_PDU_PDU, proto_rrlp);
+  new_register_dissector("rrlp", dissect_PDU_PDU, proto_rrlp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_rrlp, hf, array_length(hf));

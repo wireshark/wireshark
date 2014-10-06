@@ -97,10 +97,12 @@ dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 /*--- PDUs ---*/
 
-static void dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_wlancertextn_SSIDList(FALSE, tvb, 0, &asn1_ctx, tree, hf_wlancertextn_SSIDList_PDU);
+  offset = dissect_wlancertextn_SSIDList(FALSE, tvb, offset, &asn1_ctx, tree, hf_wlancertextn_SSIDList_PDU);
+  return offset;
 }
 
 
@@ -155,8 +157,8 @@ void proto_reg_handoff_wlancertextn(void) {
 
 /*--- Included file: packet-wlancertextn-dis-tab.c ---*/
 #line 1 "../../asn1/wlancertextn/packet-wlancertextn-dis-tab.c"
-  register_ber_oid_dissector("1.3.6.1.5.5.7.1.13", dissect_SSIDList_PDU, proto_wlancertextn, "id-pe-wlanSSID");
-  register_ber_oid_dissector("1.3.6.1.5.5.7.10.6", dissect_SSIDList_PDU, proto_wlancertextn, "id-aca-wlanSSID");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.1.13", dissect_SSIDList_PDU, proto_wlancertextn, "id-pe-wlanSSID");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.10.6", dissect_SSIDList_PDU, proto_wlancertextn, "id-aca-wlanSSID");
 
 
 /*--- End of included file: packet-wlancertextn-dis-tab.c ---*/

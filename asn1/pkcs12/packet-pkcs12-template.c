@@ -77,7 +77,7 @@ static gboolean try_null_password = FALSE;
 
 static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 #include "packet-pkcs12-hf.c"
 
@@ -494,7 +494,7 @@ void proto_register_pkcs12(void) {
 	"Whether to try and decrypt the encrypted data within the"
 	" PKCS#12 with a NULL password", &try_null_password);
 
-  register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU);
+  new_register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU);
   register_ber_oid_syntax(".p12", NULL, "PKCS#12");
   register_ber_oid_syntax(".pfx", NULL, "PKCS#12");
 }

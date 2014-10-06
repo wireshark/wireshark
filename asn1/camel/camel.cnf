@@ -41,7 +41,7 @@ OPERATION.&ResultType
 #.END
 
 
-#.REGISTER
+#.REGISTER_NEW
 CAP-GPRS-ReferenceNumber	B "0.4.0.0.1.1.5.2" "id-CAP-GPRS-ReferenceNumber"
 CAP-U-ABORT-REASON			B "0.4.0.0.1.1.2.2" "id-CAP-U-ABORT-Reason"
 

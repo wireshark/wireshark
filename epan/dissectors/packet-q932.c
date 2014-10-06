@@ -633,20 +633,26 @@ dissect_q932_InterpretationComponent(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 /*--- PDUs ---*/
 
-static void dissect_NetworkFacilityExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NetworkFacilityExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_q932_NetworkFacilityExtension(FALSE, tvb, 0, &asn1_ctx, tree, hf_q932_NetworkFacilityExtension_PDU);
+  offset = dissect_q932_NetworkFacilityExtension(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkFacilityExtension_PDU);
+  return offset;
 }
-static void dissect_NetworkProtocolProfile_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NetworkProtocolProfile_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_q932_NetworkProtocolProfile(FALSE, tvb, 0, &asn1_ctx, tree, hf_q932_NetworkProtocolProfile_PDU);
+  offset = dissect_q932_NetworkProtocolProfile(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_NetworkProtocolProfile_PDU);
+  return offset;
 }
-static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_q932_InterpretationComponent(FALSE, tvb, 0, &asn1_ctx, tree, hf_q932_InterpretationComponent_PDU);
+  offset = dissect_q932_InterpretationComponent(FALSE, tvb, offset, &asn1_ctx, tree, hf_q932_InterpretationComponent_PDU);
+  return offset;
 }
 
 
@@ -677,13 +683,13 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
       case BER_CLASS_CON:
         switch (tag) {
           case 10 :  /* Network Facility Extension */
-            dissect_NetworkFacilityExtension_PDU(next_tvb, pinfo, tree);
+            dissect_NetworkFacilityExtension_PDU(next_tvb, pinfo, tree, NULL);
             break;
           case 18 :  /* Network Protocol Profile */
-            dissect_NetworkProtocolProfile_PDU(next_tvb, pinfo, tree);
+            dissect_NetworkProtocolProfile_PDU(next_tvb, pinfo, tree, NULL);
             break;
           case 11 :  /* Interpretation Component */
-            dissect_InterpretationComponent_PDU(next_tvb, pinfo, tree);
+            dissect_InterpretationComponent_PDU(next_tvb, pinfo, tree, NULL);
             break;
           /* ROSE APDU */
           case  1 :  /* invoke */

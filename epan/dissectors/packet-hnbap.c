@@ -2580,10 +2580,13 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
-static void dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  dissect_hnbap_HNBAP_PDU(tvb, 0, &asn1_ctx, tree, hf_hnbap_HNBAP_PDU_PDU);
+  offset = dissect_hnbap_HNBAP_PDU(tvb, offset, &asn1_ctx, tree, hf_hnbap_HNBAP_PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -2634,8 +2637,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   return (dissector_try_uint_new(hnbap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
-static void
-dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item  *hnbap_item = NULL;
     proto_tree  *hnbap_tree = NULL;
@@ -2647,7 +2650,7 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hnbap_item = proto_tree_add_item(tree, proto_hnbap, tvb, 0, -1, ENC_NA);
     hnbap_tree = proto_item_add_subtree(hnbap_item, ett_hnbap);
 
-    dissect_HNBAP_PDU_PDU(tvb, pinfo, hnbap_tree);
+    return dissect_HNBAP_PDU_PDU(tvb, pinfo, hnbap_tree, data);
 }
 
 /*--- proto_register_hnbap -------------------------------------------*/
@@ -3293,7 +3296,7 @@ module_t *hnbap_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("hnbap", dissect_hnbap, proto_hnbap);
+  new_register_dissector("hnbap", dissect_hnbap, proto_hnbap);
 
   /* Register dissector tables */
   hnbap_ies_dissector_table = register_dissector_table("hnbap.ies", "HNBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);

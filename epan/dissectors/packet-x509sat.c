@@ -1709,10 +1709,12 @@ static void dissect_PresentationAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_PresentationAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_PresentationAddress_PDU);
 }
-static void dissect_ProtocolInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProtocolInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509sat_ProtocolInformation(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_ProtocolInformation_PDU);
+  offset = dissect_x509sat_ProtocolInformation(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509sat_ProtocolInformation_PDU);
+  return offset;
 }
 static void dissect_NameAndOptionalUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -2670,7 +2672,7 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.45", dissect_UniqueIdentifier_PDU, proto_x509sat, "id-at-uniqueIdedntifier");
   register_ber_oid_dissector("2.5.4.46", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-dnQualifier");
   register_ber_oid_dissector("2.5.4.47", dissect_EnhancedGuide_PDU, proto_x509sat, "id-at-enhancedSearchGuide");
-  register_ber_oid_dissector("2.5.4.48", dissect_ProtocolInformation_PDU, proto_x509sat, "id-at-protocolInformation");
+  new_register_ber_oid_dissector("2.5.4.48", dissect_ProtocolInformation_PDU, proto_x509sat, "id-at-protocolInformation");
   register_ber_oid_dissector("2.5.4.50", dissect_NameAndOptionalUID_PDU, proto_x509sat, "id-at-uniqueMember");
   register_ber_oid_dissector("2.5.4.51", dissect_DirectoryString_PDU, proto_x509sat, "id-at-houseIdentifier");
   register_ber_oid_dissector("2.5.4.52", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-supportedAlgorithms");

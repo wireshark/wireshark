@@ -14497,10 +14497,13 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, a
 
 /*--- PDUs ---*/
 
-static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  dissect_h245_OpenLogicalChannel(tvb, 0, &asn1_ctx, tree, hf_h245_OpenLogicalChannel_PDU);
+  offset = dissect_h245_OpenLogicalChannel(tvb, offset, &asn1_ctx, tree, hf_h245_OpenLogicalChannel_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
@@ -14559,7 +14562,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   upcoming_channel = NULL;
   codec_type = NULL;
 
-  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
+  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree, NULL);
 
   if (h245_pi != NULL)
 	  h245_pi->msg_type = H245_OpenLogChn;

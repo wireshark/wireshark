@@ -579,11 +579,11 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
     if (strcmp (type, ":ess") == 0) {
       label_tvb = base64_to_tvb(tvb, wmem_strbuf_get_str(label_string));
       add_new_data_source(pinfo, label_tvb, "ESS Security Label");
-      dissect_ess_ESSSecurityLabel_PDU(label_tvb, pinfo, tree);
+      dissect_ess_ESSSecurityLabel_PDU(label_tvb, pinfo, tree, NULL);
     } else if (strcmp (type, ":x411") == 0) {
       label_tvb = base64_to_tvb(tvb, wmem_strbuf_get_str(label_string));
       add_new_data_source(pinfo, label_tvb, "X.411 Security Label");
-      dissect_p1_MessageSecurityLabel_PDU(label_tvb, pinfo, tree);
+      dissect_p1_MessageSecurityLabel_PDU(label_tvb, pinfo, tree, NULL);
     }
   }
 }

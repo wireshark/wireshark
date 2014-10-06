@@ -89,7 +89,7 @@ PSDNConnection
 ATMConnection
 ExtendedE164NetworkAddress
 TransportAddress
-#.PDU
+
 #----------------------------------------------------------------------------------------
 
 #.PDU_NEW

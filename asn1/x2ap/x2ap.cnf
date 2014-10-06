@@ -11,7 +11,7 @@ ALIGNED
 # Get rid of unused code warnings
 #.END
 
-#.PDU
+#.PDU_NEW
 X2AP-PDU
 
 #.MAKE_ENUM

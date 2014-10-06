@@ -174,10 +174,11 @@ static int dissect_atn_ulcs_T_externalt_encoding_arbitrary(
 		proto_tree *tree _U_,
 		int hf_index _U_);
 
-static void dissect_ACSE_apdu_PDU(
+static int dissect_ACSE_apdu_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
+		proto_tree *tree _U_,
+    void *data _U_);
 
 guint32 dissect_per_object_descriptor_t(
 		tvbuff_t *tvb,
@@ -604,7 +605,7 @@ dissect_atn_ulcs(
 				dissect_Fully_encoded_data_PDU(
 						tvb,
 						pinfo,
-						atn_ulcs_tree);
+						atn_ulcs_tree, NULL);
 
 				return offset +
 					tvb_reported_length_remaining(tvb, offset ) ;
@@ -712,7 +713,7 @@ dissect_atn_ulcs(
 				dissect_ACSE_apdu_PDU(
 						tvb_new_subset_remaining(tvb, offset),
 						pinfo,
-						atn_ulcs_tree);
+						atn_ulcs_tree, NULL);
 
 				return offset +
 						tvb_reported_length_remaining(tvb, offset );

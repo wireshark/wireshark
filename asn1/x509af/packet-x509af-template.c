@@ -106,9 +106,9 @@ void proto_register_x509af(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
 
-  register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
-  register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);
-  register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU);
+  new_register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
+  new_register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);
+  new_register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU);
 
   register_ber_oid_syntax(".cer", NULL, "Certificate");
   register_ber_oid_syntax(".crt", NULL, "Certificate");
@@ -156,15 +156,15 @@ void proto_reg_handoff_x509af(void) {
 
 	/* these will generally be encoded as ";binary" in LDAP */
 
-	register_ldap_name_dissector("cACertificate", dissect_x509af_Certificate_PDU, proto_x509af);
-	register_ldap_name_dissector("userCertificate", dissect_x509af_Certificate_PDU, proto_x509af);
+	new_register_ldap_name_dissector("cACertificate", dissect_x509af_Certificate_PDU, proto_x509af);
+	new_register_ldap_name_dissector("userCertificate", dissect_x509af_Certificate_PDU, proto_x509af);
 
-	register_ldap_name_dissector("certificateRevocationList", dissect_CertificateList_PDU, proto_x509af);
-	register_ldap_name_dissector("crl", dissect_CertificateList_PDU, proto_x509af);
+	new_register_ldap_name_dissector("certificateRevocationList", dissect_CertificateList_PDU, proto_x509af);
+	new_register_ldap_name_dissector("crl", dissect_CertificateList_PDU, proto_x509af);
 
-	register_ldap_name_dissector("authorityRevocationList", dissect_CertificateList_PDU, proto_x509af);
-	register_ldap_name_dissector("arl", dissect_CertificateList_PDU, proto_x509af);
+	new_register_ldap_name_dissector("authorityRevocationList", dissect_CertificateList_PDU, proto_x509af);
+	new_register_ldap_name_dissector("arl", dissect_CertificateList_PDU, proto_x509af);
 
-	register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
+	new_register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
 }
 

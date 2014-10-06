@@ -20,7 +20,7 @@ F-CHECK-response
 Other-Pattern
 #.END
 
-#.PDU
+#.PDU_NEW
 
 #.NO_EMIT ONLY_VALS
 PDU

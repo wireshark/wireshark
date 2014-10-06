@@ -233,29 +233,29 @@ void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tre
 
 	switch(channel_type) {
 	case TETRA_CHAN_AACH:
-		dissect_AACH_PDU(pdu, pinfo, tetra_sub_tree );
+		dissect_AACH_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 		break;
 	case TETRA_CHAN_SCH_F:
 		p = tvb_get_guint8(pdu, 0);
 		switch(p >> 6) {
 		case 0:
 			if (dir == TETRA_DOWNLINK)
-				dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			else
-				dissect_MAC_DATA_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_DATA_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 1: /* MAC-FRAG or MAC-END */
 			if((p >> 5) == 3) {
 				if (dir == TETRA_DOWNLINK)
-					dissect_MAC_END_DOWNLINK_PDU(pdu, pinfo, tetra_sub_tree );
+					dissect_MAC_END_DOWNLINK_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 				else
-					dissect_MAC_END_UPLINK_PDU(pdu, pinfo, tetra_sub_tree);
+					dissect_MAC_END_UPLINK_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 
 			} else
-				dissect_MAC_FRAG_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_FRAG_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 2:
-			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		}
 		break;
@@ -263,16 +263,16 @@ void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tre
 		p = tvb_get_guint8(pdu, 0);
 		switch(p >> 6) {
 		case 0:
-			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 1: /* MAC-FRAG or MAC-END */
 			if((p >> 5) == 3)
-				dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			else
-				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 		break;
 		case 2:
-			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		}
 		break;
@@ -280,38 +280,38 @@ void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tre
 		p = tvb_get_guint8(pdu, 0);
 		switch(p >> 7) {
 		case 0: /* MAC-ACCESS */
-			dissect_MAC_ACCESS_PDU(pdu, pinfo, tetra_sub_tree);
+			dissect_MAC_ACCESS_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 1: /* MAC-END-HU */
-			dissect_MAC_END_HU_PDU(pdu, pinfo, tetra_sub_tree);
+			dissect_MAC_END_HU_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		}
 		break;
 	case TETRA_CHAN_BSCH:
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "BSCH");
-		dissect_BSCH_PDU(pdu, pinfo, tetra_sub_tree );
+		dissect_BSCH_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 		break;
 	case TETRA_CHAN_BNCH:
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "BNCH");
-		dissect_BNCH_PDU(pdu, pinfo, tetra_sub_tree );
+		dissect_BNCH_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 		break;
 	case TETRA_CHAN_STCH:
 		p = tvb_get_guint8(pdu, 0);
 		switch(p >> 6) {
 		case 0:
-			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 1: /* MAC-FRAG or MAC-END */
 			if((p >> 5) == 3) {
 				if (dir == TETRA_DOWNLINK)
-					dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree );
+					dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 				else
-					dissect_MAC_END_UP114_PDU(pdu, pinfo, tetra_sub_tree);
+					dissect_MAC_END_UP114_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			} else
-				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree );
+				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		case 2:
-			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree, NULL);
 			break;
 		}
 		break;

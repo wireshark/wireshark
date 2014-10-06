@@ -1559,10 +1559,12 @@ dissect_c1222_MESSAGE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 /*--- PDUs ---*/
 
-static void dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_c1222_MESSAGE(FALSE, tvb, 0, &asn1_ctx, tree, hf_c1222_MESSAGE_PDU);
+  offset = dissect_c1222_MESSAGE(FALSE, tvb, offset, &asn1_ctx, tree, hf_c1222_MESSAGE_PDU);
+  return offset;
 }
 
 
@@ -1586,13 +1588,9 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 
     /* create the c1222 protocol tree */
-    if (tree) {
-      c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
-      c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
-      dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
-    }
-
-    return tvb_captured_length(tvb);
+    c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
+    c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
+    return dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree, NULL);
 }
 
 /**
@@ -1957,7 +1955,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1336 "../../asn1/c1222/packet-c1222-template.c"
+#line 1332 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1980,7 +1978,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1346 "../../asn1/c1222/packet-c1222-template.c"
+#line 1342 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {

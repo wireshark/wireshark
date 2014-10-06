@@ -63,8 +63,8 @@ static gint ett_credssp = -1;
 /*
 * Dissect CredSSP PDUs
 */
-static void
-dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -77,7 +77,7 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   	col_clear(pinfo->cinfo, COL_INFO);
 
 	creds_type = -1;
-	dissect_TSRequest_PDU(tvb, pinfo, tree);
+	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }
 
 static gboolean
@@ -121,7 +121,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
               tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
             }
-            dissect_credssp(tvb, pinfo, parent_tree);
+            dissect_credssp(tvb, pinfo, parent_tree, NULL);
             return TRUE;
           }
         }
@@ -162,7 +162,7 @@ void proto_register_credssp(void) {
 
   /* Register protocol */
   proto_credssp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("credssp", dissect_credssp, proto_credssp);
+  new_register_dissector("credssp", dissect_credssp, proto_credssp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_credssp, hf, array_length(hf));

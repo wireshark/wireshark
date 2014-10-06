@@ -1950,6 +1950,15 @@ register_ldap_name_dissector(const char *attr_type_p, dissector_t dissector, int
 	register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
 }
 
+void
+new_register_ldap_name_dissector(const char *attr_type_p, new_dissector_t dissector, int proto)
+{
+        dissector_handle_t dissector_handle;
+
+        dissector_handle=new_create_dissector_handle(dissector, proto);
+        register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
+}
+
 
 /*--- proto_register_ldap -------------------------------------------*/
 void proto_register_ldap(void) {

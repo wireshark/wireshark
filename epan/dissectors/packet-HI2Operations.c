@@ -3758,10 +3758,12 @@ dissect_HI2Operations_IRIsContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 /*--- PDUs ---*/
 
-static void dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_HI2Operations_IRIsContent(FALSE, tvb, 0, &asn1_ctx, tree, hf_HI2Operations_IRIsContent_PDU);
+  offset = dissect_HI2Operations_IRIsContent(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_IRIsContent_PDU);
+  return offset;
 }
 
 
@@ -5157,7 +5159,7 @@ void proto_register_HI2Operations(void) {
   proto_register_field_array(proto_HI2Operations, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
+  new_register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
 }
 
 

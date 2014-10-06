@@ -16408,10 +16408,12 @@ dissect_gsm_map_dialogue_MAP_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tv
 
 /*--- PDUs ---*/
 
-static void dissect_gsm_map_dialogue_MAP_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_gsm_map_dialogue_MAP_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_gsm_map_dialogue_MAP_DialoguePDU(FALSE, tvb, 0, &asn1_ctx, tree, hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU);
+  offset = dissect_gsm_map_dialogue_MAP_DialoguePDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU);
+  return offset;
 }
 
 
@@ -30240,7 +30242,7 @@ void proto_register_gsm_map(void) {
 
 /* --- Module MAP-DialogueInformation --- --- ---                             */
 
-  register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_gsm_map_dialogue_MAP_DialoguePDU_PDU, proto_gsm_map_dialogue, "map-DialogueAS");
+  new_register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_gsm_map_dialogue_MAP_DialoguePDU_PDU, proto_gsm_map_dialogue, "map-DialogueAS");
 
 
 /* --- Module MAP-LocationServiceOperations --- --- ---                       */

@@ -496,15 +496,19 @@ dissect_novell_pkis_RelianceLimits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 /*--- PDUs ---*/
 
-static void dissect_SecurityAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SecurityAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_novell_pkis_SecurityAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_novell_pkis_SecurityAttributes_PDU);
+  offset = dissect_novell_pkis_SecurityAttributes(FALSE, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_SecurityAttributes_PDU);
+  return offset;
 }
-static void dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_novell_pkis_RelianceLimits(FALSE, tvb, 0, &asn1_ctx, tree, hf_novell_pkis_RelianceLimits_PDU);
+  offset = dissect_novell_pkis_RelianceLimits(FALSE, tvb, offset, &asn1_ctx, tree, hf_novell_pkis_RelianceLimits_PDU);
+  return offset;
 }
 
 
@@ -521,8 +525,8 @@ void proto_reg_handoff_novell_pkis(void)
 
 /*--- Included file: packet-novell_pkis-dis-tab.c ---*/
 #line 1 "../../asn1/novell_pkis/packet-novell_pkis-dis-tab.c"
-  register_ber_oid_dissector("2.16.840.1.113719.1.9.4.1", dissect_SecurityAttributes_PDU, proto_novell_pkis, "pa-sa");
-  register_ber_oid_dissector("2.16.840.1.113719.1.9.4.2", dissect_RelianceLimits_PDU, proto_novell_pkis, "pa-rl");
+  new_register_ber_oid_dissector("2.16.840.1.113719.1.9.4.1", dissect_SecurityAttributes_PDU, proto_novell_pkis, "pa-sa");
+  new_register_ber_oid_dissector("2.16.840.1.113719.1.9.4.2", dissect_RelianceLimits_PDU, proto_novell_pkis, "pa-rl");
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/

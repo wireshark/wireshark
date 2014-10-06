@@ -124,7 +124,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (opvalue == OP_CERT) {
       /* X509 Certificate */
       tvbuff_t *cert_tvb = tvb_new_subset_length (tvb, offset+10, length-10);
-      dissect_x509af_Certificate_PDU (cert_tvb, pinfo, db_lsp_tree);
+      dissect_x509af_Certificate_PDU (cert_tvb, pinfo, db_lsp_tree, NULL);
     } else {
       proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_NA);
     }

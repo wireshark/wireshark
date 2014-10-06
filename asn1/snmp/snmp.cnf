@@ -2,7 +2,7 @@
 # snmp conformation file
 
 
-#.PDU
+#.PDU_NEW
 SMUX-PDUs
 
 #.NO_EMIT

@@ -328,10 +328,12 @@ dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 /*--- PDUs ---*/
 
-static void dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cdt_CompressedData(FALSE, tvb, 0, &asn1_ctx, tree, hf_cdt_CompressedData_PDU);
+  offset = dissect_cdt_CompressedData(FALSE, tvb, offset, &asn1_ctx, tree, hf_cdt_CompressedData_PDU);
+  return offset;
 }
 
 
@@ -361,7 +363,7 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "CDT");
   col_clear (pinfo->cinfo, COL_INFO);
 
-  dissect_CompressedData_PDU (tvb, pinfo, tree);
+  dissect_CompressedData_PDU (tvb, pinfo, tree, NULL);
 }
 
 void proto_register_cdt (void) {
@@ -449,7 +451,7 @@ void proto_reg_handoff_cdt (void) {
 
 /*--- Included file: packet-cdt-dis-tab.c ---*/
 #line 1 "../../asn1/cdt/packet-cdt-dis-tab.c"
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_CompressedData_PDU, proto_cdt, "cdt");
+  new_register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_CompressedData_PDU, proto_cdt, "cdt");
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/

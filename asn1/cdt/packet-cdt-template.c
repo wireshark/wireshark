@@ -92,7 +92,7 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "CDT");
   col_clear (pinfo->cinfo, COL_INFO);
 
-  dissect_CompressedData_PDU (tvb, pinfo, tree);
+  dissect_CompressedData_PDU (tvb, pinfo, tree, NULL);
 }
 
 void proto_register_cdt (void) {

@@ -287,8 +287,6 @@ AsymmetricTokenData/name/recipient-name			token-recipient-name
 TokenData/type						token-data-type
 CertificateSelectors/content-integrity-check		selectors-content-integrity-check
 
-#.PDU
-
 # This table creates the value_sting to name P3 operation codes and errors
 # in file packet-p3-table.c which is included in the template file
 #
@@ -340,7 +338,7 @@ OPERATION.&ResultType
 #.END
 
 
-#.REGISTER
+#.REGISTER_NEW
 RecipientReassignmentProhibited				N p1.extension 1
 OriginatorRequestedAlternateRecipient	N p1.extension 2
 DLExpansionProhibited						N p1.extension 3

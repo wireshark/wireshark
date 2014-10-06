@@ -452,7 +452,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   upcoming_channel = NULL;
   codec_type = NULL;
 
-  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
+  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree, NULL);
 
   if (h245_pi != NULL)
 	  h245_pi->msg_type = H245_OpenLogChn;

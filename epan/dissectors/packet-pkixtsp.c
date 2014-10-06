@@ -352,10 +352,12 @@ dissect_pkixtsp_TSTInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 /*--- PDUs ---*/
 
-static void dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pkixtsp_TSTInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixtsp_TSTInfo_PDU);
+  offset = dissect_pkixtsp_TSTInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixtsp_TSTInfo_PDU);
+  return offset;
 }
 
 
@@ -585,7 +587,7 @@ void proto_reg_handoff_pkixtsp(void) {
 
 /*--- Included file: packet-pkixtsp-dis-tab.c ---*/
 #line 1 "../../asn1/pkixtsp/packet-pkixtsp-dis-tab.c"
-  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.4", dissect_TSTInfo_PDU, proto_pkixtsp, "id-ct-TSTInfo");
+  new_register_ber_oid_dissector("1.2.840.113549.1.9.16.1.4", dissect_TSTInfo_PDU, proto_pkixtsp, "id-ct-TSTInfo");
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/

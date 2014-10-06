@@ -447,8 +447,8 @@ static void nbap_init(void){
 		lchId_type_table[i+1] = *lch_contents[i];
 	}
 }
-static void
-dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item	*nbap_item = NULL;
 	proto_tree	*nbap_tree = NULL;
@@ -465,7 +465,7 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		nbap_hsdsch_channel_info[i].entity = hs;
 	}
 
-	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
+	return dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree, data);
 }
 
 /*--- proto_register_nbap -------------------------------------------*/
@@ -518,7 +518,7 @@ void proto_register_nbap(void)
 	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
-	register_dissector("nbap", dissect_nbap, proto_nbap);
+	new_register_dissector("nbap", dissect_nbap, proto_nbap);
 
 	nbap_module = prefs_register_protocol(proto_nbap, NULL);
 

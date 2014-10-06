@@ -1352,10 +1352,12 @@ dissect_pres_UD_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 /*--- PDUs ---*/
 
-static void dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pres_UD_type(FALSE, tvb, 0, &asn1_ctx, tree, hf_pres_UD_type_PDU);
+  offset = dissect_pres_UD_type(FALSE, tvb, offset, &asn1_ctx, tree, hf_pres_UD_type_PDU);
+  return offset;
 }
 
 
@@ -1470,7 +1472,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 
 		/* dissect the packet */
-		dissect_UD_type_PDU(tvb, pinfo, clpres_tree);
+		dissect_UD_type_PDU(tvb, pinfo, clpres_tree, NULL);
 		return tvb_captured_length(tvb);
 	}
 

@@ -1066,13 +1066,9 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 
     /* create the c1222 protocol tree */
-    if (tree) {
-      c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
-      c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
-      dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
-    }
-
-    return tvb_captured_length(tvb);
+    c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
+    c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
+    return dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree, NULL);
 }
 
 /**

@@ -4061,310 +4061,432 @@ dissect_cmip_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 /*--- PDUs ---*/
 
-static void dissect_BaseManagedObjectId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_BaseManagedObjectId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_BaseManagedObjectId(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_BaseManagedObjectId_PDU);
+  offset = dissect_cmip_BaseManagedObjectId(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_BaseManagedObjectId_PDU);
+  return offset;
 }
-static void dissect_EventTypeId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventTypeId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_EventTypeId(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_EventTypeId_PDU);
+  offset = dissect_cmip_EventTypeId(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_EventTypeId_PDU);
+  return offset;
 }
-static void dissect_ObjectClass_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ObjectClass_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ObjectClass(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ObjectClass_PDU);
+  offset = dissect_cmip_ObjectClass(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ObjectClass_PDU);
+  return offset;
 }
-static void dissect_ActiveDestination_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ActiveDestination_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ActiveDestination(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ActiveDestination_PDU);
+  offset = dissect_cmip_ActiveDestination(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ActiveDestination_PDU);
+  return offset;
 }
-static void dissect_AdditionalText_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AdditionalText_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AdditionalText(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AdditionalText_PDU);
+  offset = dissect_cmip_AdditionalText(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AdditionalText_PDU);
+  return offset;
 }
-static void dissect_AdditionalInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AdditionalInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AdditionalInformation(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AdditionalInformation_PDU);
+  offset = dissect_cmip_AdditionalInformation(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AdditionalInformation_PDU);
+  return offset;
 }
-static void dissect_Allomorphs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Allomorphs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_Allomorphs(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_Allomorphs_PDU);
+  offset = dissect_cmip_Allomorphs(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_Allomorphs_PDU);
+  return offset;
 }
-static void dissect_AdministrativeState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AdministrativeState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AdministrativeState(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AdministrativeState_PDU);
+  offset = dissect_cmip_AdministrativeState(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AdministrativeState_PDU);
+  return offset;
 }
-static void dissect_AttributeIdentifierList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AttributeIdentifierList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AttributeIdentifierList(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AttributeIdentifierList_PDU);
+  offset = dissect_cmip_AttributeIdentifierList(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AttributeIdentifierList_PDU);
+  return offset;
 }
-static void dissect_AttributeList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AttributeList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AttributeList(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AttributeList_PDU);
+  offset = dissect_cmip_AttributeList(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AttributeList_PDU);
+  return offset;
 }
-static void dissect_AttributeValueChangeDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AttributeValueChangeDefinition_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AttributeValueChangeDefinition(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AttributeValueChangeDefinition_PDU);
+  offset = dissect_cmip_AttributeValueChangeDefinition(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AttributeValueChangeDefinition_PDU);
+  return offset;
 }
-static void dissect_AlarmStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AlarmStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AlarmStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AlarmStatus_PDU);
+  offset = dissect_cmip_AlarmStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AlarmStatus_PDU);
+  return offset;
 }
-static void dissect_AvailabilityStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AvailabilityStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_AvailabilityStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_AvailabilityStatus_PDU);
+  offset = dissect_cmip_AvailabilityStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_AvailabilityStatus_PDU);
+  return offset;
 }
-static void dissect_BackedUpStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_BackedUpStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_BackedUpStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_BackedUpStatus_PDU);
+  offset = dissect_cmip_BackedUpStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_BackedUpStatus_PDU);
+  return offset;
 }
-static void dissect_BackUpDestinationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_BackUpDestinationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_BackUpDestinationList(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_BackUpDestinationList_PDU);
+  offset = dissect_cmip_BackUpDestinationList(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_BackUpDestinationList_PDU);
+  return offset;
 }
-static void dissect_BackUpRelationshipObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_BackUpRelationshipObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_BackUpRelationshipObject(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_BackUpRelationshipObject_PDU);
+  offset = dissect_cmip_BackUpRelationshipObject(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_BackUpRelationshipObject_PDU);
+  return offset;
 }
-static void dissect_CapacityAlarmThreshold_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CapacityAlarmThreshold_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_CapacityAlarmThreshold(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_CapacityAlarmThreshold_PDU);
+  offset = dissect_cmip_CapacityAlarmThreshold(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_CapacityAlarmThreshold_PDU);
+  return offset;
 }
-static void dissect_ConfirmedMode_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConfirmedMode_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ConfirmedMode(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ConfirmedMode_PDU);
+  offset = dissect_cmip_ConfirmedMode(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ConfirmedMode_PDU);
+  return offset;
 }
-static void dissect_ControlStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ControlStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ControlStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ControlStatus_PDU);
+  offset = dissect_cmip_ControlStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ControlStatus_PDU);
+  return offset;
 }
-static void dissect_CorrelatedNotifications_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CorrelatedNotifications_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_CorrelatedNotifications(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_CorrelatedNotifications_PDU);
+  offset = dissect_cmip_CorrelatedNotifications(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_CorrelatedNotifications_PDU);
+  return offset;
 }
-static void dissect_CurrentLogSize_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CurrentLogSize_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_CurrentLogSize(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_CurrentLogSize_PDU);
+  offset = dissect_cmip_CurrentLogSize(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_CurrentLogSize_PDU);
+  return offset;
 }
-static void dissect_Destination_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Destination_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_Destination(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_Destination_PDU);
+  offset = dissect_cmip_Destination(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_Destination_PDU);
+  return offset;
 }
-static void dissect_DiscriminatorConstruct_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DiscriminatorConstruct_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_DiscriminatorConstruct(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_DiscriminatorConstruct_PDU);
+  offset = dissect_cmip_DiscriminatorConstruct(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_DiscriminatorConstruct_PDU);
+  return offset;
 }
-static void dissect_EventTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_EventTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_EventTime_PDU);
+  offset = dissect_cmip_EventTime(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_EventTime_PDU);
+  return offset;
 }
-static void dissect_GroupObjects_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_GroupObjects_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_GroupObjects(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_GroupObjects_PDU);
+  offset = dissect_cmip_GroupObjects(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_GroupObjects_PDU);
+  return offset;
 }
-static void dissect_IntervalsOfDay_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_IntervalsOfDay_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_IntervalsOfDay(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_IntervalsOfDay_PDU);
+  offset = dissect_cmip_IntervalsOfDay(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_IntervalsOfDay_PDU);
+  return offset;
 }
-static void dissect_LifecycleState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_LifecycleState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_LifecycleState(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_LifecycleState_PDU);
+  offset = dissect_cmip_LifecycleState(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_LifecycleState_PDU);
+  return offset;
 }
-static void dissect_LogFullAction_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_LogFullAction_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_LogFullAction(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_LogFullAction_PDU);
+  offset = dissect_cmip_LogFullAction(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_LogFullAction_PDU);
+  return offset;
 }
-static void dissect_LoggingTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_LoggingTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_LoggingTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_LoggingTime_PDU);
+  offset = dissect_cmip_LoggingTime(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_LoggingTime_PDU);
+  return offset;
 }
-static void dissect_LogRecordId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_LogRecordId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_LogRecordId(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_LogRecordId_PDU);
+  offset = dissect_cmip_LogRecordId(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_LogRecordId_PDU);
+  return offset;
 }
-static void dissect_MaxLogSize_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MaxLogSize_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_MaxLogSize(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_MaxLogSize_PDU);
+  offset = dissect_cmip_MaxLogSize(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_MaxLogSize_PDU);
+  return offset;
 }
-static void dissect_MonitoredAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MonitoredAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_MonitoredAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_MonitoredAttributes_PDU);
+  offset = dissect_cmip_MonitoredAttributes(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_MonitoredAttributes_PDU);
+  return offset;
 }
-static void dissect_NameBinding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NameBinding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_NameBinding(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_NameBinding_PDU);
+  offset = dissect_cmip_NameBinding(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_NameBinding_PDU);
+  return offset;
 }
-static void dissect_NotificationIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NotificationIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_NotificationIdentifier(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_NotificationIdentifier_PDU);
+  offset = dissect_cmip_NotificationIdentifier(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_NotificationIdentifier_PDU);
+  return offset;
 }
-static void dissect_NumberOfRecords_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NumberOfRecords_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_NumberOfRecords(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_NumberOfRecords_PDU);
+  offset = dissect_cmip_NumberOfRecords(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_NumberOfRecords_PDU);
+  return offset;
 }
-static void dissect_OperationalState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OperationalState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_OperationalState(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_OperationalState_PDU);
+  offset = dissect_cmip_OperationalState(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_OperationalState_PDU);
+  return offset;
 }
-static void dissect_Packages_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Packages_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_Packages(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_Packages_PDU);
+  offset = dissect_cmip_Packages(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_Packages_PDU);
+  return offset;
 }
-static void dissect_PerceivedSeverity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PerceivedSeverity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_PerceivedSeverity(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_PerceivedSeverity_PDU);
+  offset = dissect_cmip_PerceivedSeverity(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_PerceivedSeverity_PDU);
+  return offset;
 }
-static void dissect_PrioritisedObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PrioritisedObject_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_PrioritisedObject(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_PrioritisedObject_PDU);
+  offset = dissect_cmip_PrioritisedObject(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_PrioritisedObject_PDU);
+  return offset;
 }
-static void dissect_ProbableCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProbableCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ProbableCause(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ProbableCause_PDU);
+  offset = dissect_cmip_ProbableCause(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ProbableCause_PDU);
+  return offset;
 }
-static void dissect_ProceduralStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProceduralStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ProceduralStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ProceduralStatus_PDU);
+  offset = dissect_cmip_ProceduralStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ProceduralStatus_PDU);
+  return offset;
 }
-static void dissect_ProposedRepairActions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProposedRepairActions_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ProposedRepairActions(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ProposedRepairActions_PDU);
+  offset = dissect_cmip_ProposedRepairActions(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ProposedRepairActions_PDU);
+  return offset;
 }
-static void dissect_SecurityAlarmCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SecurityAlarmCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SecurityAlarmCause(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SecurityAlarmCause_PDU);
+  offset = dissect_cmip_SecurityAlarmCause(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SecurityAlarmCause_PDU);
+  return offset;
 }
-static void dissect_SecurityAlarmSeverity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SecurityAlarmSeverity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SecurityAlarmSeverity(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SecurityAlarmSeverity_PDU);
+  offset = dissect_cmip_SecurityAlarmSeverity(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SecurityAlarmSeverity_PDU);
+  return offset;
 }
-static void dissect_SecurityAlarmDetector_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SecurityAlarmDetector_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SecurityAlarmDetector(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SecurityAlarmDetector_PDU);
+  offset = dissect_cmip_SecurityAlarmDetector(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SecurityAlarmDetector_PDU);
+  return offset;
 }
-static void dissect_ServiceProvider_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ServiceProvider_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ServiceProvider(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ServiceProvider_PDU);
+  offset = dissect_cmip_ServiceProvider(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ServiceProvider_PDU);
+  return offset;
 }
-static void dissect_ServiceUser_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ServiceUser_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ServiceUser(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ServiceUser_PDU);
+  offset = dissect_cmip_ServiceUser(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ServiceUser_PDU);
+  return offset;
 }
-static void dissect_SimpleNameType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SimpleNameType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SimpleNameType(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SimpleNameType_PDU);
+  offset = dissect_cmip_SimpleNameType(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SimpleNameType_PDU);
+  return offset;
 }
-static void dissect_SourceIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SourceIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SourceIndicator(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SourceIndicator_PDU);
+  offset = dissect_cmip_SourceIndicator(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SourceIndicator_PDU);
+  return offset;
 }
-static void dissect_SpecificProblems_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SpecificProblems_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SpecificProblems(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SpecificProblems_PDU);
+  offset = dissect_cmip_SpecificProblems(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SpecificProblems_PDU);
+  return offset;
 }
-static void dissect_StandbyStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_StandbyStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_StandbyStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_StandbyStatus_PDU);
+  offset = dissect_cmip_StandbyStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_StandbyStatus_PDU);
+  return offset;
 }
-static void dissect_StartTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_StartTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_StartTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_StartTime_PDU);
+  offset = dissect_cmip_StartTime(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_StartTime_PDU);
+  return offset;
 }
-static void dissect_StopTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_StopTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_StopTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_StopTime_PDU);
+  offset = dissect_cmip_StopTime(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_StopTime_PDU);
+  return offset;
 }
-static void dissect_SupportedFeatures_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SupportedFeatures_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SupportedFeatures(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SupportedFeatures_PDU);
+  offset = dissect_cmip_SupportedFeatures(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SupportedFeatures_PDU);
+  return offset;
 }
-static void dissect_SystemId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SystemId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SystemId(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SystemId_PDU);
+  offset = dissect_cmip_SystemId(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SystemId_PDU);
+  return offset;
 }
-static void dissect_SystemTitle_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SystemTitle_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_SystemTitle(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_SystemTitle_PDU);
+  offset = dissect_cmip_SystemTitle(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_SystemTitle_PDU);
+  return offset;
 }
-static void dissect_ThresholdInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ThresholdInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_ThresholdInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_ThresholdInfo_PDU);
+  offset = dissect_cmip_ThresholdInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_ThresholdInfo_PDU);
+  return offset;
 }
-static void dissect_TrendIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TrendIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_TrendIndication(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_TrendIndication_PDU);
+  offset = dissect_cmip_TrendIndication(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_TrendIndication_PDU);
+  return offset;
 }
-static void dissect_UnknownStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UnknownStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_UnknownStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_UnknownStatus_PDU);
+  offset = dissect_cmip_UnknownStatus(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_UnknownStatus_PDU);
+  return offset;
 }
-static void dissect_UsageState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UsageState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_UsageState(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_UsageState_PDU);
+  offset = dissect_cmip_UsageState(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_UsageState_PDU);
+  return offset;
 }
-static void dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_cmip_WeekMask(FALSE, tvb, 0, &asn1_ctx, tree, hf_cmip_WeekMask_PDU);
+  offset = dissect_cmip_WeekMask(FALSE, tvb, offset, &asn1_ctx, tree, hf_cmip_WeekMask_PDU);
+  return offset;
 }
 
 
@@ -5720,76 +5842,76 @@ void proto_register_cmip(void) {
 
 /*--- Included file: packet-cmip-dis-tab.c ---*/
 #line 1 "../../asn1/cmip/packet-cmip-dis-tab.c"
-  register_ber_oid_dissector("2.9.2.21.7.13", dissect_BaseManagedObjectId_PDU, proto_cmip, "BaseManagedObjectId(13)");
-  register_ber_oid_dissector("2.9.3.2.7.1", dissect_SimpleNameType_PDU, proto_cmip, "discriminatorId(1)");
-  register_ber_oid_dissector("2.9.3.2.7.2", dissect_SimpleNameType_PDU, proto_cmip, "logId(2)");
-  register_ber_oid_dissector("2.9.3.2.7.3", dissect_LogRecordId_PDU, proto_cmip, "logRecordId(3)");
-  register_ber_oid_dissector("2.9.3.2.7.4", dissect_SystemId_PDU, proto_cmip, "systemId(4)");
-  register_ber_oid_dissector("2.9.3.2.7.5", dissect_SystemTitle_PDU, proto_cmip, "systemTitle(5)");
-  register_ber_oid_dissector("2.9.3.2.7.6", dissect_AdditionalInformation_PDU, proto_cmip, "additionalInformation(6)");
-  register_ber_oid_dissector("2.9.3.2.7.7", dissect_AdditionalText_PDU, proto_cmip, "additionalText(7)");
-  register_ber_oid_dissector("2.9.3.2.7.8", dissect_AttributeIdentifierList_PDU, proto_cmip, "attributeIdentifierList(8)");
-  register_ber_oid_dissector("2.9.3.2.7.9", dissect_AttributeList_PDU, proto_cmip, "attributeList(9)");
-  register_ber_oid_dissector("2.9.3.2.7.10", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "attributeValueChangeDefinition(10)");
-  register_ber_oid_dissector("2.9.3.2.7.11", dissect_BackedUpStatus_PDU, proto_cmip, "backedUpStatus(11)");
-  register_ber_oid_dissector("2.9.3.2.7.12", dissect_CorrelatedNotifications_PDU, proto_cmip, "correlatedNotifications(12)");
-  register_ber_oid_dissector("2.9.3.2.7.13", dissect_EventTime_PDU, proto_cmip, "eventTime(13)");
-  register_ber_oid_dissector("2.9.3.2.7.14", dissect_EventTypeId_PDU, proto_cmip, "eventType(14)");
-  register_ber_oid_dissector("2.9.3.2.7.15", dissect_MonitoredAttributes_PDU, proto_cmip, "monitoredAttributes(15)");
-  register_ber_oid_dissector("2.9.3.2.7.16", dissect_NotificationIdentifier_PDU, proto_cmip, "notificationIdentifier(16)");
-  register_ber_oid_dissector("2.9.3.2.7.17", dissect_PerceivedSeverity_PDU, proto_cmip, "perceivedSeverity(17)");
-  register_ber_oid_dissector("2.9.3.2.7.18", dissect_ProbableCause_PDU, proto_cmip, "probableCause(18)");
-  register_ber_oid_dissector("2.9.3.2.7.19", dissect_ProposedRepairActions_PDU, proto_cmip, "proposedRepairActions(19)");
-  register_ber_oid_dissector("2.9.3.2.7.20", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "relationshipChangeDefinition(20)");
-  register_ber_oid_dissector("2.9.3.2.7.21", dissect_SecurityAlarmCause_PDU, proto_cmip, "securityAlarmCause(21)");
-  register_ber_oid_dissector("2.9.3.2.7.22", dissect_SecurityAlarmDetector_PDU, proto_cmip, "securityAlarmDetector(22)");
-  register_ber_oid_dissector("2.9.3.2.7.23", dissect_SecurityAlarmSeverity_PDU, proto_cmip, "securityAlarmSeverity(23)");
-  register_ber_oid_dissector("2.9.3.2.7.24", dissect_ServiceProvider_PDU, proto_cmip, "serviceProvider(24)");
-  register_ber_oid_dissector("2.9.3.2.7.25", dissect_ServiceUser_PDU, proto_cmip, "serviceUser(25)");
-  register_ber_oid_dissector("2.9.3.2.7.26", dissect_SourceIndicator_PDU, proto_cmip, "sourceIndicator(26)");
-  register_ber_oid_dissector("2.9.3.2.7.27", dissect_SpecificProblems_PDU, proto_cmip, "specificProblems(27)");
-  register_ber_oid_dissector("2.9.3.2.7.28", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "stateChangeDefinition(28)");
-  register_ber_oid_dissector("2.9.3.2.7.29", dissect_ThresholdInfo_PDU, proto_cmip, "thresholdInfo(29)");
-  register_ber_oid_dissector("2.9.3.2.7.30", dissect_TrendIndication_PDU, proto_cmip, "trendIndication(30)");
-  register_ber_oid_dissector("2.9.3.2.7.31", dissect_AdministrativeState_PDU, proto_cmip, "administrativeState(31)");
-  register_ber_oid_dissector("2.9.3.2.7.32", dissect_AlarmStatus_PDU, proto_cmip, "alarmStatus(32)");
-  register_ber_oid_dissector("2.9.3.2.7.33", dissect_AvailabilityStatus_PDU, proto_cmip, "availabilityStatus(33)");
-  register_ber_oid_dissector("2.9.3.2.7.34", dissect_ControlStatus_PDU, proto_cmip, "controlStatus(34)");
-  register_ber_oid_dissector("2.9.3.2.7.35", dissect_OperationalState_PDU, proto_cmip, "operationalState(35)");
-  register_ber_oid_dissector("2.9.3.2.7.36", dissect_ProceduralStatus_PDU, proto_cmip, "proceduralStatus(36)");
-  register_ber_oid_dissector("2.9.3.2.7.37", dissect_StandbyStatus_PDU, proto_cmip, "standbyStatus(37)");
-  register_ber_oid_dissector("2.9.3.2.7.38", dissect_UnknownStatus_PDU, proto_cmip, "unknownStatus(38)");
-  register_ber_oid_dissector("2.9.3.2.7.39", dissect_UsageState_PDU, proto_cmip, "usageState(39)");
-  register_ber_oid_dissector("2.9.3.2.7.40", dissect_BackUpRelationshipObject_PDU, proto_cmip, "backUpObject(40)");
-  register_ber_oid_dissector("2.9.3.2.7.41", dissect_BackUpRelationshipObject_PDU, proto_cmip, "backedUpObject(41)");
-  register_ber_oid_dissector("2.9.3.2.7.42", dissect_GroupObjects_PDU, proto_cmip, "member(42)");
-  register_ber_oid_dissector("2.9.3.2.7.43", dissect_GroupObjects_PDU, proto_cmip, "owner(43)");
-  register_ber_oid_dissector("2.9.3.2.7.44", dissect_BackUpRelationshipObject_PDU, proto_cmip, "peer(44)");
-  register_ber_oid_dissector("2.9.3.2.7.45", dissect_PrioritisedObject_PDU, proto_cmip, "primary(45)");
-  register_ber_oid_dissector("2.9.3.2.7.46", dissect_PrioritisedObject_PDU, proto_cmip, "providerObject(46)");
-  register_ber_oid_dissector("2.9.3.2.7.47", dissect_PrioritisedObject_PDU, proto_cmip, "secondary(47)");
-  register_ber_oid_dissector("2.9.3.2.7.48", dissect_PrioritisedObject_PDU, proto_cmip, "userObject(48)");
-  register_ber_oid_dissector("2.9.3.2.7.49", dissect_ActiveDestination_PDU, proto_cmip, "activeDestination(49)");
-  register_ber_oid_dissector("2.9.3.2.7.50", dissect_Allomorphs_PDU, proto_cmip, "allomorphs(50)");
-  register_ber_oid_dissector("2.9.3.2.7.51", dissect_BackUpDestinationList_PDU, proto_cmip, "backUpDestinationList(51)");
-  register_ber_oid_dissector("2.9.3.2.7.52", dissect_CapacityAlarmThreshold_PDU, proto_cmip, "capacityAlarmTreshold(52)");
-  register_ber_oid_dissector("2.9.3.2.7.53", dissect_ConfirmedMode_PDU, proto_cmip, "confirmedMode(53)");
-  register_ber_oid_dissector("2.9.3.2.7.54", dissect_CurrentLogSize_PDU, proto_cmip, "currentLogSize(54)");
-  register_ber_oid_dissector("2.9.3.2.7.55", dissect_Destination_PDU, proto_cmip, "destination(55)");
-  register_ber_oid_dissector("2.9.3.2.7.56", dissect_DiscriminatorConstruct_PDU, proto_cmip, "discriminatorConstruct(56)");
-  register_ber_oid_dissector("2.9.3.2.7.57", dissect_IntervalsOfDay_PDU, proto_cmip, "intervalsOfDay(57)");
-  register_ber_oid_dissector("2.9.3.2.7.58", dissect_LogFullAction_PDU, proto_cmip, "logFullAction(58)");
-  register_ber_oid_dissector("2.9.3.2.7.59", dissect_LoggingTime_PDU, proto_cmip, "loggingTime(59)");
-  register_ber_oid_dissector("2.9.3.2.7.62", dissect_MaxLogSize_PDU, proto_cmip, "maxLogSize(62)");
-  register_ber_oid_dissector("2.9.3.2.7.63", dissect_NameBinding_PDU, proto_cmip, "nameBinding(63)");
-  register_ber_oid_dissector("2.9.3.2.7.64", dissect_NumberOfRecords_PDU, proto_cmip, "numberOfRecords(64)");
-  register_ber_oid_dissector("2.9.3.2.7.65", dissect_ObjectClass_PDU, proto_cmip, "objectClass(65)");
-  register_ber_oid_dissector("2.9.3.2.7.66", dissect_Packages_PDU, proto_cmip, "packages(66)");
-  register_ber_oid_dissector("2.9.3.2.7.68", dissect_StartTime_PDU, proto_cmip, "startTime(68)");
-  register_ber_oid_dissector("2.9.3.2.7.69", dissect_StopTime_PDU, proto_cmip, "stopTime(69)");
-  register_ber_oid_dissector("2.9.3.2.7.70", dissect_SupportedFeatures_PDU, proto_cmip, "supportedFeatures(70)");
-  register_ber_oid_dissector("2.9.3.2.7.71", dissect_WeekMask_PDU, proto_cmip, "weekMask(71)");
-  register_ber_oid_dissector("2.9.3.2.7.115", dissect_LifecycleState_PDU, proto_cmip, "lifecycleState(115)");
+  new_register_ber_oid_dissector("2.9.2.21.7.13", dissect_BaseManagedObjectId_PDU, proto_cmip, "BaseManagedObjectId(13)");
+  new_register_ber_oid_dissector("2.9.3.2.7.1", dissect_SimpleNameType_PDU, proto_cmip, "discriminatorId(1)");
+  new_register_ber_oid_dissector("2.9.3.2.7.2", dissect_SimpleNameType_PDU, proto_cmip, "logId(2)");
+  new_register_ber_oid_dissector("2.9.3.2.7.3", dissect_LogRecordId_PDU, proto_cmip, "logRecordId(3)");
+  new_register_ber_oid_dissector("2.9.3.2.7.4", dissect_SystemId_PDU, proto_cmip, "systemId(4)");
+  new_register_ber_oid_dissector("2.9.3.2.7.5", dissect_SystemTitle_PDU, proto_cmip, "systemTitle(5)");
+  new_register_ber_oid_dissector("2.9.3.2.7.6", dissect_AdditionalInformation_PDU, proto_cmip, "additionalInformation(6)");
+  new_register_ber_oid_dissector("2.9.3.2.7.7", dissect_AdditionalText_PDU, proto_cmip, "additionalText(7)");
+  new_register_ber_oid_dissector("2.9.3.2.7.8", dissect_AttributeIdentifierList_PDU, proto_cmip, "attributeIdentifierList(8)");
+  new_register_ber_oid_dissector("2.9.3.2.7.9", dissect_AttributeList_PDU, proto_cmip, "attributeList(9)");
+  new_register_ber_oid_dissector("2.9.3.2.7.10", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "attributeValueChangeDefinition(10)");
+  new_register_ber_oid_dissector("2.9.3.2.7.11", dissect_BackedUpStatus_PDU, proto_cmip, "backedUpStatus(11)");
+  new_register_ber_oid_dissector("2.9.3.2.7.12", dissect_CorrelatedNotifications_PDU, proto_cmip, "correlatedNotifications(12)");
+  new_register_ber_oid_dissector("2.9.3.2.7.13", dissect_EventTime_PDU, proto_cmip, "eventTime(13)");
+  new_register_ber_oid_dissector("2.9.3.2.7.14", dissect_EventTypeId_PDU, proto_cmip, "eventType(14)");
+  new_register_ber_oid_dissector("2.9.3.2.7.15", dissect_MonitoredAttributes_PDU, proto_cmip, "monitoredAttributes(15)");
+  new_register_ber_oid_dissector("2.9.3.2.7.16", dissect_NotificationIdentifier_PDU, proto_cmip, "notificationIdentifier(16)");
+  new_register_ber_oid_dissector("2.9.3.2.7.17", dissect_PerceivedSeverity_PDU, proto_cmip, "perceivedSeverity(17)");
+  new_register_ber_oid_dissector("2.9.3.2.7.18", dissect_ProbableCause_PDU, proto_cmip, "probableCause(18)");
+  new_register_ber_oid_dissector("2.9.3.2.7.19", dissect_ProposedRepairActions_PDU, proto_cmip, "proposedRepairActions(19)");
+  new_register_ber_oid_dissector("2.9.3.2.7.20", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "relationshipChangeDefinition(20)");
+  new_register_ber_oid_dissector("2.9.3.2.7.21", dissect_SecurityAlarmCause_PDU, proto_cmip, "securityAlarmCause(21)");
+  new_register_ber_oid_dissector("2.9.3.2.7.22", dissect_SecurityAlarmDetector_PDU, proto_cmip, "securityAlarmDetector(22)");
+  new_register_ber_oid_dissector("2.9.3.2.7.23", dissect_SecurityAlarmSeverity_PDU, proto_cmip, "securityAlarmSeverity(23)");
+  new_register_ber_oid_dissector("2.9.3.2.7.24", dissect_ServiceProvider_PDU, proto_cmip, "serviceProvider(24)");
+  new_register_ber_oid_dissector("2.9.3.2.7.25", dissect_ServiceUser_PDU, proto_cmip, "serviceUser(25)");
+  new_register_ber_oid_dissector("2.9.3.2.7.26", dissect_SourceIndicator_PDU, proto_cmip, "sourceIndicator(26)");
+  new_register_ber_oid_dissector("2.9.3.2.7.27", dissect_SpecificProblems_PDU, proto_cmip, "specificProblems(27)");
+  new_register_ber_oid_dissector("2.9.3.2.7.28", dissect_AttributeValueChangeDefinition_PDU, proto_cmip, "stateChangeDefinition(28)");
+  new_register_ber_oid_dissector("2.9.3.2.7.29", dissect_ThresholdInfo_PDU, proto_cmip, "thresholdInfo(29)");
+  new_register_ber_oid_dissector("2.9.3.2.7.30", dissect_TrendIndication_PDU, proto_cmip, "trendIndication(30)");
+  new_register_ber_oid_dissector("2.9.3.2.7.31", dissect_AdministrativeState_PDU, proto_cmip, "administrativeState(31)");
+  new_register_ber_oid_dissector("2.9.3.2.7.32", dissect_AlarmStatus_PDU, proto_cmip, "alarmStatus(32)");
+  new_register_ber_oid_dissector("2.9.3.2.7.33", dissect_AvailabilityStatus_PDU, proto_cmip, "availabilityStatus(33)");
+  new_register_ber_oid_dissector("2.9.3.2.7.34", dissect_ControlStatus_PDU, proto_cmip, "controlStatus(34)");
+  new_register_ber_oid_dissector("2.9.3.2.7.35", dissect_OperationalState_PDU, proto_cmip, "operationalState(35)");
+  new_register_ber_oid_dissector("2.9.3.2.7.36", dissect_ProceduralStatus_PDU, proto_cmip, "proceduralStatus(36)");
+  new_register_ber_oid_dissector("2.9.3.2.7.37", dissect_StandbyStatus_PDU, proto_cmip, "standbyStatus(37)");
+  new_register_ber_oid_dissector("2.9.3.2.7.38", dissect_UnknownStatus_PDU, proto_cmip, "unknownStatus(38)");
+  new_register_ber_oid_dissector("2.9.3.2.7.39", dissect_UsageState_PDU, proto_cmip, "usageState(39)");
+  new_register_ber_oid_dissector("2.9.3.2.7.40", dissect_BackUpRelationshipObject_PDU, proto_cmip, "backUpObject(40)");
+  new_register_ber_oid_dissector("2.9.3.2.7.41", dissect_BackUpRelationshipObject_PDU, proto_cmip, "backedUpObject(41)");
+  new_register_ber_oid_dissector("2.9.3.2.7.42", dissect_GroupObjects_PDU, proto_cmip, "member(42)");
+  new_register_ber_oid_dissector("2.9.3.2.7.43", dissect_GroupObjects_PDU, proto_cmip, "owner(43)");
+  new_register_ber_oid_dissector("2.9.3.2.7.44", dissect_BackUpRelationshipObject_PDU, proto_cmip, "peer(44)");
+  new_register_ber_oid_dissector("2.9.3.2.7.45", dissect_PrioritisedObject_PDU, proto_cmip, "primary(45)");
+  new_register_ber_oid_dissector("2.9.3.2.7.46", dissect_PrioritisedObject_PDU, proto_cmip, "providerObject(46)");
+  new_register_ber_oid_dissector("2.9.3.2.7.47", dissect_PrioritisedObject_PDU, proto_cmip, "secondary(47)");
+  new_register_ber_oid_dissector("2.9.3.2.7.48", dissect_PrioritisedObject_PDU, proto_cmip, "userObject(48)");
+  new_register_ber_oid_dissector("2.9.3.2.7.49", dissect_ActiveDestination_PDU, proto_cmip, "activeDestination(49)");
+  new_register_ber_oid_dissector("2.9.3.2.7.50", dissect_Allomorphs_PDU, proto_cmip, "allomorphs(50)");
+  new_register_ber_oid_dissector("2.9.3.2.7.51", dissect_BackUpDestinationList_PDU, proto_cmip, "backUpDestinationList(51)");
+  new_register_ber_oid_dissector("2.9.3.2.7.52", dissect_CapacityAlarmThreshold_PDU, proto_cmip, "capacityAlarmTreshold(52)");
+  new_register_ber_oid_dissector("2.9.3.2.7.53", dissect_ConfirmedMode_PDU, proto_cmip, "confirmedMode(53)");
+  new_register_ber_oid_dissector("2.9.3.2.7.54", dissect_CurrentLogSize_PDU, proto_cmip, "currentLogSize(54)");
+  new_register_ber_oid_dissector("2.9.3.2.7.55", dissect_Destination_PDU, proto_cmip, "destination(55)");
+  new_register_ber_oid_dissector("2.9.3.2.7.56", dissect_DiscriminatorConstruct_PDU, proto_cmip, "discriminatorConstruct(56)");
+  new_register_ber_oid_dissector("2.9.3.2.7.57", dissect_IntervalsOfDay_PDU, proto_cmip, "intervalsOfDay(57)");
+  new_register_ber_oid_dissector("2.9.3.2.7.58", dissect_LogFullAction_PDU, proto_cmip, "logFullAction(58)");
+  new_register_ber_oid_dissector("2.9.3.2.7.59", dissect_LoggingTime_PDU, proto_cmip, "loggingTime(59)");
+  new_register_ber_oid_dissector("2.9.3.2.7.62", dissect_MaxLogSize_PDU, proto_cmip, "maxLogSize(62)");
+  new_register_ber_oid_dissector("2.9.3.2.7.63", dissect_NameBinding_PDU, proto_cmip, "nameBinding(63)");
+  new_register_ber_oid_dissector("2.9.3.2.7.64", dissect_NumberOfRecords_PDU, proto_cmip, "numberOfRecords(64)");
+  new_register_ber_oid_dissector("2.9.3.2.7.65", dissect_ObjectClass_PDU, proto_cmip, "objectClass(65)");
+  new_register_ber_oid_dissector("2.9.3.2.7.66", dissect_Packages_PDU, proto_cmip, "packages(66)");
+  new_register_ber_oid_dissector("2.9.3.2.7.68", dissect_StartTime_PDU, proto_cmip, "startTime(68)");
+  new_register_ber_oid_dissector("2.9.3.2.7.69", dissect_StopTime_PDU, proto_cmip, "stopTime(69)");
+  new_register_ber_oid_dissector("2.9.3.2.7.70", dissect_SupportedFeatures_PDU, proto_cmip, "supportedFeatures(70)");
+  new_register_ber_oid_dissector("2.9.3.2.7.71", dissect_WeekMask_PDU, proto_cmip, "weekMask(71)");
+  new_register_ber_oid_dissector("2.9.3.2.7.115", dissect_LifecycleState_PDU, proto_cmip, "lifecycleState(115)");
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/

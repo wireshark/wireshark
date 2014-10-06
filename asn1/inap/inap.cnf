@@ -46,8 +46,6 @@ ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType
 
-#.PDU
-
 # This table creates the value_sting to name Inap operation codes and errors
 # in file packet-inap-table.c which is included in the template file
 #

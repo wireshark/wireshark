@@ -77,22 +77,26 @@ void proto_reg_handoff_atn_cpdlc(void);
 static const char *object_identifier_id;
 
 /* forward declarations */
-static void dissect_GroundPDUs_PDU(
+static int dissect_GroundPDUs_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
-static void dissect_AircraftPDUs_PDU(
+		proto_tree *tree _U_,
+		void *data _U_);
+static int dissect_AircraftPDUs_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
-static void dissect_ProtectedGroundPDUs_PDU(
+		proto_tree *tree _U_,
+		void *data _U_);
+static int dissect_ProtectedGroundPDUs_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
-static void dissect_ProtectedAircraftPDUs_PDU(
+		proto_tree *tree _U_,
+		void *data _U_);
+static int dissect_ProtectedAircraftPDUs_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
-		proto_tree *tree _U_);
+		proto_tree *tree _U_,
+		void *data _U_);
 
 
 /*--- Included file: packet-atn-cpdlc-hf.c ---*/
@@ -700,7 +704,7 @@ static int hf_atn_cpdlc_windSpeedEnglish = -1;    /* WindSpeedEnglish */
 static int hf_atn_cpdlc_windSpeedMetric = -1;     /* WindSpeedMetric */
 
 /*--- End of included file: packet-atn-cpdlc-hf.c ---*/
-#line 90 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 94 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 
 /*--- Included file: packet-atn-cpdlc-ett.c ---*/
@@ -849,7 +853,7 @@ static gint ett_atn_cpdlc_Winds = -1;
 static gint ett_atn_cpdlc_WindSpeed = -1;
 
 /*--- End of included file: packet-atn-cpdlc-ett.c ---*/
-#line 92 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 96 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 static gint ett_atn_cpdlc = -1;
 
 
@@ -5265,30 +5269,42 @@ dissect_atn_cpdlc_ProtectedAircraftPDUs(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 /*--- PDUs ---*/
 
-static void dissect_GroundPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_GroundPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cpdlc_GroundPDUs(tvb, 0, &asn1_ctx, tree, hf_atn_cpdlc_GroundPDUs_PDU);
+  offset = dissect_atn_cpdlc_GroundPDUs(tvb, offset, &asn1_ctx, tree, hf_atn_cpdlc_GroundPDUs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
-static void dissect_AircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cpdlc_AircraftPDUs(tvb, 0, &asn1_ctx, tree, hf_atn_cpdlc_AircraftPDUs_PDU);
+  offset = dissect_atn_cpdlc_AircraftPDUs(tvb, offset, &asn1_ctx, tree, hf_atn_cpdlc_AircraftPDUs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
-static void dissect_ProtectedGroundPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProtectedGroundPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cpdlc_ProtectedGroundPDUs(tvb, 0, &asn1_ctx, tree, hf_atn_cpdlc_ProtectedGroundPDUs_PDU);
+  offset = dissect_atn_cpdlc_ProtectedGroundPDUs(tvb, offset, &asn1_ctx, tree, hf_atn_cpdlc_ProtectedGroundPDUs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
-static void dissect_ProtectedAircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ProtectedAircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_atn_cpdlc_ProtectedAircraftPDUs(tvb, 0, &asn1_ctx, tree, hf_atn_cpdlc_ProtectedAircraftPDUs_PDU);
+  offset = dissect_atn_cpdlc_ProtectedAircraftPDUs(tvb, offset, &asn1_ctx, tree, hf_atn_cpdlc_ProtectedAircraftPDUs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
 }
 
 
 /*--- End of included file: packet-atn-cpdlc-fn.c ---*/
-#line 95 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 99 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 /* Wireshark ID of CPDLC protocol */
 static int proto_atn_cpdlc = -1;
@@ -5369,12 +5385,12 @@ dissect_atn_cpdlc(
 								dissect_ProtectedGroundPDUs_PDU(
 										tvb,
 										pinfo,
-										atn_cpdlc_tree);
+										atn_cpdlc_tree, NULL);
 						}else {  /* downlink PDU's = Aircraft PDU's */
 								dissect_ProtectedAircraftPDUs_PDU(
 										tvb,
 										pinfo,
-									atn_cpdlc_tree);
+									atn_cpdlc_tree, NULL);
 						}
 						break;
 				case cpdlc:
@@ -5383,12 +5399,12 @@ dissect_atn_cpdlc(
 								dissect_GroundPDUs_PDU(
 										tvb,
 										pinfo,
-										atn_cpdlc_tree);
+										atn_cpdlc_tree, NULL);
 						}else {  /* downlink PDU's = Aircraft PDU's */
 								dissect_AircraftPDUs_PDU(
 										tvb,
 										pinfo,
-										atn_cpdlc_tree);
+										atn_cpdlc_tree, NULL);
 						}
 						break;
 				default:
@@ -5414,7 +5430,7 @@ dissect_atn_cpdlc_heur(
 		switch(type){
 			case um:
 					TRY {
-						dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL);
+						dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
 						is_pm = TRUE;
 						break;}
@@ -5423,7 +5439,7 @@ dissect_atn_cpdlc_heur(
 						is_pm = FALSE;}
 					ENDTRY;
 					TRY {
-		        dissect_GroundPDUs_PDU(tvb, pinfo, NULL);
+		        dissect_GroundPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_pm = FALSE;
 						is_atn_cpdlc = TRUE;
 						break;}
@@ -5434,7 +5450,7 @@ dissect_atn_cpdlc_heur(
 				break;
 		case dm:
 					TRY {
-						dissect_ProtectedAircraftPDUs_PDU(tvb, pinfo, NULL);
+						dissect_ProtectedAircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
 						is_pm = TRUE;
 						break;}
@@ -5443,7 +5459,7 @@ dissect_atn_cpdlc_heur(
 						is_pm = FALSE; }
 					ENDTRY;
 					TRY{
-						dissect_AircraftPDUs_PDU(tvb, pinfo, NULL);
+						dissect_AircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
 						is_pm = FALSE;
 						break;}
@@ -7910,7 +7926,7 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 308 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 312 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 			};
 
 		static gint *ett[] = {
@@ -8061,7 +8077,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 312 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 316 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 				&ett_atn_cpdlc
 		};
 

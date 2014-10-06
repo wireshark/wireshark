@@ -11,7 +11,7 @@ ALIGNED
 EDPCH-Information-RLReconfPrepare-FDD
 Non-Serving-RL-Preconfig-Info
 
-#.PDU
+#.PDU_NEW
 RNSAP-PDU
 
 #.MAKE_DEFINES

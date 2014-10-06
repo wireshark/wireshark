@@ -509,10 +509,12 @@ dissect_logotypecertextn_LogotypeExtn(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 /*--- PDUs ---*/
 
-static void dissect_LogotypeExtn_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_LogotypeExtn_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_logotypecertextn_LogotypeExtn(FALSE, tvb, 0, &asn1_ctx, tree, hf_logotypecertextn_LogotypeExtn_PDU);
+  offset = dissect_logotypecertextn_LogotypeExtn(FALSE, tvb, offset, &asn1_ctx, tree, hf_logotypecertextn_LogotypeExtn_PDU);
+  return offset;
 }
 
 
@@ -741,9 +743,9 @@ void proto_reg_handoff_logotypecertextn(void) {
 
 /*--- Included file: packet-logotypecertextn-dis-tab.c ---*/
 #line 1 "../../asn1/logotypecertextn/packet-logotypecertextn-dis-tab.c"
-  register_ber_oid_dissector("1.3.6.1.5.5.7.1.12", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logotype");
-  register_ber_oid_dissector("1.3.6.1.5.5.7.20.1", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-loyalty");
-  register_ber_oid_dissector("1.3.6.1.5.5.7.20.2", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-background");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.1.12", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logotype");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.20.1", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-loyalty");
+  new_register_ber_oid_dissector("1.3.6.1.5.5.7.20.2", dissect_LogotypeExtn_PDU, proto_logotypecertextn, "id-pe-logo-background");
 
 
 /*--- End of included file: packet-logotypecertextn-dis-tab.c ---*/

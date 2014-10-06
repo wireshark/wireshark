@@ -2074,25 +2074,33 @@ dissect_x509if_SearchRuleId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 /*--- PDUs ---*/
 
-static void dissect_DistinguishedName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DistinguishedName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509if_DistinguishedName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_DistinguishedName_PDU);
+  offset = dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509if_DistinguishedName_PDU);
+  return offset;
 }
-static void dissect_SubtreeSpecification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SubtreeSpecification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509if_SubtreeSpecification(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_SubtreeSpecification_PDU);
+  offset = dissect_x509if_SubtreeSpecification(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509if_SubtreeSpecification_PDU);
+  return offset;
 }
-static void dissect_HierarchyLevel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HierarchyLevel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509if_HierarchyLevel(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_HierarchyLevel_PDU);
+  offset = dissect_x509if_HierarchyLevel(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509if_HierarchyLevel_PDU);
+  return offset;
 }
-static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509if_HierarchyBelow(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_HierarchyBelow_PDU);
+  offset = dissect_x509if_HierarchyBelow(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509if_HierarchyBelow_PDU);
+  return offset;
 }
 
 
@@ -2868,39 +2876,39 @@ void proto_reg_handoff_x509if(void) {
 
 /*--- Included file: packet-x509if-dis-tab.c ---*/
 #line 1 "../../asn1/x509if/packet-x509if-dis-tab.c"
-  register_ber_oid_dissector("2.5.4.1", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasedEntryName");
-  register_ber_oid_dissector("2.5.4.31", dissect_DistinguishedName_PDU, proto_x509if, "id-at-member");
-  register_ber_oid_dissector("2.5.4.32", dissect_DistinguishedName_PDU, proto_x509if, "id-at-owner");
-  register_ber_oid_dissector("2.5.4.33", dissect_DistinguishedName_PDU, proto_x509if, "id-at-roleOccupant");
-  register_ber_oid_dissector("2.5.4.34", dissect_DistinguishedName_PDU, proto_x509if, "id-at-seeAlso");
-  register_ber_oid_dissector("2.5.4.49", dissect_DistinguishedName_PDU, proto_x509if, "id-at-distinguishedName");
-  register_ber_oid_dissector("2.5.18.3", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-creatorsName");
-  register_ber_oid_dissector("2.5.18.4", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-modifiersName");
-  register_ber_oid_dissector("2.5.18.6", dissect_SubtreeSpecification_PDU, proto_x509if, "id-oa-subtreeSpecification");
-  register_ber_oid_dissector("2.5.18.10", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-subschemaSubentry");
-  register_ber_oid_dissector("2.5.18.11", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-accessControlSubentry");
-  register_ber_oid_dissector("2.5.18.12", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-collectiveAttributeSubentry");
-  register_ber_oid_dissector("2.5.18.13", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-contextDefaultSubentry");
-  register_ber_oid_dissector("2.5.18.17", dissect_HierarchyLevel_PDU, proto_x509if, "id-oa-hierarchyLevel");
-  register_ber_oid_dissector("2.5.18.18", dissect_HierarchyBelow_PDU, proto_x509if, "iid-oa-hierarchyBelow");
-  register_ber_oid_dissector("2.6.5.2.5", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-message-store-dn");
-  register_ber_oid_dissector("2.6.5.2.14", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-dl-related-lists");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.3", dissect_DistinguishedName_PDU, proto_x509if, "id-at-alternateRecipient");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.4", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedOrganization");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.6", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedPLA");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.49", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasPointer");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.61", dissect_DistinguishedName_PDU, proto_x509if, "id-at-listPointer");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.110", dissect_DistinguishedName_PDU, proto_x509if, "id-at-administrator");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.111", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aigsExpanded");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.113", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedAL");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.114", dissect_DistinguishedName_PDU, proto_x509if, "id-at-copyMember");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.117", dissect_DistinguishedName_PDU, proto_x509if, "id-at-guard");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.121", dissect_DistinguishedName_PDU, proto_x509if, "id-at-networkDN");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.138", dissect_DistinguishedName_PDU, proto_x509if, "id-at-plasServed");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.139", dissect_DistinguishedName_PDU, proto_x509if, "id-at-deployed");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.140", dissect_DistinguishedName_PDU, proto_x509if, "id-at-garrison");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.184", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aCPDutyOfficer");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.188", dissect_DistinguishedName_PDU, proto_x509if, "id-at-primaryMember");
+  new_register_ber_oid_dissector("2.5.4.1", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasedEntryName");
+  new_register_ber_oid_dissector("2.5.4.31", dissect_DistinguishedName_PDU, proto_x509if, "id-at-member");
+  new_register_ber_oid_dissector("2.5.4.32", dissect_DistinguishedName_PDU, proto_x509if, "id-at-owner");
+  new_register_ber_oid_dissector("2.5.4.33", dissect_DistinguishedName_PDU, proto_x509if, "id-at-roleOccupant");
+  new_register_ber_oid_dissector("2.5.4.34", dissect_DistinguishedName_PDU, proto_x509if, "id-at-seeAlso");
+  new_register_ber_oid_dissector("2.5.4.49", dissect_DistinguishedName_PDU, proto_x509if, "id-at-distinguishedName");
+  new_register_ber_oid_dissector("2.5.18.3", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-creatorsName");
+  new_register_ber_oid_dissector("2.5.18.4", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-modifiersName");
+  new_register_ber_oid_dissector("2.5.18.6", dissect_SubtreeSpecification_PDU, proto_x509if, "id-oa-subtreeSpecification");
+  new_register_ber_oid_dissector("2.5.18.10", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-subschemaSubentry");
+  new_register_ber_oid_dissector("2.5.18.11", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-accessControlSubentry");
+  new_register_ber_oid_dissector("2.5.18.12", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-collectiveAttributeSubentry");
+  new_register_ber_oid_dissector("2.5.18.13", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-contextDefaultSubentry");
+  new_register_ber_oid_dissector("2.5.18.17", dissect_HierarchyLevel_PDU, proto_x509if, "id-oa-hierarchyLevel");
+  new_register_ber_oid_dissector("2.5.18.18", dissect_HierarchyBelow_PDU, proto_x509if, "iid-oa-hierarchyBelow");
+  new_register_ber_oid_dissector("2.6.5.2.5", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-message-store-dn");
+  new_register_ber_oid_dissector("2.6.5.2.14", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-dl-related-lists");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.3", dissect_DistinguishedName_PDU, proto_x509if, "id-at-alternateRecipient");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.4", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedOrganization");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.6", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedPLA");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.49", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasPointer");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.61", dissect_DistinguishedName_PDU, proto_x509if, "id-at-listPointer");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.110", dissect_DistinguishedName_PDU, proto_x509if, "id-at-administrator");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.111", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aigsExpanded");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.113", dissect_DistinguishedName_PDU, proto_x509if, "id-at-associatedAL");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.114", dissect_DistinguishedName_PDU, proto_x509if, "id-at-copyMember");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.117", dissect_DistinguishedName_PDU, proto_x509if, "id-at-guard");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.121", dissect_DistinguishedName_PDU, proto_x509if, "id-at-networkDN");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.138", dissect_DistinguishedName_PDU, proto_x509if, "id-at-plasServed");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.139", dissect_DistinguishedName_PDU, proto_x509if, "id-at-deployed");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.140", dissect_DistinguishedName_PDU, proto_x509if, "id-at-garrison");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.184", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aCPDutyOfficer");
+  new_register_ber_oid_dissector("2.16.840.1.101.2.2.1.188", dissect_DistinguishedName_PDU, proto_x509if, "id-at-primaryMember");
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/

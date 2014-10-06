@@ -7,7 +7,7 @@ PER
 ALIGNED
 #.END
 
-#.PDU
+#.PDU_NEW
 RUA-PDU
 
 #.MAKE_ENUM

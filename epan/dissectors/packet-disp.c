@@ -661,7 +661,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "../../asn1/disp/disp.cnf"
+#line 63 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -851,7 +851,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "../../asn1/disp/disp.cnf"
+#line 73 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -876,7 +876,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "../../asn1/disp/disp.cnf"
+#line 43 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -976,7 +976,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "../../asn1/disp/disp.cnf"
+#line 83 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1278,7 +1278,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "../../asn1/disp/disp.cnf"
+#line 53 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1358,7 +1358,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "../../asn1/disp/disp.cnf"
+#line 93 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1392,7 +1392,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "../../asn1/disp/disp.cnf"
+#line 103 "../../asn1/disp/disp.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1459,20 +1459,26 @@ dissect_disp_ShadowError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 /*--- PDUs ---*/
 
-static void dissect_EstablishParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EstablishParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_disp_EstablishParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_disp_EstablishParameter_PDU);
+  offset = dissect_disp_EstablishParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_disp_EstablishParameter_PDU);
+  return offset;
 }
-static void dissect_ModificationParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ModificationParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_disp_ModificationParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_disp_ModificationParameter_PDU);
+  offset = dissect_disp_ModificationParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_disp_ModificationParameter_PDU);
+  return offset;
 }
-static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_disp_ShadowingAgreementInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_disp_ShadowingAgreementInfo_PDU);
+  offset = dissect_disp_ShadowingAgreementInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf_disp_ShadowingAgreementInfo_PDU);
+  return offset;
 }
 
 
@@ -2142,11 +2148,11 @@ void proto_reg_handoff_disp(void) {
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
 #line 1 "../../asn1/disp/packet-disp-dis-tab.c"
-  dissector_add_string("dop.oid", "agreement.2.5.19.1", create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "agreement.2.5.19.1", new_create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", new_create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", new_create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", new_create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", new_create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/

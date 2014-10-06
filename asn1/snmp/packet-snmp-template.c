@@ -2137,8 +2137,8 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void
-dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
@@ -2147,12 +2147,10 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
-	if (tree) {
-		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_NA);
-		smux_tree = proto_item_add_subtree(item, ett_smux);
-	}
+	item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_NA);
+	smux_tree = proto_item_add_subtree(item, ett_smux);
 
-	dissect_SMUX_PDUs_PDU(tvb, pinfo, smux_tree);
+	return dissect_SMUX_PDUs_PDU(tvb, pinfo, smux_tree, data);
 }
 
 
@@ -2638,7 +2636,7 @@ proto_reg_handoff_smux(void)
 {
 	dissector_handle_t smux_handle;
 
-	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
+	smux_handle = new_create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
 

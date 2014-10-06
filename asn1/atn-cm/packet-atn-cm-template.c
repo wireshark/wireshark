@@ -91,13 +91,13 @@ dissect_atn_cm(
 						dissect_CMGroundMessage_PDU(
 							tvb,
 							pinfo,
-							sub_tree);
+							sub_tree, NULL);
 						break;
 				case dm:
 						dissect_CMAircraftMessage_PDU(
 							tvb,
 							pinfo,
-							sub_tree);
+							sub_tree, NULL);
 						break;
 				default:
 						break;
@@ -126,7 +126,7 @@ dissect_atn_cm_heur(
 								dissect_CMGroundMessage_PDU(
 									tvb,
 									pinfo,
-									NULL);
+									NULL, NULL);
 								/* no exception thrown: looks like it is a CM PDU */
 								is_atn_cm = TRUE; }
 						CATCH_ALL {
@@ -138,7 +138,7 @@ dissect_atn_cm_heur(
 								dissect_CMAircraftMessage_PDU(
 										tvb,
 										pinfo,
-										NULL);
+										NULL, NULL);
 								/* no exception thrown: looks like it is a CM PDU */
 								is_atn_cm = TRUE;}
 						CATCH_ALL {

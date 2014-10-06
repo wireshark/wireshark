@@ -1956,65 +1956,89 @@ dissect_dop_ACIItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 /*--- PDUs ---*/
 
-static void dissect_DSEType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DSEType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_DSEType(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_DSEType_PDU);
+  offset = dissect_dop_DSEType(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_DSEType_PDU);
+  return offset;
 }
-static void dissect_SupplierInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SupplierInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_SupplierInformation(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_SupplierInformation_PDU);
+  offset = dissect_dop_SupplierInformation(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_SupplierInformation_PDU);
+  return offset;
 }
-static void dissect_ConsumerInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConsumerInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_ConsumerInformation(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_ConsumerInformation_PDU);
+  offset = dissect_dop_ConsumerInformation(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_ConsumerInformation_PDU);
+  return offset;
 }
-static void dissect_SupplierAndConsumers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SupplierAndConsumers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_SupplierAndConsumers(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_SupplierAndConsumers_PDU);
+  offset = dissect_dop_SupplierAndConsumers(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_SupplierAndConsumers_PDU);
+  return offset;
 }
-static void dissect_HierarchicalAgreement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HierarchicalAgreement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_HierarchicalAgreement(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_HierarchicalAgreement_PDU);
+  offset = dissect_dop_HierarchicalAgreement(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_HierarchicalAgreement_PDU);
+  return offset;
 }
-static void dissect_SuperiorToSubordinate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SuperiorToSubordinate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_SuperiorToSubordinate(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_SuperiorToSubordinate_PDU);
+  offset = dissect_dop_SuperiorToSubordinate(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_SuperiorToSubordinate_PDU);
+  return offset;
 }
-static void dissect_SubordinateToSuperior_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SubordinateToSuperior_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_SubordinateToSuperior(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_SubordinateToSuperior_PDU);
+  offset = dissect_dop_SubordinateToSuperior(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_SubordinateToSuperior_PDU);
+  return offset;
 }
-static void dissect_SuperiorToSubordinateModification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SuperiorToSubordinateModification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_SuperiorToSubordinateModification(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_SuperiorToSubordinateModification_PDU);
+  offset = dissect_dop_SuperiorToSubordinateModification(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_SuperiorToSubordinateModification_PDU);
+  return offset;
 }
-static void dissect_NonSpecificHierarchicalAgreement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NonSpecificHierarchicalAgreement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_NonSpecificHierarchicalAgreement(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_NonSpecificHierarchicalAgreement_PDU);
+  offset = dissect_dop_NonSpecificHierarchicalAgreement(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_NonSpecificHierarchicalAgreement_PDU);
+  return offset;
 }
-static void dissect_NHOBSuperiorToSubordinate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NHOBSuperiorToSubordinate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_NHOBSuperiorToSubordinate(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_NHOBSuperiorToSubordinate_PDU);
+  offset = dissect_dop_NHOBSuperiorToSubordinate(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_NHOBSuperiorToSubordinate_PDU);
+  return offset;
 }
-static void dissect_NHOBSubordinateToSuperior_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NHOBSubordinateToSuperior_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_NHOBSubordinateToSuperior(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_NHOBSubordinateToSuperior_PDU);
+  offset = dissect_dop_NHOBSubordinateToSuperior(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_NHOBSubordinateToSuperior_PDU);
+  return offset;
 }
-static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_dop_ACIItem(FALSE, tvb, 0, &asn1_ctx, tree, hf_dop_ACIItem_PDU);
+  offset = dissect_dop_ACIItem(FALSE, tvb, offset, &asn1_ctx, tree, hf_dop_ACIItem_PDU);
+  return offset;
 }
 
 
@@ -3062,23 +3086,23 @@ void proto_reg_handoff_dop(void) {
 
 /*--- Included file: packet-dop-dis-tab.c ---*/
 #line 1 "../../asn1/dop/packet-dop-dis-tab.c"
-  register_ber_oid_dissector("2.5.12.0", dissect_DSEType_PDU, proto_dop, "id-doa-dseType");
-  register_ber_oid_dissector("2.5.12.5", dissect_SupplierInformation_PDU, proto_dop, "id-doa-supplierKnowledge");
-  register_ber_oid_dissector("2.5.12.6", dissect_ConsumerInformation_PDU, proto_dop, "id-doa-consumerKnowledge");
-  register_ber_oid_dissector("2.5.12.7", dissect_SupplierAndConsumers_PDU, proto_dop, "id-doa-secondaryShadows");
-  dissector_add_string("dop.oid", "agreement.2.5.19.2", create_dissector_handle(dissect_HierarchicalAgreement_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.2", create_dissector_handle(dissect_SuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.2", create_dissector_handle(dissect_SuperiorToSubordinateModification_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.2", create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.2", create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "agreement.2.5.19.3", create_dissector_handle(dissect_NonSpecificHierarchicalAgreement_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.3", create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.3", create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.3", create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.3", create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
-  register_ber_oid_dissector("2.5.24.4", dissect_ACIItem_PDU, proto_dop, "id-aca-prescriptiveACI");
-  register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
-  register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
+  new_register_ber_oid_dissector("2.5.12.0", dissect_DSEType_PDU, proto_dop, "id-doa-dseType");
+  new_register_ber_oid_dissector("2.5.12.5", dissect_SupplierInformation_PDU, proto_dop, "id-doa-supplierKnowledge");
+  new_register_ber_oid_dissector("2.5.12.6", dissect_ConsumerInformation_PDU, proto_dop, "id-doa-consumerKnowledge");
+  new_register_ber_oid_dissector("2.5.12.7", dissect_SupplierAndConsumers_PDU, proto_dop, "id-doa-secondaryShadows");
+  dissector_add_string("dop.oid", "agreement.2.5.19.2", new_create_dissector_handle(dissect_HierarchicalAgreement_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.2", new_create_dissector_handle(dissect_SuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.2", new_create_dissector_handle(dissect_SuperiorToSubordinateModification_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.2", new_create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.2", new_create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "agreement.2.5.19.3", new_create_dissector_handle(dissect_NonSpecificHierarchicalAgreement_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.3", new_create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.3", new_create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.3", new_create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.3", new_create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
+  new_register_ber_oid_dissector("2.5.24.4", dissect_ACIItem_PDU, proto_dop, "id-aca-prescriptiveACI");
+  new_register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
+  new_register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
