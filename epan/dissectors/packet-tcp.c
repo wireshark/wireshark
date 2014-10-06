@@ -333,7 +333,7 @@ static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
  * This preference can be set for such protocols to make sure that we don't
  * invoke the subdissectors for retransmitted or out-of-order segments.
  */
-static gboolean tcp_no_subdissector_on_error = FALSE;
+static gboolean tcp_no_subdissector_on_error = TRUE;
 
 /*
  * FF: (draft-ietf-tcpm-experimental-options-03)
