@@ -23,25 +23,21 @@
 # is an archive library, any executable linking against libwireshark will
 # also need to link against libftypes.
 
+AUTOMAKE_OPTIONS = -Wno-gnu
+
 CC = $(CC_FOR_BUILD)
+CPPFLAGS = $(CPPFLAGS_FOR_BUILD)
+CFLAGS = $(CFLAGS_FOR_BUILD)
+LDFLAGS = $(LDFLAGS_FOR_BUILD)
+LIBS =
 
 if HAVE_WARNINGS_AS_ERRORS
-CFLAGS_FOR_BUILD += -Werror
+WERROR = -Werror
 endif
-
-LIBS =
 
 noinst_PROGRAMS = lemon
 
-lemon_SOURCES = lemon.c
-
-lemon_CPPFLAGS =
-
-lemon_CFLAGS = $(CFLAGS_FOR_BUILD)
-
-lemon_LDFLAGS = $(LDFLAGS_FOR_BUILD)
-
-lemon_LDADD =
+lemon_CFLAGS = $(WERROR) $(WS_CFLAGS_FOR_BUILD)
 
 CLEANFILES = \
 	*~

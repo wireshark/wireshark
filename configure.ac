@@ -69,6 +69,12 @@ AC_PROG_CXX
 AC_PROG_CPP
 AC_PROG_MKDIR_P
 
+# Set CC_FOR_BUILD (the *local* gcc to use for building e.g. lemon)
+if test "x$cross_compiling" = xno -a -z "$CC_FOR_BUILD"; then
+	CC_FOR_BUILD="$CC"
+fi
+AX_PROG_CC_FOR_BUILD
+
 dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
@@ -227,13 +233,6 @@ fi
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
 	ac_supports_gcc_flags=yes
 fi
-
-if test "x$CC_FOR_BUILD" = x
-then
-       CC_FOR_BUILD=$CC
-fi
-AC_SUBST(CC_FOR_BUILD)
-AC_SUBST(CFLAGS_FOR_BUILD)
 
 # Check for doxygen
 AC_PATH_PROG(DOXYGEN, doxygen)
@@ -3157,6 +3156,8 @@ AC_SUBST(WS_CPPFLAGS)
 AC_SUBST(WS_CFLAGS)
 AC_SUBST(WS_CXXFLAGS)
 AC_SUBST(WS_LDFLAGS)
+
+AC_SUBST(WS_CFLAGS_FOR_BUILD)
 
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE

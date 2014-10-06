@@ -1622,7 +1622,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                 # with which we're building Wireshark, so add the flags
                 # to the flags for that compiler as well.
                 #
-                CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+                AX_APPEND_FLAG([$GCC_OPTION], [WS_CFLAGS_FOR_BUILD])
               fi
             ],
             [
@@ -1641,7 +1641,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
             # with which we're building Wireshark, so add the flags
             # to the flags for that compiler as well.
             #
-            CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+            AX_APPEND_FLAG([$GCC_OPTION], [WS_CFLAGS_FOR_BUILD])
           fi
         fi
       ],
