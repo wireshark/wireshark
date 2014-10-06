@@ -61,18 +61,16 @@ static const value_string g723_frame_size_and_codec_type_value[] = {
 };
 
 
-/* Code to actually dissect the packets */
+/* Dissection */
 static void
 dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint octet;
 
-/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *g723_tree;
 
-/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "G.723.1");
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_g723, tvb, 0, -1, ENC_NA);
@@ -89,12 +87,6 @@ dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-
-/* Register the protocol with Wireshark */
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_g723(void)
 {
@@ -106,16 +98,11 @@ proto_reg_handoff_g723(void)
 
 }
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_g723(void)
 {
 
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_g723_frame_size_and_codec,
 			{ "Frame size and codec type", "g723.frame_size_and_codec",
@@ -130,15 +117,12 @@ proto_register_g723(void)
 
 	};
 
-/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_g723,
 	};
 
-/* Register the protocol name and description */
 	proto_g723 = proto_register_protocol("G.723","G.723", "g723");
 
-/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_g723, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
