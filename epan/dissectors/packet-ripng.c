@@ -112,7 +112,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             proto_tree_add_item(rte_tree, hf_ripng_rte_metric, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(rte_ti, " Metric: %u", tvb_get_guint8(tvb, offset));
             offset += 1;
-	}
+        }
     }
 }
 
@@ -121,37 +121,37 @@ proto_register_ripng(void)
 {
     static hf_register_info hf[] = {
         { &hf_ripng_cmd,
-          { "Command",		"ripng.cmd",
+          { "Command",          "ripng.cmd",
             FT_UINT8, BASE_DEC, VALS(cmdvals), 0x0,
             "Used to specify the purpose of this message", HFILL }},
         { &hf_ripng_version,
-          { "Version",		"ripng.version",
+          { "Version",          "ripng.version",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Version of RIPng", HFILL }},
         { &hf_ripng_reserved,
-          { "Reserved",		"ripng.reserved",
+          { "Reserved",         "ripng.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Must be Zero", HFILL }},
         { &hf_ripng_rte,
-          { "Route Table Entry",		"ripng.rte",
+          { "Route Table Entry",                "ripng.rte",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ripng_rte_ipv6_prefix,
-          { "IPv6 Prefix",		"ripng.rte.ipv6_prefix",
+          { "IPv6 Prefix",              "ripng.rte.ipv6_prefix",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             "Destination", HFILL }},
         { &hf_ripng_rte_route_tag,
-          { "Route Tag",		"ripng.rte.route_tag",
+          { "Route Tag",                "ripng.rte.route_tag",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             "Provides a method of separating internal RIPng routes (routes for networks within the RIPng routing domain) from external RIPng routes, which may have been imported from an EGP or another IGP", HFILL }},
 
         { &hf_ripng_rte_prefix_length,
-          { "Prefix Length",		"ripng.rte.prefix_length",
+          { "Prefix Length",            "ripng.rte.prefix_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "The length in bits of the significant part of the prefix starting from the left of the prefix", HFILL }},
 
         { &hf_ripng_rte_metric,
-          { "Metric",		"ripng.rte.metric",
+          { "Metric",           "ripng.rte.metric",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "The current metric for the destination; the value 16 (infinity) indicates that the destination is not reachable", HFILL }},
     };

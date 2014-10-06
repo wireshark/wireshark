@@ -92,8 +92,8 @@ change_dissector_if_matched(gpointer item, gpointer user_data)
  */
 static prefs_set_pref_e
 read_set_decode_as_entries(gchar *key, const gchar *value,
-			   void *user_data _U_,
-			   gboolean return_range_errors _U_)
+                           void *user_data _U_,
+                           gboolean return_range_errors _U_)
 {
     gchar *values[4] = {NULL, NULL, NULL, NULL};
     gchar delimiter[4] = {',', ',', ',','\0'};

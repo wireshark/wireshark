@@ -1382,7 +1382,7 @@ s7comm_get_szl_id_index_description_text(guint16 id, guint16 idx)
 
  /*******************************************************************************************************
  *
- * SZL-ID:	0xxy00
+ * SZL-ID:      0xxy00
  * Content:
  *   If you read the partial lists with SZL-ID W#16#xy00, you obtain the
  *   SZL-IDs supported by the module.
@@ -2228,7 +2228,7 @@ s7comm_decode_szl_id_0131_idx_0003(tvbuff_t *tvb,
 /*******************************************************************************************************
  *
  * SZL-ID:  0x0131
- * Index:	    0x0004
+ * Index:   0x0004
  * Content:
  *  The partial list extract with SZL-ID W#16#0131 and the index W#16#0004
  *  contains information about the object management system (OMS) of the
@@ -3526,7 +3526,7 @@ s7comm_szl_0132_0006_register(int proto)
     static hf_register_info hf[] = {
         /*** SZL functions ***/
         { &hf_s7comm_szl_0132_0006_index,
-        { "Index",	 "s7comm.szl.0132.0006.index", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Index", "s7comm.szl.0132.0006.index", FT_UINT16, BASE_HEX, NULL, 0x0,
           "W#16#0006: Data exchange with communication SFBs for configured connections", HFILL }},
 
         { &hf_s7comm_szl_0132_0006_used_0,

@@ -60,51 +60,51 @@ static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 static gboolean
 needs_redirection(int std_handle)
 {
-	HANDLE fd;
-	DWORD handle_type;
-	DWORD error;
+  HANDLE fd;
+  DWORD handle_type;
+  DWORD error;
 
-	fd = GetStdHandle(std_handle);
-	if (fd == NULL) {
-		/*
-		 * No standard handle.  According to Microsoft's
-		 * documentation for GetStdHandle(), one reason for
-		 * this would be that the process is "a service on
-		 * an interactive desktop"; I'm not sure whether
-		 * such a process should be popping up a console.
-		 *
-		 * However, it also appears to be the case for
-		 * the standard input and standard error, but
-		 * *not* the standard output, for something run
-		 * with a double-click in Windows Explorer,
-		 * sow we'll say it needs redirection.
-		 */
-		return TRUE;
-	}
-	if (fd == INVALID_HANDLE_VALUE) {
-		/*
-		 * OK, I'm not when this would happen; return
-		 * "no redirection" for now.
-		 */
-		return FALSE;
-	}
-	handle_type = GetFileType(fd);
-	if (handle_type == FILE_TYPE_UNKNOWN) {
-		error = GetLastError();
-		if (error == ERROR_INVALID_HANDLE) {
-			/*
-			 * OK, this appears to be the case where we're
-			 * running something in a mode that needs a
-			 * console.
-			 */
-			return TRUE;
-		}
-	}
+  fd = GetStdHandle(std_handle);
+  if (fd == NULL) {
+    /*
+     * No standard handle.  According to Microsoft's
+     * documentation for GetStdHandle(), one reason for
+     * this would be that the process is "a service on
+     * an interactive desktop"; I'm not sure whether
+     * such a process should be popping up a console.
+     *
+     * However, it also appears to be the case for
+     * the standard input and standard error, but
+     * *not* the standard output, for something run
+     * with a double-click in Windows Explorer,
+     * sow we'll say it needs redirection.
+     */
+    return TRUE;
+  }
+  if (fd == INVALID_HANDLE_VALUE) {
+    /*
+     * OK, I'm not when this would happen; return
+     * "no redirection" for now.
+     */
+    return FALSE;
+  }
+  handle_type = GetFileType(fd);
+  if (handle_type == FILE_TYPE_UNKNOWN) {
+    error = GetLastError();
+    if (error == ERROR_INVALID_HANDLE) {
+      /*
+       * OK, this appears to be the case where we're
+       * running something in a mode that needs a
+       * console.
+       */
+      return TRUE;
+    }
+  }
 
-	/*
-	 * Assume no redirection is needed for all other cases.
-	 */
-	return FALSE;
+  /*
+   * Assume no redirection is needed for all other cases.
+   */
+  return FALSE;
 }
 
 /* The code to create and desstroy console windows should not be necessary,

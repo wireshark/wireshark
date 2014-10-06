@@ -34,59 +34,59 @@
 
 #include "ui/ui_util.h"
 
-#define	SHIFT_POS		0
-#define	SHIFT_NEG		1
-#define	SHIFT_SETTOZERO		1
-#define	SHIFT_KEEPOFFSET	0
+#define SHIFT_POS               0
+#define SHIFT_NEG               1
+#define SHIFT_SETTOZERO         1
+#define SHIFT_KEEPOFFSET        0
 
-#define CHECK_YEARS(Y)							\
-  if (*Y < 1970) {							\
-    return "Years must be larger than 1970";				\
-  }
-#define CHECK_MONTHS(M)							\
-  if (*M < 1 || *M > 12) {						\
-    return "Months must be between [1..12]";				\
-  }
-#define CHECK_DAYS(D)							\
-  if (*D < 1 || *D > 31) {						\
-    return "Days must be between [1..31]";				\
-  }
-#define CHECK_HOURS(h)							\
-  if (*h < 0 || *h > 23) {						\
-    return "Hours must be between [0..23]";				\
-  }
-#define CHECK_HOUR(h)							\
-  if (*h < 0) {								\
-    return "Negative hours. Have you specified more than "		\
-      "one minus character?";						\
-  }
-#define CHECK_MINUTE(m)					    \
-  if (*m < 0 || *m > 59) {				    \
-    return "Minutes must be between [0..59]";		    \
-  }
-#define CHECK_SECOND(s)					    \
-  if (*s < 0 || *s > 59) {				    \
-    return "Seconds must be between [0..59]";		    \
-  }
+#define CHECK_YEARS(Y)                                  \
+    if (*Y < 1970) {                                    \
+        return "Years must be larger than 1970";        \
+    }
+#define CHECK_MONTHS(M)                                 \
+    if (*M < 1 || *M > 12) {                            \
+        return "Months must be between [1..12]";        \
+    }
+#define CHECK_DAYS(D)                           \
+    if (*D < 1 || *D > 31) {                    \
+        return "Days must be between [1..31]";  \
+    }
+#define CHECK_HOURS(h)                          \
+    if (*h < 0 || *h > 23) {                    \
+        return "Hours must be between [0..23]"; \
+    }
+#define CHECK_HOUR(h)                                           \
+    if (*h < 0) {                                               \
+        return "Negative hours. Have you specified more than "  \
+            "one minus character?";                             \
+    }
+#define CHECK_MINUTE(m)                                 \
+    if (*m < 0 || *m > 59) {                            \
+        return "Minutes must be between [0..59]";       \
+    }
+#define CHECK_SECOND(s)                                     \
+    if (*s < 0 || *s > 59) {                                \
+        return "Seconds must be between [0..59]";           \
+    }
 
 static void
 modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
 {
-  /* The actual shift */
-  if (settozero == SHIFT_SETTOZERO) {
-    nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
-    nstime_set_zero(&(fd->shift_offset));
-  }
+    /* The actual shift */
+    if (settozero == SHIFT_SETTOZERO) {
+        nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
+        nstime_set_zero(&(fd->shift_offset));
+    }
 
-  if (neg == SHIFT_POS) {
-    nstime_add(&(fd->abs_ts), offset);
-    nstime_add(&(fd->shift_offset), offset);
-  } else if (neg == SHIFT_NEG) {
-    nstime_subtract(&(fd->abs_ts), offset);
-    nstime_subtract(&(fd->shift_offset), offset);
-  } else {
-    fprintf(stderr, "Modify_time_perform: neg = %d?\n", neg);
-  }
+    if (neg == SHIFT_POS) {
+        nstime_add(&(fd->abs_ts), offset);
+        nstime_add(&(fd->shift_offset), offset);
+    } else if (neg == SHIFT_NEG) {
+        nstime_subtract(&(fd->abs_ts), offset);
+        nstime_subtract(&(fd->shift_offset), offset);
+    } else {
+        fprintf(stderr, "Modify_time_perform: neg = %d?\n", neg);
+    }
 }
 
 /*
@@ -103,31 +103,31 @@ modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
  */
 static void
 calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
-  nstime_t *deltaOT, nstime_t *deltaNT)
+        nstime_t *deltaOT, nstime_t *deltaNT)
 {
-  long double fnt, fot, f, secs, nsecs;
+    long double fnt, fot, f, secs, nsecs;
 
-  fnt = (long double)deltaNT->secs + (deltaNT->nsecs / 1000000000.0L);
-  fot = (long double)deltaOT->secs + (deltaOT->nsecs / 1000000000.0L);
-  f = fnt / fot;
+    fnt = (long double)deltaNT->secs + (deltaNT->nsecs / 1000000000.0L);
+    fot = (long double)deltaOT->secs + (deltaOT->nsecs / 1000000000.0L);
+    f = fnt / fot;
 
-  nstime_copy(NT3, OT3);
-  nstime_subtract(NT3, OT1);
+    nstime_copy(NT3, OT3);
+    nstime_subtract(NT3, OT1);
 
-  secs = f * (long double)NT3->secs;
-  nsecs = f * (long double)NT3->nsecs;
-  nsecs += (secs - floorl(secs)) * 1000000000.0L;
-  while (nsecs > 1000000000L) {
-    secs += 1;
-    nsecs -= 1000000000L;
-  }
-  while (nsecs < 0) {
-    secs -= 1;
-    nsecs += 1000000000L;
-  }
-  NT3->secs = (time_t)secs;
-  NT3->nsecs = (int)nsecs;
-  nstime_add(NT3, NT1);
+    secs  = f * (long double)NT3->secs;
+    nsecs = f * (long double)NT3->nsecs;
+    nsecs += (secs - floorl(secs)) * 1000000000.0L;
+    while (nsecs > 1000000000L) {
+        secs += 1;
+        nsecs -= 1000000000L;
+    }
+    while (nsecs < 0) {
+        secs -= 1;
+        nsecs += 1000000000L;
+    }
+    NT3->secs = (time_t)secs;
+    NT3->nsecs = (int)nsecs;
+    nstime_add(NT3, NT1);
 }
 
 const gchar *
@@ -231,10 +231,10 @@ time_string_parse(const gchar *time_text, int *year, int *month, int *day, gbool
 static const gchar *
 time_string_to_nstime(const gchar *time_text, nstime_t *packettime, nstime_t *nstime)
 {
-    int		h, m, Y, M, D;
-    long double	f;
-    struct tm	tm, *tmptm;
-    time_t	tt;
+    int         h, m, Y, M, D;
+    long double f;
+    struct tm   tm, *tmptm;
+    time_t      tt;
     const gchar *err_str;
 
     if ((err_str = time_string_parse(time_text, &Y, &M, &D, NULL, &h, &m, &f)) != NULL)
@@ -270,13 +270,13 @@ time_string_to_nstime(const gchar *time_text, nstime_t *packettime, nstime_t *ns
 const gchar *
 time_shift_all(capture_file *cf, const gchar *offset_text)
 {
-    nstime_t	offset;
-    long double	offset_float = 0;
-    guint32	i;
-    frame_data	*fd;
+    nstime_t    offset;
+    long double offset_float = 0;
+    guint32     i;
+    frame_data  *fd;
     gboolean    neg;
-    int		h, m;
-    long double	f;
+    int         h, m;
+    long double f;
     const gchar *err_str;
 
     if (!cf || !offset_text)
@@ -300,7 +300,7 @@ time_shift_all(capture_file *cf, const gchar *offset_text)
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
-            continue;	/* Shouldn't happen */
+            continue;   /* Shouldn't happen */
         modify_time_perform(fd, neg ? SHIFT_NEG : SHIFT_POS, &offset, SHIFT_KEEPOFFSET);
     }
     packet_list_queue_draw();
@@ -311,9 +311,9 @@ time_shift_all(capture_file *cf, const gchar *offset_text)
 const gchar *
 time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
 {
-    nstime_t	set_time, diff_time, packet_time;
-    frame_data	*fd, *packetfd;
-    guint32	i;
+    nstime_t    set_time, diff_time, packet_time;
+    frame_data  *fd, *packetfd;
+    guint32     i;
     const gchar *err_str;
 
     if (!cf || !time_text)
@@ -344,7 +344,7 @@ time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
     /* Set everything back to the original time */
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
-            continue;	/* Shouldn't happen */
+            continue;   /* Shouldn't happen */
         modify_time_perform(fd, SHIFT_POS, &diff_time, SHIFT_SETTOZERO);
     }
 
@@ -355,10 +355,10 @@ time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
 const gchar *
 time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text, guint packet2_num, const gchar *time2_text)
 {
-    nstime_t	nt1, nt2, ot1, ot2, nt3;
-    nstime_t	dnt, dot, d3t;
-    frame_data	*fd, *packet1fd, *packet2fd;
-    guint32	i;
+    nstime_t    nt1, nt2, ot1, ot2, nt3;
+    nstime_t    dnt, dot, d3t;
+    frame_data  *fd, *packet1fd, *packet2fd;
+    guint32     i;
     const gchar *err_str;
 
     if (!cf || !time1_text || !time2_text)
@@ -416,7 +416,7 @@ time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text,
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
-            continue;	/* Shouldn't happen */
+            continue;   /* Shouldn't happen */
 
         /* Set everything back to the original time */
         nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
@@ -438,9 +438,9 @@ time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text,
 const gchar *
 time_shift_undo(capture_file *cf)
 {
-    guint32	i;
-    frame_data	*fd;
-    nstime_t	nulltime;
+    guint32     i;
+    frame_data  *fd;
+    nstime_t    nulltime;
 
     if (!cf)
         return "Nothing to work with.";
@@ -452,7 +452,7 @@ time_shift_undo(capture_file *cf)
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
-            continue;	/* Shouldn't happen */
+            continue;   /* Shouldn't happen */
         modify_time_perform(fd, SHIFT_NEG, &nulltime, SHIFT_SETTOZERO);
     }
     packet_list_queue_draw();

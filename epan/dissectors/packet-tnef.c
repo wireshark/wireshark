@@ -303,30 +303,30 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
 
 static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	gint offset;
+  gint offset;
 
-	offset = 0;
+  offset = 0;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+  proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	/*offset +=2;*/
+  proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  /*offset +=2;*/
 }
 
 
@@ -639,43 +639,43 @@ proto_register_tnef(void)
   static hf_register_info hf[] = {
     { &hf_tnef_signature,
       { "Signature", "tnef.signature", FT_UINT32,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_key,
       { "Key", "tnef.key", FT_UINT16,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute,
       { "Attribute", "tnef.attribute", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_lvl,
       { "Type", "tnef.attribute.lvl", FT_UINT8,  BASE_DEC, VALS(tnef_Lvl_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_tag,
       { "Tag", "tnef.attribute.tag", FT_UINT32,  BASE_HEX, VALS(tnef_Attribute_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_tag_type,
       { "Type", "tnef.attribute.tag.type", FT_UINT16,  BASE_HEX, VALS(tnef_Types_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_tag_id,
       { "Tag", "tnef.attribute.tag.id", FT_UINT16,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_length,
       { "Length", "tnef.attribute.length", FT_UINT32,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_value,
       { "Value", "tnef.attribute.value", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_string,
       { "String", "tnef.attribute.string", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_date,
       { "Date", "tnef.attribute.date", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_display_name,
       { "Display Name", "tnef.attribute.display_name", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_email_address,
       { "Email Address", "tnef.attribute.email_address", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_attribute_date_year,
       { "Year", "tnef.attribute.date.year", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_tnef_attribute_date_month,
@@ -692,67 +692,67 @@ proto_register_tnef(void)
       { "Day Of Week", "tnef.attribute.date.day_of_week", FT_UINT16, BASE_DEC, VALS(weekday_vals), 0, NULL, HFILL }},
     { &hf_tnef_attribute_checksum,
       { "Checksum", "tnef.attribute.checksum", FT_UINT16,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_mapi_props,
       { "MAPI Properties", "tnef.mapi_props", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_version,
       { "Version", "tnef.version", FT_UINT32,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_oem_codepage,
       { "OEM Codepage", "tnef.oem_codepage", FT_UINT64,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_message_class,
       { "Message Class", "tnef.message_class", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_original_message_class,
       { "Original Message Class", "tnef.message_class.original", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_priority,
       { "Priority", "tnef.priority", FT_UINT16,  BASE_DEC, VALS(tnef_Priority_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_mapi_props_count,
       { "Count", "tnef.mapi_props.count", FT_UINT16,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property,
       { "Property", "tnef.property", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag,
       { "Tag", "tnef.property.tag", FT_UINT32,  BASE_HEX, VALS(nspi_MAPITAGS_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_type,
       { "Type", "tnef.property.tag.type", FT_UINT16,  BASE_HEX, VALS(nspi_property_types_vals), 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_id,
       { "Tag", "tnef.property.tag.id", FT_UINT16,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_set,
       { "Set", "tnef.attribute.tag.set", FT_GUID,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_kind,
       { "Kind", "tnef.attribute.tag.kind", FT_UINT32,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_name_id,
       { "Name", "tnef.attribute.tag.name.id", FT_UINT32,  BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_name_length,
       { "Length", "tnef.attribute.tag.name.length", FT_UINT32,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_tag_name_string,
       { "Name", "tnef.attribute.tag.name.string", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_property_padding,
       { "Padding", "tnef.property.padding", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_padding,
       { "Padding", "tnef.padding", FT_NONE,  BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_values_count,
       { "Count", "tnef.values.count", FT_UINT16,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_value_length,
       { "Length", "tnef.value.length", FT_UINT16,  BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+        NULL, HFILL }},
     { &hf_tnef_PropValue_i,
       { "I", "tnef.PropValue.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_tnef_PropValue_l,
@@ -803,8 +803,8 @@ proto_register_tnef(void)
   };
 
   static ei_register_info ei[] = {
-     { &ei_tnef_expect_single_item, { "tnef.expect_single_item", PI_MALFORMED, PI_ERROR, "Expected single item", EXPFILL }},
-     { &ei_tnef_incorrect_signature, { "tnef.signature.incorrect", PI_MALFORMED, PI_WARN, "Incorrect signature", EXPFILL }},
+    { &ei_tnef_expect_single_item, { "tnef.expect_single_item", PI_MALFORMED, PI_ERROR, "Expected single item", EXPFILL }},
+    { &ei_tnef_incorrect_signature, { "tnef.signature.incorrect", PI_MALFORMED, PI_WARN, "Incorrect signature", EXPFILL }},
   };
 
   expert_module_t* expert_tnef;

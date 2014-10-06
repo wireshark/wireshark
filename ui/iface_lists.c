@@ -160,12 +160,12 @@ scan_local_interfaces(void (*update_cb)(void))
                  */
                 if_string = g_strdup_printf("%s", if_info->friendly_name);
 #else
-		/*
-		 * On UN*X, if we have a friendly name, show it along
-		 * with the interface name; the interface name is short
-		 * and somewhat friendly, and many UN*X users are used
-		 * to interface names, so we should show it.
-		 */
+                /*
+                 * On UN*X, if we have a friendly name, show it along
+                 * with the interface name; the interface name is short
+                 * and somewhat friendly, and many UN*X users are used
+                 * to interface names, so we should show it.
+                 */
                 if_string = g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
 #endif
             } else if (if_info->vendor_description != NULL) {
@@ -400,24 +400,24 @@ scan_local_interfaces(void (*update_cb)(void))
 void
 fill_in_local_interfaces(void(*update_cb)(void))
 {
-	GTimeVal start_time;
-	GTimeVal end_time;
-	float elapsed;
-	static gboolean initialized = FALSE;
+    GTimeVal start_time;
+    GTimeVal end_time;
+    float elapsed;
+    static gboolean initialized = FALSE;
 
-	/* record the time we started, so we can log total time later */
-	g_get_current_time(&start_time);
-	g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
+    /* record the time we started, so we can log total time later */
+    g_get_current_time(&start_time);
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
 
     if (!initialized) {
-		/* do the actual work */
+        /* do the actual work */
         scan_local_interfaces(update_cb);
         initialized = TRUE;
     }
-	/* log how long it took */
+    /* log how long it took */
     g_get_current_time(&end_time);
     elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
-                        ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+                       ((end_time.tv_usec - start_time.tv_usec) / 1e6));
 
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
 }

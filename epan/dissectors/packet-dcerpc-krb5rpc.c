@@ -117,7 +117,7 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
 
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-			hf_krb5rpc_sendto_kdc_resp_len, &resp_len);
+                       hf_krb5rpc_sendto_kdc_resp_len, &resp_len);
   offset =
     dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                        hf_krb5rpc_sendto_kdc_resp_max, &maxsize);

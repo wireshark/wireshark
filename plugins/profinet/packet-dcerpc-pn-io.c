@@ -6659,8 +6659,8 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
     guint64  u64LocaltimeStamp;
     e_uuid_t aruuid;
     guint32  u32EntryDetail;
-	dcerpc_info        di; /* fake dcerpc_info struct */
-	dcerpc_call_value  call_data;
+    dcerpc_info        di; /* fake dcerpc_info struct */
+    dcerpc_call_value  call_data;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -6668,10 +6668,10 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-	di.conformant_run = 0;
-	/* we need di->call_data->flags.NDR64 == 0 */
+    di.conformant_run = 0;
+    /* we need di->call_data->flags.NDR64 == 0 */
     call_data.flags = 0;
-	di.call_data = &call_data;
+    di.call_data = &call_data;
     di.dcerpc_procedure_name = "";
 
     /* ActualLocalTimeStamp */

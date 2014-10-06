@@ -171,8 +171,8 @@ wmem_allocator_new(const wmem_allocator_type_t type)
         default:
             g_assert_not_reached();
             /* This is necessary to squelch MSVC errors; is there
-	       any way to tell it that g_assert_not_reached()
-	       never returns? */
+               any way to tell it that g_assert_not_reached()
+               never returns? */
             return NULL;
     };
 

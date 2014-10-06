@@ -581,14 +581,14 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
                 items_found++;
             }
         }
-	in = (in->same_name_prev_id != -1) ? proto_registrar_get_nth(in->same_name_prev_id) : NULL;
+        in = (in->same_name_prev_id != -1) ? proto_registrar_get_nth(in->same_name_prev_id) : NULL;
     }
 
     WSLUA_RETURN(items_found); /* All the values of this field */
 }
 
 WSLUA_METAMETHOD Field__tostring(lua_State* L) {
-	/* Obtain a string with the field name. */
+    /* Obtain a string with the field name. */
     Field f = checkField(L,1);
 
     if (wanted_fields) {

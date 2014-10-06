@@ -901,7 +901,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {183, "Sequence Number"},                                                   /* Fixed Length / 8.114 */
     {184, "APN and Relative Capacity"},                                         /* Extendable / 8.115 */
 
-    /* 185 to 254	Spare. For future use.	*/
+    /* 185 to 254    Spare. For future use.    */
 
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
@@ -5089,7 +5089,7 @@ dissect_gtpv2_action_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 /*
- * 8.100	TWAN Identifier
+ * 8.100        TWAN Identifier
  */
 static void
 dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5097,7 +5097,7 @@ dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.101	ULI Timestamp
+ * 8.101        ULI Timestamp
  */
 static void
 dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5105,7 +5105,7 @@ dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.102	MBMS Flags
+ * 8.102        MBMS Flags
  */
 static void
 dissect_gtpv2_mbms_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5113,7 +5113,7 @@ dissect_gtpv2_mbms_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.103	RAN/NAS Cause
+ * 8.103        RAN/NAS Cause
  */
 static void
 dissect_gtpv2_ran_nas_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5121,7 +5121,7 @@ dissect_gtpv2_ran_nas_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.104	CN Operator Selection Entity
+ * 8.104        CN Operator Selection Entity
  */
 static void
 dissect_gtpv2_cn_operator_selection_entity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5129,7 +5129,7 @@ dissect_gtpv2_cn_operator_selection_entity(tvbuff_t *tvb, packet_info *pinfo _U_
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.105	Trusted WLAN Mode Indication
+ * 8.105        Trusted WLAN Mode Indication
  */
 static void
 dissect_gtpv2_trust_wlan_mode_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5137,7 +5137,7 @@ dissect_gtpv2_trust_wlan_mode_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.106	Node Number
+ * 8.106        Node Number
  */
 static void
 dissect_gtpv2_node_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5145,7 +5145,7 @@ dissect_gtpv2_node_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.107	Node Identifier
+ * 8.107        Node Identifier
  */
 static void
 dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5153,7 +5153,7 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.108	Presence Reporting Area Action
+ * 8.108        Presence Reporting Area Action
  */
 
 
@@ -5169,40 +5169,40 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     int offset = 0, i;
     guint8 oct, no_tai/*, no_rai*/;
 
-    /* Octet 5	Spare	Action */
+    /* Octet 5  Spare   Action */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     if (length == 1)
         return;
-    /* Octet 6 to 8	Presence Reporting Area Identifier */
+    /* Octet 6 to 8     Presence Reporting Area Identifier */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     if (length == 3)
         return;
-    /* Octet 9 	Number of TAI	Number of RAI */
+    /* Octet 9  Number of TAI   Number of RAI */
     oct = tvb_get_guint8(tvb,offset);
     no_tai = oct >> 4;
     /*no_rai = oct & 0x0f;*/
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_tai, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 10	Spare	Number of Macro eNodeB */
+    /* Octet 10 Spare   Number of Macro eNodeB */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_m_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 11	Spare	Number of Home eNodeB */
+    /* Octet 11 Spare   Number of Home eNodeB */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_h_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 12	Spare	Number of ECGI */
+    /* Octet 12 Spare   Number of ECGI */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_ecgi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 13	Spare	Number of SAI */
+    /* Octet 13 Spare   Number of SAI */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_sai, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 14	Spare	Number of CGI */
+    /* Octet 14 Spare   Number of CGI */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_cgi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* Octet 15 to k	TAIs [1..15] */
+    /* Octet 15 to k    TAIs [1..15] */
     if(no_tai > 0){
         i = 1;
         while (no_tai > 0){
@@ -5212,17 +5212,17 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             no_tai--;
         }
     }
-    /* Octet (k+1) to m	Macro eNB IDs [1..63] */
-    /* Octet (m+1) to p	Home eNB IDs [1..63] */
-    /* Octet (p+1) to q	ECGIs [1..63] */
-    /* Octet (q+1) to r	RAIs [1..15] */
-    /* Octet (r+1) to s	SAIs [1..63] */
-    /* Octet (s+1) to t	CGIs [1..63] */
+    /* Octet (k+1) to m Macro eNB IDs [1..63] */
+    /* Octet (m+1) to p Home eNB IDs [1..63] */
+    /* Octet (p+1) to q ECGIs [1..63] */
+    /* Octet (q+1) to r RAIs [1..15] */
+    /* Octet (r+1) to s SAIs [1..63] */
+    /* Octet (s+1) to t CGIs [1..63] */
 
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 }
 /*
- * 8.109	Presence Reporting Area Information
+ * 8.109        Presence Reporting Area Information
  */
 static void
 dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5230,7 +5230,7 @@ dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.110	TWAN Identifier Timestamp
+ * 8.110        TWAN Identifier Timestamp
  */
 static void
 dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5238,7 +5238,7 @@ dissect_gtpv2_twan_identifier_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.111	Overload Control Information
+ * 8.111        Overload Control Information
  */
 static void
 dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5246,7 +5246,7 @@ dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.112	Load Control Information
+ * 8.112        Load Control Information
  */
 static void
 dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5254,7 +5254,7 @@ dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.113	Metric
+ * 8.113        Metric
  */
 static void
 dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5262,7 +5262,7 @@ dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.114	Sequence Number
+ * 8.114        Sequence Number
  */
 static void
 dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
@@ -5270,7 +5270,7 @@ dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 /*
- * 8.115	APN and Relative Capacity
+ * 8.115        APN and Relative Capacity
  */
 static void
 dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)

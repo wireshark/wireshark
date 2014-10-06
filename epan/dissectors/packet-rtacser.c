@@ -128,14 +128,14 @@ static const value_string rtacser_eventtype_vals[] = {
 };
 
 static const enum_val_t rtacser_payload_proto_type[] = {
-  { "NONE      ", "NONE      ",  RTACSER_PAYLOAD_NONE       },
-  { "SEL FM    ", "SEL FM    ",  RTACSER_PAYLOAD_SELFM      },
-  { "DNP3      ", "DNP3      ",  RTACSER_PAYLOAD_DNP3       },
-  { "MODBUS RTU", "MODBUS RTU",  RTACSER_PAYLOAD_MODBUS     },
-  { "SYNPHASOR ", "SYNPHASOR ",  RTACSER_PAYLOAD_SYNPHASOR  },
-  { "L&G 8979  ", "L&G 8979  ",  RTACSER_PAYLOAD_LG8979     },
-  { "CP 2179   ", "CP 2179   ",  RTACSER_PAYLOAD_CP2179     },
-  { NULL, NULL, 0 }
+    { "NONE      ", "NONE      ",  RTACSER_PAYLOAD_NONE       },
+    { "SEL FM    ", "SEL FM    ",  RTACSER_PAYLOAD_SELFM      },
+    { "DNP3      ", "DNP3      ",  RTACSER_PAYLOAD_DNP3       },
+    { "MODBUS RTU", "MODBUS RTU",  RTACSER_PAYLOAD_MODBUS     },
+    { "SYNPHASOR ", "SYNPHASOR ",  RTACSER_PAYLOAD_SYNPHASOR  },
+    { "L&G 8979  ", "L&G 8979  ",  RTACSER_PAYLOAD_LG8979     },
+    { "CP 2179   ", "CP 2179   ",  RTACSER_PAYLOAD_CP2179     },
+    { NULL, NULL, 0 }
 };
 
 static void
@@ -161,7 +161,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree    *rtacser_tree, *cl_tree;
     int           offset = 0, len;
     guint         event_type;
-	nstime_t      tv;
+    nstime_t      tv;
     gboolean      cts, dcd, dsr, rts, dtr, ring, mbok;
     tvbuff_t      *payload_tvb;
 
@@ -357,9 +357,8 @@ proto_reg_handoff_rtacser(void)
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RTAC_SERIAL, rtacser_handle);
 
-	data_handle = find_dissector("data");
+    data_handle = find_dissector("data");
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
