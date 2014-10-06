@@ -37,13 +37,13 @@
 
 #ifdef HAVE_EXTCAP
 
-#define EXTCAP_ARGUMENT_CONFIG 			"--extcap-config"
-#define EXTCAP_ARGUMENT_LIST_INTERFACES	"--extcap-interfaces"
-#define EXTCAP_ARGUMENT_INTERFACE		"--extcap-interface"
-#define EXTCAP_ARGUMENT_LIST_DLTS		"--extcap-dlts"
+#define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
+#define EXTCAP_ARGUMENT_LIST_INTERFACES "--extcap-interfaces"
+#define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"
+#define EXTCAP_ARGUMENT_LIST_DLTS               "--extcap-dlts"
 
-#define EXTCAP_ARGUMENT_RUN_CAPTURE		"--capture"
-#define EXTCAP_ARGUMENT_RUN_PIPE		"--fifo"
+#define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
+#define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
 
 /* try to get if capabilities from extcap */
 if_capabilities_t *
@@ -81,10 +81,10 @@ extcap_cleanup(capture_options * capture_opts _U_);
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

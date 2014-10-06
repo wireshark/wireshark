@@ -27,116 +27,116 @@
 #include <string.h>
 
 typedef enum {
-	EXTCAP_SENTENCE_UNKNOWN,
-	EXTCAP_SENTENCE_ARG,
-	EXTCAP_SENTENCE_VALUE,
-	EXTCAP_SENTENCE_FLAG,
-	EXTCAP_SENTENCE_INTERFACE,
-	EXTCAP_SENTENCE_DLT
+    EXTCAP_SENTENCE_UNKNOWN,
+    EXTCAP_SENTENCE_ARG,
+    EXTCAP_SENTENCE_VALUE,
+    EXTCAP_SENTENCE_FLAG,
+    EXTCAP_SENTENCE_INTERFACE,
+    EXTCAP_SENTENCE_DLT
 } extcap_sentence_type;
 
 typedef enum {
-	/* Simple types */
-	EXTCAP_ARG_UNKNOWN,
-	EXTCAP_ARG_INTEGER,
-	EXTCAP_ARG_UNSIGNED,
-	EXTCAP_ARG_LONG,
-	EXTCAP_ARG_DOUBLE,
-	EXTCAP_ARG_BOOLEAN,
-	EXTCAP_ARG_BOOLFLAG,
-	EXTCAP_ARG_STRING,
-	/* Complex GUI types which are populated with value sentences */
-	EXTCAP_ARG_MENU,
-	EXTCAP_ARG_SELECTOR,
-	EXTCAP_ARG_RADIO,
-	EXTCAP_ARG_MULTICHECK,
-	EXTCAP_ARG_FILESELECT
+    /* Simple types */
+    EXTCAP_ARG_UNKNOWN,
+    EXTCAP_ARG_INTEGER,
+    EXTCAP_ARG_UNSIGNED,
+    EXTCAP_ARG_LONG,
+    EXTCAP_ARG_DOUBLE,
+    EXTCAP_ARG_BOOLEAN,
+    EXTCAP_ARG_BOOLFLAG,
+    EXTCAP_ARG_STRING,
+    /* Complex GUI types which are populated with value sentences */
+    EXTCAP_ARG_MENU,
+    EXTCAP_ARG_SELECTOR,
+    EXTCAP_ARG_RADIO,
+    EXTCAP_ARG_MULTICHECK,
+    EXTCAP_ARG_FILESELECT
 } extcap_arg_type;
 
 typedef enum {
-	/* value types */
-	EXTCAP_PARAM_UNKNOWN,
-	EXTCAP_PARAM_ARGNUM,
-	EXTCAP_PARAM_CALL,
-	EXTCAP_PARAM_DISPLAY,
-	EXTCAP_PARAM_TYPE,
-	EXTCAP_PARAM_ARG,
-	EXTCAP_PARAM_DEFAULT,
-	EXTCAP_PARAM_VALUE,
-	EXTCAP_PARAM_RANGE,
-	EXTCAP_PARAM_TOOLTIP,
-	EXTCAP_PARAM_NAME,
-	EXTCAP_PARAM_ENABLED,
-	EXTCAP_PARAM_FILE_MUSTEXIST,
-	EXTCAP_PARAM_PARENT
+    /* value types */
+    EXTCAP_PARAM_UNKNOWN,
+    EXTCAP_PARAM_ARGNUM,
+    EXTCAP_PARAM_CALL,
+    EXTCAP_PARAM_DISPLAY,
+    EXTCAP_PARAM_TYPE,
+    EXTCAP_PARAM_ARG,
+    EXTCAP_PARAM_DEFAULT,
+    EXTCAP_PARAM_VALUE,
+    EXTCAP_PARAM_RANGE,
+    EXTCAP_PARAM_TOOLTIP,
+    EXTCAP_PARAM_NAME,
+    EXTCAP_PARAM_ENABLED,
+    EXTCAP_PARAM_FILE_MUSTEXIST,
+    EXTCAP_PARAM_PARENT
 } extcap_param_type;
 
 /* Values for a given sentence; values are all stored as a call
  * and a value string, or a valid range, so we only need to store
  * those and repeat them */
 typedef struct _extcap_value {
-	int arg_num;
+    int arg_num;
 
-	gchar *call;
-	gchar *display;
-	gboolean enabled;
-	gboolean is_default;
-	gchar *parent;
+    gchar *call;
+    gchar *display;
+    gboolean enabled;
+    gboolean is_default;
+    gchar *parent;
 } extcap_value;
 
 /* Complex-ish struct for storing complex values */
 typedef struct _extcap_complex {
-	extcap_arg_type complex_type;
-	union {
-		int int_value;
-		unsigned int uint_value;
-		long long_value;
-		double double_value;
-		gboolean bool_value;
-		gchar *string_value;
-	} complex_value;
-	gboolean value_filled;
+    extcap_arg_type complex_type;
+    union {
+        int int_value;
+        unsigned int uint_value;
+        long long_value;
+        double double_value;
+        gboolean bool_value;
+        gchar *string_value;
+    } complex_value;
+    gboolean value_filled;
 } extcap_complex;
 
 /* An argument sentence and accompanying options */
 typedef struct _extcap_arg {
-	int arg_num;
+    int arg_num;
 
-	gchar *call;
-	gchar *display;
-	gchar *tooltip;
-	gboolean fileexists;
+    gchar *call;
+    gchar *display;
+    gchar *tooltip;
+    gboolean fileexists;
 
-	extcap_arg_type arg_type;
+    extcap_arg_type arg_type;
 
-	extcap_complex *range_start;
-	extcap_complex *range_end;
-	extcap_complex *default_complex;
+    extcap_complex *range_start;
+    extcap_complex *range_end;
+    extcap_complex *default_complex;
 
-	GList * values;
+    GList * values;
 } extcap_arg;
 
 typedef struct _extcap_if {
-	gchar * extcap_path;
-	GList * interfaces;
+    gchar * extcap_path;
+    GList * interfaces;
 } extcap_if;
 
 typedef struct _extcap_interface {
-	gchar *call;
-	gchar *display;
+    gchar *call;
+    gchar *display;
 
-	struct _extcap_interface *next_interface;
+    struct _extcap_interface *next_interface;
 } extcap_interface;
 
 extcap_interface *extcap_new_interface(void);
 void extcap_free_interface(extcap_interface *interface);
 
 typedef struct _extcap_dlt {
-	gint number;
-	gchar *name;
-	gchar *display;
+    gint number;
+    gchar *name;
+    gchar *display;
 
-	struct _extcap_dlt *next_dlt;
+    struct _extcap_dlt *next_dlt;
 } extcap_dlt;
 
 extcap_dlt *extcap_new_dlt(void);
@@ -144,25 +144,25 @@ void extcap_free_dlt(extcap_dlt *dlt);
 
 /* Parser internals */
 typedef struct _extcap_token_param {
-	gchar *arg;
-	gchar *value;
+    gchar *arg;
+    gchar *value;
 
-	extcap_param_type param_type;
+    extcap_param_type param_type;
 
-	struct _extcap_token_param *next_token;
+    struct _extcap_token_param *next_token;
 } extcap_token_param;
 
 typedef struct _extcap_token_sentence {
-	gchar *sentence;
+    gchar *sentence;
 
-	extcap_token_param *param_list;
+    extcap_token_param *param_list;
 
-	struct _extcap_token_sentence *next_sentence;
+    struct _extcap_token_sentence *next_sentence;
 } extcap_token_sentence;
 
 /* Parse a string into a complex type */
 extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
-		const gchar *data);
+        const gchar *data);
 
 /* Free a complex */
 void extcap_free_complex(extcap_complex *comp);
@@ -201,7 +201,7 @@ extcap_arg *extcap_find_numbered_arg(extcap_arg *first, int number);
 
 /* Find the first occurrence in a parameter list of a parameter of the given type */
 extcap_token_param *extcap_find_param_by_type(extcap_token_param *first,
-		extcap_param_type t);
+        extcap_param_type t);
 
 void extcap_free_value(extcap_value *v);
 
@@ -227,11 +227,11 @@ GList * extcap_parse_args(extcap_token_sentence *first_s);
  * Parse a tokenized set of sentences and validate, looking for interface definitions.
  */
 int extcap_parse_interface_sentence(extcap_token_sentence *s,
-		extcap_interface **ri);
+        extcap_interface **ri);
 
 /* Parse all sentences for interfaces */
 int extcap_parse_interfaces(extcap_token_sentence *first_s,
-		extcap_interface **first_int);
+        extcap_interface **first_int);
 
 /* Parse a tokenized set of sentences and validate, looking for DLT definitions */
 int extcap_parse_dlt_sentence(extcap_token_sentence *s, extcap_dlt **ri);
@@ -246,10 +246,10 @@ int extcap_parse_dlts(extcap_token_sentence *first_s, extcap_dlt **first_dlt);
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
