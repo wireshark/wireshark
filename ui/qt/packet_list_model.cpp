@@ -146,7 +146,7 @@ capture_file *PacketListModel::sort_cap_file_;
 
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
-    if (!cap_file_ || visible_rows_.length() < 1) {
+    if (!cap_file_ || visible_rows_.count() < 1) {
         return;
     }
 
@@ -355,7 +355,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
 }
 
 frame_data *PacketListModel::getRowFdata(int row) {
-    if (row < 0 || row >= visible_rows_.size())
+    if (row < 0 || row >= visible_rows_.count())
         return NULL;
     PacketListRecord *record = visible_rows_[row];
     if (!record)
