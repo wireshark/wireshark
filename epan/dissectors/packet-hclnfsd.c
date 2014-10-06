@@ -37,24 +37,24 @@ void proto_reg_handoff_hclnfsd(void);
 
 #define HCLNFSD_PROGRAM  0x2f00dbad
 
-#define HCLNFSDPROC_NULL					0
-#define HCLNFSDPROC_SPOOL_INQUIRE		1
-#define HCLNFSDPROC_SPOOL_FILE			2
-#define HCLNFSDPROC_AUTHORIZE				3
-#define HCLNFSDPROC_GRP_NAME_TO_NUMB	4
-#define HCLNFSDPROC_GRP_TO_NUMBER		5
-#define HCLNFSDPROC_RETURN_HOST			6
-#define HCLNFSDPROC_UID_TO_NAME			7
-#define HCLNFSDPROC_NAME_TO_UID			8
-#define HCLNFSDPROC_SHARE					20
-#define HCLNFSDPROC_UNSHARE				21
-#define HCLNFSDPROC_LOCK					22
-#define HCLNFSDPROC_REMOVE					23
-#define HCLNFSDPROC_UNLOCK					24
-#define HCLNFSDPROC_GET_PRINTERS			30
-#define HCLNFSDPROC_GET_PRINTQ			31
-#define HCLNFSDPROC_CANCEL_PRJOB			32
-#define HCLNFSDPROC_ZAP_LOCKS				105
+#define HCLNFSDPROC_NULL	       0
+#define HCLNFSDPROC_SPOOL_INQUIRE      1
+#define HCLNFSDPROC_SPOOL_FILE	       2
+#define HCLNFSDPROC_AUTHORIZE	       3
+#define HCLNFSDPROC_GRP_NAME_TO_NUMB   4
+#define HCLNFSDPROC_GRP_TO_NUMBER      5
+#define HCLNFSDPROC_RETURN_HOST	       6
+#define HCLNFSDPROC_UID_TO_NAME	       7
+#define HCLNFSDPROC_NAME_TO_UID	       8
+#define HCLNFSDPROC_SHARE	      20
+#define HCLNFSDPROC_UNSHARE	      21
+#define HCLNFSDPROC_LOCK	      22
+#define HCLNFSDPROC_REMOVE	      23
+#define HCLNFSDPROC_UNLOCK	      24
+#define HCLNFSDPROC_GET_PRINTERS      30
+#define HCLNFSDPROC_GET_PRINTQ	      31
+#define HCLNFSDPROC_CANCEL_PRJOB      32
+#define HCLNFSDPROC_ZAP_LOCKS	     105
 
 static int proto_hclnfsd = -1;
 static int hf_hclnfsd_procedure_v1 = -1;
@@ -711,157 +711,181 @@ proto_register_hclnfsd(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_hclnfsd_procedure_v1, {
-			"V1 Procedure", "hclnfsd.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(hclnfsd1_proc_vals), 0, NULL, HFILL }},
+				"V1 Procedure", "hclnfsd.procedure_v1", FT_UINT32, BASE_DEC,
+				VALS(hclnfsd1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_hclnfsd_request_type, {
-			"Request Type", "hclnfsd.request_type", FT_UINT32, BASE_DEC,
-			VALS(names_request_type), 0, NULL, HFILL }},
+				"Request Type", "hclnfsd.request_type", FT_UINT32, BASE_DEC,
+				VALS(names_request_type), 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_device, {
-			"Device", "hclnfsd.device", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Device", "hclnfsd.device", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 #if 0
 		{ &hf_hclnfsd_login, {
-			"Login Text", "hclnfsd.logintext", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Login Text", "hclnfsd.logintext", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 #endif
 
 		{ &hf_hclnfsd_lockname, {
-			"Lockname", "hclnfsd.lockname", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Lockname", "hclnfsd.lockname", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_unknown_data, {
-			"Unknown", "hclnfsd.unknown_data", FT_BYTES, BASE_NONE,
-			NULL, 0, "Data", HFILL }},
+				"Unknown", "hclnfsd.unknown_data", FT_BYTES, BASE_NONE,
+				NULL, 0, "Data", HFILL }},
 
 		{ &hf_hclnfsd_lockowner, {
-			"Lockowner", "hclnfsd.lockowner", FT_BYTES, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Lockowner", "hclnfsd.lockowner", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_printername, {
-			"Printer Name", "hclnfsd.printername", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Printer Name", "hclnfsd.printername", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_filename, {
-			"Filename", "hclnfsd.filename", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Filename", "hclnfsd.filename", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_fileext, {
-			"File Extension", "hclnfsd.fileext", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"File Extension", "hclnfsd.fileext", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_grpname, {
-			"Group", "hclnfsd.group", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Group", "hclnfsd.group", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_hostname, {
-			"Hostname", "hclnfsd.hostname", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Hostname", "hclnfsd.hostname", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_username, {
-			"Username", "hclnfsd.username", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Username", "hclnfsd.username", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_queuename, {
-			"Name", "hclnfsd.printqueuename", FT_STRING, BASE_NONE,
-			NULL, 0, "Print Queue Name", HFILL }},
+				"Name", "hclnfsd.printqueuename", FT_STRING, BASE_NONE,
+				NULL, 0, "Print Queue Name", HFILL }},
 
 		{ &hf_hclnfsd_queuecomment, {
-			"Comment", "hclnfsd.printqueuecomment", FT_STRING, BASE_NONE,
-			NULL, 0, "Print Queue Comment", HFILL }},
+				"Comment", "hclnfsd.printqueuecomment", FT_STRING, BASE_NONE,
+				NULL, 0, "Print Queue Comment", HFILL }},
 
 		{ &hf_hclnfsd_printparams, {
-			"Print Parameters", "hclnfsd.printparameters", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Print Parameters", "hclnfsd.printparameters", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_status, {
-			"Status", "hclnfsd.status", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Status", "hclnfsd.status", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_uid, {
-			"UID", "hclnfsd.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "User ID", HFILL }},
+				"UID", "hclnfsd.uid", FT_UINT32, BASE_DEC,
+				NULL, 0, "User ID", HFILL }},
 
 		{ &hf_hclnfsd_sequence, {
-			"Sequence", "hclnfsd.sequence", FT_UINT32, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
+				"Sequence", "hclnfsd.sequence", FT_UINT32, BASE_HEX,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_cookie, {
-			"Cookie", "hclnfsd.cookie", FT_UINT32, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
+				"Cookie", "hclnfsd.cookie", FT_UINT32, BASE_HEX,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_mode, {
-			"Mode", "hclnfsd.mode", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Mode", "hclnfsd.mode", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_access, {
-			"Access", "hclnfsd.access", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Access", "hclnfsd.access", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_exclusive, {
-			"Exclusive", "hclnfsd.exclusive", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Exclusive", "hclnfsd.exclusive", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_offset, {
-			"Offset", "hclnfsd.offset", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Offset", "hclnfsd.offset", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_length, {
-			"Length", "hclnfsd.length", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Length", "hclnfsd.length", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_queuestatus, {
-			"Queue Status", "hclnfsd.queuestatus", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Queue Status", "hclnfsd.queuestatus", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_printqueuenumber, {
-			"Print Queue Number", "hclnfsd.pqn", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Print Queue Number", "hclnfsd.pqn", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_numphysicalprinters, {
-			"Number of Physical Printers", "hclnfsd.npp", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Number of Physical Printers", "hclnfsd.npp", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_jobstatus, {
-			"Job Status", "hclnfsd.jobstatus", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Job Status", "hclnfsd.jobstatus", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_timesubmitted, {
-			"Time Submitted", "hclnfsd.timesubmitted", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Time Submitted", "hclnfsd.timesubmitted", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_size, {
-			"Size", "hclnfsd.size", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Size", "hclnfsd.size", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_copies, {
-			"Copies", "hclnfsd.copies", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+				"Copies", "hclnfsd.copies", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_gid, {
-			"GID", "hclnfsd.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Group ID", HFILL }},
+				"GID", "hclnfsd.gid", FT_UINT32, BASE_DEC,
+				NULL, 0, "Group ID", HFILL }},
 
 		{ &hf_hclnfsd_server_ip, {
-			"Server IP", "hclnfsd.server_ip", FT_IPv4, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Server IP", "hclnfsd.server_ip", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_host_ip, {
-			"Host IP", "hclnfsd.host_ip", FT_IPv4, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+				"Host IP", "hclnfsd.host_ip", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_auth_ident_obscure, {
-			"Obscure Ident", "hclnfsd.authorize.ident.obscure", FT_STRING,
-			BASE_NONE	, NULL, 0, "Authentication Obscure Ident", HFILL }},
+				"Obscure Ident", "hclnfsd.authorize.ident.obscure", FT_STRING,
+				BASE_NONE	, NULL, 0, "Authentication Obscure Ident", HFILL }},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_hclnfsd_gids, { "GIDs", "hclnfsd.gids", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_hclnfsd_password, { "Password", "hclnfsd.password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_hclnfsd_uids, { "UIDs", "hclnfsd.uids", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_hclnfsd_print_queues, { "Print Queues", "hclnfsd.print_queues", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_hclnfsd_print_jobs, { "Print Jobs", "hclnfsd.print_jobs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_hclnfsd_job_id, { "Job ID", "hclnfsd.job_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_hclnfsd_gids,
+		  { "GIDs", "hclnfsd.gids",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_hclnfsd_password,
+		  { "Password", "hclnfsd.password",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_hclnfsd_uids,
+		  { "UIDs", "hclnfsd.uids",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_hclnfsd_print_queues,
+		  { "Print Queues", "hclnfsd.print_queues",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_hclnfsd_print_jobs,
+		  { "Print Jobs", "hclnfsd.print_jobs",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_hclnfsd_job_id,
+		  { "Job ID", "hclnfsd.job_id",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_hclnfsd,
