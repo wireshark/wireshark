@@ -1110,7 +1110,7 @@ dissector_reset_uint(const char *name, const guint32 pattern)
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
 
-gboolean
+int
 dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       const gboolean add_proto_name, void *data)
@@ -1118,7 +1118,7 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 	dtbl_entry_t            *dtbl_entry;
 	struct dissector_handle *handle;
 	guint32                  saved_match_uint;
-	int ret;
+	int len;
 
 	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
 	if (dtbl_entry != NULL) {
@@ -1132,7 +1132,7 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 			 * so that other dissectors might have a chance
 			 * to dissect this packet.
 			 */
-			return FALSE;
+			return 0;
 		}
 
 		/*
@@ -1142,7 +1142,7 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		 */
 		saved_match_uint  = pinfo->match_uint;
 		pinfo->match_uint = uint_val;
-		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
+		len = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
 		pinfo->match_uint = saved_match_uint;
 
 		/*
@@ -1154,16 +1154,16 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		 *
 		 * 0 is also returned if the protocol wasn't enabled.
 		 *
-		 * If the packet was rejected, we return FALSE, so that
+		 * If the packet was rejected, we return 0, so that
 		 * other dissectors might have a chance to dissect this
-		 * packet, otherwise we return TRUE.
+		 * packet, otherwise we return the dissected length.
 		 */
-		return ret != 0;
+		return len;
 	}
-	return FALSE;
+	return 0;
 }
 
-gboolean
+int
 dissector_try_uint(dissector_table_t sub_dissectors, const guint32 uint_val,
 		   tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1384,17 +1384,17 @@ dissector_reset_string(const char *name, const gchar *pattern)
 /* Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
    return FALSE. */
-gboolean
+int
 dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	dtbl_entry_t            *dtbl_entry;
 	struct dissector_handle *handle;
-	int                      ret;
+	int                      len;
 	const gchar             *saved_match_string;
 
 	/* XXX ASSERT instead ? */
-	if (!string) return FALSE;
+	if (!string) return 0;
 	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
 	if (dtbl_entry != NULL) {
 		/*
@@ -1407,7 +1407,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 			 * so that other dissectors might have a chance
 			 * to dissect this packet.
 			 */
-			return FALSE;
+			return 0;
 		}
 
 		/*
@@ -1417,7 +1417,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		 */
 		saved_match_string = pinfo->match_string;
 		pinfo->match_string = string;
-		ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
+		len = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
 		pinfo->match_string = saved_match_string;
 
 		/*
@@ -1429,13 +1429,13 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		 *
 		 * 0 is also returned if the protocol wasn't enabled.
 		 *
-		 * If the packet was rejected, we return FALSE, so that
+		 * If the packet was rejected, we return 0, so that
 		 * other dissectors might have a chance to dissect this
-		 * packet, otherwise we return TRUE.
+		 * packet, otherwise we return the dissected length.
 		 */
-		return ret != 0;
+		return len;
 	}
-	return FALSE;
+	return 0;
 }
 
 /* Look for a given value in a given string dissector table and, if found,

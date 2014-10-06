@@ -2086,12 +2086,12 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
     const char *volatile error = NULL;
-    int ret = 0;
+    int len = 0;
 
     if (! ( d && tvb && pinfo) ) return 0;
 
     TRY {
-        ret = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
+        len = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH_NONFATAL_ERRORS {
         show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
@@ -2100,7 +2100,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 
     if (error) { WSLUA_ERROR(Dissector_call,error); }
 
-    lua_pushnumber(L,(lua_Number)ret);
+    lua_pushnumber(L,(lua_Number)len);
     WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
 }
 
@@ -2503,6 +2503,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     ftenum_t type;
     gboolean handled = FALSE;
     const gchar *volatile error = NULL;
+    int len = 0;
 
     if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
 
@@ -2513,25 +2514,28 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         if (type == FT_STRING) {
             const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
-            if (!pattern)
+            if (!pattern) {
                 handled = TRUE;
-
-            else if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, NULL))
-                handled = TRUE;
-
+            } else {
+                len = dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, NULL);
+                if (len > 0) {
+                    handled = TRUE;
+                }
+            }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
             int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
 
-            if (dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
+            len = dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+            if (len > 0) {
                 handled = TRUE;
-
+            }
         } else {
             luaL_error(L,"No such type of dissector_table");
         }
 
-        if (!handled)
-            call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
-
+        if (!handled) {
+            len = call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+        }
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH_NONFATAL_ERRORS {
         show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
@@ -2540,7 +2544,8 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 
     if (error) { WSLUA_ERROR(DissectorTable_try,error); }
 
-    return 0;
+    lua_pushnumber(L,(lua_Number)len);
+    WSLUA_RETURN(1); /* Number of bytes dissected.  Note that some dissectors always return number of bytes in incoming buffer, so be aware. */
 }
 
 WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
