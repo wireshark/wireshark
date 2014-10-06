@@ -5163,30 +5163,22 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
  * 8.108        Presence Reporting Area Action
  */
 
+/*
+ * The Presence-Reporting-Area-Elements-List AVP (AVP code 2820)
+ * is of type Octetstring and is coded as specified in 3GPP TS 29.274 [22]
+ * in Presence Reporting Area Action IE, starting from octet 9.
+ */
 
-static const value_string gtpv2_pres_rep_area_action_vals[] = {
-    { 1, "Start Reporting change"},
-    { 2, "Stop Reporting change"},
-    { 0, NULL}
-};
-
-static void
-dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+static int
+dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0, i;
+    /*diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;*/
+    int   offset = 0, i;
+    guint length;
     guint8 oct, no_tai, no_rai, no_mENB, no_hENB, no_ECGI, no_sai, no_cgi;
 
-    /* Octet 5  Spare   Action */
-    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    length       = tvb_reported_length(tvb);
 
-    if (length == 1)
-        return;
-    /* Octet 6 to 8     Presence Reporting Area Identifier */
-    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
-    if (length == 3)
-        return;
     /* Octet 9  Number of TAI   Number of RAI */
     oct = tvb_get_guint8(tvb,offset);
     no_tai = oct >> 4;
@@ -5302,6 +5294,38 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             no_cgi--;
         }
     }
+
+    return length;
+}
+
+static const value_string gtpv2_pres_rep_area_action_vals[] = {
+    { 1, "Start Reporting change"},
+    { 2, "Stop Reporting change"},
+    { 0, NULL}
+};
+
+static void
+dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+    int offset = 0;
+    tvbuff_t * new_tvb;
+
+    /* Octet 5  Spare   Action */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (length == 1)
+        return;
+    /* Octet 6 to 8     Presence Reporting Area Identifier */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    if (length == 3)
+        return;
+
+    new_tvb = tvb_new_subset_length(tvb, offset, length-3);
+
+    /* Share the rest of the dissection with the AVP dissector */
+    dissect_diameter_3gpp_presence_reporting_area_elements_list(new_tvb, pinfo, tree, NULL);
 
 }
 /*
@@ -7463,6 +7487,9 @@ void proto_register_gtpv2(void)
 
     /* AVP Code: 22 3GPP-User-Location-Info */
     dissector_add_uint("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
+
+    /* AVP Code: 2820 Presence-Reporting-Area-Elements-List */
+    dissector_add_uint("diameter.3gpp", 2820, new_create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
 
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */
