@@ -282,7 +282,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
     QAction *update_action = new QAction(tr("Check for Updates..."), main_ui_->menuHelp);
     main_ui_->menuHelp->insertAction(update_sep, update_action);
-    connect(update_action, SIGNAL(triggered()), this, SLOT(on_actionHelpCheckForUpdates_triggered()));
+    connect(update_action, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
     master_split_.setObjectName(tr("splitterMaster"));
     extra_split_.setObjectName(tr("splitterExtra"));

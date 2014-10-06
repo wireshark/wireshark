@@ -2329,7 +2329,7 @@ void MainWindow::on_actionHelpSampleCaptures_triggered() {
 }
 
 #ifdef HAVE_SOFTWARE_UPDATE
-void MainWindow::on_actionHelpCheckForUpdates_triggered()
+void MainWindow::checkForUpdates()
 {
     software_update_check();
 }

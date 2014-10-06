@@ -342,7 +342,7 @@ private slots:
     void on_actionHelpAbout_triggered();
 
 #ifdef HAVE_SOFTWARE_UPDATE
-    void on_actionHelpCheckForUpdates_triggered();
+    void checkForUpdates();
 #endif
 
     void on_goToCancel_clicked();
