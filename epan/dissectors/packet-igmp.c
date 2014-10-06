@@ -457,7 +457,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	int old_offset = offset;
 	guint8	adl;
 	guint16 num;
-    const gchar* maddr_str;
+	const gchar *maddr_str;
 	guint8 record_type;
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, -1,

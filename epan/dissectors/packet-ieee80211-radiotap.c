@@ -2176,7 +2176,7 @@ void proto_register_radiotap(void)
 		 {"MAC timestamp", "radiotap.mactime",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Value in microseconds of the MAC's Time Synchronization Function timer"
-                  " when the first bit of the MPDU arrived at the MAC.",
+		  " when the first bit of the MPDU arrived at the MAC.",
 		  HFILL}},
 
 		{&hf_radiotap_quality,
@@ -2231,7 +2231,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_channel_flags_passive,
 		 {"Passive", "radiotap.channel.type.passive",
 		  FT_BOOLEAN, 16, NULL, 0x0200,
-                  "Channel Type Passive", HFILL}},
+		  "Channel Type Passive", HFILL}},
 
 		{&hf_radiotap_channel_flags_dynamic,
 		 {"Dynamic CCK-OFDM", "radiotap.channel.type.dynamic",
@@ -2246,27 +2246,27 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_channel_flags_gsm,
 		 {"GSM (900MHz)", "radiotap.channel.type.gsm",
 		  FT_BOOLEAN, 16, NULL, 0x1000,
-                  "Channel Type GSM", HFILL}},
+		  "Channel Type GSM", HFILL}},
 
 		{&hf_radiotap_channel_flags_sturbo,
 		 {"Static Turbo", "radiotap.channel.type.sturbo",
 		  FT_BOOLEAN, 16, NULL, 0x2000,
-                  "Channel Type Status Turbo", HFILL}},
+		  "Channel Type Status Turbo", HFILL}},
 
 		{&hf_radiotap_channel_flags_half,
 		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.channel.type.half",
 		  FT_BOOLEAN, 16, NULL, 0x4000,
-                  "Channel Type Half Rate", HFILL}},
+		  "Channel Type Half Rate", HFILL}},
 
 		{&hf_radiotap_channel_flags_quarter,
 		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.channel.type.quarter",
 		  FT_BOOLEAN, 16, NULL, 0x8000,
-                  "Channel Type Quarter Rate", HFILL}},
+		  "Channel Type Quarter Rate", HFILL}},
 
 		{&hf_radiotap_rxflags,
 		 {"RX flags", "radiotap.rxflags",
 		  FT_UINT16, BASE_HEX, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_rxflags_badplcp,
 		 {"Bad PLCP", "radiotap.rxflags.badplcp",
@@ -2276,22 +2276,22 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_xchannel,
 		 {"Channel number", "radiotap.xchannel",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_frequency,
 		 {"Channel frequency", "radiotap.xchannel.freq",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_flags,
 		 {"Channel type", "radiotap.xchannel.flags",
 		  FT_UINT32, BASE_HEX | BASE_EXT_STRING, &phy_type_ext, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_xchannel_flags_turbo,
 		 {"Turbo", "radiotap.xchannel.type.turbo",
 		  FT_BOOLEAN, 24, NULL, 0x0010,
-                  "Channel Type Turbo", HFILL}},
+		  "Channel Type Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_cck,
 		 {"Complementary Code Keying (CCK)", "radiotap.xchannel.type.cck",
@@ -2306,17 +2306,17 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_xchannel_flags_2ghz,
 		 {"2 GHz spectrum", "radiotap.xchannel.type.2ghz",
 		  FT_BOOLEAN, 24, NULL, 0x0080,
-                  "Channel Type 2 GHz spectrum", HFILL}},
+		  "Channel Type 2 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_5ghz,
 		 {"5 GHz spectrum", "radiotap.xchannel.type.5ghz",
 		  FT_BOOLEAN, 24, NULL, 0x0100,
-                  "Channel Type 5 GHz spectrum", HFILL}},
+		  "Channel Type 5 GHz spectrum", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_passive,
 		 {"Passive", "radiotap.channel.xtype.passive",
 		  FT_BOOLEAN, 24, NULL, 0x0200,
-                  "Channel Type Passive", HFILL}},
+		  "Channel Type Passive", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_dynamic,
 		 {"Dynamic CCK-OFDM", "radiotap.xchannel.type.dynamic",
@@ -2333,42 +2333,42 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_xchannel_flags_gsm,
 		 {"GSM (900MHz)", "radiotap.xchannel.type.gsm",
 		  FT_BOOLEAN, 24, NULL, 0x1000,
-                  "Channel Type GSM", HFILL}},
+		  "Channel Type GSM", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_sturbo,
 		 {"Static Turbo", "radiotap.xchannel.type.sturbo",
 		  FT_BOOLEAN, 24, NULL, 0x2000,
-                  "Channel Type Status Turbo", HFILL}},
+		  "Channel Type Status Turbo", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_half,
 		 {"Half Rate Channel (10MHz Channel Width)", "radiotap.xchannel.type.half",
 		  FT_BOOLEAN, 24, NULL, 0x4000,
-                  "Channel Type Half Rate", HFILL}},
+		  "Channel Type Half Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_quarter,
 		 {"Quarter Rate Channel (5MHz Channel Width)", "radiotap.xchannel.type.quarter",
 		  FT_BOOLEAN, 24, NULL, 0x8000,
-                  "Channel Type Quarter Rate", HFILL}},
+		  "Channel Type Quarter Rate", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht20,
 		 {"HT Channel (20MHz Channel Width)", "radiotap.xchannel.type.ht20",
 		  FT_BOOLEAN, 24, NULL, 0x10000,
-                  "Channel Type HT/20", HFILL}},
+		  "Channel Type HT/20", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht40u,
 		 {"HT Channel (40MHz Channel Width with Extension channel above)", "radiotap.xchannel.type.ht40u",
 		  FT_BOOLEAN, 24, NULL, 0x20000,
-                  "Channel Type HT/40+", HFILL}},
+		  "Channel Type HT/40+", HFILL}},
 
 		{&hf_radiotap_xchannel_flags_ht40d,
 		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.type.ht40d",
 		  FT_BOOLEAN, 24, NULL, 0x40000,
-                  "Channel Type HT/40-", HFILL}},
+		  "Channel Type HT/40-", HFILL}},
 #if 0
 		{&hf_radiotap_xchannel_maxpower,
 		 {"Max transmit power", "radiotap.xchannel.maxpower",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 #endif
 		{&hf_radiotap_fhss_hopset,
 		 {"FHSS Hop Set", "radiotap.fhss.hopset",
@@ -2394,7 +2394,7 @@ void proto_register_radiotap(void)
 		 {"SSI Signal", "radiotap.dbm_antsignal",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "RF signal power at the antenna from a fixed,"
-                  " arbitrary value in decibels from one milliwatt", HFILL}},
+		  " arbitrary value in decibels from one milliwatt", HFILL}},
 
 		{&hf_radiotap_db_antsignal,
 		 {"SSI Signal", "radiotap.db_antsignal",
@@ -2405,25 +2405,25 @@ void proto_register_radiotap(void)
 		 {"SSI Noise", "radiotap.dbm_antnoise",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "RF noise power at the antenna from a fixed, arbitrary value"
-                  " in decibels per one milliwatt", HFILL}},
+		  " in decibels per one milliwatt", HFILL}},
 
 		{&hf_radiotap_db_antnoise,
 		 {"SSI Noise", "radiotap.db_antnoise",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "RF noise power at the antenna from a fixed, arbitrary value"
-                  " in decibels", HFILL}},
+		  " in decibels", HFILL}},
 
 		{&hf_radiotap_tx_attenuation,
 		 {"Transmit attenuation", "radiotap.txattenuation",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Transmit power expressed as unitless distance from max power"
-                  " set at factory (0 is max power)", HFILL}},
+		  " set at factory (0 is max power)", HFILL}},
 
 		{&hf_radiotap_db_tx_attenuation,
 		 {"Transmit attenuation (dB)", "radiotap.db_txattenuation",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Transmit power expressed as decibels from max power"
-                  " set at factory (0 is max power)", HFILL}},
+		  " set at factory (0 is max power)", HFILL}},
 
 		{&hf_radiotap_txpower,
 		 {"Transmit power", "radiotap.txpower",
@@ -2433,7 +2433,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_mcs,
 		 {"MCS information", "radiotap.mcs",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_mcs_known,
 		 {"Known MCS information", "radiotap.mcs.known",
@@ -2498,17 +2498,17 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_mcs_index,
 		 {"MCS index", "radiotap.mcs.index",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu,
 		 {"A-MPDU status", "radiotap.ampdu",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_ref,
 		 {"A-MPDU reference number", "radiotap.ampdu.reference",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_flags,
 		 {"A-MPDU flags", "radiotap.ampdu.flags",
@@ -2518,37 +2518,37 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_ampdu_flags_report_zerolen,
 		 {"Driver reports 0-length subframes in this A-MPDU", "radiotap.ampdu.flags.report_zerolen",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_REPORT_ZEROLEN,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_flags_is_zerolen,
 		 {"This is a 0-length subframe", "radiotap.ampdu.flags.is_zerolen",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_IS_ZEROLEN,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_flags_last_known,
 		 {"Last subframe of this A-MPDU is known", "radiotap.ampdu.flags.lastknown",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_LAST_KNOWN,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_flags_is_last,
 		 {"This is the last subframe of this A-MPDU", "radiotap.ampdu.flags.last",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_IS_LAST,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_flags_delim_crc_error,
 		 {"Delimiter CRC error on this subframe", "radiotap.ampdu.flags.delim_crc_error",
 		  FT_BOOLEAN, 16, NULL, IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ampdu_delim_crc,
 		 {"A-MPDU subframe delimiter CRC", "radiotap.ampdu.delim_crc",
 		  FT_UINT8, BASE_HEX, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_vht,
 		 {"VHT information", "radiotap.vht",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_known,
 		 {"Known VHT information", "radiotap.vht.known",
@@ -2558,7 +2558,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_vht_user,
 		 {"User", "radiotap.vht.user",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-                  NULL, HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_vht_have_stbc,
 		 {"STBC", "radiotap.vht.have_stbc",

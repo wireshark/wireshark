@@ -183,20 +183,20 @@ static const value_string sml_abort[]={
 };
 
 static const value_string sml_body[]={
-	{OPEN_REQ, "PublicOpen.Req"},
-	{OPEN_RES, "PublicOpen.Res"},
-	{CLOSE_REQ, "PublicClose.Req"},
-	{CLOSE_RES, "PublicClose.Res"},
-	{PROFILEPACK_REQ, "GetProfilePack.Req"},
-	{PROFILEPACK_RES, "GetProfilePack.Res"},
-	{PROFILELIST_REQ, "GetProfileList.Req"},
-	{PROFILELIST_RES, "GetProfileList.Res"},
+	{OPEN_REQ,	       "PublicOpen.Req"},
+	{OPEN_RES,	       "PublicOpen.Res"},
+	{CLOSE_REQ,	       "PublicClose.Req"},
+	{CLOSE_RES,	       "PublicClose.Res"},
+	{PROFILEPACK_REQ,      "GetProfilePack.Req"},
+	{PROFILEPACK_RES,      "GetProfilePack.Res"},
+	{PROFILELIST_REQ,      "GetProfileList.Req"},
+	{PROFILELIST_RES,      "GetProfileList.Res"},
 	{GETPROCPARAMETER_REQ, "GetProcParameter.Req"},
 	{GETPROCPARAMETER_RES, "GetProcParameter.Res"},
 	{SETPROCPARAMETER_REQ, "SetProcParameter.Req"},
-	{GETLIST_REQ, "GetList.Req"},
-	{GETLIST_RES, "GetList.Res"},
-	{ATTENTION, "Attention.Res"},
+	{GETLIST_REQ,	       "GetList.Req"},
+	{GETLIST_RES,	       "GetList.Res"},
+	{ATTENTION,	       "Attention.Res"},
 	{0, NULL}
 };
 
@@ -207,10 +207,10 @@ static const value_string sml_timetypes[]={
 };
 
 static const value_string procvalues[]={
-	{PROC_VALUE, "Value"},
+	{PROC_VALUE,  "Value"},
 	{PROC_PERIOD, "PeriodEntry"},
-	{PROC_TUPEL, "TupelEntry"},
-	{PROC_TIME, "Time"},
+	{PROC_TUPEL,  "TupelEntry"},
+	{PROC_TIME,   "Time"},
 	{0, NULL}
 };
 
@@ -782,8 +782,8 @@ static void field_valTime(tvbuff_t *tvb, proto_tree *insert_tree, guint *offset,
 }
 
 static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *offset){
-    proto_item *SML_time;
-    proto_item *TupelEntry;
+	proto_item *SML_time;
+	proto_item *TupelEntry;
 
 	proto_tree *TupelEntry_list = NULL;
 	proto_tree *SML_time_tree = NULL;
@@ -1537,7 +1537,7 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 		get_length(tvb, offset, &data, &length);
 		repeat2 = data + length;
 		valuelist_list = proto_tree_add_subtree_format(period_List_Entry_list, tvb, *offset, -1, ett_sml_valuelist, &valuelist,
-                                            "period_List with %d %s", length+data, plurality(length+data, "element", "elements"));
+							       "period_List with %d %s", length+data, plurality(length+data, "element", "elements"));
 
 		if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
 			expert_add_info_format(pinfo, valuelist, &ei_sml_invalid_count, "invalid count of elements in valueList");
@@ -2219,7 +2219,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			/*List*/
 			get_length(tvb, offset, &data, &length);
 			mainlist_list = proto_tree_add_subtree_format(sml_tree, tvb, *offset, -1, ett_sml_mainlist, &mainlist, "List with %d %s",
-                length+data, plurality(length+data, "element", "elements"));
+								      length+data, plurality(length+data, "element", "elements"));
 
 			if (tvb_get_guint8(tvb, *offset) != LIST_6_ELEMENTS) {
 				expert_add_info_format(pinfo, mainlist, &ei_sml_invalid_count, "invalid count of elements");

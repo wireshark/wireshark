@@ -90,86 +90,86 @@ static int rpc_tap = -1;
 static dissector_handle_t spnego_krb5_wrap_handle = NULL;
 
 static const value_string rpc_msg_type[] = {
-	{ RPC_CALL, "Call" },
-	{ RPC_REPLY, "Reply" },
+	{ RPC_CALL,		     "Call" },
+	{ RPC_REPLY,		     "Reply" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_reply_state[] = {
-	{ MSG_ACCEPTED, "accepted" },
-	{ MSG_DENIED, "denied" },
+	{ MSG_ACCEPTED,		     "accepted" },
+	{ MSG_DENIED,		     "denied" },
 	{ 0, NULL }
 };
 
 const value_string rpc_auth_flavor[] = {
-	{ AUTH_NULL, "AUTH_NULL" },
-	{ AUTH_UNIX, "AUTH_UNIX" },
-	{ AUTH_SHORT, "AUTH_SHORT" },
-	{ AUTH_DES, "AUTH_DES" },
-	{ AUTH_RSA, "AUTH_RSA/Gluster" },
-	{ RPCSEC_GSS, "RPCSEC_GSS" },
-	{ AUTH_GSSAPI, "AUTH_GSSAPI" },
-	{ RPCSEC_GSS_KRB5, "RPCSEC_GSS_KRB5" },
-	{ RPCSEC_GSS_KRB5I, "RPCSEC_GSS_KRB5I" },
-	{ RPCSEC_GSS_KRB5P, "RPCSEC_GSS_KRB5P" },
-	{ RPCSEC_GSS_LIPKEY, "RPCSEC_GSS_LIPKEY" },
-	{ RPCSEC_GSS_LIPKEY_I, "RPCSEC_GSS_LIPKEY_I" },
-	{ RPCSEC_GSS_LIPKEY_P, "RPCSEC_GSS_LIPKEY_P" },
-	{ RPCSEC_GSS_SPKM3, "RPCSEC_GSS_SPKM3" },
-	{ RPCSEC_GSS_SPKM3I, "RPCSEC_GSS_SPKM3I" },
-	{ RPCSEC_GSS_SPKM3P, "RPCSEC_GSS_SPKM3P" },
-	{ AUTH_GLUSTERFS, "AUTH_GLUSTERFS" },
+	{ AUTH_NULL,		     "AUTH_NULL" },
+	{ AUTH_UNIX,		     "AUTH_UNIX" },
+	{ AUTH_SHORT,		     "AUTH_SHORT" },
+	{ AUTH_DES,		     "AUTH_DES" },
+	{ AUTH_RSA,		     "AUTH_RSA/Gluster" },
+	{ RPCSEC_GSS,		     "RPCSEC_GSS" },
+	{ AUTH_GSSAPI,		     "AUTH_GSSAPI" },
+	{ RPCSEC_GSS_KRB5,	     "RPCSEC_GSS_KRB5" },
+	{ RPCSEC_GSS_KRB5I,	     "RPCSEC_GSS_KRB5I" },
+	{ RPCSEC_GSS_KRB5P,	     "RPCSEC_GSS_KRB5P" },
+	{ RPCSEC_GSS_LIPKEY,	     "RPCSEC_GSS_LIPKEY" },
+	{ RPCSEC_GSS_LIPKEY_I,	     "RPCSEC_GSS_LIPKEY_I" },
+	{ RPCSEC_GSS_LIPKEY_P,	     "RPCSEC_GSS_LIPKEY_P" },
+	{ RPCSEC_GSS_SPKM3,	     "RPCSEC_GSS_SPKM3" },
+	{ RPCSEC_GSS_SPKM3I,	     "RPCSEC_GSS_SPKM3I" },
+	{ RPCSEC_GSS_SPKM3P,	     "RPCSEC_GSS_SPKM3P" },
+	{ AUTH_GLUSTERFS,	     "AUTH_GLUSTERFS" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_authgss_proc[] = {
-	{ RPCSEC_GSS_DATA, "RPCSEC_GSS_DATA" },
-	{ RPCSEC_GSS_INIT, "RPCSEC_GSS_INIT" },
-	{ RPCSEC_GSS_CONTINUE_INIT, "RPCSEC_GSS_CONTINUE_INIT" },
-	{ RPCSEC_GSS_DESTROY, "RPCSEC_GSS_DESTROY" },
+	{ RPCSEC_GSS_DATA,	     "RPCSEC_GSS_DATA" },
+	{ RPCSEC_GSS_INIT,	     "RPCSEC_GSS_INIT" },
+	{ RPCSEC_GSS_CONTINUE_INIT,  "RPCSEC_GSS_CONTINUE_INIT" },
+	{ RPCSEC_GSS_DESTROY,	     "RPCSEC_GSS_DESTROY" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_authgssapi_proc[] = {
-	{ AUTH_GSSAPI_EXIT, "AUTH_GSSAPI_EXIT" },
-	{ AUTH_GSSAPI_INIT, "AUTH_GSSAPI_INIT" },
+	{ AUTH_GSSAPI_EXIT,	     "AUTH_GSSAPI_EXIT" },
+	{ AUTH_GSSAPI_INIT,	     "AUTH_GSSAPI_INIT" },
 	{ AUTH_GSSAPI_CONTINUE_INIT, "AUTH_GSSAPI_CONTINUE_INIT" },
-	{ AUTH_GSSAPI_MSG, "AUTH_GSSAPI_MSG" },
-	{ AUTH_GSSAPI_DESTROY, "AUTH_GSSAPI_DESTROY" },
+	{ AUTH_GSSAPI_MSG,	     "AUTH_GSSAPI_MSG" },
+	{ AUTH_GSSAPI_DESTROY,	     "AUTH_GSSAPI_DESTROY" },
 	{ 0, NULL }
 };
 
 const value_string rpc_authgss_svc[] = {
-	{ RPCSEC_GSS_SVC_NONE, "rpcsec_gss_svc_none" },
-	{ RPCSEC_GSS_SVC_INTEGRITY, "rpcsec_gss_svc_integrity" },
-	{ RPCSEC_GSS_SVC_PRIVACY, "rpcsec_gss_svc_privacy" },
+	{ RPCSEC_GSS_SVC_NONE,	     "rpcsec_gss_svc_none" },
+	{ RPCSEC_GSS_SVC_INTEGRITY,  "rpcsec_gss_svc_integrity" },
+	{ RPCSEC_GSS_SVC_PRIVACY,    "rpcsec_gss_svc_privacy" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_accept_state[] = {
-	{ SUCCESS, "RPC executed successfully" },
-	{ PROG_UNAVAIL, "remote hasn't exported program" },
-	{ PROG_MISMATCH, "remote can't support version #" },
-	{ PROC_UNAVAIL, "program can't support procedure" },
-	{ GARBAGE_ARGS, "procedure can't decode params" },
-	{ SYSTEM_ERROR, "system errors like memory allocation failure" },
+	{ SUCCESS,		     "RPC executed successfully" },
+	{ PROG_UNAVAIL,		     "remote hasn't exported program" },
+	{ PROG_MISMATCH,	     "remote can't support version #" },
+	{ PROC_UNAVAIL,		     "program can't support procedure" },
+	{ GARBAGE_ARGS,		     "procedure can't decode params" },
+	{ SYSTEM_ERROR,		     "system errors like memory allocation failure" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_reject_state[] = {
-	{ RPC_MISMATCH, "RPC_MISMATCH" },
-	{ AUTH_ERROR, "AUTH_ERROR" },
+	{ RPC_MISMATCH,		     "RPC_MISMATCH" },
+	{ AUTH_ERROR,		     "AUTH_ERROR" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_auth_state[] = {
-	{ AUTH_BADCRED, "bad credential (seal broken)" },
-	{ AUTH_REJECTEDCRED, "client must begin new session" },
-	{ AUTH_BADVERF, "bad verifier (seal broken)" },
-	{ AUTH_REJECTEDVERF, "verifier expired or replayed" },
-	{ AUTH_TOOWEAK, "rejected for security reasons" },
-	{ RPCSEC_GSSCREDPROB, "GSS credential problem" },
-	{ RPCSEC_GSSCTXPROB, "GSS context problem" },
+	{ AUTH_BADCRED,		     "bad credential (seal broken)" },
+	{ AUTH_REJECTEDCRED,	     "client must begin new session" },
+	{ AUTH_BADVERF,		     "bad verifier (seal broken)" },
+	{ AUTH_REJECTEDVERF,	     "verifier expired or replayed" },
+	{ AUTH_TOOWEAK,		     "rejected for security reasons" },
+	{ RPCSEC_GSSCREDPROB,	     "GSS credential problem" },
+	{ RPCSEC_GSSCTXPROB,	     "GSS context problem" },
 	{ 0, NULL }
 };
 
@@ -304,7 +304,7 @@ typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
-    guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
+			      guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
 
 /***********************************/
 /* Hash array with procedure names */
@@ -336,7 +336,7 @@ rpc_proc_hash(gconstpointer k)
 /* insert some entries */
 void
 rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
-    int procedure_hf)
+		    int procedure_hf)
 {
 	rpc_prog_info_key rpc_prog_key;
 	rpc_prog_info_value *rpc_prog;
@@ -498,7 +498,7 @@ rpc_prog_name(guint32 prog)
  * RPC and contains the state we need to maintain for the conversation.
  */
 typedef struct _rpc_conv_info_t {
-        wmem_tree_t *xids;
+	wmem_tree_t *xids;
 } rpc_conv_info_t;
 
 
@@ -513,10 +513,10 @@ unsigned int
 rpc_roundup(unsigned int a)
 {
 	unsigned int mod = a % 4;
-        unsigned int ret;
+	unsigned int ret;
 	ret = a + ((mod)? 4-mod : 0);
-        /* Check for overflow */
-        if (ret < a)
+	/* Check for overflow */
+	if (ret < a)
 		THROW(ReportedBoundsError);
 	return ret;
 }
@@ -559,12 +559,12 @@ dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
  */
 int
 dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
-    proto_tree *tree,
-    packet_info *pinfo,
-    int hfindex,
-    gboolean fixed_length, guint32 length,
-    gboolean string_data, const char **string_buffer_ret,
-    dissect_function_t *dissect_it)
+			proto_tree *tree,
+			packet_info *pinfo,
+			int hfindex,
+			gboolean fixed_length, guint32 length,
+			gboolean string_data, const char **string_buffer_ret,
+			dissect_function_t *dissect_it)
 {
 	int data_offset;
 	proto_item *string_item = NULL;
@@ -639,15 +639,15 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	 * and call the dissection routine
 	 */
 
-        if (dissect_it) {
-          tvbuff_t *opaque_tvb;
+	if (dissect_it) {
+		tvbuff_t *opaque_tvb;
 
-          opaque_tvb = tvb_new_subset(tvb, data_offset, string_length_copy,
-                                      string_length);
+		opaque_tvb = tvb_new_subset(tvb, data_offset, string_length_copy,
+					    string_length);
 
-          return (*dissect_it)(opaque_tvb, offset, pinfo, tree, NULL);
+		return (*dissect_it)(opaque_tvb, offset, pinfo, tree, NULL);
 
-        }
+	}
 
 	if (string_data) {
 		string_buffer = tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset, string_length_copy, ENC_ASCII);
@@ -741,9 +741,9 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 int
 dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
-    int hfindex, int offset, const char **string_buffer_ret)
+		   int hfindex, int offset, const char **string_buffer_ret)
 {
-        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 	    hfindex, FALSE, 0, TRUE, string_buffer_ret, NULL);
 	return offset;
 }
@@ -751,9 +751,9 @@ dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
 
 int
 dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
-    int hfindex, int offset)
+		 int hfindex, int offset)
 {
-        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 					 hfindex, FALSE, 0, FALSE, NULL, NULL);
 	return offset;
 }
@@ -761,10 +761,10 @@ dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
 
 int
 dissect_rpc_bytes(tvbuff_t *tvb, proto_tree *tree,
-    int hfindex, int offset, guint32 length,
-    gboolean string_data, const char **string_buffer_ret)
+		  int hfindex, int offset, guint32 length,
+		  gboolean string_data, const char **string_buffer_ret)
 {
-        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 	    hfindex, TRUE, length, string_data, string_buffer_ret, NULL);
 	return offset;
 }
@@ -1198,7 +1198,7 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
  */
 static int
 dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo, int hfindex)
+			  packet_info *pinfo, int hfindex)
 {
 	guint32 opaque_length, rounded_length;
 	gint len_consumed, length, reported_length;
@@ -1240,7 +1240,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
  */
 static int
 dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
-                 packet_info *pinfo)
+		 packet_info *pinfo)
 {
 	guint flavor;
 	guint length;
@@ -1308,7 +1308,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
 
 static int
 dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
+			    packet_info *pinfo)
 {
 	return dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_token);
 }
@@ -1343,7 +1343,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 static int
 dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
+			       packet_info *pinfo)
 {
 	guint version;
 	proto_tree *mtree;
@@ -1363,7 +1363,7 @@ dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 static int
 dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
+			       packet_info *pinfo)
 {
 	guint version;
 	guint major, minor;
@@ -1510,7 +1510,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 int
 dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int args_id, guint32 prog, guint32 vers, guint32 proc)
+		       int offset, int args_id, guint32 prog, guint32 vers, guint32 proc)
 {
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, -1, 0, NULL };
@@ -1660,7 +1660,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 int
 dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int result_id, int prog_id, int vers_id, int proc_id)
+			int offset, int result_id, int prog_id, int vers_id, int proc_id)
 {
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, -1, 0, NULL };
@@ -1847,8 +1847,8 @@ make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 
 static gboolean
 dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    tvbuff_t *frag_tvb, fragment_head *ipfd_head, gboolean is_tcp,
-    guint32 rpc_rm, gboolean first_pdu)
+		    tvbuff_t *frag_tvb, fragment_head *ipfd_head, gboolean is_tcp,
+		    guint32 rpc_rm, gboolean first_pdu)
 {
 	guint32	msg_type;
 	rpc_call_info_value *rpc_call = NULL;
@@ -2700,12 +2700,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_function = NULL;
 	}
 
-        /*
-         * Don't call any subdissector if we have no more date to dissect.
-         */
-        if (tvb_length_remaining(tvb, offset) == 0) {
-                return TRUE;
-        }
+	/*
+	 * Don't call any subdissector if we have no more date to dissect.
+	 */
+	if (tvb_length_remaining(tvb, offset) == 0) {
+		return TRUE;
+	}
 
 	/*
 	 * Handle RPCSEC_GSS and AUTH_GSSAPI specially.
@@ -2842,15 +2842,15 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 
-        if (tvb_length_remaining(tvb, offset) > 0) {
-          /*
-           * dissect any remaining bytes (incomplete dissection) as pure
-           * data in the ptree
-           */
+	if (tvb_length_remaining(tvb, offset) > 0) {
+		/*
+		 * dissect any remaining bytes (incomplete dissection) as pure
+		 * data in the ptree
+		 */
 
-          call_dissector(data_handle,
-              tvb_new_subset_remaining(tvb, offset), pinfo, ptree);
-        }
+		call_dissector(data_handle,
+			       tvb_new_subset_remaining(tvb, offset), pinfo, ptree);
+	}
 
 	/* XXX this should really loop over all fhandles registred for the frame */
 	if(nfs_fhandle_reqrep_matching){
@@ -2966,7 +2966,7 @@ show_rpc_fragment(tvbuff_t *tvb, proto_tree *tree, guint32 rpc_rm)
 
 static void
 make_frag_tree(tvbuff_t *tvb, proto_tree *tree, int proto, gint ett,
-    guint32 rpc_rm)
+	       guint32 rpc_rm)
 {
 	proto_item *frag_item;
 	proto_tree *frag_tree;
@@ -2982,9 +2982,9 @@ make_frag_tree(tvbuff_t *tvb, proto_tree *tree, int proto, gint ett,
 
 void
 show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
-    guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo)
+		  guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo)
 {
-    proto_item *frag_tree_item;
+	proto_item *frag_tree_item;
 
 	if (tree == NULL)
 		return;		/* don't do any work */
@@ -3013,8 +3013,8 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 
 static gboolean
 call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
-    proto_tree *tree, tvbuff_t *frag_tvb, rec_dissector_t dissector,
-    fragment_head *ipfd_head, guint32 rpc_rm, gboolean first_pdu)
+		       proto_tree *tree, tvbuff_t *frag_tvb, rec_dissector_t dissector,
+		       fragment_head *ipfd_head, guint32 rpc_rm, gboolean first_pdu)
 {
 	const char *saved_proto;
 	volatile gboolean rpc_succeeded;
@@ -3060,8 +3060,8 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 
 static int
 dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-    int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo)
+		     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
+		     int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo)
 {
 	guint32 seq;
 	guint32 rpc_rm;
@@ -3205,7 +3205,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	old_rfk.conv_id = conversation->index;
 	old_rfk.seq = seq;
-        old_rfk.port = pinfo->srcport;
+	old_rfk.port = pinfo->srcport;
 	rfk = (rpc_fragment_key *)g_hash_table_lookup(rpc_reassembly_table, &old_rfk);
 
 	if (rfk == NULL) {
@@ -3335,7 +3335,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			new_rfk = wmem_new(wmem_file_scope(), rpc_fragment_key);
 			new_rfk->conv_id = rfk->conv_id;
 			new_rfk->seq = seq + len;
-                        new_rfk->port = pinfo->srcport;
+			new_rfk->port = pinfo->srcport;
 			new_rfk->offset = rfk->offset + len - 4;
 			new_rfk->start_seq = rfk->start_seq;
 			g_hash_table_insert(rpc_reassembly_table, new_rfk,
@@ -3628,7 +3628,7 @@ typedef enum {
 
 static rpc_tcp_return_t
 dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_heur, struct tcpinfo* tcpinfo)
+		       gboolean is_heur, struct tcpinfo* tcpinfo)
 {
 	int offset = 0;
 	gboolean saw_rpc = FALSE;

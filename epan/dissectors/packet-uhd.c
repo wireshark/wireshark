@@ -268,18 +268,18 @@ proto_register_uhd(void)
 		&ett_uhd
 	};
 
-    module_t *uhd_module;
+	module_t *uhd_module;
 
 	proto_uhd = proto_register_protocol("UHD", "UHD", "uhd");
 	proto_register_field_array(proto_uhd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-    uhd_module = prefs_register_protocol(proto_uhd, proto_reg_handoff_uhd);
-    prefs_register_uint_preference(uhd_module,
-        "dissector_port",
-        "Dissector UDP port",
-        "The UDP port used by this dissector",
-        10, &dissector_port_pref);
+	uhd_module = prefs_register_protocol(proto_uhd, proto_reg_handoff_uhd);
+	prefs_register_uint_preference(uhd_module,
+	"dissector_port",
+	"Dissector UDP port",
+	"The UDP port used by this dissector",
+	10, &dissector_port_pref);
 }
 
 void

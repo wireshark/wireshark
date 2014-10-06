@@ -869,7 +869,7 @@ mdi_power_base(gchar *buf, guint32 value) {
 
 static void
 media_power_base(gchar *buf, guint32 value) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
+	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
 }
 
 /* Calculate Latitude and Longitude string */
@@ -974,7 +974,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 	/* Set chassis tree */
 	chassis_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2), ett_chassis_id, &tf, "Chassis Subtype = %s",
-                                                        val_to_str_const(tlvsubType, chassis_id_subtypes, "Reserved" ));
+						     val_to_str_const(tlvsubType, chassis_id_subtypes, "Reserved" ));
 
 	proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	lf = proto_tree_add_item(chassis_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1275,7 +1275,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 	/* Set port tree */
 	time_to_live_tree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
-                            ett_time_to_live, NULL, "Time To Live = %u sec", tempShort);
+							  ett_time_to_live, NULL, "Time To Live = %u sec", tempShort);
 
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);

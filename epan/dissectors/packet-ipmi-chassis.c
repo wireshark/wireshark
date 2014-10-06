@@ -688,20 +688,20 @@ rs0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static ipmi_cmd_t cmd_chassis[] = {
-  /* Chassis commands */
-  { 0x00, NULL, rs00, NULL, NULL, "Get Chassis Capabilities", 0 },
-  { 0x01, NULL, rs01, NULL, NULL, "Get Chassis Status", 0 },
-  { 0x02, rq02, NULL, NULL, NULL, "Chassis Control", 0 },
-  { 0x03, NULL, NULL, NULL, NULL, "Chassis Reset", 0 },
-  { 0x04, rq04, NULL, NULL, NULL, "Chassis Identify", 0 },
-  { 0x05, rq05, NULL, NULL, NULL, "Set Chassis Capabilities", 0 },
-  { 0x06, rq06, rs06, NULL, NULL, "Set Power Restore Policy", 0 },
-  { 0x07, NULL, rs07, NULL, NULL, "Get System Restart Cause", 0 },
-  { 0x08, rq08, NULL, cc08, NULL, "Set System Boot Options", 0 },
-  { 0x09, rq09, rs09, cc09, NULL, "Get System Boot Options", 0 },
-  { 0x0a, IPMI_TBD,   NULL, NULL, "Set Front Panel Buttons Enables", 0 },
-  { 0x0b, IPMI_TBD,   NULL, NULL, "Set Power Cycle Interval", 0 },
-  { 0x0f, NULL, rs0f, NULL, NULL, "Get POH Counter", 0 },
+	/* Chassis commands */
+	{ 0x00, NULL, rs00, NULL, NULL, "Get Chassis Capabilities", 0 },
+	{ 0x01, NULL, rs01, NULL, NULL, "Get Chassis Status", 0 },
+	{ 0x02, rq02, NULL, NULL, NULL, "Chassis Control", 0 },
+	{ 0x03, NULL, NULL, NULL, NULL, "Chassis Reset", 0 },
+	{ 0x04, rq04, NULL, NULL, NULL, "Chassis Identify", 0 },
+	{ 0x05, rq05, NULL, NULL, NULL, "Set Chassis Capabilities", 0 },
+	{ 0x06, rq06, rs06, NULL, NULL, "Set Power Restore Policy", 0 },
+	{ 0x07, NULL, rs07, NULL, NULL, "Get System Restart Cause", 0 },
+	{ 0x08, rq08, NULL, cc08, NULL, "Set System Boot Options", 0 },
+	{ 0x09, rq09, rs09, cc09, NULL, "Get System Boot Options", 0 },
+	{ 0x0a, IPMI_TBD,   NULL, NULL, "Set Front Panel Buttons Enables", 0 },
+	{ 0x0b, IPMI_TBD,   NULL, NULL, "Set Power Cycle Interval", 0 },
+	{ 0x0f, NULL, rs0f, NULL, NULL, "Get POH Counter", 0 },
 };
 
 void

@@ -465,64 +465,64 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 static int
 dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
-    guint32 application_id = 0, str_len;
+	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+	guint32 application_id = 0, str_len;
 
-    if (diam_sub_dis) {
-        application_id = diam_sub_dis->application_id;
-    }
+	if (diam_sub_dis) {
+		application_id = diam_sub_dis->application_id;
+	}
 
-    switch (application_id) {
-    case DIAM_APPID_3GPP_S6A_S6D:
-    case DIAM_APPID_3GPP_SLH:
-    case DIAM_APPID_3GPP_S7A:
-        str_len = tvb_reported_length(tvb);
-        dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
-        return str_len;
-    }
+	switch (application_id) {
+	case DIAM_APPID_3GPP_S6A_S6D:
+	case DIAM_APPID_3GPP_SLH:
+	case DIAM_APPID_3GPP_S7A:
+		str_len = tvb_reported_length(tvb);
+		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		return str_len;
+	}
 
-    return 0;
+	return 0;
 }
 
 /* AVP Code: 443 Subscription-Id */
 static int
 dissect_diameter_subscription_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
-    /* Just reset our global subscription-id-type variable */
-    subscription_id_type = SUBSCRIPTION_ID_TYPE_UNKNOWN;
+	/* Just reset our global subscription-id-type variable */
+	subscription_id_type = SUBSCRIPTION_ID_TYPE_UNKNOWN;
 
-    return 0;
+	return 0;
 }
 
 /* AVP Code: 450 Subscription-Id-Type */
 static int
 dissect_diameter_subscription_id_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
-    /* Store the Type for use when we dissect Subscription-Id-Data */
-    subscription_id_type = tvb_get_ntohl(tvb, 0);
+	/* Store the Type for use when we dissect Subscription-Id-Data */
+	subscription_id_type = tvb_get_ntohl(tvb, 0);
 
-    return 0;
+	return 0;
 }
 
 /* AVP Code: 444 Subscription-Id-Data */
 static int
 dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 str_len;
+	guint32 str_len;
 
-    switch (subscription_id_type) {
+	switch (subscription_id_type) {
 	case SUBSCRIPTION_ID_TYPE_IMSI:
-	    str_len = tvb_reported_length(tvb);
-	    dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
-	    return str_len;
+		str_len = tvb_reported_length(tvb);
+		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		return str_len;
 	case SUBSCRIPTION_ID_TYPE_E164:
-	    str_len = tvb_reported_length(tvb);
-	    dissect_e164_msisdn(tvb, tree, 0, str_len, E164_ENC_UTF8);
-	    return str_len;
-	    break;
-    }
+		str_len = tvb_reported_length(tvb);
+		dissect_e164_msisdn(tvb, tree, 0, str_len, E164_ENC_UTF8);
+		return str_len;
+		break;
+	}
 
-    return 0;
+	return 0;
 }
 
 /* Call subdissectors for AVPs.
@@ -750,7 +750,7 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 {
 	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
-    gint len = tvb_reported_length(tvb);
+	gint len = tvb_reported_length(tvb);
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, len, ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
 	guint32 addr_type = tvb_get_ntohs(tvb,0);

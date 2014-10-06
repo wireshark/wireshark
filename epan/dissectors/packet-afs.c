@@ -461,26 +461,26 @@ static gint ett_afs_cm_interfaces = -1;
 static gint ett_afs_cm_capabilities = -1;
 
 static const fragment_items afs_frag_items = {
-    /* Fragment subtrees */
-    &ett_afs_fragment,
-    &ett_afs_fragments,
-    /* Fragment fields */
-    &hf_afs_fragments,
-    &hf_afs_fragment,
-    &hf_afs_fragment_overlap,
-    &hf_afs_fragment_overlap_conflicts,
-    &hf_afs_fragment_multiple_tails,
-    &hf_afs_fragment_too_long_fragment,
-    &hf_afs_fragment_error,
-    &hf_afs_fragment_count,
-    /* Reassembled in field */
-    &hf_afs_reassembled_in,
-    /* Reassembled length field */
-    &hf_afs_reassembled_length,
-    /* Reassembled data field */
-    NULL,
-    /* Tag */
-    "RX fragments"
+	/* Fragment subtrees */
+	&ett_afs_fragment,
+	&ett_afs_fragments,
+	/* Fragment fields */
+	&hf_afs_fragments,
+	&hf_afs_fragment,
+	&hf_afs_fragment_overlap,
+	&hf_afs_fragment_overlap_conflicts,
+	&hf_afs_fragment_multiple_tails,
+	&hf_afs_fragment_too_long_fragment,
+	&hf_afs_fragment_error,
+	&hf_afs_fragment_count,
+	/* Reassembled in field */
+	&hf_afs_reassembled_in,
+	/* Reassembled length field */
+	&hf_afs_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/* Tag */
+	"RX fragments"
 };
 
 
@@ -895,24 +895,24 @@ static const fragment_items afs_frag_items = {
 
 /* output a ubik interface addr array */
 #define OUT_UBIK_InterfaceAddrs() \
-    { \
-        unsigned int i,j,seen_null=0; \
-        for (i=0; i<255; i++) { \
-		j = tvb_get_ntohl(tvb, offset); \
-		if ( j != 0 ) { \
-			OUT_IP(hf_afs_ubik_interface); \
-			seen_null = 0; \
-		} else { \
-			if ( ! seen_null ) { \
-			proto_tree_add_text(tree, tvb, offset, \
-				tvb_captured_length_remaining(tvb, offset), \
-				"Null Interface Addresses"); \
-				seen_null = 1; \
-			} \
-			offset += 4; \
-		}\
-        } \
-    }
+	{ \
+		unsigned int i,j,seen_null=0; \
+		for (i=0; i<255; i++) { \
+			j = tvb_get_ntohl(tvb, offset); \
+			if ( j != 0 ) { \
+				OUT_IP(hf_afs_ubik_interface); \
+				seen_null = 0; \
+			} else { \
+				if ( ! seen_null ) { \
+				proto_tree_add_text(tree, tvb, offset, \
+					tvb_captured_length_remaining(tvb, offset), \
+					"Null Interface Addresses"); \
+					seen_null = 1; \
+				} \
+				offset += 4; \
+			}\
+		} \
+	}
 
 #define OUT_UBIK_DebugOld() \
 	{ \
@@ -3200,7 +3200,7 @@ dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 static void
 dissect_backup_request(tvbuff_t *tvb _U_, struct rxinfo *rxinfo _U_, proto_tree *tree _U_, int offset _U_, int opcode)
 {
-        /* offset += 4; */ /* skip the opcode */
+	/* offset += 4; */ /* skip the opcode */
 
 	switch ( opcode )
 	{

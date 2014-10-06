@@ -1081,54 +1081,54 @@ dissect_browser_browserr_server_enum_ex_reply(tvbuff_t *tvb, int offset,
   IDL }
 */
 static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
-        { BROWSER_BROWSERR_SERVER_ENUM, "BrowserrServerEnum",
+	{ BROWSER_BROWSERR_SERVER_ENUM, "BrowserrServerEnum",
 		dissect_browser_browserr_server_enum_rqst,
 		dissect_browser_browserr_server_enum_reply },
-        { BROWSER_BROWSERR_DEBUG_CALL, "BrowserrDebugCall",
+	{ BROWSER_BROWSERR_DEBUG_CALL, "BrowserrDebugCall",
 		dissect_browser_browserr_debug_call_rqst,
 		dissect_browser_browserr_debug_call_reply },
-        { BROWSER_BROWSERR_QUERY_OTHER_DOMAINS,
+	{ BROWSER_BROWSERR_QUERY_OTHER_DOMAINS,
 	  "BrowserrQueryOtherDomains",
 		dissect_browser_browserr_query_other_domains_rqst,
 		dissect_browser_browserr_query_other_domains_reply },
-        { BROWSER_BROWSERR_RESET_NETLOGON_STATE,
+	{ BROWSER_BROWSERR_RESET_NETLOGON_STATE,
 	  "BrowserrResetNetlogonState",
 		dissect_browser_browserr_reset_netlogon_state_rqst,
 		dissect_browser_browserr_reset_netlogon_state_reply },
-        { BROWSER_BROWSERR_DEBUG_TRACE,
+	{ BROWSER_BROWSERR_DEBUG_TRACE,
 	  "BrowserrDebugTrace",
 		dissect_browser_browserr_debug_trace_rqst,
 		dissect_browser_browserr_debug_trace_reply },
-        { BROWSER_BROWSERR_QUERY_STATISTICS,
+	{ BROWSER_BROWSERR_QUERY_STATISTICS,
 	  "BrowserrQueryStatistics",
 		dissect_browser_browserr_query_statistics_rqst,
 		dissect_browser_browserr_query_statistics_reply },
-        { BROWSER_BROWSERR_RESET_STATISTICS,
+	{ BROWSER_BROWSERR_RESET_STATISTICS,
 	  "BrowserrResetStatistics",
 		dissect_browser_browserr_reset_statistics_rqst,
 		dissect_browser_browserr_reset_statistics_reply },
-        { BROWSER_NETR_BROWSER_STATISTICS_CLEAR,
+	{ BROWSER_NETR_BROWSER_STATISTICS_CLEAR,
 	  "NetrBrowserStatisticsClear",
 		dissect_browser_netr_browser_statistics_clear_rqst,
 		dissect_browser_netr_browser_statistics_clear_reply },
-        { BROWSER_NETR_BROWSER_STATISTICS_GET,
+	{ BROWSER_NETR_BROWSER_STATISTICS_GET,
 	  "NetrBrowserStatisticsGet",
 		dissect_browser_netr_browser_statistics_get_rqst,
 		dissect_browser_netr_browser_statistics_get_reply },
-        { BROWSER_BROWSERR_SET_NETLOGON_STATE,
+	{ BROWSER_BROWSERR_SET_NETLOGON_STATE,
 	  "BrowserrSetNetlogonState",
 		dissect_browser_browserr_set_netlogon_state_rqst,
 		dissect_browser_browserr_set_netlogon_state_reply },
-        { BROWSER_BROWSERR_QUERY_EMULATED_DOMAINS,
+	{ BROWSER_BROWSERR_QUERY_EMULATED_DOMAINS,
 	  "BrowserrQueryEmulatedDomains",
 		dissect_browser_browserr_query_emulated_domains_rqst,
 		dissect_browser_browserr_query_emulated_domains_reply },
-        { BROWSER_BROWSERR_SERVER_ENUM_EX,
+	{ BROWSER_BROWSERR_SERVER_ENUM_EX,
 	  "BrowserrServerEnumEx",
 		dissect_browser_browserr_server_enum_ex_rqst,
 		dissect_browser_browserr_server_enum_ex_reply },
 
-        {0, NULL, NULL,  NULL }
+	{0, NULL, NULL,  NULL }
 };
 
 void
@@ -1161,26 +1161,26 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }}
 
 	};
-        static gint *ett[] = {
-                &ett_dcerpc_browser
-        };
+	static gint *ett[] = {
+		&ett_dcerpc_browser
+	};
 
-        proto_dcerpc_browser = proto_register_protocol(
-                "RPC Browser", "RPC_BROWSER", "rpc_browser");
+	proto_dcerpc_browser = proto_register_protocol(
+		"RPC Browser", "RPC_BROWSER", "rpc_browser");
 
-        proto_register_field_array(proto_dcerpc_browser, hf,
+	proto_register_field_array(proto_dcerpc_browser, hf,
 				   array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_dcerpc_browser(void)
 {
-        /* Register protocol as dcerpc */
+	/* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser,
-                         &uuid_dcerpc_browser, ver_dcerpc_browser,
-                         dcerpc_browser_dissectors, hf_browser_opnum);
+	dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser,
+			 &uuid_dcerpc_browser, ver_dcerpc_browser,
+			 dcerpc_browser_dissectors, hf_browser_opnum);
 }
 
 /*

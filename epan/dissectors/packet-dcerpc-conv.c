@@ -165,26 +165,26 @@ void
 proto_register_conv (void)
 {
 	static hf_register_info hf[] = {
-        { &hf_conv_opnum,
-            { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_conv_rc,
-            {"Status", "conv.status", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &dce_error_vals_ext, 0x0, NULL, HFILL }},
+	{ &hf_conv_opnum,
+	    { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_conv_rc,
+	    {"Status", "conv.status", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &dce_error_vals_ext, 0x0, NULL, HFILL }},
 
-        { &hf_conv_who_are_you_rqst_actuid,
-            {"Activity UID", "conv.who_are_you_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
-        { &hf_conv_who_are_you_rqst_boot_time,
-            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
-        { &hf_conv_who_are_you2_rqst_actuid,
-            {"Activity UID", "conv.who_are_you2_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
-        { &hf_conv_who_are_you2_rqst_boot_time,
-            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+	{ &hf_conv_who_are_you_rqst_actuid,
+	    {"Activity UID", "conv.who_are_you_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
+	{ &hf_conv_who_are_you_rqst_boot_time,
+	    {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+	{ &hf_conv_who_are_you2_rqst_actuid,
+	    {"Activity UID", "conv.who_are_you2_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
+	{ &hf_conv_who_are_you2_rqst_boot_time,
+	    {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_conv_who_are_you_resp_seq,
-            {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_conv_who_are_you2_resp_seq,
-            {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_conv_who_are_you2_resp_casuuid,
-            {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
+	{ &hf_conv_who_are_you_resp_seq,
+	    {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_conv_who_are_you2_resp_seq,
+	    {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_conv_who_are_you2_resp_casuuid,
+	    {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
 	};
 
 	static gint *ett[] = {

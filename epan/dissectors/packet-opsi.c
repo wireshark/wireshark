@@ -482,9 +482,9 @@ decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
-      ns.secs  = tvb_get_ntohl(tvb, offset+4);
-      ns.nsecs = 0;
-      proto_tree_add_time(tree, *hfValue, tvb, offset+4, 4, &ns);
+	ns.secs  = tvb_get_ntohl(tvb, offset+4);
+	ns.nsecs = 0;
+	proto_tree_add_time(tree, *hfValue, tvb, offset+4, 4, &ns);
 }
 
 /****************************************************************************/
@@ -495,12 +495,12 @@ decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 static guint
 get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  /*
-   * Get the length of the OPSI packet.
-   * We are guaranteed there're enough chars in tvb in order to
-   * extract the length value. No exception thrown !!
-   */
-  return tvb_get_ntohs(tvb, offset + 4);
+	/*
+	 * Get the length of the OPSI packet.
+	 * We are guaranteed there're enough chars in tvb in order to
+	 * extract the length value. No exception thrown !!
+	 */
+	return tvb_get_ntohs(tvb, offset + 4);
 }
 
 static int
@@ -876,10 +876,10 @@ proto_register_opsi(void)
 
 /* We activate the desegmentation / reassembly feature */
 	opsi_module = prefs_register_protocol(proto_opsi, NULL);
-  	prefs_register_bool_preference(opsi_module, "desegment_opsi_messages",
-    		"Reassemble OPSI messages spanning multiple TCP segments",
-    		"Whether the OPSI dissector should desegment all messages spanning multiple TCP segments",
-    		&opsi_desegment);
+	prefs_register_bool_preference(opsi_module, "desegment_opsi_messages",
+		"Reassemble OPSI messages spanning multiple TCP segments",
+		"Whether the OPSI dissector should desegment all messages spanning multiple TCP segments",
+		&opsi_desegment);
 }
 
 

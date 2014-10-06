@@ -196,11 +196,11 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions
 		   like memory access violations.
 		   (a running debugger will be called before the except part below) */
-                /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
-                   stack in an inconsistent state thus causing a crash at some point in the
-                   handling of the exception.
-                   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
-                */
+		/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+		   stack in an inconsistent state thus causing a crash at some point in the
+		   handling of the exception.
+		   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+		*/
 		__try {
 #endif
 			if (!dissector_try_uint(file_encap_dissector_table, pinfo->fd->lnk_t,
@@ -241,7 +241,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	ENDTRY;
 
-    if(proto_field_is_referenced(tree, hf_file_protocols)) {
+	if(proto_field_is_referenced(tree, hf_file_protocols)) {
 		wmem_strbuf_t *val = wmem_strbuf_new(wmem_packet_scope(), "");
 		wmem_list_frame_t *frame;
 		/* skip the first entry, it's always the "frame" protocol */
@@ -267,11 +267,11 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* Win32: Visual-C Structured Exception Handling (SEH)
 			   to trap hardware exceptions like memory access violations */
 			/* (a running debugger will be called before the except part below) */
-                        /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
-                           stack in an inconsistent state thus causing a crash at some point in the
-                           handling of the exception.
-                           See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
-                        */
+			/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+			   stack in an inconsistent state thus causing a crash at some point in the
+			   handling of the exception.
+			   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+			*/
 			__try {
 #endif
 				call_all_postdissectors(tvb, pinfo, parent_tree);

@@ -857,8 +857,8 @@ static const int *vnc_fence_flags[] = {
 	&hf_vnc_fence_sync_next,
 	&hf_vnc_fence_block_after,
 	&hf_vnc_fence_block_before,
-        NULL
-    };
+	NULL
+};
 
 /* Context Information */
 static int hf_vnc_context_information_app_id = -1;
@@ -970,7 +970,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vnc_set_depth(pinfo, vnc_depth);
 
 	if (ret) {
-               return;  /* We're in a "startup" state; Cannot yet do "normal" processing */
+		return;  /* We're in a "startup" state; Cannot yet do "normal" processing */
 	}
 
 	if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport) {
@@ -1749,7 +1749,7 @@ again:
 			  vnc_server_message_type_tree);
 		break;
 
-        default :
+	default :
 		col_append_sep_str(pinfo->cinfo, COL_INFO, "; ",
 				       "Unknown server message type");
 		*offset = tvb_reported_length(tvb);  /* Swallow the rest of the segment */
@@ -1996,11 +1996,11 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	num_rects = tvb_get_ntohs(tvb, *offset);
 	ti = proto_tree_add_item(tree, hf_vnc_rectangle_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
-        /* In some cases, TIGHT encoding ignores the "number of rectangles" field;        */
+	/* In some cases, TIGHT encoding ignores the "number of rectangles" field;	  */
 	/* VNC_ENCODING_TYPE_LAST_RECT is used to indicate the end of the rectangle list. */
-	/* (It appears that TIGHT encoding uses 0xFFFF for the num_rects field when the   */
-        /*  field is not being used). For now: we'll assume that a value 0f 0xFFFF means  */
-        /*  that the field is not being used.                                             */
+	/* (It appears that TIGHT encoding uses 0xFFFF for the num_rects field when the	  */
+	/*  field is not being used). For now: we'll assume that a value 0f 0xFFFF means  */
+	/*  that the field is not being used.						  */
 	if (num_rects == 0xFFFF) {
 		proto_item_append_text(ti, " [TIGHT encoding assumed (field is not used)]");
 	}

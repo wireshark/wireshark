@@ -109,8 +109,8 @@ static gboolean generate_bits_field = TRUE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
-	{ P2P_DIR_SENT,	"Sent" },
-	{ P2P_DIR_RECV, "Received" },
+	{ P2P_DIR_SENT,	   "Sent" },
+	{ P2P_DIR_RECV,    "Received" },
 	{ 0, NULL }
 };
 
@@ -251,7 +251,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	}
 
-	if(pinfo->pkt_comment){
+	if (pinfo->pkt_comment) {
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
@@ -265,10 +265,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* if FRAME is not referenced from any filters we don't need to worry about
 	   generating any tree items.  */
-	if(!proto_field_is_referenced(tree, proto_frame)) {
+	if (!proto_field_is_referenced(tree, proto_frame)) {
 		tree=NULL;
-		if(pinfo->fd->flags.has_ts) {
-			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
+		if (pinfo->fd->flags.has_ts) {
+			if (pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
 				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
 		}
 	} else {
@@ -345,7 +345,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (pinfo->fd->flags.has_ts) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 					    0, 0, &(pinfo->fd->abs_ts));
-			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
+			if (pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
 				expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
 								  "Arrival Time: Fractional second %09ld is invalid,"
 								  " the valid range is 0-1000000000",
@@ -355,7 +355,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					    0, 0, &(pinfo->fd->shift_offset));
 			PROTO_ITEM_SET_GENERATED(item);
 
-			if(generate_epoch_time) {
+			if (generate_epoch_time) {
 				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
 						    0, 0, &(pinfo->fd->abs_ts));
 			}
@@ -384,7 +384,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						   0, 0, &(pinfo->rel_ts));
 			PROTO_ITEM_SET_GENERATED(item);
 
-			if(pinfo->fd->flags.ref_time){
+			if (pinfo->fd->flags.ref_time) {
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
 				PROTO_ITEM_SET_GENERATED(ti);
 			}
@@ -424,7 +424,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		if(proto_field_is_referenced(tree, hf_frame_protocols)) {
+		if (proto_field_is_referenced(tree, hf_frame_protocols)) {
 			/* we are going to be using proto_item_append_string() on
 			 * hf_frame_protocols, and we must therefore disable the
 			 * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
@@ -457,7 +457,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						    pinfo->fd->file_off, pinfo->fd->file_off);
 		}
 
-		if(pinfo->fd->color_filter != NULL) {
+		if (pinfo->fd->color_filter != NULL) {
 			const color_filter_t *color_filter = (const color_filter_t *)pinfo->fd->color_filter;
 			item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 						     0, 0, color_filter->filter_name);
@@ -481,11 +481,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions
 		   like memory access violations.
 		   (a running debugger will be called before the except part below) */
-                /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
-                   stack in an inconsistent state thus causing a crash at some point in the
-                   handling of the exception.
-                   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
-                */
+		/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+		   stack in an inconsistent state thus causing a crash at some point in the
+		   handling of the exception.
+		   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+		*/
 		__try {
 #endif
 			switch (pinfo->phdr->rec_type) {
@@ -519,7 +519,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 #ifdef _MSC_VER
 		} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
-			switch(GetExceptionCode()) {
+			switch (GetExceptionCode()) {
 			case(STATUS_ACCESS_VIOLATION):
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
 					       "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
@@ -547,7 +547,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	ENDTRY;
 
-        if(proto_field_is_referenced(tree, hf_frame_protocols)) {
+	if (proto_field_is_referenced(tree, hf_frame_protocols)) {
 		wmem_strbuf_t *val = wmem_strbuf_sized_new(wmem_packet_scope(), 128, 0);
 		wmem_list_frame_t *frame;
 		/* skip the first entry, it's always the "frame" protocol */
@@ -573,17 +573,17 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* Win32: Visual-C Structured Exception Handling (SEH)
 			   to trap hardware exceptions like memory access violations */
 			/* (a running debugger will be called before the except part below) */
-                        /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
-                           stack in an inconsistent state thus causing a crash at some point in the
-                           handling of the exception.
-                           See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
-                        */
+			/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+			   stack in an inconsistent state thus causing a crash at some point in the
+			   handling of the exception.
+			   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+			*/
 			__try {
 #endif
 				call_all_postdissectors(tvb, pinfo, parent_tree);
 #ifdef _MSC_VER
 			} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
-				switch(GetExceptionCode()) {
+				switch (GetExceptionCode()) {
 				case(STATUS_ACCESS_VIOLATION):
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
 						       "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");

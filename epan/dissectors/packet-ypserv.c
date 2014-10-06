@@ -501,45 +501,46 @@ dissect_maplist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 /* someone please get me a version 1 trace */
 
 static const vsff ypserv1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { YPPROC_DOMAIN, "DOMAIN",
+	{ 0, "NULL",
 		NULL, NULL },
-    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
+	{ YPPROC_DOMAIN, "DOMAIN",
 		NULL, NULL },
-    { YPPROC_MATCH, "MATCH",
+	{ YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
 		NULL, NULL },
-    { YPPROC_FIRST, "FIRST",
+	{ YPPROC_MATCH, "MATCH",
 		NULL, NULL },
-    { YPPROC_NEXT,  "NEXT",
+	{ YPPROC_FIRST, "FIRST",
 		NULL, NULL },
-    { YPPROC_XFR,   "XFR",
+	{ YPPROC_NEXT,  "NEXT",
 		NULL, NULL },
-    { YPPROC_CLEAR, "CLEAR",
+	{ YPPROC_XFR,   "XFR",
 		NULL, NULL },
-    { YPPROC_ALL,   "ALL",
+	{ YPPROC_CLEAR, "CLEAR",
 		NULL, NULL },
-    { YPPROC_MASTER,    "MASTER",
+	{ YPPROC_ALL,   "ALL",
 		NULL, NULL },
-    { YPPROC_ORDER, "ORDER",
+	{ YPPROC_MASTER,    "MASTER",
 		NULL, NULL },
-    { YPPROC_MAPLIST,   "MAPLIST",
+	{ YPPROC_ORDER, "ORDER",
 		NULL, NULL },
-    { 0, NULL, NULL, NULL }
+	{ YPPROC_MAPLIST,   "MAPLIST",
+		NULL, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 
 static const value_string ypserv1_proc_vals[] = {
-    { YPPROC_DOMAIN,        "DOMAIN" },
-    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
-    { YPPROC_MATCH,         "MATCH" },
-    { YPPROC_FIRST,         "FIRST" },
-    { YPPROC_NEXT,          "NEXT" },
-    { YPPROC_XFR,           "XFR" },
-    { YPPROC_CLEAR,         "CLEAR" },
-    { YPPROC_ALL,           "ALL" },
-    { YPPROC_MASTER,        "MASTER" },
-    { YPPROC_ORDER,         "ORDER" },
-    { YPPROC_MAPLIST,       "MAPLIST" },
-    { 0, NULL }
+	{ YPPROC_DOMAIN,        "DOMAIN" },
+	{ YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
+	{ YPPROC_MATCH,         "MATCH" },
+	{ YPPROC_FIRST,         "FIRST" },
+	{ YPPROC_NEXT,          "NEXT" },
+	{ YPPROC_XFR,           "XFR" },
+	{ YPPROC_CLEAR,         "CLEAR" },
+	{ YPPROC_ALL,           "ALL" },
+	{ YPPROC_MASTER,        "MASTER" },
+	{ YPPROC_ORDER,         "ORDER" },
+	{ YPPROC_MAPLIST,       "MAPLIST" },
+	{ 0, NULL }
 };
 
 /* end of YPServ version 1 */
@@ -548,30 +549,31 @@ static const value_string ypserv1_proc_vals[] = {
 /* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff ypserv2_proc[] = {
-    { 0,                    "NULL", NULL, NULL },
-    { YPPROC_DOMAIN,        "DOMAIN",
+	{ 0,                    "NULL",
+		NULL, NULL },
+	{ YPPROC_DOMAIN,        "DOMAIN",
 		dissect_domain_call, dissect_domain_reply },
-    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
+	{ YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
 		dissect_domain_nonack_call, dissect_domain_nonack_reply },
-    { YPPROC_MATCH,         "MATCH",
+	{ YPPROC_MATCH,         "MATCH",
 		dissect_match_call, dissect_match_reply },
-    { YPPROC_FIRST,         "FIRST",
+	{ YPPROC_FIRST,         "FIRST",
 		dissect_first_call, dissect_first_reply },
-    { YPPROC_NEXT,          "NEXT",
+	{ YPPROC_NEXT,          "NEXT",
 		dissect_next_call, dissect_next_reply },
-    { YPPROC_XFR,           "XFR",
+	{ YPPROC_XFR,           "XFR",
 		dissect_xfr_call, dissect_xfr_reply },
-    { YPPROC_CLEAR,         "CLEAR",
+	{ YPPROC_CLEAR,         "CLEAR",
 		dissect_clear_call, dissect_clear_reply },
-    { YPPROC_ALL,           "ALL",
+	{ YPPROC_ALL,           "ALL",
 		dissect_all_call, dissect_all_reply },
-    { YPPROC_MASTER,        "MASTER",
+	{ YPPROC_MASTER,        "MASTER",
 		dissect_master_call, dissect_master_reply },
-    { YPPROC_ORDER,         "ORDER",
+	{ YPPROC_ORDER,         "ORDER",
 		dissect_order_call, dissect_order_reply },
-    { YPPROC_MAPLIST,       "MAPLIST",
+	{ YPPROC_MAPLIST,       "MAPLIST",
 		dissect_maplist_call, dissect_maplist_reply },
-    { 0, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL }
 };
 
 static const value_string ypserv2_proc_vals[] = {

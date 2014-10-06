@@ -1122,7 +1122,7 @@ static const value_string vals_wbxml_public_ids[] = {
 	/* 0x110F -- 0x11FF: unassigned */
 	{ 0x1200, "-//3GPP2.COM//DTD IOTA 1.0//EN" },
 	{ 0x1201, "-//SYNCML//DTD SyncML 1.2//EN" },
-  	{ 0x1202, "-//SYNCML//DTD MetaInf 1.2//EN" },
+	{ 0x1202, "-//SYNCML//DTD MetaInf 1.2//EN" },
  	{ 0x1203, "-//SYNCML//DTD DevInf 1.2//EN" },
  	{ 0x1204, "-//NOKIA//DTD LANDMARKS 1.0//EN" },
 

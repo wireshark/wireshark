@@ -233,7 +233,7 @@ llc_sap_value( gchar *result, guint32 sap )
  */
 void
 llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
-    hf_register_info *hf_item)
+	    hf_register_info *hf_item)
 {
 	oui_info_t *new_info;
 
@@ -540,8 +540,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 void
 dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    proto_tree *snap_tree, int control, int hf_oui, int hf_type, int hf_pid,
-    int bridge_pad)
+	     proto_tree *snap_tree, int control, int hf_oui, int hf_type, int hf_pid,
+	     int bridge_pad)
 {
 	guint32		oui;
 	guint16		etype;

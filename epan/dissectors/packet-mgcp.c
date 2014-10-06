@@ -269,15 +269,15 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength, int** hf
  * are written in the same style.
  */
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *mgcp_tree, proto_tree *ti);
+				 proto_tree *mgcp_tree, proto_tree *ti);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree);
 static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb,
-                                          gint offset, gint param_type_len,
-                                          gint param_val_len);
+					  gint offset, gint param_type_len,
+					  gint param_val_len);
 static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb,
-                                                gint offset, gint param_type_len,
-                                                gint param_val_len);
+						gint offset, gint param_type_len,
+						gint param_val_len);
 
 
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
@@ -294,7 +294,7 @@ static dissector_handle_t sdp_handle;
 static dissector_handle_t mgcp_handle;
 extern void
 dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-     dissector_handle_t subdissector_handle);
+		  dissector_handle_t subdissector_handle);
 extern guint16 is_asciitpkt(tvbuff_t *tvb);
 
 /*
@@ -464,7 +464,7 @@ static mgcp_info_t *mi;
 
 /* Dissect an individual MGCP message */
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *mgcp_tree, proto_tree *ti)
+				 proto_tree *mgcp_tree, proto_tree *ti)
 {
 	/* Declare variables */
 	gint sectionlen;

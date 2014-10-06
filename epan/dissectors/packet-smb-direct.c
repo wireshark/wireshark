@@ -77,20 +77,20 @@ static int hf_smb_direct_reassembled_length = -1;
 static int hf_smb_direct_reassembled_data = -1;
 
 static const fragment_items smb_direct_frag_items = {
-        &ett_smb_direct_fragment,
-        &ett_smb_direct_fragments,
-        &hf_smb_direct_fragments,
-        &hf_smb_direct_fragment,
-        &hf_smb_direct_fragment_overlap,
-        &hf_smb_direct_fragment_overlap_conflict,
-        &hf_smb_direct_fragment_multiple_tails,
-        &hf_smb_direct_fragment_too_long_fragment,
-        &hf_smb_direct_fragment_error,
-        &hf_smb_direct_fragment_count,
-        &hf_smb_direct_reassembled_in,
-        &hf_smb_direct_reassembled_length,
-        &hf_smb_direct_reassembled_data,
-        "SMB Direct fragments"
+	&ett_smb_direct_fragment,
+	&ett_smb_direct_fragments,
+	&hf_smb_direct_fragments,
+	&hf_smb_direct_fragment,
+	&hf_smb_direct_fragment_overlap,
+	&hf_smb_direct_fragment_overlap_conflict,
+	&hf_smb_direct_fragment_multiple_tails,
+	&hf_smb_direct_fragment_too_long_fragment,
+	&hf_smb_direct_fragment_error,
+	&hf_smb_direct_fragment_count,
+	&hf_smb_direct_reassembled_in,
+	&hf_smb_direct_reassembled_length,
+	&hf_smb_direct_reassembled_data,
+	"SMB Direct fragments"
 };
 
 enum SMB_DIRECT_HDR_TYPE {

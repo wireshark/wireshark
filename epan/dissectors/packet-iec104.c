@@ -620,186 +620,186 @@ static expert_field ei_iec104_apdu_min_len = EI_INIT;
 /* Misc. functions for dissection of signal values */
 
 /* ====================================================================
-    void get_CP56Time(td_CP56Time *cp56t, tvbuff_t *tvb, guint8 offset)
+   void get_CP56Time(td_CP56Time *cp56t, tvbuff_t *tvb, guint8 offset)
 
-    Dissects the CP56Time2a time (Seven octet binary time)
-    that starts 'offset' bytes in 'tvb'.
+   Dissects the CP56Time2a time (Seven octet binary time)
+   that starts 'offset' bytes in 'tvb'.
    ==================================================================== */
 static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  guint16 ms;
-  guint8 value;
-  guint8 su;
-  struct tm tm;
-  nstime_t  datetime;
-  proto_item* ti;
-  proto_tree* cp56time_tree;
+	guint16 ms;
+	guint8 value;
+	guint8 su;
+	struct tm tm;
+	nstime_t  datetime;
+	proto_item* ti;
+	proto_tree* cp56time_tree;
 
-  ms = tvb_get_letohs(tvb, *offset);
-  tm.tm_sec = ms / 1000;
-  datetime.nsecs = (ms % 1000) * 1000000;
-  (*offset) += 2;
+	ms = tvb_get_letohs(tvb, *offset);
+	tm.tm_sec = ms / 1000;
+	datetime.nsecs = (ms % 1000) * 1000000;
+	(*offset) += 2;
 
-  value = tvb_get_guint8(tvb, *offset);
-  tm.tm_min = value & 0x3F;
-  (*offset)++;
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_min = value & 0x3F;
+	(*offset)++;
 
-  value = tvb_get_guint8(tvb, *offset);
-  tm.tm_hour = value & 0x1F;
-  su = value & 0x80;
-  (*offset)++;
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_hour = value & 0x1F;
+	su = value & 0x80;
+	(*offset)++;
 
-  value = tvb_get_guint8(tvb, *offset);
-  tm.tm_mday = value & 0x1F;
-  (*offset)++;
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_mday = value & 0x1F;
+	(*offset)++;
 
-  value = tvb_get_guint8(tvb, *offset);
-  tm.tm_mon = (value & 0x0F) - 1;
-  (*offset)++;
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_mon = (value & 0x0F) - 1;
+	(*offset)++;
 
-  value = tvb_get_guint8(tvb, *offset);
-  tm.tm_year = value & 0x7F;
-  if (tm.tm_year < 70)
-  	tm.tm_year += 100;
+	value = tvb_get_guint8(tvb, *offset);
+	tm.tm_year = value & 0x7F;
+	if (tm.tm_year < 70)
+		tm.tm_year += 100;
 
-  (*offset)++;
+	(*offset)++;
 
-  if (su)
-    tm.tm_isdst = 1;
-  else
-    tm.tm_isdst = -1; /* there's no info on whether DST was in force; assume it's
-                       * the same as currently */
+	if (su)
+		tm.tm_isdst = 1;
+	else
+		tm.tm_isdst = -1; /* there's no info on whether DST was in force; assume it's
+				   * the same as currently */
 
-  datetime.secs = mktime(&tm);
+	datetime.secs = mktime(&tm);
 
-  (*offset) -= 7;
+	(*offset) -= 7;
 
-  ti = proto_tree_add_time(iec104_header_tree, hf_cp56time, tvb, *offset, 7, &datetime);
-  cp56time_tree = proto_item_add_subtree(ti, ett_cp56time);
+	ti = proto_tree_add_time(iec104_header_tree, hf_cp56time, tvb, *offset, 7, &datetime);
+	cp56time_tree = proto_item_add_subtree(ti, ett_cp56time);
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-  (*offset) += 2;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	(*offset) += 2;
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cp56time_tree, hf_cp56time_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  (*offset) ++;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp56time_tree, hf_cp56time_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_hour, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cp56time_tree, hf_cp56time_su, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  (*offset) ++;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_hour, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp56time_tree, hf_cp56time_su, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_day, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cp56time_tree, hf_cp56time_dow, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  (*offset) ++;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_day, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp56time_tree, hf_cp56time_dow, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_month, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  (*offset) ++;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_month, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
 
-  proto_tree_add_item(cp56time_tree, hf_cp56time_year, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  (*offset) ++;
+	proto_tree_add_item(cp56time_tree, hf_cp56time_year, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	(*offset) ++;
 }
 
 /* ====================================================================
-    Information object address (Identifier)
-    ASDU -> Inform Object #1 -> Information object address
+   Information object address (Identifier)
+   ASDU -> Inform Object #1 -> Information object address
    ==================================================================== */
 static proto_item* get_InfoObjectAddress(guint32 *asdu_info_obj_addr, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
+	proto_item* ti;
 
-  /* --------  Information object address */
-  *asdu_info_obj_addr = tvb_get_letoh24(tvb, *offset);
-  ti = proto_tree_add_item(iec104_header_tree, hf_ioa, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
-  (*offset) += 3;
+	/* --------  Information object address */
+	*asdu_info_obj_addr = tvb_get_letoh24(tvb, *offset);
+	ti = proto_tree_add_item(iec104_header_tree, hf_ioa, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+	(*offset) += 3;
 
-  return ti;
+	return ti;
 }
 
 /* ====================================================================
-    TypeId length
+   TypeId length
    ==================================================================== */
 static guint8 get_TypeIdLength(guint8 TypeId)
 {
-  guint8 ret = 0;
-  const td_asdu_length *item;
+	guint8 ret = 0;
+	const td_asdu_length *item;
 
-  item = asdu_length;
-  while (item->value)
-  {
-    if (item->value == TypeId)
-    {
-      ret = item->length;
-      break;
-    }
-    item++;
-  }
+	item = asdu_length;
+	while (item->value)
+	{
+		if (item->value == TypeId)
+		{
+			ret = item->length;
+			break;
+		}
+		item++;
+	}
 
-  return ret;
+	return ret;
 }
 
 /* ====================================================================
-    SIQ: Single-point information (IEV 371-02-07) w quality descriptor
+   SIQ: Single-point information (IEV 371-02-07) w quality descriptor
    ==================================================================== */
 static void get_SIQ(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* siq_tree;
+	proto_item* ti;
+	proto_tree* siq_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_siq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  siq_tree = proto_item_add_subtree(ti, ett_siq);
+	ti = proto_tree_add_item(iec104_header_tree, hf_siq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	siq_tree = proto_item_add_subtree(ti, ett_siq);
 
-  proto_tree_add_item(siq_tree, hf_siq_spi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(siq_tree, hf_siq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(siq_tree, hf_siq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(siq_tree, hf_siq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(siq_tree, hf_siq_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(siq_tree, hf_siq_spi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(siq_tree, hf_siq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(siq_tree, hf_siq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(siq_tree, hf_siq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(siq_tree, hf_siq_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
-    DIQ: Double-point information (IEV 371-02-08) w quality descriptor
+   DIQ: Double-point information (IEV 371-02-08) w quality descriptor
    ==================================================================== */
 static void get_DIQ(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* diq_tree;
+	proto_item* ti;
+	proto_tree* diq_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_diq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  diq_tree = proto_item_add_subtree(ti, ett_diq);
+	ti = proto_tree_add_item(iec104_header_tree, hf_diq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	diq_tree = proto_item_add_subtree(ti, ett_diq);
 
-  proto_tree_add_item(diq_tree, hf_diq_dpi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(diq_tree, hf_diq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(diq_tree, hf_diq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(diq_tree, hf_diq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(diq_tree, hf_diq_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(diq_tree, hf_diq_dpi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(diq_tree, hf_diq_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(diq_tree, hf_diq_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(diq_tree, hf_diq_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(diq_tree, hf_diq_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
-    QDS: Quality descriptor (separate octet)
+   QDS: Quality descriptor (separate octet)
    ==================================================================== */
 static void get_QDS(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* qds_tree;
+	proto_item* ti;
+	proto_tree* qds_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_qds, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  qds_tree = proto_item_add_subtree(ti, ett_qds);
+	ti = proto_tree_add_item(iec104_header_tree, hf_qds, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qds_tree = proto_item_add_subtree(ti, ett_qds);
 
-  proto_tree_add_item(qds_tree, hf_qds_ov, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(qds_tree, hf_qds_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(qds_tree, hf_qds_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(qds_tree, hf_qds_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(qds_tree, hf_qds_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qds_tree, hf_qds_ov, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qds_tree, hf_qds_bl, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qds_tree, hf_qds_sb, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qds_tree, hf_qds_nt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qds_tree, hf_qds_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
-    QDP: Quality descriptor for events of protection equipment
-	(separate octet)
+   QDP: Quality descriptor for events of protection equipment
+   (separate octet)
    ==================================================================== */
 #if 0
 static void get_QDP(tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_)
@@ -810,106 +810,106 @@ static void get_QDP(tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_he
 #endif
 
 /* ====================================================================
-    VTI: Value with transient state indication
+   VTI: Value with transient state indication
    ==================================================================== */
 static void get_VTI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* vti_tree;
+	proto_item* ti;
+	proto_tree* vti_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_vti, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  vti_tree = proto_item_add_subtree(ti, ett_vti);
+	ti = proto_tree_add_item(iec104_header_tree, hf_vti, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	vti_tree = proto_item_add_subtree(ti, ett_vti);
 
-  proto_tree_add_item(vti_tree, hf_vti_v, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vti_tree, hf_vti_t, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(vti_tree, hf_vti_v, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(vti_tree, hf_vti_t, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
-    NVA: Normalized value
+   NVA: Normalized value
    ==================================================================== */
 static void get_NVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  gint16 value;
-  float fvalue;
+	gint16 value;
+	float fvalue;
 
-  value = (gint16)tvb_get_letohs(tvb, *offset);
-  fvalue = (float)value / 32768;
+	value = (gint16)tvb_get_letohs(tvb, *offset);
+	fvalue = (float)value / 32768;
 
-  /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
+	/* Normalized value F16[1..16]<-1..+1-2^-15> */
+	proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
-  (*offset) += 2;
+	(*offset) += 2;
 }
 
 static void get_NVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  gint16 value;
-  float fvalue;
+	gint16 value;
+	float fvalue;
 
-  value = (gint16)tvb_get_letohs(tvb, *offset);
-  fvalue = (float)value / 32768;
+	value = (gint16)tvb_get_letohs(tvb, *offset);
+	fvalue = (float)value / 32768;
 
-  /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
+	/* Normalized value F16[1..16]<-1..+1-2^-15> */
+	proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." G_STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
-  (*offset) += 2;
+	(*offset) += 2;
 }
 
 /* ====================================================================
-    SVA: Scaled value
+   SVA: Scaled value
    ==================================================================== */
 static void get_SVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* Scaled value I16[1..16]<-2^15..+2^15-1> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	/* Scaled value I16[1..16]<-2^15..+2^15-1> */
+	proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 
-  (*offset) += 2;
+	(*offset) += 2;
 }
 
 static void get_SVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* Scaled value I16[1..16]<-2^15..+2^15-1> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+	/* Scaled value I16[1..16]<-2^15..+2^15-1> */
+	proto_tree_add_item(iec104_header_tree, hf_asdu_scalval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
 
-  (*offset) += 2;
+	(*offset) += 2;
 }
 
 /* ====================================================================
-    "FLT": Short floating point number
+   "FLT": Short floating point number
    ==================================================================== */
 static void get_FLT(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* --------  IEEE 754 float value */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	/* --------  IEEE 754 float value */
+	proto_tree_add_item(iec104_header_tree, hf_asdu_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
 
-  (*offset) += 4;
+	(*offset) += 4;
 }
 
 static void get_FLTspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* --------  IEEE 754 float value */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	/* --------  IEEE 754 float value */
+	proto_tree_add_item(iec104_header_tree, hf_asdu_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
 
-  (*offset) += 4;
+	(*offset) += 4;
 }
 
 /* ====================================================================
-    "BSI": Binary state information, 32 bit
+   "BSI": Binary state information, 32 bit
    ==================================================================== */
 static void get_BSI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
 
-  (*offset) += 4;
+	(*offset) += 4;
 }
 
 static void get_BSIspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring, tvb, *offset*8, 32, ENC_BIG_ENDIAN);
 
-  (*offset) += 4;
+	(*offset) += 4;
 }
 
 /* ====================================================================
@@ -917,14 +917,14 @@ static void get_BSIspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
    ==================================================================== */
 static void get_BCR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-  *offset += 4;
+	proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	*offset += 4;
 
-  proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  *offset += 1;
+	proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	*offset += 1;
 }
 
 /* ====================================================================
@@ -933,7 +933,7 @@ static void get_BCR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 #if 0
 static void get_SEP(tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_)
 {
-  /* todo */
+	/* todo */
 
 }
 #endif
@@ -943,16 +943,16 @@ static void get_SEP(tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_he
    ==================================================================== */
 static void get_QOS(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* qos_tree;
+	proto_item* ti;
+	proto_tree* qos_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_qos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  qos_tree = proto_item_add_subtree(ti, ett_qos);
+	ti = proto_tree_add_item(iec104_header_tree, hf_qos, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qos_tree = proto_item_add_subtree(ti, ett_qos);
 
-  proto_tree_add_item(qos_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qos_tree, hf_qos_ql, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qos_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -960,17 +960,17 @@ static void get_QOS(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_SCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* sco_tree;
+	proto_item* ti;
+	proto_tree* sco_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_sco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  sco_tree = proto_item_add_subtree(ti, ett_sco);
+	ti = proto_tree_add_item(iec104_header_tree, hf_sco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	sco_tree = proto_item_add_subtree(ti, ett_sco);
 
-  proto_tree_add_item(sco_tree, hf_sco_on, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(sco_tree, hf_sco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(sco_tree, hf_sco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sco_tree, hf_sco_on, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sco_tree, hf_sco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sco_tree, hf_sco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -978,17 +978,17 @@ static void get_SCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_DCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* dco_tree;
+	proto_item* ti;
+	proto_tree* dco_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_dco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  dco_tree = proto_item_add_subtree(ti, ett_dco);
+	ti = proto_tree_add_item(iec104_header_tree, hf_dco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	dco_tree = proto_item_add_subtree(ti, ett_dco);
 
-  proto_tree_add_item(dco_tree, hf_dco_on, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(dco_tree, hf_dco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(dco_tree, hf_dco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(dco_tree, hf_dco_on, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(dco_tree, hf_dco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(dco_tree, hf_dco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -996,17 +996,17 @@ static void get_DCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_RCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* rco_tree;
+	proto_item* ti;
+	proto_tree* rco_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_rco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  rco_tree = proto_item_add_subtree(ti, ett_rco);
+	ti = proto_tree_add_item(iec104_header_tree, hf_rco, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	rco_tree = proto_item_add_subtree(ti, ett_rco);
 
-  proto_tree_add_item(rco_tree, hf_rco_up, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(rco_tree, hf_rco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(rco_tree, hf_rco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(rco_tree, hf_rco_up, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(rco_tree, hf_rco_qu, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(rco_tree, hf_rco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -1014,16 +1014,16 @@ static void get_RCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_item* ti;
-  proto_tree* coi_tree;
+	proto_item* ti;
+	proto_tree* coi_tree;
 
-  ti = proto_tree_add_item(iec104_header_tree, hf_coi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  coi_tree = proto_item_add_subtree(ti, ett_rco);
+	ti = proto_tree_add_item(iec104_header_tree, hf_coi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	coi_tree = proto_item_add_subtree(ti, ett_rco);
 
-  proto_tree_add_item(coi_tree, hf_coi_r, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(coi_tree, hf_coi_i, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(coi_tree, hf_coi_r, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(coi_tree, hf_coi_i, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 
 /* ====================================================================
@@ -1031,9 +1031,9 @@ static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_QOI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  proto_tree_add_item(iec104_header_tree, hf_qoi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(iec104_header_tree, hf_qoi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
-  (*offset)++;
+	(*offset)++;
 }
 /* .... end Misc. functions for dissection of signal values */
 
@@ -1361,7 +1361,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					break;
 
 				default:
-    				break;
+					break;
 				} /* end 'switch (asduh.TypeId)' */
 			} /* end 'for(i = 0; i < dui.asdu_vsq_no_of_obj; i++)' */
 			break;

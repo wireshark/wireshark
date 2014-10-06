@@ -274,7 +274,7 @@ dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 static int
 dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      int offset, mojito_header_data_t* header_data)
+		      int offset, mojito_header_data_t* header_data)
 {
 	proto_tree *header_tree, *version_tree, *contact_tree, *flag_tree;
 	proto_item *header_item, *contact_item, *flag_item;

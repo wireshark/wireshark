@@ -16770,277 +16770,277 @@ typedef struct _smb_function {
 } smb_function;
 
 static smb_function smb_dissector[256] = {
-  /* 0x00 Create Dir*/                 {dissect_old_dir_request            , dissect_empty},
-  /* 0x01 Delete Dir*/                 {dissect_old_dir_request            , dissect_empty},
-  /* 0x02 Open File*/                  {dissect_open_file_request          , dissect_open_file_response},
-  /* 0x03 Create File*/                {dissect_create_file_request        , dissect_create_file_response},
-  /* 0x04 Close File*/                 {dissect_close_file_request         , dissect_empty},
-  /* 0x05 Flush File*/                 {dissect_flush_file_request         , dissect_empty},
-  /* 0x06 Delete File*/                {dissect_delete_file_request        , dissect_empty},
-  /* 0x07 Rename File*/                {dissect_rename_file_request        , dissect_rename_file_response},
-  /* 0x08 Query Info*/                 {dissect_query_information_request  , dissect_query_information_response},
-  /* 0x09 Set Info*/                   {dissect_set_information_request    , dissect_empty},
-  /* 0x0a Read File*/                  {dissect_read_file_request          , dissect_read_file_response},
-  /* 0x0b Write File*/                 {dissect_write_file_request         , dissect_write_file_response},
-  /* 0x0c Lock Byte Range*/            {dissect_lock_request               , dissect_empty},
-  /* 0x0d Unlock Byte Range*/          {dissect_lock_request               , dissect_empty},
-  /* 0x0e Create Temp*/                {dissect_create_temporary_request   , dissect_create_temporary_response},
-  /* 0x0f Create New*/                 {dissect_create_file_request        , dissect_create_new_response},
+	/* 0x00 Create Dir*/                 {dissect_old_dir_request            , dissect_empty},
+	/* 0x01 Delete Dir*/                 {dissect_old_dir_request            , dissect_empty},
+	/* 0x02 Open File*/                  {dissect_open_file_request          , dissect_open_file_response},
+	/* 0x03 Create File*/                {dissect_create_file_request        , dissect_create_file_response},
+	/* 0x04 Close File*/                 {dissect_close_file_request         , dissect_empty},
+	/* 0x05 Flush File*/                 {dissect_flush_file_request         , dissect_empty},
+	/* 0x06 Delete File*/                {dissect_delete_file_request        , dissect_empty},
+	/* 0x07 Rename File*/                {dissect_rename_file_request        , dissect_rename_file_response},
+	/* 0x08 Query Info*/                 {dissect_query_information_request  , dissect_query_information_response},
+	/* 0x09 Set Info*/                   {dissect_set_information_request    , dissect_empty},
+	/* 0x0a Read File*/                  {dissect_read_file_request          , dissect_read_file_response},
+	/* 0x0b Write File*/                 {dissect_write_file_request         , dissect_write_file_response},
+	/* 0x0c Lock Byte Range*/            {dissect_lock_request               , dissect_empty},
+	/* 0x0d Unlock Byte Range*/          {dissect_lock_request               , dissect_empty},
+	/* 0x0e Create Temp*/                {dissect_create_temporary_request   , dissect_create_temporary_response},
+	/* 0x0f Create New*/                 {dissect_create_file_request        , dissect_create_new_response},
 
-  /* 0x10 Check Dir*/                  {dissect_old_dir_request            , dissect_empty},
-  /* 0x11 Process Exit*/               {dissect_empty                      , dissect_empty},
-  /* 0x12 Seek File*/                  {dissect_seek_file_request          , dissect_seek_file_response},
-  /* 0x13 Lock And Read*/              {dissect_read_file_request          , dissect_lock_and_read_response},
-  /* 0x14 Write And Unlock*/           {dissect_write_file_request         , dissect_write_file_response},
-  /* 0x15 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x16 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x17 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x18 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x19 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x1a Read Raw*/                   {dissect_read_raw_request           , dissect_unknown},
-  /* 0x1b Read MPX*/                   {dissect_read_mpx_request           , dissect_read_mpx_response},
-  /* 0x1c Read MPX Secondary*/         {dissect_unknown                    , dissect_unknown},
-  /* 0x1d Write Raw*/                  {dissect_write_raw_request          , dissect_write_raw_response},
-  /* 0x1e Write MPX*/                  {dissect_write_mpx_request          , dissect_write_mpx_response},
-  /* 0x1f Write MPX Secondary*/        {dissect_unknown                    , dissect_unknown},
+	/* 0x10 Check Dir*/                  {dissect_old_dir_request            , dissect_empty},
+	/* 0x11 Process Exit*/               {dissect_empty                      , dissect_empty},
+	/* 0x12 Seek File*/                  {dissect_seek_file_request          , dissect_seek_file_response},
+	/* 0x13 Lock And Read*/              {dissect_read_file_request          , dissect_lock_and_read_response},
+	/* 0x14 Write And Unlock*/           {dissect_write_file_request         , dissect_write_file_response},
+	/* 0x15 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x16 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x17 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x18 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x19 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x1a Read Raw*/                   {dissect_read_raw_request           , dissect_unknown},
+	/* 0x1b Read MPX*/                   {dissect_read_mpx_request           , dissect_read_mpx_response},
+	/* 0x1c Read MPX Secondary*/         {dissect_unknown                    , dissect_unknown},
+	/* 0x1d Write Raw*/                  {dissect_write_raw_request          , dissect_write_raw_response},
+	/* 0x1e Write MPX*/                  {dissect_write_mpx_request          , dissect_write_mpx_response},
+	/* 0x1f Write MPX Secondary*/        {dissect_unknown                    , dissect_unknown},
 
-  /* 0x20 Write Complete*/             {dissect_unknown                    , dissect_write_and_close_response},
-  /* 0x21 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x22 Set Info2*/                  {dissect_set_information2_request   , dissect_empty},
-  /* 0x23 Query Info2*/                {dissect_query_information2_request , dissect_query_information2_response},
-  /* 0x24 Locking And X*/              {dissect_locking_andx_request       , dissect_locking_andx_response},
-  /* 0x25 Transaction*/                {dissect_transaction_request        , dissect_transaction_response},
-  /* 0x26 Transaction Secondary*/      {dissect_transaction_request        , dissect_unknown}, /*This SMB has no response */
-  /* 0x27 IOCTL*/                      {dissect_unknown                    , dissect_unknown},
-  /* 0x28 IOCTL Secondary*/            {dissect_unknown                    , dissect_unknown},
-  /* 0x29 Copy File*/                  {dissect_copy_request               , dissect_move_copy_response},
-  /* 0x2a Move File*/                  {dissect_move_request               , dissect_move_copy_response},
-  /* 0x2b Echo*/                       {dissect_echo_request               , dissect_echo_response},
-  /* 0x2c Write And Close*/            {dissect_write_and_close_request    , dissect_write_and_close_response},
-  /* 0x2d Open And X*/                 {dissect_open_andx_request          , dissect_open_andx_response},
-  /* 0x2e Read And X*/                 {dissect_read_andx_request          , dissect_read_andx_response},
-  /* 0x2f Write And X*/                {dissect_write_andx_request         , dissect_write_andx_response},
+	/* 0x20 Write Complete*/             {dissect_unknown                    , dissect_write_and_close_response},
+	/* 0x21 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x22 Set Info2*/                  {dissect_set_information2_request   , dissect_empty},
+	/* 0x23 Query Info2*/                {dissect_query_information2_request , dissect_query_information2_response},
+	/* 0x24 Locking And X*/              {dissect_locking_andx_request       , dissect_locking_andx_response},
+	/* 0x25 Transaction*/                {dissect_transaction_request        , dissect_transaction_response},
+	/* 0x26 Transaction Secondary*/      {dissect_transaction_request        , dissect_unknown}, /*This SMB has no response */
+	/* 0x27 IOCTL*/                      {dissect_unknown                    , dissect_unknown},
+	/* 0x28 IOCTL Secondary*/            {dissect_unknown                    , dissect_unknown},
+	/* 0x29 Copy File*/                  {dissect_copy_request               , dissect_move_copy_response},
+	/* 0x2a Move File*/                  {dissect_move_request               , dissect_move_copy_response},
+	/* 0x2b Echo*/                       {dissect_echo_request               , dissect_echo_response},
+	/* 0x2c Write And Close*/            {dissect_write_and_close_request    , dissect_write_and_close_response},
+	/* 0x2d Open And X*/                 {dissect_open_andx_request          , dissect_open_andx_response},
+	/* 0x2e Read And X*/                 {dissect_read_andx_request          , dissect_read_andx_response},
+	/* 0x2f Write And X*/                {dissect_write_andx_request         , dissect_write_andx_response},
 
-  /* 0x30 */                           {dissect_unknown                    , dissect_unknown},
-  /* 0x31 Close And Tree Disconnect */ {dissect_close_file_request         , dissect_empty},
-  /* 0x32 Transaction2*/	       {dissect_transaction_request        , dissect_transaction_response},
-  /* 0x33 Transaction2 Secondary*/     {dissect_transaction_request        , dissect_unknown}, /*This SMB has no response */
-  /* 0x34 Find Close2*/                {dissect_sid                        , dissect_empty},
-  /* 0x35 Find Notify Close*/          {dissect_find_notify_close          , dissect_empty},
-  /* 0x36 */  {dissect_unknown, dissect_unknown},
-  /* 0x37 */  {dissect_unknown, dissect_unknown},
-  /* 0x38 */  {dissect_unknown, dissect_unknown},
-  /* 0x39 */  {dissect_unknown, dissect_unknown},
-  /* 0x3a */  {dissect_unknown, dissect_unknown},
-  /* 0x3b */  {dissect_unknown, dissect_unknown},
-  /* 0x3c */  {dissect_unknown, dissect_unknown},
-  /* 0x3d */  {dissect_unknown, dissect_unknown},
-  /* 0x3e */  {dissect_unknown, dissect_unknown},
-  /* 0x3f */  {dissect_unknown, dissect_unknown},
+	/* 0x30 */                           {dissect_unknown                    , dissect_unknown},
+	/* 0x31 Close And Tree Disconnect */ {dissect_close_file_request         , dissect_empty},
+	/* 0x32 Transaction2*/	             {dissect_transaction_request        , dissect_transaction_response},
+	/* 0x33 Transaction2 Secondary*/     {dissect_transaction_request        , dissect_unknown}, /*This SMB has no response */
+	/* 0x34 Find Close2*/                {dissect_sid                        , dissect_empty},
+	/* 0x35 Find Notify Close*/          {dissect_find_notify_close          , dissect_empty},
+	/* 0x36 */  {dissect_unknown, dissect_unknown},
+	/* 0x37 */  {dissect_unknown, dissect_unknown},
+	/* 0x38 */  {dissect_unknown, dissect_unknown},
+	/* 0x39 */  {dissect_unknown, dissect_unknown},
+	/* 0x3a */  {dissect_unknown, dissect_unknown},
+	/* 0x3b */  {dissect_unknown, dissect_unknown},
+	/* 0x3c */  {dissect_unknown, dissect_unknown},
+	/* 0x3d */  {dissect_unknown, dissect_unknown},
+	/* 0x3e */  {dissect_unknown, dissect_unknown},
+	/* 0x3f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x40 */  {dissect_unknown, dissect_unknown},
-  /* 0x41 */  {dissect_unknown, dissect_unknown},
-  /* 0x42 */  {dissect_unknown, dissect_unknown},
-  /* 0x43 */  {dissect_unknown, dissect_unknown},
-  /* 0x44 */  {dissect_unknown, dissect_unknown},
-  /* 0x45 */  {dissect_unknown, dissect_unknown},
-  /* 0x46 */  {dissect_unknown, dissect_unknown},
-  /* 0x47 */  {dissect_unknown, dissect_unknown},
-  /* 0x48 */  {dissect_unknown, dissect_unknown},
-  /* 0x49 */  {dissect_unknown, dissect_unknown},
-  /* 0x4a */  {dissect_unknown, dissect_unknown},
-  /* 0x4b */  {dissect_unknown, dissect_unknown},
-  /* 0x4c */  {dissect_unknown, dissect_unknown},
-  /* 0x4d */  {dissect_unknown, dissect_unknown},
-  /* 0x4e */  {dissect_unknown, dissect_unknown},
-  /* 0x4f */  {dissect_unknown, dissect_unknown},
+	/* 0x40 */  {dissect_unknown, dissect_unknown},
+	/* 0x41 */  {dissect_unknown, dissect_unknown},
+	/* 0x42 */  {dissect_unknown, dissect_unknown},
+	/* 0x43 */  {dissect_unknown, dissect_unknown},
+	/* 0x44 */  {dissect_unknown, dissect_unknown},
+	/* 0x45 */  {dissect_unknown, dissect_unknown},
+	/* 0x46 */  {dissect_unknown, dissect_unknown},
+	/* 0x47 */  {dissect_unknown, dissect_unknown},
+	/* 0x48 */  {dissect_unknown, dissect_unknown},
+	/* 0x49 */  {dissect_unknown, dissect_unknown},
+	/* 0x4a */  {dissect_unknown, dissect_unknown},
+	/* 0x4b */  {dissect_unknown, dissect_unknown},
+	/* 0x4c */  {dissect_unknown, dissect_unknown},
+	/* 0x4d */  {dissect_unknown, dissect_unknown},
+	/* 0x4e */  {dissect_unknown, dissect_unknown},
+	/* 0x4f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x50 */  {dissect_unknown, dissect_unknown},
-  /* 0x51 */  {dissect_unknown, dissect_unknown},
-  /* 0x52 */  {dissect_unknown, dissect_unknown},
-  /* 0x53 */  {dissect_unknown, dissect_unknown},
-  /* 0x54 */  {dissect_unknown, dissect_unknown},
-  /* 0x55 */  {dissect_unknown, dissect_unknown},
-  /* 0x56 */  {dissect_unknown, dissect_unknown},
-  /* 0x57 */  {dissect_unknown, dissect_unknown},
-  /* 0x58 */  {dissect_unknown, dissect_unknown},
-  /* 0x59 */  {dissect_unknown, dissect_unknown},
-  /* 0x5a */  {dissect_unknown, dissect_unknown},
-  /* 0x5b */  {dissect_unknown, dissect_unknown},
-  /* 0x5c */  {dissect_unknown, dissect_unknown},
-  /* 0x5d */  {dissect_unknown, dissect_unknown},
-  /* 0x5e */  {dissect_unknown, dissect_unknown},
-  /* 0x5f */  {dissect_unknown, dissect_unknown},
+	/* 0x50 */  {dissect_unknown, dissect_unknown},
+	/* 0x51 */  {dissect_unknown, dissect_unknown},
+	/* 0x52 */  {dissect_unknown, dissect_unknown},
+	/* 0x53 */  {dissect_unknown, dissect_unknown},
+	/* 0x54 */  {dissect_unknown, dissect_unknown},
+	/* 0x55 */  {dissect_unknown, dissect_unknown},
+	/* 0x56 */  {dissect_unknown, dissect_unknown},
+	/* 0x57 */  {dissect_unknown, dissect_unknown},
+	/* 0x58 */  {dissect_unknown, dissect_unknown},
+	/* 0x59 */  {dissect_unknown, dissect_unknown},
+	/* 0x5a */  {dissect_unknown, dissect_unknown},
+	/* 0x5b */  {dissect_unknown, dissect_unknown},
+	/* 0x5c */  {dissect_unknown, dissect_unknown},
+	/* 0x5d */  {dissect_unknown, dissect_unknown},
+	/* 0x5e */  {dissect_unknown, dissect_unknown},
+	/* 0x5f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x60 */  {dissect_unknown, dissect_unknown},
-  /* 0x61 */  {dissect_unknown, dissect_unknown},
-  /* 0x62 */  {dissect_unknown, dissect_unknown},
-  /* 0x63 */  {dissect_unknown, dissect_unknown},
-  /* 0x64 */  {dissect_unknown, dissect_unknown},
-  /* 0x65 */  {dissect_unknown, dissect_unknown},
-  /* 0x66 */  {dissect_unknown, dissect_unknown},
-  /* 0x67 */  {dissect_unknown, dissect_unknown},
-  /* 0x68 */  {dissect_unknown, dissect_unknown},
-  /* 0x69 */  {dissect_unknown, dissect_unknown},
-  /* 0x6a */  {dissect_unknown, dissect_unknown},
-  /* 0x6b */  {dissect_unknown, dissect_unknown},
-  /* 0x6c */  {dissect_unknown, dissect_unknown},
-  /* 0x6d */  {dissect_unknown, dissect_unknown},
-  /* 0x6e */  {dissect_unknown, dissect_unknown},
-  /* 0x6f */  {dissect_unknown, dissect_unknown},
+	/* 0x60 */  {dissect_unknown, dissect_unknown},
+	/* 0x61 */  {dissect_unknown, dissect_unknown},
+	/* 0x62 */  {dissect_unknown, dissect_unknown},
+	/* 0x63 */  {dissect_unknown, dissect_unknown},
+	/* 0x64 */  {dissect_unknown, dissect_unknown},
+	/* 0x65 */  {dissect_unknown, dissect_unknown},
+	/* 0x66 */  {dissect_unknown, dissect_unknown},
+	/* 0x67 */  {dissect_unknown, dissect_unknown},
+	/* 0x68 */  {dissect_unknown, dissect_unknown},
+	/* 0x69 */  {dissect_unknown, dissect_unknown},
+	/* 0x6a */  {dissect_unknown, dissect_unknown},
+	/* 0x6b */  {dissect_unknown, dissect_unknown},
+	/* 0x6c */  {dissect_unknown, dissect_unknown},
+	/* 0x6d */  {dissect_unknown, dissect_unknown},
+	/* 0x6e */  {dissect_unknown, dissect_unknown},
+	/* 0x6f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x70 Tree Connect*/	{dissect_tree_connect_request       , dissect_tree_connect_response},
-  /* 0x71 Tree Disconnect*/	{dissect_empty                      , dissect_empty},
-  /* 0x72 Negotiate Protocol*/	{dissect_negprot_request            , dissect_negprot_response},
-  /* 0x73 Session Setup And X*/ {dissect_session_setup_andx_request , dissect_session_setup_andx_response},
-  /* 0x74 Logoff And X*/	{dissect_empty_andx                 , dissect_empty_andx},
-  /* 0x75 Tree Connect And X*/  {dissect_tree_connect_andx_request  , dissect_tree_connect_andx_response},
-  /* 0x76 */  {dissect_unknown, dissect_unknown},
-  /* 0x77 */  {dissect_unknown, dissect_unknown},
-  /* 0x78 */  {dissect_unknown, dissect_unknown},
-  /* 0x79 */  {dissect_unknown, dissect_unknown},
-  /* 0x7a */  {dissect_unknown, dissect_unknown},
-  /* 0x7b */  {dissect_unknown, dissect_unknown},
-  /* 0x7c */  {dissect_unknown, dissect_unknown},
-  /* 0x7d */  {dissect_unknown, dissect_unknown},
-  /* 0x7e */  {dissect_unknown, dissect_unknown},
-  /* 0x7f */  {dissect_unknown, dissect_unknown},
+	/* 0x70 Tree Connect*/	             {dissect_tree_connect_request       , dissect_tree_connect_response},
+	/* 0x71 Tree Disconnect*/	     {dissect_empty                      , dissect_empty},
+	/* 0x72 Negotiate Protocol*/	     {dissect_negprot_request            , dissect_negprot_response},
+	/* 0x73 Session Setup And X*/        {dissect_session_setup_andx_request , dissect_session_setup_andx_response},
+	/* 0x74 Logoff And X*/	             {dissect_empty_andx                 , dissect_empty_andx},
+	/* 0x75 Tree Connect And X*/         {dissect_tree_connect_andx_request  , dissect_tree_connect_andx_response},
+	/* 0x76 */  {dissect_unknown, dissect_unknown},
+	/* 0x77 */  {dissect_unknown, dissect_unknown},
+	/* 0x78 */  {dissect_unknown, dissect_unknown},
+	/* 0x79 */  {dissect_unknown, dissect_unknown},
+	/* 0x7a */  {dissect_unknown, dissect_unknown},
+	/* 0x7b */  {dissect_unknown, dissect_unknown},
+	/* 0x7c */  {dissect_unknown, dissect_unknown},
+	/* 0x7d */  {dissect_unknown, dissect_unknown},
+	/* 0x7e */  {dissect_unknown, dissect_unknown},
+	/* 0x7f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x80 Query Info Disk*/ {dissect_empty              , dissect_query_information_disk_response},
-  /* 0x81 Search Dir*/      {dissect_search_dir_request , dissect_search_dir_response},
-  /* 0x82 Find*/            {dissect_find_request       , dissect_find_response},
-  /* 0x83 Find Unique*/     {dissect_find_request       , dissect_find_response},
-  /* 0x84 Find Close*/      {dissect_find_close_request , dissect_find_close_response},
-  /* 0x85 */  {dissect_unknown, dissect_unknown},
-  /* 0x86 */  {dissect_unknown, dissect_unknown},
-  /* 0x87 */  {dissect_unknown, dissect_unknown},
-  /* 0x88 */  {dissect_unknown, dissect_unknown},
-  /* 0x89 */  {dissect_unknown, dissect_unknown},
-  /* 0x8a */  {dissect_unknown, dissect_unknown},
-  /* 0x8b */  {dissect_unknown, dissect_unknown},
-  /* 0x8c */  {dissect_unknown, dissect_unknown},
-  /* 0x8d */  {dissect_unknown, dissect_unknown},
-  /* 0x8e */  {dissect_unknown, dissect_unknown},
-  /* 0x8f */  {dissect_unknown, dissect_unknown},
+	/* 0x80 Query Info Disk*/            {dissect_empty              , dissect_query_information_disk_response},
+	/* 0x81 Search Dir*/                 {dissect_search_dir_request , dissect_search_dir_response},
+	/* 0x82 Find*/                       {dissect_find_request       , dissect_find_response},
+	/* 0x83 Find Unique*/                {dissect_find_request       , dissect_find_response},
+	/* 0x84 Find Close*/                 {dissect_find_close_request , dissect_find_close_response},
+	/* 0x85 */  {dissect_unknown, dissect_unknown},
+	/* 0x86 */  {dissect_unknown, dissect_unknown},
+	/* 0x87 */  {dissect_unknown, dissect_unknown},
+	/* 0x88 */  {dissect_unknown, dissect_unknown},
+	/* 0x89 */  {dissect_unknown, dissect_unknown},
+	/* 0x8a */  {dissect_unknown, dissect_unknown},
+	/* 0x8b */  {dissect_unknown, dissect_unknown},
+	/* 0x8c */  {dissect_unknown, dissect_unknown},
+	/* 0x8d */  {dissect_unknown, dissect_unknown},
+	/* 0x8e */  {dissect_unknown, dissect_unknown},
+	/* 0x8f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x90 */  {dissect_unknown, dissect_unknown},
-  /* 0x91 */  {dissect_unknown, dissect_unknown},
-  /* 0x92 */  {dissect_unknown, dissect_unknown},
-  /* 0x93 */  {dissect_unknown, dissect_unknown},
-  /* 0x94 */  {dissect_unknown, dissect_unknown},
-  /* 0x95 */  {dissect_unknown, dissect_unknown},
-  /* 0x96 */  {dissect_unknown, dissect_unknown},
-  /* 0x97 */  {dissect_unknown, dissect_unknown},
-  /* 0x98 */  {dissect_unknown, dissect_unknown},
-  /* 0x99 */  {dissect_unknown, dissect_unknown},
-  /* 0x9a */  {dissect_unknown, dissect_unknown},
-  /* 0x9b */  {dissect_unknown, dissect_unknown},
-  /* 0x9c */  {dissect_unknown, dissect_unknown},
-  /* 0x9d */  {dissect_unknown, dissect_unknown},
-  /* 0x9e */  {dissect_unknown, dissect_unknown},
-  /* 0x9f */  {dissect_unknown, dissect_unknown},
+	/* 0x90 */  {dissect_unknown, dissect_unknown},
+	/* 0x91 */  {dissect_unknown, dissect_unknown},
+	/* 0x92 */  {dissect_unknown, dissect_unknown},
+	/* 0x93 */  {dissect_unknown, dissect_unknown},
+	/* 0x94 */  {dissect_unknown, dissect_unknown},
+	/* 0x95 */  {dissect_unknown, dissect_unknown},
+	/* 0x96 */  {dissect_unknown, dissect_unknown},
+	/* 0x97 */  {dissect_unknown, dissect_unknown},
+	/* 0x98 */  {dissect_unknown, dissect_unknown},
+	/* 0x99 */  {dissect_unknown, dissect_unknown},
+	/* 0x9a */  {dissect_unknown, dissect_unknown},
+	/* 0x9b */  {dissect_unknown, dissect_unknown},
+	/* 0x9c */  {dissect_unknown, dissect_unknown},
+	/* 0x9d */  {dissect_unknown, dissect_unknown},
+	/* 0x9e */  {dissect_unknown, dissect_unknown},
+	/* 0x9f */  {dissect_unknown, dissect_unknown},
 
-  /* 0xa0 NT Transaction*/     {dissect_nt_transaction_request , dissect_nt_transaction_response},
-  /* 0xa1 NT Trans secondary*/ {dissect_nt_transaction_request , dissect_nt_transaction_response},
-  /* 0xa2 NT CreateAndX*/      {dissect_nt_create_andx_request , dissect_nt_create_andx_response},
-  /* 0xa3 */                   {dissect_unknown                , dissect_unknown},
-  /* 0xa4 NT Cancel*/	       {dissect_nt_cancel_request      , dissect_unknown}, /*no response to this one*/
-  /* 0xa5 NT Rename*/          {dissect_nt_rename_file_request , dissect_empty},
-  /* 0xa6 */  {dissect_unknown, dissect_unknown},
-  /* 0xa7 */  {dissect_unknown, dissect_unknown},
-  /* 0xa8 */  {dissect_unknown, dissect_unknown},
-  /* 0xa9 */  {dissect_unknown, dissect_unknown},
-  /* 0xaa */  {dissect_unknown, dissect_unknown},
-  /* 0xab */  {dissect_unknown, dissect_unknown},
-  /* 0xac */  {dissect_unknown, dissect_unknown},
-  /* 0xad */  {dissect_unknown, dissect_unknown},
-  /* 0xae */  {dissect_unknown, dissect_unknown},
-  /* 0xaf */  {dissect_unknown, dissect_unknown},
+	/* 0xa0 NT Transaction*/             {dissect_nt_transaction_request , dissect_nt_transaction_response},
+	/* 0xa1 NT Trans secondary*/         {dissect_nt_transaction_request , dissect_nt_transaction_response},
+	/* 0xa2 NT CreateAndX*/              {dissect_nt_create_andx_request , dissect_nt_create_andx_response},
+	/* 0xa3 */  {dissect_unknown, dissect_unknown},
+	/* 0xa4 NT Cancel*/	             {dissect_nt_cancel_request      , dissect_unknown}, /*no response to this one*/
+	/* 0xa5 NT Rename*/                  {dissect_nt_rename_file_request , dissect_empty},
+	/* 0xa6 */  {dissect_unknown, dissect_unknown},
+	/* 0xa7 */  {dissect_unknown, dissect_unknown},
+	/* 0xa8 */  {dissect_unknown, dissect_unknown},
+	/* 0xa9 */  {dissect_unknown, dissect_unknown},
+	/* 0xaa */  {dissect_unknown, dissect_unknown},
+	/* 0xab */  {dissect_unknown, dissect_unknown},
+	/* 0xac */  {dissect_unknown, dissect_unknown},
+	/* 0xad */  {dissect_unknown, dissect_unknown},
+	/* 0xae */  {dissect_unknown, dissect_unknown},
+	/* 0xaf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xb0 */  {dissect_unknown, dissect_unknown},
-  /* 0xb1 */  {dissect_unknown, dissect_unknown},
-  /* 0xb2 */  {dissect_unknown, dissect_unknown},
-  /* 0xb3 */  {dissect_unknown, dissect_unknown},
-  /* 0xb4 */  {dissect_unknown, dissect_unknown},
-  /* 0xb5 */  {dissect_unknown, dissect_unknown},
-  /* 0xb6 */  {dissect_unknown, dissect_unknown},
-  /* 0xb7 */  {dissect_unknown, dissect_unknown},
-  /* 0xb8 */  {dissect_unknown, dissect_unknown},
-  /* 0xb9 */  {dissect_unknown, dissect_unknown},
-  /* 0xba */  {dissect_unknown, dissect_unknown},
-  /* 0xbb */  {dissect_unknown, dissect_unknown},
-  /* 0xbc */  {dissect_unknown, dissect_unknown},
-  /* 0xbd */  {dissect_unknown, dissect_unknown},
-  /* 0xbe */  {dissect_unknown, dissect_unknown},
-  /* 0xbf */  {dissect_unknown, dissect_unknown},
+	/* 0xb0 */  {dissect_unknown, dissect_unknown},
+	/* 0xb1 */  {dissect_unknown, dissect_unknown},
+	/* 0xb2 */  {dissect_unknown, dissect_unknown},
+	/* 0xb3 */  {dissect_unknown, dissect_unknown},
+	/* 0xb4 */  {dissect_unknown, dissect_unknown},
+	/* 0xb5 */  {dissect_unknown, dissect_unknown},
+	/* 0xb6 */  {dissect_unknown, dissect_unknown},
+	/* 0xb7 */  {dissect_unknown, dissect_unknown},
+	/* 0xb8 */  {dissect_unknown, dissect_unknown},
+	/* 0xb9 */  {dissect_unknown, dissect_unknown},
+	/* 0xba */  {dissect_unknown, dissect_unknown},
+	/* 0xbb */  {dissect_unknown, dissect_unknown},
+	/* 0xbc */  {dissect_unknown, dissect_unknown},
+	/* 0xbd */  {dissect_unknown, dissect_unknown},
+	/* 0xbe */  {dissect_unknown, dissect_unknown},
+	/* 0xbf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xc0 Open Print File*/  {dissect_open_print_file_request  , dissect_open_print_file_response},
-  /* 0xc1 Write Print File*/ {dissect_write_print_file_request , dissect_empty},
-  /* 0xc2 Close Print File*/ {dissect_close_print_file_request , dissect_empty},
-  /* 0xc3 Get Print Queue*/  {dissect_get_print_queue_request  , dissect_get_print_queue_response},
-  /* 0xc4 */  {dissect_unknown, dissect_unknown},
-  /* 0xc5 */  {dissect_unknown, dissect_unknown},
-  /* 0xc6 */  {dissect_unknown, dissect_unknown},
-  /* 0xc7 */  {dissect_unknown, dissect_unknown},
-  /* 0xc8 */  {dissect_unknown, dissect_unknown},
-  /* 0xc9 */  {dissect_unknown, dissect_unknown},
-  /* 0xca */  {dissect_unknown, dissect_unknown},
-  /* 0xcb */  {dissect_unknown, dissect_unknown},
-  /* 0xcc */  {dissect_unknown, dissect_unknown},
-  /* 0xcd */  {dissect_unknown, dissect_unknown},
-  /* 0xce */  {dissect_unknown, dissect_unknown},
-  /* 0xcf */  {dissect_unknown, dissect_unknown},
+	/* 0xc0 Open Print File*/            {dissect_open_print_file_request  , dissect_open_print_file_response},
+	/* 0xc1 Write Print File*/           {dissect_write_print_file_request , dissect_empty},
+	/* 0xc2 Close Print File*/           {dissect_close_print_file_request , dissect_empty},
+	/* 0xc3 Get Print Queue*/            {dissect_get_print_queue_request  , dissect_get_print_queue_response},
+	/* 0xc4 */  {dissect_unknown, dissect_unknown},
+	/* 0xc5 */  {dissect_unknown, dissect_unknown},
+	/* 0xc6 */  {dissect_unknown, dissect_unknown},
+	/* 0xc7 */  {dissect_unknown, dissect_unknown},
+	/* 0xc8 */  {dissect_unknown, dissect_unknown},
+	/* 0xc9 */  {dissect_unknown, dissect_unknown},
+	/* 0xca */  {dissect_unknown, dissect_unknown},
+	/* 0xcb */  {dissect_unknown, dissect_unknown},
+	/* 0xcc */  {dissect_unknown, dissect_unknown},
+	/* 0xcd */  {dissect_unknown, dissect_unknown},
+	/* 0xce */  {dissect_unknown, dissect_unknown},
+	/* 0xcf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xd0 Send Single Block Message*/         {dissect_send_single_block_message_request      , dissect_empty},
-  /* 0xd1 Send Broadcast Message*/            {dissect_send_single_block_message_request      , dissect_empty},
-  /* 0xd2 Forward User Name*/                 {dissect_forwarded_name                         , dissect_empty},
-  /* 0xd3 Cancel Forward*/                    {dissect_forwarded_name                         , dissect_empty},
-  /* 0xd4 Get Machine Name*/                  {dissect_empty                                  , dissect_get_machine_name_response},
-  /* 0xd5 Send Start of Multi-block Message*/ {dissect_send_multi_block_message_start_request , dissect_message_group_id},
-  /* 0xd6 Send End of Multi-block Message*/   {dissect_message_group_id                       , dissect_empty},
-  /* 0xd7 Send Text of Multi-block Message*/  {dissect_send_multi_block_message_text_request  , dissect_empty},
-  /* 0xd8 SMBreadbulk*/                       {dissect_unknown                                , dissect_unknown},
-  /* 0xd9 SMBwritebulk*/                      {dissect_unknown                                , dissect_unknown},
-  /* 0xda SMBwritebulkdata*/                  {dissect_unknown                                , dissect_unknown},
-  /* 0xdb */  {dissect_unknown, dissect_unknown},
-  /* 0xdc */  {dissect_unknown, dissect_unknown},
-  /* 0xdd */  {dissect_unknown, dissect_unknown},
-  /* 0xde */  {dissect_unknown, dissect_unknown},
-  /* 0xdf */  {dissect_unknown, dissect_unknown},
+	/* 0xd0 Send Single Block Message*/         {dissect_send_single_block_message_request      , dissect_empty},
+	/* 0xd1 Send Broadcast Message*/            {dissect_send_single_block_message_request      , dissect_empty},
+	/* 0xd2 Forward User Name*/                 {dissect_forwarded_name                         , dissect_empty},
+	/* 0xd3 Cancel Forward*/                    {dissect_forwarded_name                         , dissect_empty},
+	/* 0xd4 Get Machine Name*/                  {dissect_empty                                  , dissect_get_machine_name_response},
+	/* 0xd5 Send Start of Multi-block Message*/ {dissect_send_multi_block_message_start_request , dissect_message_group_id},
+	/* 0xd6 Send End of Multi-block Message*/   {dissect_message_group_id                       , dissect_empty},
+	/* 0xd7 Send Text of Multi-block Message*/  {dissect_send_multi_block_message_text_request  , dissect_empty},
+	/* 0xd8 SMBreadbulk*/                       {dissect_unknown                                , dissect_unknown},
+	/* 0xd9 SMBwritebulk*/                      {dissect_unknown                                , dissect_unknown},
+	/* 0xda SMBwritebulkdata*/                  {dissect_unknown                                , dissect_unknown},
+	/* 0xdb */  {dissect_unknown, dissect_unknown},
+	/* 0xdc */  {dissect_unknown, dissect_unknown},
+	/* 0xdd */  {dissect_unknown, dissect_unknown},
+	/* 0xde */  {dissect_unknown, dissect_unknown},
+	/* 0xdf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xe0 */  {dissect_unknown, dissect_unknown},
-  /* 0xe1 */  {dissect_unknown, dissect_unknown},
-  /* 0xe2 */  {dissect_unknown, dissect_unknown},
-  /* 0xe3 */  {dissect_unknown, dissect_unknown},
-  /* 0xe4 */  {dissect_unknown, dissect_unknown},
-  /* 0xe5 */  {dissect_unknown, dissect_unknown},
-  /* 0xe6 */  {dissect_unknown, dissect_unknown},
-  /* 0xe7 */  {dissect_unknown, dissect_unknown},
-  /* 0xe8 */  {dissect_unknown, dissect_unknown},
-  /* 0xe9 */  {dissect_unknown, dissect_unknown},
-  /* 0xea */  {dissect_unknown, dissect_unknown},
-  /* 0xeb */  {dissect_unknown, dissect_unknown},
-  /* 0xec */  {dissect_unknown, dissect_unknown},
-  /* 0xed */  {dissect_unknown, dissect_unknown},
-  /* 0xee */  {dissect_unknown, dissect_unknown},
-  /* 0xef */  {dissect_unknown, dissect_unknown},
+	/* 0xe0 */  {dissect_unknown, dissect_unknown},
+	/* 0xe1 */  {dissect_unknown, dissect_unknown},
+	/* 0xe2 */  {dissect_unknown, dissect_unknown},
+	/* 0xe3 */  {dissect_unknown, dissect_unknown},
+	/* 0xe4 */  {dissect_unknown, dissect_unknown},
+	/* 0xe5 */  {dissect_unknown, dissect_unknown},
+	/* 0xe6 */  {dissect_unknown, dissect_unknown},
+	/* 0xe7 */  {dissect_unknown, dissect_unknown},
+	/* 0xe8 */  {dissect_unknown, dissect_unknown},
+	/* 0xe9 */  {dissect_unknown, dissect_unknown},
+	/* 0xea */  {dissect_unknown, dissect_unknown},
+	/* 0xeb */  {dissect_unknown, dissect_unknown},
+	/* 0xec */  {dissect_unknown, dissect_unknown},
+	/* 0xed */  {dissect_unknown, dissect_unknown},
+	/* 0xee */  {dissect_unknown, dissect_unknown},
+	/* 0xef */  {dissect_unknown, dissect_unknown},
 
-  /* 0xf0 */  {dissect_unknown, dissect_unknown},
-  /* 0xf1 */  {dissect_unknown, dissect_unknown},
-  /* 0xf2 */  {dissect_unknown, dissect_unknown},
-  /* 0xf3 */  {dissect_unknown, dissect_unknown},
-  /* 0xf4 */  {dissect_unknown, dissect_unknown},
-  /* 0xf5 */  {dissect_unknown, dissect_unknown},
-  /* 0xf6 */  {dissect_unknown, dissect_unknown},
-  /* 0xf7 */  {dissect_unknown, dissect_unknown},
-  /* 0xf8 */  {dissect_unknown, dissect_unknown},
-  /* 0xf9 */  {dissect_unknown, dissect_unknown},
-  /* 0xfa */  {dissect_unknown, dissect_unknown},
-  /* 0xfb */  {dissect_unknown, dissect_unknown},
-  /* 0xfc */  {dissect_unknown, dissect_unknown},
-  /* 0xfd */  {dissect_unknown, dissect_unknown},
-  /* 0xfe */  {dissect_unknown, dissect_unknown},
-  /* 0xff */  {dissect_unknown, dissect_unknown},
+	/* 0xf0 */  {dissect_unknown, dissect_unknown},
+	/* 0xf1 */  {dissect_unknown, dissect_unknown},
+	/* 0xf2 */  {dissect_unknown, dissect_unknown},
+	/* 0xf3 */  {dissect_unknown, dissect_unknown},
+	/* 0xf4 */  {dissect_unknown, dissect_unknown},
+	/* 0xf5 */  {dissect_unknown, dissect_unknown},
+	/* 0xf6 */  {dissect_unknown, dissect_unknown},
+	/* 0xf7 */  {dissect_unknown, dissect_unknown},
+	/* 0xf8 */  {dissect_unknown, dissect_unknown},
+	/* 0xf9 */  {dissect_unknown, dissect_unknown},
+	/* 0xfa */  {dissect_unknown, dissect_unknown},
+	/* 0xfb */  {dissect_unknown, dissect_unknown},
+	/* 0xfc */  {dissect_unknown, dissect_unknown},
+	/* 0xfd */  {dissect_unknown, dissect_unknown},
+	/* 0xfe */  {dissect_unknown, dissect_unknown},
+	/* 0xff */  {dissect_unknown, dissect_unknown},
 };
 
 static int
@@ -17263,39 +17263,39 @@ static const value_string errcls_types[] = {
 
 /* Error codes for the ERRSRV class */
 
-#define SRV_errors_VALUE_STRING_LIST(XXX) \
-    XXX( SMBE_SRV_error,          1, "Non specific error code") \
-    XXX( SMBE_SRV_badpw,          2, "Bad password") \
-    XXX( SMBE_SRV_badtype,        3, "Reserved") \
-    XXX( SMBE_SRV_access,         4, "No permissions to perform the requested operation") \
-    XXX( SMBE_SRV_invnid,         5, "TID invalid") \
-    XXX( SMBE_SRV_invnetname,     6, "Invalid network name. Service not found") \
-    XXX( SMBE_SRV_invdevice,      7, "Invalid device") \
-    XXX( SMBE_SRV_unknownsmb,    22, "Unknown SMB, from NT 3.5 response") \
-    XXX( SMBE_SRV_qfull,         49, "Print queue full") \
-    XXX( SMBE_SRV_qtoobig,       50, "Queued item too big") \
-    XXX( SMBE_SRV_qeof,          51, "EOF in print queue dump") \
-    XXX( SMBE_SRV_invpfid,       52, "Invalid print file in smb_fid") \
-    XXX( SMBE_SRV_smbcmd,        64, "Unrecognised command") \
-    XXX( SMBE_SRV_srverror,      65, "SMB server internal error") \
-    XXX( SMBE_SRV_filespecs,     67, "Fid and pathname invalid combination") \
-    XXX( SMBE_SRV_badlink,       68, "Bad link in request ???") \
-    XXX( SMBE_SRV_badpermits,    69, "Access specified for a file is not valid") \
-    XXX( SMBE_SRV_badpid,        70, "Bad process id in request") \
-    XXX( SMBE_SRV_setattrmode,   71, "Attribute mode invalid") \
-    XXX( SMBE_SRV_paused,        81, "Message server paused") \
-    XXX( SMBE_SRV_msgoff,        82, "Not receiving messages") \
-    XXX( SMBE_SRV_noroom,        83, "No room for message") \
-    XXX( SMBE_SRV_rmuns,         87, "Too many remote usernames") \
-    XXX( SMBE_SRV_timeout,       88, "Operation timed out") \
-    XXX( SMBE_SRV_noresource,    89, "No resources currently available for request.") \
-    XXX( SMBE_SRV_toomanyuids,   90, "Too many userids") \
-    XXX( SMBE_SRV_baduid,        91, "Bad userid") \
-    XXX( SMBE_SRV_useMPX,       250, "Temporarily unable to use raw mode, use MPX mode") \
-    XXX( SMBE_SRV_useSTD,       251, "Temporarily unable to use raw mode, use standard mode") \
-    XXX( SMBE_SRV_contMPX,      252, "Resume MPX mode") \
-    XXX( SMBE_SRV_badPW,        253, "Bad Password???") \
-    XXX( SMBE_SRV_nosupport, 0xFFFF, "Operation not supported")
+#define SRV_errors_VALUE_STRING_LIST(XXX)				\
+	XXX( SMBE_SRV_error,          1, "Non specific error code")	\
+	XXX( SMBE_SRV_badpw,          2, "Bad password")		\
+	XXX( SMBE_SRV_badtype,        3, "Reserved")			\
+	XXX( SMBE_SRV_access,         4, "No permissions to perform the requested operation") \
+	XXX( SMBE_SRV_invnid,         5, "TID invalid")			\
+	XXX( SMBE_SRV_invnetname,     6, "Invalid network name. Service not found") \
+	XXX( SMBE_SRV_invdevice,      7, "Invalid device")		\
+	XXX( SMBE_SRV_unknownsmb,    22, "Unknown SMB, from NT 3.5 response") \
+	XXX( SMBE_SRV_qfull,         49, "Print queue full")		\
+	XXX( SMBE_SRV_qtoobig,       50, "Queued item too big")		\
+	XXX( SMBE_SRV_qeof,          51, "EOF in print queue dump")	\
+	XXX( SMBE_SRV_invpfid,       52, "Invalid print file in smb_fid") \
+	XXX( SMBE_SRV_smbcmd,        64, "Unrecognised command")	\
+	XXX( SMBE_SRV_srverror,      65, "SMB server internal error")	\
+	XXX( SMBE_SRV_filespecs,     67, "Fid and pathname invalid combination") \
+	XXX( SMBE_SRV_badlink,       68, "Bad link in request ???")	\
+	XXX( SMBE_SRV_badpermits,    69, "Access specified for a file is not valid") \
+	XXX( SMBE_SRV_badpid,        70, "Bad process id in request")	\
+	XXX( SMBE_SRV_setattrmode,   71, "Attribute mode invalid")	\
+	XXX( SMBE_SRV_paused,        81, "Message server paused")	\
+	XXX( SMBE_SRV_msgoff,        82, "Not receiving messages")	\
+	XXX( SMBE_SRV_noroom,        83, "No room for message")		\
+	XXX( SMBE_SRV_rmuns,         87, "Too many remote usernames")	\
+	XXX( SMBE_SRV_timeout,       88, "Operation timed out")		\
+	XXX( SMBE_SRV_noresource,    89, "No resources currently available for request.") \
+	XXX( SMBE_SRV_toomanyuids,   90, "Too many userids")		\
+	XXX( SMBE_SRV_baduid,        91, "Bad userid")			\
+	XXX( SMBE_SRV_useMPX,       250, "Temporarily unable to use raw mode, use MPX mode") \
+	XXX( SMBE_SRV_useSTD,       251, "Temporarily unable to use raw mode, use standard mode") \
+	XXX( SMBE_SRV_contMPX,      252, "Resume MPX mode")		\
+	XXX( SMBE_SRV_badPW,        253, "Bad Password???")		\
+	XXX( SMBE_SRV_nosupport, 0xFFFF, "Operation not supported")
 
 #if 0 /* Values not needed */
 VALUE_STRING_ENUM(SRV_errors);
@@ -17306,28 +17306,28 @@ static value_string_ext SRV_errors_ext = VALUE_STRING_EXT_INIT(SRV_errors);
 
 /* Error codes for the ERRHRD class */
 
-#define HRD_errors_VALUE_STRING_LIST(XXX) \
-    XXX( SMBE_HRD_nowrite,     19, "Read only media") \
-    XXX( SMBE_HRD_badunit,     20, "Unknown device") \
-    XXX( SMBE_HRD_notready,    21, "Drive not ready") \
-    XXX( SMBE_HRD_badcmd,      22, "Unknown command") \
-    XXX( SMBE_HRD_data,        23, "Data (CRC) error") \
-    XXX( SMBE_HRD_badreq,      24, "Bad request structure length") \
-    XXX( SMBE_HRD_seek,        25, "Seek error") \
-    XXX( SMBE_HRD_badmedia,    26, "Unknown media type") \
-    XXX( SMBE_HRD_badsector,   27, "Sector not found") \
-    XXX( SMBE_HRD_nopaper,     28, "Printer out of paper") \
-    XXX( SMBE_HRD_write,       29, "Write fault") \
-    XXX( SMBE_HRD_read,        30, "Read fault") \
-    XXX( SMBE_HRD_general,     31, "General failure") \
-/* -- (really part of ERRDOS class ??) -- */ \
-    XXX( SMBE_HRD_badshare,    32, "An open conflicts with an existing open") \
-    XXX( SMBE_HRD_lock,        33, "Lock conflict/invalid mode, or unlock of another process's lock") \
-/* -- --*/ \
-    XXX( SMBE_HRD_wrongdisk,   34, "The wrong disk was found in a drive") \
-    XXX( SMBE_HRD_FCBunavail,  35, "No FCBs are available to process request") \
-    XXX( SMBE_HRD_sharebufexc, 36, "A sharing buffer has been exceeded") \
-    XXX( SMBE_HRD_diskfull,    39, "Disk full???")
+#define HRD_errors_VALUE_STRING_LIST(XXX)				\
+	XXX( SMBE_HRD_nowrite,     19, "Read only media")		\
+	XXX( SMBE_HRD_badunit,     20, "Unknown device")		\
+	XXX( SMBE_HRD_notready,    21, "Drive not ready")		\
+	XXX( SMBE_HRD_badcmd,      22, "Unknown command")		\
+	XXX( SMBE_HRD_data,        23, "Data (CRC) error")		\
+	XXX( SMBE_HRD_badreq,      24, "Bad request structure length")	\
+	XXX( SMBE_HRD_seek,        25, "Seek error")			\
+	XXX( SMBE_HRD_badmedia,    26, "Unknown media type")		\
+	XXX( SMBE_HRD_badsector,   27, "Sector not found")		\
+	XXX( SMBE_HRD_nopaper,     28, "Printer out of paper")		\
+	XXX( SMBE_HRD_write,       29, "Write fault")			\
+	XXX( SMBE_HRD_read,        30, "Read fault")			\
+	XXX( SMBE_HRD_general,     31, "General failure")		\
+	/* -- (really part of ERRDOS class ??) -- */			\
+	XXX( SMBE_HRD_badshare,    32, "An open conflicts with an existing open") \
+	XXX( SMBE_HRD_lock,        33, "Lock conflict/invalid mode, or unlock of another process's lock") \
+	/* -- --*/							\
+	XXX( SMBE_HRD_wrongdisk,   34, "The wrong disk was found in a drive") \
+	XXX( SMBE_HRD_FCBunavail,  35, "No FCBs are available to process request") \
+	XXX( SMBE_HRD_sharebufexc, 36, "A sharing buffer has been exceeded") \
+	XXX( SMBE_HRD_diskfull,    39, "Disk full???")
 
 #if 0 /* Values not needed */
 VALUE_STRING_ENUM(HRD_errors);

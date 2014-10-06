@@ -340,12 +340,12 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_TCH_F,		"FACCH/F" },
 	{ GSMTAP_CHANNEL_TCH_H,		"FACCH/H" },
 	{ GSMTAP_CHANNEL_PACCH,		"PACCH" },
-	{ GSMTAP_CHANNEL_CBCH52,    "CBCH" },
-	{ GSMTAP_CHANNEL_PDCH,      "PDCH" },
-	{ GSMTAP_CHANNEL_PTCCH,     "PTTCH" },
-	{ GSMTAP_CHANNEL_CBCH51,    "CBCH" },
+	{ GSMTAP_CHANNEL_CBCH52,	"CBCH" },
+	{ GSMTAP_CHANNEL_PDCH,		"PDCH" },
+	{ GSMTAP_CHANNEL_PTCCH,		"PTTCH" },
+	{ GSMTAP_CHANNEL_CBCH51,	"CBCH" },
 
-    { GSMTAP_CHANNEL_ACCH|
+	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH,		"LSACCH" },
 	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH4,	"SACCH/4" },
@@ -519,7 +519,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case GSMTAP_CHANNEL_PCH:
 		case GSMTAP_CHANNEL_AGCH:
 		case GSMTAP_CHANNEL_CBCH51:
-        case GSMTAP_CHANNEL_CBCH52:
+		case GSMTAP_CHANNEL_CBCH52:
 			col_set_str(pinfo->cinfo, COL_RES_NET_DST, "Broadcast");
 			break;
 		default:

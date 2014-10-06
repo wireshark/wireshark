@@ -4290,7 +4290,7 @@ decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static unsigned int
 decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	const gchar	*status_str;
-    proto_tree	*command_tree;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 data_len;
 	int		 ext_consumed	= 0;
