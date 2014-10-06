@@ -108,7 +108,7 @@ void *
 wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key);
 
 /** case insensitive strings as keys */
-#define WMEM_TREE_STRING_NOCASE			0x00000001
+#define WMEM_TREE_STRING_NOCASE                 0x00000001
 /** Insert a new value under a string key. Like wmem_tree_insert32 but where the
  * key is a null-terminated string instead of a guint32. You may pass
  * WMEM_TREE_STRING_NOCASE to the flags argument in order to make it store the
@@ -156,14 +156,14 @@ typedef struct _wmem_tree_key_t {
  * The NFS dissector handles this by providing a guint32 containing the length
  * as the very first item in this vector :
  *
- *			wmem_tree_key_t fhkey[3];
+ *                      wmem_tree_key_t fhkey[3];
  *
- *			fhlen=nns->fh_length;
- *			fhkey[0].length=1;
- *			fhkey[0].key=&fhlen;
- *			fhkey[1].length=fhlen/4;
- *			fhkey[1].key=nns->fh;
- *			fhkey[2].length=0;
+ *                      fhlen=nns->fh_length;
+ *                      fhkey[0].length=1;
+ *                      fhkey[0].key=&fhlen;
+ *                      fhkey[1].length=fhlen/4;
+ *                      fhkey[1].key=nns->fh;
+ *                      fhkey[2].length=0;
  */
 WS_DLL_PUBLIC
 void

@@ -1,7 +1,7 @@
 /* packet-s7comm_szl_ids.h
  *
  * Author:      Thomas Wiens, 2014 (th.wiens@gmx.de)
- * Description:	Wireshark dissector for S7-Communication
+ * Description: Wireshark dissector for S7-Communication
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -65,13 +65,13 @@ typedef enum {
 #define ESD_BTN_QUIT_DONT_SAVE 0x80
 
 /** Standard button combination "Ok" + "Cancel". */
-#define ESD_BTNS_OK_CANCEL	(ESD_BTN_OK|ESD_BTN_CANCEL)
+#define ESD_BTNS_OK_CANCEL      (ESD_BTN_OK|ESD_BTN_CANCEL)
 /** Standard button combination "Yes" + "No". */
-#define ESD_BTNS_YES_NO		(ESD_BTN_YES|ESD_BTN_NO)
+#define ESD_BTNS_YES_NO         (ESD_BTN_YES|ESD_BTN_NO)
 /** Standard button combination "Yes" + "No" + "Cancel". */
-#define ESD_BTNS_YES_NO_CANCEL	(ESD_BTN_YES|ESD_BTN_NO|ESD_BTN_CANCEL)
+#define ESD_BTNS_YES_NO_CANCEL  (ESD_BTN_YES|ESD_BTN_NO|ESD_BTN_CANCEL)
 /** Standard button combination "No" + "Cancel" + "Save". */
-#define ESD_BTNS_SAVE_DONTSAVE (ESD_BTN_SAVE|ESD_BTN_DONT_SAVE)
+#define ESD_BTNS_SAVE_DONTSAVE  (ESD_BTN_SAVE|ESD_BTN_DONT_SAVE)
 #define ESD_BTNS_SAVE_DONTSAVE_CANCEL (ESD_BTN_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
 /** Standard button combination "Quit without saving" + "Cancel" + "Save". */
 #define ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL (ESD_BTN_QUIT_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)

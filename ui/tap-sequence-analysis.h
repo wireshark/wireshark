@@ -50,19 +50,19 @@ typedef enum seq_analysis_type_ {
 
 /** defines an entry for the graph analysis */
 typedef struct _seq_analysis_item {
-    frame_data *fd;			/**< Holds the frame number and time information */
+    frame_data *fd;                     /**< Holds the frame number and time information */
     address src_addr;
     guint16 port_src;
     address dst_addr;
     guint16 port_dst;
-    gchar *frame_label;			/**< the label on top of the arrow */
-    gchar *time_str;   			/**< timestamp */
-    gchar *comment;			/**< a comment that appears at the right of the graph */
-    guint16 conv_num;			/**< the conversation number, each conversation will be colored */
-    gboolean display;			/**< indicate if the packet is displayed or not in the graph */
-    guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
-    guint16 dst_node;			/**< a node is an IP address that will be displayed in columns */
-    guint16 line_style;			/**< the arrow line width in pixels*/
+    gchar *frame_label;                 /**< the label on top of the arrow */
+    gchar *time_str;                    /**< timestamp */
+    gchar *comment;                     /**< a comment that appears at the right of the graph */
+    guint16 conv_num;                   /**< the conversation number, each conversation will be colored */
+    gboolean display;                   /**< indicate if the packet is displayed or not in the graph */
+    guint16 src_node;                   /**< this is used by graph_analysis.c to identify the node */
+    guint16 dst_node;                   /**< a node is an IP address that will be displayed in columns */
+    guint16 line_style;                 /**< the arrow line width in pixels*/
 } seq_analysis_item_t;
 
 /** defines the graph analysis structure */

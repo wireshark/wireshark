@@ -37,8 +37,8 @@ class ProgressBar;
 
 // Define the structure describing a progress dialog.
 struct progdlg {
-    ProgressBar *progress_bar;       // This progress bar
-    QWidget *top_level_window;	// Top-level window widget
+    ProgressBar *progress_bar;  // This progress bar
+    QWidget *top_level_window;  // Top-level window widget
 };
 
 class ProgressBar : public QProgressBar

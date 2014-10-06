@@ -51,10 +51,10 @@ extern "C" {
 #define RECENT_KEY_REMOTE_HOST          "recent.remote_host"
 
 typedef struct _col_width_data {
-  gint   cfmt;
-  gchar *cfield;
-  gint   width;
-  gchar  xalign;
+    gint   cfmt;
+    gchar *cfield;
+    gint   width;
+    gchar  xalign;
 } col_width_data;
 
 /** Defines used in col_width_data.xalign */
@@ -67,7 +67,7 @@ typedef struct _col_width_data {
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
-    gboolean	wireless_toolbar_show;
+    gboolean    wireless_toolbar_show;
     gboolean    airpcap_driver_check_show;
     gboolean    packet_list_show;
     gboolean    tree_view_show;
