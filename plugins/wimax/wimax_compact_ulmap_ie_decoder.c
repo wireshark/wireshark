@@ -74,52 +74,52 @@ static gint ett_wimax_extension_type_ie_decoder = -1;
 /* Prefixes */
 static const true_false_string tfs_prefix =
 {
-    "Enable HARQ",
-    "Temporary Disable HARQ"
+	"Enable HARQ",
+	"Temporary Disable HARQ"
 };
 
 /* Region Changes */
 static const true_false_string tfs_region_change =
 {
-    "Region Changed",
-    "No Region Change"
+	"Region Changed",
+	"No Region Change"
 };
 
 /* Region Changes */
 static const true_false_string tfs_yes_no_ie =
 {
-    "Yes",
-    "No"
+	"Yes",
+	"No"
 };
 
 /* Repetition Coding Indications */
 static const value_string vals_repetitions[] =
 {
-    { 0, "No Repetition Coding" },
-    { 1, "Repetition Coding of 2 Used" },
-    { 2, "Repetition Coding of 4 Used" },
-    { 3, "Repetition Coding of 6 Used" },
-    { 0,  NULL }
+	{ 0, "No Repetition Coding" },
+	{ 1, "Repetition Coding of 2 Used" },
+	{ 2, "Repetition Coding of 4 Used" },
+	{ 3, "Repetition Coding of 6 Used" },
+	{ 0,  NULL }
 };
 
 /* Allocation Modes */
 static const value_string vals_allocation_modes[] =
 {
-    { 0, "Same Number Of Subchannels For The Selected Bands" },
-    { 1, "Different Same Number Of Subchannels For The Selected Bands" },
-    { 2, "Total Number Of Subchannels For The Selected Bands Determined by Nsch Code and Nep Code" },
-    { 3, "Reserved" },
-    { 0,  NULL }
+	{ 0, "Same Number Of Subchannels For The Selected Bands" },
+	{ 1, "Different Same Number Of Subchannels For The Selected Bands" },
+	{ 2, "Total Number Of Subchannels For The Selected Bands Determined by Nsch Code and Nep Code" },
+	{ 3, "Reserved" },
+	{ 0,  NULL }
 };
 
 /* CTypes */
 static const value_string vals_ctypes[] =
 {
-    { 0, "2 Mini-subchannels (defines M=2)" },
-    { 1, "2 Mini-subchannels (defines M=2)" },
-    { 2, "3 Mini-subchannels (defines M=3)" },
-    { 3, "6 Mini-subchannels (defines M=6)" },
-    { 0,  NULL }
+	{ 0, "2 Mini-subchannels (defines M=2)" },
+	{ 1, "2 Mini-subchannels (defines M=2)" },
+	{ 2, "3 Mini-subchannels (defines M=3)" },
+	{ 3, "6 Mini-subchannels (defines M=6)" },
+	{ 0,  NULL }
 };
 
 /* Masks */
@@ -2125,3 +2125,16 @@ void proto_register_wimax_compact_ulmap_ie(void)
 	proto_register_field_array(proto_wimax_compact_ulmap_ie_decoder, hf_cdma_allocation, array_length(hf_cdma_allocation));
 	proto_register_field_array(proto_wimax_compact_ulmap_ie_decoder, hf_extended_uiuc, array_length(hf_extended_uiuc));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

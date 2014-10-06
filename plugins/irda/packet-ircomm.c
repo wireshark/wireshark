@@ -30,7 +30,7 @@
 /*
  * See
  *
- *	http://www.irda.org/standards/specifications.asp
+ *    http://www.irda.org/standards/specifications.asp
  *
  * for various IrDA specifications.
  */
@@ -175,7 +175,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
     clen = tvb_get_guint8(tvb, offset);
-	len = tvb_length(tvb) - 1 - clen;
+    len = tvb_length(tvb) - 1 - clen;
 
 
 
@@ -216,7 +216,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
     guint len = tvb_length(tvb);
-	char    buf[128];
+    char    buf[128];
 
     if (len == 0)
         return;
@@ -430,3 +430,16 @@ void
 proto_reg_handoff_ircomm(void) {
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

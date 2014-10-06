@@ -81,31 +81,31 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_ioraw(void)
 {
    static hf_register_info hf[] =
-   {
+      {
 #if 0
-      { &hf_ioraw_summary,
-      { "Summary of the IoRaw Packet", "ioraw.summary",
-      FT_STRING, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
+         { &hf_ioraw_summary,
+           { "Summary of the IoRaw Packet", "ioraw.summary",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }
+         },
 #endif
-      { &hf_ioraw_header, { "Header", "ioraw.header",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ioraw_data, { "VarData", "ioraw.data",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      }
-   };
+         { &hf_ioraw_header, { "Header", "ioraw.header",
+                               FT_NONE, BASE_NONE, NULL, 0x0,
+                               NULL, HFILL }
+         },
+         { &hf_ioraw_data, { "VarData", "ioraw.data",
+                             FT_NONE, BASE_NONE, NULL, 0x0,
+                             NULL, HFILL }
+         }
+      };
 
    static gint *ett[] =
-   {
-      &ett_ioraw
-   };
+      {
+         &ett_ioraw
+      };
 
    proto_ioraw = proto_register_protocol("TwinCAT IO-RAW",
-      "IO-RAW","ioraw");
+                                         "IO-RAW","ioraw");
    proto_register_field_array(proto_ioraw,hf,array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));
 }
@@ -115,5 +115,18 @@ void proto_reg_handoff_ioraw(void)
    dissector_handle_t ioraw_handle;
 
    ioraw_handle = create_dissector_handle(dissect_ioraw, proto_ioraw);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */
    dissector_add_uint("ecatf.type", 3, ioraw_handle);
 }

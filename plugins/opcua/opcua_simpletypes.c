@@ -185,16 +185,16 @@ OpcUa_BuiltInType;
 
 /** Variant encoding mask table */
 static const value_string g_VariantTypes[] = {
-    { 0, "Null" },
-    { 1, "Boolean" },
-    { 2, "SByte" },
-    { 3, "Byte" },
-    { 4, "Int16" },
-    { 5, "UInt16" },
-    { 6, "Int32" },
-    { 7, "UInt32" },
-    { 8, "Int64" },
-    { 9, "UInt64" },
+    {  0, "Null" },
+    {  1, "Boolean" },
+    {  2, "SByte" },
+    {  3, "Byte" },
+    {  4, "Int16" },
+    {  5, "UInt16" },
+    {  6, "Int32" },
+    {  7, "UInt32" },
+    {  8, "Int64" },
+    {  9, "UInt64" },
     { 10, "Float" },
     { 11, "Double" },
     { 12, "String" },
@@ -311,46 +311,46 @@ gint ett_opcua_array_DataValue = -1;
 gint ett_opcua_array_Variant = -1;
 static gint *ett[] =
 {
-  &ett_opcua_diagnosticinfo,
-  &ett_opcua_diagnosticinfo_encodingmask,
-  &ett_opcua_nodeid,
-  &ett_opcua_expandednodeid,
-  &ett_opcua_localizedtext,
-  &ett_opcua_localizedtext_encodingmask,
-  &ett_opcua_qualifiedname,
-  &ett_opcua_datavalue,
-  &ett_opcua_datavalue_encodingmask,
-  &ett_opcua_variant,
-  &ett_opcua_variant_arraydims,
-  &ett_opcua_extensionobject,
-  &ett_opcua_extensionobject_encodingmask,
-  &ett_opcua_statuscode,
-  &ett_opcua_statuscode_info,
-  &ett_opcua_array_Boolean,
-  &ett_opcua_array_SByte,
-  &ett_opcua_array_Byte,
-  &ett_opcua_array_Int16,
-  &ett_opcua_array_UInt16,
-  &ett_opcua_array_Int32,
-  &ett_opcua_array_UInt32,
-  &ett_opcua_array_Int64,
-  &ett_opcua_array_UInt64,
-  &ett_opcua_array_Float,
-  &ett_opcua_array_Double,
-  &ett_opcua_array_String,
-  &ett_opcua_array_DateTime,
-  &ett_opcua_array_Guid,
-  &ett_opcua_array_ByteString,
-  &ett_opcua_array_XmlElement,
-  &ett_opcua_array_NodeId,
-  &ett_opcua_array_ExpandedNodeId,
-  &ett_opcua_array_StatusCode,
-  &ett_opcua_array_DiagnosticInfo,
-  &ett_opcua_array_QualifiedName,
-  &ett_opcua_array_LocalizedText,
-  &ett_opcua_array_ExtensionObject,
-  &ett_opcua_array_DataValue,
-  &ett_opcua_array_Variant
+    &ett_opcua_diagnosticinfo,
+    &ett_opcua_diagnosticinfo_encodingmask,
+    &ett_opcua_nodeid,
+    &ett_opcua_expandednodeid,
+    &ett_opcua_localizedtext,
+    &ett_opcua_localizedtext_encodingmask,
+    &ett_opcua_qualifiedname,
+    &ett_opcua_datavalue,
+    &ett_opcua_datavalue_encodingmask,
+    &ett_opcua_variant,
+    &ett_opcua_variant_arraydims,
+    &ett_opcua_extensionobject,
+    &ett_opcua_extensionobject_encodingmask,
+    &ett_opcua_statuscode,
+    &ett_opcua_statuscode_info,
+    &ett_opcua_array_Boolean,
+    &ett_opcua_array_SByte,
+    &ett_opcua_array_Byte,
+    &ett_opcua_array_Int16,
+    &ett_opcua_array_UInt16,
+    &ett_opcua_array_Int32,
+    &ett_opcua_array_UInt32,
+    &ett_opcua_array_Int64,
+    &ett_opcua_array_UInt64,
+    &ett_opcua_array_Float,
+    &ett_opcua_array_Double,
+    &ett_opcua_array_String,
+    &ett_opcua_array_DateTime,
+    &ett_opcua_array_Guid,
+    &ett_opcua_array_ByteString,
+    &ett_opcua_array_XmlElement,
+    &ett_opcua_array_NodeId,
+    &ett_opcua_array_ExpandedNodeId,
+    &ett_opcua_array_StatusCode,
+    &ett_opcua_array_DiagnosticInfo,
+    &ett_opcua_array_QualifiedName,
+    &ett_opcua_array_LocalizedText,
+    &ett_opcua_array_ExtensionObject,
+    &ett_opcua_array_DataValue,
+    &ett_opcua_array_Variant
 };
 
 void registerSimpleTypes(int proto)
@@ -1176,3 +1176,16 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
 
     return Numeric;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

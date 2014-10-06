@@ -48,9 +48,9 @@ static gint hf_prc_lt_ctrl_precoding_delay = -1;
 /* static gint hf_prc_lt_ctrl_invalid_tlv = -1; */
 
 static const value_string vals_turn_on[] = {
-    {0,					"Turn off"},
-    {1,					"Turn on"},
-    {0,					NULL}
+	{0, "Turn off"},
+	{1, "Turn on"},
+	{0, NULL}
 };
 
 
@@ -135,3 +135,16 @@ proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void)
 	handle = create_dissector_handle(dissect_mac_mgmt_msg_prc_lt_ctrl_decoder, proto_mac_mgmt_msg_prc_lt_ctrl_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PRC_LT_CTRL, handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -129,23 +129,23 @@ static gint hf_dcd_invalid_tlv = -1;
 /* DCD DIUC messages (table 143) */
 static const value_string diuc_msgs[] =
 {
-    {0, "Downlink Burst Profile 1"},
-    {1, "Downlink Burst Profile 2"},
-    {2, "Downlink Burst Profile 3"},
-    {3, "Downlink Burst Profile 4"},
-    {4, "Downlink Burst Profile 5"},
-    {5, "Downlink Burst Profile 6"},
-    {6, "Downlink Burst Profile 7"},
-    {7, "Downlink Burst Profile 8"},
-    {8, "Downlink Burst Profile 9"},
-    {9, "Downlink Burst Profile 10"},
-    {10, "Downlink Burst Profile 11"},
-    {11, "Downlink Burst Profile 12"},
-    {12, "Downlink Burst Profile 13"},
-    {13, "Reserved"},
-    {14, "Gap"},
-    {15, "End of DL-MAP"},
-    {0,  NULL}
+	{ 0, "Downlink Burst Profile 1"},
+	{ 1, "Downlink Burst Profile 2"},
+	{ 2, "Downlink Burst Profile 3"},
+	{ 3, "Downlink Burst Profile 4"},
+	{ 4, "Downlink Burst Profile 5"},
+	{ 5, "Downlink Burst Profile 6"},
+	{ 6, "Downlink Burst Profile 7"},
+	{ 7, "Downlink Burst Profile 8"},
+	{ 8, "Downlink Burst Profile 9"},
+	{ 9, "Downlink Burst Profile 10"},
+	{10, "Downlink Burst Profile 11"},
+	{11, "Downlink Burst Profile 12"},
+	{12, "Downlink Burst Profile 13"},
+	{13, "Reserved"},
+	{14, "Gap"},
+	{15, "End of DL-MAP"},
+	{0,  NULL}
 };
 
 static const value_string vals_dcd_type[] =
@@ -248,15 +248,15 @@ static const value_string vals_dcd_size_of_cqich_id[] =
 
 static const value_string vals_dcd_mac_version[] =
 {
-    {1, "Conformance with IEEE Std 802.16-2001"},
-    {2, "Conformance with IEEE Std 802.16c-2002 and its predecessors"},
-    {3, "Conformance with IEEE Std 802.16a-2003 and its predecessors"},
-    {4, "Conformance with IEEE Std 802.16-2004"},
-    {5, "Conformance with IEEE Std 802.16-2004 and IEEE Std 802.16e-2005"},
-    {6, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005 and IEEE Std 802.16f-2005"},
-    {7, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005, IEEE Std 802.16f-2005 and IEEE Std 802.16g-2007"},
-    {8, "Conformance with IEEE Std 802.16-2009"},
-    {9, "Conformance with IEEE Std 802.16-2009 and IEEE Std 802.16j-2009"},
+    { 1, "Conformance with IEEE Std 802.16-2001"},
+    { 2, "Conformance with IEEE Std 802.16c-2002 and its predecessors"},
+    { 3, "Conformance with IEEE Std 802.16a-2003 and its predecessors"},
+    { 4, "Conformance with IEEE Std 802.16-2004"},
+    { 5, "Conformance with IEEE Std 802.16-2004 and IEEE Std 802.16e-2005"},
+    { 6, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005 and IEEE Std 802.16f-2005"},
+    { 7, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005, IEEE Std 802.16f-2005 and IEEE Std 802.16g-2007"},
+    { 8, "Conformance with IEEE Std 802.16-2009"},
+    { 9, "Conformance with IEEE Std 802.16-2009 and IEEE Std 802.16j-2009"},
     {10, "Reserved"},
     {0, NULL}
 };
@@ -264,16 +264,16 @@ static const value_string vals_dcd_mac_version[] =
 /* table 363 */
 static const value_string vals_dcd_burst_fec_ofdma[] =
 {
-    {0, "QPSK (CC) 1/2"},
-    {1, "QPSK (CC) 3/4"},
-    {2, "16-QAM (CC) 1/2"},
-    {3, "16-QAM (CC) 3/4"},
-    {4, "64-QAM (CC) 1/2"},
-    {5, "64-QAM (CC) 2/3"},
-    {6, "64-QAM (CC) 3/4"},
-    {7, "QPSK (BTC) 1/2"},
-    {8, "QPSK (BTC) 3/4 or 2/3"},
-    {9, "16-QAM (BTC) 3/5"},
+    { 0, "QPSK (CC) 1/2"},
+    { 1, "QPSK (CC) 3/4"},
+    { 2, "16-QAM (CC) 1/2"},
+    { 3, "16-QAM (CC) 3/4"},
+    { 4, "64-QAM (CC) 1/2"},
+    { 5, "64-QAM (CC) 2/3"},
+    { 6, "64-QAM (CC) 3/4"},
+    { 7, "QPSK (BTC) 1/2"},
+    { 8, "QPSK (BTC) 3/4 or 2/3"},
+    { 9, "16-QAM (BTC) 3/5"},
     {10, "16-QAM (BTC) 4/5"},
     {11, "64-QAM (BTC) 2/3 or 5/8"},
     {12, "64-QAM (BTC) 5/6 or 4/5"},
@@ -1261,3 +1261,16 @@ void proto_reg_handoff_mac_mgmt_msg_dcd(void)
 	dcd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DCD, dcd_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

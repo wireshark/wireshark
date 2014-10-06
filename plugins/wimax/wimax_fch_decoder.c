@@ -243,3 +243,16 @@ void proto_register_wimax_fch(void)
 
 	register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -113,8 +113,8 @@ static gint hf_rng_invalid_tlv					= -1;
 /* STRING RESOURCES */
 
 static const true_false_string tfs_rng_rsp_aas_broadcast = {
-    "SS shall not issue contention-based Bandwidth Request",
-    "SS may issue contention-based Bandwidth Request"
+	"SS shall not issue contention-based Bandwidth Request",
+	"SS may issue contention-based Bandwidth Request"
 };
 
 static const true_false_string tfs_rng_rsp_resource_retain_flag = {
@@ -123,11 +123,11 @@ static const true_false_string tfs_rng_rsp_resource_retain_flag = {
 };
 
 static const value_string vals_rng_rsp_ranging_status[] = {
-    {1,					"continue"},
-    {2,					"abort"},
-    {3,					"success"},
-    {4,					"rerange"},
-    {0,					NULL}
+	{1,		"continue"},
+	{2,		"abort"},
+	{3,		"success"},
+	{4,		"rerange"},
+	{0,		NULL}
 };
 
 static const value_string vals_rng_rsp_level_of_service[] = {
@@ -963,3 +963,16 @@ void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void)
 	reg_rsp_handle = find_dissector("mac_mgmt_msg_reg_rsp_handler");
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

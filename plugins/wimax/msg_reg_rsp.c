@@ -62,14 +62,14 @@ static gint hf_reg_invalid_tlv                           = -1;
 static gint hf_reg_rsp_new_cid_after_ho                  = -1;
 static gint hf_reg_rsp_service_flow_id                   = -1;
 static gint hf_reg_rsp_system_resource_retain_time	 = -1;
-static gint hf_reg_total_provisioned_sf			= -1;
+static gint hf_reg_total_provisioned_sf			 = -1;
 
 /* STRING RESOURCES */
 
 static const value_string vals_reg_rsp_status [] = {
-    {0,         "OK"},
-    {1,         "Message authentication failure"},
-    {0,					NULL}
+	{0, "OK"},
+	{1, "Message authentication failure"},
+	{0, NULL}
 };
 
 
@@ -366,3 +366,16 @@ void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void)
 	reg_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REG_RSP, reg_rsp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

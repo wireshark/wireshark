@@ -131,50 +131,50 @@ static gint ett_305  = -1;
 /* static gint ett_305_dl = -1; */
 static gint ett_308a = -1;
 
-#define DCD_DOWNLINK_BURST_PROFILE	1
-#define DCD_BS_EIRP			2
-#define DCD_FRAME_DURATION		3
-#define DCD_PHY_TYPE			4
-#define DCD_POWER_ADJUSTMENT		5
-#define DCD_CHANNEL_NR			6
-#define DCD_TTG				7
-#define DCD_RTG				8
-#define DCD_RSS				9
-#define DCD_CHANNEL_SWITCH_FRAME_NR	10
-#define DCD_FREQUENCY			12
-#define DCD_BS_ID			13
-#define DCD_FRAME_DURATION_CODE		14
-#define DCD_FRAME_NR			15
-#define DCD_SIZE_CQICH_ID		16
-#define DCD_H_ARQ_ACK_DELAY		17
+#define DCD_DOWNLINK_BURST_PROFILE	  1
+#define DCD_BS_EIRP			  2
+#define DCD_FRAME_DURATION		  3
+#define DCD_PHY_TYPE			  4
+#define DCD_POWER_ADJUSTMENT		  5
+#define DCD_CHANNEL_NR			  6
+#define DCD_TTG				  7
+#define DCD_RTG				  8
+#define DCD_RSS				  9
+#define DCD_CHANNEL_SWITCH_FRAME_NR	 10
+#define DCD_FREQUENCY			 12
+#define DCD_BS_ID			 13
+#define DCD_FRAME_DURATION_CODE		 14
+#define DCD_FRAME_NR			 15
+#define DCD_SIZE_CQICH_ID		 16
+#define DCD_H_ARQ_ACK_DELAY		 17
 #define DCD_MAC_VERSION			148
 #define DCD_RESTART_COUNT		154
 
-#define DCD_BURST_FREQUENCY		1
+#define DCD_BURST_FREQUENCY		  1
 #define DCD_BURST_FEC_CODE_TYPE		150
 #define DCD_BURST_DIUC_EXIT_THRESHOLD	151
 #define DCD_BURST_DIUC_ENTRY_THRESHOLD	152
 #define DCD_BURST_TCS_ENABLE		153
 
-#define DCD_TLV_T_541_TYPE_FUNCTION_ACTION				1
-#define DCD_TLV_T542_TRIGGER_VALUE					2
-#define DCD_TLV_T_543_TRIGGER_AVERAGING_DURATION			3
-#define DCD_TLV_T_19_PERMUTATION_TYPE_FOR_BROADCAST_REGION_IN_HARQ_ZONE	19
-#define DCD_TLV_T_20_MAXIMUM_RETRANSMISSION				20
-#define DCD_TLV_T_21_DEFAULT_RSSI_AND_CINR_AVERAGING_PARAMETER		21
-#define DCD_TLV_T_22_DL_AMC_ALLOCATED_PHYSICAL_BANDS_BITMAP		22
-#define DCD_TLV_T_31_H_ADD_THRESHOLD					31
-#define DCD_TLV_T_32_H_DELETE_THRESHOLD					32
-#define DCD_TLV_T_33_ASR						33
-#define DCD_TLV_T_34_DL_REGION_DEFINITION				34
-#define DCD_TLV_T_35_PAGING_GROUP_ID					35
-#define DCD_TLV_T_36_TUSC1_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP	36
-#define DCD_TLV_T_37_TUSC2_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP	37
-#define DCD_TLV_T_45_PAGING_INTERVAL_LENGTH				45
-#define DCD_TLV_T_50_HO_TYPE_SUPPORT					50
-#define DCD_TLV_T_51_HYSTERSIS_MARGIN					51
-#define DCD_TLV_T_52_TIME_TO_TRIGGER_DURATION				52
-#define DCD_TLV_T_54_TRIGGER						54
+#define DCD_TLV_T_541_TYPE_FUNCTION_ACTION				  1
+#define DCD_TLV_T542_TRIGGER_VALUE					  2
+#define DCD_TLV_T_543_TRIGGER_AVERAGING_DURATION			  3
+#define DCD_TLV_T_19_PERMUTATION_TYPE_FOR_BROADCAST_REGION_IN_HARQ_ZONE	 19
+#define DCD_TLV_T_20_MAXIMUM_RETRANSMISSION				 20
+#define DCD_TLV_T_21_DEFAULT_RSSI_AND_CINR_AVERAGING_PARAMETER		 21
+#define DCD_TLV_T_22_DL_AMC_ALLOCATED_PHYSICAL_BANDS_BITMAP		 22
+#define DCD_TLV_T_31_H_ADD_THRESHOLD					 31
+#define DCD_TLV_T_32_H_DELETE_THRESHOLD					 32
+#define DCD_TLV_T_33_ASR						 33
+#define DCD_TLV_T_34_DL_REGION_DEFINITION				 34
+#define DCD_TLV_T_35_PAGING_GROUP_ID					 35
+#define DCD_TLV_T_36_TUSC1_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP	 36
+#define DCD_TLV_T_37_TUSC2_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP	 37
+#define DCD_TLV_T_45_PAGING_INTERVAL_LENGTH				 45
+#define DCD_TLV_T_50_HO_TYPE_SUPPORT					 50
+#define DCD_TLV_T_51_HYSTERSIS_MARGIN					 51
+#define DCD_TLV_T_52_TIME_TO_TRIGGER_DURATION				 52
+#define DCD_TLV_T_54_TRIGGER						 54
 #define DCD_TLV_T_153_DOWNLINK_BURST_PROFILE_FOR_MULTIPLE_FEC_TYPES	153
 
 #define DL_MAP_NCT_PMP	0
@@ -2885,3 +2885,16 @@ void proto_reg_handoff_mac_mgmt_msg_dlmap(void)
 	dlmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DL_MAP, dlmap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

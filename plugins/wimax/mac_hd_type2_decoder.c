@@ -1369,3 +1369,16 @@ void proto_register_mac_header_type_2(void)
 
 	register_dissector("mac_header_type_2_handler", dissect_mac_header_type_2_decoder, -1);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

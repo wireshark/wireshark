@@ -165,70 +165,69 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_nv(void)
 {
    static hf_register_info hf[] =
-   {
+      {
 #if 0
-      { &hf_nv_summary,
-      { "Summary of the Nv Packet", "tc_nv.summary",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
+         { &hf_nv_summary, { "Summary of the Nv Packet", "tc_nv.summary",
+                             FT_BYTES, BASE_NONE, NULL, 0x0,
+                             NULL, HFILL }
+         },
 #endif
-      { &hf_nv_header, { "Header", "tc_nv.header",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_publisher, { "Publisher", "tc_nv.publisher",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_count, { "Count", "tc_nv.count",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_cycleindex, { "CycleIndex", "tc_nv.cycleindex",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_variable, { "Variable", "tc_nv.variable",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_varheader, { "VarHeader", "tc_nv.varheader",
-      FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_id, { "Id", "tc_nv.id",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_hash, { "Hash", "tc_nv.hash",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_length, { "Length", "tc_nv.length",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_quality, { "Quality", "tc_nv.quality",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_nv_data, { "Data", "tc_nv.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-   };
+         { &hf_nv_header, { "Header", "tc_nv.header",
+                            FT_NONE, BASE_NONE, NULL, 0x0,
+                            NULL, HFILL }
+         },
+         { &hf_nv_publisher, { "Publisher", "tc_nv.publisher",
+                               FT_BYTES, BASE_NONE, NULL, 0x0,
+                               NULL, HFILL }
+         },
+         { &hf_nv_count, { "Count", "tc_nv.count",
+                           FT_UINT16, BASE_HEX, NULL, 0x0,
+                           NULL, HFILL }
+         },
+         { &hf_nv_cycleindex, { "CycleIndex", "tc_nv.cycleindex",
+                                FT_UINT16, BASE_HEX, NULL, 0x0,
+                                NULL, HFILL }
+         },
+         { &hf_nv_variable, { "Variable", "tc_nv.variable",
+                              FT_BYTES, BASE_NONE, NULL, 0x0,
+                              NULL, HFILL }
+         },
+         { &hf_nv_varheader, { "VarHeader", "tc_nv.varheader",
+                               FT_NONE, BASE_NONE, NULL, 0x0,
+                               NULL, HFILL }
+         },
+         { &hf_nv_id, { "Id", "tc_nv.id",
+                        FT_UINT16, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL }
+         },
+         { &hf_nv_hash, { "Hash", "tc_nv.hash",
+                          FT_UINT16, BASE_HEX, NULL, 0x0,
+                          NULL, HFILL }
+         },
+         { &hf_nv_length, { "Length", "tc_nv.length",
+                            FT_UINT16, BASE_HEX, NULL, 0x0,
+                            NULL, HFILL }
+         },
+         { &hf_nv_quality, { "Quality", "tc_nv.quality",
+                             FT_UINT16, BASE_HEX, NULL, 0x0,
+                             NULL, HFILL }
+         },
+         { &hf_nv_data, { "Data", "tc_nv.data",
+                          FT_BYTES, BASE_NONE, NULL, 0x0,
+                          NULL, HFILL }
+         },
+      };
 
    static gint *ett[] =
-   {
-      &ett_nv,
-      &ett_nv_header,
-      &ett_nv_var,
-      &ett_nv_varheader
-   };
+      {
+         &ett_nv,
+         &ett_nv_header,
+         &ett_nv_var,
+         &ett_nv_varheader
+      };
 
    proto_nv = proto_register_protocol("TwinCAT NV",
-      "TC-NV","tc_nv");
+                                      "TC-NV","tc_nv");
    proto_register_field_array(proto_nv,hf,array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));
 }
@@ -240,3 +239,16 @@ void proto_reg_handoff_nv(void)
    nv_handle = create_dissector_handle(dissect_nv, proto_nv);
    dissector_add_uint("ecatf.type", 4, nv_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

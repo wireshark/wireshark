@@ -147,3 +147,16 @@ proto_reg_handoff_mac_mgmt_msg_clk_cmp(void)
 	handle = create_dissector_handle(dissect_mac_mgmt_msg_clk_cmp_decoder, proto_mac_mgmt_msg_clk_cmp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_CLK_CMP, handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

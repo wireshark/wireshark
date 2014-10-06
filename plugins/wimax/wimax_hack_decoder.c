@@ -40,16 +40,16 @@ static gint ett_wimax_hack_decoder = -1;
 
 static const value_string vals_flags[] =
 {
-    {0, "Even Half-Slot (tiles 0,2,4)"},
-    {1, "Odd Half-Slot (tiles 1,3,5)"},
-    {0, NULL}
+	{0, "Even Half-Slot (tiles 0,2,4)"},
+	{1, "Odd Half-Slot (tiles 1,3,5)"},
+	{0, NULL}
 };
 
 static const value_string vals_values[] =
 {
-    {0, "ACK"},
-    {1, "NACK"},
-    {0, NULL}
+	{0, "ACK"},
+	{1, "NACK"},
+	{0, NULL}
 };
 
 /* static gint hf_hack_burst = -1; */
@@ -139,3 +139,16 @@ void proto_register_wimax_hack(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

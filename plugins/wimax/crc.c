@@ -28,7 +28,7 @@
 
 #define WMAX_MAC_CRC32_POLYNOMIAL 0x04c11db7U /* polynomial used in calculating the CRC-32 checksum */
 #define CCITT_X25_CRC16_POLYNOMIAL 0x1021     /* polynomial used in calculating the CRC-16 checksum */
-#define WMAX_MAC_CRC8_POLYNOMIAL  0x07	      /* polynomial used in calculating the CRC-8 checksum */
+#define WMAX_MAC_CRC8_POLYNOMIAL  0x07        /* polynomial used in calculating the CRC-8 checksum */
 #define CRC32_INITIAL_VALUE       0xFFFFFFFF
 #define CRC16_INITIAL_VALUE       0xFFFF
 
@@ -163,7 +163,7 @@ guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
     crc ^= data[j] << 8;
     crc = (crc << 8) ^ crc16_table[(crc & 0xff00) >> 8];
   }
-  crc ^= 0xFFFF;	/* Invert the output. */
+  crc ^= 0xFFFF;        /* Invert the output. */
   crc &= 0xFFFF;
   return crc;
 }
@@ -195,3 +195,16 @@ guint8 wimax_mac_calc_crc8(const guint8 *data, guint data_len)
   }
   return crc;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

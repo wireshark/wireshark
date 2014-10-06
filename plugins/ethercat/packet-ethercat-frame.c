@@ -106,33 +106,33 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 void proto_register_ethercat_frame(void)
 {
    static hf_register_info hf[] =
-   {
-      { &hf_ethercat_frame_length,
-      { "Length", "ecatf.length",
-      FT_UINT16, BASE_HEX, NULL, 0x07FF,
-      NULL, HFILL }
-      },
+      {
+         { &hf_ethercat_frame_length,
+           { "Length", "ecatf.length",
+             FT_UINT16, BASE_HEX, NULL, 0x07FF,
+             NULL, HFILL }
+         },
 
-      { &hf_ethercat_frame_reserved,
-      { "Reserved", "ecatf.reserved",
-      FT_UINT16, BASE_HEX, VALS(ethercat_frame_reserved_vals), 0x0800,
-      NULL, HFILL}
-      },
+         { &hf_ethercat_frame_reserved,
+           { "Reserved", "ecatf.reserved",
+             FT_UINT16, BASE_HEX, VALS(ethercat_frame_reserved_vals), 0x0800,
+             NULL, HFILL}
+         },
 
-      { &hf_ethercat_frame_type,
-      { "Type", "ecatf.type",
-      FT_UINT16, BASE_HEX, VALS(EthercatFrameTypes), 0xF000,
-      "E88A4 Types", HFILL }
-      }
-   };
+         { &hf_ethercat_frame_type,
+           { "Type", "ecatf.type",
+             FT_UINT16, BASE_HEX, VALS(EthercatFrameTypes), 0xF000,
+             "E88A4 Types", HFILL }
+         }
+      };
 
    static gint *ett[] =
-   {
-      &ett_ethercat_frame
-   };
+      {
+         &ett_ethercat_frame
+      };
 
    proto_ethercat_frame = proto_register_protocol("EtherCAT frame header",
-      "ETHERCAT","ethercat");
+                                                  "ETHERCAT","ethercat");
    proto_register_field_array(proto_ethercat_frame,hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
@@ -141,7 +141,7 @@ void proto_register_ethercat_frame(void)
    /* Define a handle (ecatf.type) for sub dissectors that want to dissect
       the Ethercat frame ether type (E88A4) payload. */
    ethercat_frame_dissector_table = register_dissector_table("ecatf.type",
-      "EtherCAT frame type", FT_UINT8, BASE_DEC);
+                                                             "EtherCAT frame type", FT_UINT8, BASE_DEC);
 }
 
 void proto_reg_handoff_ethercat_frame(void)
@@ -154,3 +154,16 @@ void proto_reg_handoff_ethercat_frame(void)
    dissector_add_uint("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
    ethercat_frame_data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

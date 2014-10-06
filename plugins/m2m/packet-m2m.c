@@ -66,14 +66,14 @@ static gint ett_m2m_cdma = -1;
 static gint ett_m2m_ffb  = -1;
 
 /* TLV types (rev:0.2) */
-#define TLV_PROTO_VER		1
-#define TLV_FRAME_NUM		2
-#define TLV_BURST_NUM		3
-#define TLV_FRAG_TYPE		4
-#define TLV_FRAG_NUM		5
-#define TLV_CDMA_CODE		7
-#define TLV_FCH_BURST		8
-#define TLV_PDU_BURST		9
+#define TLV_PROTO_VER		 1
+#define TLV_FRAME_NUM		 2
+#define TLV_BURST_NUM		 3
+#define TLV_FRAG_TYPE		 4
+#define TLV_FRAG_NUM		 5
+#define TLV_CDMA_CODE		 7
+#define TLV_FCH_BURST		 8
+#define TLV_PDU_BURST		 9
 #define TLV_FAST_FB		10
 #define TLV_CRC16_STATUS	11
 #define TLV_BURST_POWER		12
@@ -86,22 +86,22 @@ static gint ett_m2m_ffb  = -1;
 /* TLV names */
 static const value_string tlv_name[] =
 {
-	{ TLV_PROTO_VER, "Protocol Version" },
-	{ TLV_FRAME_NUM, "Frame Number" },
-	{ TLV_BURST_NUM, "Burst Number" },
-	{ TLV_FRAG_TYPE, "Fragment Type" },
-	{ TLV_FRAG_NUM, "Fragment Number" },
-	{ TLV_CDMA_CODE, "CDMA Attribute" },
-	{ TLV_FCH_BURST, "FCH Burst" },
-	{ TLV_PDU_BURST, "PDU Burst" },
-	{ TLV_FAST_FB, "Fast Feedback Burst" },
-	{ TLV_CRC16_STATUS, "CRC16 Status" },
-	{ TLV_BURST_POWER, " Burst Power" },
-	{ TLV_BURST_CINR, "Burst CINR" },
-	{ TLV_PREAMBLE, "Preamble" },
+	{ TLV_PROTO_VER,      "Protocol Version" },
+	{ TLV_FRAME_NUM,      "Frame Number" },
+	{ TLV_BURST_NUM,      "Burst Number" },
+	{ TLV_FRAG_TYPE,      "Fragment Type" },
+	{ TLV_FRAG_NUM,	      "Fragment Number" },
+	{ TLV_CDMA_CODE,      "CDMA Attribute" },
+	{ TLV_FCH_BURST,      "FCH Burst" },
+	{ TLV_PDU_BURST,      "PDU Burst" },
+	{ TLV_FAST_FB,	      "Fast Feedback Burst" },
+	{ TLV_CRC16_STATUS,   "CRC16 Status" },
+	{ TLV_BURST_POWER,    " Burst Power" },
+	{ TLV_BURST_CINR,     "Burst CINR" },
+	{ TLV_PREAMBLE,	      "Preamble" },
 	{ TLV_HARQ_ACK_BURST, "HARQ ACK Bursts" },
 	{ TLV_PHY_ATTRIBUTES, "PDU Burst Physical Attributes" },
-	{ TLV_EXTENDED_TLV, "Extended TLV" },
+	{ TLV_EXTENDED_TLV,   "Extended TLV" },
 	{ 0, NULL }
 };
 
@@ -114,10 +114,10 @@ static const value_string tlv_name[] =
 /* TLV Fragment Type names */
 static const value_string tlv_frag_type_name[] =
 {
-	{ TLV_NO_FRAG, "No TLV Fragment" },
-	{ TLV_FIRST_FRAG, "First TLV Fragment" },
+	{ TLV_NO_FRAG,	   "No TLV Fragment" },
+	{ TLV_FIRST_FRAG,  "First TLV Fragment" },
 	{ TLV_MIDDLE_FRAG, "Middle TLV Fragment" },
-	{ TLV_LAST_FRAG, "Last TLV Fragment" },
+	{ TLV_LAST_FRAG,   "Last TLV Fragment" },
 	{ 0, NULL }
 };
 
@@ -197,9 +197,9 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* get the tvb reported length */
 		length =  tvb_reported_length(tvb);
 		/* add the size info */
-        /*
+		/*
 		proto_item_append_text(m2m_item, " (%u bytes) - Packet Sequence Number,Number of TLVs", length);
-        */
+		*/
 		proto_item_append_text(m2m_item, " (%u bytes)", length);
 		/* display the sequence number */
 		proto_tree_add_item(m2m_tree, hf_m2m_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -781,7 +781,7 @@ void proto_register_m2m(void)
 
 	expert_module_t* expert_m2m;
 
-    proto_m2m = proto_register_protocol (
+	proto_m2m = proto_register_protocol (
 		"WiMax Mac to Mac Packet", /* name       */
 		"M2M  (m2m)",              /* short name */
 		"m2m"                      /* abbrev     */
@@ -813,3 +813,16 @@ void proto_reg_handoff_m2m(void)
 	wimax_pdu_burst_handle            = find_dissector("wimax_pdu_burst_handler");
 	wimax_phy_attributes_burst_handle = find_dissector("wimax_phy_attributes_burst_handler");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -47,8 +47,8 @@ typedef union _EslFlagsUnion
         guint16    port1        : 1;
         guint16    port0        : 1;
         guint16    extended     : 1;
-	guint16    port11       : 1;
-	guint16    port10       : 1;
+        guint16    port11       : 1;
+        guint16    port10       : 1;
         guint16    crcError     : 1;
         guint16    alignError   : 1;
         guint16    timeStampEna : 1;
@@ -372,3 +372,16 @@ proto_reg_handoff_esl(void) {
     }
     proto_set_decoding(proto_esl, esl_enable_dissector);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

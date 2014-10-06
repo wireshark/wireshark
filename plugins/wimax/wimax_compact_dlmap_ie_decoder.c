@@ -80,72 +80,72 @@ static gint ett_wimax_extension_type_ie_decoder = -1;
 /* New Format Indications */
 static const true_false_string tfs_indication =
 {
-    "New format",
-    "No new format"
+	"New format",
+	"No new format"
 };
 
 /* Prefixes */
 static const true_false_string tfs_prefix =
 {
-    "Enable HARQ",
-    "Temporary Disable HARQ"
+	"Enable HARQ",
+	"Temporary Disable HARQ"
 };
 
 /* CQICH Indicator */
 static const true_false_string tfs_cqich_ind =
 {
-    "With CQICH Control IE",
-    "No CQICH Control IE"
+	"With CQICH Control IE",
+	"No CQICH Control IE"
 };
 
 /* CID types */
 static const value_string vals_cid_types[] =
 {
-    { 0, "Normal CID" },
-    { 1, "RCID11 (default)" },
-    { 2, "RCID7" },
-    { 3, "RCID3" },
-    { 0,  NULL }
+	{ 0, "Normal CID" },
+	{ 1, "RCID11 (default)" },
+	{ 2, "RCID7" },
+	{ 3, "RCID3" },
+	{ 0,  NULL }
 };
 
 /* Subchannel Types */
 static const value_string vals_subchannel_types[] =
 {
-    { 0, "Default Type" },
-    { 1, "1 bin x 6 symbols Type" },
-    { 2, "2 bin x 3 symbols Type" },
-    { 3, "3 bin x 2 symbols Type" },
-    { 0,  NULL }
+	{ 0, "Default Type" },
+	{ 1, "1 bin x 6 symbols Type" },
+	{ 2, "2 bin x 3 symbols Type" },
+	{ 3, "3 bin x 2 symbols Type" },
+	{ 0,  NULL }
 };
 
 /* Max Logical Bands */
 static const value_string vals_max_logical_bands[] =
 {
-    { 0, "3 Bands" },
-    { 1, "6 Bands" },
-    { 2, "12 Bands (default)" },
-    { 3, "24 Bands" },
-    { 0,  NULL }
+	{ 0, "3 Bands" },
+	{ 1, "6 Bands" },
+	{ 2, "12 Bands (default)" },
+	{ 3, "24 Bands" },
+	{ 0,  NULL }
 };
 
 /* Repetition Coding Indications */
 static const value_string rep_msgs[] =
 {
-    { 0, "No Repetition Coding" },
-    { 1, "Repetition Coding of 2 Used" },
-    { 2, "Repetition Coding of 4 Used" },
-    { 3, "Repetition Coding of 6 Used" },
-    { 0,  NULL }
+	{ 0, "No Repetition Coding" },
+	{ 1, "Repetition Coding of 2 Used" },
+	{ 2, "Repetition Coding of 4 Used" },
+	{ 3, "Repetition Coding of 6 Used" },
+	{ 0,  NULL }
 };
 
 /* Repetition Coding Indications */
 static const value_string vals_allocation_modes[] =
 {
-    { 0, "Same Number Of Subchannels For The Selected Bands" },
-    { 1, "Different Same Number Of Subchannels For The Selected Bands" },
-    { 2, "Total Number Of Subchannels For The Selected Bands Determined by Nsch Code and Nep Code" },
-    { 3, "Reserved" },
-    { 0,  NULL }
+	{ 0, "Same Number Of Subchannels For The Selected Bands" },
+	{ 1, "Different Same Number Of Subchannels For The Selected Bands" },
+	{ 2, "Total Number Of Subchannels For The Selected Bands Determined by Nsch Code and Nep Code" },
+	{ 3, "Reserved" },
+	{ 0,  NULL }
 };
 
 /* Masks */
@@ -969,7 +969,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 #define MAX_LOGICAL_BANDS_SHIFT             21
 #define NUM_BROADCAST_SYMBOLS_SHIFT         16
 #define NUM_DL_AMC_SYMBOLS_SHIFT            10
-#define NUM_UL_AMC_SYMBOLS_SHIFT            4
+#define NUM_UL_AMC_SYMBOLS_SHIFT             4
 #define CID_TYPE_SHIFT_1              (CID_TYPE_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
 #define SAFETY_PATTERN_SHIFT_1        (SAFETY_PATTERN_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
 #define BAND_AMC_SUBCHANNEL_TYPE_SHIFT_1 (BAND_AMC_SUBCHANNEL_TYPE_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
@@ -2112,3 +2112,16 @@ void proto_register_wimax_compact_dlmap_ie(void)
 	proto_register_field_array(proto_wimax_compact_dlmap_ie_decoder, hf_extension_type, array_length(hf_extension_type));
 	proto_register_field_array(proto_wimax_compact_dlmap_ie_decoder, hf_extended_diuc, array_length(hf_extended_diuc));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

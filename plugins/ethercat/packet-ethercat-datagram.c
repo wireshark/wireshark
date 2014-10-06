@@ -57,12 +57,12 @@ static int ett_ecat_datagram_subtree = -1;
 
 static int hf_ecat_sub;
 static int hf_ecat_sub_data[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_cmd[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_idx[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_cnt[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_ado[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_adp[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_ecat_sub_lad[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_cmd[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_idx[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_cnt[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_ado[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_adp[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_ecat_sub_lad[10]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 /* static int hf_ecat_header = -1; */
 static int hf_ecat_data = -1;
@@ -126,42 +126,42 @@ static int hf_ecat_padding = -1;
 
 static const value_string EcCmdShort[] =
 {
-   {   0, "NOP" },
-   {   1, "APRD" },
-   {   2, "APWR" },
-   {   3, "APRW" },
-   {   4, "FPRD" },
-   {   5, "FPWR" },
-   {   6, "FPRW" },
-   {   7, "BRD" },
-   {   8, "BWR" },
-   {   9, "BRW" },
-   {   10, "LRD" },
-   {   11, "LWR" },
-   {   12, "LRW" },
-   {   13, "ARMW" },
-   {   14, "FRMW" },
+   {     0, "NOP" },
+   {     1, "APRD" },
+   {     2, "APWR" },
+   {     3, "APRW" },
+   {     4, "FPRD" },
+   {     5, "FPWR" },
+   {     6, "FPRW" },
+   {     7, "BRD" },
+   {     8, "BWR" },
+   {     9, "BRW" },
+   {    10, "LRD" },
+   {    11, "LWR" },
+   {    12, "LRW" },
+   {    13, "ARMW" },
+   {    14, "FRMW" },
    {   255, "EXT" },
    {   0, NULL }
 };
 
 static const value_string EcCmdLong[] =
 {
-   {   0, "No operation" },
-   {   1, "Auto Increment Physical Read" },
-   {   2, "Auto Increment Physical Write" },
-   {   3, "Auto Increment Physical ReadWrite" },
-   {   4, "Configured address Physical Read" },
-   {   5, "Configured address Physical Write" },
-   {   6, "Configured address Physical ReadWrite" },
-   {   7, "Broadcast Read" },
-   {   8, "Broadcast Write" },
-   {   9, "Broadcast ReadWrite" },
-   {   10, "Logical Read" },
-   {   11, "Logical Write" },
-   {   12, "Logical ReadWrite" },
-   {   13, "Auto Increment Physical Read Multiple Write" },
-   {   14, "Configured Address Physical Read Multiple Write" },
+   {     0, "No operation" },
+   {     1, "Auto Increment Physical Read" },
+   {     2, "Auto Increment Physical Write" },
+   {     3, "Auto Increment Physical ReadWrite" },
+   {     4, "Configured address Physical Read" },
+   {     5, "Configured address Physical Write" },
+   {     6, "Configured address Physical ReadWrite" },
+   {     7, "Broadcast Read" },
+   {     8, "Broadcast Write" },
+   {     9, "Broadcast ReadWrite" },
+   {    10, "Logical Read" },
+   {    11, "Logical Write" },
+   {    12, "Logical ReadWrite" },
+   {    13, "Auto Increment Physical Read Multiple Write" },
+   {    14, "Configured Address Physical Read Multiple Write" },
    {   255, "EXT" },
    {   0, NULL }
 };
@@ -270,21 +270,21 @@ static const char* convertEcCmdToText(int cmd, const value_string ec_cmd[])
 
 typedef enum
 {
-   EC_CMD_TYPE_NOP  = 0,
-   EC_CMD_TYPE_APRD = 1,
-   EC_CMD_TYPE_APWR = 2,
-   EC_CMD_TYPE_APRW = 3,
-   EC_CMD_TYPE_FPRD = 4,
-   EC_CMD_TYPE_FPWR = 5,
-   EC_CMD_TYPE_FPRW = 6,
-   EC_CMD_TYPE_BRD  = 7,
-   EC_CMD_TYPE_BWR  = 8,
-   EC_CMD_TYPE_BRW  = 9,
-   EC_CMD_TYPE_LRD  = 10,
-   EC_CMD_TYPE_LWR  = 11,
-   EC_CMD_TYPE_LRW  = 12,
-   EC_CMD_TYPE_ARMW = 13,
-   EC_CMD_TYPE_FRMW = 14,
+   EC_CMD_TYPE_NOP  =   0,
+   EC_CMD_TYPE_APRD =   1,
+   EC_CMD_TYPE_APWR =   2,
+   EC_CMD_TYPE_APRW =   3,
+   EC_CMD_TYPE_FPRD =   4,
+   EC_CMD_TYPE_FPWR =   5,
+   EC_CMD_TYPE_FPRW =   6,
+   EC_CMD_TYPE_BRD  =   7,
+   EC_CMD_TYPE_BWR  =   8,
+   EC_CMD_TYPE_BRW  =   9,
+   EC_CMD_TYPE_LRD  =  10,
+   EC_CMD_TYPE_LWR  =  11,
+   EC_CMD_TYPE_LRW  =  12,
+   EC_CMD_TYPE_ARMW =  13,
+   EC_CMD_TYPE_FRMW =  14,
    EC_CMD_TYPE_EXT  = 255
 } EC_CMD_TYPE;
 
@@ -870,835 +870,835 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 void proto_register_ecat(void)
 {
    static hf_register_info hf[] =
-   {
-      { &hf_ecat_sub,
-      { "EtherCAT Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
+      {
+         { &hf_ecat_sub,
+           { "EtherCAT Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }
+         },
 #if 0
-      { &hf_ecat_header,
-      { "eader", "ecat.header",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_header,
+           { "eader", "ecat.header",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
 #endif
-      { &hf_ecat_sub_data[0],
-      {  "Data", "ecat.sub1.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[1],
-      {  "Data", "ecat.sub2.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[2],
-      {  "Data", "ecat.sub3.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[3],
-      {  "Data", "ecat.sub4.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[4],
-      {  "Data", "ecat.sub5.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[5],
-      {  "Data", "ecat.sub6.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[6],
-      {  "Data", "ecat.sub7.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[7],
-      {  "Data", "ecat.sub8.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[8],
-      {  "Data", "ecat.sub9.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_data[9],
-      {  "Data", "ecat.sub10.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_data,
-      {  "Data", "ecat.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_cnt,
-      { "Working Cnt", "ecat.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "The working counter is increased once for each addressed device if at least one byte/bit of the data was successfully read and/or written by that device, it is increased once for every operation made by that device - read/write/read and write", HFILL }
-      },
-      { &hf_ecat_sub_cnt[0],
-      { "Working Cnt", "ecat.sub1.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[1],
-      { "Working Cnt", "ecat.sub2.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[2],
-      { "Working Cnt", "ecat.sub3.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[3],
-      { "Working Cnt", "ecat.sub4.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[4],
-      { "Working Cnt", "ecat.sub5.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[5],
-      { "Working Cnt", "ecat.sub6.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[6],
-      { "Working Cnt", "ecat.sub7.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[7],
-      { "Working Cnt", "ecat.sub8.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[8],
-      { "Working Cnt", "ecat.sub9.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cnt[9],
-      { "Working Cnt", "ecat.sub10.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_cmd,
-      { "Command", "ecat.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[0],
-      { "Command", "ecat.sub1.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[1],
-      { "Command", "ecat.sub2.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[2],
-      { "Command", "ecat.sub3.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[3],
-      { "Command", "ecat.sub4.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[4],
-      { "Command", "ecat.sub5.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[5],
-      { "Command", "ecat.sub6.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[6],
-      { "Command", "ecat.sub7.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[7],
-      { "Command", "ecat.sub8.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[8],
-      { "Command", "ecat.sub9.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_cmd[9],
-      { "Command", "ecat.sub10.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_idx,
-      { "Index", "ecat.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[0],
-      { "Index", "ecat.sub1.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[1],
-      { "Index", "ecat.sub2.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[2],
-      { "Index", "ecat.sub3.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[3],
-      { "Index", "ecat.sub4.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[4],
-      { "Index", "ecat.sub5.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[5],
-      { "Index", "ecat.sub6.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[6],
-      { "Index", "ecat.sub7.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[7],
-      { "Index", "ecat.sub8.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[8],
-      { "Index", "ecat.sub9.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_idx[9],
-      { "Index", "ecat.sub10.idx",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_adp,
-      { "Slave Addr", "ecat.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[0],
-      { "Slave Addr", "ecat.sub1.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[1],
-      { "Slave Addr", "ecat.sub2.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[2],
-      { "Slave Addr", "ecat.sub3.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[3],
-      { "Slave Addr", "ecat.sub4.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[4],
-      { "Slave Addr", "ecat.sub5.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[5],
-      { "Slave Addr", "ecat.sub6.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[6],
-      { "Slave Addr", "ecat.sub7.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[7],
-      { "Slave Addr", "ecat.sub8.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[8],
-      { "Slave Addr", "ecat.sub9.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_adp[9],
-      { "Slave Addr", "ecat.sub10.adp",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_ado,
-      { "Offset Addr", "ecat.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[0],
-      { "Offset Addr", "ecat.sub1.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[1],
-      { "Offset Addr", "ecat.sub2.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[2],
-      { "Offset Addr", "ecat.sub3.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[3],
-      { "Offset Addr", "ecat.sub4.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[4],
-      { "Offset Addr", "ecat.sub5.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[5],
-      { "Offset Addr", "ecat.sub6.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[6],
-      { "Offset Addr", "ecat.sub7.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[7],
-      { "Offset Addr", "ecat.sub8.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[8],
-      { "Offset Addr", "ecat.sub9.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_ado[9],
-      { "Offset Addr", "ecat.sub10.ado",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_lad,
-      { "Log Addr", "ecat.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[0],
-      { "Log Addr", "ecat.sub1.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[1],
-      { "Log Addr", "ecat.sub2.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[2],
-      { "Log Addr", "ecat.sub3.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[3],
-      { "Log Addr", "ecat.sub4.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[4],
-      { "Log Addr", "ecat.sub5.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[5],
-      { "Log Addr", "ecat.sub6.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[6],
-      { "Log Addr", "ecat.sub7.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[7],
-      { "Log Addr", "ecat.sub8.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[8],
-      { "Log Addr", "ecat.sub9.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_lad[9],
-      { "Log Addr", "ecat.sub10.lad",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
+         { &hf_ecat_sub_data[0],
+           {  "Data", "ecat.sub1.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[1],
+           {  "Data", "ecat.sub2.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[2],
+           {  "Data", "ecat.sub3.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[3],
+           {  "Data", "ecat.sub4.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[4],
+           {  "Data", "ecat.sub5.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[5],
+           {  "Data", "ecat.sub6.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[6],
+           {  "Data", "ecat.sub7.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[7],
+           {  "Data", "ecat.sub8.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[8],
+           {  "Data", "ecat.sub9.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_data[9],
+           {  "Data", "ecat.sub10.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_data,
+           {  "Data", "ecat.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_cnt,
+           { "Working Cnt", "ecat.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, "The working counter is increased once for each addressed device if at least one byte/bit of the data was successfully read and/or written by that device, it is increased once for every operation made by that device - read/write/read and write", HFILL }
+         },
+         { &hf_ecat_sub_cnt[0],
+           { "Working Cnt", "ecat.sub1.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[1],
+           { "Working Cnt", "ecat.sub2.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[2],
+           { "Working Cnt", "ecat.sub3.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[3],
+           { "Working Cnt", "ecat.sub4.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[4],
+           { "Working Cnt", "ecat.sub5.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[5],
+           { "Working Cnt", "ecat.sub6.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[6],
+           { "Working Cnt", "ecat.sub7.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[7],
+           { "Working Cnt", "ecat.sub8.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[8],
+           { "Working Cnt", "ecat.sub9.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cnt[9],
+           { "Working Cnt", "ecat.sub10.cnt",
+             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_cmd,
+           { "Command", "ecat.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[0],
+           { "Command", "ecat.sub1.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[1],
+           { "Command", "ecat.sub2.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[2],
+           { "Command", "ecat.sub3.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[3],
+           { "Command", "ecat.sub4.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[4],
+           { "Command", "ecat.sub5.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[5],
+           { "Command", "ecat.sub6.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[6],
+           { "Command", "ecat.sub7.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[7],
+           { "Command", "ecat.sub8.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[8],
+           { "Command", "ecat.sub9.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_cmd[9],
+           { "Command", "ecat.sub10.cmd",
+             FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_idx,
+           { "Index", "ecat.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[0],
+           { "Index", "ecat.sub1.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[1],
+           { "Index", "ecat.sub2.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[2],
+           { "Index", "ecat.sub3.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[3],
+           { "Index", "ecat.sub4.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[4],
+           { "Index", "ecat.sub5.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[5],
+           { "Index", "ecat.sub6.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[6],
+           { "Index", "ecat.sub7.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[7],
+           { "Index", "ecat.sub8.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[8],
+           { "Index", "ecat.sub9.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_idx[9],
+           { "Index", "ecat.sub10.idx",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_adp,
+           { "Slave Addr", "ecat.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[0],
+           { "Slave Addr", "ecat.sub1.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[1],
+           { "Slave Addr", "ecat.sub2.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[2],
+           { "Slave Addr", "ecat.sub3.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[3],
+           { "Slave Addr", "ecat.sub4.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[4],
+           { "Slave Addr", "ecat.sub5.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[5],
+           { "Slave Addr", "ecat.sub6.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[6],
+           { "Slave Addr", "ecat.sub7.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[7],
+           { "Slave Addr", "ecat.sub8.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[8],
+           { "Slave Addr", "ecat.sub9.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_adp[9],
+           { "Slave Addr", "ecat.sub10.adp",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_ado,
+           { "Offset Addr", "ecat.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[0],
+           { "Offset Addr", "ecat.sub1.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[1],
+           { "Offset Addr", "ecat.sub2.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[2],
+           { "Offset Addr", "ecat.sub3.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[3],
+           { "Offset Addr", "ecat.sub4.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[4],
+           { "Offset Addr", "ecat.sub5.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[5],
+           { "Offset Addr", "ecat.sub6.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[6],
+           { "Offset Addr", "ecat.sub7.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[7],
+           { "Offset Addr", "ecat.sub8.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[8],
+           { "Offset Addr", "ecat.sub9.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_ado[9],
+           { "Offset Addr", "ecat.sub10.ado",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_lad,
+           { "Log Addr", "ecat.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[0],
+           { "Log Addr", "ecat.sub1.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[1],
+           { "Log Addr", "ecat.sub2.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[2],
+           { "Log Addr", "ecat.sub3.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[3],
+           { "Log Addr", "ecat.sub4.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[4],
+           { "Log Addr", "ecat.sub5.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[5],
+           { "Log Addr", "ecat.sub6.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[6],
+           { "Log Addr", "ecat.sub7.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[7],
+           { "Log Addr", "ecat.sub8.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[8],
+           { "Log Addr", "ecat.sub9.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_lad[9],
+           { "Log Addr", "ecat.sub10.lad",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
 #if 0
-      { &hf_ecat_len,
-      { "Length", "ecat.len",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
+         { &hf_ecat_len,
+           { "Length", "ecat.len",
+             FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
 #endif
-      { &hf_ecat_int,
-      { "Interrupt", "ecat.int",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman,
-      { "SyncManager", "ecat.syncman",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_start,
-      { "Start Addr", "ecat.syncman.start",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_len,
-      { "SM Length", "ecat.syncman.len",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flags,
-      { "SM Flags", "ecat.syncman.flags",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag0,
-      { "SM Flag0", "ecat.syncman_flag0",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag0), 0x00000001,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag1,
-      { "SM Flag1", "ecat.syncman_flag1",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag1), 0x00000002,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag2,
-      { "SM Flag2", "ecat.syncman_flag2",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag2), 0x00000004,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag4,
-      { "SM Flag4", "ecat.syncman_flag4",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag4), 0x00000010,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag5,
-      { "SM Flag5", "ecat.syncman_flag5",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag5), 0x00000020,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag8,
-      { "SM Flag8", "ecat.syncman_flag8",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag8), 0x00000100,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag9,
-      { "SM Flag9", "ecat.syncman_flag9",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag9), 0x00000200,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag10,
-      { "SM Flag10", "ecat.syncman_flag10",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag10), 0x00000400,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag11,
-      { "SM Flag11", "ecat.syncman_flag11",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag11), 0x00000800,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag12,
-      { "SM Flag12", "ecat.syncman_flag12",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag12), 0x00001000,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag13,
-      { "SM Flag13", "ecat.syncman_flag13",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag13), 0x00002000,
-      NULL, HFILL }
-      },
-      { &hf_ecat_syncman_flag16,
-      { "SM Flag16", "ecat.syncman_flag16",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag16), 0x00010000,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu,
-      { "FMMU", "ecat.fmmu",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_lstart,
-      { "Log Start", "ecat.fmmu.lstart",
-      FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_llen,
-      { "Log Length", "ecat.fmmu.llen",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_lstartbit,
-      { "Log StartBit", "ecat.fmmu.lstartbit",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_lendbit,
-      { "Log EndBit", "ecat.fmmu.lendbit",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_pstart,
-      { "Phys Start", "ecat.fmmu.pstart",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_pstartbit,
-      { "Phys StartBit", "ecat.fmmu.pstartbit",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_type,
-      { "FMMU Type", "ecat.fmmu.type",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_typeread,
-      { "Type", "ecat.fmmu.typeread",
-      FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typeread), 0x01,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_typewrite,
-      { "Type", "ecat.fmmu.typewrite",
-      FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typewrite), 0x02,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_active,
-      { "FMMU Active", "ecat.fmmu.active",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_fmmu_active0,
-      { "Active", "ecat.fmmu.active0",
-      FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_active), 0x01,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_da,
-      { "DC D-A", "ecat.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_bd,
-      { "DC B-D", "ecat.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_cb,
-      { "DC C-B", "ecat.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_cd,
-      { "DC C-D", "ecat.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_ba,
-      { "DC B-A", "ecat.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_dc_diff_ca,
-      { "DC C-A", "ecat.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[0],
-      { "DC D-A", "ecat.sub1.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[1],
-      { "DC D-A", "ecat.sub2.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[2],
-      { "DC D-A", "ecat.sub3.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[3],
-      { "DC D-A", "ecat.sub4.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[4],
-      { "DC D-A", "ecat.sub5.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[5],
-      { "DC D-A", "ecat.sub6.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[6],
-      { "DC D-A", "ecat.sub7.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[7],
-      { "DC D-A", "ecat.sub8.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[8],
-      { "DC D-A", "ecat.sub9.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_da[9],
-      { "DC D-A", "ecat.sub10.dc.dif.da",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_int,
+           { "Interrupt", "ecat.int",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman,
+           { "SyncManager", "ecat.syncman",
+             FT_BYTES, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_start,
+           { "Start Addr", "ecat.syncman.start",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_len,
+           { "SM Length", "ecat.syncman.len",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flags,
+           { "SM Flags", "ecat.syncman.flags",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag0,
+           { "SM Flag0", "ecat.syncman_flag0",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag0), 0x00000001,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag1,
+           { "SM Flag1", "ecat.syncman_flag1",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag1), 0x00000002,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag2,
+           { "SM Flag2", "ecat.syncman_flag2",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag2), 0x00000004,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag4,
+           { "SM Flag4", "ecat.syncman_flag4",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag4), 0x00000010,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag5,
+           { "SM Flag5", "ecat.syncman_flag5",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag5), 0x00000020,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag8,
+           { "SM Flag8", "ecat.syncman_flag8",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag8), 0x00000100,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag9,
+           { "SM Flag9", "ecat.syncman_flag9",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag9), 0x00000200,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag10,
+           { "SM Flag10", "ecat.syncman_flag10",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag10), 0x00000400,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag11,
+           { "SM Flag11", "ecat.syncman_flag11",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag11), 0x00000800,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag12,
+           { "SM Flag12", "ecat.syncman_flag12",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag12), 0x00001000,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag13,
+           { "SM Flag13", "ecat.syncman_flag13",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag13), 0x00002000,
+             NULL, HFILL }
+         },
+         { &hf_ecat_syncman_flag16,
+           { "SM Flag16", "ecat.syncman_flag16",
+             FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag16), 0x00010000,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu,
+           { "FMMU", "ecat.fmmu",
+             FT_BYTES, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_lstart,
+           { "Log Start", "ecat.fmmu.lstart",
+             FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_llen,
+           { "Log Length", "ecat.fmmu.llen",
+             FT_UINT16, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_lstartbit,
+           { "Log StartBit", "ecat.fmmu.lstartbit",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_lendbit,
+           { "Log EndBit", "ecat.fmmu.lendbit",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_pstart,
+           { "Phys Start", "ecat.fmmu.pstart",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_pstartbit,
+           { "Phys StartBit", "ecat.fmmu.pstartbit",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_type,
+           { "FMMU Type", "ecat.fmmu.type",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_typeread,
+           { "Type", "ecat.fmmu.typeread",
+             FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typeread), 0x01,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_typewrite,
+           { "Type", "ecat.fmmu.typewrite",
+             FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typewrite), 0x02,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_active,
+           { "FMMU Active", "ecat.fmmu.active",
+             FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_fmmu_active0,
+           { "Active", "ecat.fmmu.active0",
+             FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_active), 0x01,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_da,
+           { "DC D-A", "ecat.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_bd,
+           { "DC B-D", "ecat.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_cb,
+           { "DC C-B", "ecat.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_cd,
+           { "DC C-D", "ecat.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_ba,
+           { "DC B-A", "ecat.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_dc_diff_ca,
+           { "DC C-A", "ecat.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[0],
+           { "DC D-A", "ecat.sub1.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[1],
+           { "DC D-A", "ecat.sub2.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[2],
+           { "DC D-A", "ecat.sub3.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[3],
+           { "DC D-A", "ecat.sub4.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[4],
+           { "DC D-A", "ecat.sub5.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[5],
+           { "DC D-A", "ecat.sub6.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[6],
+           { "DC D-A", "ecat.sub7.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[7],
+           { "DC D-A", "ecat.sub8.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[8],
+           { "DC D-A", "ecat.sub9.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_da[9],
+           { "DC D-A", "ecat.sub10.dc.dif.da",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
 
-      { &hf_ecat_sub_dc_diff_bd[0],
-      { "DC B-C", "ecat.sub1.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[1],
-      { "DC B-C", "ecat.sub2.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[2],
-      { "DC B-C", "ecat.sub3.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[3],
-      { "DC B-C", "ecat.sub4.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[4],
-      { "DC B-C", "ecat.sub5.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[5],
-      { "DC B-C", "ecat.sub6.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[6],
-      { "DC B-C", "ecat.sub7.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[7],
-      { "DC B-C", "ecat.sub8.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[8],
-      { "DC B-C", "ecat.sub9.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_bd[9],
-      { "DC B-D", "ecat.sub10.dc.dif.bd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_sub_dc_diff_bd[0],
+           { "DC B-C", "ecat.sub1.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[1],
+           { "DC B-C", "ecat.sub2.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[2],
+           { "DC B-C", "ecat.sub3.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[3],
+           { "DC B-C", "ecat.sub4.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[4],
+           { "DC B-C", "ecat.sub5.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[5],
+           { "DC B-C", "ecat.sub6.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[6],
+           { "DC B-C", "ecat.sub7.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[7],
+           { "DC B-C", "ecat.sub8.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[8],
+           { "DC B-C", "ecat.sub9.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_bd[9],
+           { "DC B-D", "ecat.sub10.dc.dif.bd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
 
-      { &hf_ecat_sub_dc_diff_cb[0],
-      { "DC C-B", "ecat.sub1.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[1],
-      { "DC C-B", "ecat.sub2.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[2],
-      { "DC C-B", "ecat.sub3.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[3],
-      { "DC C-B", "ecat.sub4.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[4],
-      { "DC C-B", "ecat.sub5.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[5],
-      { "DC C-B", "ecat.sub6.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[6],
-      { "DC C-B", "ecat.sub7.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[7],
-      { "DC C-B", "ecat.sub8.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[8],
-      { "DC C-B", "ecat.sub9.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cb[9],
-      { "DC C-B", "ecat.sub10.dc.dif.cb",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_sub_dc_diff_cb[0],
+           { "DC C-B", "ecat.sub1.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[1],
+           { "DC C-B", "ecat.sub2.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[2],
+           { "DC C-B", "ecat.sub3.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[3],
+           { "DC C-B", "ecat.sub4.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[4],
+           { "DC C-B", "ecat.sub5.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[5],
+           { "DC C-B", "ecat.sub6.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[6],
+           { "DC C-B", "ecat.sub7.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[7],
+           { "DC C-B", "ecat.sub8.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[8],
+           { "DC C-B", "ecat.sub9.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cb[9],
+           { "DC C-B", "ecat.sub10.dc.dif.cb",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
 
-      { &hf_ecat_sub_dc_diff_cd[0],
-      { "DC C-D", "ecat.sub1.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[1],
-      { "DC C-D", "ecat.sub2.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[2],
-      { "DC C-D", "ecat.sub3.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[3],
-      { "DC C-D", "ecat.sub4.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[4],
-      { "DC C-D", "ecat.sub5.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[5],
-      { "DC C-D", "ecat.sub6.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[6],
-      { "DC C-D", "ecat.sub7.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[7],
-      { "DC C-D", "ecat.sub8.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[8],
-      { "DC C-D", "ecat.sub9.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_cd[9],
-      { "DC C-D", "ecat.sub10.dc.dif.cd",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_sub_dc_diff_cd[0],
+           { "DC C-D", "ecat.sub1.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[1],
+           { "DC C-D", "ecat.sub2.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[2],
+           { "DC C-D", "ecat.sub3.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[3],
+           { "DC C-D", "ecat.sub4.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[4],
+           { "DC C-D", "ecat.sub5.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[5],
+           { "DC C-D", "ecat.sub6.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[6],
+           { "DC C-D", "ecat.sub7.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[7],
+           { "DC C-D", "ecat.sub8.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[8],
+           { "DC C-D", "ecat.sub9.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_cd[9],
+           { "DC C-D", "ecat.sub10.dc.dif.cd",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
 
-      { &hf_ecat_sub_dc_diff_ba[0],
-      { "DC B-A", "ecat.sub1.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[1],
-      { "DC B-A", "ecat.sub2.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[2],
-      { "DC B-A", "ecat.sub3.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[3],
-      { "DC B-A", "ecat.sub4.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[4],
-      { "DC B-A", "ecat.sub5.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[5],
-      { "DC B-A", "ecat.sub6.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[6],
-      { "DC B-A", "ecat.sub7.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[7],
-      { "DC B-A", "ecat.sub8.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[8],
-      { "DC B-A", "ecat.sub9.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ba[9],
-      { "DC B-A", "ecat.sub10.dc.dif.ba",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
+         { &hf_ecat_sub_dc_diff_ba[0],
+           { "DC B-A", "ecat.sub1.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[1],
+           { "DC B-A", "ecat.sub2.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[2],
+           { "DC B-A", "ecat.sub3.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[3],
+           { "DC B-A", "ecat.sub4.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[4],
+           { "DC B-A", "ecat.sub5.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[5],
+           { "DC B-A", "ecat.sub6.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[6],
+           { "DC B-A", "ecat.sub7.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[7],
+           { "DC B-A", "ecat.sub8.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[8],
+           { "DC B-A", "ecat.sub9.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ba[9],
+           { "DC B-A", "ecat.sub10.dc.dif.ba",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
 
-      { &hf_ecat_sub_dc_diff_ca[0],
-      { "DC C-A", "ecat.sub1.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[1],
-      { "DC C-A", "ecat.sub2.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[2],
-      { "DC C-A", "ecat.sub3.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[3],
-      { "DC C-A", "ecat.sub4.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[4],
-      { "DC C-A", "ecat.sub5.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[5],
-      { "DC C-A", "ecat.sub6.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[6],
-      { "DC C-A", "ecat.sub7.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[7],
-      { "DC C-A", "ecat.sub8.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[8],
-      { "DC C-A", "ecat.sub9.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_sub_dc_diff_ca[9],
-      { "DC C-A", "ecat.sub10.dc.dif.ca",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-      },
-      { &hf_ecat_length_len,
-      { "Length", "ecat.subframe.length",
-      FT_UINT16, BASE_DEC, NULL, 0x07ff, NULL, HFILL}
-      },
-      { &hf_ecat_length_r,
-      { "Reserved", "ecat.subframe.reserved",
-      FT_UINT16, BASE_DEC, VALS(ecat_subframe_reserved_vals), 0x3800, NULL, HFILL}
-      },
-      { &hf_ecat_length_c,
-      { "Round trip", "ecat.subframe.circulating",
-      FT_UINT16, BASE_DEC, VALS(ecat_subframe_circulating_vals), 0x4000, NULL, HFILL}
-      },
-      { &hf_ecat_length_m,
-      { "Last indicator", "ecat.subframe.more",
-      FT_UINT16, BASE_DEC, VALS(ecat_subframe_more_vals), 0x8000, NULL, HFILL}
-      },
-      { &hf_ecat_padding,
-      { "Pad bytes", "ecat.subframe.pad_bytes",
-      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-      }
-   };
+         { &hf_ecat_sub_dc_diff_ca[0],
+           { "DC C-A", "ecat.sub1.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[1],
+           { "DC C-A", "ecat.sub2.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[2],
+           { "DC C-A", "ecat.sub3.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[3],
+           { "DC C-A", "ecat.sub4.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[4],
+           { "DC C-A", "ecat.sub5.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[5],
+           { "DC C-A", "ecat.sub6.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[6],
+           { "DC C-A", "ecat.sub7.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[7],
+           { "DC C-A", "ecat.sub8.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[8],
+           { "DC C-A", "ecat.sub9.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_sub_dc_diff_ca[9],
+           { "DC C-A", "ecat.sub10.dc.dif.ca",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+         },
+         { &hf_ecat_length_len,
+           { "Length", "ecat.subframe.length",
+             FT_UINT16, BASE_DEC, NULL, 0x07ff, NULL, HFILL}
+         },
+         { &hf_ecat_length_r,
+           { "Reserved", "ecat.subframe.reserved",
+             FT_UINT16, BASE_DEC, VALS(ecat_subframe_reserved_vals), 0x3800, NULL, HFILL}
+         },
+         { &hf_ecat_length_c,
+           { "Round trip", "ecat.subframe.circulating",
+             FT_UINT16, BASE_DEC, VALS(ecat_subframe_circulating_vals), 0x4000, NULL, HFILL}
+         },
+         { &hf_ecat_length_m,
+           { "Last indicator", "ecat.subframe.more",
+             FT_UINT16, BASE_DEC, VALS(ecat_subframe_more_vals), 0x8000, NULL, HFILL}
+         },
+         { &hf_ecat_padding,
+           { "Pad bytes", "ecat.subframe.pad_bytes",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+         }
+      };
 
    static gint *ett[] =
-   {
-      &ett_ecat,
-      &ett_ecat_header,
-      &ett_ecat_syncman,
-      &ett_ecat_syncflag,
-      &ett_ecat_fmmu,
-      &ett_ecat_fmmu_type,
-      &ett_ecat_fmmu_active,
-      &ett_ecat_dc,
-      &ett_ecat_length,
-      &ett_ecat_padding,
-      &ett_ecat_datagram_subtree
-   };
+      {
+         &ett_ecat,
+         &ett_ecat_header,
+         &ett_ecat_syncman,
+         &ett_ecat_syncflag,
+         &ett_ecat_fmmu,
+         &ett_ecat_fmmu_type,
+         &ett_ecat_fmmu_active,
+         &ett_ecat_dc,
+         &ett_ecat_length,
+         &ett_ecat_padding,
+         &ett_ecat_datagram_subtree
+      };
 
    proto_ecat_datagram = proto_register_protocol("EtherCAT datagram(s)",
-      "ECAT", "ecat");
+                                                 "ECAT", "ecat");
    proto_register_field_array(proto_ecat_datagram, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
@@ -1718,3 +1718,16 @@ void proto_reg_handoff_ecat(void)
 
    ecat_mailbox_handle = find_dissector("ecat_mailbox");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

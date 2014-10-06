@@ -47,13 +47,13 @@ static gint ett_mac_mgmt_msg_pkm_rsp_decoder = -1;
 
 static const value_string vals_pkm_msg_code[] =
 {
-	{3, "SA ADD"},
-	{4, "Auth Request"},
-	{5, "Auth Reply"},
-	{6, "Auth Reject"},
-	{7, "Key Request"},
-	{8, "Key Reply"},
-	{9, "Key Reject"},
+	{ 3, "SA ADD"},
+	{ 4, "Auth Request"},
+	{ 5, "Auth Reply"},
+	{ 6, "Auth Reject"},
+	{ 7, "Key Request"},
+	{ 8, "Key Reply"},
+	{ 9, "Key Reject"},
 	{10, "Auth Invalid"},
 	{11, "TEK Invalid"},
 	{12, "Auth Info"},
@@ -173,3 +173,16 @@ void proto_reg_handoff_mac_mgmt_msg_pkm(void)
 	mac_mgmt_msg_pkm_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_pkm_rsp_decoder, proto_mac_mgmt_msg_pkm_decoder);
 	dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_PKM_RSP, mac_mgmt_msg_pkm_rsp_handle );
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

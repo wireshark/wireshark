@@ -43,7 +43,7 @@
  * This plugin dissects infrared data transmissions as defined by the IrDA
  * specification (www.irda.org).  See
  *
- *	http://www.irda.org/standards/specifications.asp
+ *      http://www.irda.org/standards/specifications.asp
  *
  * for various IrDA specifications.
  *
@@ -242,15 +242,15 @@ static gint ett_param[MAX_PARAMETERS];
 static gint ett_iap_entry[MAX_IAP_ENTRIES];
 
 static const xdlc_cf_items irlap_cf_items = {
-	&hf_lap_c_nr,
-	&hf_lap_c_ns,
-	&hf_lap_c_p,
-	&hf_lap_c_f,
-	&hf_lap_c_s,
-	&hf_lap_c_u_cmd,
-	&hf_lap_c_u_rsp,
-	&hf_lap_c_i,
-	&hf_lap_c_s_u
+    &hf_lap_c_nr,
+    &hf_lap_c_ns,
+    &hf_lap_c_p,
+    &hf_lap_c_f,
+    &hf_lap_c_s,
+    &hf_lap_c_u_cmd,
+    &hf_lap_c_u_rsp,
+    &hf_lap_c_i,
+    &hf_lap_c_s_u
 };
 
 /* IAP conversation type */
@@ -457,9 +457,9 @@ guint dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, guint offset)
  */
 static guint dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gboolean data)
 {
-    guint    offset = 0;
-    guint8      head;
-	char		buf[128];
+    guint  offset = 0;
+    guint8 head;
+    char   buf[128];
 
     if (tvb_length(tvb) == 0)
         return 0;
@@ -504,7 +504,7 @@ static guint dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gb
  */
 static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    guint            offset = 0;
+    guint               offset = 0;
     guint8              op;
     guint8              clen = 0;
     guint8              alen = 0;
@@ -513,7 +513,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     address             destaddr;
     conversation_t*     conv;
     iap_conversation_t* iap_conv;
-	char    buf[128];
+    char    buf[128];
 
     if (tvb_length(tvb) == 0)
         return;
@@ -656,10 +656,10 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
  */
 static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    guint            offset = 0;
-    guint            len    = tvb_length(tvb);
-    guint            n      = 0;
-    guint            list_len;
+    guint               offset = 0;
+    guint               len    = tvb_length(tvb);
+    guint               n      = 0;
+    guint               list_len;
     guint8              op;
     guint8              retcode;
     guint8              type;
@@ -886,7 +886,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 if (iap_conv && iap_conv->pattr_dissector)
                                     iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, 0,
                                                                                n, type);
-								break;
+                                break;
 
                             default:
                                 attr_len = 0;
@@ -959,7 +959,7 @@ guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
  */
 static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pdu_type_t pdu_type)
 {
-    guint            offset = 0;
+    guint               offset = 0;
     guint8              src;
     address             srcaddr;
     address             destaddr;
@@ -1029,7 +1029,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
  */
 static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    guint    offset = 0;
+    guint       offset = 0;
     guint8      dlsap;
     guint8      slsap;
     guint8      cbit;
@@ -1254,7 +1254,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
  */
 static guint dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, guint offset)
 {
-    guint    n   = 0;
+    guint       n   = 0;
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
@@ -1538,7 +1538,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
         {
             ti = proto_tree_add_item(root, proto_irlmp, tvb, offset, -1, ENC_NA);
             lmp_tree = proto_item_add_subtree(ti, ett_irlmp);
-	}
+        }
 
         for (hints_len = 0;;)
         {
@@ -1750,8 +1750,8 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
     /* process the control field */
     c = dissect_xdlc_control(tvb, 1, pinfo, tree, hf_lap_c,
-	    ett_lap_c, &irlap_cf_items, NULL, lap_c_u_cmd_abbr_vals,
-	    lap_c_u_rsp_abbr_vals, is_response, FALSE, FALSE);
+            ett_lap_c, &irlap_cf_items, NULL, lap_c_u_cmd_abbr_vals,
+            lap_c_u_rsp_abbr_vals, is_response, FALSE, FALSE);
     offset++;
 
     if ((c & XDLC_I_MASK) == XDLC_I) {
@@ -1763,7 +1763,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     }
 
     if ((c & 0x03) == XDLC_U) {
-    	/* U frame */
+        /* U frame */
         switch (c & XDLC_U_MODIFIER_MASK)
         {
             case XDLC_SNRM:
@@ -2234,8 +2234,8 @@ void proto_register_irda(void)
 
 
 /* If this dissector uses sub-dissector registration add a registration routine.
-	This format is required because a script is used to find these routines and
-	create the code that calls these routines.
+        This format is required because a script is used to find these routines and
+        create the code that calls these routines.
 */
 
 void proto_reg_handoff_irda(void)

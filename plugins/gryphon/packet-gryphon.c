@@ -1122,7 +1122,7 @@ eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_item(pt, hf_gryphon_eventnum, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
         proto_tree_add_uint_format_value(pt, hf_gryphon_eventnum, tvb, offset, 1,
-	        0, "All");
+                0, "All");
     proto_tree_add_item(pt, hf_gryphon_reserved3, tvb, offset+1, 3, ENC_BIG_ENDIAN);
     offset += 4;
     return offset;
@@ -1228,7 +1228,7 @@ cmd_modfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_item(pt, hf_gryphon_modfilt, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
         proto_tree_add_uint_format_value(pt, hf_gryphon_modfilt, tvb, offset, 1,
-	        0, "Filter handles: all");
+                0, "Filter handles: all");
 
     proto_tree_add_item(pt, hf_gryphon_modfilt_action, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pt, hf_gryphon_reserved2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1329,7 +1329,7 @@ resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     for (indx = 1; indx <= number; indx++) {
         proto_tree_add_bytes_format(pt, hf_gryphon_getspeeds_data, tvb, offset, size,
-	        tvb_get_ptr(tvb, offset, size), "Data for preset %d", indx);
+                tvb_get_ptr(tvb, offset, size), "Data for preset %d", indx);
         offset += size;
     }
     return offset;
@@ -1441,7 +1441,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     if (tvb_get_ntohl(tvb, offset) == 0xFFFFFFFF)
         proto_tree_add_uint_format_value(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4,
-	        0, "Number of iterations: \"infinite\"");
+                0, "Number of iterations: \"infinite\"");
     else
         proto_tree_add_item(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1508,7 +1508,7 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
     else
         type = "Normal";
     proto_tree_add_uint_format_value(pt, hf_gryphon_sched_rep_id, tvb,
-	        offset, 4, x, "%s schedule ID: %u", type, x);
+                offset, 4, x, "%s schedule ID: %u", type, x);
     offset += 4;
 
     proto_tree_add_item(pt, hf_gryphon_sched_rep_message_index, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1532,19 +1532,19 @@ resp_blm_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
+                offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_current_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
+                offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_peak_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
+                offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_historic_peak_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
+                offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
 
     return offset;
@@ -1619,10 +1619,10 @@ cmd_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
     if (actionValue) {
         if (actionType == 1) {
             proto_tree_add_uint_format_value(tree, hf_gryphon_addresp_action_period_type, tvb,
-	            offset, 2, actionValue, "Period: %d messages", actionValue);
+                    offset, 2, actionValue, "Period: %d messages", actionValue);
         } else {
             proto_tree_add_uint_format_value(tree, hf_gryphon_addresp_action_period_type, tvb,
-	            offset, 2, actionValue, "Period: %d.%02d seconds", actionValue/100, actionValue%100);
+                    offset, 2, actionValue, "Period: %d.%02d seconds", actionValue/100, actionValue%100);
         }
     }
     offset += 2;
@@ -1663,10 +1663,10 @@ cmd_modresp(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_item(pt, hf_gryphon_modresp_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
     else if (dest)
         proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb,
-	            offset, 1, dest, "Response handles: all on channel %c", dest);
+                    offset, 1, dest, "Response handles: all on channel %c", dest);
     else
         proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb, offset, 1,
-	        0, "Response handles: all");
+                0, "Response handles: all");
 
     proto_tree_add_item(pt, hf_gryphon_modresp_action, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pt, hf_gryphon_reserved2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -2014,7 +2014,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
             }
         } else {
             proto_tree_add_uint_format_value(pt, hf_gryphon_usdt_ext_address, tvb, offset+3, 1,
-	            0, "Using extended addressing for the single, internally defined, ID");
+                    0, "Using extended addressing for the single, internally defined, ID");
             offset += 4;
         }
         for (i = 0; i < 2; i++) {
@@ -2121,10 +2121,10 @@ cmd_init_strat (tvbuff_t *tvb, int offset, proto_tree *pt)
         value = tvb_get_guint8(tvb, offset);
         if (value)
             proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
-	            value/4, "Delay %d = %.2f seconds", indx, value/4);
+                    value/4, "Delay %d = %.2f seconds", indx, value/4);
         else
             proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
-	            0, "Delay %d = infinite", indx);
+                    0, "Delay %d = infinite", indx);
     }
 
     return offset;
@@ -2866,3 +2866,16 @@ proto_reg_handoff_gryphon(void)
     gryphon_handle = new_create_dissector_handle(dissect_gryphon, proto_gryphon);
     dissector_add_uint("tcp.port", 7000, gryphon_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

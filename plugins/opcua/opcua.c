@@ -362,20 +362,20 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-      get_opcua_message_len, dissect_opcua_message, data);
-	return tvb_reported_length(tvb);
+                     get_opcua_message_len, dissect_opcua_message, data);
+    return tvb_reported_length(tvb);
 }
 
 static void register_tcp_port(guint32 port)
 {
-  if (port != 0)
-    dissector_add_uint("tcp.port", port, opcua_handle);
+    if (port != 0)
+        dissector_add_uint("tcp.port", port, opcua_handle);
 }
 
 static void unregister_tcp_port(guint32 port)
 {
-  if (port != 0)
-    dissector_delete_uint("tcp.port", port, opcua_handle);
+    if (port != 0)
+        dissector_delete_uint("tcp.port", port, opcua_handle);
 }
 
 static void
@@ -393,29 +393,29 @@ void proto_register_opcua(void)
     char *tmp;
 
     static hf_register_info hf[] =
-    {
-        /* id                                    full name                                              abbreviation                        type            display     strings bitmask blurb HFILL */
-        {&hf_opcua_fragments,                   {"Message fragments",                                   "opcua.fragments",                  FT_NONE,        BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment,                    {"Message fragment",                                    "opcua.fragment",                   FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_overlap,            {"Message fragment overlap",                            "opcua.fragment.overlap",           FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_overlap_conflicts,  {"Message fragment overlapping with conflicting data",  "opcua.fragment.overlap.conflicts", FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_multiple_tails,     {"Message has multiple tail fragments",                 "opcua.fragment.multiple_tails",    FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_too_long_fragment,  {"Message fragment too long",                           "opcua.fragment.too_long_fragment", FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_error,              {"Message defragmentation error",                       "opcua.fragment.error",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_fragment_count,              {"Message fragment count",                              "opcua.fragment.count",             FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_reassembled_in,              {"Reassembled in",                                      "opcua.reassembled.in",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
-        {&hf_opcua_reassembled_length,          {"Reassembled length",                                  "opcua.reassembled.length",         FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}}
-    };
+        {
+            /* id                                    full name                                              abbreviation                        type            display     strings bitmask blurb HFILL */
+            {&hf_opcua_fragments,                   {"Message fragments",                                   "opcua.fragments",                  FT_NONE,        BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment,                    {"Message fragment",                                    "opcua.fragment",                   FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_overlap,            {"Message fragment overlap",                            "opcua.fragment.overlap",           FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_overlap_conflicts,  {"Message fragment overlapping with conflicting data",  "opcua.fragment.overlap.conflicts", FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_multiple_tails,     {"Message has multiple tail fragments",                 "opcua.fragment.multiple_tails",    FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_too_long_fragment,  {"Message fragment too long",                           "opcua.fragment.too_long_fragment", FT_BOOLEAN,     BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_error,              {"Message defragmentation error",                       "opcua.fragment.error",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_fragment_count,              {"Message fragment count",                              "opcua.fragment.count",             FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_reassembled_in,              {"Reassembled in",                                      "opcua.reassembled.in",             FT_FRAMENUM,    BASE_NONE,  NULL,   0x00,   NULL, HFILL}},
+            {&hf_opcua_reassembled_length,          {"Reassembled length",                                  "opcua.reassembled.length",         FT_UINT32,      BASE_DEC,   NULL,   0x00,   NULL, HFILL}}
+        };
 
     /** Setup protocol subtree array */
     static gint *ett[] =
-    {
-        &ett_opcua_extensionobject,
-        &ett_opcua_nodeid,
-        &ett_opcua_transport,
-        &ett_opcua_fragment,
-        &ett_opcua_fragments
-    };
+        {
+            &ett_opcua_extensionobject,
+            &ett_opcua_nodeid,
+            &ett_opcua_transport,
+            &ett_opcua_fragment,
+            &ett_opcua_fragments
+        };
 
     module_t *opcua_module;
 
@@ -447,35 +447,46 @@ void proto_register_opcua(void)
     /* register user preferences */
     opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);
     prefs_register_range_preference(opcua_module, "tcp_ports",
-				 "OPC UA TCP Ports",
-				 "The TCP ports for the OPC UA TCP Binary Protocol (comma separated list)",
-				 &global_tcp_ports_opcua, 65535);
+                                    "OPC UA TCP Ports",
+                                    "The TCP ports for the OPC UA TCP Binary Protocol (comma separated list)",
+                                    &global_tcp_ports_opcua, 65535);
 
 }
 
 void proto_reg_handoff_opcua(void)
 {
-  static gboolean opcua_initialized = FALSE;
-  static range_t *tcp_ports_opcua  = NULL;
+    static gboolean opcua_initialized = FALSE;
+    static range_t *tcp_ports_opcua  = NULL;
 
-  if(!opcua_initialized)
-  {
-    opcua_handle = new_create_dissector_handle(dissect_opcua, proto_opcua);
-    opcua_initialized = TRUE;
-  }
-  else
-  {
-    /* clean up ports and their lists */
-    if (tcp_ports_opcua != NULL)
+    if(!opcua_initialized)
     {
-      range_foreach(tcp_ports_opcua, unregister_tcp_port);
-      g_free(tcp_ports_opcua);
+        opcua_handle = new_create_dissector_handle(dissect_opcua, proto_opcua);
+        opcua_initialized = TRUE;
     }
-  }
+    else
+    {
+        /* clean up ports and their lists */
+        if (tcp_ports_opcua != NULL)
+        {
+            range_foreach(tcp_ports_opcua, unregister_tcp_port);
+            g_free(tcp_ports_opcua);
+        }
+    }
 
-  /* If we now have a PDU tree, register for the port or ports we have */
-  tcp_ports_opcua = range_copy(global_tcp_ports_opcua);
-  range_foreach(tcp_ports_opcua, register_tcp_port);
+    /* If we now have a PDU tree, register for the port or ports we have */
+    tcp_ports_opcua = range_copy(global_tcp_ports_opcua);
+    range_foreach(tcp_ports_opcua, register_tcp_port);
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

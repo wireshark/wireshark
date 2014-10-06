@@ -96,7 +96,7 @@ struct _scs_collection {
  *         scs_collection to be destroyed.
  */
 static void destroy_scs_collection(SCS_collection* c) {
-    if (c->hash) g_hash_table_destroy(c->hash);
+	if (c->hash) g_hash_table_destroy(c->hash);
 }
 
 static SCS_collection* scs_init(void) {
@@ -148,7 +148,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			g_warning("mate SCS: string truncated due to huge size");
 		}
 
-                orig = (gchar *)g_slice_alloc(len);
+		orig = (gchar *)g_slice_alloc(len);
 		g_strlcpy(orig,s,len);
 
 		g_hash_table_insert(c->hash,orig,ip);
@@ -1749,3 +1749,16 @@ extern LoAL* loal_from_file(gchar* filename) {
 		return load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

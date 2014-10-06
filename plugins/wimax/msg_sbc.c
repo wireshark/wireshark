@@ -294,24 +294,24 @@ static gint hf_sbc_invalid_tlv = -1;
 
 static const true_false_string tfs_sbc_bw_alloc_support_duplex =
 {
-    "Full-Duplex",
-    "Half-Duplex"
+	"Full-Duplex",
+	"Half-Duplex"
 };
 
 #if 0
 static const value_string vals_sbc_mac_pdu_fsn[] =
 {
-    {0, "Only 11-bit FSN values are supported"},
-    {1, "Only 3-bit FSN values are supported"},
-    {0,  NULL}
+	{0, "Only 11-bit FSN values are supported"},
+	{1, "Only 3-bit FSN values are supported"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const true_false_string tfs_sbc_mac_pdu_fsn =
 {
-    "Only 3-bit FSN values are supported",
-    "Only 11-bit FSN values are supported"
+	"Only 3-bit FSN values are supported",
+	"Only 11-bit FSN values are supported"
 };
 #endif
 
@@ -319,248 +319,248 @@ static const true_false_string tfs_sbc_mac_pdu_fsn =
 /* DCD DIUC messages (table 143) */
 static const value_string diuc_msgs[] =
 {
-    { 0, "Downlink Burst Profile 1" },
-    { 1, "Downlink Burst Profile 2" },
-    { 2, "Downlink Burst Profile 3" },
-    { 3, "Downlink Burst Profile 4" },
-    { 4, "Downlink Burst Profile 5" },
-    { 5, "Downlink Burst Profile 6" },
-    { 6, "Downlink Burst Profile 7" },
-    { 7, "Downlink Burst Profile 8" },
-    { 8, "Downlink Burst Profile 9" },
-    { 9, "Downlink Burst Profile 10" },
-    { 10, "Downlink Burst Profile 11" },
-    { 11, "Downlink Burst Profile 12" },
-    { 12, "Downlink Burst Profile 13" },
-    { 13, "Reserved" },
-    { 14, "Gap" },
-    { 15, "End of DL-MAP" },
-    {0,   NULL}
+	{  0, "Downlink Burst Profile 1" },
+	{  1, "Downlink Burst Profile 2" },
+	{  2, "Downlink Burst Profile 3" },
+	{  3, "Downlink Burst Profile 4" },
+	{  4, "Downlink Burst Profile 5" },
+	{  5, "Downlink Burst Profile 6" },
+	{  6, "Downlink Burst Profile 7" },
+	{  7, "Downlink Burst Profile 8" },
+	{  8, "Downlink Burst Profile 9" },
+	{  9, "Downlink Burst Profile 10" },
+	{ 10, "Downlink Burst Profile 11" },
+	{ 11, "Downlink Burst Profile 12" },
+	{ 12, "Downlink Burst Profile 13" },
+	{ 13, "Reserved" },
+	{ 14, "Gap" },
+	{ 15, "End of DL-MAP" },
+	{0,   NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_type[] =
 {
-    {0, "CINR metric"},
-    {1, "RSSI metric"},
-    {2, "RTD metric"},
-    {3, "Reserved"},
-    {0,  NULL}
+	{0, "CINR metric"},
+	{1, "RSSI metric"},
+	{2, "RTD metric"},
+	{3, "Reserved"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_function[] =
 {
-    {0, "Reserved"},
-    {1, "Metric of neighbor BS is greater than absolute value"},
-    {2, "Metric of neighbor BS is less than absolute value"},
-    {3, "Metric of neighbor BS is greater than serving BS metric by relative value"},
-    {4, "Metric of neighbor BS is less than serving BS metric by relative value"},
-    {5, "Metric of serving BS greater than absolute value"},
-    {6, "Metric of serving BS less than absolute value"},
-    {7, "Reserved"},
-    {0,  NULL}
+	{0, "Reserved"},
+	{1, "Metric of neighbor BS is greater than absolute value"},
+	{2, "Metric of neighbor BS is less than absolute value"},
+	{3, "Metric of neighbor BS is greater than serving BS metric by relative value"},
+	{4, "Metric of neighbor BS is less than serving BS metric by relative value"},
+	{5, "Metric of serving BS greater than absolute value"},
+	{6, "Metric of serving BS less than absolute value"},
+	{7, "Reserved"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_action[] =
 {
-    {0, "Reserved"},
-    {1, "Respond on trigger with MOB_SCN-REP after the end of each scanning interval"},
-    {2, "Respond on trigger with MOB_MSH-REQ"},
-    {3, "On trigger, MS starts neighbor BS scanning process by sending MOB_SCN-REQ"},
-    {4, "Reserved"},
-    {0,  NULL}
+	{0, "Reserved"},
+	{1, "Respond on trigger with MOB_SCN-REP after the end of each scanning interval"},
+	{2, "Respond on trigger with MOB_MSH-REQ"},
+	{3, "On trigger, MS starts neighbor BS scanning process by sending MOB_SCN-REQ"},
+	{4, "Reserved"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_power_adjustmnt[] =
 {
-    {0, "Preserve Peak Power"},
-    {1, "Preserve Mean Power"},
-    {0,  NULL}
+	{0, "Preserve Peak Power"},
+	{1, "Preserve Mean Power"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const true_false_string tfs_sbc_power_adjustment =
 {
-    "Preserve Mean Power",
-    "Preserve Peak Power"
+	"Preserve Mean Power",
+	"Preserve Peak Power"
 };
 #endif
 
 #if 0
 static const value_string vals_reg_rsp_status[] =
 {
-    {0, "OK"},
-    {1, "Message authentication failure"},
-    {0,  NULL}
+	{0, "OK"},
+	{1, "Message authentication failure"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_burst_tcs[] =
 {
-    {0, "TCS disabled"},
-    {1, "TCS enabled"},
-    {0,  NULL}
+	{0, "TCS disabled"},
+	{1, "TCS enabled"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const true_false_string tfs_sbc_burst_tcs =
 {
-    "TCS enabled",
-    "TCS disabled"
+	"TCS enabled",
+	"TCS disabled"
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_frame_duration[] =
 {
-    {0, "2.5"},
-    {1, "4"},
-    {2, "5"},
-    {3, "8"},
-    {4, "10"},
-    {5, "12.5"},
-    {6, "20"},
-    {0,  NULL}
+	{0, "2.5"},
+	{1, "4"},
+	{2, "5"},
+	{3, "8"},
+	{4, "10"},
+	{5, "12.5"},
+	{6, "20"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_mac_version[] =
 {
-    {1, "Conformance with IEEE Std 802.16-2001"},
-    {2, "Conformance with IEEE Std 802.16c-2002 and its predecessors"},
-    {3, "Conformance with IEEE Std 802.16a-2003 and its predecessors"},
-    {4, "Conformance with IEEE Std 802.16-2004"},
-    {5, "Conformance with IEEE Std 802.16-2004 and IEEE Std 802.16e-2005"},
-    {6, "reserved"},
-    {0, NULL}
+	{1, "Conformance with IEEE Std 802.16-2001"},
+	{2, "Conformance with IEEE Std 802.16c-2002 and its predecessors"},
+	{3, "Conformance with IEEE Std 802.16a-2003 and its predecessors"},
+	{4, "Conformance with IEEE Std 802.16-2004"},
+	{5, "Conformance with IEEE Std 802.16-2004 and IEEE Std 802.16e-2005"},
+	{6, "reserved"},
+	{0, NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_burst_fec[] =
 {
-    {0, "QPSK (CC) 1/2"},
-    {1, "QPSK (CC) 3/4"},
-    {2, "16-QAM (CC) 1/2"},
-    {3, "16-QAM (CC) 3/4"},
-    {4, "64-QAM (CC) 1/2"},
-    {5, "64-QAM (CC) 2/3"},
-    {6, "64-QAM (CC) 3/4"},
-    {7, "QPSK (BTC) 1/2"},
-    {8, "QPSK (BTC) 3/4 or 2/3"},
-    {9, "16-QAM (BTC) 3/5"},
-    {10, "16-QAM (BTC) 4/5"},
-    {11, "64-QAM (BTC) 2/3 or 5/8"},
-    {12, "64-QAM (BTC) 5/6 or 4/5"},
-    {13, "QPSK (CTC) 1/2"},
-    {14, "Reserved"},
-    {15, "QPSK (CTC) 3/4"},
-    {16, "16-QAM (CTC) 1/2"},
-    {17, "16-QAM (CTC) 3/4"},
-    {18, "64-QAM (CTC) 1/2"},
-    {19, "64-QAM (CTC) 2/3"},
-    {20, "64-QAM (CTC) 3/4"},
-    {21, "64-QAM (CTC) 5/6"},
-    {22, "QPSK (ZT CC) 1/2"},
-    {23, "QPSK (ZT CC) 3/4"},
-    {24, "16-QAM (ZT CC) 1/2"},
-    {25, "16-QAM (ZT CC) 3/4"},
-    {26, "64-QAM (ZT CC) 1/2"},
-    {27, "64-QAM (ZT CC) 2/3"},
-    {28, "64-QAM (ZT CC) 3/4"},
-    {29, "QPSK (LDPC) 1/2"},
-    {30, "QPSK (LDPC) 2/3 A code"},
-    {31, "16-QAM (LDPC) 3/4 A code"},
-    {32, "16-QAM (LDPC) 1/2"},
-    {33, "16-QAM (LDPC) 2/3 A code"},
-    {34, "16-QAM (LDPC) 3/4 A code"},
-    {35, "64-QAM (LDPC) 1/2"},
-    {36, "64-QAM (LDPC) 2/3 A code"},
-    {37, "64-QAM (LDPC) 3/4 A code"},
-    {38, "QPSK (LDPC) 2/3 B code"},
-    {39, "QPSK (LDPC) 3/4 B code"},
-    {40, "16-QAM (LDPC) 2/3 B code"},
-    {41, "16-QAM (LDPC) 3/4 B code"},
-    {42, "64-QAM (LDPC) 2/3 B code"},
-    {43, "64-QAM (LDPC) 3/4 B code"},
-    {44, "QPSK (CC with optional interleaver) 1/2"},
-    {45, "QPSK (CC with optional interleaver) 3/4"},
-    {46, "16-QAM (CC with optional interleaver) 1/2"},
-    {47, "16-QAM (CC optional interleaver) 0%00"},
-    {48, "64-QAM (CC with optional interleaver) 2/3"},
-    {49, "64-QAM (CC with optional interleaver) 3/4"},
-    {50, "QPSK (LDPC) 5/6"},
-    {51, "16-QAM (LDPC) 5/6"},
-    {52, "64-QAM (LDPC) 5/6"},
-    {0,  NULL}
+	{ 0, "QPSK (CC) 1/2"},
+	{ 1, "QPSK (CC) 3/4"},
+	{ 2, "16-QAM (CC) 1/2"},
+	{ 3, "16-QAM (CC) 3/4"},
+	{ 4, "64-QAM (CC) 1/2"},
+	{ 5, "64-QAM (CC) 2/3"},
+	{ 6, "64-QAM (CC) 3/4"},
+	{ 7, "QPSK (BTC) 1/2"},
+	{ 8, "QPSK (BTC) 3/4 or 2/3"},
+	{ 9, "16-QAM (BTC) 3/5"},
+	{10, "16-QAM (BTC) 4/5"},
+	{11, "64-QAM (BTC) 2/3 or 5/8"},
+	{12, "64-QAM (BTC) 5/6 or 4/5"},
+	{13, "QPSK (CTC) 1/2"},
+	{14, "Reserved"},
+	{15, "QPSK (CTC) 3/4"},
+	{16, "16-QAM (CTC) 1/2"},
+	{17, "16-QAM (CTC) 3/4"},
+	{18, "64-QAM (CTC) 1/2"},
+	{19, "64-QAM (CTC) 2/3"},
+	{20, "64-QAM (CTC) 3/4"},
+	{21, "64-QAM (CTC) 5/6"},
+	{22, "QPSK (ZT CC) 1/2"},
+	{23, "QPSK (ZT CC) 3/4"},
+	{24, "16-QAM (ZT CC) 1/2"},
+	{25, "16-QAM (ZT CC) 3/4"},
+	{26, "64-QAM (ZT CC) 1/2"},
+	{27, "64-QAM (ZT CC) 2/3"},
+	{28, "64-QAM (ZT CC) 3/4"},
+	{29, "QPSK (LDPC) 1/2"},
+	{30, "QPSK (LDPC) 2/3 A code"},
+	{31, "16-QAM (LDPC) 3/4 A code"},
+	{32, "16-QAM (LDPC) 1/2"},
+	{33, "16-QAM (LDPC) 2/3 A code"},
+	{34, "16-QAM (LDPC) 3/4 A code"},
+	{35, "64-QAM (LDPC) 1/2"},
+	{36, "64-QAM (LDPC) 2/3 A code"},
+	{37, "64-QAM (LDPC) 3/4 A code"},
+	{38, "QPSK (LDPC) 2/3 B code"},
+	{39, "QPSK (LDPC) 3/4 B code"},
+	{40, "16-QAM (LDPC) 2/3 B code"},
+	{41, "16-QAM (LDPC) 3/4 B code"},
+	{42, "64-QAM (LDPC) 2/3 B code"},
+	{43, "64-QAM (LDPC) 3/4 B code"},
+	{44, "QPSK (CC with optional interleaver) 1/2"},
+	{45, "QPSK (CC with optional interleaver) 3/4"},
+	{46, "16-QAM (CC with optional interleaver) 1/2"},
+	{47, "16-QAM (CC optional interleaver) 0%00"},
+	{48, "64-QAM (CC with optional interleaver) 2/3"},
+	{49, "64-QAM (CC with optional interleaver) 3/4"},
+	{50, "QPSK (LDPC) 5/6"},
+	{51, "16-QAM (LDPC) 5/6"},
+	{52, "64-QAM (LDPC) 5/6"},
+	{0,  NULL}
 };
 #endif
 
 #if 0
 static const value_string vals_sbc_permutation_type[] =
 {
-    {0, "PUSC" },
-    {1, "FUSC" },
-    {2, "optional FUSC"},
-    {3, "AMC"},
-    {0,  NULL}
+	{0, "PUSC" },
+	{1, "FUSC" },
+	{2, "optional FUSC"},
+	{3, "AMC"},
+	{0,  NULL}
 };
 #endif
 
 static const value_string vals_sbc_harq_parameters_set[] =
 {
-    {0, "HARQ set 1"},
-    {1, "HARQ set 2"},
-    {2, "HARQ set 3"},
-    {3, "HARQ set 4"},
-    {4, "HARQ set 5"},
-    {5, "Reserved"},
-    {0, NULL}
+	{0, "HARQ set 1"},
+	{1, "HARQ set 2"},
+	{2, "HARQ set 3"},
+	{3, "HARQ set 4"},
+	{4, "HARQ set 5"},
+	{5, "Reserved"},
+	{0, NULL}
 };
 
 static const true_false_string tfs_supported =
 {
-    "supported",
-    "not supported"
+	"supported",
+	"not supported"
 };
 
 static const true_false_string tfs_yes_no_sbc =
 {
-    "yes",
-    "no"
+	"yes",
+	"no"
 };
 
 static const value_string vals_sounding_rsp_time_cap_codings[] =
 {
-    {0, "0.5ms" },
-    {1, "0.75ms" },
-    {2, "1ms"},
-    {3, "1.25ms"},
-    {4, "1.5ms"},
-    {5, "min(2, Next Frame)"},
-    {6, "min(5, Next Frame)"},
-    {7, "Next Frame"},
-    {0,  NULL}
+	{0, "0.5ms" },
+	{1, "0.75ms" },
+	{2, "1ms"},
+	{3, "1.25ms"},
+	{4, "1.5ms"},
+	{5, "min(2, Next Frame)"},
+	{6, "min(5, Next Frame)"},
+	{7, "Next Frame"},
+	{0,  NULL}
 };
 
 static const value_string vals_sbc_sdma_str[ ] =
 {
-    {0, "no support"},
-    {1, "support SDMA pilot patterns #A and #B"},
-    {2, "support all SDMA pilot patterns"},
-    {3, "reserved"},
-    {0,  NULL}
+	{0, "no support"},
+	{1, "support SDMA pilot patterns #A and #B"},
+	{2, "support all SDMA pilot patterns"},
+	{3, "reserved"},
+	{0,  NULL}
 };
 
 
@@ -2791,3 +2791,16 @@ proto_reg_handoff_mac_mgmt_msg_sbc(void)
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_RSP, sbc_handle);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

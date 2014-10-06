@@ -56,18 +56,18 @@ static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder = -1;
 #ifdef OFDM
 static const value_string vals_report_types[] =
 {
-    {0, "BEAM_REP_IE"},
-    {0,  NULL}
+	{0, "BEAM_REP_IE"},
+	{0,  NULL}
 };
 
 static const value_string vals_resolution_parameter[] =
 {
-    {0, "report every 4th subcarrier"},
-    {1, "report every 8th subcarrier"},
-    {2, "report every 16th subcarrier"},
-    {3, "report every 32nd subcarrier"},
-    {4, "report every 64th subcarrier"},
-    {0,  NULL}
+	{0, "report every 4th subcarrier"},
+	{1, "report every 8th subcarrier"},
+	{2, "report every 16th subcarrier"},
+	{3, "report every 32nd subcarrier"},
+	{4, "report every 64th subcarrier"},
+	{0,  NULL}
 };
 #endif
 
@@ -336,3 +336,16 @@ proto_reg_handoff_mac_mgmt_msg_aas_beam(void)
 	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_BEAM_SELECT, aas_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

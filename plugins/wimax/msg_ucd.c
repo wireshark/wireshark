@@ -135,16 +135,16 @@ static const value_string vals_dcd_burst_tcs[] =
 
 static const value_string vals_dcd_burst_fec[] =
 {
-	{0, "QPSK (CC) 1/2"},
-	{1, "QPSK (CC) 3/4"},
-	{2, "16-QAM (CC) 1/2"},
-	{3, "16-QAM (CC) 3/4"},
-	{4, "64-QAM (CC) 1/2"},
-	{5, "64-QAM (CC) 2/3"},
-	{6, "64-QAM (CC) 3/4"},
-	{7, "QPSK (BTC) 1/2"},
-	{8, "QPSK (BTC) 3/4 or 2/3"},
-	{9, "16-QAM (BTC) 3/5"},
+	{ 0, "QPSK (CC) 1/2"},
+	{ 1, "QPSK (CC) 3/4"},
+	{ 2, "16-QAM (CC) 1/2"},
+	{ 3, "16-QAM (CC) 3/4"},
+	{ 4, "64-QAM (CC) 1/2"},
+	{ 5, "64-QAM (CC) 2/3"},
+	{ 6, "64-QAM (CC) 3/4"},
+	{ 7, "QPSK (BTC) 1/2"},
+	{ 8, "QPSK (BTC) 3/4 or 2/3"},
+	{ 9, "16-QAM (BTC) 3/5"},
 	{10, "16-QAM (BTC) 4/5"},
 	{11, "64-QAM (BTC) 2/3 or 5/8"},
 	{12, "64-QAM (BTC) 5/6 or 4/5"},
@@ -1221,3 +1221,16 @@ void proto_reg_handoff_mac_mgmt_msg_ucd(void)
 	ucd_handle = create_dissector_handle(dissect_mac_mgmt_msg_ucd_decoder, proto_mac_mgmt_msg_ucd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_UCD, ucd_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
