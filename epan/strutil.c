@@ -921,7 +921,7 @@ xml_escape(const gchar *unescaped)
                 g_string_append(buffer, "&amp;");
                 break;
             case '\'':
-                g_string_append(buffer, "&apos;");
+                g_string_append(buffer, "&#x27;");
                 break;
             case '"':
                 g_string_append(buffer, "&quot;");

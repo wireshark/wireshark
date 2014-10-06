@@ -867,7 +867,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
             fputs("&quot;", fh);
             break;
         case '\'':
-            fputs("&apos;", fh);
+            fputs("&#x27;", fh);
             break;
         default:
             if (g_ascii_isprint(*p))

@@ -46,7 +46,11 @@
 QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
-const char *primary_delimiter_ = UTF8_NONCHARACTER;
+#ifdef _MSC_VER
+// Disable "warning C4566: character represented by universal-character-name '\uFFFF' cannot be represented in the current code page (1252)"
+#pragma warning(disable:4566)
+#endif
+const char *primary_delimiter_ = "\uffff";
 
 const char *
 simple_dialog_primary_start(void) {
@@ -84,7 +88,6 @@ simple_error_message_box(const char *msg_format, ...)
     va_end(ap);
 }
 
-#include <QDebug>
 SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap) :
     QMessageBox(parent)
 {
@@ -95,6 +98,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     message = QTextCodec::codecForLocale()->toUnicode(vmessage);
     g_free(vmessage);
 
+    setTextFormat(Qt::RichText);
     MessagePair msg_pair = splitMessage(message);
     QString primary = msg_pair.first;
     QString secondary = msg_pair.second;
