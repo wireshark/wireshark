@@ -347,27 +347,27 @@ static const int *cemi_fastack_flags[] = {
 
 
 static const value_string knxnetip_service_identifier[] = {
-    { SEARCH_REQ, "SEARCH_REQUEST" },
-    { SEARCH_RES, "SEARCH_RESPONSE" },
-    { DESCRIPTION_REQ, "DESCRIPTION_REQUEST" },
-    { DESCRIPTION_RES, "DESCRIPTION_RESPONSE" },
-    { CONNECT_REQ, "CONNECT_REQUEST" },
-    { CONNECT_RES, "CONNECT_RESPONSE" },
-    { CONNECTIONSTATE_REQ, "CONNECTIONSTATE_REQUEST" },
-    { CONNECTIONSTATE_RES, "CONNECTIONSTATE_RESPONSE" },
-    { DISCONNECT_REQ, "DISCONNECT_REQUEST" },
-    { DISCONNECT_RES, "DISCONNECT_RESPONSE" },
+    { SEARCH_REQ,               "SEARCH_REQUEST" },
+    { SEARCH_RES,               "SEARCH_RESPONSE" },
+    { DESCRIPTION_REQ,          "DESCRIPTION_REQUEST" },
+    { DESCRIPTION_RES,          "DESCRIPTION_RESPONSE" },
+    { CONNECT_REQ,              "CONNECT_REQUEST" },
+    { CONNECT_RES,              "CONNECT_RESPONSE" },
+    { CONNECTIONSTATE_REQ,      "CONNECTIONSTATE_REQUEST" },
+    { CONNECTIONSTATE_RES,      "CONNECTIONSTATE_RESPONSE" },
+    { DISCONNECT_REQ,           "DISCONNECT_REQUEST" },
+    { DISCONNECT_RES,           "DISCONNECT_RESPONSE" },
     { DEVICE_CONFIGURATION_REQ, "DEVICE_CONFIGURATION_REQUEST" },
     { DEVICE_CONFIGURATION_ACK, "DEVICE_CONFIGURATION_ACK" },
-    { TUNNELLING_REQ, "TUNNELLING_REQUEST" },
-    { TUNNELLING_ACK, "TUNNELING_ACK" },
-    { ROUTING_INDICATION, "ROUTING_INDICATION" },
-    { ROUTING_LOST, "ROUTING_LOST_MESSAGE" },
-    { ROUTING_BUSY, "ROUTING_BUSY" },
-    { REMOTE_DIAG_REQ, "REMOTE_DIAGNOSTIC_REQUEST" },
-    { REMOTE_DIAG_RES, "REMOTE_DIAGNOSTIC_RESPONSE" },
-    { REMOTE_BASIC_CONF_REQ, "REMOTE_BASIC_CONFIGURATION_REQUEST" },
-    { REMOTE_RESET_REQ, "REMOTE_RESET_REQUEST" },
+    { TUNNELLING_REQ,           "TUNNELLING_REQUEST" },
+    { TUNNELLING_ACK,           "TUNNELING_ACK" },
+    { ROUTING_INDICATION,       "ROUTING_INDICATION" },
+    { ROUTING_LOST,             "ROUTING_LOST_MESSAGE" },
+    { ROUTING_BUSY,             "ROUTING_BUSY" },
+    { REMOTE_DIAG_REQ,          "REMOTE_DIAGNOSTIC_REQUEST" },
+    { REMOTE_DIAG_RES,          "REMOTE_DIAGNOSTIC_RESPONSE" },
+    { REMOTE_BASIC_CONF_REQ,    "REMOTE_BASIC_CONFIGURATION_REQUEST" },
+    { REMOTE_RESET_REQ,         "REMOTE_RESET_REQUEST" },
     { 0, NULL }
 };
 
@@ -422,11 +422,11 @@ static const value_string knxnetip_device_configuration_ack_status_codes[] = {
 
 static const value_string knxnetip_dib_description_type_codes[] = {
     { DIB_DEVICE_INFO, "DEVICE_INFO" },
-    { DIB_SUPP_SVC, "SUPP_SVC_FAMILIES" },
-    { DIB_IP_CONF, "IP_CONFIG" },
-    { DIB_IP_CURRENT, "IP_CUR_CONFIG" },
+    { DIB_SUPP_SVC,    "SUPP_SVC_FAMILIES" },
+    { DIB_IP_CONF,     "IP_CONFIG" },
+    { DIB_IP_CURRENT,  "IP_CUR_CONFIG" },
     { DIB_KNX_ADDRESS, "KNX_ADDRESSES" },
-    { DIB_MFR_DATA, "MFR_DATA" },
+    { DIB_MFR_DATA,    "MFR_DATA" },
     { 0, NULL }
 };
 
@@ -475,46 +475,46 @@ static const value_string knxnetip_reset_codes[] = {
 
 /*for CEMI*/
 static const value_string cemi_messagecodes[] = {
-    { RAW_REQ, "L_Raw.req"},
-    { DATA_REQ, "L_Data.req"},
-    { POLL_DATA_REQ, "L_Poll_Data.req"},
-    { POLL_DATA_CON, "L_Poll_Data.con"},
-    { DATA_IND, "L_Data.ind"},
-    { BUSMON_IND, "L_Busmon.ind"},
-    { RAW_IND, "L_Raw.ind"},
-    { DATA_CON, "L_Data.con"},
-    { RAW_CON, "L_Raw.con"},
-    { DATA_CONNEC_REQ, "T_Data_Connected.req"},
-    { DATA_INDV_REQ, "T_Data_Individual.req"},
-    { DATA_CONNEC_IND, "T_Data_Connected.ind"},
-    { DATA_INDV_IND,  "T_Data_Individual.ind"},
-    { RESET_IND,  "M_Reset.ind"},
-    { RESET_REQ, "M_Reset.req"},
-    { PROPWRITE_CON, "M_PropWrite.con"},
-    { PROPWRITE_REQ, "M_PropWrite.req"},
-    { PROPINFO_IND, "M_PropInfo.ind"},
-    { FUNCPROPCOM_REQ, "M_FuncPropCommand.req"},
+    { RAW_REQ,              "L_Raw.req"},
+    { DATA_REQ,             "L_Data.req"},
+    { POLL_DATA_REQ,        "L_Poll_Data.req"},
+    { POLL_DATA_CON,        "L_Poll_Data.con"},
+    { DATA_IND,             "L_Data.ind"},
+    { BUSMON_IND,           "L_Busmon.ind"},
+    { RAW_IND,              "L_Raw.ind"},
+    { DATA_CON,             "L_Data.con"},
+    { RAW_CON,              "L_Raw.con"},
+    { DATA_CONNEC_REQ,      "T_Data_Connected.req"},
+    { DATA_INDV_REQ,        "T_Data_Individual.req"},
+    { DATA_CONNEC_IND,      "T_Data_Connected.ind"},
+    { DATA_INDV_IND,        "T_Data_Individual.ind"},
+    { RESET_IND,            "M_Reset.ind"},
+    { RESET_REQ,            "M_Reset.req"},
+    { PROPWRITE_CON,        "M_PropWrite.con"},
+    { PROPWRITE_REQ,        "M_PropWrite.req"},
+    { PROPINFO_IND,         "M_PropInfo.ind"},
+    { FUNCPROPCOM_REQ,      "M_FuncPropCommand.req"},
     { FUNCPROPSTATREAD_REQ, "M_FuncPropStateRead.req"},
-    { FUNCPROPCOM_CON, "M_FuncPropCommand/StateRead.con"},
-    { PROPREAD_CON, "M_PropRead.con"},
-    { PROPREAD_REQ,  "M_PropRead.req"},
+    { FUNCPROPCOM_CON,      "M_FuncPropCommand/StateRead.con"},
+    { PROPREAD_CON,         "M_PropRead.con"},
+    { PROPREAD_REQ,         "M_PropRead.req"},
     { 0, NULL }
 };
 
 static const value_string cemi_add_type_id[] = {
-    { 0x00, "reserved" },
-    { PL_INFO, "PL Info"},
-    { RF_INFO, "RF Info"},
+    { 0x00,        "reserved" },
+    { PL_INFO,     "PL Info"},
+    { RF_INFO,     "RF Info"},
     { BUSMON_INFO, "Busmonitor Info"},
-    { TIME_REL, "relative timestamp"},
-    { TIME_DELAY, "time delay until send"},
-    { EXEND_TIME, "extended relative timestamp"},
-    { BIBAT_INFO, "BiBat information"},
-    { RF_MULTI, "RF Multi information"},
-    { PREAMBEL, "Preamble and postamble"},
+    { TIME_REL,    "relative timestamp"},
+    { TIME_DELAY,  "time delay until send"},
+    { EXEND_TIME,  "extended relative timestamp"},
+    { BIBAT_INFO,  "BiBat information"},
+    { RF_MULTI,    "RF Multi information"},
+    { PREAMBEL,    "Preamble and postamble"},
     { RF_FAST_ACK, "RF Fast Ack information"},
-    { MANU_DATA, "Manufacturer specific data"},
-    { RESER, "reserved"},
+    { MANU_DATA,   "Manufacturer specific data"},
+    { RESER,       "reserved"},
     { 0, NULL}
 };
 
@@ -527,20 +527,20 @@ static const value_string cemi_tpci_vals[] = {
 };
 
 static const value_string cemi_apci_codes[] = {
-    { 0x00, "A_GroupValue_Read" },
-    { 0x1, "A_GroupValue_Response"},
-    { 0x2, "A_GroupValue_Write"},
+    { 0x000, "A_GroupValue_Read" },
+    { 0x001, "A_GroupValue_Response"},
+    { 0x002, "A_GroupValue_Write"},
     { 0x0C0, "A_IndividualAddress_Write"},
     { 0x100, "A_IndividualAddress_Read"},
     { 0x140, "A_IndividualAddress_Response"},
-    { 0x6, "A_ADC_Read"},
+    { 0x006, "A_ADC_Read"},
     { 0x1C0, "A_ADC_Response"},
     { 0x1C4, "A_SystemNetworkParameter_Read"},
     { 0x1C9, "A_SystemNetworkParameter_Response"},
     { 0x1CA, "A_SystemNetworkParameter_Write"},
-    { 0x20, "A_Memory_Read"},
-    { 0x24, "A_Memory_Response"},
-    { 0x28, "A_Memory_Write"},
+    { 0x020, "A_Memory_Read"},
+    { 0x024, "A_Memory_Response"},
+    { 0x028, "A_Memory_Write"},
     { 0x2C0, "A_UserMemory_Read"},
     { 0x2C1, "A_UserMemory_Response"},
     { 0x2C2, "A_UserMemory_Write"},
@@ -586,9 +586,9 @@ static const value_string cemi_apci_codes[] = {
 };
 
 static const value_string cemi_propertyid[] = {
-    { 1, "PID_OBJECT_TYPE" },
-    { 8, "PID_SERVICE_CONTROL" },
-    { 9, "PID_FIRMWARE_REVISION" },
+    {  1, "PID_OBJECT_TYPE" },
+    {  8, "PID_SERVICE_CONTROL" },
+    {  9, "PID_FIRMWARE_REVISION" },
     { 11, "PID_SERIAL_NUMBER" },
     { 12, "PID_MANUFACTURER_ID" },
     { 14, "PID_DEVICE_CONTROL" },
@@ -1784,16 +1784,15 @@ void proto_reg_handoff_knxnetip(void) {
     heur_dissector_add("udp", dissect_knxnetip_heur, proto_knxnetip);
 };
 
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
- * tab-width: 4
- * indent-tabs-mode: t
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

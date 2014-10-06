@@ -3685,16 +3685,15 @@ proto_reg_handoff_sflow_245(void) {
 
 }
 
-
 /*
- * Editor modelines
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 noexpandtab
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
