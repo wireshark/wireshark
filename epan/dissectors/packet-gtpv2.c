@@ -466,6 +466,13 @@ static gint ett_gtpv2_vd_pref = -1;
 static gint ett_gtpv2_access_rest_data = -1;
 static gint ett_gtpv2_qua = -1;
 static gint ett_gtpv2_qui = -1;
+static gint ett_gtpv2_preaa_tais = -1;
+static gint ett_gtpv2_preaa_menbs = -1;
+static gint ett_gtpv2_preaa_henbs = -1;
+static gint ett_gtpv2_preaa_ecgis = -1;
+static gint ett_gtpv2_preaa_rais = -1;
+static gint ett_gtpv2_preaa_sais = -1;
+static gint ett_gtpv2_preaa_cgis = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -5167,7 +5174,7 @@ static void
 dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0, i;
-    guint8 oct, no_tai/*, no_rai*/;
+    guint8 oct, no_tai, no_rai, no_mENB, no_hENB, no_ECGI, no_sai, no_cgi;
 
     /* Octet 5  Spare   Action */
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5183,43 +5190,119 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     /* Octet 9  Number of TAI   Number of RAI */
     oct = tvb_get_guint8(tvb,offset);
     no_tai = oct >> 4;
-    /*no_rai = oct & 0x0f;*/
+    no_rai = oct & 0x0f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_tai, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 10 Spare   Number of Macro eNodeB */
+    no_mENB = tvb_get_guint8(tvb,offset) & 0x3f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_m_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 11 Spare   Number of Home eNodeB */
+    no_hENB = tvb_get_guint8(tvb,offset) & 0x3f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_h_enodeb, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 12 Spare   Number of ECGI */
+    no_ECGI = tvb_get_guint8(tvb,offset) & 0x3f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_ecgi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 13 Spare   Number of SAI */
+    no_sai = tvb_get_guint8(tvb,offset) & 0x3f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_sai, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 14 Spare   Number of CGI */
+    no_cgi = tvb_get_guint8(tvb,offset) & 0x3f;
     proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_act_no_cgi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 15 to k    TAIs [1..15] */
     if(no_tai > 0){
         i = 1;
         while (no_tai > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL, "Tracking Area Identity (TAI) Number %u",i);
+            proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, NULL, "Tracking Area Identity (TAI) Number %u",i);
             offset+=5;
             i++;
             no_tai--;
         }
     }
-    /* Octet (k+1) to m Macro eNB IDs [1..63] */
-    /* Octet (m+1) to p Home eNB IDs [1..63] */
-    /* Octet (p+1) to q ECGIs [1..63] */
-    /* Octet (q+1) to r RAIs [1..15] */
-    /* Octet (r+1) to s SAIs [1..63] */
-    /* Octet (s+1) to t CGIs [1..63] */
+    /* Octet (k+1) to m Macro eNB IDs [1..63]
+     * Macro eNB IDs in octets 'k+1' to 'm', if any, shall be encoded as per octets 6 to 11 of the Target ID for type Macro eNodeB in figure 8.51-2.
+     * Octets 'k+1' to 'm' shall be absent if the field 'Number of Macro eNodeB' is set to the value '0'.
+     */
+    if(no_mENB > 0){
+        i = 1;
+        while (no_mENB > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_menbs, NULL, "Macro eNB ID %u",i);
+            offset+=6;
+            i++;
+            no_mENB--;
+        }
+    }
+    /* Octet (m+1) to p Home eNB IDs [1..63]
+     * Home eNB IDs in octets 'm+1' to 'p', if any, shall be encoded as per octets 6 to 12 of the Target ID for type Home eNodeB in figure 8.51-3.
+     * Octets  'm+1' to 'p' shall be absent if the field 'Number of Home eNodeB' is set to the value '0'.
+     */
+    if(no_hENB > 0){
+        i = 1;
+        while (no_hENB > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_henbs, NULL, "Home eNB ID %u",i);
+            offset+=7;
+            i++;
+            no_mENB--;
+        }
+    }
+    /* Octet (p+1) to q ECGIs [1..63]
+     * ECGIs in octets 'p+1' to 'q', if any, shall be encoded as per the ECGI field in subclause 8.21.5.
+     * Octets 'p+1' to 'q' shall be absent if the field 'Number of ECGI' is set to the value '0'.
+     */
+    if(no_ECGI > 0){
+        i = 1;
+        while (no_ECGI > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_ecgis, NULL, "ECGI ID %u",i);
+            offset+=7;
+            i++;
+            no_ECGI--;
+        }
+    }
+    /* Octet (q+1) to r RAIs [1..15]
+     * RAIs in octets 'q+1' to 'r', if any, shall be encoded as per the RAI field in subclause 8.21.3.
+     * Octets 'q+1' to 'r' shall be absent if the field 'Number of RAI' is set to the value '0'.
+     */
+    if(no_rai > 0){
+        i = 1;
+        while (no_rai > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_rais, NULL, "RAI ID %u",i);
+            offset+=7;
+            i++;
+            no_rai--;
+        }
+    }
+    /* Octet (r+1) to s SAIs [1..63]
+     * SAIs in octets 'r+1' to 's', if any, shall be encoded as per the SAI field in subclause 8.21.2.
+     * Octets 'r+1' to 's' shall be absent if the field 'Number of SAI' is set to the value '0'.
+     */
+    if(no_sai > 0){
+        i = 1;
+        while (no_sai > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_sais, NULL, "SAI ID %u",i);
+            offset+=7;
+            i++;
+            no_sai--;
+        }
+    }
+    /* Octet (s+1) to t CGIs [1..63]
+     * CGIs in octets 's+1' to 't', if any, shall be encoded as per the CGI field in subclause 8.21.1.
+     * Octets 's+1' to 't' shall be absent if the field 'Number of CGI' is set to the value '0'.
+     */
+    if(no_cgi > 0){
+        i = 1;
+        while (no_cgi > 0){
+            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_cgis, NULL, "CGI ID %u",i);
+            offset+=7;
+            i++;
+            no_cgi--;
+        }
+    }
 
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length-offset);
 }
 /*
  * 8.109        Presence Reporting Area Information
@@ -7354,6 +7437,13 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_access_rest_data,
         &ett_gtpv2_qua,
         &ett_gtpv2_qui,
+        &ett_gtpv2_preaa_tais,
+        &ett_gtpv2_preaa_menbs,
+        &ett_gtpv2_preaa_henbs,
+        &ett_gtpv2_preaa_ecgis,
+        &ett_gtpv2_preaa_rais,
+        &ett_gtpv2_preaa_sais,
+        &ett_gtpv2_preaa_cgis,
     };
 
     static ei_register_info ei[] = {
