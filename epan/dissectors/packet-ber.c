@@ -435,11 +435,31 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 }
 
 void
+new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
+{
+    dissector_handle_t dissector_handle;
+
+    dissector_handle = new_create_dissector_handle(dissector, proto);
+    dissector_add_string("ber.oid", oid, dissector_handle);
+    oid_add_from_string(name, oid);
+}
+
+void
 register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissector)
 {
     dissector_handle_t dissector_handle;
 
     dissector_handle = create_dissector_handle(dissector, proto);
+    dissector_add_string("ber.syntax", syntax, dissector_handle);
+
+}
+
+void
+new_register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector)
+{
+    dissector_handle_t dissector_handle;
+
+    dissector_handle = new_create_dissector_handle(dissector, proto);
     dissector_add_string("ber.syntax", syntax, dissector_handle);
 
 }
@@ -1071,6 +1091,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 {
     tvbuff_t   *next_tvb;
     const char *syntax = NULL;
+    int         len = 0;
 
     if (!tvb) {
         return offset;
@@ -1080,13 +1101,15 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
     if (oid == NULL ||
         ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
           /* First see if a syntax has been registered for this oid (user defined) */
-          !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, data)) &&
+          (len = dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, data)) == 0) &&
          /* Then try registered oid's */
-         (!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, data)))) {
+         (len = dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0))
+    {
         proto_item *item      = NULL;
         proto_tree *next_tree = NULL;
         gint        length_remaining;
 
+        /* XXX we should probably use get_ber_length() here */
         length_remaining = tvb_length_remaining(tvb, offset);
 
         if (oid == NULL) {
@@ -1117,7 +1140,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
                 /* Decoded an ASN.1 tag with a length indicating this
                  * could be BER encoded data.  Try dissecting as unknown BER.
                  */
-                dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+                len = dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
             } else {
                 proto_tree_add_text(next_tree, next_tvb, 0, length_remaining,
                                     "Unknown Data (%d byte%s)", length_remaining,
@@ -1127,11 +1150,15 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
     }
 
-    /*XXX until we change the #.REGISTER signature for _PDU()s
-     * into new_dissector_t   we have to do this kludge with
-     * manually step past the content in the ANY type.
-     */
-    offset += tvb_length_remaining(tvb, offset);
+    if (len > 0) {
+        offset += len;
+    } else {
+        /*XXX until we change the #.REGISTER signature for _PDU()s
+         * into new_dissector_t   we have to do this kludge with
+         * manually step past the content in the ANY type.
+         */
+        offset += tvb_length_remaining(tvb, offset);
+    }
 
     return offset;
 }
@@ -1140,10 +1167,12 @@ static int
 call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
+    int       len = 0;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (syntax == NULL ||
-       !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, NULL)) {
+        (len = dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, NULL)) == 0)
+    {
         proto_item *item      = NULL;
         proto_tree *next_tree = NULL;
 
@@ -1161,14 +1190,18 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
         if (item) {
             next_tree = proto_item_add_subtree(item, ett_ber_unknown);
         }
-        dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+        len = dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
     }
 
-    /*XXX until we change the #.REGISTER signature for _PDU()s
-     * into new_dissector_t   we have to do this kludge with
-     * manually step past the content in the ANY type.
-     */
-    offset+=tvb_length_remaining(tvb, offset);
+    if (len > 0) {
+        offset += len;
+    } else {
+        /*XXX until we change the #.REGISTER signature for _PDU()s
+         * into new_dissector_t   we have to do this kludge with
+         * manually step past the content in the ANY type.
+         */
+        offset += tvb_length_remaining(tvb, offset);
+    }
 
     return offset;
 }
