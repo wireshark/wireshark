@@ -3459,7 +3459,7 @@ proto_register_ansi_683(void)
       { &hf_ansi_683_sid_nid_pairs_01ff, { "SID/NID pairs", "ansi_683.sid_nid_pairs", FT_UINT16, BASE_DEC, NULL, 0x01ff, NULL, HFILL }},
       { &hf_ansi_683_imsi_t_class, { "IMSI_T Class assignment of the mobile station (IMSI_T_CLASS)", "ansi_683.imsi_t_class", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
       { &hf_ansi_683_imsi_t_addr_num, { "Number of IMSI_T address digits (IMSI_T_ADDR_NUM )", "ansi_683.imsi_t_addr_num", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL }},
-      { &hf_ansi_683_mcc_t, { "Mobile country code (MCC_T)", "ansi_683.mcc_t", FT_UINT16, BASE_NONE, NULL, 0x0ffc, NULL, HFILL }},
+      { &hf_ansi_683_mcc_t, { "Mobile country code (MCC_T)", "ansi_683.mcc_t", FT_UINT16, BASE_DEC, NULL, 0x0ffc, NULL, HFILL }},
       { &hf_ansi_683_imsi_t_11_12, { "11th and 12th digits of the IMSI_T (IMSI__T_11_12)", "ansi_683.imsi_t_11_12", FT_UINT16, BASE_DEC, NULL, 0x03f8, NULL, HFILL }},
       { &hf_ansi_683_imsi_t_10, { "The least significant 10 digits of the IMSI_T (IMSI_T_S) (34 bits)", "ansi_683.imsi_t_10", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ansi_683_mob_term_for_sid_8000, { "Termination indicator for SID roaming (MOB_TERM_FOR_SID)", "ansi_683.mob_term_for_sid", FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},
