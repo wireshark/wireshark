@@ -2096,9 +2096,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         if(tvb_get_ntoh48(tvb, offset+10)){
             return 0;
         }
-        /* expected data transfer length is never >16MByte ? */
-        if(tvb_get_guint8(tvb,offset+20)){
-            return 0;
+        /* if expected data transfer length is set, W and/or R have to be set */
+        if(tvb_get_ntohl(tvb,offset+20)){
+            if(!(tvb_get_guint8(tvb, offset+1)&0x60)){
+                return 0;
+            }
         }
         break;
     case ISCSI_OPCODE_SCSI_RESPONSE:
