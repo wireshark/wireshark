@@ -931,6 +931,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                             rec_len, K12_SRCDESC_STACKLEN + 2);
+                destroy_k12_file_data(file_data);
+                g_free(rec);
                 return -1;
             }
             extra_len = pntoh16( read_buffer + K12_SRCDESC_EXTRALEN );
@@ -947,6 +949,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                 K12_DBG(5,("k12_open: failed (name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
                 destroy_k12_file_data(file_data);
+                g_free(rec);
                 return 0;
             }
 
@@ -956,6 +959,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                     *err = WTAP_ERR_BAD_FILE;
                     *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                                 rec_len, K12_SRCDESC_EXTRATYPE + 4);
+                    destroy_k12_file_data(file_data);
+                    g_free(rec);
                     return -1;
                 }
                 switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
@@ -965,6 +970,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                                         rec_len, K12_SRCDESC_DS0_MASK + 12);
+                            destroy_k12_file_data(file_data);
+                            g_free(rec);
                             return -1;
                         }
 
@@ -981,6 +988,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                                         rec_len, K12_SRCDESC_DS0_MASK + 12);
+                            destroy_k12_file_data(file_data);
+                            g_free(rec);
                             return -1;
                         }
 
@@ -997,6 +1006,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                     *err = WTAP_ERR_BAD_FILE;
                     *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                                 rec_len, K12_SRCDESC_DS0_MASK + 12);
+                    destroy_k12_file_data(file_data);
+                    g_free(rec);
                     return -1;
                 }
                 if (read_buffer[K12_SRCDESC_PORT_TYPE] >= 0x14
@@ -1020,6 +1031,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                             rec_len, K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len);
+                destroy_k12_file_data(file_data);
+                g_free(rec);
                 return -1;
             }
             rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
