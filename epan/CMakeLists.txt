@@ -167,6 +167,7 @@ set(PIDL_DISSECTOR_SRC
 #	dissectors/packet-dcerpc-budb.c
 #	dissectors/packet-dcerpc-butc.c
 #	dissectors/packet-dcerpc-drsuapi.c
+	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-dnsserver.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
@@ -183,7 +184,6 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-wzcsvc.c
 )
 set(DIRTY_PIDL_DISSECTOR_SRC
-	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-misc.c
 
