@@ -841,7 +841,7 @@ static const char *wtap_errlist[] = {
 	"That file format doesn't support per-packet encapsulations",
 
 	/* WTAP_ERR_CANT_WRITE */
-	NULL,
+	"A write failed for some unknown reason",
 
 	/* WTAP_ERR_CANT_CLOSE */
 	NULL,
