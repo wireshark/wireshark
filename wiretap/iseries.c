@@ -212,12 +212,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
   errno = WTAP_ERR_CANT_READ;
   if (!wtap_read_bytes (wth->fh, &magic, sizeof magic, err, err_info))
     {
-      if (*err == WTAP_ERR_SHORT_READ)
-        {
-          /* Not enough bytes for a magic string, so not an iSeries trace */
-          return 0;
-        }
-      return -1;
+      if (*err != WTAP_ERR_SHORT_READ)
+        return -1;
+      return 0;
     }
 
   /*
