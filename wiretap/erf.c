@@ -121,7 +121,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
     if (!wtap_read_bytes_or_eof(wth->fh,&header,sizeof(header),err,err_info)) {
       if (*err == 0) {
-        /* EOF - all records have been successfully checked */
+        /* EOF - all records have been successfully checked, accept the file */
         break;
       }
       if (*err == WTAP_ERR_SHORT_READ) {
@@ -412,7 +412,7 @@ static gboolean erf_read_header(FILE_T fh,
   type = erf_header->type;
   while (type & 0x80){
     if (!wtap_read_bytes(fh, &erf_exhdr, sizeof(erf_exhdr),
-                              err, err_info))
+                         err, err_info))
       return FALSE;
     if (bytes_read != NULL)
       *bytes_read += (guint32)sizeof(erf_exhdr);
