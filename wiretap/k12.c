@@ -520,7 +520,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
      * looping.
      */
     while (left > buffer_len) {
-    	buffer = (guint8*)g_realloc(buffer,buffer_len*=2);
+        buffer = (guint8*)g_realloc(buffer,buffer_len*=2);
         if (is_random) {
             file_data->rand_read_buff = buffer;
             file_data->rand_read_buff_len = buffer_len;
@@ -990,7 +990,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                         break;
                 }
             } else {
-            	/* Record viewer generated files don't have this information */
+                /* Record viewer generated files don't have this information */
                 if (rec_len < K12_SRCDESC_PORT_TYPE + 1) {
                     /* Record isn't long enough to have a source descriptor extra type field */
                     *err = WTAP_ERR_BAD_FILE;
@@ -1011,9 +1011,9 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             /* XXX - this is assumed, in a number of places (not just in the
                ascii_strdown_inplace() call below) to be null-terminated;
                is that guaranteed (even with a corrupt file)?
-	       Obviously not, as a corrupt file could contain anything
-	       here; the Tektronix document says the strings "must end
-	       with \0", but a bad file could fail to add the \0. */
+               Obviously not, as a corrupt file could contain anything
+               here; the Tektronix document says the strings "must end
+               with \0", but a bad file could fail to add the \0. */
             if (rec_len < K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len) {
                 /* Record isn't long enough to have a source descriptor extra type field */
                 *err = WTAP_ERR_BAD_FILE;

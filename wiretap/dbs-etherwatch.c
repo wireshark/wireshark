@@ -501,7 +501,7 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
 #define TYPE_CHECK_BOTH		'['	/* Value at pos. that indicates BOTH type */
 #define COUNT_POS_BOTH		21	/* Count position BOTH type */
 #define COUNT_POS_HEX		1	/* Count position HEX type */
-#define COUNT_SIZE         	5	/* Length counter */
+#define COUNT_SIZE		5	/* Length counter */
 #define HEX_DUMP_START		'['	/* Start char */
 #define HEX_DUMP_SPR		' ' /* Seperator char */
 #define HEX_DUMP_END		']' /* End char */

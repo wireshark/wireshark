@@ -121,7 +121,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
     if (!wtap_read_bytes_or_eof(wth->fh,&header,sizeof(header),err,err_info)) {
       if (*err == 0) {
-      	/* EOF - all records have been successfully checked */
+        /* EOF - all records have been successfully checked */
         break;
       }
       if (*err == WTAP_ERR_SHORT_READ) {
@@ -254,7 +254,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
     if (!r) {
       if (*err != WTAP_ERR_SHORT_READ) {
-      	/* A real error */
+        /* A real error */
         return -1;
       }
       /* ERF record too short, accept the file,

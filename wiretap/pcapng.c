@@ -2274,7 +2274,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         errno = WTAP_ERR_CANT_READ;
         if (!wtap_read_bytes_or_eof(wth->fh, &bh, sizeof bh, err, err_info)) {
             if (*err == 0) {
-            	/* EOF */
+                /* EOF */
                 pcapng_debug0("No more IDBs available...");
                 break;
             }

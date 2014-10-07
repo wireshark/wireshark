@@ -37,7 +37,7 @@
 #include <string.h>
 
 #ifdef HAVE_IO_H
-#include <io.h> 	/* for isatty() on win32 */
+#include <io.h>		/* for isatty() on win32 */
 #endif
 
 #include "wtap-int.h"

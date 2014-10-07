@@ -1351,7 +1351,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     ** Read the record header.
     */
     if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, sizeof hdr,
-                              err, err_info))
+                         err, err_info))
         return FALSE;
 
     /*
@@ -1366,9 +1366,9 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     pd = ws_buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, sizeof hdr);
     if (record_length > sizeof hdr) {
-    	bytes_to_read = (unsigned int)(record_length - sizeof hdr);
-    	if (!wtap_read_bytes(wth->random_fh, pd + sizeof hdr, bytes_to_read,
-    	                          err, err_info))
+        bytes_to_read = (unsigned int)(record_length - sizeof hdr);
+        if (!wtap_read_bytes(wth->random_fh, pd + sizeof hdr, bytes_to_read,
+                             err, err_info))
             return FALSE;
     }
 
@@ -1440,7 +1440,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
         if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
-                                  err, err_info))
+                             err, err_info))
             return FALSE;
         hdrlen = 3;
     }
@@ -1457,9 +1457,9 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     pd = ws_buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
-    	bytes_to_read = (unsigned int)(record_length - hdrlen);
-    	if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
-	                          err, err_info))
+        bytes_to_read = (unsigned int)(record_length - hdrlen);
+        if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
+                             err, err_info))
             return FALSE;
     }
 
@@ -1540,8 +1540,8 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     ** Is there a third byte?  If so, read it.
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
-    	if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
-    	                          err, err_info))
+        if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
+                             err, err_info))
             return FALSE;
         hdrlen = 3;
     }
@@ -1560,7 +1560,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);
         if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
-                                  err, err_info))
+                             err, err_info))
             return FALSE;
     }
 

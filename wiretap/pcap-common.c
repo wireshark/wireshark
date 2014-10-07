@@ -217,10 +217,10 @@ static const struct {
 	/*
 	 * Linux "cooked mode" captures, used by the current CVS version
 	 * of libpcap
-         * OR
-         * it could be a packet in Cisco's ERSPAN encapsulation which uses
-         * this number as well (why can't people stick to protocols when it
-         * comes to allocating/using DLT types).
+	 * OR
+	 * it could be a packet in Cisco's ERSPAN encapsulation which uses
+	 * this number as well (why can't people stick to protocols when it
+	 * comes to allocating/using DLT types).
 	 */
 	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
 
@@ -299,7 +299,7 @@ static const struct {
 	/* Ethernet PPPoE frames captured on a service PIC */
 	{ 167,		WTAP_ENCAP_JUNIPER_PPPOE },
 
-        /*
+	/*
 	 * 168 is reserved for more Juniper private-chassis-
 	 * internal meta-information.
 	 */
@@ -328,15 +328,15 @@ static const struct {
 	/* VOIP Frames prepended with meta-information */
 	{ 183,		WTAP_ENCAP_JUNIPER_VP },
 	/* raw USB packets */
-	{ 186, 		WTAP_ENCAP_USB },
+	{ 186,		WTAP_ENCAP_USB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
-	{ 187, 		WTAP_ENCAP_BLUETOOTH_H4 },
+	{ 187,		WTAP_ENCAP_BLUETOOTH_H4 },
 	/* IEEE 802.16 MAC Common Part Sublayer */
 	{ 188,		WTAP_ENCAP_IEEE802_16_MAC_CPS },
 	/* USB packets with Linux-specified header */
-	{ 189, 		WTAP_ENCAP_USB_LINUX },
+	{ 189,		WTAP_ENCAP_USB_LINUX },
 	/* CAN 2.0b frame */
-	{ 190, 		WTAP_ENCAP_CAN20B },
+	{ 190,		WTAP_ENCAP_CAN20B },
 	/* Per-Packet Information header */
 	{ 192,		WTAP_ENCAP_PPI },
 	/* IEEE 802.15.4 Wireless PAN */
@@ -348,29 +348,29 @@ static const struct {
 	/* IPMB */
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
-	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	{ 201,		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
 	/* AX.25 packet with a 1-byte KISS header */
 	{ 202,		WTAP_ENCAP_AX25_KISS },
 	/* LAPD frame */
-	{ 203, 		WTAP_ENCAP_LAPD },
+	{ 203,		WTAP_ENCAP_LAPD },
 	/* PPP with pseudoheader */
 	{ 204,		WTAP_ENCAP_PPP_WITH_PHDR },
 	/* IPMB/I2C */
 	{ 209,		WTAP_ENCAP_I2C },
 	/* FlexRay frame */
-	{ 210, 		WTAP_ENCAP_FLEXRAY },
+	{ 210,		WTAP_ENCAP_FLEXRAY },
 	/* MOST frame */
-	{ 211, 		WTAP_ENCAP_MOST },
+	{ 211,		WTAP_ENCAP_MOST },
 	/* LIN frame */
-	{ 212, 		WTAP_ENCAP_LIN },
+	{ 212,		WTAP_ENCAP_LIN },
 	/* X2E Xoraya serial frame */
-	{ 213, 		WTAP_ENCAP_X2E_SERIAL },
+	{ 213,		WTAP_ENCAP_X2E_SERIAL },
 	/* X2E Xoraya frame */
-	{ 214, 		WTAP_ENCAP_X2E_XORAYA },
+	{ 214,		WTAP_ENCAP_X2E_XORAYA },
 	/* IEEE 802.15.4 Wireless PAN non-ASK PHY */
 	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
 	/* USB packets with padded Linux-specified header */
-	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAPPED },
+	{ 220,		WTAP_ENCAP_USB_LINUX_MMAPPED },
 	/* Fibre Channel FC-2 frame */
 	{ 224,		WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
 	/* Fibre Channel FC-2 frame with Delimiter */

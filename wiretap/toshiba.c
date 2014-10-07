@@ -405,8 +405,8 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) {
 	}
 
 	/* Go through the substring representing the values and:
-	 * 	1. Replace any spaces with '0's
-	 * 	2. Place \0's every 5 bytes (to terminate the string)
+	 *      1. Replace any spaces with '0's
+	 *      2. Place \0's every 5 bytes (to terminate the string)
 	 *
 	 * Then read the eight sets of hex bytes
 	 */

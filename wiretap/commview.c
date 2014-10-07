@@ -48,7 +48,7 @@ typedef struct commview_header {
 	guint8		version;
 	guint16		year;
 	guint8		month;
-	guint8  	day;
+	guint8		day;
 	guint8		hours;
 	guint8		minutes;
 	guint8		seconds;

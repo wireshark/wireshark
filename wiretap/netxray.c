@@ -104,7 +104,7 @@ struct netxray_hdr {
  * For WAN captures (all of which are done with a pod), it indicates
  * the link-layer type.
  */
-#define CAPTYPE_NDIS	0		/* Capture on network interface using NDIS 			*/
+#define CAPTYPE_NDIS	0		/* Capture on network interface using NDIS			*/
 
 /*
  * Ethernet capture types.
@@ -131,7 +131,7 @@ struct netxray_hdr {
 #define WAN_CAPTYPE_SMDS	10	/* SMDS DXI */
 #define WAN_CAPTYPE_BROUTER4	11	/* Bridge/router captured with pod */
 #define WAN_CAPTYPE_BROUTER5	12	/* Bridge/router captured with pod */
-#define WAN_CAPTYPE_CHDLC 	19	/* Cisco router (CHDLC) captured with pod */
+#define WAN_CAPTYPE_CHDLC	19	/* Cisco router (CHDLC) captured with pod */
 
 #define CAPTYPE_ATM		15	/* ATM captured with pod */
 
@@ -1199,7 +1199,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
 				 */
-			    	if (netxray->fcs_valid) {
+				if (netxray->fcs_valid) {
 					/*
 					 * FCS.
 					 */
@@ -1240,7 +1240,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				 * We have 4 bytes of stuff at the
 				 * end of the frame - FCS, or junk?
 				 */
-			    	if (netxray->fcs_valid) {
+				if (netxray->fcs_valid) {
 					/*
 					 * FCS.
 					 */

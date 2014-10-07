@@ -64,12 +64,12 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
 
     /* 16-bit payload length */
     if (!wtap_read_bytes_or_eof(fh, &tmp, 2, err, err_info)) {
-    	if (*err == 0) {
-    	    /*
-    	     * Got an EOF at the beginning.
-    	     */
-    	    return -2;
-    	}
+        if (*err == 0) {
+            /*
+             * Got an EOF at the beginning.
+             */
+            return -2;
+        }
         if (*err == WTAP_ERR_SHORT_READ) {
             /*
              * Not enough bytes for a packet, so not a logcat file.
@@ -119,7 +119,7 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
                 continue;
         }
 
-	if (!wtap_read_bytes(fh, buffer + read_sofar, entry_len - read_sofar, err, err_info)) {
+        if (!wtap_read_bytes(fh, buffer + read_sofar, entry_len - read_sofar, err, err_info)) {
             g_free(buffer);
             if (*err == WTAP_ERR_SHORT_READ) {
                 /*
