@@ -544,7 +544,6 @@ static gboolean ng_file_seek_rand(wtap *wth, gint64 offset, int *err,
 int
 ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	char magic[sizeof ngsniffer_magic];
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
@@ -576,10 +575,8 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -593,20 +590,10 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * record.
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(record_type, 2, wth->fh);
-	if (bytes_read != 2) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, record_type, 2, err, err_info))
 		return -1;
-	}
-	bytes_read = file_read(record_length, 4, wth->fh);
-	if (bytes_read != 4) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, record_length, 4, err, err_info))
 		return -1;
-	}
 
 	type = pletoh16(record_type);
 
@@ -617,13 +604,8 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&version, sizeof version, wth->fh);
-	if (bytes_read != sizeof version) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, &version, sizeof version, err, err_info))
 		return -1;
-	}
 
 	/* Check the data link type. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
@@ -798,7 +780,6 @@ static int
 process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
     guint8 network)
 {
-	int bytes_read;
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
 				  the last 2 are "reserved" and are thrown away */
@@ -808,16 +789,10 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 
 	for (;;) {
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_type, 2, wth->fh);
-		if (bytes_read != 2) {
-			*err = file_error(wth->fh, err_info);
-			if (*err != 0)
-				return -1;
-			if (bytes_read != 0) {
-				*err = WTAP_ERR_SHORT_READ;
-				return -1;
-			}
-			return 0;	/* EOF */
+		if (!wtap_read_bytes_or_eof(wth->fh, record_type, 2, err, err_info)) {
+			if (*err == 0)
+				return 0;	/* EOF */
+			return -1;
 		}
 
 		type = pletoh16(record_type);
@@ -839,13 +814,9 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 		}
 
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_length, 4, wth->fh);
-		if (bytes_read != 4) {
-			*err = file_error(wth->fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!wtap_read_bytes(wth->fh, record_length, 4,
+		    err, err_info))
 			return -1;
-		}
 
 		length = pletoh16(record_length);
 
@@ -866,14 +837,9 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			 * record data.
 			 */
 			bytes_to_read = MIN(length, (int)sizeof buffer);
-			bytes_read = file_read(buffer, bytes_to_read,
-				wth->fh);
-			if (bytes_read != bytes_to_read) {
-				*err = file_error(wth->fh, err_info);
-				if (*err == 0)
-					*err = WTAP_ERR_SHORT_READ;
+			if (!wtap_read_bytes(wth->fh, buffer,
+			    bytes_to_read, err, err_info))
 				return -1;
-			}
 
 			switch (maj_vers) {
 

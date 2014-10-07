@@ -197,7 +197,6 @@ static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
 int
 iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
-  int  bytes_read;
   gint offset;
   char magic[ISERIES_LINE_LENGTH];
   char unicodemagic[] =
@@ -211,13 +210,14 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
    * by scanning for it in the first line
    */
   errno = WTAP_ERR_CANT_READ;
-  bytes_read = file_read (&magic, sizeof magic, wth->fh);
-  if (bytes_read != sizeof magic)
+  if (!wtap_read_bytes (wth->fh, &magic, sizeof magic, err, err_info))
     {
-      *err = file_error (wth->fh, err_info);
-      if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-        return -1;
-      return 0;
+      if (*err == WTAP_ERR_SHORT_READ)
+        {
+          /* Not enough bytes for a magic string, so not an iSeries trace */
+          return 0;
+        }
+      return -1;
     }
 
   /*

@@ -38,15 +38,10 @@ static gboolean hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
-	int bytes_read, packet_size;
+	int packet_size;
 
-	bytes_read = file_read(&dh, DUMP_HDR_SIZE, fh);
-	if (bytes_read != DUMP_HDR_SIZE) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes_or_eof(fh, &dh, DUMP_HDR_SIZE, err, err_info))
 		return FALSE;
-	}
 
 	packet_size = GUINT16_FROM_LE(dh.len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -94,12 +89,9 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
 	guint8 type;
-	int bytes_read;
 
-	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
-	if (bytes_read != DUMP_HDR_SIZE) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &dh, DUMP_HDR_SIZE, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -108,10 +100,8 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 	    || GUINT16_FROM_LE(dh.len) < 1)
 		return 0;
 
-	bytes_read = file_read(&type, 1, wth->fh);
-	if (bytes_read != 1) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}

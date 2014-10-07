@@ -66,11 +66,15 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
-	if (file_read(&type, 1, wth->fh) <= 0) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Not enough bytes for the packet, so not a
+			 * packetlogger file.
+			 */
+			return 0;
+		}
+		return -1;
 	}
 
 	/* Verify this file belongs to us */
@@ -122,8 +126,10 @@ static gboolean
 packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err,
 			 gchar **err_info)
 {
-	wtap_file_read_expected_bytes(&pl_hdr->len, 4, fh, err, err_info);
-	wtap_file_read_expected_bytes(&pl_hdr->ts, 8, fh, err, err_info);
+	if (!wtap_read_bytes_or_eof(fh, &pl_hdr->len, 4, err, err_info))
+		return FALSE;
+	if (!wtap_read_bytes(fh, &pl_hdr->ts, 8, err, err_info))
+		return FALSE;
 
 	/* Convert multi-byte values from big endian to host endian */
 	pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);

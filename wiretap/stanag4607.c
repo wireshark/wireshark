@@ -55,16 +55,14 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   guint32 millisecs, secs, nsecs;
   gint64 offset = 0;
   guint8 stanag_pkt_hdr[37];
-  int bytes_read;
   guint32 packet_size;
 
   *err = 0;
 
   /* Combined packet header and segment header */
-  bytes_read = file_read(stanag_pkt_hdr, sizeof stanag_pkt_hdr, fh);
-  if (bytes_read != sizeof stanag_pkt_hdr)
-    goto fail;
-  offset += bytes_read;
+  if (!wtap_read_bytes_or_eof(fh, stanag_pkt_hdr, sizeof stanag_pkt_hdr, err, err_info))
+    return FALSE;
+  offset += sizeof stanag_pkt_hdr;
 
   if (!is_valid_id(pntoh16(&stanag_pkt_hdr[0]))) {
     *err = WTAP_ERR_BAD_FILE;
@@ -96,10 +94,9 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     guint8 mseg[39];
     struct tm tm;
 
-    bytes_read = file_read(&mseg, sizeof mseg, fh);
-    if (bytes_read != sizeof mseg)
-      goto fail;
-    offset += bytes_read;
+    if (!wtap_read_bytes(fh, &mseg, sizeof mseg, err, err_info))
+      return FALSE;
+    offset += sizeof mseg;
 
     tm.tm_year = pntoh16(&mseg[35]) - 1900;
     tm.tm_mon = mseg[37] - 1;
@@ -112,18 +109,16 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     phdr->ts.secs = stanag4607->base_secs;
   }
   else if (PLATFORM_LOCATION_SEGMENT == stanag_pkt_hdr[32]) {
-    bytes_read = file_read(&millisecs, sizeof millisecs, fh);
-    if (bytes_read != sizeof millisecs)
-      goto fail;
-    offset += bytes_read;
+    if (!wtap_read_bytes(fh, &millisecs, sizeof millisecs, err, err_info))
+      return FALSE;
+    offset += sizeof millisecs;
     millisecs = g_ntohl(millisecs);
   }
   else if (DWELL_SEGMENT == stanag_pkt_hdr[32]) {
     guint8 dseg[19];
-    bytes_read = file_read(&dseg, sizeof dseg, fh);
-    if (bytes_read != sizeof dseg)
-      goto fail;
-    offset += bytes_read;
+    if (!wtap_read_bytes(fh, &dseg, sizeof dseg, err, err_info))
+      return FALSE;
+    offset += sizeof dseg;
     millisecs = pntoh32(&dseg[15]);
   }
   if (0 != millisecs) {
@@ -138,10 +133,6 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     return FALSE;
 
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
-
-fail:
-  *err = file_error(wth->fh, err_info);
-  return FALSE;
 }
 
 static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
@@ -169,15 +160,11 @@ static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
 
 int stanag4607_open(wtap *wth, int *err, gchar **err_info)
 {
-  int bytes_read;
   guint16 version_id;
   stanag4607_t *stanag4607;
 
-  bytes_read = file_read(&version_id, sizeof version_id, wth->fh);
-  if (bytes_read != sizeof version_id) {
-    *err = file_error(wth->fh, err_info);
-    return (*err != 0) ? -1 : 0;
-  }
+  if (!wtap_read_bytes(wth->fh, &version_id, sizeof version_id, err, err_info))
+    return (*err != WTAP_ERR_SHORT_READ) ? -1 : 0;
 
   if (!is_valid_id(GUINT16_TO_BE(version_id)))
      /* Not a stanag4607 file */

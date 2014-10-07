@@ -123,7 +123,8 @@ typedef struct ipfix_set_header_s {
 static gboolean
 ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, gchar **err_info)
 {
-    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err, err_info);  /* macro which does a return if read fails */
+    if (!wtap_read_bytes_or_eof(fh, pfx_hdr, IPFIX_MSG_HDR_SIZE, err, err_info))
+        return FALSE;
 
     /* fix endianess, because IPFIX files are always big-endian */
     pfx_hdr->version = g_ntohs(pfx_hdr->version);
@@ -242,12 +243,9 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
         /* check each Set in IPFIX Message for sanity */
         while (checked_len < msg_hdr.message_length) {
-            int bytes_read;
-
-            bytes_read = file_read(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh);
-            if (bytes_read != IPFIX_SET_HDR_SIZE) {
-                *err = file_error(wth->fh, err_info);
-                if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
+            if (!wtap_read_bytes(wth->fh, &set_hdr, IPFIX_SET_HDR_SIZE,
+                                      err, err_info)) {
+                if (*err == WTAP_ERR_SHORT_READ) {
                     /* Not a valid IPFIX Set, so not an IPFIX file. */
                     ipfix_debug1("ipfix_open: error %d reading set", *err);
                     return 0;

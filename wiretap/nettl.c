@@ -190,19 +190,16 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     struct nettl_file_hdr file_hdr;
     guint16 dummy[2];
     int subsys;
-    int bytes_read;
     nettl_t *nettl;
 
     memset(&file_hdr, 0, sizeof(file_hdr));
 
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(file_hdr.magic, MAGIC_SIZE, wth->fh);
-    if (bytes_read != MAGIC_SIZE) {
-    	*err = file_error(wth->fh, err_info);
-	if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-	    return -1;
-	return 0;
+    if (!wtap_read_bytes(wth->fh, file_hdr.magic, MAGIC_SIZE, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
     }
 
     if (memcmp(file_hdr.magic, nettl_magic_hpux9, MAGIC_SIZE) &&
@@ -211,14 +208,9 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Read the rest of the file header */
-    bytes_read = file_read(file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
-			   wth->fh);
-    if (bytes_read != FILE_HDR_SIZE - MAGIC_SIZE) {
-	*err = file_error(wth->fh, err_info);
-	if (*err == 0)
-	    *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(wth->fh, file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
+			      err, err_info))
 	return -1;
-    }
 
     /* This is an nettl file */
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTL;
@@ -233,17 +225,12 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;	/* not available */
 
     /* read the first header to take a guess at the file encap */
-    bytes_read = file_read(dummy, 4, wth->fh);
-    if (bytes_read != 4) {
-	*err = file_error(wth->fh, err_info);
-        if (*err != 0) {
-            return -1;
+    if (!wtap_read_bytes_or_eof(wth->fh, dummy, 4, err, err_info)) {
+        if (*err == 0) {
+            /* EOF, so no records */
+            return 0;
         }
-        if (bytes_read != 0) {
-            *err = WTAP_ERR_SHORT_READ;
-            return -1;
-        }
-        return 0;
+        return -1;
     }
 
     subsys = g_ntohs(dummy[1]);
@@ -343,7 +330,6 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     nettl_t *nettl = (nettl_t *)wth->priv;
     gboolean fddihack = FALSE;
-    int bytes_read;
     struct nettlrec_hdr rec_hdr;
     guint16 hdr_len;
     struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
@@ -354,16 +340,11 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     guint8 dummyc[16];
     int bytes_to_read;
     guint8 *pd;
-    guint8 dummy[3];
 
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&rec_hdr.hdr_len, sizeof rec_hdr.hdr_len, fh);
-    if (bytes_read != sizeof rec_hdr.hdr_len) {
-	*err = file_error(fh, err_info);
-	if (*err == 0 && bytes_read != 0)
-	    *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes_or_eof(fh, &rec_hdr.hdr_len, sizeof rec_hdr.hdr_len,
+                          err, err_info))
 	return FALSE;
-    }
     hdr_len = g_ntohs(rec_hdr.hdr_len);
     if (hdr_len < NETTL_REC_HDR_LEN) {
     	*err = WTAP_ERR_BAD_FILE;
@@ -371,13 +352,9 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	    hdr_len);
 	return FALSE;
     }
-    bytes_read = file_read(&rec_hdr.subsys, NETTL_REC_HDR_LEN - 2, fh);
-    if (bytes_read != NETTL_REC_HDR_LEN - 2) {
-	*err = file_error(fh, err_info);
-	if (*err == 0)
-	    *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(fh, &rec_hdr.subsys, NETTL_REC_HDR_LEN - 2,
+                              err, err_info))
 	return FALSE;
-    }
     subsys = g_ntohs(rec_hdr.subsys);
     hdr_len -= NETTL_REC_HDR_LEN;
     if (file_seek(fh, hdr_len, SEEK_CUR, err) == -1)
@@ -465,13 +442,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
                     padlen = 0;
                 } else {
 	            /* outbound appears to have variable padding */
-		    bytes_read = file_read(dummyc, 9, fh);
-		    if (bytes_read != 9) {
-			*err = file_error(fh, err_info);
-			if (*err == 0)
-			    *err = WTAP_ERR_SHORT_READ;
+	            if (!wtap_read_bytes(fh, dummyc, 9, err, err_info))
 			return FALSE;
-		    }
                     /* padding is usually either a total 11 or 16 bytes??? */
 		    padlen = (int)dummyc[8];
 		    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
@@ -514,13 +486,9 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	       we assume everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
-	    bytes_read = file_read(&drv_eth_hdr, NS_LS_DRV_ETH_HDR_LEN, fh);
-	    if (bytes_read != NS_LS_DRV_ETH_HDR_LEN) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-		    *err = WTAP_ERR_SHORT_READ;
+	    if (!wtap_read_bytes(fh, &drv_eth_hdr, NS_LS_DRV_ETH_HDR_LEN,
+	                              err, err_info))
 		return FALSE;
-	    }
 
 	    length = pntoh16(&drv_eth_hdr.length);
 	    caplen = pntoh16(&drv_eth_hdr.caplen);
@@ -624,14 +592,9 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         bytes_to_read = 15;
         if (bytes_to_read > datalen)
             bytes_to_read = datalen;
-        bytes_read = file_read(pd, bytes_to_read, fh);
-        if (bytes_read != bytes_to_read) {
-            *err = file_error(wth->fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+        if (!wtap_read_bytes(fh, pd, bytes_to_read, err, err_info))
             return FALSE;
-        }
-        datalen -= bytes_read;
+        datalen -= bytes_to_read;
         if (datalen == 0) {
             /* There's nothing past the FC, dest, src, DSAP and SSAP */
             return TRUE;
@@ -641,29 +604,21 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
             bytes_to_read = 3;
             if (bytes_to_read > datalen)
                 bytes_to_read = datalen;
-            bytes_read = file_read(dummy, bytes_to_read, fh);
-            if (bytes_read != bytes_to_read) {
-                *err = file_error(wth->fh, err_info);
-                if (*err == 0)
-                    *err = WTAP_ERR_SHORT_READ;
+            if (!file_skip(fh, bytes_to_read, err))
                 return FALSE;
-            }
-            datalen -= bytes_read;
+            datalen -= bytes_to_read;
             if (datalen == 0) {
                 /* There's nothing past the FC, dest, src, DSAP, SSAP, and 3 bytes to eat */
 		return TRUE;
 	    }
         }
-        bytes_read = file_read(pd + 15, datalen, fh);
-    } else
-        bytes_read = file_read(pd, datalen, fh);
-
-    if (bytes_read != datalen) {
-	*err = file_error(fh, err_info);
-	if (*err == 0)
-	    *err = WTAP_ERR_SHORT_READ;
-	return FALSE;
+        if (!wtap_read_bytes(fh, pd + 15, datalen, err, err_info))
+            return FALSE;
+    } else {
+    	if (!wtap_read_bytes(fh, pd, datalen, err, err_info))
+    	    return FALSE;
     }
+
     return TRUE;
 }
 

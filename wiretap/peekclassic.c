@@ -154,7 +154,6 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
-	int bytes_read;
 	struct timeval reference_time;
 	int file_encap;
 	peekclassic_t *peekclassic;
@@ -168,11 +167,9 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	 *	and we may have to add more checks at some point.
 	 */
 	g_assert(sizeof(ep_hdr.master) == PEEKCLASSIC_MASTER_HDR_SIZE);
-	bytes_read = file_read(&ep_hdr.master, (int)sizeof(ep_hdr.master),
-	    wth->fh);
-	if (bytes_read != sizeof(ep_hdr.master)) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &ep_hdr.master,
+	    (int)sizeof(ep_hdr.master), err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -200,13 +197,16 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		/* get the secondary header */
 		g_assert(sizeof(ep_hdr.secondary.v567) ==
 		        PEEKCLASSIC_V567_HDR_SIZE);
-		bytes_read = file_read(&ep_hdr.secondary.v567,
-		    (int)sizeof(ep_hdr.secondary.v567), wth->fh);
-		if (bytes_read != sizeof(ep_hdr.secondary.v567)) {
-			*err = file_error(wth->fh, err_info);
-			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-				return -1;
-			return 0;
+		if (!wtap_read_bytes(wth->fh, &ep_hdr.secondary.v567,
+		    (int)sizeof(ep_hdr.secondary.v567), err, err_info)) {
+			if (*err == WTAP_ERR_SHORT_READ) {
+				/*
+				 * Not enough bytes for a secondary
+				 * header, so not a Peek classic file.
+				 */
+				return 0;
+			}
+			return -1;
 		}
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
@@ -407,7 +407,6 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
-	int bytes_read;
 #if 0
 	guint16 protoNum;
 #endif
@@ -421,13 +420,8 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	time_t tsecs;
 	guint32 tusecs;
 
-	bytes_read = file_read(ep_pkt, sizeof(ep_pkt), fh);
-	if (bytes_read != (int) sizeof(ep_pkt)) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read > 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return -1;
-	}
 
 	/* Extract the fields from the packet */
 #if 0
@@ -532,7 +526,6 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 {
 	peekclassic_t *peekclassic = (peekclassic_t *)wth->priv;
 	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
-	int bytes_read;
 	guint16 length;
 	guint16 sliceLength;
 #if 0
@@ -550,13 +543,8 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 #endif
 	unsigned int i;
 
-	bytes_read = file_read(ep_pkt, sizeof(ep_pkt), fh);
-	if (bytes_read != (int) sizeof(ep_pkt)) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read > 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return FALSE;
-	}
 
 	/* Extract the fields from the packet */
 	length = pntoh16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);

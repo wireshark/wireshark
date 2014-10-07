@@ -50,17 +50,14 @@ static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	i4b_trace_hdr_t hdr;
 	gboolean byte_swapped = FALSE;
 	i4btrace_t *i4btrace;
 
 	/* I4B trace files have no magic in the header... Sigh */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof(hdr), wth->fh);
-	if (bytes_read != sizeof(hdr)) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &hdr, sizeof(hdr), err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -143,19 +140,11 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 {
 	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
 	i4b_trace_hdr_t hdr;
-	int	bytes_read;
 	guint32 length;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0) {
-			/* Read something, but not enough */
-			*err = WTAP_ERR_SHORT_READ;
-		}
+	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
 		return FALSE;
-	}
 
 	if (i4btrace->byte_swapped) {
 		/*

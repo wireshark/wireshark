@@ -246,7 +246,6 @@ int
 pppdump_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
-	int		bytes_read;
 	pppdump_t	*state;
 
 	/* There is no file header, only packet records. Fortunately for us,
@@ -257,10 +256,9 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	* representing the timestamp.
 	*/
 
-	bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
-	if (bytes_read != (int) sizeof(buffer)) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, buffer, sizeof(buffer),
+	    err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -659,14 +657,16 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_RESET_TIME:
-				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
+				if (!wtap_read_bytes(fh, &time_long, sizeof(guint32), err, err_info))
+					return FALSE;
 				state->offset += sizeof(guint32);
 				state->timestamp = pntoh32(&time_long);
 				state->tenths = 0;
 				break;
 
 			case PPPD_TIME_STEP_LONG:
-				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
+				if (!wtap_read_bytes(fh, &time_long, sizeof(guint32), err, err_info))
+					return FALSE;
 				state->offset += sizeof(guint32);
 				state->tenths += pntoh32(&time_long);
 
@@ -678,7 +678,8 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_TIME_STEP_SHORT:
-				wtap_file_read_unknown_bytes(&time_short, sizeof(guint8), fh, err, err_info);
+				if (!wtap_read_bytes(fh, &time_short, sizeof(guint8), err, err_info))
+					return FALSE;
 				state->offset += sizeof(guint8);
 				state->tenths += time_short;
 

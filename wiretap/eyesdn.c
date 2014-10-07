@@ -53,28 +53,42 @@
  */
 
 
-static int esc_read(guint8 *buf, int len, FILE_T fh)
+static gboolean esc_read(FILE_T fh, guint8 *buf, int len, int *err, gchar **err_info)
 {
 	int i;
 	int value;
 
 	for(i=0; i<len; i++) {
 		value=file_getc(fh);
-		if(value==-1)
-			return -2; /* EOF or error */
-		if(value==0xff)
-			return -1; /* error !!, read into next frame */
+		if(value==-1) {
+			/* EOF or error */
+			*err=file_error(fh, err_info);
+			if(*err==0)
+				*err=WTAP_ERR_SHORT_READ;
+			return FALSE;
+		}
+		if(value==0xff) {
+			/* error !!, read into next frame */
+			*err=WTAP_ERR_BAD_FILE;
+			*err_info=g_strdup("eyesdn: No flag character seen in frame");
+			return FALSE;
+		}
 		if(value==0xfe) {
 			/* we need to escape */
 			value=file_getc(fh);
-			if(value==-1)
-				return -2;
+			if(value==-1) {
+				/* EOF or error */
+				*err=file_error(fh, err_info);
+				if(*err==0)
+					*err=WTAP_ERR_SHORT_READ;
+				return FALSE;
+			}
 			value+=2;
 		}
 		buf[i]=value;
 	}
 
-	return i;
+	return TRUE;
 }
 
 /* Magic text to check for eyesdn-ness of file */
@@ -123,15 +137,12 @@ static gint64 eyesdn_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 
 int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 {
-	int	bytes_read;
 	char	magic[EYESDN_HDR_MAGIC_SIZE];
 
 	/* Look for eyesdn header */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -187,19 +198,14 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	int		usecs;
 	int		pkt_len;
 	guint8		channel, direction;
-        int		bytes_read;
         guint8		*pd;
 
 	/* Our file pointer should be at the summary information header
 	 * for a packet. Read in that header and extract the useful
 	 * information.
 	 */
-	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!esc_read(fh, hdr, EYESDN_HDR_LENGTH, err, err_info))
 		return FALSE;
-	}
 
         /* extract information from header */
         usecs = pntoh24(&hdr[0]);
@@ -255,12 +261,8 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		}
 
 		cur_off = file_tell(fh);
-		if (esc_read(cell, CELL_LEN, fh) != CELL_LEN) {
-			*err = file_error(fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!esc_read(fh, cell, CELL_LEN, err, err_info))
 			return FALSE;
-		}
 		if (file_seek(fh, cur_off, SEEK_SET, err) == -1)
 			return FALSE;
 		phdr->pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
@@ -325,19 +327,8 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 
 	errno = WTAP_ERR_CANT_READ;
 	pd = ws_buffer_start_ptr(buf);
-	bytes_read = esc_read(pd, pkt_len, fh);
-	if (bytes_read != pkt_len) {
-		if (bytes_read == -2) {
-			*err = file_error(fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
-		} else if (bytes_read == -1) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("eyesdn: No flag character seen in frame");
-		} else
-			*err = WTAP_ERR_SHORT_READ;
+	if (!esc_read(fh, pd, pkt_len, err, err_info))
 		return FALSE;
-	}
 	return TRUE;
 }
 

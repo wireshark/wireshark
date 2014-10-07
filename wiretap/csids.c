@@ -68,17 +68,15 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
    * this will byteswap it. I need to fix this. XXX --mlh
    */
 
-  int tmp,iplen,bytesRead;
+  int tmp,iplen;
 
   gboolean byteswap = FALSE;
   struct csids_header hdr;
   csids_t *csids;
 
   /* check the file to make sure it is a csids file. */
-  bytesRead = file_read( &hdr, sizeof( struct csids_header), wth->fh );
-  if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( wth->fh, err_info );
-    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
+  if( !wtap_read_bytes( wth->fh, &hdr, sizeof( struct csids_header), err, err_info ) ) {
+    if( *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
     return 0;
@@ -88,18 +86,14 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   }
   hdr.seconds = pntoh32( &hdr.seconds );
   hdr.caplen = pntoh16( &hdr.caplen );
-  bytesRead = file_read( &tmp, 2, wth->fh );
-  if( bytesRead != 2 ) {
-    *err = file_error( wth->fh, err_info );
-    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
+  if( !wtap_read_bytes( wth->fh, &tmp, 2, err, err_info ) ) {
+    if( *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
     return 0;
   }
-  bytesRead = file_read( &iplen, 2, wth->fh );
-  if( bytesRead != 2 ) {
-    *err = file_error( wth->fh, err_info );
-    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
+  if( !wtap_read_bytes(wth->fh, &iplen, 2, err, err_info ) ) {
+    if( *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
     return 0;
@@ -182,16 +176,10 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
                   Buffer *buf, int *err, gchar **err_info)
 {
   struct csids_header hdr;
-  int bytesRead = 0;
   guint8 *pd;
 
-  bytesRead = file_read( &hdr, sizeof( struct csids_header), fh );
-  if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( fh, err_info );
-    if (*err == 0 && bytesRead != 0)
-      *err = WTAP_ERR_SHORT_READ;
+  if( !wtap_read_bytes_or_eof( fh, &hdr, sizeof( struct csids_header), err, err_info ) )
     return FALSE;
-  }
   hdr.seconds = pntoh32(&hdr.seconds);
   hdr.caplen = pntoh16(&hdr.caplen);
 

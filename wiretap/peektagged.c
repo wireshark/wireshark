@@ -215,7 +215,6 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
 int peektagged_open(wtap *wth, int *err, gchar **err_info)
 {
     peektagged_section_header_t ap_hdr;
-    int bytes_read;
     int ret;
     guint32 fileVersion;
     guint32 mediaType;
@@ -230,10 +229,8 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
     #define NUM_PEEKTAGGED_ENCAPS (sizeof peektagged_encap / sizeof peektagged_encap[0])
     peektagged_t *peektagged;
 
-    bytes_read = file_read(&ap_hdr, (int)sizeof(ap_hdr), wth->fh);
-    if (bytes_read != (int)sizeof(ap_hdr)) {
-    	*err = file_error(wth->fh, err_info);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+    if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -400,7 +397,6 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
     int header_len = 0;
-    int bytes_read;
     guint8 tag_value[6];
     guint16 tag;
     gboolean saw_length = FALSE;
@@ -415,20 +411,14 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     do {
 	/* Get the tag and value.
 	   XXX - this assumes all values are 4 bytes long. */
-	bytes_read = file_read(tag_value, sizeof tag_value, fh);
-	if (bytes_read != (int) sizeof tag_value) {
-	    *err = file_error(fh, err_info);
+	if (!wtap_read_bytes_or_eof(fh, tag_value, sizeof tag_value, err, err_info)) {
 	    if (*err == 0) {
-		if (bytes_read > 0)
+		/*
+		 * Short read if we've read something already;
+		 * just an EOF if we haven't.
+		 */
+		if (header_len != 0)
 		    *err = WTAP_ERR_SHORT_READ;
-		else if (bytes_read == 0) {
-		    /*
-		     * Short read if we've read something already;
-		     * just an EOF if we haven't.
-		     */
-		    if (header_len != 0)
-			*err = WTAP_ERR_SHORT_READ;
-		}
 	    }
 	    return -1;
 	}

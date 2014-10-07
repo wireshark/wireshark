@@ -107,7 +107,6 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
-  int bytes_read;
   guint8 ber_id;
   gint8 ber_class;
   gint8 ber_tag;
@@ -117,10 +116,8 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   gint64 file_size;
   int offset = 0, i;
 
-  bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wth->fh);
-  if (bytes_read != BER_BYTES_TO_CHECK) {
-    *err = file_error(wth->fh, err_info);
-    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+  if (!wtap_read_bytes(wth->fh, &bytes, BER_BYTES_TO_CHECK, err, err_info)) {
+    if (*err != WTAP_ERR_SHORT_READ)
       return -1;
     return 0;
   }

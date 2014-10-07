@@ -38,9 +38,16 @@ static gchar get_priority(const guint8 priority) {
     return priorities[priority];
 }
 
-static gint detect_version(wtap *wth, int *err, gchar **err_info)
+/*
+ * Returns:
+ *
+ *  -2 if we get an EOF at the beginning;
+ *  -1 on an I/O error;
+ *  0 if the record doesn't appear to be valid;
+ *  1-{max gint} as a version number if we got a valid record.
+ */
+static gint detect_version(FILE_T fh, int *err, gchar **err_info)
 {
-    gint                     bytes_read;
     guint16                  payload_length;
     guint16                  hdr_size;
     guint16                  read_sofar;
@@ -56,32 +63,42 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     guint16                  msg_len;
 
     /* 16-bit payload length */
-    bytes_read = file_read(&tmp, 2, wth->fh);
-    if (bytes_read != 2) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes_or_eof(fh, &tmp, 2, err, err_info)) {
+    	if (*err == 0) {
+    	    /*
+    	     * Got an EOF at the beginning.
+    	     */
+    	    return -2;
+    	}
+        if (*err == WTAP_ERR_SHORT_READ) {
+            /*
+             * Not enough bytes for a packet, so not a logcat file.
+             */
+            return 0;
+        }
         return -1;
     }
     payload_length = pletoh16(&tmp);
 
+    /* must contain at least priority and two nulls as separator */
+    if (payload_length < 3)
+        return 0;
+    /* payload length may not exceed the maximum payload size */
+    if (payload_length > LOGGER_ENTRY_MAX_PAYLOAD)
+        return 0;
+
     /* 16-bit header length (or padding, equal to 0x0000) */
-    bytes_read = file_read(&tmp, 2, wth->fh);
-    if (bytes_read != 2) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(fh, &tmp, 2, err, err_info)) {
+        if (*err == WTAP_ERR_SHORT_READ) {
+            /*
+             * Not enough bytes for a packet, so not a logcat file.
+             */
+            return 0;
+        }
         return -1;
     }
     hdr_size = pletoh16(&tmp);
     read_sofar = 4;
-
-    /* must contain at least priority and two nulls as separator */
-    if (payload_length < 3)
-        return -1;
-    /* payload length may not exceed the maximum payload size */
-    if (payload_length > LOGGER_ENTRY_MAX_PAYLOAD)
-        return -1;
 
     /* ensure buffer is large enough for all versions */
     buffer = (guint8 *) g_malloc(sizeof(*log_entry_v2) + payload_length);
@@ -102,16 +119,17 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
                 continue;
         }
 
-        bytes_read = file_read(buffer + read_sofar, entry_len - read_sofar,
-                wth->fh);
-        if (bytes_read != entry_len - read_sofar) {
-            *err = file_error(wth->fh, err_info);
-            if (*err == 0 && bytes_read != 0)
-                *err = WTAP_ERR_SHORT_READ;
-            /* short read, end of file? Whatever, this cannot be valid. */
-            break;
+	if (!wtap_read_bytes(fh, buffer + read_sofar, entry_len - read_sofar, err, err_info)) {
+            g_free(buffer);
+            if (*err == WTAP_ERR_SHORT_READ) {
+                /*
+                 * Not enough bytes for a packet, so not a logcat file.
+                 */
+                return 0;
+            }
+            return -1;
         }
-        read_sofar += bytes_read;
+        read_sofar += entry_len - read_sofar;
 
         /* A v2 msg has a 32-bit userid instead of v1 priority */
         if (get_priority(msg_payload[0]) == '?')
@@ -134,8 +152,9 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
         return version;
     }
 
+    /* No version number is valid */
     g_free(buffer);
-    return -1;
+    return 0;
 }
 
 gint logcat_exported_pdu_length(const guint8 *pd) {
@@ -161,18 +180,13 @@ gint logcat_exported_pdu_length(const guint8 *pd) {
 static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-    gint                 bytes_read;
     gint                 packet_size;
     guint16              payload_length;
     guint                tmp[2];
     guint8              *pd;
     struct logger_entry *log_entry;
 
-    bytes_read = file_read(&tmp, 2, fh);
-    if (bytes_read != 2) {
-        *err = file_error(fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes_or_eof(fh, &tmp, 2, err, err_info)) {
         return FALSE;
     }
     payload_length = pletoh16(tmp);
@@ -193,11 +207,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     memcpy(pd, tmp, 2);
 
     /* Read the rest of the packet. */
-    bytes_read = file_read(pd + 2, packet_size - 2, fh);
-    if (bytes_read != packet_size - 2) {
-        *err = file_error(fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(fh, pd + 2, packet_size - 2, err, err_info)) {
         return FALSE;
     }
 
@@ -238,29 +248,48 @@ static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
-int logcat_open(wtap *wth, int *err, gchar **err_info _U_)
+int logcat_open(wtap *wth, int *err, gchar **err_info)
 {
-    int                 local_err;
-    gchar              *local_err_info;
     gint                version;
     gint                tmp_version;
     struct logcat_phdr *logcat;
 
     /* check first 3 packets (or 2 or 1 if EOF) versions to check file format is correct */
-    version = detect_version(wth, &local_err, &local_err_info);
-    if (version <= 0)
-        return 0;
+    version = detect_version(wth->fh, err, err_info); /* first packet */
+    if (version == -1)
+        return -1; /* I/O error */
+    if (version == 0)
+        return 0;  /* not a logcat file */
+    if (version == -2)
+        return 0;  /* empty file, so not any type of file */
 
-    tmp_version = detect_version(wth, &local_err, &local_err_info);
-    if (tmp_version < 0 && !file_eof(wth->fh)) {
-        return 0;
-    } else if (tmp_version > 0) {
-        if (tmp_version != version)
+    tmp_version = detect_version(wth->fh, err, err_info); /* second packet */
+    if (tmp_version == -1)
+        return -1; /* I/O error */
+    if (tmp_version == 0)
+        return 0;  /* not a logcat file */
+    if (tmp_version != -2) {
+        /* we've read two packets; do they have the same version? */
+        if (tmp_version != version) {
+            /* no, so this is presumably not a logcat file */
             return 0;
+        }
 
-        tmp_version = detect_version(wth, &local_err, &local_err_info);
-        if (tmp_version != version && !file_eof(wth->fh))
-            return 0;
+        tmp_version = detect_version(wth->fh, err, err_info); /* third packet */
+        if (tmp_version < 0)
+            return -1; /* I/O error */
+        if (tmp_version == 0)
+            return 0;  /* not a logcat file */
+        if (tmp_version != -2) {
+            /*
+             * we've read three packets and the first two have the same
+             * version; does the third have the same version?
+             */
+            if (tmp_version != version) {
+                /* no, so this is presumably not a logcat file */
+                return 0;
+            }
+        }
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)

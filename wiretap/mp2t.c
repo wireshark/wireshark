@@ -65,19 +65,11 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
                  gchar **err_info)
 {
     guint64 tmp;
-    int bytes_read;
 
     ws_buffer_assure_space(buf, MP2T_SIZE);
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(ws_buffer_start_ptr(buf), MP2T_SIZE, fh);
-    if (MP2T_SIZE != bytes_read) {
-        *err = file_error(fh, err_info);
-        /* bytes_read==0 is end of file, not a short read */
-        if (bytes_read>0 && *err == 0) {
-            *err = WTAP_ERR_SHORT_READ;
-        }
+    if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(buf), MP2T_SIZE, err, err_info))
         return FALSE;
-    }
 
     phdr->rec_type = REC_TYPE_PACKET;
 
@@ -162,11 +154,8 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
 
 
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer, MP2T_SIZE, wth->fh);
-
-    if (MP2T_SIZE != bytes_read) {
-        *err = file_error(wth->fh, err_info);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+    if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }

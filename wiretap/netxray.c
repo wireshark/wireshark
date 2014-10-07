@@ -422,7 +422,6 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 int
 netxray_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	char magic[MAGIC_SIZE];
 	gboolean is_old;
 	struct netxray_hdr hdr;
@@ -462,10 +461,8 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, MAGIC_SIZE, wth->fh);
-	if (bytes_read != MAGIC_SIZE) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -480,13 +477,8 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
-	}
 
 	if (is_old) {
 		version_major = 0;
@@ -1127,7 +1119,6 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	union netxrayrec_hdr hdr;
-	int	bytes_read;
 	int	hdr_size = 0;
 	double	t;
 	int	packet_size;
@@ -1149,19 +1140,13 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read((void *)&hdr, hdr_size, fh);
-	if (bytes_read != hdr_size) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-
+	if (!wtap_read_bytes_or_eof(fh, (void *)&hdr, hdr_size, err, err_info)) {
 		/*
-		 * We're at EOF.  "*err" is 0; we return -1 - that
-		 * combination tells our caller we're at EOF.
+		 * If *err is 0, we're at EOF.  *err being 0 and a return
+		 * value of -1 tells our caller we're at EOF.
+		 *
+		 * Otherwise, we got an error, and *err *not* being 0
+		 * and a return value tells our caller we have an error.
 		 */
 		return -1;
 	}

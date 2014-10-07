@@ -107,26 +107,6 @@ typedef enum {
 #define DVB_CI_PSEUDO_HDR_HOST_TO_CAM 0xFE
 
 
-/* read a block of data from the camins file and handle the errors */
-static gboolean
-read_block(FILE_T fh, guint8 *buf, guint16 buf_len, int *err, gchar **err_info)
-{
-    int bytes_read;
-
-    bytes_read = file_read((void *)buf, buf_len, fh);
-    if (bytes_read != buf_len) {
-        *err = file_error(fh, err_info);
-        /* bytes_read==0 is end of file */
-        if (bytes_read>0 && *err == 0) {
-            *err = WTAP_ERR_SHORT_READ;
-        }
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-
 /* find the transaction type for the data bytes of the next packet
     and the number of data bytes in that packet
    the fd is moved such that it can be used in a subsequent call
@@ -146,7 +126,7 @@ find_next_pkt_dat_type_len(FILE_T fh,
     RESET_STAT_VALS;
 
     do {
-        if (read_block(fh, block, sizeof(block), err, err_info) == FALSE) {
+        if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info)) {
             RESET_STAT_VALS;
             return FALSE;
         }
@@ -212,7 +192,7 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
 
     p = buf;
     while (bytes_count < dat_len) {
-        if (read_block(fh, block, sizeof(block), err, err_info) == FALSE)
+        if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info))
             break;
 
         if (block[1] == dat_trans_type) {
@@ -324,14 +304,15 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
     guint8  found_start_blocks = 0;
     guint8  count = 0;
     guint8  block[2];
-    int     bytes_read;
 
     /* all CAM Inspector files I've looked at have at least two blocks of
        0x00 0xE1 within the first 20 bytes */
     do {
-        bytes_read = file_read(block, sizeof(block), wth->fh);
-        if (bytes_read != sizeof(block))
-            break;
+        if (!wtap_read_bytes(wth->fh, block, sizeof(block), err, err_info)) {
+            if (*err == WTAP_ERR_SHORT_READ)
+                break;
+            return -1;
+        }
 
         if (block[0]==0x00 && block[1] == 0xE1)
             found_start_blocks++;

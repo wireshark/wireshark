@@ -1036,6 +1036,65 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 /*
+ * Read a given number of bytes from a file.
+ *
+ * If we succeed, return TRUE.
+ *
+ * If we get an EOF, return FALSE with *err set to 0, reporting this
+ * as an EOF.
+ *
+ * If we get fewer bytes than the specified number, return FALSE with
+ * *err set to WTAP_ERR_SHORT_READ, reporting this as a short read
+ * error.
+ *
+ * If we get a read error, return FALSE with *err and *err_info set
+ * appropriately.
+ */
+gboolean
+wtap_read_bytes_or_eof(FILE_T fh, void *buf, unsigned int count, int *err,
+    gchar **err_info)
+{
+	int	bytes_read;
+
+	bytes_read = file_read(buf, count, fh);
+	if (bytes_read < 0 || (guint)bytes_read != count) {
+		*err = file_error(fh, err_info);
+		if (*err == 0 && bytes_read > 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Read a given number of bytes from a file.
+ *
+ * If we succeed, return TRUE.
+ *
+ * If we get fewer bytes than the specified number, including getting
+ * an EOF, return FALSE with *err set to WTAP_ERR_SHORT_READ, reporting
+ * this as a short read error.
+ *
+ * If we get a read error, return FALSE with *err and *err_info set
+ * appropriately.
+ */
+gboolean
+wtap_read_bytes(FILE_T fh, void *buf, unsigned int count, int *err,
+    gchar **err_info)
+{
+	int	bytes_read;
+
+	bytes_read = file_read(buf, count, fh);
+	if (bytes_read < 0 || (guint)bytes_read != count) {
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/*
  * Read packet data into a Buffer, growing the buffer as necessary.
  *
  * This returns an error on a short read, even if the short read hit
@@ -1048,19 +1107,10 @@ gboolean
 wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info)
 {
-	int	bytes_read;
-
 	ws_buffer_assure_space(buf, length);
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(ws_buffer_start_ptr(buf), length, fh);
-
-	if (bytes_read < 0 || (guint)bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
+	return wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
+	    err_info);
 }
 
 /*

@@ -278,7 +278,6 @@ static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
 int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	LA_RecordHeader rec_header;
 	char header_fixed[2];
 	char *comment;
@@ -291,10 +290,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	lanalyzer_t *lanalyzer;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
-	if (bytes_read != LA_RecordHeaderSize) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &rec_header, LA_RecordHeaderSize,
+	    err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -313,24 +311,32 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		return 0;
 	}
-	bytes_read = file_read(&header_fixed, sizeof header_fixed, wth->fh);
-	if (bytes_read != sizeof header_fixed) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+	if (!wtap_read_bytes(wth->fh, &header_fixed, sizeof header_fixed,
+	    err, err_info)) {
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Not enough bytes for the fixed-length part of
+			 * the header, so not a LANAlyzer file.
+			 */
+			return 0;
+		}
+		return -1;
 	}
 	record_length -= sizeof header_fixed;
 
 	if (record_length != 0) {
 		/* Read the rest of the record as a comment. */
 		comment = (char *)g_malloc(record_length + 1);
-		bytes_read = file_read(comment, record_length, wth->fh);
-		if (bytes_read != record_length) {
-			*err = file_error(wth->fh, err_info);
-			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-				return -1;
-			return 0;
+		if (!wtap_read_bytes(wth->fh, comment, record_length,
+		    err, err_info)) {
+			if (*err == WTAP_ERR_SHORT_READ) {
+				/*
+				 * Not enough bytes for the rest of the
+				 * record, so not a LANAlyzer file.
+				 */
+				return 0;
+			}
+			return -1;
 		}
 		comment[record_length] = '\0';
 		wth->shb_hdr.opt_comment = comment;
@@ -350,11 +356,15 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	/* Read records until we find the start of packets */
 	while (1) {
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
-		if (bytes_read != LA_RecordHeaderSize) {
-			*err = file_error(wth->fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
+		    LA_RecordHeaderSize, err, err_info)) {
+			if (*err == 0) {
+				/*
+				 * End of file and no packets;
+				 * accept this file.
+				 */
+				return 1;
+			}
 			return -1;
 		}
 
@@ -366,14 +376,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			/* Trace Summary Record */
 			case RT_Summary:
 				errno = WTAP_ERR_CANT_READ;
-				bytes_read = file_read(summary, sizeof summary,
-				    wth->fh);
-				if (bytes_read != sizeof summary) {
-					*err = file_error(wth->fh, err_info);
-					if (*err == 0)
-						*err = WTAP_ERR_SHORT_READ;
+				if (!wtap_read_bytes(wth->fh, summary,
+				    sizeof summary, err, err_info))
 					return -1;
-				}
 
 				/* Assume that the date of the creation of the trace file
 				 * is the same date of the trace. Lanalyzer doesn't
@@ -442,7 +447,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	int		bytes_read;
 	char		LE_record_type[2];
 	char		LE_record_length[2];
 	guint16		record_type, record_length;
@@ -456,21 +460,10 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(LE_record_type, 2, fh);
-	if (bytes_read != 2) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-		}
+	if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
 		return FALSE;
-	}
-	bytes_read = file_read(LE_record_length, 2, fh);
-	if (bytes_read != 2) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
 		return FALSE;
-	}
 
 	record_type = pletoh16(LE_record_type);
 	record_length = pletoh16(LE_record_length);
@@ -499,13 +492,8 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(descriptor, DESCRIPTOR_LEN, fh);
-	if (bytes_read != DESCRIPTOR_LEN) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
 		return FALSE;
-	}
 
 	true_size = pletoh16(&descriptor[4]);
 	packet_size = pletoh16(&descriptor[6]);

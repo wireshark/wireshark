@@ -644,10 +644,8 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
     while (1) {
-        if (file_read(header, VW_RECORD_HEADER_LENGTH, fh) != VW_RECORD_HEADER_LENGTH) {
-            *err = file_error(fh, err_info);
+        if (!wtap_read_bytes_or_eof(fh, header, VW_RECORD_HEADER_LENGTH, err, err_info))
             return FALSE;
-        }
 
         /* Got a header; invoke decode-message function to parse and process it.     */
         /* If the function returns a length, then a frame or variable-length message */
@@ -660,7 +658,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
                 return FALSE;
             }
             else if (v_type != VT_FRAME) {
-                if (file_seek(fh, f_len, SEEK_CUR, err) < 0)
+                if (!file_skip(fh, f_len, err))
                     return FALSE;
             }
             else {
@@ -705,7 +703,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     /* Each 16-byte message is decoded; if we run across a non-frame message followed by a */
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
-    while ((file_read(header, VW_RECORD_HEADER_LENGTH, wth->fh)) == VW_RECORD_HEADER_LENGTH) {
+    while (wtap_read_bytes(wth->fh, header, VW_RECORD_HEADER_LENGTH, err, err_info)) {
         /* Got a header; invoke decode-message function to parse and process it.     */
         /* If the function returns a length, then a frame or variable-length message */
         /*  follows the 16-byte message.                                             */
@@ -726,11 +724,10 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 rec_size = f_len;
                 /* Got a frame record; read over entire record (frame + trailer) into a local buffer */
                 /* If we don't get it all, assume this isn't a vwr file */
-                if (file_read(rec, rec_size, wth->fh) != rec_size) {
-                    *err = file_error(wth->fh, err_info);
-                    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-                        return -1;
-                    return UNKNOWN_FPGA; /* short read - not a vwr file */
+                if (!wtap_read_bytes(wth->fh, rec, rec_size, err, err_info)) {
+                    if (*err == WTAP_ERR_SHORT_READ)
+                        return UNKNOWN_FPGA; /* short read - not a vwr file */
+                    return -1;
                 }
 
 
@@ -820,10 +817,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     if (valid_but_empty_file > 0)
         return(S3_W_FPGA);
 
-    *err = file_error(wth->fh, err_info);
-    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-        return -1;
-    return UNKNOWN_FPGA; /* short read - not a vwr file */
+    if (*err == WTAP_ERR_SHORT_READ)
+        return UNKNOWN_FPGA; /* short read - not a vwr file */
+    return -1;
 }
 
 /* Copy the actual packet data from the capture file into the target data block. */
@@ -2161,12 +2157,8 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
 
     /* Read over the entire record (frame + trailer) into a local buffer.         */
     /* If we don't get it all, then declare an error, we can't process the frame. */
-    if (file_read(rec, rec_size, fh) != rec_size) {
-        *err = file_error(fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(fh, rec, rec_size, err, err_info))
         return FALSE;
-    }
 
     /* now format up the frame data */
     switch (vwr->FPGA_VERSION)

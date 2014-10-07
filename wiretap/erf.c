@@ -57,13 +57,13 @@
 #include "atm.h"
 #include "erf.h"
 
-static int erf_read_header(FILE_T fh,
-                           struct wtap_pkthdr *phdr,
-                           erf_header_t *erf_header,
-                           int *err,
-                           gchar **err_info,
-                           guint32 *bytes_read,
-                           guint32 *packet_size);
+static gboolean erf_read_header(FILE_T fh,
+                                struct wtap_pkthdr *phdr,
+                                erf_header_t *erf_header,
+                                int *err,
+                                gchar **err_info,
+                                guint32 *bytes_read,
+                                guint32 *packet_size);
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
@@ -99,7 +99,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
   guint16          rlen;
   guint64          erf_ext_header;
   guint8           type;
-  size_t           r;
+  gboolean         r;
   gchar *          buffer;
 
   memset(&prevts, 0, sizeof(prevts));
@@ -119,14 +119,12 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
-    r = file_read(&header,sizeof(header),wth->fh);
-
-    if (r == 0 ) break;
-    if (r != sizeof(header)) {
-      *err = file_error(wth->fh, err_info);
-      if (*err != 0 && *err != WTAP_ERR_SHORT_READ) {
-        return -1;
-      } else {
+    if (!wtap_read_bytes_or_eof(wth->fh,&header,sizeof(header),err,err_info)) {
+      if (*err == 0) {
+      	/* EOF - all records have been successfully checked */
+        break;
+      }
+      if (*err == WTAP_ERR_SHORT_READ) {
         /* ERF header too short accept the file,
            only if the very first records have been successfully checked */
         if (i < MIN_RECORDS_FOR_ERF_CHECK) {
@@ -135,6 +133,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
           /* BREAK, the last record is too short, and will be ignored */
           break;
         }
+      } else {
+        return -1;
       }
     }
 
@@ -192,10 +192,11 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     /* Read over the extension headers */
     type = header.type;
     while (type & 0x80){
-      if (file_read(&erf_ext_header, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-          *err = WTAP_ERR_SHORT_READ;
+      if (!wtap_read_bytes(wth->fh,&erf_ext_header,sizeof(erf_ext_header),err,err_info)) {
+        if (*err == WTAP_ERR_SHORT_READ) {
+          /* Extension header missing, not an ERF file */
+          return 0;
+        }
         return -1;
       }
       packet_size -= (guint32)sizeof(erf_ext_header);
@@ -213,8 +214,11 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
       case ERF_TYPE_MC_AAL2:
       case ERF_TYPE_COLOR_MC_HDLC_POS:
       case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
-        if (file_read(&mc_hdr,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
-          *err = file_error(wth->fh, err_info);
+        if (!wtap_read_bytes(wth->fh,&mc_hdr,sizeof(mc_hdr),err,err_info)) {
+          if (*err == WTAP_ERR_SHORT_READ) {
+            /* Subheader missing, not an ERF file */
+            return 0;
+          }
           return -1;
         }
         packet_size -= (guint32)sizeof(mc_hdr);
@@ -222,8 +226,11 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
       case ERF_TYPE_ETH:
       case ERF_TYPE_COLOR_ETH:
       case ERF_TYPE_DSM_COLOR_ETH:
-        if (file_read(&eth_hdr,sizeof(eth_hdr),wth->fh) != sizeof(eth_hdr)) {
-          *err = file_error(wth->fh, err_info);
+        if (!wtap_read_bytes(wth->fh,&eth_hdr,sizeof(eth_hdr),err,err_info)) {
+          if (*err == WTAP_ERR_SHORT_READ) {
+            /* Subheader missing, not an ERF file */
+            return 0;
+          }
           return -1;
         }
         packet_size -= (guint32)sizeof(eth_hdr);
@@ -242,10 +249,14 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
       return 0;
     }
     buffer=(gchar *)g_malloc(packet_size);
-    r = file_read(buffer, packet_size, wth->fh);
+    r = wtap_read_bytes(wth->fh, buffer, packet_size, err, err_info);
     g_free(buffer);
 
-    if (r != packet_size) {
+    if (!r) {
+      if (*err != WTAP_ERR_SHORT_READ) {
+      	/* A real error */
+        return -1;
+      }
       /* ERF record too short, accept the file,
          only if the very first records have been successfully checked */
       if (i < MIN_RECORDS_FOR_ERF_CHECK) {
@@ -324,13 +335,13 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                                 err, err_info);
 }
 
-static int erf_read_header(FILE_T fh,
-                           struct wtap_pkthdr *phdr,
-                           erf_header_t *erf_header,
-                           int *err,
-                           gchar **err_info,
-                           guint32 *bytes_read,
-                           guint32 *packet_size)
+static gboolean erf_read_header(FILE_T fh,
+                                struct wtap_pkthdr *phdr,
+                                erf_header_t *erf_header,
+                                int *err,
+                                gchar **err_info,
+                                guint32 *bytes_read,
+                                guint32 *packet_size)
 {
   union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   guint32 mc_hdr;
@@ -342,8 +353,9 @@ static int erf_read_header(FILE_T fh,
   int     i       = 0;
   int     max     = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
-  wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err,
-                                err_info);
+  if (!wtap_read_bytes_or_eof(fh, erf_header, sizeof(*erf_header), err, err_info)) {
+    return FALSE;
+  }
   if (bytes_read != NULL) {
     *bytes_read = sizeof(*erf_header);
   }
@@ -399,8 +411,9 @@ static int erf_read_header(FILE_T fh,
   /* Copy the ERF extension header into the pseudo header */
   type = erf_header->type;
   while (type & 0x80){
-    wtap_file_read_expected_bytes(&erf_exhdr, sizeof(erf_exhdr), fh, err,
-                                  err_info);
+    if (!wtap_read_bytes(fh, &erf_exhdr, sizeof(erf_exhdr),
+                              err, err_info))
+      return FALSE;
     if (bytes_read != NULL)
       *bytes_read += (guint32)sizeof(erf_exhdr);
     *packet_size -=  (guint32)sizeof(erf_exhdr);
@@ -437,8 +450,8 @@ static int erf_read_header(FILE_T fh,
     case ERF_TYPE_ETH:
     case ERF_TYPE_COLOR_ETH:
     case ERF_TYPE_DSM_COLOR_ETH:
-      wtap_file_read_expected_bytes(&eth_hdr, sizeof(eth_hdr), fh, err,
-                                    err_info);
+      if (!wtap_read_bytes(fh, &eth_hdr, sizeof(eth_hdr), err, err_info))
+        return FALSE;
       if (bytes_read != NULL)
         *bytes_read += (guint32)sizeof(eth_hdr);
       *packet_size -=  (guint32)sizeof(eth_hdr);
@@ -454,8 +467,8 @@ static int erf_read_header(FILE_T fh,
     case ERF_TYPE_MC_AAL2:
     case ERF_TYPE_COLOR_MC_HDLC_POS:
     case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
-      wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err,
-                                    err_info);
+      if (!wtap_read_bytes(fh, &mc_hdr, sizeof(mc_hdr), err, err_info))
+        return FALSE;
       if (bytes_read != NULL)
         *bytes_read += (guint32)sizeof(mc_hdr);
       *packet_size -=  (guint32)sizeof(mc_hdr);

@@ -98,14 +98,10 @@ static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
 
 int tnef_open(wtap *wth, int *err, gchar **err_info)
 {
-  int bytes_read;
   guint32 magic;
 
-  bytes_read = file_read(&magic, sizeof magic, wth->fh);
-  if (bytes_read != sizeof magic) {
-    *err = file_error(wth->fh, err_info);
-    return (*err != 0) ? -1 : 0;
-  }
+  if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info))
+    return (*err != WTAP_ERR_SHORT_READ) ? -1 : 0;
 
   if (GUINT32_TO_LE(magic) != TNEF_SIGNATURE)
      /* Not a tnef file */

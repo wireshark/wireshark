@@ -112,15 +112,13 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 int _5views_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	t_5VW_Capture_Header Capture_Header;
 	int encap = WTAP_ENCAP_UNKNOWN;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wth->fh);
-	if (bytes_read != sizeof(t_5VW_Info_Header)) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, &Capture_Header.Info_Header,
+	    sizeof(t_5VW_Info_Header), err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -171,13 +169,9 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* read the remaining header information */
-	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
-	if (bytes_read != sizeof (t_5VW_Capture_Header)- sizeof(t_5VW_Info_Header) ) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, &Capture_Header.HeaderDateCreation,
+	    sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), err, err_info))
 		return -1;
-	}
 
 	/* This is a 5views capture file */
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
@@ -270,19 +264,10 @@ static gboolean
 _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
-	int	bytes_read, bytes_to_read;
-
-	bytes_to_read = sizeof(t_5VW_TimeStamped_Header);
-
 	/* Read record header. */
-	bytes_read = file_read(hdr, bytes_to_read, fh);
-	if (bytes_read != bytes_to_read) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-		}
+	if (!wtap_read_bytes_or_eof(fh, hdr, (unsigned int)sizeof(t_5VW_TimeStamped_Header),
+	    err, err_info))
 		return FALSE;
-	}
 
 	hdr->Key = pletoh32(&hdr->Key);
 	if (hdr->Key != CST_5VW_RECORDS_HEADER_KEY) {

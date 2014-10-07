@@ -673,7 +673,6 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     gint64 file_size;
     gint32 page_size;
     nstrace_t *nstrace;
-    int bytes_read;
 
     errno = WTAP_ERR_CANT_READ;
 
@@ -713,12 +712,10 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         return 0;
     }
 
-    bytes_read = file_read(nstrace_buf, page_size, wth->fh);
-    if (bytes_read != page_size)
+    if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
     {
-        *err = file_error(wth->fh, err_info);
         g_free(nstrace_buf);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -761,20 +758,17 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         /* Reset the read pointer to start of the file. */
         if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
         {
-            *err = file_error(wth->fh, err_info);
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
-            return 0;
+            return -1;
         }
 
         /* Read the first page of data */
-        bytes_read = file_read(nstrace_buf, page_size, wth->fh);
-        if (bytes_read != page_size)
+        if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
         {
-            *err = file_error(wth->fh, err_info);
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
-            return 0;
+            return -1;
         }
 
         /* reset the buffer offset */
@@ -1342,7 +1336,6 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v10_t hdr;
-    int bytes_read;
     guint record_length;
     guint8 *pd;
     unsigned int bytes_to_read;
@@ -1357,13 +1350,9 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     /*
     ** Read the record header.
     */
-    bytes_read = file_read((void *)&hdr, sizeof hdr, wth->random_fh);
-    if (bytes_read != sizeof hdr) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, sizeof hdr,
+                              err, err_info))
         return FALSE;
-    }
 
     /*
     ** Get the record length.
@@ -1378,13 +1367,9 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     memcpy(pd, (void *)&hdr, sizeof hdr);
     if (record_length > sizeof hdr) {
     	bytes_to_read = (unsigned int)(record_length - sizeof hdr);
-        bytes_read = file_read(pd + sizeof hdr, bytes_to_read, wth->random_fh);
-        if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+    	if (!wtap_read_bytes(wth->random_fh, pd + sizeof hdr, bytes_to_read,
+    	                          err, err_info))
             return FALSE;
-        }
     }
 
     /*
@@ -1433,7 +1418,6 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
-    int bytes_read;
     guint record_length;
     guint hdrlen;
     guint8 *pd;
@@ -1447,26 +1431,17 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     /*
     ** Read the first 2 bytes of the record header.
     */
-    bytes_read = file_read((void *)&hdr, 2, wth->random_fh);
-    if (bytes_read != 2) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, 2, err, err_info))
         return FALSE;
-    }
     hdrlen = 2;
 
     /*
     ** Is there a third byte?  If so, read it.
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
-        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wth->random_fh);
-        if (bytes_read != 1) {
-            *err = file_error(wth->random_fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+        if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
+                                  err, err_info))
             return FALSE;
-        }
         hdrlen = 3;
     }
 
@@ -1483,13 +1458,9 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
     	bytes_to_read = (unsigned int)(record_length - hdrlen);
-        bytes_read = file_read(pd + hdrlen, bytes_to_read, wth->random_fh);
-        if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+    	if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
+	                          err, err_info))
             return FALSE;
-        }
     }
 
 #define GENERATE_CASE_FULL(phdr,type,acttype) \
@@ -1549,7 +1520,6 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
-    int bytes_read;
     guint record_length;
     guint hdrlen;
     guint8 *pd;
@@ -1562,26 +1532,17 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     /*
     ** Read the first 2 bytes of the record header.
     */
-    bytes_read = file_read((void *)&hdr, 2, wth->random_fh);
-    if (bytes_read != 2) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(wth->random_fh, (void *)&hdr, 2, err, err_info))
         return FALSE;
-    }
     hdrlen = 2;
 
     /*
     ** Is there a third byte?  If so, read it.
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
-        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wth->random_fh);
-        if (bytes_read != 1) {
-            *err = file_error(wth->random_fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+    	if (!wtap_read_bytes(wth->random_fh, (void *)&hdr.phd_RecordSizeHigh, 1,
+    	                          err, err_info))
             return FALSE;
-        }
         hdrlen = 3;
     }
 
@@ -1598,13 +1559,9 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);
-        bytes_read = file_read(pd + hdrlen, bytes_to_read, wth->random_fh);
-        if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+        if (!wtap_read_bytes(wth->random_fh, pd + hdrlen, bytes_to_read,
+                                  err, err_info))
             return FALSE;
-        }
     }
 
 #define GENERATE_CASE_V30(phdr,type,acttype) \

@@ -103,8 +103,9 @@ static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header
 static gboolean process_packet_header(wtap *wth,
     packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
     gchar **err_info);
-static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
-    Buffer *buf, int length, int *err, char **err_info);
+static int read_packet_data(FILE_T fh, int offset_to_frame,
+    int current_offset_from_packet_header, Buffer *buf, int length,
+    int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -114,7 +115,6 @@ static gint wtap_to_observer_encap(int wtap_encap);
 
 int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
-    int bytes_read;
     int offset;
     capture_file_header file_header;
     guint i;
@@ -128,14 +128,13 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     offset = 0;
 
     /* read in the buffer file header */
-    bytes_read = file_read(&file_header, sizeof file_header, wth->fh);
-    if (bytes_read != sizeof file_header) {
-        *err = file_error(wth->fh, err_info);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+    if (!wtap_read_bytes(wth->fh, &file_header, sizeof file_header,
+                              err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
-    offset += bytes_read;
+    offset += (int)sizeof file_header;
     CAPTURE_FILE_HEADER_FROM_LE_IN_PLACE(file_header);
 
     /* check if version info is present */
@@ -159,14 +158,9 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
             break;
 
         /* read the TLV header */
-        bytes_read = file_read(&tlvh, sizeof tlvh, wth->fh);
-        if (bytes_read != sizeof tlvh) {
-            *err = file_error(wth->fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+        if (!wtap_read_bytes(wth->fh, &tlvh, sizeof tlvh, err, err_info))
             return -1;
-        }
-        offset += bytes_read;
+        offset += (int)sizeof tlvh;
         TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
         if (tlvh.length < sizeof tlvh) {
@@ -179,15 +173,12 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
         /* process (or skip over) the current TLV */
         switch (tlvh.type) {
         case INFORMATION_TYPE_TIME_INFO:
-            bytes_read = file_read(&private_state->time_format, sizeof private_state->time_format, wth->fh);
-            if (bytes_read != sizeof private_state->time_format) {
-                *err = file_error(wth->fh, err_info);
-                if (*err == 0)
-                    *err = WTAP_ERR_SHORT_READ;
+            if (!wtap_read_bytes(wth->fh, &private_state->time_format,
+                                      sizeof private_state->time_format,
+                                      err, err_info))
                 return -1;
-            }
             private_state->time_format = GUINT32_FROM_LE(private_state->time_format);
-            offset += bytes_read;
+            offset += (int)sizeof private_state->time_format;
             break;
         default:
             seek_increment = tlvh.length - (int)sizeof tlvh;
@@ -213,13 +204,9 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* pull off the packet header */
-    bytes_read = file_read(&packet_header, sizeof packet_header, wth->fh);
-    if (bytes_read != sizeof packet_header) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_bytes(wth->fh, &packet_header, sizeof packet_header,
+                              err, err_info))
         return -1;
-    }
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(packet_header);
 
     /* check the packet's magic number */
@@ -341,7 +328,6 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info)
 {
     int offset;
-    int bytes_read;
     guint i;
     tlv_header tlvh;
     int seek_increment;
@@ -350,14 +336,13 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     offset = 0;
 
     /* pull off the packet header */
-    bytes_read = file_read(packet_header, sizeof *packet_header, fh);
-    if (bytes_read != sizeof *packet_header) {
-        *err = file_error(fh, err_info);
-        if (*err != 0)
-            return -1;
-        return 0;    /* EOF */
+    if (!wtap_read_bytes_or_eof(fh, packet_header, sizeof *packet_header,
+                          err, err_info)) {
+        if (*err == 0)
+            return 0;    /* EOF */
+        return -1;
     }
-    offset += bytes_read;
+    offset += (int)sizeof *packet_header;
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(*packet_header);
 
     /* check the packet's magic number */
@@ -388,14 +373,9 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     /* process extra information */
     for (i = 0; i < packet_header->number_of_information_elements; i++) {
         /* read the TLV header */
-        bytes_read = file_read(&tlvh, sizeof tlvh, fh);
-        if (bytes_read != sizeof tlvh) {
-            *err = file_error(fh, err_info);
-            if (*err == 0)
-                *err = WTAP_ERR_SHORT_READ;
+        if (!wtap_read_bytes(fh, &tlvh, sizeof tlvh, err, err_info))
             return -1;
-        }
-        offset += bytes_read;
+        offset += (int)sizeof tlvh;
         TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
         if (tlvh.length < sizeof tlvh) {
@@ -408,13 +388,9 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
         /* process (or skip over) the current TLV */
         switch (tlvh.type) {
         case INFORMATION_TYPE_WIRELESS:
-            bytes_read = file_read(&wireless_header, sizeof wireless_header, fh);
-            if (bytes_read != sizeof wireless_header) {
-                *err = file_error(fh, err_info);
-                if(*err == 0)
-                    *err = WTAP_ERR_SHORT_READ;
+            if (!wtap_read_bytes(fh, &wireless_header, sizeof wireless_header,
+                                      err, err_info))
                 return -1;
-            }
             /* update the pseudo header */
             pseudo_header->ieee_802_11.fcs_len = 0;
             /* set decryption status */
@@ -422,7 +398,7 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
             pseudo_header->ieee_802_11.signal_level = wireless_header.strengthPercent;
-            offset += bytes_read;
+            offset += (int)sizeof wireless_header;
             break;
         default:
             /* skip the TLV data */
@@ -522,8 +498,9 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
 }
 
 static int
-read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, Buffer *buf,
-    int length, int *err, char **err_info)
+read_packet_data(FILE_T fh, int offset_to_frame,
+    int current_offset_from_packet_header, Buffer *buf, int length,
+    int *err, char **err_info)
 {
     int seek_increment;
     int bytes_consumed = 0;
@@ -557,8 +534,8 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
 }
 
 static gboolean
-skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_from_packet_header, int *err,
-    char **err_info)
+skip_to_next_packet(wtap *wth, int offset_to_next_packet,
+    int current_offset_from_packet_header, int *err, char **err_info)
 {
     int seek_increment;
 

@@ -41,28 +41,25 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
-static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
-    int *err, gchar **err_info);
 static gboolean iptrace_read_rec_data(FILE_T fh, Buffer *buf,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 static void fill_in_pseudo_header(int encap,
     union wtap_pseudo_header *pseudo_header, guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
 
+#define NAME_SIZE 11
+
 int iptrace_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
-	char name[12];
+	char name[NAME_SIZE+1];
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(name, 11, wth->fh);
-	if (bytes_read != 11) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, name, NAME_SIZE, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
-	name[11] = '\0';
+	name[NAME_SIZE] = '\0';
 
 	if (strcmp(name, "iptrace 1.0") == 0) {
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0;
@@ -123,13 +120,11 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
-	int			ret;
 	iptrace_1_0_phdr	pkt_hdr;
 	guint32			packet_size;
 
-	ret = iptrace_read_rec_header(fh, header, IPTRACE_1_0_PHDR_SIZE,
-	    err, err_info);
-	if (ret <= 0) {
+	errno = WTAP_ERR_CANT_READ;
+	if (!wtap_read_bytes_or_eof(fh, header, sizeof header, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
 	}
@@ -301,13 +296,11 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
-	int			ret;
 	iptrace_2_0_phdr	pkt_hdr;
 	guint32			packet_size;
 
-	ret = iptrace_read_rec_header(fh, header, IPTRACE_2_0_PHDR_SIZE,
-	    err, err_info);
-	if (ret <= 0) {
+	errno = WTAP_ERR_CANT_READ;
+	if (!wtap_read_bytes_or_eof(fh, header, sizeof header, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
 	}
@@ -452,27 +445,6 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 	return TRUE;
-}
-
-static int
-iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err,
-    gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(header, header_len, fh);
-	if (bytes_read != header_len) {
-		*err = file_error(fh, err_info);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
-	}
-	return 1;
 }
 
 static gboolean

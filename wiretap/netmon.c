@@ -188,7 +188,6 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
 int netmon_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	char magic[MAGIC_SIZE];
 	struct netmon_hdr hdr;
 	int file_type;
@@ -205,10 +204,8 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, MAGIC_SIZE, wth->fh);
-	if (bytes_read != MAGIC_SIZE) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -220,13 +217,8 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
-	}
 
 	switch (hdr.ver_major) {
 
@@ -367,11 +359,8 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(frame_table, frame_table_length, wth->fh);
-	if ((guint32)bytes_read != frame_table_length) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, frame_table, frame_table_length,
+	    err, err_info)) {
 		g_free(frame_table);
 		return -1;
 	}
@@ -474,7 +463,6 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		struct netmonrec_1_x_hdr hdr_1_x;
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
-	int	bytes_read;
 	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
 	gint64	t;
 	time_t	secs;
@@ -502,15 +490,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
-
-	bytes_read = file_read(&hdr, hdr_size, fh);
-	if (bytes_read != hdr_size) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-		}
+	if (!wtap_read_bytes_or_eof(fh, &hdr, hdr_size, err, err_info))
 		return FAILURE;
-	}
 
 	switch (netmon->version_major) {
 
@@ -680,14 +661,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		}
 
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&trlr, trlr_size, fh);
-		if (bytes_read != trlr_size) {
-			*err = file_error(fh, err_info);
-			if (*err == 0 && bytes_read != 0) {
-				*err = WTAP_ERR_SHORT_READ;
-			}
+		if (!wtap_read_bytes(fh, &trlr, trlr_size, err, err_info))
 			return FAILURE;
-		}
 
 		network = pletoh16(trlr.trlr_2_1.network);
 		if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
@@ -899,17 +874,12 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err, gchar **err_info)
 {
 	struct netmon_atm_hdr atm_phdr;
-	int	bytes_read;
 	guint16	vpi, vci;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&atm_phdr, sizeof (struct netmon_atm_hdr), fh);
-	if (bytes_read != sizeof (struct netmon_atm_hdr)) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(fh, &atm_phdr, sizeof (struct netmon_atm_hdr),
+	    err, err_info))
 		return FALSE;
-	}
 
 	vpi = g_ntohs(atm_phdr.vpi);
 	vci = g_ntohs(atm_phdr.vci);

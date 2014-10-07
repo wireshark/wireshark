@@ -82,7 +82,6 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 
 int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
-	int bytes_read;
 	char magic[sizeof btsnoop_magic];
 	struct btsnoop_hdr hdr;
 
@@ -90,10 +89,8 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a "btsnoop" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
+		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -104,13 +101,8 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
-	}
 
 	/*
 	 * Make sure it's a version we support.
@@ -181,7 +173,6 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	int	bytes_read;
 	struct btsnooprec_hdr hdr;
 	guint32 packet_size;
 	guint32 flags;
@@ -191,13 +182,8 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 	/* Read record header. */
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(fh, err_info);
-		if (*err == 0 && bytes_read != 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
 		return FALSE;
-	}
 
 	packet_size = g_ntohl(hdr.incl_len);
 	orig_size = g_ntohl(hdr.orig_len);

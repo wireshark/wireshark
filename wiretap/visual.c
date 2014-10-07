@@ -173,7 +173,6 @@ static void visual_dump_free(wtap_dumper *wdh);
 /* Open a file for reading */
 int visual_open(wtap *wth, int *err, gchar **err_info)
 {
-    int bytes_read;
     char magic[sizeof visual_magic];
     struct visual_file_hdr vfile_hdr;
     struct visual_read_info * visual;
@@ -181,11 +180,9 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
 
     /* Check the magic string at the start of the file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, sizeof magic, wth->fh);
-    if (bytes_read != sizeof magic)
+    if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info))
     {
-        *err = file_error(wth->fh, err_info);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+        if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -196,12 +193,8 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
 
     /* Read the rest of the file header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vfile_hdr, sizeof vfile_hdr, wth->fh);
-    if (bytes_read != sizeof vfile_hdr)
+    if (!wtap_read_bytes(wth->fh, &vfile_hdr, sizeof vfile_hdr, err, err_info))
     {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
         return -1;
     }
 
@@ -325,7 +318,6 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 {
     struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
     struct visual_pkt_hdr vpkt_hdr;
-    int bytes_read;
     guint32 packet_size;
     struct visual_atm_hdr vatm_hdr;
     double  t;
@@ -336,14 +328,8 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     /* Read the packet header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vpkt_hdr, (unsigned int)sizeof vpkt_hdr, fh);
-    if (bytes_read < 0 || (size_t)bytes_read != sizeof vpkt_hdr)
+    if (!wtap_read_bytes_or_eof(fh, &vpkt_hdr, (unsigned int)sizeof vpkt_hdr, err, err_info))
     {
-        *err = file_error(fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-        {
-            *err = WTAP_ERR_SHORT_READ;
-        }
         return FALSE;
     }
 
@@ -460,14 +446,8 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
            ATM packets have an additional packet header; read and
            process it. */
         errno = WTAP_ERR_CANT_READ;
-        bytes_read = file_read(&vatm_hdr, (unsigned int)sizeof vatm_hdr, fh);
-        if (bytes_read < 0 || (size_t)bytes_read != sizeof vatm_hdr)
+        if (!wtap_read_bytes(fh, &vatm_hdr, (unsigned int)sizeof vatm_hdr, err, err_info))
         {
-            *err = file_error(fh, err_info);
-            if (*err == 0)
-            {
-                *err = WTAP_ERR_SHORT_READ;
-            }
             return FALSE;
         }
 
