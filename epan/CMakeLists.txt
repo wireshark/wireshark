@@ -939,6 +939,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mausb.c
 	dissectors/packet-mbim.c
 	dissectors/packet-mbtcp.c
+	dissectors/packet-mcpe.c
 	dissectors/packet-mdshdr.c
 	dissectors/packet-media.c
 	dissectors/packet-megaco.c
@@ -1131,6 +1132,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-quic.c
 	dissectors/packet-radius.c
 	dissectors/packet-radius_packetcable.c
+	dissectors/packet-raknet.c
 	dissectors/packet-raw.c
 	dissectors/packet-rdm.c
 	dissectors/packet-rdp.c

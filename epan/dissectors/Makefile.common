@@ -140,6 +140,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-lppa.c	\
 	packet-lppe.c	\
 	packet-lte-rrc.c	\
+	packet-mcpe.c  \
 	packet-mms.c	\
 	packet-mpeg-audio.c	\
 	packet-mpeg-pes.c	\
@@ -164,6 +165,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-q932.c	\
 	packet-q932-ros.c	\
 	packet-qsig.c	\
+	packet-raknet.c \
 	packet-ranap.c	\
 	packet-ros.c	\
 	packet-rrc.c	\
