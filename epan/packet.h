@@ -245,13 +245,13 @@ WS_DLL_PUBLIC void dissector_reset_uint(const char *name, const guint32 pattern)
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
-WS_DLL_PUBLIC int dissector_try_uint(dissector_table_t sub_dissectors,
+WS_DLL_PUBLIC gboolean dissector_try_uint(dissector_table_t sub_dissectors,
     const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
-WS_DLL_PUBLIC int dissector_try_uint_new(dissector_table_t sub_dissectors,
+WS_DLL_PUBLIC gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
     const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
 /** Look for a given value in a given uint dissector table and, if found,
@@ -294,7 +294,7 @@ WS_DLL_PUBLIC void dissector_reset_string(const char *name, const gchar *pattern
 /* Look for a given string in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
    return FALSE. */
-WS_DLL_PUBLIC int dissector_try_string(dissector_table_t sub_dissectors,
+WS_DLL_PUBLIC gboolean dissector_try_string(dissector_table_t sub_dissectors,
     const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /** Look for a given value in a given string dissector table and, if found,
