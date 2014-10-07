@@ -1420,8 +1420,6 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
         NO_MORE_DATA_CHECK(len);
 
-        oct = tvb_get_guint8(tvb, curr_offset);
-
         proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+1, 3, ENC_BIG_ENDIAN);
