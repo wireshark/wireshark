@@ -1,8 +1,7 @@
 = Wireshark wireshark-version:[] Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is an experimental release intended to test new features for the next
-stable release.
+This is an experimental release intended to test new features for Wireshark 2.0.
 
 == What is Wireshark?
 
@@ -27,7 +26,7 @@ since version 1.12.0:
 
 * The I/O Graph in the Gtk+ UI now supports an unlimited number of data points
 (up from 100k).
-* tshark now resets its state when changing files in ring-buffer mode.
+* TShark now resets its state when changing files in ring-buffer mode.
 * Expert Info severities can now be configured.
 * Wireshark now supports external capture interfaces.  External capture
 interfaces can be anything from a tcpdump-over-ssh pipe to a program that
