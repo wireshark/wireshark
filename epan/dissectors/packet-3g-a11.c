@@ -482,8 +482,6 @@ static const value_string a11_airlink_types[]= {
 };
 #endif
 
-static const true_false_string tfs_included_not_included = { "Included", "Not Included" };
-
 static const value_string a11_bcmcs_stype_vals[] = {
     {1, "BCMCS Flow and Registration Information"},
     {2, "Session Information"},

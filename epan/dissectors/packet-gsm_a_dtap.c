@@ -1486,7 +1486,6 @@ static const true_false_string tfs_bearer_cap_configuration = { "Reserved", "Poi
 static const true_false_string tfs_nirr = { "Data up to and including 4.8 kb/s, full rate, non-transparent, 6 kb/s radio interface rate is requested",
                         "No meaning is associated with this value" };
 static const true_false_string tfs_bearer_cap_establishment = { "Reserved", "Demand" };
-static const true_false_string tfs_included_not_included = { "Included", "Not Included" };
 static const true_false_string tfs_frame_est_supported_not_supported = { "Supported", "Not supported, only UI frames allowed" };
 static const true_false_string tfs_mode_of_operation = { "Protocol sensitive", "Bit transparent" };
 static const true_false_string tfs_log_link_neg = { "Full protocol negotiation", "Default, LLI=256 only" };
