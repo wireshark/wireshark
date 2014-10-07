@@ -140,7 +140,6 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 	char	magic[EYESDN_HDR_MAGIC_SIZE];
 
 	/* Look for eyesdn header */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -325,7 +324,6 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	/* Make sure we have enough room for the packet */
 	ws_buffer_assure_space(buf, EYESDN_MAX_PACKET_LEN);
 
-	errno = WTAP_ERR_CANT_READ;
 	pd = ws_buffer_start_ptr(buf);
 	if (!esc_read(fh, pd, pkt_len, err, err_info))
 		return FALSE;

@@ -92,7 +92,6 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	 * file begins with 0x00 0x00 0x01, it contains PES packets,
 	 * otherwise it doesn't)?
 	 */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, &n, sizeof n, err, err_info))
 		return FALSE;
 	if (file_seek(fh, -(gint64)(sizeof n), SEEK_CUR, err) == -1)
@@ -239,7 +238,6 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 	struct _mpeg_magic* m;
 	mpeg_t *mpeg;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, magic_buf, sizeof magic_buf,
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)

@@ -55,7 +55,6 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	i4btrace_t *i4btrace;
 
 	/* I4B trace files have no magic in the header... Sigh */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof(hdr), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -142,7 +141,6 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	i4b_trace_hdr_t hdr;
 	guint32 length;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
 		return FALSE;
 

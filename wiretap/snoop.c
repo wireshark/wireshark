@@ -253,7 +253,6 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	gint64 saved_offset;
 
 	/* Read in the string that should be at the start of a "snoop" file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -265,7 +264,6 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* Read the rest of the header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
 
@@ -321,7 +319,6 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read first record header. */
 	saved_offset = file_tell(wth->fh);
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(wth->fh, &rec_hdr, sizeof rec_hdr, err, err_info)) {
 		if (*err != 0)
 			return -1;
@@ -482,7 +479,6 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	int header_size;
 
 	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
 
@@ -629,7 +625,6 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	guint8	vpi;
 	guint16	vci;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &atm_phdr, sizeof atm_phdr, err, err_info))
 		return FALSE;
 
@@ -716,7 +711,6 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	shomiti_wireless_header whdr;
 	int	rsize;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &whdr, sizeof whdr, err, err_info))
 		return FALSE;
 

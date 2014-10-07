@@ -1636,11 +1636,11 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED  -9
     /** The specified format doesn't support per-packet encapsulations */
 
-#define WTAP_ERR_CANT_CLOSE                   -10
-    /** The file couldn't be closed, reason unknown */
-
-#define WTAP_ERR_CANT_READ                    -11
+#define WTAP_ERR_CANT_WRITE                   -10
     /** An attempt to read failed, reason unknown */
+
+#define WTAP_ERR_CANT_CLOSE                   -11
+    /** The file couldn't be closed, reason unknown */
 
 #define WTAP_ERR_SHORT_READ                   -12
     /** An attempt to read read less data than it should have */

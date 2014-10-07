@@ -1668,7 +1668,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, TRUE);
 
-    errno = WTAP_ERR_CANT_READ;
+    errno = WTAP_ERR_CANT_OPEN;
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,0);
@@ -1755,7 +1755,6 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, &wth->phdr, wth->frame_buffer);
 
-    errno = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
             if (lua_isnumber(L,-1)) {
@@ -1804,7 +1803,6 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     fi = push_FrameInfo(L, phdr, buf);
     lua_pushnumber(L, (lua_Number)seek_off);
 
-    *err = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,4,1,1) ) {
         case 0:
             if (lua_isstring(L,-1)) {
@@ -1916,7 +1914,6 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 
     lua_pushnumber(L, encap);
 
-    errno = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,1,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,WTAP_ERR_UNSUPPORTED_ENCAP);
@@ -2027,7 +2024,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     fc = push_CaptureInfoConst(L,wdh);
     fi = push_FrameInfoConst(L, phdr, pd);
 
-    errno = WTAP_ERR_CANT_READ;
+    errno = WTAP_ERR_CANT_WRITE;
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,0);
@@ -2064,7 +2061,7 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
 
-    errno = WTAP_ERR_CANT_READ;
+    errno = WTAP_ERR_CANT_CLOSE;
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,0);

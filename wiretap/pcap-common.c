@@ -813,7 +813,6 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	guint8	vpi;
 	guint16	vci;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, atm_phdr, SUNATM_LEN, err, err_info))
 		return FALSE;
 
@@ -895,7 +894,6 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 	guint8	vpi;
 	guint16	vci;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, atm_phdr, NOKIAATM_LEN, err, err_info))
 		return FALSE;
 
@@ -922,7 +920,6 @@ pcap_read_nokia_pseudoheader(FILE_T fh,
 {
 	guint8	phdr[NOKIA_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 
 	/* backtrack to read the 4 mysterious bytes that aren't considered
 	* part of the packet size
@@ -949,7 +946,6 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 {
 	guint8	irda_phdr[IRDA_SLL_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, irda_phdr, IRDA_SLL_LEN, err, err_info))
 		return FALSE;
 
@@ -970,7 +966,6 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 {
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, mtp2_hdr, MTP2_HDR_LEN, err, err_info))
 		return FALSE;
 
@@ -987,7 +982,6 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 {
 	guint8	lapd_phdr[LAPD_SLL_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, lapd_phdr, LAPD_SLL_LEN, err, err_info))
 		return FALSE;
 
@@ -1009,7 +1003,6 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 {
 	guint8	sita_phdr[SITA_HDR_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, sita_phdr, SITA_HDR_LEN, err, err_info))
 		return FALSE;
 
@@ -1346,7 +1339,6 @@ pcap_read_bt_pseudoheader(FILE_T fh,
 {
 	struct libpcap_bt_phdr phdr;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct libpcap_bt_phdr),
 	    err, err_info))
 		return FALSE;
@@ -1360,7 +1352,6 @@ pcap_read_bt_monitor_pseudoheader(FILE_T fh,
 {
 	struct libpcap_bt_monitor_phdr phdr;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct libpcap_bt_monitor_phdr),
 	    err, err_info))
 		return FALSE;
@@ -1376,7 +1367,6 @@ pcap_read_llcp_pseudoheader(FILE_T fh,
 {
 	guint8 phdr[LLCP_HEADER_LEN];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, phdr, LLCP_HEADER_LEN, err, err_info))
 		return FALSE;
 	pseudo_header->llcp.adapter = phdr[LLCP_ADAPTER_OFFSET];
@@ -1390,7 +1380,6 @@ pcap_read_ppp_pseudoheader(FILE_T fh,
 {
 	struct libpcap_ppp_phdr phdr;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct libpcap_ppp_phdr),
 	    err, err_info))
 		return FALSE;
@@ -1404,7 +1393,6 @@ pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
 {
   guint8 erf_hdr[sizeof(struct erf_phdr)];
 
-  errno = WTAP_ERR_CANT_READ;
   if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
     return FALSE;
   pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
@@ -1446,7 +1434,6 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
   *psize = 0;
   if (pseudo_header->erf.phdr.type & 0x80){
     do{
-      errno = WTAP_ERR_CANT_READ;
       if (!wtap_read_bytes(fh, erf_exhdr, 8, err, err_info))
 	return FALSE;
       type = erf_exhdr[0];
@@ -1480,7 +1467,6 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
   case ERF_TYPE_MC_AAL2:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
     /* Extract the Multi Channel header to include it in the pseudo header part */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
       return FALSE;
     pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
@@ -1490,7 +1476,6 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
   case ERF_TYPE_COLOR_ETH:
   case ERF_TYPE_DSM_COLOR_ETH:
     /* Extract the Ethernet additional header to include it in the pseudo header part */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
       return FALSE;
     pseudo_header->erf.subhdr.eth_hdr = pntoh16(&erf_subhdr[0]);
@@ -1508,7 +1493,6 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 {
 	struct i2c_file_hdr i2c_hdr;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &i2c_hdr, sizeof (i2c_hdr), err, err_info))
 		return FALSE;
 

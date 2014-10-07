@@ -67,7 +67,6 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
     guint64 tmp;
 
     ws_buffer_assure_space(buf, MP2T_SIZE);
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(buf), MP2T_SIZE, err, err_info))
         return FALSE;
 
@@ -152,7 +151,6 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     mp2t_filetype_t *mp2t;
 
 
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
             return -1;

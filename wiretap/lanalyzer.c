@@ -289,7 +289,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	struct tm tm;
 	lanalyzer_t *lanalyzer;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &rec_header, LA_RecordHeaderSize,
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
@@ -345,7 +344,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read records until we find the start of packets */
 	while (1) {
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
 		    LA_RecordHeaderSize, err, err_info)) {
 			if (*err == 0) {
@@ -365,7 +363,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		switch (record_type) {
 			/* Trace Summary Record */
 			case RT_Summary:
-				errno = WTAP_ERR_CANT_READ;
 				if (!wtap_read_bytes(wth->fh, summary,
 				    sizeof summary, err, err_info))
 					return -1;
@@ -449,7 +446,6 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 	time_t		tsecs;
 
 	/* read the record type and length. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
 		return FALSE;
 	if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
@@ -481,7 +477,6 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 	record_data_size = record_length - DESCRIPTOR_LEN;
 
 	/* Read the descriptor data */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
 		return FALSE;
 

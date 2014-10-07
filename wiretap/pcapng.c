@@ -435,7 +435,6 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
     }
 
     /* read option header */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, oh, sizeof (*oh), err, err_info)) {
         pcapng_debug0("pcapng_read_option: failed to read option");
         return -1;
@@ -461,7 +460,6 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
     }
 
     /* read option content */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, content, oh->option_length, err, err_info)) {
         pcapng_debug1("pcapng_read_option: failed to read content of option %u", oh->option_code);
         return -1;
@@ -521,7 +519,6 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
     }
 
     /* read block content */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &shb, sizeof shb, err, err_info)) {
         if (*err == WTAP_ERR_SHORT_READ) {
             if (first_block) {
@@ -615,7 +612,6 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
     }
 
     /* Options */
-    errno = WTAP_ERR_CANT_READ;
     to_read = bh->block_total_length - MIN_SHB_SIZE;
 
     /* Allocate enough memory to hold all options */
@@ -737,7 +733,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /* read block content */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &idb, sizeof idb, err, err_info)) {
         pcapng_debug0("pcapng_read_if_descr_block: failed to read IDB");
         return -1;
@@ -791,7 +786,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
 
     /* Options */
-    errno = WTAP_ERR_CANT_READ;
     to_read = bh->block_total_length - MIN_IDB_SIZE;
 
     /* Allocate enough memory to hold all options */
@@ -1033,7 +1027,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     }
 
     /* "(Enhanced) Packet Block" read fixed part */
-    errno = WTAP_ERR_CANT_READ;
     if (enhanced) {
         /*
          * Is this block long enough to be an EPB?
@@ -1209,7 +1202,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     wblock->packet_header->ts.nsecs = (int)(((ts % iface_info.time_units_per_second) * 1000000000) / iface_info.time_units_per_second);
 
     /* "(Enhanced) Packet Block" read capture data */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
                                 packet.cap_len - pseudo_header_len, err, err_info))
         return -1;
@@ -1236,7 +1228,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
      * epb_hash       3
      * epb_dropcount  4
      */
-    errno = WTAP_ERR_CANT_READ;
     to_read = block_total_length -
         (int)sizeof(pcapng_block_header_t) -
         block_read -    /* fixed and variable part, including padding */
@@ -1370,7 +1361,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     }
 
     /* "Simple Packet Block" read fixed part */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &spb, sizeof spb, err, err_info)) {
         pcapng_debug0("pcapng_read_simple_packet_block: failed to read packet data");
         return -1;
@@ -1480,7 +1470,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     memset((void *)&wblock->packet_header->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 
     /* "Simple Packet Block" read capture data */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
                                 simple_packet.cap_len, err, err_info))
         return -1;
@@ -1583,7 +1572,6 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
         return -1;
     }
 
-    errno = WTAP_ERR_CANT_READ;
     to_read = bh->block_total_length - 8 - 4; /* We have read the header adn should not read the final block_total_length */
 
     pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
@@ -1808,7 +1796,6 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
     }
 
     /* "Interface Statistics Block" read fixed part */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &isb, sizeof isb, err, err_info)) {
         pcapng_debug0("pcapng_read_interface_statistics_block: failed to read packet data");
         return -1;
@@ -1835,7 +1822,6 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
     wblock->data.if_stats.isb_usrdeliv         = -1;
 
     /* Options */
-    errno = WTAP_ERR_CANT_READ;
     to_read = bh->block_total_length -
         (MIN_BLOCK_SIZE + block_read);    /* fixed and variable part, including padding */
 
@@ -2055,7 +2041,6 @@ pcapng_read_block(wtap *wth, FILE_T fh, gboolean first_block, pcapng_t *pn, wtap
     memset(&(wblock->data), 0, sizeof(wblock->data));
 
     /* Try to read the (next) block header */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes_or_eof(fh, &bh, sizeof bh, err, err_info)) {
         pcapng_debug1("pcapng_read_block: wtap_read_bytes_or_eof() failed, err = %d.", *err);
         if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
@@ -2128,7 +2113,6 @@ pcapng_read_block(wtap *wth, FILE_T fh, gboolean first_block, pcapng_t *pn, wtap
     block_read += bytes_read;
 
     /* sanity check: first and second block lengths must match */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &block_total_length, sizeof block_total_length,
                          err, err_info)) {
         pcapng_debug0("pcapng_read_block: couldn't read second block length");
@@ -2271,7 +2255,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         /* peek at next block */
         /* Try to read the (next) block header */
         saved_offset = file_tell(wth->fh);
-        errno = WTAP_ERR_CANT_READ;
         if (!wtap_read_bytes_or_eof(wth->fh, &bh, sizeof bh, err, err_info)) {
             if (*err == 0) {
                 /* EOF */

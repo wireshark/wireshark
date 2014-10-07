@@ -53,7 +53,6 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info)
 {
 	char name[NAME_SIZE+1];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, name, NAME_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -123,7 +122,6 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	iptrace_1_0_phdr	pkt_hdr;
 	guint32			packet_size;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, header, sizeof header, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
@@ -299,7 +297,6 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	iptrace_2_0_phdr	pkt_hdr;
 	guint32			packet_size;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, header, sizeof header, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;

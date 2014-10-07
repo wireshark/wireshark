@@ -209,7 +209,6 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
    * Check that file starts with a valid iSeries COMMS TRACE header
    * by scanning for it in the first line
    */
-  errno = WTAP_ERR_CANT_READ;
   if (!wtap_read_bytes (wth->fh, &magic, sizeof magic, err, err_info))
     {
       if (*err != WTAP_ERR_SHORT_READ)

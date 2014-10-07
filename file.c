@@ -748,12 +748,6 @@ cf_read(capture_file *cf, gboolean reloading)
       g_free(err_info);
       break;
 
-    case WTAP_ERR_CANT_READ:
-      simple_error_message_box(
-                 "An attempt to read from the capture file failed for"
-                 " some unknown reason.");
-      break;
-
     case WTAP_ERR_SHORT_READ:
       simple_error_message_box(
                  "The capture file appears to have been cut short"
@@ -1531,12 +1525,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
                      "The capture file %s has a packet with a network type that Wireshark doesn't support.\n(%s)",
                      display_basename, err_info);
           g_free(err_info);
-          break;
-
-        case WTAP_ERR_CANT_READ:
-          simple_error_message_box(
-                     "An attempt to read from the capture file %s failed for"
-                     " some unknown reason.", display_basename);
           break;
 
         case WTAP_ERR_SHORT_READ:
@@ -4464,12 +4452,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  err_info);
       g_free(err_info);
-      break;
-
-    case WTAP_ERR_CANT_READ:
-      simple_error_message_box(
-                 "An attempt to read from the capture file failed for"
-                 " some unknown reason.");
       break;
 
     case WTAP_ERR_SHORT_READ:

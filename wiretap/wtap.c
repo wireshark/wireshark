@@ -813,31 +813,82 @@ wtap_short_string_to_encap(const char *short_name)
 }
 
 static const char *wtap_errlist[] = {
+	/* WTAP_ERR_NOT_REGULAR_FILE */
 	"The file isn't a plain file or pipe",
+
+	/* WTAP_ERR_RANDOM_OPEN_PIPE */
 	"The file is being opened for random access but is a pipe",
+
+	/* WTAP_ERR_FILE_UNKNOWN_FORMAT */
 	"The file isn't a capture file in a known format",
+
+	/* WTAP_ERR_UNSUPPORTED */
 	"File contains record data we don't support",
+
+	/* WTAP_ERR_CANT_WRITE_TO_PIPE */
 	"That file format cannot be written to a pipe",
+
+	/* WTAP_ERR_CANT_OPEN */
 	NULL,
+
+	/* WTAP_ERR_UNSUPPORTED_FILE_TYPE */
 	"Files can't be saved in that format",
+
+	/* WTAP_ERR_UNSUPPORTED_ENCAP */
 	"Files from that network type can't be saved in that format",
+
+	/* WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED */
 	"That file format doesn't support per-packet encapsulations",
+
+	/* WTAP_ERR_CANT_WRITE */
 	NULL,
+
+	/* WTAP_ERR_CANT_CLOSE */
 	NULL,
+
+	/* WTAP_ERR_SHORT_READ */
 	"Less data was read than was expected",
+
+	/* WTAP_ERR_BAD_FILE */
 	"The file appears to be damaged or corrupt",
+
+	/* WTAP_ERR_SHORT_WRITE */
 	"Less data was written than was requested",
+
+	/* WTAP_ERR_UNC_TRUNCATED */
 	"Uncompression error: data oddly truncated",
+
+	/* WTAP_ERR_UNC_OVERFLOW */
 	"Uncompression error: data would overflow buffer",
+
+	/* WTAP_ERR_UNC_BAD_OFFSET */
 	"Uncompression error: bad LZ77 offset",
+
+	/* WTAP_ERR_RANDOM_OPEN_STDIN */
 	"The standard input cannot be opened for random access",
+
+	/* WTAP_ERR_COMPRESSION_NOT_SUPPORTED */
 	"That file format doesn't support compression",
+
+	/* WTAP_ERR_CANT_SEEK */
 	NULL,
+
+	/* WTAP_ERR_CANT_SEEK_COMPRESSED */
 	NULL,
+
+	/* WTAP_ERR_DECOMPRESS */
 	"Uncompression error",
+
+	/* WTAP_ERR_INTERNAL */
 	"Internal error",
+
+	/* WTAP_ERR_PACKET_TOO_LARGE */
 	"The packet being written is too large for that format",
+
+	/* WTAP_ERR_CHECK_WSLUA */
 	NULL,
+
+	/* WTAP_ERR_REC_TYPE_UNSUPPORTED */
 	"That record type cannot be written in that format"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
@@ -1108,7 +1159,6 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info)
 {
 	ws_buffer_assure_space(buf, length);
-	errno = WTAP_ERR_CANT_READ;
 	return wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
 	    err_info);
 }

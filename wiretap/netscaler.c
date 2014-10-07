@@ -674,7 +674,6 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     gint32 page_size;
     nstrace_t *nstrace;
 
-    errno = WTAP_ERR_CANT_READ;
 
     if ((file_size = wtap_file_size(wth, err)) == -1)
         return 0;

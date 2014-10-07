@@ -123,7 +123,6 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     packet_entry_header packet_header;
     observer_dump_private_state * private_state = NULL;
 
-    errno = WTAP_ERR_CANT_READ;
     offset = 0;
 
     /* read in the buffer file header */

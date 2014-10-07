@@ -460,7 +460,6 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -476,7 +475,6 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* Read the rest of the header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
 
@@ -1139,7 +1137,6 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		hdr_size = sizeof (struct netxrayrec_2_x_hdr);
 		break;
 	}
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, (void *)&hdr, hdr_size, err, err_info)) {
 		/*
 		 * If *err is 0, we're at EOF.  *err being 0 and a return

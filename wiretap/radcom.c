@@ -101,7 +101,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 #endif
 
 	/* Read in the string that should be at the start of a RADCOM file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, r_magic, 8, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -120,7 +119,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Look for the "Active Time" string. The "frame_date" structure should
 	 * be located 32 bytes before the beginning of this string */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -130,7 +128,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	{
 		if (file_seek(wth->fh, -10, SEEK_CUR, err) == -1)
 			return -1;
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
 			if (*err != WTAP_ERR_SHORT_READ)
 				return -1;
@@ -140,7 +137,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1) return -1;
 
 	/* Get capture start time */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &start_date, sizeof(struct frame_date),
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
@@ -152,7 +148,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 
 	for (;;) {
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, search_encap, 4,
 		    err, err_info)) {
 			if (*err != WTAP_ERR_SHORT_READ)
@@ -174,7 +169,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	}
 	if (file_seek(wth->fh, 12, SEEK_CUR, err) == -1)
 		return -1;
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, search_encap, 4, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -212,7 +206,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 #if 0
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &next_date, sizeof(struct frame_date),
 	    err, err_info))
 		return -1;
@@ -220,7 +213,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	while (memcmp(&start_date, &next_date, 4)) {
 		if (file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR, err) == -1)
 			return -1;
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, &next_date, sizeof(struct frame_date),
 		    err, err_info))
 			return -1;
@@ -261,7 +253,6 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 		   XXX - should we have some way of indicating the
 		   presence and size of an FCS to our caller?
 		   That'd let us handle other file types as well. */
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, &fcs, sizeof fcs, err, err_info))
 			return FALSE;
 	}
@@ -300,7 +291,6 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	struct tm tm;
 	guint8	atmhdr[8];
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
 		return FALSE;
 
@@ -350,7 +340,6 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		 * XXX - is this stuff a pseudo-header?
 		 * The direction appears to be in the "hdr.dce" field.
 		 */
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(fh, atmhdr, sizeof atmhdr, err,
 		    err_info))
 			return FALSE;	/* Read error */

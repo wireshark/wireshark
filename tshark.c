@@ -3411,11 +3411,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       g_free(err_info);
       break;
 
-    case WTAP_ERR_CANT_READ:
-      cmdarg_err("An attempt to read from the file \"%s\" failed for some unknown reason.",
-                 cf->filename);
-      break;
-
     case WTAP_ERR_SHORT_READ:
       cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
                  cf->filename);

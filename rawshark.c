@@ -923,8 +923,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
             *err = 0;
             return FALSE;
         } else if (bytes_read < 0) {
-            *err = WTAP_ERR_CANT_READ;
-            *err_info = "Error reading header from pipe";
+            *err = errno;
             return FALSE;
         }
         bytes_needed -= bytes_read;
@@ -970,8 +969,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
             *err_info = "Got zero bytes reading data from pipe";
             return FALSE;
         } else if (bytes_read < 0) {
-            *err = WTAP_ERR_CANT_READ;
-            *err_info = "Error reading data from pipe";
+            *err = errno;
             return FALSE;
         }
         bytes_needed -= bytes_read;
@@ -1009,11 +1007,6 @@ load_cap_file(capture_file *cf)
             case WTAP_ERR_UNSUPPORTED_ENCAP:
                 cmdarg_err("The file \"%s\" has a packet with a network type that Rawshark doesn't support.\n(%s)",
                            cf->filename, err_info);
-                break;
-
-            case WTAP_ERR_CANT_READ:
-                cmdarg_err("An attempt to read from the file \"%s\" failed for some unknown reason.",
-                           cf->filename);
                 break;
 
             case WTAP_ERR_SHORT_READ:

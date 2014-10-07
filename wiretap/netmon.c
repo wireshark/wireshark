@@ -203,7 +203,6 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -216,7 +215,6 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* Read the rest of the header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
 
@@ -358,7 +356,6 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = ENOMEM;	/* we assume we're out of memory */
 		return -1;
 	}
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, frame_table, frame_table_length,
 	    err, err_info)) {
 		g_free(frame_table);
@@ -489,7 +486,6 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		hdr_size = sizeof (struct netmonrec_2_x_hdr);
 		break;
 	}
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, &hdr, hdr_size, err, err_info))
 		return FAILURE;
 
@@ -660,7 +656,6 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			}
 		}
 
-		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(fh, &trlr, trlr_size, err, err_info))
 			return FAILURE;
 
@@ -876,7 +871,6 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	struct netmon_atm_hdr atm_phdr;
 	guint16	vpi, vci;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(fh, &atm_phdr, sizeof (struct netmon_atm_hdr),
 	    err, err_info))
 		return FALSE;

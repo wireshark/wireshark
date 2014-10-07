@@ -195,7 +195,6 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     memset(&file_hdr, 0, sizeof(file_hdr));
 
     /* Read in the string that should be at the start of a HP file */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(wth->fh, file_hdr.magic, MAGIC_SIZE, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
             return -1;
@@ -341,7 +340,6 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int bytes_to_read;
     guint8 *pd;
 
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes_or_eof(fh, &rec_hdr.hdr_len, sizeof rec_hdr.hdr_len,
                                 err, err_info))
         return FALSE;
@@ -586,7 +584,6 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
      */
     ws_buffer_assure_space(buf, datalen);
     pd = ws_buffer_start_ptr(buf);
-    errno = WTAP_ERR_CANT_READ;
     if (fddihack) {
         /* read in FC, dest, src, DSAP and SSAP */
         bytes_to_read = 15;

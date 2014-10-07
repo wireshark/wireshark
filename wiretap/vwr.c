@@ -635,7 +635,6 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
     int     f_len, v_type;
     guint8  header[VW_RECORD_HEADER_LENGTH];
 
-    errno = WTAP_ERR_CANT_READ;
     *rec_size = 0;
 
     /* Read out the file data in 16-byte messages, stopping either after we find a frame,  */

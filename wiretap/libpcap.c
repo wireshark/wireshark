@@ -105,7 +105,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	int i;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
 			return -1;
@@ -173,7 +172,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* Read the rest of the header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
 		return -1;
 
@@ -741,7 +739,6 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 	guint32 temp;
 	libpcap_t *libpcap;
 
-	errno = WTAP_ERR_CANT_READ;
 	switch (wth->file_type_subtype) {
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP:

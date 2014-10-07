@@ -115,7 +115,6 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	t_5VW_Capture_Header Capture_Header;
 	int encap = WTAP_ENCAP_UNKNOWN;
 
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &Capture_Header.Info_Header,
 	    sizeof(t_5VW_Info_Header), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)

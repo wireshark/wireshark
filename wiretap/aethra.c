@@ -126,7 +126,6 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	aethra_t *aethra;
 
 	/* Read in the string that should be at the start of a "aethra" file */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, hdr.magic, sizeof hdr.magic, err,
 	    err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
@@ -138,7 +137,6 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 
 	/* Read the rest of the header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, (char *)&hdr + sizeof hdr.magic,
 	    sizeof hdr - sizeof hdr.magic, err, err_info))
 		return -1;
@@ -301,7 +299,6 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	guint32	msecs;
 
 	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes_or_eof(fh, hdr, sizeof *hdr, err, err_info))
 		return FALSE;
 

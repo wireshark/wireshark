@@ -179,7 +179,6 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     int encap;
 
     /* Check the magic string at the start of the file */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info))
     {
         if (*err != WTAP_ERR_SHORT_READ)
@@ -192,7 +191,6 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Read the rest of the file header. */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(wth->fh, &vfile_hdr, sizeof vfile_hdr, err, err_info))
     {
         return -1;
@@ -327,7 +325,6 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     guint8 *pd;
 
     /* Read the packet header. */
-    errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes_or_eof(fh, &vpkt_hdr, (unsigned int)sizeof vpkt_hdr, err, err_info))
     {
         return FALSE;
@@ -445,7 +442,6 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
            ATM packets have an additional packet header; read and
            process it. */
-        errno = WTAP_ERR_CANT_READ;
         if (!wtap_read_bytes(fh, &vatm_hdr, (unsigned int)sizeof vatm_hdr, err, err_info))
         {
             return FALSE;
