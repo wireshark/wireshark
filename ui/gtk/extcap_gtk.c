@@ -294,9 +294,23 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
             continue;
 
         /* Flags are set as is, and have not true/false switch */
-        if ((arg->arg_type == EXTCAP_ARG_BOOLFLAG)
-                && (extcap_complex_get_bool(parsed_complex) == TRUE)) {
-            call_string = g_strdup(" ");
+        if (arg->arg_type == EXTCAP_ARG_BOOLFLAG)
+        {
+            if (extcap_complex_get_bool(parsed_complex) == TRUE)
+            {
+                /* Include boolflag call in list.
+                 * Only arg->call should appear in commandline arguments.
+                 * Setting call_string to NULL here makes it perform as desired.
+                 */
+                call_string = NULL;
+            }
+            else
+            {
+                 /* Omit boolflag call from list. */
+                 g_free(parsed_complex);
+                 parsed_complex = NULL;
+                 continue;
+            }
         }
 
         if (parsed_complex != NULL && call_string == NULL)
