@@ -67,14 +67,9 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
-		if (*err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * Not enough bytes for the packet, so not a
-			 * packetlogger file.
-			 */
-			return 0;
-		}
-		return -1;
+		if (*err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	/* Verify this file belongs to us */

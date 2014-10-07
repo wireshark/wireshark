@@ -199,14 +199,9 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		        PEEKCLASSIC_V567_HDR_SIZE);
 		if (!wtap_read_bytes(wth->fh, &ep_hdr.secondary.v567,
 		    (int)sizeof(ep_hdr.secondary.v567), err, err_info)) {
-			if (*err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * Not enough bytes for a secondary
-				 * header, so not a Peek classic file.
-				 */
-				return 0;
-			}
-			return -1;
+			if (*err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
 		}
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||

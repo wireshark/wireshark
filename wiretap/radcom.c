@@ -122,14 +122,9 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	 * be located 32 bytes before the beginning of this string */
 	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
-		if (*err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * Not enough bytes for the active time string,
-			 * so not a RADCOM file.
-			 */
-			return 0;
-		}
-		return -1;
+		if (*err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 	while (memcmp(t_magic, active_time_magic, 11) != 0)
 	{
@@ -137,14 +132,9 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
-			if (*err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * Not enough bytes for the active time string,
-				 * so not a RADCOM file.
-				 */
-				return 0;
-			}
-			return -1;
+			if (*err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
 		}
 	}
 	if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1) return -1;
@@ -153,14 +143,9 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, &start_date, sizeof(struct frame_date),
 	    err, err_info)) {
-		if (*err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * Not enough bytes for the start time, so not
-			 * a RADCOM file.
-			 */
-			return 0;
-		}
-		return -1;
+		if (*err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR, err) == -1)
@@ -170,14 +155,9 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes(wth->fh, search_encap, 4,
 		    err, err_info)) {
-			if (*err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * Not enough bytes for the encapsulation,
-				 * so not a RADCOM file.
-				 */
-				return 0;
-			}
-			return -1;
+			if (*err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
 		}
 
 		if (memcmp(encap_magic, search_encap, 4) == 0)
@@ -196,14 +176,9 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_bytes(wth->fh, search_encap, 4, err, err_info)) {
-		if (*err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * Not enough bytes for the start time, so not
-			 * a RADCOM file.
-			 */
-			return 0;
-		}
-		return -1;
+		if (*err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	/* This is a radcom file */

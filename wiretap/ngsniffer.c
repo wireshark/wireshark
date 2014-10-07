@@ -790,9 +790,9 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 	for (;;) {
 		errno = WTAP_ERR_CANT_READ;
 		if (!wtap_read_bytes_or_eof(wth->fh, record_type, 2, err, err_info)) {
-			if (*err == 0)
-				return 0;	/* EOF */
-			return -1;
+			if (*err != 0)
+				return -1;
+			return 0;	/* EOF */
 		}
 
 		type = pletoh16(record_type);

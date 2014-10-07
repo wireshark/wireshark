@@ -70,13 +70,9 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
              */
             return -2;
         }
-        if (*err == WTAP_ERR_SHORT_READ) {
-            /*
-             * Not enough bytes for a packet, so not a logcat file.
-             */
-            return 0;
-        }
-        return -1;
+        if (*err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
     }
     payload_length = pletoh16(&tmp);
 
@@ -89,13 +85,9 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
 
     /* 16-bit header length (or padding, equal to 0x0000) */
     if (!wtap_read_bytes(fh, &tmp, 2, err, err_info)) {
-        if (*err == WTAP_ERR_SHORT_READ) {
-            /*
-             * Not enough bytes for a packet, so not a logcat file.
-             */
-            return 0;
-        }
-        return -1;
+        if (*err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
     }
     hdr_size = pletoh16(&tmp);
     read_sofar = 4;
@@ -121,13 +113,9 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
 
         if (!wtap_read_bytes(fh, buffer + read_sofar, entry_len - read_sofar, err, err_info)) {
             g_free(buffer);
-            if (*err == WTAP_ERR_SHORT_READ) {
-                /*
-                 * Not enough bytes for a packet, so not a logcat file.
-                 */
-                return 0;
-            }
-            return -1;
+            if (*err != WTAP_ERR_SHORT_READ)
+                return -1;
+            return 0;
         }
         read_sofar += entry_len - read_sofar;
 

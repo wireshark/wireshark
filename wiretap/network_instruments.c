@@ -103,9 +103,8 @@ static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header
 static gboolean process_packet_header(wtap *wth,
     packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
     gchar **err_info);
-static int read_packet_data(FILE_T fh, int offset_to_frame,
-    int current_offset_from_packet_header, Buffer *buf, int length,
-    int *err, char **err_info);
+static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
+    Buffer *buf, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -338,9 +337,9 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     /* pull off the packet header */
     if (!wtap_read_bytes_or_eof(fh, packet_header, sizeof *packet_header,
                                 err, err_info)) {
-        if (*err == 0)
-            return 0;    /* EOF */
-        return -1;
+        if (*err != 0)
+            return -1;
+        return 0;    /* EOF */
     }
     offset += (int)sizeof *packet_header;
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(*packet_header);
@@ -498,9 +497,8 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
 }
 
 static int
-read_packet_data(FILE_T fh, int offset_to_frame,
-    int current_offset_from_packet_header, Buffer *buf, int length,
-    int *err, char **err_info)
+read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, Buffer *buf,
+    int length, int *err, char **err_info)
 {
     int seek_increment;
     int bytes_consumed = 0;
@@ -534,8 +532,8 @@ read_packet_data(FILE_T fh, int offset_to_frame,
 }
 
 static gboolean
-skip_to_next_packet(wtap *wth, int offset_to_next_packet,
-    int current_offset_from_packet_header, int *err, char **err_info)
+skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_from_packet_header, int *err,
+    char **err_info)
 {
     int seek_increment;
 

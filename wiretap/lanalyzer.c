@@ -313,14 +313,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	}
 	if (!wtap_read_bytes(wth->fh, &header_fixed, sizeof header_fixed,
 	    err, err_info)) {
-		if (*err == WTAP_ERR_SHORT_READ) {
-			/*
-			 * Not enough bytes for the fixed-length part of
-			 * the header, so not a LANAlyzer file.
-			 */
-			return 0;
-		}
-		return -1;
+		if (*err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 	record_length -= sizeof header_fixed;
 
@@ -329,14 +324,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		comment = (char *)g_malloc(record_length + 1);
 		if (!wtap_read_bytes(wth->fh, comment, record_length,
 		    err, err_info)) {
-			if (*err == WTAP_ERR_SHORT_READ) {
-				/*
-				 * Not enough bytes for the rest of the
-				 * record, so not a LANAlyzer file.
-				 */
-				return 0;
-			}
-			return -1;
+			if (*err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
 		}
 		comment[record_length] = '\0';
 		wth->shb_hdr.opt_comment = comment;
