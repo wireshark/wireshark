@@ -568,15 +568,19 @@ static int dissect_RoleSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   offset = dissect_pkixac_RoleSyntax(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixac_RoleSyntax_PDU);
   return offset;
 }
-static void dissect_Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pkixac_Clearance(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixac_Clearance_PDU);
+  offset = dissect_pkixac_Clearance(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixac_Clearance_PDU);
+  return offset;
 }
-static void dissect_RFC3281Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RFC3281Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pkixac_RFC3281Clearance(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixac_RFC3281Clearance_PDU);
+  offset = dissect_pkixac_RFC3281Clearance(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixac_RFC3281Clearance_PDU);
+  return offset;
 }
 static int dissect_AAControls_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
@@ -850,8 +854,8 @@ void proto_register_pkixac(void) {
 /*--- Included file: packet-pkixac-syn-reg.c ---*/
 #line 1 "../../asn1/pkixac/packet-pkixac-syn-reg.c"
   /*--- Syntax registrations ---*/
-  register_ber_syntax_dissector("Clearance", proto_pkixac, dissect_Clearance_PDU);
-  register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
+  new_register_ber_syntax_dissector("Clearance", proto_pkixac, dissect_Clearance_PDU);
+  new_register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
 
 /*--- End of included file: packet-pkixac-syn-reg.c ---*/
 #line 79 "../../asn1/pkixac/packet-pkixac-template.c"
@@ -870,8 +874,8 @@ void proto_reg_handoff_pkixac(void) {
   new_register_ber_oid_dissector("1.3.6.1.5.5.7.10.2", dissect_SvceAuthInfo_PDU, proto_pkixac, "id-aca-accessIdentity");
   new_register_ber_oid_dissector("1.3.6.1.5.5.7.10.3", dissect_IetfAttrSyntax_PDU, proto_pkixac, "id-aca-chargingIdentity");
   new_register_ber_oid_dissector("1.3.6.1.5.5.7.10.4", dissect_IetfAttrSyntax_PDU, proto_pkixac, "id-aca-group");
-  register_ber_oid_dissector("2.5.1.5.55", dissect_Clearance_PDU, proto_pkixac, "id-at-clearance");
-  register_ber_oid_dissector("2.5.4.55", dissect_Clearance_PDU, proto_pkixac, "id-at-clearance");
+  new_register_ber_oid_dissector("2.5.1.5.55", dissect_Clearance_PDU, proto_pkixac, "id-at-clearance");
+  new_register_ber_oid_dissector("2.5.4.55", dissect_Clearance_PDU, proto_pkixac, "id-at-clearance");
   new_register_ber_oid_dissector("2.5.4.72", dissect_RoleSyntax_PDU, proto_pkixac, "id-at-role");
   new_register_ber_oid_dissector("2.5.29.55", dissect_Targets_PDU, proto_pkixac, "id-ce-targetInformation");
 
