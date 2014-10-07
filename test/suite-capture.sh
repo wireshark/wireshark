@@ -30,6 +30,8 @@ EXIT_ERROR=2
 WIRESHARK_CMD="$WIRESHARK -o gui.update.enabled:FALSE -k"
 WIRESHARK_GTK_CMD="$WIRESHARK_GTK -o gui.update.enabled:FALSE -k"
 
+PING_PID=
+
 capture_test_output_print() {
 	wait
 	for f in "$@"; do
@@ -43,30 +45,33 @@ capture_test_output_print() {
 
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
-	# This will have to be adjusted for non-Windows systems.
-
-	# the following will run in the background and return immediately
+	# The following will run in the background and return immediately
 	{
 	date
-	for (( x=28; x<=58; x++ )) # in effect: number the packets
+	for sweep_size in {1..240} # try to number the packets
 	do
 		# How does ping _not_ have a standard set of arguments?
 		case $WS_SYSTEM in
 			Windows)
-				ping -n 1 -l $x www.wireshark.org	;;
+				ping -n 1 -l $sweep_size www.wireshark.org	;;
 			SunOS)
-				/usr/sbin/ping www.wireshark.org $x 1		;;
+				/usr/sbin/ping www.wireshark.org $sweep_size 1		;;
 			*) # *BSD, Linux
-				ping -c 1 -s $x www.wireshark.org	;;
+				ping -c 1 -s $sweep_size www.wireshark.org	;;
 		esac
-		sleep 0.1
+		sleep 0.25 # 240 * 0.25 = 60-ish seconds
 	done
 	date
 	} > ./testout_ping.txt 2>&1 &
+        PING_PID=$!
 }
 
 ping_cleanup() {
-	wait
+	if [ -n "$PING_PID" ] ; then
+		kill $PING_PID
+		PING_PID=
+	fi
+	wait 2> /dev/null
 	rm -f ./testout_ping.txt
 }
 
