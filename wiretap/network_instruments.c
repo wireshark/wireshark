@@ -129,7 +129,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
     /* read in the buffer file header */
     if (!wtap_read_bytes(wth->fh, &file_header, sizeof file_header,
-                              err, err_info)) {
+                         err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
@@ -174,8 +174,8 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
         switch (tlvh.type) {
         case INFORMATION_TYPE_TIME_INFO:
             if (!wtap_read_bytes(wth->fh, &private_state->time_format,
-                                      sizeof private_state->time_format,
-                                      err, err_info))
+                                 sizeof private_state->time_format,
+                                 err, err_info))
                 return -1;
             private_state->time_format = GUINT32_FROM_LE(private_state->time_format);
             offset += (int)sizeof private_state->time_format;
@@ -205,7 +205,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
     /* pull off the packet header */
     if (!wtap_read_bytes(wth->fh, &packet_header, sizeof packet_header,
-                              err, err_info))
+                         err, err_info))
         return -1;
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(packet_header);
 
@@ -337,7 +337,7 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
     /* pull off the packet header */
     if (!wtap_read_bytes_or_eof(fh, packet_header, sizeof *packet_header,
-                          err, err_info)) {
+                                err, err_info)) {
         if (*err == 0)
             return 0;    /* EOF */
         return -1;
@@ -389,7 +389,7 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
         switch (tlvh.type) {
         case INFORMATION_TYPE_WIRELESS:
             if (!wtap_read_bytes(fh, &wireless_header, sizeof wireless_header,
-                                      err, err_info))
+                                 err, err_info))
                 return -1;
             /* update the pseudo header */
             pseudo_header->ieee_802_11.fcs_len = 0;

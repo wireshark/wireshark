@@ -244,7 +244,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
         /* check each Set in IPFIX Message for sanity */
         while (checked_len < msg_hdr.message_length) {
             if (!wtap_read_bytes(wth->fh, &set_hdr, IPFIX_SET_HDR_SIZE,
-                                      err, err_info)) {
+                                 err, err_info)) {
                 if (*err == WTAP_ERR_SHORT_READ) {
                     /* Not a valid IPFIX Set, so not an IPFIX file. */
                     ipfix_debug1("ipfix_open: error %d reading set", *err);

@@ -1655,7 +1655,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 }
                 ws_buffer_assure_space(&nrb_rec, nrb.record_len);
                 if (!wtap_read_bytes(fh, ws_buffer_start_ptr(&nrb_rec),
-                                          nrb.record_len, err, err_info)) {
+                                     nrb.record_len, err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv4 record data");
                     return -1;
@@ -1724,7 +1724,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 }
                 ws_buffer_assure_space(&nrb_rec, nrb.record_len);
                 if (!wtap_read_bytes(fh, ws_buffer_start_ptr(&nrb_rec),
-                                          nrb.record_len, err, err_info)) {
+                                     nrb.record_len, err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return -1;
                 }
@@ -2130,7 +2130,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, gboolean first_block, pcapng_t *pn, wtap
     /* sanity check: first and second block lengths must match */
     errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes(fh, &block_total_length, sizeof block_total_length,
-                              err, err_info)) {
+                         err, err_info)) {
         pcapng_debug0("pcapng_read_block: couldn't read second block length");
         return -1;
     }

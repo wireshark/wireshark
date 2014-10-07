@@ -209,7 +209,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 
     /* Read the rest of the file header */
     if (!wtap_read_bytes(wth->fh, file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
-			      err, err_info))
+                         err, err_info))
 	return -1;
 
     /* This is an nettl file */
@@ -343,7 +343,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
     errno = WTAP_ERR_CANT_READ;
     if (!wtap_read_bytes_or_eof(fh, &rec_hdr.hdr_len, sizeof rec_hdr.hdr_len,
-                          err, err_info))
+                                err, err_info))
         return FALSE;
     hdr_len = g_ntohs(rec_hdr.hdr_len);
     if (hdr_len < NETTL_REC_HDR_LEN) {
@@ -353,7 +353,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         return FALSE;
     }
     if (!wtap_read_bytes(fh, &rec_hdr.subsys, NETTL_REC_HDR_LEN - 2,
-                              err, err_info))
+                         err, err_info))
         return FALSE;
     subsys = g_ntohs(rec_hdr.subsys);
     hdr_len -= NETTL_REC_HDR_LEN;
