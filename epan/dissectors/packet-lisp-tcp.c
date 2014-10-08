@@ -156,7 +156,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_site_id, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         data_len -= 8;
-        proto_item_append_text(tim, ", Site-ID: %lu", siteid);
+        proto_item_append_text(tim, ", Site-ID: %"G_GINT64_MODIFIER"u", siteid);
 
         /* RLOC AFI (2 bytes) */
         afi = tvb_get_ntohs(tvb, offset);
