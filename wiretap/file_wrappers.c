@@ -1364,7 +1364,8 @@ file_error(FILE_T fh, gchar **err_info)
     if (fh->err!=0 && err_info) {
         /* g_strdup() returns NULL for NULL argument */
         *err_info = g_strdup(fh->err_info);
-    }
+    } else
+        *err_info = NULL;
     return fh->err;
 }
 

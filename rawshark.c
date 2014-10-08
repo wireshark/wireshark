@@ -966,12 +966,12 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
         bytes_read = read(fd, ptr, (int)bytes_needed);
         if (bytes_read == 0) {
             *err = WTAP_ERR_SHORT_READ;
-            *err_info = "Got zero bytes reading data from pipe";
             return FALSE;
         } else if (bytes_read < 0) {
             *err = errno;
             return FALSE;
         }
+        *err_info = NULL;
         bytes_needed -= bytes_read;
         *data_offset += bytes_read;
         ptr += bytes_read;
