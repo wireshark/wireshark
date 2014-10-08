@@ -151,6 +151,11 @@ static gint hf_sip_service_route_user     = -1;
 static gint hf_sip_service_route_host     = -1;
 static gint hf_sip_service_route_port     = -1;
 static gint hf_sip_service_route_param    = -1;
+static gint hf_sip_path                   = -1;
+static gint hf_sip_path_user              = -1;
+static gint hf_sip_path_host              = -1;
+static gint hf_sip_path_port              = -1;
+static gint hf_sip_path_param             = -1;
 
 static gint hf_sip_auth                   = -1;
 static gint hf_sip_auth_scheme            = -1;
@@ -223,6 +228,7 @@ static gint ett_sip_rack                  = -1;
 static gint ett_sip_route                 = -1;
 static gint ett_sip_record_route          = -1;
 static gint ett_sip_service_route         = -1;
+static gint ett_sip_path                  = -1;
 static gint ett_sip_ruri                  = -1;
 static gint ett_sip_to_uri                = -1;
 static gint ett_sip_curi                  = -1;
@@ -791,6 +797,15 @@ static hf_sip_uri_t sip_service_route_uri = {
     &hf_sip_service_route_port,
     &hf_sip_service_route_param,
     &ett_sip_service_route
+};
+
+static hf_sip_uri_t sip_path_uri = {
+    &hf_sip_path,
+    &hf_sip_path_user,
+    &hf_sip_path_host,
+    &hf_sip_path_port,
+    &hf_sip_path_param,
+    &ett_sip_path
 };
 
 /*
@@ -1521,8 +1536,9 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
     if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
         proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
                             uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_UTF_8|ENC_NA);
+
         /* If we have a SIP diagnostics sub dissector call it */
-        if(sip_uri_userinfo_handle){
+        if (sip_uri_userinfo_handle) {
             next_tvb = tvb_new_subset(tvb, uri_offsets->uri_user_start, uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1,
                                       uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1);
             call_dissector(sip_uri_userinfo_handle, next_tvb, pinfo, uri_item_tree);
@@ -3424,6 +3440,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             dissect_sip_route_header(tvb, route_tree, pinfo, &sip_service_route_uri, value_offset, line_end_offset);
                         }
                         break;
+                    case POS_PATH:
+                        /* Add Path subtree */
+                        if (hdr_tree) {
+                            sip_element_item = sip_proto_tree_add_string(hdr_tree,
+                                                         hf_header_array[hf_index], tvb,
+                                                         offset, next_offset - offset,
+                                                         value_offset, value_len);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
+                            route_tree = proto_item_add_subtree(sip_element_item, ett_sip_route);
+                            dissect_sip_route_header(tvb, route_tree, pinfo, &sip_path_uri, value_offset, line_end_offset);
+                        }
+                        break;
                     case POS_VIA:
                         /* Add Via subtree */
                         if (hdr_tree) {
@@ -4760,6 +4789,26 @@ void proto_register_sip(void)
           { "Service-Route URI parameter",   "sip.Service-Route.param",
             FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
+        { &hf_sip_path,
+          { "Path URI",         "sip.Path.uri",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_path_user,
+          { "Path Userinfo",    "sip.Path.user",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_path_host,
+          { "Path Host Part",   "sip.Path.host",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_path_port,
+          { "Path Host Port",   "sip.Path.port",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
+        { &hf_sip_path_param,
+          { "Path URI parameter",   "sip.Path.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+        },
 /* etxjowa end */
         { &hf_sip_contact_param,
           { "Contact parameter",       "sip.contact.parameter",
@@ -5748,6 +5797,7 @@ void proto_register_sip(void)
         &ett_sip_record_route,
         &ett_sip_service_route,
         &ett_sip_route,
+        &ett_sip_path,
         &ett_sip_ruri,
         &ett_sip_pai_uri,
         &ett_sip_pmiss_uri,
