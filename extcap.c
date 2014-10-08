@@ -257,8 +257,6 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str) {
     gint i;
     if_capabilities_t *caps = NULL;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  returned no DLTs");
-
     if (ifname != NULL && err_str != NULL)
         *err_str = NULL;
 
