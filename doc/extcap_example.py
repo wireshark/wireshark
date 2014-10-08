@@ -92,7 +92,7 @@ def extcap_interfaces():
 	print ("interface {value=example1}{display=Example interface usage for extcap}")
 
 def extcap_dlts(interface):
-	if ( interface == 'example1' ):
+	if ( interface == '1' ):
 		print ("dlt {number=147}{name=USER0}{display=Demo Implementation for Extcap}")
 
 """
