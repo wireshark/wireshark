@@ -998,7 +998,7 @@ static const value_string gw_type_vals[] = {
   { 0,      NULL }
 };
 
-static const value_string dns_classes[] = {
+const value_string dns_classes[] = {
   {C_IN,   "IN"},
   {C_CS,   "CS"},
   {C_CH,   "CH"},
@@ -1007,11 +1007,6 @@ static const value_string dns_classes[] = {
   {C_ANY,  "ANY"},
   {0,NULL}
 };
-const char *
-dns_class_name(int dns_class)
-{
-  return val_to_str(dns_class, dns_classes, "Unknown (%u)");
-}
 
 /* This function returns the number of bytes consumed and the expanded string
  * in *name.
@@ -1323,7 +1318,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   }
   if (dns_tree != NULL) {
     q_tree = proto_tree_add_subtree_format(dns_tree, tvb, offset, len, ett_dns_qd, &tq, "%s: type %s, class %s",
-                             name_out, type_name, dns_class_name(dns_class));
+                             name_out, type_name, val_to_str_const(dns_class, dns_classes, "Unknown"));
     if (is_mdns) {
       proto_item_append_text(tq, ", \"%s\" question", qu ? "QU" : "QM");
     }
@@ -1640,7 +1635,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     flush = 0;
   }
   type_name = val_to_str_ext(dns_type, &dns_types_vals_ext, "Unknown (%d)");
-  class_name = dns_class_name(dns_class);
+  class_name = val_to_str_const(dns_class, dns_classes, "Unknown");
 
   data_offset += 4;
   cur_offset += 4;
