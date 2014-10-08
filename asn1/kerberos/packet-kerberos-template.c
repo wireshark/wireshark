@@ -257,7 +257,6 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	if(pinfo->fd->flags.visited){
 		return;
 	}
-printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keylength);
 
 	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
@@ -339,7 +338,6 @@ read_keytab_file(const char *filename)
 			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
 					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data));
 			*pos=0;
-/*printf("added key for principal :%s\n", new_key->key_origin);*/
 			new_key->keytype=key.key.enctype;
 			new_key->keylength=key.key.length;
 			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
@@ -593,7 +591,6 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	if(pinfo->fd->flags.visited){
 		return;
 	}
-printf("added key in %u\n",pinfo->fd->num);
 
 	new_key = g_malloc(sizeof(service_key_t));
 	new_key->kvno = 0;
@@ -660,7 +657,6 @@ read_keytab_file(const char *service_key_file)
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);
 			count++;
-g_warning("added key: %s", sk->origin);
 		}
 		fclose(skf);
 	}
@@ -754,7 +750,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		md5_finish(&md5s, digest);
 
 		if (tvb_memeql (encr_tvb, 8, digest, 16) == 0) {
-g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			plaintext = g_malloc(data_len);
 			tvb_memcpy(encr_tvb, plaintext, CONFOUNDER_PLUS_CHECKSUM, data_len);
 			tvb_free(encr_tvb);
