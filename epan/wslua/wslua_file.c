@@ -98,7 +98,7 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"),NOP);
 /* a "File" object can be different things under the hood. It can either
    be a FILE_T from wtap struct, which it is during read operations, or it
    can be a wtap_dumper struct during write operations. A wtap_dumper struct
-   has a FILE_T member, but we can't only store its pointer here because
+   has a WFILE_T member, but we can't only store its pointer here because
    dump operations need the whole thing to write out with. Ugh. */
 static File* push_File(lua_State* L, FILE_T ft) {
     File f = (File) g_malloc(sizeof(struct _wslua_file));
