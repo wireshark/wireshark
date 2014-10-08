@@ -711,8 +711,6 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tre
 
     offset++;
 
-    value = tvb_get_ntoh24(tvb, offset);
-
     proto_tree_add_item(tree, hf_ansi_683_mcc_m_01ff80, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_683_imsi_m_11_12_7f, tvb, offset, 3, ENC_NA);
 
@@ -793,8 +791,6 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
     guint32     value;
 
     saved_offset = offset;
-
-    value = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+6, 2, ENC_NA);
     proto_tree_add_item(tree, hf_ansi_683_slotted_mode, tvb, offset, 1, ENC_NA);
@@ -2263,19 +2259,14 @@ msg_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len,
     saved_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_683_mobile_station_fw_rev, tvb, offset, 2, ENC_BIG_ENDIAN);
-
     offset += 2;
 
-    oct = tvb_get_guint8(tvb, offset);
-
     proto_tree_add_item(tree, hf_ansi_683_mobile_station_manuf_model_number, tvb, offset, 1, ENC_NA);
-
     offset++;
 
     num_feat = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_ansi_683_num_features, tvb, offset, 1, ENC_NA);
-
     offset++;
 
     SHORT_DATA_CHECK((len - (offset - saved_offset)), (guint32)(num_feat * 2));
@@ -2292,10 +2283,7 @@ msg_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len,
         subtree = proto_item_add_subtree(item, ett_rev_feat);
         offset++;
 
-        oct = tvb_get_guint8(tvb, offset);
-
         proto_tree_add_item(subtree, hf_ansi_683_feature_protocol_version, tvb, offset, 1, ENC_NA);
-
         offset++;
     }
 
@@ -2309,8 +2297,6 @@ msg_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len,
 
     if (add_len > 0)
     {
-        oct = tvb_get_guint8(tvb, offset);
-
         subtree = proto_tree_add_subtree(tree,
                 tvb, offset, 1, ett_band_cap, NULL,
                 "Band/Mode Capability Information");
@@ -2742,10 +2728,7 @@ msg_ext_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint 
 
     saved_offset = offset;
 
-    oct = tvb_get_guint8(tvb, offset);
-
     proto_tree_add_item(tree, hf_ansi_683_otasp_mobile_protocol_revision, tvb, offset, 1, ENC_NA);
-
     offset++;
 
     proto_tree_add_item(tree, hf_ansi_683_mobile_station_fw_rev, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2773,7 +2756,6 @@ msg_ext_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint 
         offset++;
 
         proto_tree_add_item(subtree, hf_ansi_683_feature_protocol_version, tvb, offset, 1, ENC_NA);
-
         offset++;
     }
 
@@ -2782,7 +2764,6 @@ msg_ext_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint 
     num_recs = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_ansi_683_number_of_capability_records, tvb, offset, 1, ENC_NA);
-
     offset++;
 
     /* minimum required length */
