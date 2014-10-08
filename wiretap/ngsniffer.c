@@ -2180,7 +2180,7 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 	      record at the end.
       outlen - length of outbuf.
       err - return error code here
-      err_info - for WTAP_ERR_BAD_FILE, return descriptive string here
+      err_info - for WTAP_ERR_DECOMPRESS, return descriptive string here
 
    Return value is the number of bytes in outbuf on return.
 */
@@ -2192,7 +2192,7 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 #define CHECK_INPUT_POINTER( length ) \
 	if ( pin + (length - 1) >= pin_end ) \
 	{ \
-		*err = WTAP_ERR_BAD_FILE; \
+		*err = WTAP_ERR_DECOMPRESS; \
 		*err_info = g_strdup("ngsniffer: Compressed data item goes past the end of the compressed block"); \
 		return ( -1 ); \
 	}
@@ -2243,14 +2243,14 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 	/* Check if offset would put us back past begin of buffer */ \
 	if ( pout - offset < outbuf ) \
 	{ \
-		*err = WTAP_ERR_BAD_FILE; \
+		*err = WTAP_ERR_DECOMPRESS; \
 		*err_info = g_strdup("ngsniffer: LZ77 compressed data has bad offset to string"); \
 		return ( -1 ); \
 	} \
 	/* Check if offset would cause us to copy on top of ourselves */ \
 	if ( pout - offset + length > pout ) \
 	{ \
-		*err = WTAP_ERR_BAD_FILE; \
+		*err = WTAP_ERR_DECOMPRESS; \
 		*err_info = g_strdup("ngsniffer: LZ77 compressed data has bad offset to string"); \
 		return ( -1 ); \
 	} \
