@@ -54,7 +54,7 @@ static int hf_elmi_reserved = -1;
 
 static const value_string elmi_msg_type[] = {
     { 0x75, "Status enquiry" },
-    { 0x7C, "Status" },
+    { 0x7D, "Status" },
     { 0, NULL }
 };
 
