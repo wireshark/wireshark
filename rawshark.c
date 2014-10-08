@@ -903,13 +903,12 @@ main(int argc, char *argv[])
  * @return TRUE on success, FALSE on failure.
  */
 static gboolean
-raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err_info, gint64 *data_offset) {
+raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
     ssize_t bytes_read = 0;
     size_t bytes_needed = sizeof(disk_hdr);
     guchar *ptr = (guchar*) &disk_hdr;
-    static gchar err_str[100];
 
     if (want_pcap_pkthdr) {
         bytes_needed = sizeof(mem_hdr);
@@ -921,9 +920,11 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
         bytes_read = read(fd, ptr, (int)bytes_needed);
         if (bytes_read == 0) {
             *err = 0;
+            *err_info = NULL;
             return FALSE;
         } else if (bytes_read < 0) {
             *err = errno;
+            *err_info = NULL;
             return FALSE;
         }
         bytes_needed -= bytes_read;
@@ -955,9 +956,8 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        g_snprintf(err_str, 100, "Bad packet length: %lu\n",
+        *err_info = g_strdup_printf("Bad packet length: %lu\n",
                    (unsigned long) bytes_needed);
-        *err_info = err_str;
         return FALSE;
     }
 
@@ -966,12 +966,13 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
         bytes_read = read(fd, ptr, (int)bytes_needed);
         if (bytes_read == 0) {
             *err = WTAP_ERR_SHORT_READ;
+            *err_info = NULL;
             return FALSE;
         } else if (bytes_read < 0) {
             *err = errno;
+            *err_info = NULL;
             return FALSE;
         }
-        *err_info = NULL;
         bytes_needed -= bytes_read;
         *data_offset += bytes_read;
         ptr += bytes_read;
@@ -983,7 +984,7 @@ static gboolean
 load_cap_file(capture_file *cf)
 {
     int          err;
-    const gchar  *err_info;
+    gchar       *err_info;
     gint64       data_offset = 0;
 
     guchar pd[WTAP_MAX_PACKET_SIZE];
@@ -1004,9 +1005,16 @@ load_cap_file(capture_file *cf)
         /* Print a message noting that the read failed somewhere along the line. */
         switch (err) {
 
+            case WTAP_ERR_UNSUPPORTED:
+                cmdarg_err("The file \"%s\" contains record data that Rawshark doesn't support.\n(%s)",
+                           cf->filename, err_info);
+                g_free(err_info);
+                break;
+
             case WTAP_ERR_UNSUPPORTED_ENCAP:
                 cmdarg_err("The file \"%s\" has a packet with a network type that Rawshark doesn't support.\n(%s)",
                            cf->filename, err_info);
+                g_free(err_info);
                 break;
 
             case WTAP_ERR_SHORT_READ:
@@ -1017,11 +1025,13 @@ load_cap_file(capture_file *cf)
             case WTAP_ERR_BAD_FILE:
                 cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
                            cf->filename, err_info);
+                g_free(err_info);
                 break;
 
             case WTAP_ERR_DECOMPRESS:
                 cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n(%s)",
                            cf->filename, err_info);
+                g_free(err_info);
                 break;
 
             default:
