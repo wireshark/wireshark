@@ -305,13 +305,14 @@ guint32 msgtype;
 									&gbl_keytype);
 	private_data->key.keytype = gbl_keytype;
 
-#.FN_BODY EncryptionKey/keyvalue
+#.FN_BODY EncryptionKey/keyvalue VAL_PTR=&out_tvb
+	tvbuff_t *out_tvb;
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	private_data->key.keylength = tvb_length_remaining(tvb, offset);
-	private_data->key.keyvalue = tvb_get_ptr(tvb, offset, private_data->key.keylength);
-
 %(DEFAULT_BODY)s
+
+	private_data->key.keylength = tvb_reported_length(out_tvb);
+	private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
 
 #.FN_BODY EncryptionKey
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
