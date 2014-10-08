@@ -424,11 +424,13 @@ WSLUA_METHOD TreeItem_add(lua_State *L) {
 
      If the `ProtoField` represents a numeric value (int, uint or float), then it's treated as a Big Endian (network order) value.
 
-     This function has a complicated form: 'treeitem:add(protofield, [tvbrange,] [[value], label]])', such that if the second
-     argument is a `TvbRange`, and a third argument is given, it's a value; but if the second argument is a non-`TvbRange` type, then
-     it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
-    */
-#define WSLUA_ARG_TreeItem_add_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
+     This function has a complicated form: 'treeitem:add([protofield,] [tvbrange,] [[value], label]])', such that if the first
+     argument is a `ProtoField` or a `Proto`, the second argument is a `TvbRange`, and a third argument is given, it's a value;
+     but if the second argument is a non-`TvbRange`, then it's the value (as opposed to filling that argument with 'nil',
+     which is invalid for this function).  If the first argument is a non-`ProtoField` and a non-`Proto` then this argument can
+     be either a `TvbRange` or a label, and the value is not in use.
+     */
+#define WSLUA_OPTARG_TreeItem_add_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
 #define WSLUA_OPTARG_TreeItem_add_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
@@ -441,11 +443,13 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 
      If the `ProtoField` represents a numeric value (int, uint or float), then it's treated as a Little Endian value.
 
-     This function has a complicated form: 'treeitem:add_le(protofield, [tvbrange,] [[value], label]])', such that if the second
-     argument is a `TvbRange`, and a third argument is given, it's a value; but if the second argument is a non-`TvbRange` type, then
-     it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
+     This function has a complicated form: 'treeitem:add_le([protofield,] [tvbrange,] [[value], label]])', such that if the first
+     argument is a `ProtoField` or a `Proto`, the second argument is a `TvbRange`, and a third argument is given, it's a value;
+     but if the second argument is a non-`TvbRange`, then it's the value (as opposed to filling that argument with 'nil',
+     which is invalid for this function).  If the first argument is a non-`ProtoField` and a non-`Proto` then this argument can
+     be either a `TvbRange` or a label, and the value is not in use.
      */
-#define WSLUA_ARG_TreeItem_add_le_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
+#define WSLUA_OPTARG_TreeItem_add_le_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
 #define WSLUA_OPTARG_TreeItem_add_le_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_le_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_le_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
