@@ -98,9 +98,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  mpa_padding@Base 1.10.0
  mpa_samples@Base 1.10.0
  mpa_version@Base 1.10.0
- nghttp2_hd_inflate_end_headers@Base 1.99.0
- nghttp2_hd_inflate_hd@Base 1.99.0
- nghttp2_hd_inflate_new@Base 1.99.0
  nstime_cmp@Base 1.12.0~rc1
  nstime_copy@Base 1.12.0~rc1
  nstime_delta@Base 1.12.0~rc1
