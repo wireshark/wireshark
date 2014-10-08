@@ -1710,7 +1710,9 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     }
     else if (retval == -1) {
         /* open error - we *must* return an error code! */
-        *err = WTAP_ERR_CANT_OPEN;
+        if (err) {
+            *err = WTAP_ERR_CANT_OPEN;
+        }
     }
     else if (retval == 0) {
         /* not our file type */
@@ -1719,7 +1721,9 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     else {
         /* not a valid return type */
         g_warning("FileHandler read_open routine returned %d", retval);
-        *err = WTAP_ERR_INTERNAL;
+        if (err) {
+            *err = WTAP_ERR_INTERNAL;
+        }
         retval = -1;
     }
 
@@ -1747,7 +1751,9 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     INIT_FILEHANDLER_ROUTINE(read,FALSE);
 
     /* Reset errno */
-    *err = errno = 0;
+    if (err) {
+        *err = errno = 0;
+    }
 
     wth->phdr.opt_comment = NULL;
 
@@ -1795,7 +1801,9 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     INIT_FILEHANDLER_ROUTINE(seek_read,FALSE);
 
     /* Reset errno */
-    *err = errno = 0;
+    if (err) {
+        *err = errno = 0;
+    }
     phdr->opt_comment = NULL;
 
     fp = push_File(L, wth->random_fh);
@@ -1962,7 +1970,9 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
     fc = push_CaptureInfoConst(L,wdh);
 
     /* Reset err */
-    *err = 0;
+    if (err) {
+        *err = 0;
+    }
 
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
@@ -2018,7 +2028,9 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     INIT_FILEHANDLER_ROUTINE(write,FALSE);
 
     /* Reset errno */
-    *err = errno = 0;
+    if (err) {
+        *err = errno = 0;
+    }
 
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
@@ -2056,7 +2068,9 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
     INIT_FILEHANDLER_ROUTINE(write_close,FALSE);
 
     /* Reset errno */
-    *err = errno = 0;
+    if (err) {
+        *err = errno = 0;
+    }
 
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
