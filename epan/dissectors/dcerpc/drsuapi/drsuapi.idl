@@ -119,7 +119,7 @@ interface drsuapi
 		GUID guid1;
 		uint8 byte_array[28];
 		uint32 str_len;
-		[size_is(str_len+1)] uint16 nc_dn[];
+		[size_is(str_len+1)] uint32 nc_dn[];
 	} drsuapi_DsReplicaSyncRequest1Info;
 
 	typedef bitmap {
