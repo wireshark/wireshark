@@ -1651,42 +1651,36 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_SHORT_WRITE                  -14
     /** An attempt to write wrote less data than it should have */
 
-#define WTAP_ERR_UNC_TRUNCATED                -15
-    /** Sniffer compressed data was oddly truncated */
-
-#define WTAP_ERR_UNC_OVERFLOW                 -16
+#define WTAP_ERR_UNC_OVERFLOW                 -15
     /** Uncompressing Sniffer data would overflow buffer */
 
-#define WTAP_ERR_UNC_BAD_OFFSET               -17
-    /** LZ77 compressed data has bad offset to string */
-
-#define WTAP_ERR_RANDOM_OPEN_STDIN            -18
+#define WTAP_ERR_RANDOM_OPEN_STDIN            -16
     /** We're trying to open the standard input for random access */
 
-#define WTAP_ERR_COMPRESSION_NOT_SUPPORTED    -19
+#define WTAP_ERR_COMPRESSION_NOT_SUPPORTED    -17
     /* The filetype doesn't support output compression */
 
-#define WTAP_ERR_CANT_SEEK                    -20
+#define WTAP_ERR_CANT_SEEK                    -18
     /** An attempt to seek failed, reason unknown */
 
-#define WTAP_ERR_CANT_SEEK_COMPRESSED         -21
+#define WTAP_ERR_CANT_SEEK_COMPRESSED         -19
     /** An attempt to seek on a compressed stream */
 
-#define WTAP_ERR_DECOMPRESS                   -22
+#define WTAP_ERR_DECOMPRESS                   -20
     /** Error decompressing */
 
-#define WTAP_ERR_INTERNAL                     -23
+#define WTAP_ERR_INTERNAL                     -21
     /** "Shouldn't happen" internal errors */
 
-#define WTAP_ERR_PACKET_TOO_LARGE             -24
+#define WTAP_ERR_PACKET_TOO_LARGE             -22
     /** Packet being written is larger than we support; do not use when
         reading, use WTAP_ERR_BAD_FILE instead */
 
-#define WTAP_ERR_CHECK_WSLUA                  -25
+#define WTAP_ERR_CHECK_WSLUA                  -23
     /** Not really an error: the file type being checked is from a Lua
         plugin, so that the code will call wslua_can_write_encap() instead if it gets this */
 
-#define WTAP_ERR_REC_TYPE_UNSUPPORTED         -26
+#define WTAP_ERR_REC_TYPE_UNSUPPORTED         -24
     /** Specified record type can't be written to that file type */
 
 #ifdef __cplusplus

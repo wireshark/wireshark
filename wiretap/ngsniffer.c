@@ -531,7 +531,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
-    unsigned char * outbuf, size_t outlen, int *err );
+    unsigned char * outbuf, size_t outlen, int *err, gchar **err_info );
 static gint64 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth,
     gboolean is_random, int *err, gchar **err_info);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
@@ -2179,6 +2179,8 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
       outbuf - decompressed contents, could contain a partial Sniffer
 	      record at the end.
       outlen - length of outbuf.
+      err - return error code here
+      err_info - for WTAP_ERR_BAD_FILE, return descriptive string here
 
    Return value is the number of bytes in outbuf on return.
 */
@@ -2190,7 +2192,8 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 #define CHECK_INPUT_POINTER( length ) \
 	if ( pin + (length - 1) >= pin_end ) \
 	{ \
-		*err = WTAP_ERR_UNC_TRUNCATED; \
+		*err = WTAP_ERR_BAD_FILE; \
+		*err_info = g_strdup("ngsniffer: Compressed data item goes past the end of the compressed block"); \
 		return ( -1 ); \
 	}
 
@@ -2240,13 +2243,15 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 	/* Check if offset would put us back past begin of buffer */ \
 	if ( pout - offset < outbuf ) \
 	{ \
-		*err = WTAP_ERR_UNC_BAD_OFFSET; \
+		*err = WTAP_ERR_BAD_FILE; \
+		*err_info = g_strdup("ngsniffer: LZ77 compressed data has bad offset to string"); \
 		return ( -1 ); \
 	} \
 	/* Check if offset would cause us to copy on top of ourselves */ \
 	if ( pout - offset + length > pout ) \
 	{ \
-		*err = WTAP_ERR_UNC_BAD_OFFSET; \
+		*err = WTAP_ERR_BAD_FILE; \
+		*err_info = g_strdup("ngsniffer: LZ77 compressed data has bad offset to string"); \
 		return ( -1 ); \
 	} \
 	/* Copy the string from previous text to output position, \
@@ -2256,7 +2261,7 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 
 static int
 SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
-		  size_t outlen, int *err)
+		  size_t outlen, int *err, gchar **err_info)
 {
 	unsigned char * pin  = inbuf;
 	unsigned char * pout = outbuf;
@@ -2383,7 +2388,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 }
 
 /*
- * XXX - is there any guarantee that this is big enough to hold the
+ * XXX - is there any guarantee that 65535 bytes is big enough to hold the
  * uncompressed data from any blob?
  */
 #define	OUTBUF_SIZE	65536
@@ -2562,7 +2567,8 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	} else {
 		/* Decompress the blob */
 		out_len = SnifferDecompress(file_inbuf, in_len,
-					    comp_stream->buf, OUTBUF_SIZE, err);
+					    comp_stream->buf, OUTBUF_SIZE, err,
+					    err_info);
 		if (out_len < 0) {
 			g_free(file_inbuf);
 			return -1;

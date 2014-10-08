@@ -855,14 +855,8 @@ static const char *wtap_errlist[] = {
 	/* WTAP_ERR_SHORT_WRITE */
 	"Less data was written than was requested",
 
-	/* WTAP_ERR_UNC_TRUNCATED */
-	"Uncompression error: data oddly truncated",
-
 	/* WTAP_ERR_UNC_OVERFLOW */
 	"Uncompression error: data would overflow buffer",
-
-	/* WTAP_ERR_UNC_BAD_OFFSET */
-	"Uncompression error: bad LZ77 offset",
 
 	/* WTAP_ERR_RANDOM_OPEN_STDIN */
 	"The standard input cannot be opened for random access",
