@@ -210,6 +210,8 @@ static guint ProtocolId;
 static guint AccessNetworkProtocolId;
 static const char *obj_id = NULL;
 static int gsm_map_tap = -1;
+static guint8 gsmmap_pdu_type = 0;
+static guint8 gsm_map_pdu_size = 0;
 
 #define SMS_ENCODING_NOT_SET    0
 #define SMS_ENCODING_7BIT       1
@@ -2079,9 +2081,6 @@ static void dissect_NokiaMAP_ext_DsdArgExt(tvbuff_t *tvb, packet_info *pinfo, pr
 
   dissect_NokiaMAP_Extensions_DsdArgExt(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
-
-static guint8 gsmmap_pdu_type = 0;
-static guint8 gsm_map_pdu_size = 0;
 
 static int
 dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree,

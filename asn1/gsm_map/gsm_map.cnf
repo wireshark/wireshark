@@ -400,10 +400,10 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	if (!actx->value_ptr)
 		return offset;
 	if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-		if (opcode == 44) {
-			actx->pinfo->p2p_dir = P2P_DIR_RECV;
-		} else if (opcode == 46) {
+		if (gsmmap_pdu_type == 1) {
 			actx->pinfo->p2p_dir = P2P_DIR_SENT;
+		} else {
+			actx->pinfo->p2p_dir = P2P_DIR_RECV;
 		}
 	}
 	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
