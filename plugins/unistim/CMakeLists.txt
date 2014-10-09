@@ -51,9 +51,18 @@ add_library(unistim ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 	plugin.rc
 )
-set_target_properties(unistim PROPERTIES PREFIX "")
-set_target_properties(unistim PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(unistim PROPERTIES FOLDER "Plugins")
+
+set_target_properties(unistim PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Plugins"
+)
+
+if(ENABLE_APPLICATION_BUNDLE)
+	set_target_properties(unistim PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark
+	)
+endif()
 
 target_link_libraries(unistim epan)
 

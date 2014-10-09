@@ -71,9 +71,18 @@ add_library(tpg ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 	plugin.rc
 )
-set_target_properties(tpg PROPERTIES PREFIX "")
-set_target_properties(tpg PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
-set_target_properties(tpg PROPERTIES FOLDER "Plugins")
+
+set_target_properties(tpg PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Plugins"
+)
+
+if(ENABLE_APPLICATION_BUNDLE)
+	set_target_properties(tpg PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark
+	)
+endif()
 
 target_link_libraries(tpg epan)
 

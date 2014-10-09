@@ -40,9 +40,18 @@ add_library(stats_tree ${LINK_MODE_MODULE}
 	${TAP_SRC}
 	plugin.rc
 )
-set_target_properties(stats_tree PROPERTIES PREFIX "")
-set_target_properties(stats_tree PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(stats_tree PROPERTIES FOLDER "Plugins")
+
+set_target_properties(stats_tree PROPERTIES
+	PREFIX ""
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Plugins"
+)
+
+if(ENABLE_APPLICATION_BUNDLE)
+	set_target_properties(stats_tree PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark
+	)
+endif()
 
 target_link_libraries(stats_tree epan)
 
