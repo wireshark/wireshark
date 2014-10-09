@@ -541,7 +541,7 @@ static gboolean ng_file_skip_seq(wtap *wth, gint64 delta, int *err,
 static gboolean ng_file_seek_rand(wtap *wth, gint64 offset, int *err,
     gchar **err_info);
 
-int
+wtap_open_return_val
 ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[sizeof ngsniffer_magic];
@@ -576,12 +576,12 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a Sniffer file */
 	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(magic, ngsniffer_magic, sizeof ngsniffer_magic)) {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/*
@@ -589,20 +589,20 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * record.
 	 */
 	if (!wtap_read_bytes(wth->fh, record_type, 2, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 	if (!wtap_read_bytes(wth->fh, record_length, 4, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	type = pletoh16(record_type);
 
 	if (type != REC_VERS) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("ngsniffer: Sniffer file doesn't start with a version record");
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	if (!wtap_read_bytes(wth->fh, &version, sizeof version, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/* Check the data link type. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
@@ -610,14 +610,14 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("ngsniffer: network type %u unknown or unsupported",
 		    version.network);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* Check the time unit */
 	if (version.timeunit >= NUM_NGSNIFF_TIMEUNITS) {
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("ngsniffer: Unknown timeunit %u", version.timeunit);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* compressed or uncompressed Sniffer file? */
@@ -648,7 +648,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	maj_vers = pletoh16(&version.maj_vers);
 	if (process_header_records(wth, err, err_info, maj_vers,
 	    version.network) < 0)
-		return -1;
+		return WTAP_OPEN_ERROR;
 	if ((version.network == NETWORK_SYNCHRO ||
 	    version.network == NETWORK_ASYNC) &&
 	    wth->file_encap == WTAP_ENCAP_PER_PACKET) {
@@ -698,7 +698,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	if (wth->random_fh != NULL) {
 		if (file_seek(wth->random_fh, current_offset, SEEK_SET, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 	}
 
 	/* This is a ngsniffer file */
@@ -770,7 +770,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	wth->file_tsprec = WTAP_TSPREC_NSEC;	/* XXX */
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 static int

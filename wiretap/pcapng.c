@@ -2176,7 +2176,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
 }
 
 /* classic wtap: open capture file */
-int
+wtap_open_return_val
 pcapng_open(wtap *wth, int *err, gchar **err_info)
 {
     int bytes_read;
@@ -2206,12 +2206,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pcapng_free_wtapng_block_data(&wblock);
         if (bytes_read == -2) {
             pcapng_debug0("pcapng_open: doesn't begin with SHB, probably not a pcap-ng file");
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
         }
         pcapng_debug0("pcapng_open: couldn't read first SHB");
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* first block must be a "Section Header Block" */
@@ -2223,7 +2223,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
          */
         pcapng_debug1("pcapng_open: first block type %u not SHB", wblock.type);
         pcapng_free_wtapng_block_data(&wblock);
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
     pn.shb_read = TRUE;
 
@@ -2262,7 +2262,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 break;
             }
             pcapng_debug1("pcapng_open:  Check for more IDB:s, wtap_read_bytes_or_eof() failed, err = %d.", *err);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         /* go back to where we were */
@@ -2288,13 +2288,13 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             pcapng_free_wtapng_block_data(&wblock);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
         pcapng_process_idb(wth, pcapng, &wblock);
         pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i",
                       wth->interface_data->len, wth->file_encap);
     }
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 

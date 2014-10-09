@@ -194,7 +194,7 @@ static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
 static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
                                           size_t len);
 
-int
+wtap_open_return_val
 iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
   gint offset;
@@ -212,8 +212,8 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
   if (!wtap_read_bytes (wth->fh, &magic, sizeof magic, err, err_info))
     {
       if (*err != WTAP_ERR_SHORT_READ)
-        return -1;
-      return 0;
+        return WTAP_OPEN_ERROR;
+      return WTAP_OPEN_NOT_MINE;
     }
 
   /*
@@ -225,7 +225,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
       if (memcmp (magic + offset, unicodemagic, sizeof unicodemagic) == 0) {
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
           {
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
           }
         /*
          * Do some basic sanity checking to ensure we can handle the
@@ -234,9 +234,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
         if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_UNICODE))
           {
             if (*err == 0)
-              return 0;
+              return WTAP_OPEN_NOT_MINE;
             else
-              return -1;
+              return WTAP_OPEN_ERROR;
           }
 
         wth->file_encap        = WTAP_ENCAP_ETHERNET;
@@ -248,9 +248,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
           {
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
           }
-        return 1;
+        return WTAP_OPEN_MINE;
       }
       offset += 1;
     }
@@ -265,7 +265,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
           {
             if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
               {
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
               }
             /*
              * Do some basic sanity checking to ensure we can handle the
@@ -274,9 +274,9 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
             if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_ASCII))
               {
                 if (*err == 0)
-                  return 0;
+                  return WTAP_OPEN_NOT_MINE;
                 else
-                  return -1;
+                  return WTAP_OPEN_ERROR;
               }
 
             wth->file_encap        = WTAP_ENCAP_ETHERNET;
@@ -288,15 +288,15 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 
             if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
               {
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
               }
-            return 1;
+            return WTAP_OPEN_MINE;
           }
         offset += 1;
       }
 
     /* Neither ASCII or UNICODE so not supported */
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
     }
 
 /*

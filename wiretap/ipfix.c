@@ -91,8 +91,6 @@ ipfix_read(wtap *wth, int *err, gchar **err_info,
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static void
-ipfix_close(wtap *wth);
 
 #define IPFIX_VERSION 10
 
@@ -182,10 +180,11 @@ ipfix_read_message(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, g
 
 
 
-/* classic wtap: open capture file.  Return 1 on success, 0 on normal failure
- * like malformed format, -1 on bad error like file system
+/* classic wtap: open capture file.  Return WTAP_OPEN_MINE on success,
+ * WTAP_OPEN_NOT_MINE on normal failure like malformed format,
+ * WTAP_OPEN_ERROR on bad error like file system
  */
-int
+wtap_open_return_val
 ipfix_open(wtap *wth, int *err, gchar **err_info)
 {
     gint i, n, records_for_ipfix_check = RECORDS_FOR_IPFIX_CHECK;
@@ -217,14 +216,14 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 *err = 0;            /* not actually an error in this case */
                 g_free(*err_info);
                 *err_info = NULL;
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
             }
             if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-                return -1; /* real failure */
+                return WTAP_OPEN_ERROR; /* real failure */
             /* else it's EOF */
             if (i < 1) {
                 /* we haven't seen enough to prove this is a ipfix file */
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
             }
             /*
              * If we got here, it's EOF and we haven't yet seen anything
@@ -237,7 +236,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
         if (file_seek(wth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
             ipfix_debug1("ipfix_open: failed seek to next message in file, %d bytes away",
                          msg_hdr.message_length);
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
         }
         checked_len = IPFIX_MSG_HDR_SIZE;
 
@@ -248,18 +247,18 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 if (*err == WTAP_ERR_SHORT_READ) {
                     /* Not a valid IPFIX Set, so not an IPFIX file. */
                     ipfix_debug1("ipfix_open: error %d reading set", *err);
-                    return 0;
+                    return WTAP_OPEN_NOT_MINE;
                 }
 
                 /* A real I/O error; fail. */
-                return -1;
+                return WTAP_OPEN_ERROR;
             }
             set_hdr.set_length = g_ntohs(set_hdr.set_length);
             if ((set_hdr.set_length < IPFIX_SET_HDR_SIZE) ||
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
                 ipfix_debug1("ipfix_open: found invalid set_length of %d",
                              set_hdr.set_length);
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
             }
 
             if (file_seek(wth->fh, set_hdr.set_length - IPFIX_SET_HDR_SIZE,
@@ -267,10 +266,16 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
             {
                 ipfix_debug1("ipfix_open: failed seek to next set in file, %d bytes away",
                              set_hdr.set_length - IPFIX_SET_HDR_SIZE);
-                return -1;
+                return WTAP_OPEN_ERROR;
             }
             checked_len += set_hdr.set_length;
         }
+    }
+
+    /* go back to beginning of file */
+    if (file_seek (wth->fh, 0, SEEK_SET, err) != 0)
+    {
+        return WTAP_OPEN_ERROR;
     }
 
     /* all's good, this is a IPFIX file */
@@ -279,15 +284,9 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     wth->file_tsprec = WTAP_TSPREC_SEC;
     wth->subtype_read = ipfix_read;
     wth->subtype_seek_read = ipfix_seek_read;
-    wth->subtype_close = ipfix_close;
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPFIX;
 
-    /* go back to beginning of file */
-    if (file_seek (wth->fh, 0, SEEK_SET, err) != 0)
-    {
-        return -1;
-    }
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 
@@ -329,12 +328,4 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
         return FALSE;
     }
     return TRUE;
-}
-
-
-/* classic wtap: close capture file */
-static void
-ipfix_close(wtap *wth _U_)
-{
-    ipfix_debug0("ipfix_close: closing file");
 }

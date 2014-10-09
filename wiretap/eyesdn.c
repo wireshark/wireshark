@@ -135,18 +135,18 @@ static gint64 eyesdn_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 	return -1;
 }
 
-int eyesdn_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info)
 {
 	char	magic[EYESDN_HDR_MAGIC_SIZE];
 
 	/* Look for eyesdn header */
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 	if (memcmp(magic, eyesdn_hdr_magic, EYESDN_HDR_MAGIC_SIZE) != 0)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_EYESDN;
@@ -155,7 +155,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = eyesdn_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */

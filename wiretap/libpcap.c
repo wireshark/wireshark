@@ -71,7 +71,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 
-int libpcap_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint32 magic;
 	struct pcap_hdr hdr;
@@ -107,8 +107,8 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the number that should be at the start of a "libpcap" file */
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	switch (magic) {
@@ -168,12 +168,12 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		/* Not a "libpcap" type we know about. */
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	if (byte_swapped) {
 		/* Byte-swap the header fields about which we care. */
@@ -187,7 +187,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("pcap: major version %u unsupported",
 		    hdr.version_major);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/*
@@ -256,7 +256,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
 		    hdr.network);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* This is a libpcap file */
@@ -317,7 +317,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
 		wth->file_tsprec = WTAP_TSPREC_NSEC;
-		return 1;
+		return WTAP_OPEN_MINE;
 	}
 
 	/*
@@ -390,7 +390,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 		if (figures_of_merit[i] == 0) {
 			/*
@@ -398,7 +398,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-				return -1;
+				return WTAP_OPEN_ERROR;
 			}
 			goto done;
 		}
@@ -408,7 +408,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * go back to the first packet and try the next one.
 		 */
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 	}
 
@@ -450,7 +450,7 @@ done:
 		 */
 		erf_populate_interfaces(wth);
 	}
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Try to read the first two records of the capture file. */

@@ -57,8 +57,7 @@ struct csids_header {
   guint16 caplen;  /* the capture length  */
 };
 
-/* XXX - return -1 on I/O error and actually do something with 'err'. */
-int csids_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
 {
   /* There is no file header. There is only a header for each packet
    * so we read a packet header and compare the caplen with iplen. They
@@ -77,31 +76,31 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   /* check the file to make sure it is a csids file. */
   if( !wtap_read_bytes( wth->fh, &hdr, sizeof( struct csids_header), err, err_info ) ) {
     if( *err != WTAP_ERR_SHORT_READ ) {
-      return -1;
+      return WTAP_OPEN_ERROR;
     }
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
   }
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
-	return 0;
+	return WTAP_OPEN_NOT_MINE;
   }
   hdr.seconds = pntoh32( &hdr.seconds );
   hdr.caplen = pntoh16( &hdr.caplen );
   if( !wtap_read_bytes( wth->fh, &tmp, 2, err, err_info ) ) {
     if( *err != WTAP_ERR_SHORT_READ ) {
-      return -1;
+      return WTAP_OPEN_ERROR;
     }
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
   }
   if( !wtap_read_bytes(wth->fh, &iplen, 2, err, err_info ) ) {
     if( *err != WTAP_ERR_SHORT_READ ) {
-      return -1;
+      return WTAP_OPEN_ERROR;
     }
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
   }
   iplen = pntoh16(&iplen);
 
   if ( iplen == 0 )
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
 
   /* if iplen and hdr.caplen are equal, default to no byteswap. */
   if( iplen > hdr.caplen ) {
@@ -114,7 +113,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
       byteswap = TRUE;
     } else {
       /* don't know this one */
-      return 0;
+      return WTAP_OPEN_NOT_MINE;
     }
   } else {
     byteswap = FALSE;
@@ -122,7 +121,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
 
   /* no file header. So reset the fh to 0 so we can read the first packet */
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-    return -1;
+    return WTAP_OPEN_ERROR;
 
   csids = (csids_t *)g_malloc(sizeof(csids_t));
   wth->priv = (void *)csids;
@@ -134,7 +133,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   wth->subtype_seek_read = csids_seek_read;
   wth->file_tsprec = WTAP_TSPREC_SEC;
 
-  return 1;
+  return WTAP_OPEN_MINE;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */

@@ -112,7 +112,7 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
 
-int network_instruments_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
     int offset;
     capture_file_header file_header;
@@ -129,15 +129,15 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     if (!wtap_read_bytes(wth->fh, &file_header, sizeof file_header,
                          err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
     offset += (int)sizeof file_header;
     CAPTURE_FILE_HEADER_FROM_LE_IN_PLACE(file_header);
 
     /* check if version info is present */
     if (memcmp(file_header.observer_version, network_instruments_magic, true_magic_length)!=0) {
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* initialize the private state */
@@ -157,7 +157,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
         /* read the TLV header */
         if (!wtap_read_bytes(wth->fh, &tlvh, sizeof tlvh, err, err_info))
-            return -1;
+            return WTAP_OPEN_ERROR;
         offset += (int)sizeof tlvh;
         TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
@@ -165,7 +165,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
                 tlvh.length, (unsigned long)sizeof tlvh);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         /* process (or skip over) the current TLV */
@@ -174,7 +174,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
             if (!wtap_read_bytes(wth->fh, &private_state->time_format,
                                  sizeof private_state->time_format,
                                  err, err_info))
-                return -1;
+                return WTAP_OPEN_ERROR;
             private_state->time_format = GUINT32_FROM_LE(private_state->time_format);
             offset += (int)sizeof private_state->time_format;
             break;
@@ -182,7 +182,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
             seek_increment = tlvh.length - (int)sizeof tlvh;
             if (seek_increment > 0) {
                 if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
-                    return -1;
+                    return WTAP_OPEN_ERROR;
             }
             offset += seek_increment;
         }
@@ -193,32 +193,32 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record (offset to first packet %d < %d)",
             header_offset, offset);
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
     seek_increment = header_offset - offset;
     if (seek_increment > 0) {
         if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
-            return -1;
+            return WTAP_OPEN_ERROR;
     }
 
     /* pull off the packet header */
     if (!wtap_read_bytes(wth->fh, &packet_header, sizeof packet_header,
                          err, err_info))
-        return -1;
+        return WTAP_OPEN_ERROR;
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(packet_header);
 
     /* check the packet's magic number */
     if (packet_header.packet_magic != observer_packet_magic) {
         *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         *err_info = g_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     /* check the data link type */
     if (observer_to_wtap_encap(packet_header.network_type) == WTAP_ENCAP_UNKNOWN) {
         *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         *err_info = g_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
     wth->file_encap = observer_to_wtap_encap(packet_header.network_type);
 
@@ -235,11 +235,11 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
     /* reset the pointer to the first packet */
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
-        return -1;
+        return WTAP_OPEN_ERROR;
 
     init_gmt_to_localtime_offset();
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 /* Reads the next packet. */

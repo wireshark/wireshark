@@ -156,7 +156,7 @@ found:
   return packet_off;
 }
 
-int ascend_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
 {
   gint64 offset;
   ws_statb64 statbuf;
@@ -170,14 +170,14 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
   offset = ascend_seek(wth, err, err_info);
   if (offset == -1) {
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-      return -1;
-    return 0;
+      return WTAP_OPEN_ERROR;
+    return WTAP_OPEN_NOT_MINE;
   }
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
   if (!check_ascend(wth->fh, &wth->phdr)) {
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
   }
 
   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
@@ -213,7 +213,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
      offset that we can apply to each packet.
    */
   if (wtap_fstat(wth, &statbuf, err) == -1) {
-    return -1;
+    return WTAP_OPEN_ERROR;
   }
   ascend->inittime = statbuf.st_ctime;
   ascend->adjusted = FALSE;
@@ -221,7 +221,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   init_parse_ascend();
 
-  return 1;
+  return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet; called from wtap_read(). */

@@ -119,7 +119,7 @@ static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
-int aethra_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val aethra_open(wtap *wth, int *err, gchar **err_info)
 {
 	struct aethra_hdr hdr;
 	struct tm tm;
@@ -129,17 +129,17 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, hdr.magic, sizeof hdr.magic, err,
 	    err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(hdr.magic, aethra_magic, sizeof aethra_magic) != 0)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, (char *)&hdr + sizeof hdr.magic,
 	    sizeof hdr - sizeof hdr.magic, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
 	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
 	wth->priv = (void *)aethra;
@@ -165,7 +165,7 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_ISDN;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_MSEC;
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 #if 0

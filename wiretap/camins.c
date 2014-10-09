@@ -299,7 +299,7 @@ camins_seek_read(wtap *wth, gint64 seek_off,
 
 
 
-int camins_open(wtap *wth, int *err, gchar **err_info _U_)
+wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     guint8  found_start_blocks = 0;
     guint8  count = 0;
@@ -311,7 +311,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
         if (!wtap_read_bytes(wth->fh, block, sizeof(block), err, err_info)) {
             if (*err == WTAP_ERR_SHORT_READ)
                 break;
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         if (block[0]==0x00 && block[1] == 0xE1)
@@ -321,11 +321,11 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
     } while (count<20);
 
     if (found_start_blocks < 2)
-        return 0;   /* no CAM Inspector file */
+        return WTAP_OPEN_NOT_MINE;   /* no CAM Inspector file */
 
     /* rewind the fh so we re-read from the beginning */
     if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
-        return -1;
+        return WTAP_OPEN_ERROR;
 
    wth->file_encap = WTAP_ENCAP_DVBCI;
    wth->snapshot_length = 0;
@@ -338,7 +338,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CAMINS;
 
    *err = 0;
-   return 1;
+   return WTAP_OPEN_MINE;
 }
 
 

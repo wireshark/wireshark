@@ -263,17 +263,17 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
 }
 
 
-int cosine_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val cosine_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for CoSine header */
 	if (!cosine_check_file_type(wth, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	wth->file_encap = WTAP_ENCAP_COSINE;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COSINE;
@@ -282,7 +282,7 @@ int cosine_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = cosine_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_CSEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */

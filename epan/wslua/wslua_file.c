@@ -1652,11 +1652,11 @@ wslua_filehandler_sequential_close(wtap *wth);
  * If the routine handles this type of file, it should set the "file_type"
  * field in the "struct wtap" to the type of the file.
  */
-static int
+static wtap_open_return_val
 wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
-    int retval = 0;
+    wtap_open_return_val retval = WTAP_OPEN_NOT_MINE;
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
@@ -1681,7 +1681,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     (*fp)->expired = TRUE;
     (*fc)->expired = TRUE;
 
-    if (retval == 1) {
+    if (retval == WTAP_OPEN_MINE) {
         /* this is our file type - set the routines and settings into wtap */
 
         if (fh->read_ref != LUA_NOREF) {
@@ -1708,13 +1708,13 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
 
         wth->file_type_subtype = fh->file_type;
     }
-    else if (retval == -1) {
+    else if (retval == WTAP_OPEN_ERROR) {
         /* open error - we *must* return an error code! */
         if (err) {
             *err = WTAP_ERR_CANT_OPEN;
         }
     }
-    else if (retval == 0) {
+    else if (retval == WTAP_OPEN_NOT_MINE) {
         /* not our file type */
         remove_wth_priv(L, wth);
     }
@@ -1724,7 +1724,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
         if (err) {
             *err = WTAP_ERR_INTERNAL;
         }
-        retval = -1;
+        retval = WTAP_OPEN_ERROR;
     }
 
     lua_settop(L,0);

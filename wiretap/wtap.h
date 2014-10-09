@@ -1255,11 +1255,13 @@ struct file_extension_info {
  *
  * The open routine should return:
  *
- *      -1 on an I/O error;
+ *      WTAP_OPEN_ERROR on an I/O error;
  *
- *      1 if the file it's reading is one of the types it handles;
+ *      WTAP_OPEN_MINE if the file it's reading is one of the types
+ *      it handles;
  *
- *      0 if the file it's reading isn't the type it handles.
+ *      WTAP_OPEN_NOT_MINE if the file it's reading isn't one of the
+ *      types it handles.
  *
  * If the routine handles this type of file, it should set the "file_type"
  * field in the "struct wtap" to the type of the file.
@@ -1269,9 +1271,17 @@ struct file_extension_info {
  * (See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8518)
  *
  * However, the caller does have to free the private data pointer when
- * returning 0, since the next file type will be called and will likely
- * just overwrite the pointer.
+ * returning WTAP_OPEN_NOT_MINE, since the next file type will be called
+ * and will likely just overwrite the pointer.
  */
+typedef enum {
+	WTAP_OPEN_NOT_MINE = 0,
+	WTAP_OPEN_MINE = 1,
+	WTAP_OPEN_ERROR = -1
+} wtap_open_return_val;
+
+typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
+    char **);
 
 /*
  * Some file formats have defined magic numbers at fixed offsets from
@@ -1282,11 +1292,8 @@ struct file_extension_info {
  * Those file formats do not require a file name extension in order
  * to recognize them or to avoid recognizing other file types as that
  * type, and have no extensions specified for them.
- */
-typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
-
-/*
- * Some file formats don't have defined magic numbers at fixed offsets,
+ *
+ * Other file formats don't have defined magic numbers at fixed offsets,
  * so a heuristic is required.  If that file format has any file name
  * extensions used for it, a list of those extensions should be
  * specified, so that, if the name of the file being opened has an

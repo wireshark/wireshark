@@ -186,7 +186,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
-int netmon_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[MAGIC_SIZE];
 	struct netmon_hdr hdr;
@@ -205,18 +205,18 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * Monitor file */
 	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(magic, netmon_1_x_magic, MAGIC_SIZE) != 0 &&
 	    memcmp(magic, netmon_2_x_magic, MAGIC_SIZE) != 0) {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	switch (hdr.ver_major) {
 
@@ -231,7 +231,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: major version %u unsupported", hdr.ver_major);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	hdr.network = pletoh16(&hdr.network);
@@ -240,7 +240,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 		    hdr.network);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* This is a netmon file */
@@ -321,13 +321,13 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	if (frame_table_size == 0) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	/*
 	 * XXX - clamp the size of the frame table, so that we don't
@@ -346,20 +346,20 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is larger than we support",
 		    frame_table_length);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	frame_table = (guint32 *)g_try_malloc(frame_table_length);
 	if (frame_table_length != 0 && frame_table == NULL) {
 		*err = ENOMEM;	/* we assume we're out of memory */
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	if (!wtap_read_bytes(wth->fh, frame_table, frame_table_length,
 	    err, err_info)) {
 		g_free(frame_table);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	netmon->frame_table_size = frame_table_size;
 	netmon->frame_table = frame_table;

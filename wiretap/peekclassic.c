@@ -151,7 +151,7 @@ static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
 static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
-int peekclassic_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
 	struct timeval reference_time;
@@ -170,8 +170,8 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, &ep_hdr.master,
 	    (int)sizeof(ep_hdr.master), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/*
@@ -200,15 +200,15 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		if (!wtap_read_bytes(wth->fh, &ep_hdr.secondary.v567,
 		    (int)sizeof(ep_hdr.secondary.v567), err, err_info)) {
 			if (*err != WTAP_ERR_SHORT_READ)
-				return -1;
-			return 0;
+				return WTAP_OPEN_ERROR;
+			return WTAP_OPEN_NOT_MINE;
 		}
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
 		    (0 != ep_hdr.secondary.v567.reserved[1]) ||
 		    (0 != ep_hdr.secondary.v567.reserved[2])) {
 			/* still unknown */
-			return 0;
+			return WTAP_OPEN_NOT_MINE;
 		}
 
 		/*
@@ -245,7 +245,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 				/*
 				 * Assume this isn't a Peek classic file.
 				 */
-				return 0;
+				return WTAP_OPEN_NOT_MINE;
 			}
 			break;
 
@@ -265,7 +265,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 				/*
 				 * Assume this isn't a Peek classic file.
 				 */
-				return 0;
+				return WTAP_OPEN_NOT_MINE;
 			}
 			break;
 
@@ -273,7 +273,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 			/*
 			 * Assume this isn't a Peek classic file.
 			 */
-			return 0;
+			return WTAP_OPEN_NOT_MINE;
 		}
 
 
@@ -309,7 +309,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		/*
 		 * Assume this isn't a Peek classic file.
 		 */
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/*
@@ -350,7 +350,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length   = 0; /* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,

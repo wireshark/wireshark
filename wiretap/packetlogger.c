@@ -55,31 +55,31 @@ static gboolean packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
-int packetlogger_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;
 	guint8 type;
 
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Verify this file belongs to us */
 	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&
 	      (type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF)))
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/* Set up the pointers to the handlers for this file type */
 	wth->subtype_read = packetlogger_read;
@@ -89,7 +89,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1; /* Our kind of file */
+	return WTAP_OPEN_MINE; /* Our kind of file */
 }
 
 static gboolean

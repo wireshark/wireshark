@@ -822,7 +822,7 @@ static void k12_close(wtap *wth) {
 }
 
 
-int k12_open(wtap *wth, int *err, gchar **err_info) {
+wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
     k12_src_desc_t* rec;
     guint8 header_buffer[K12_FILE_HDR_LEN];
     guint8* read_buffer;
@@ -855,14 +855,14 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     if ( !wtap_read_bytes(wth->fh,header_buffer,K12_FILE_HDR_LEN,err,err_info) ) {
         K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
         if (*err != WTAP_ERR_SHORT_READ) {
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if ( memcmp(header_buffer,k12_file_magic,8) != 0 ) {
         K12_DBG(1,("k12_open: BAD MAGIC"));
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     offset = K12_FILE_HDR_LEN;
@@ -884,20 +884,20 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         if ( len < 0 ) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             destroy_k12_file_data(file_data);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
         if (len == 0) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         if (len == 0) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         read_buffer = file_data->seq_read_buff;
@@ -908,7 +908,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("k12_open: record length %u < %u",
                                         rec_len, K12_RECORD_TYPE + 4);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
         type = pntoh32( read_buffer + K12_RECORD_TYPE );
 
@@ -919,7 +919,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
              */
             if (file_seek(wth->fh, offset, SEEK_SET, err) == -1) {
                 destroy_k12_file_data(file_data);
-                return -1;
+                return WTAP_OPEN_ERROR;
             }
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
             break;
@@ -933,7 +933,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                             rec_len, K12_SRCDESC_STACKLEN + 2);
                 destroy_k12_file_data(file_data);
                 g_free(rec);
-                return -1;
+                return WTAP_OPEN_ERROR;
             }
             extra_len = pntoh16( read_buffer + K12_SRCDESC_EXTRALEN );
             name_len = pntoh16( read_buffer + K12_SRCDESC_NAMELEN );
@@ -950,7 +950,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
                 destroy_k12_file_data(file_data);
                 g_free(rec);
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
             }
 
             if (extra_len) {
@@ -961,7 +961,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                                 rec_len, K12_SRCDESC_EXTRATYPE + 4);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
-                    return -1;
+                    return WTAP_OPEN_ERROR;
                 }
                 switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
                     case K12_PORT_DS0S:
@@ -972,7 +972,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                                         rec_len, K12_SRCDESC_DS0_MASK + 12);
                             destroy_k12_file_data(file_data);
                             g_free(rec);
-                            return -1;
+                            return WTAP_OPEN_ERROR;
                         }
 
                         rec->input_info.ds0mask = 0x00000000;
@@ -990,7 +990,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                                         rec_len, K12_SRCDESC_DS0_MASK + 12);
                             destroy_k12_file_data(file_data);
                             g_free(rec);
-                            return -1;
+                            return WTAP_OPEN_ERROR;
                         }
 
                         rec->input_info.atm.vp = pntoh16( read_buffer + K12_SRCDESC_ATM_VPI );
@@ -1008,7 +1008,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                                 rec_len, K12_SRCDESC_DS0_MASK + 12);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
-                    return -1;
+                    return WTAP_OPEN_ERROR;
                 }
                 if (read_buffer[K12_SRCDESC_PORT_TYPE] >= 0x14
                     && read_buffer[K12_SRCDESC_PORT_TYPE] <= 0x17) {
@@ -1033,7 +1033,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                                             rec_len, K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len);
                 destroy_k12_file_data(file_data);
                 g_free(rec);
-                return -1;
+                return WTAP_OPEN_ERROR;
             }
             rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
             rec->stack_file = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
@@ -1069,7 +1069,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     wth->priv = (void *)file_data;
     wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 typedef struct {

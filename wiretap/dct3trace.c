@@ -155,7 +155,7 @@ xml_get_int(int *val, const char *str, const char *pattern)
 }
 
 
-int dct3trace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val dct3trace_open(wtap *wth, int *err, gchar **err_info)
 {
 	char line1[64], line2[64];
 
@@ -165,15 +165,15 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 	{
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Don't compare line endings */
 	if( strncmp(dct3trace_magic_line1, line1, strlen(dct3trace_magic_line1)) != 0 ||
 		strncmp(dct3trace_magic_line2, line2, strlen(dct3trace_magic_line2)) != 0)
 	{
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	wth->file_encap = WTAP_ENCAP_GSM_UM;
@@ -183,7 +183,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = dct3trace_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_SEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 

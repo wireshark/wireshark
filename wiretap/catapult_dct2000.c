@@ -166,7 +166,7 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 /********************************************/
 /* Open file (for reading)                 */
 /********************************************/
-int
+wtap_open_return_val
 catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
 {
     gint64  offset = 0;
@@ -187,18 +187,18 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     if (!read_new_line(wth->fh, &offset, &firstline_length, linebuff,
                        sizeof linebuff, err, err_info)) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
     if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
         firstline_length >= MAX_FIRST_LINE_LENGTH) {
 
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* This file is not for us if it doesn't match our signature */
     if (memcmp(catapult_dct2000_magic, linebuff, strlen(catapult_dct2000_magic)) != 0) {
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* Make sure table is ready for use */
@@ -227,15 +227,15 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
                        linebuff, sizeof linebuff, err, err_info)) {
         g_free(file_externals);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
     if ((file_externals->secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
         (!get_file_time_stamp(linebuff, &timestamp, &usecs))) {
 
         /* Give up if file time line wasn't valid */
         g_free(file_externals);
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* Fill in timestamp */
@@ -273,7 +273,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     wth->priv = (void*)file_externals;
 
     *err = errno;
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 /* Ugly, but much faster than using g_snprintf! */

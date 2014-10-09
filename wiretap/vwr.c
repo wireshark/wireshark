@@ -525,7 +525,7 @@ static float        getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, g
 /* This does very little, except setting the wiretap header for a VWR file type */
 /*  and setting the timestamp precision to microseconds.                        */
 
-int vwr_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val vwr_open(wtap *wth, int *err, gchar **err_info)
 {
     int    fpgaVer;
     vwr_t *vwr;
@@ -534,10 +534,10 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 
     fpgaVer = vwr_get_fpga_version(wth, err, err_info);
     if (fpgaVer == -1) {
-        return -1; /* I/O error */
+        return WTAP_OPEN_ERROR; /* I/O error */
     }
     if (fpgaVer == UNKNOWN_FPGA) {
-        return 0; /* not a VWR file */
+        return WTAP_OPEN_NOT_MINE; /* not a VWR file */
     }
 
     /* This is a vwr file */
@@ -559,7 +559,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
     else if (fpgaVer == vVW510012_E_FPGA || fpgaVer == vVW510024_E_FPGA)
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_ETH;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 

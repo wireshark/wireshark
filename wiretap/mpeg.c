@@ -231,7 +231,7 @@ struct _mpeg_magic {
 	{ 0, NULL }
 };
 
-int
+wtap_open_return_val
 mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic_buf[16];
@@ -241,8 +241,8 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, magic_buf, sizeof magic_buf,
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	for (m=magic; m->match; m++) {
@@ -250,12 +250,12 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 			goto good_magic;
 	}
 
-	return 0;
+	return WTAP_OPEN_NOT_MINE;
 
 good_magic:
 	/* This appears to be a file with MPEG data. */
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG;
 	wth->file_encap = WTAP_ENCAP_MPEG;
@@ -270,5 +270,5 @@ good_magic:
 	mpeg->now.nsecs = 0;
 	mpeg->t0 = mpeg->now.secs;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }

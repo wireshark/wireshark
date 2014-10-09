@@ -257,12 +257,12 @@ static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
-int logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
+wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
     gchar cbuff[WTAP_MAX_PACKET_SIZE];
     gchar *ret = NULL;
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-        return -1;
+        return WTAP_OPEN_ERROR;
 
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, wth->fh);
@@ -300,18 +300,18 @@ int logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_LONG;
     } else {
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-        return -1;
+        return WTAP_OPEN_ERROR;
 
     wth->snapshot_length = 0;
 
     wth->subtype_read = logcat_text_read;
     wth->subtype_seek_read = logcat_text_seek_read;
     wth->file_tsprec = WTAP_TSPREC_USEC;
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 int logcat_text_brief_dump_can_write_encap(int encap) {

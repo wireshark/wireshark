@@ -859,16 +859,16 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		result = (*open_routines[type - 1].open_routine)(wth, err, err_info);
 
 		switch (result) {
-			case -1:
-				/* I/O error - give up */
+			case WTAP_OPEN_ERROR:
+				/* Error - give up */
 				wtap_close(wth);
 				return NULL;
 
-			case 0:
-				/* No I/O error, but not that type of file */
+			case WTAP_OPEN_NOT_MINE:
+				/* No error, but not that type of file */
 				goto fail;
 
-			case 1:
+			case WTAP_OPEN_MINE:
 				/* We found the file type */
 				goto success;
 		}
@@ -884,7 +884,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 
 		   Initialize the data offset while we're at it. */
 		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-			/* I/O error - give up */
+			/* Error - give up */
 			wtap_close(wth);
 			return NULL;
 		}
@@ -897,16 +897,16 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 
 		switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
 
-		case -1:
-			/* I/O error - give up */
+		case WTAP_OPEN_ERROR:
+			/* Error - give up */
 			wtap_close(wth);
 			return NULL;
 
-		case 0:
-			/* No I/O error, but not that type of file */
+		case WTAP_OPEN_NOT_MINE:
+			/* No error, but not that type of file */
 			break;
 
-		case 1:
+		case WTAP_OPEN_MINE:
 			/* We found the file type */
 			goto success;
 		}
@@ -922,7 +922,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 			if (heuristic_uses_extension(i, extension)) {
 				/* Yes. */
 				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-					/* I/O error - give up */
+					/* Error - give up */
 					g_free(extension);
 					wtap_close(wth);
 					return NULL;
@@ -936,17 +936,17 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 				switch ((*open_routines[i].open_routine)(wth,
 				    err, err_info)) {
 
-				case -1:
-					/* I/O error - give up */
+				case WTAP_OPEN_ERROR:
+					/* Error - give up */
 					g_free(extension);
 					wtap_close(wth);
 					return NULL;
 
-				case 0:
-					/* No I/O error, but not that type of file */
+				case WTAP_OPEN_NOT_MINE:
+					/* No error, but not that type of file */
 					break;
 
-				case 1:
+				case WTAP_OPEN_MINE:
 					/* We found the file type */
 					g_free(extension);
 					goto success;
@@ -960,7 +960,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 			if (!heuristic_uses_extension(i, extension)) {
 				/* No. */
 				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-					/* I/O error - give up */
+					/* Error - give up */
 					g_free(extension);
 					wtap_close(wth);
 					return NULL;
@@ -974,17 +974,17 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 				switch ((*open_routines[i].open_routine)(wth,
 				    err, err_info)) {
 
-				case -1:
-					/* I/O error - give up */
+				case WTAP_OPEN_ERROR:
+					/* Error - give up */
 					g_free(extension);
 					wtap_close(wth);
 					return NULL;
 
-				case 0:
-					/* No I/O error, but not that type of file */
+				case WTAP_OPEN_NOT_MINE:
+					/* No error, but not that type of file */
 					break;
 
-				case 1:
+				case WTAP_OPEN_MINE:
 					/* We found the file type */
 					g_free(extension);
 					goto success;
@@ -997,7 +997,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
 
 			if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-				/* I/O error - give up */
+				/* Error - give up */
 				wtap_close(wth);
 				return NULL;
 			}
@@ -1009,16 +1009,16 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 
 			switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
 
-			case -1:
-				/* I/O error - give up */
+			case WTAP_OPEN_ERROR:
+				/* Error - give up */
 				wtap_close(wth);
 				return NULL;
 
-			case 0:
-				/* No I/O error, but not that type of file */
+			case WTAP_OPEN_NOT_MINE:
+				/* No error, but not that type of file */
 				break;
 
-			case 1:
+			case WTAP_OPEN_MINE:
 				/* We found the file type */
 				goto success;
 			}

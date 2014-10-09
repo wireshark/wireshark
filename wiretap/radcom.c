@@ -91,7 +91,7 @@ static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
 static gboolean radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info);
 
-int radcom_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8 r_magic[8], t_magic[11], search_encap[7];
 	struct frame_date start_date;
@@ -103,8 +103,8 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a RADCOM file */
 	if (!wtap_read_bytes(wth->fh, r_magic, 8, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* XXX: bytes 2 and 3 of the "magic" header seem to be different in some
@@ -114,45 +114,46 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	r_magic[1] = 0xD2;
 	r_magic[2] = 0x00;
 	if (memcmp(r_magic, radcom_magic, 8) != 0) {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Look for the "Active Time" string. The "frame_date" structure should
 	 * be located 32 bytes before the beginning of this string */
 	if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 	while (memcmp(t_magic, active_time_magic, 11) != 0)
 	{
 		if (file_seek(wth->fh, -10, SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 		if (!wtap_read_bytes(wth->fh, t_magic, 11, err, err_info)) {
 			if (*err != WTAP_ERR_SHORT_READ)
-				return -1;
-			return 0;
+				return WTAP_OPEN_ERROR;
+			return WTAP_OPEN_NOT_MINE;
 		}
 	}
-	if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1) return -1;
+	if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1)
+		return WTAP_OPEN_ERROR;
 
 	/* Get capture start time */
 	if (!wtap_read_bytes(wth->fh, &start_date, sizeof(struct frame_date),
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	for (;;) {
 		if (!wtap_read_bytes(wth->fh, search_encap, 4,
 		    err, err_info)) {
 			if (*err != WTAP_ERR_SHORT_READ)
-				return -1;
-			return 0;
+				return WTAP_OPEN_ERROR;
+			return WTAP_OPEN_NOT_MINE;
 		}
 
 		if (memcmp(encap_magic, search_encap, 4) == 0)
@@ -165,14 +166,14 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		 * try the 4 bytes at that offset.
 		 */
 		if (file_seek(wth->fh, -3, SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 	}
 	if (file_seek(wth->fh, 12, SEEK_CUR, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 	if (!wtap_read_bytes(wth->fh, search_encap, 4, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* This is a radcom file */
@@ -202,35 +203,35 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	else {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("radcom: network type \"%.4s\" unknown", search_encap);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 #if 0
 	if (!wtap_read_bytes(wth->fh, &next_date, sizeof(struct frame_date),
 	    err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	while (memcmp(&start_date, &next_date, 4)) {
 		if (file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 		if (!wtap_read_bytes(wth->fh, &next_date, sizeof(struct frame_date),
 		    err, err_info))
-			return -1;
+			return WTAP_OPEN_ERROR;
 	}
 #endif
 
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
 		if (file_seek(wth->fh, 294, SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		if (file_seek(wth->fh, 297, SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 	} else if (wth->file_encap == WTAP_ENCAP_ATM_RFC1483) {
 		if (file_seek(wth->fh, 504, SEEK_CUR, err) == -1)
-			return -1;
+			return WTAP_OPEN_ERROR;
 	}
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */

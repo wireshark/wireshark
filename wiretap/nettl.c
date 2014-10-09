@@ -185,7 +185,7 @@ static gboolean nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 
-int nettl_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val nettl_open(wtap *wth, int *err, gchar **err_info)
 {
     struct nettl_file_hdr file_hdr;
     guint16 dummy[2];
@@ -197,19 +197,19 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     /* Read in the string that should be at the start of a HP file */
     if (!wtap_read_bytes(wth->fh, file_hdr.magic, MAGIC_SIZE, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (memcmp(file_hdr.magic, nettl_magic_hpux9, MAGIC_SIZE) &&
         memcmp(file_hdr.magic, nettl_magic_hpux10, MAGIC_SIZE)) {
-	return 0;
+	return WTAP_OPEN_NOT_MINE;
     }
 
     /* Read the rest of the file header */
     if (!wtap_read_bytes(wth->fh, file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
                          err, err_info))
-	return -1;
+	return WTAP_OPEN_ERROR;
 
     /* This is an nettl file */
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTL;
@@ -227,9 +227,9 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     if (!wtap_read_bytes_or_eof(wth->fh, dummy, 4, err, err_info)) {
         if (*err == 0) {
             /* EOF, so no records */
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
         }
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     subsys = g_ntohs(dummy[1]);
@@ -266,11 +266,11 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     }
 
     if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
     wth->file_tsprec = WTAP_TSPREC_USEC;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */

@@ -242,7 +242,7 @@ init_state(pppdump_t *state)
 }
 
 
-int
+wtap_open_return_val
 pppdump_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
@@ -259,8 +259,8 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, buffer, sizeof(buffer),
 	    err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (buffer[0] == PPPD_RESET_TIME &&
@@ -273,13 +273,13 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 		goto my_file_type;
 	}
 	else {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
   my_file_type:
 
 	if (file_seek(wth->fh, 5, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	state = (pppdump_t *)g_malloc(sizeof(pppdump_t));
 	wth->priv = (void *)state;
@@ -309,7 +309,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 		state->pids = NULL;
 	state->pkt_cnt = 0;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Set part of the struct wtap_pkthdr. */

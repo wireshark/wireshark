@@ -103,7 +103,7 @@ static gboolean ber_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
   return ber_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-int ber_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
@@ -118,8 +118,8 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
 
   if (!wtap_read_bytes(wth->fh, &bytes, BER_BYTES_TO_CHECK, err, err_info)) {
     if (*err != WTAP_ERR_SHORT_READ)
-      return -1;
-    return 0;
+      return WTAP_OPEN_ERROR;
+    return WTAP_OPEN_NOT_MINE;
   }
 
   ber_id = bytes[offset++];
@@ -134,7 +134,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   if(!(ber_pc &&
        (((ber_class == BER_CLASS_UNI) && ((ber_tag == BER_UNI_TAG_SET) || (ber_tag == BER_UNI_TAG_SEQ))) ||
 	((ber_class == BER_CLASS_CON) && (ber_tag < 32)))))
-    return 0;
+    return WTAP_OPEN_NOT_MINE;
 
   /* now check the length */
   oct = bytes[offset++];
@@ -162,7 +162,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
     file_size = wtap_file_size(wth, err);
 
     if(len != file_size) {
-      return 0; /* not ASN.1 */
+      return WTAP_OPEN_NOT_MINE; /* not ASN.1 */
     }
   } else {
     /* Indefinite length encoded - assume it is BER */
@@ -170,7 +170,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
 
   /* seek back to the start of the file  */
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-    return -1;
+    return WTAP_OPEN_ERROR;
 
   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BER;
   wth->file_encap = WTAP_ENCAP_BER;
@@ -180,5 +180,5 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   wth->subtype_seek_read = ber_seek_read;
   wth->file_tsprec = WTAP_TSPREC_SEC;
 
-  return 1;
+  return WTAP_OPEN_MINE;
 }

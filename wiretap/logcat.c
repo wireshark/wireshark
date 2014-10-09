@@ -236,7 +236,7 @@ static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
-int logcat_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val logcat_open(wtap *wth, int *err, gchar **err_info)
 {
     gint                version;
     gint                tmp_version;
@@ -245,29 +245,29 @@ int logcat_open(wtap *wth, int *err, gchar **err_info)
     /* check first 3 packets (or 2 or 1 if EOF) versions to check file format is correct */
     version = detect_version(wth->fh, err, err_info); /* first packet */
     if (version == -1)
-        return -1; /* I/O error */
+        return WTAP_OPEN_ERROR; /* I/O error */
     if (version == 0)
-        return 0;  /* not a logcat file */
+        return WTAP_OPEN_NOT_MINE;  /* not a logcat file */
     if (version == -2)
-        return 0;  /* empty file, so not any type of file */
+        return WTAP_OPEN_NOT_MINE;  /* empty file, so not any type of file */
 
     tmp_version = detect_version(wth->fh, err, err_info); /* second packet */
     if (tmp_version == -1)
-        return -1; /* I/O error */
+        return WTAP_OPEN_ERROR; /* I/O error */
     if (tmp_version == 0)
-        return 0;  /* not a logcat file */
+        return WTAP_OPEN_NOT_MINE;  /* not a logcat file */
     if (tmp_version != -2) {
         /* we've read two packets; do they have the same version? */
         if (tmp_version != version) {
             /* no, so this is presumably not a logcat file */
-            return 0;
+            return WTAP_OPEN_NOT_MINE;
         }
 
         tmp_version = detect_version(wth->fh, err, err_info); /* third packet */
         if (tmp_version < 0)
-            return -1; /* I/O error */
+            return WTAP_OPEN_ERROR; /* I/O error */
         if (tmp_version == 0)
-            return 0;  /* not a logcat file */
+            return WTAP_OPEN_NOT_MINE;  /* not a logcat file */
         if (tmp_version != -2) {
             /*
              * we've read three packets and the first two have the same
@@ -275,13 +275,13 @@ int logcat_open(wtap *wth, int *err, gchar **err_info)
              */
             if (tmp_version != version) {
                 /* no, so this is presumably not a logcat file */
-                return 0;
+                return WTAP_OPEN_NOT_MINE;
             }
         }
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-        return -1;
+        return WTAP_OPEN_ERROR;
 
     logcat = (struct logcat_phdr *) g_malloc(sizeof(struct logcat_phdr));
     logcat->version = version;
@@ -296,7 +296,7 @@ int logcat_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_seek_read = logcat_seek_read;
     wth->file_tsprec = WTAP_TSPREC_USEC;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 int logcat_dump_can_write_encap(int encap)

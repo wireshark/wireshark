@@ -319,7 +319,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 	return TRUE;
 }
 
-int
+wtap_open_return_val
 k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	k12text_t *k12text;
@@ -329,10 +329,10 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	BEGIN(MAGIC);
 	yylex();
 
-	if (! is_k12text) return 0;
+	if (! is_k12text) return WTAP_OPEN_NOT_MINE;
 
 	if ( file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	k12text = (k12text_t *)g_malloc(sizeof(k12text_t));
@@ -345,7 +345,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->subtype_seek_read = k12text_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 

@@ -140,7 +140,7 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     return TRUE;
 }
 
-int
+wtap_open_return_val
 mp2t_open(wtap *wth, int *err, gchar **err_info)
 {
     guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
@@ -153,8 +153,8 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
 
     if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     first = -1;
@@ -165,18 +165,18 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
         }
     }
     if (-1 == first) {
-        return 0; /* wrong file type - not an mpeg2 ts file */
+        return WTAP_OPEN_NOT_MINE; /* wrong file type - not an mpeg2 ts file */
     }
 
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
     /* read some packets and make sure they all start with a sync byte */
     do {
        if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
           if (*err != WTAP_ERR_SHORT_READ)
-            return -1;  /* read error */
-          if(sync_steps<2) return 0; /* wrong file type - not an mpeg2 ts file */
+            return WTAP_OPEN_ERROR;  /* read error */
+          if(sync_steps<2) return WTAP_OPEN_NOT_MINE; /* wrong file type - not an mpeg2 ts file */
           break;  /* end of file, that's ok if we're still in sync */
        }
        if (buffer[0] == MP2T_SYNC_BYTE) {
@@ -189,14 +189,14 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
            /* if we've already detected a trailer field, we must remain in sync
               another mismatch means we have no mpeg2 ts file */
            if (trailer_len>0)
-               return 0;
+               return WTAP_OPEN_NOT_MINE;
 
            /* check if a trailer is appended to the packet */
            for (i=0; i<TRAILER_LEN_MAX; i++) {
                if (buffer[i] == MP2T_SYNC_BYTE) {
                    trailer_len = i;
                    if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
-                       return -1;
+                       return WTAP_OPEN_ERROR;
                    }
                    sync_steps = 0;
                    break;
@@ -204,12 +204,12 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
            }
            /* no sync byte found in the vicinity, this is no mpeg2 ts file */
            if (i==TRAILER_LEN_MAX)
-               return 0;
+               return WTAP_OPEN_NOT_MINE;
        }
     } while (sync_steps < SYNC_STEPS);
 
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG_2_TS;
@@ -220,13 +220,10 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;
 
     mp2t = (mp2t_filetype_t*) g_malloc(sizeof(mp2t_filetype_t));
-    if (NULL == mp2t) {
-        return -1;
-    }
 
     wth->priv = mp2t;
     mp2t->start_offset = first;
     mp2t->trailer_len = trailer_len;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }

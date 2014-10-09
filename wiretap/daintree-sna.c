@@ -90,34 +90,31 @@ static gboolean daintree_sna_process_hex_data(struct wtap_pkthdr *phdr,
 	Buffer *buf, char *readData, int *err, gchar **err_info);
 
 /* Open a file and determine if it's a Daintree file */
-int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
-	guint i;
 
 	/* get first line of file header */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* check magic text */
-	i = 0;
-	while (i < DAINTREE_MAGIC_TEXT_SIZE) {
-		if (readLine[i] != daintree_magic_text[i]) return 0; /* not daintree format */
-		i++;
-	}
+	if (memcmp(readLine, daintree_magic_text, DAINTREE_MAGIC_TEXT_SIZE) != 0)
+		return WTAP_OPEN_NOT_MINE; /* not daintree format */
 
 	/* read second header line */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
-	if (readLine[0] != COMMENT_LINE) return 0; /* daintree files have a two line header */
+	if (readLine[0] != COMMENT_LINE)
+		return WTAP_OPEN_NOT_MINE; /* daintree files have a two line header */
 
 	/* set up the pointers to the handlers for this file type */
 	wth->subtype_read = daintree_sna_read;
@@ -129,7 +126,7 @@ int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->snapshot_length = 0; /* not available in header */
 
-	return 1; /* it's a Daintree file */
+	return WTAP_OPEN_MINE; /* it's a Daintree file */
 }
 
 /* Read the capture file sequentially

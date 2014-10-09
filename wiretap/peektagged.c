@@ -212,7 +212,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
 }
 
 
-int peektagged_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
 {
     peektagged_section_header_t ap_hdr;
     int ret;
@@ -231,12 +231,12 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
 
     if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info)) {
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
-	return 0;	/* doesn't begin with a "\177ver" section */
+	return WTAP_OPEN_NOT_MINE;	/* doesn't begin with a "\177ver" section */
 
     /*
      * XXX - we should get the length of the "\177ver" section, check
@@ -265,7 +265,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
 	*err = WTAP_ERR_UNSUPPORTED;
 	*err_info = g_strdup_printf("peektagged: version %u unsupported",
 	    fileVersion);
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
 
     /*
@@ -280,58 +280,58 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
      */
     ret = wtap_file_read_pattern (wth, "<MediaType>", err, err_info);
     if (ret == -1)
-	return -1;
+	return WTAP_OPEN_ERROR;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: <MediaType> tag not found");
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
     /* XXX - this appears to be 0 in both the EtherPeek and AiroPeek
        files we've seen; should we require it to be 0? */
     ret = wtap_file_read_number (wth, &mediaType, err, err_info);
     if (ret == -1)
-	return -1;
+	return WTAP_OPEN_ERROR;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: <MediaType> value not found");
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
 
     ret = wtap_file_read_pattern (wth, "<MediaSubType>", err, err_info);
     if (ret == -1)
-	return -1;
+	return WTAP_OPEN_ERROR;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: <MediaSubType> tag not found");
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
     ret = wtap_file_read_number (wth, &mediaSubType, err, err_info);
     if (ret == -1)
-	return -1;
+	return WTAP_OPEN_ERROR;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: <MediaSubType> value not found");
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
     if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
         || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
 	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 	*err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
 	    mediaSubType);
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
 
     ret = wtap_file_read_pattern (wth, "pkts", err, err_info);
     if (ret == -1)
-	return -1;
+	return WTAP_OPEN_ERROR;
     if (ret == 0) {
 	*err = WTAP_ERR_SHORT_READ;
-	return -1;
+	return WTAP_OPEN_ERROR;
     }
 
     /* skip 8 zero bytes */
     if (file_seek (wth->fh, 8L, SEEK_CUR, err) == -1)
-	return 0;
+	return WTAP_OPEN_NOT_MINE;
 
     /*
      * This is an Peek tagged file.
@@ -361,7 +361,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
 
     wth->snapshot_length   = 0; /* not available in header */
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 typedef struct {

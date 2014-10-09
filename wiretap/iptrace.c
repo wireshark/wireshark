@@ -49,14 +49,14 @@ static int wtap_encap_ift(unsigned int  ift);
 
 #define NAME_SIZE 11
 
-int iptrace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val iptrace_open(wtap *wth, int *err, gchar **err_info)
 {
 	char name[NAME_SIZE+1];
 
 	if (!wtap_read_bytes(wth->fh, name, NAME_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 	name[NAME_SIZE] = '\0';
 
@@ -73,10 +73,10 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info)
 		wth->file_tsprec = WTAP_TSPREC_NSEC;
 	}
 	else {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /***********************************************************

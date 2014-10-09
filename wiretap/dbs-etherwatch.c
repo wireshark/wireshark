@@ -176,13 +176,13 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err,
 }
 
 
-int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for DBS ETHERWATCH header */
 	if (!dbs_etherwatch_check_file_type(wth, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	wth->file_encap = WTAP_ENCAP_ETHERNET;
@@ -192,7 +192,7 @@ int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = dbs_etherwatch_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_CSEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */

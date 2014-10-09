@@ -177,7 +177,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * 4MB from 16MB Token Ring, and distinguishing both of them from the
  * "Shomiti" versions of same.
  */
-int snoop_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
@@ -255,17 +255,17 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a "snoop" file */
 	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(magic, snoop_magic, sizeof snoop_magic) != 0) {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Make sure it's a version we support.
@@ -284,7 +284,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("snoop: version %u unsupported", hdr.version);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/*
@@ -321,7 +321,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	saved_offset = file_tell(wth->fh);
 	if (!wtap_read_bytes_or_eof(wth->fh, &rec_hdr, sizeof rec_hdr, err, err_info)) {
 		if (*err != 0)
-			return -1;
+			return WTAP_OPEN_ERROR;
 
 		/*
 		 * The file ends after the record header, which means this
@@ -363,7 +363,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	 * Seek back to the beginning of the first record.
 	 */
 	if (file_seek(wth->fh, saved_offset, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	hdr.network = g_ntohl(hdr.network);
 	if (is_shomiti) {
@@ -372,7 +372,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 			*err_info = g_strdup_printf("snoop: Shomiti network type %u unknown or unsupported",
 			    hdr.network);
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 		file_encap = shomiti_encap[hdr.network];
 
@@ -384,7 +384,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 			*err_info = g_strdup_printf("snoop: private network type %u unknown or unsupported",
 			    hdr.network);
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 		file_encap = snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT];
 
@@ -396,7 +396,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 			*err_info = g_strdup_printf("snoop: network type %u unknown or unsupported",
 			    hdr.network);
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 		file_encap = snoop_encap[hdr.network];
 
@@ -414,7 +414,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_USEC;
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 typedef struct {

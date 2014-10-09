@@ -161,7 +161,7 @@ mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf
 	return mime_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-int
+wtap_open_return_val
 mime_file_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic_buf[128]; /* increase buffer size when needed */
@@ -180,10 +180,10 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 
 	if (bytes_read < 0) {
 		*err = file_error(wth->fh, err_info);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 	if (bytes_read == 0)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	found_file = FALSE;
 	for (i = 0; i < N_MAGIC_TYPES; i++) {
@@ -192,15 +192,15 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 				found_file = TRUE;
 				/* file_ok = i; */
 			} else
-				return 0;	/* many files matched, bad file */
+				return WTAP_OPEN_NOT_MINE;	/* many files matched, bad file */
 		}
 	}
 
 	if (!found_file)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
 	wth->file_encap = WTAP_ENCAP_MIME;
@@ -209,5 +209,5 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = mime_seek_read;
 	wth->snapshot_length = 0;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }

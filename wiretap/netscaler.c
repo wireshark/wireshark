@@ -667,7 +667,7 @@ static guint64 ns_hrtime2nsec(guint32 tm)
 /*
 ** Netscaler trace format open routines
 */
-int nstrace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 {
     gchar *nstrace_buf;
     gint64 file_size;
@@ -676,7 +676,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 
     if ((file_size = wtap_file_size(wth, err)) == -1)
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
 
     nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
     page_size = GET_READ_PAGE_SIZE(file_size);
@@ -701,22 +701,21 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     default:
         /* No known signature found, assume it's not NetScaler */
         g_free(nstrace_buf);
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
     {
-        *err = file_error(wth->fh, err_info);
         g_free(nstrace_buf);
-        return 0;
+        return WTAP_OPEN_ERROR;
     }
 
     if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
     {
         g_free(nstrace_buf);
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     switch (wth->file_type_subtype)
@@ -759,7 +758,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         {
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         /* Read the first page of data */
@@ -767,7 +766,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         {
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
-            return -1;
+            return WTAP_OPEN_ERROR;
         }
 
         /* reset the buffer offset */
@@ -779,7 +778,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     wth->phdr.ts.nsecs = 0;
 
     *err = 0;
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 

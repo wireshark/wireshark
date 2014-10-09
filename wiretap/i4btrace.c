@@ -48,7 +48,7 @@ static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    (unsigned int)hdr.unit > 4 || (unsigned int)hdr.type > 4 || \
 	    (unsigned int)hdr.dir > 2 || (unsigned int)hdr.trunc > 2048))
 
-int i4btrace_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 {
 	i4b_trace_hdr_t hdr;
 	gboolean byte_swapped = FALSE;
@@ -57,8 +57,8 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	/* I4B trace files have no magic in the header... Sigh */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof(hdr), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Silly heuristic... */
@@ -75,7 +75,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 			/*
 			 * It doesn't look valid in either byte order.
 			 */
-			return 0;
+			return WTAP_OPEN_NOT_MINE;
 		}
 
 		/*
@@ -86,7 +86,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/* Get capture start time */
 
@@ -102,7 +102,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_ISDN;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */

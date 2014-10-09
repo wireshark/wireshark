@@ -85,32 +85,32 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 	return hcidump_process_packet(wth->random_fh, phdr, buf, err, err_info);
 }
 
-int hcidump_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
 	guint8 type;
 
 	if (!wtap_read_bytes(wth->fh, &dh, DUMP_HDR_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if ((dh.in != 0 && dh.in != 1) || dh.pad != 0
 	    || GUINT16_FROM_LE(dh.len) < 1)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	if (!wtap_read_bytes(wth->fh, &type, 1, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (type < 1 || type > 4)
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_HCIDUMP;
 	wth->file_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
@@ -120,5 +120,5 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = hcidump_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }

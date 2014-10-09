@@ -171,7 +171,7 @@ static void visual_dump_free(wtap_dumper *wdh);
 
 
 /* Open a file for reading */
-int visual_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
 {
     char magic[sizeof visual_magic];
     struct visual_file_hdr vfile_hdr;
@@ -182,18 +182,18 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info))
     {
         if (*err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
     if (memcmp(magic, visual_magic, sizeof visual_magic) != 0)
     {
-        return 0;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     /* Read the rest of the file header. */
     if (!wtap_read_bytes(wth->fh, &vfile_hdr, sizeof vfile_hdr, err, err_info))
     {
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     /* Verify the file version is known */
@@ -202,7 +202,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     {
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("visual: file version %u unsupported", vfile_hdr.file_version);
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     /* Translate the encapsulation type; these values are SNMP ifType
@@ -244,7 +244,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
         *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         *err_info = g_strdup_printf("visual: network type %u unknown or unsupported",
                                      vfile_hdr.media_type);
-        return -1;
+        return WTAP_OPEN_ERROR;
     }
 
     /* Fill in the wiretap struct with data from the file header */
@@ -264,7 +264,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     visual->start_time = ((double) pletoh32(&vfile_hdr.start_time)) * 1000000;
     visual->current_pkt = 1;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 

@@ -235,13 +235,13 @@ static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
 }
 
 
-int vms_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info)
 {
     /* Look for VMS header */
     if (!vms_check_file_type(wth, err, err_info)) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-            return -1;
-        return 0;
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
     }
 
     wth->file_encap = WTAP_ENCAP_RAW_IP;
@@ -251,7 +251,7 @@ int vms_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_seek_read = vms_seek_read;
     wth->file_tsprec = WTAP_TSPREC_CSEC;
 
-    return 1;
+    return WTAP_OPEN_MINE;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */

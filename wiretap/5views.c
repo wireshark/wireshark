@@ -110,7 +110,8 @@ static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, c
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 
-int _5views_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val
+_5views_open(wtap *wth, int *err, gchar **err_info)
 {
 	t_5VW_Capture_Header Capture_Header;
 	int encap = WTAP_ENCAP_UNKNOWN;
@@ -118,14 +119,14 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, &Capture_Header.Info_Header,
 	    sizeof(t_5VW_Info_Header), err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/*	Check whether that's 5Views format or not */
 	if(Capture_Header.Info_Header.Signature != CST_5VW_INFO_HEADER_KEY)
 	{
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Check Version */
@@ -139,7 +140,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("5views: header version %u unsupported", Capture_Header.Info_Header.Version);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* Check File Type */
@@ -149,7 +150,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	{
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("5views: file is not a capture file (filetype is %u)", Capture_Header.Info_Header.Version);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* Check possible Encap */
@@ -164,13 +165,13 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("5views: network type %u unknown or unsupported",
 		    Capture_Header.Info_Header.FileType);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/* read the remaining header information */
 	if (!wtap_read_bytes(wth->fh, &Capture_Header.HeaderDateCreation,
 	    sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/* This is a 5views capture file */
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
@@ -180,7 +181,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */

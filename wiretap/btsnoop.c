@@ -80,7 +80,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
-int btsnoop_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[sizeof btsnoop_magic];
 	struct btsnoop_hdr hdr;
@@ -90,17 +90,17 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a "btsnoop" file */
 	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(magic, btsnoop_magic, sizeof btsnoop_magic) != 0) {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Make sure it's a version we support.
@@ -109,7 +109,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	if (hdr.version != 1) {
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: version %u unsupported", hdr.version);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	hdr.datalink = g_ntohl(hdr.datalink);
@@ -123,22 +123,22 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	case KHciLoggerDatalinkTypeBCSP:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: BCSP capture logs unsupported");
-		return -1;
+		return WTAP_OPEN_ERROR;
 	case KHciLoggerDatalinkTypeH5:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
-		return -1;
+		return WTAP_OPEN_ERROR;
 	case KHciLoggerDatalinkLinuxMonitor:
 		file_encap=WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR;
 		break;
 	case KHciLoggerDatalinkBlueZ5Simulator:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
-		return -1;
+		return WTAP_OPEN_ERROR;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	wth->subtype_read = btsnoop_read;
@@ -147,7 +147,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,

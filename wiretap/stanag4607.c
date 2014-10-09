@@ -158,21 +158,21 @@ static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
   return stanag4607_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-int stanag4607_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
 {
   guint16 version_id;
   stanag4607_t *stanag4607;
 
   if (!wtap_read_bytes(wth->fh, &version_id, sizeof version_id, err, err_info))
-    return (*err != WTAP_ERR_SHORT_READ) ? -1 : 0;
+    return (*err != WTAP_ERR_SHORT_READ) ? WTAP_OPEN_ERROR : WTAP_OPEN_NOT_MINE;
 
   if (!is_valid_id(GUINT16_TO_BE(version_id)))
      /* Not a stanag4607 file */
-     return 0;
+     return WTAP_OPEN_NOT_MINE;
 
   /* seek back to the start of the file  */
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-    return -1;
+    return WTAP_OPEN_ERROR;
 
   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_STANAG_4607;
   wth->file_encap = WTAP_ENCAP_STANAG_4607;
@@ -186,5 +186,5 @@ int stanag4607_open(wtap *wth, int *err, gchar **err_info)
   wth->subtype_seek_read = stanag4607_seek_read;
   wth->file_tsprec = WTAP_TSPREC_MSEC;
 
-  return 1;
+  return WTAP_OPEN_MINE;
 }

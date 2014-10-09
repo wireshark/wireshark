@@ -88,14 +88,14 @@ static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
 			      const guint8 *pd, int *err);
 
-int commview_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info)
 {
 	commview_header_t cv_hdr;
 
 	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* If any of these fields do not match what we expect, bail out. */
@@ -111,11 +111,11 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	   ((cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_ETHERNET &&
 	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_WIFI &&
 	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_TOKEN_RING))
-		return 0; /* Not our kind of file */
+		return WTAP_OPEN_NOT_MINE; /* Not our kind of file */
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	/* Set up the pointers to the handlers for this file type */
 	wth->subtype_read = commview_read;
@@ -125,7 +125,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
-	return 1; /* Our kind of file */
+	return WTAP_OPEN_MINE; /* Our kind of file */
 }
 
 static int

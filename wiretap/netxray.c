@@ -419,7 +419,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const guint8 *pd, int *err);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
-int
+wtap_open_return_val
 netxray_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[MAGIC_SIZE];
@@ -462,8 +462,8 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	 * file */
 	if (!wtap_read_bytes(wth->fh, magic, MAGIC_SIZE, err, err_info)) {
 		if (*err != WTAP_ERR_SHORT_READ)
-			return -1;
-		return 0;
+			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if (memcmp(magic, netxray_magic, MAGIC_SIZE) == 0) {
@@ -471,12 +471,12 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	} else if (memcmp(magic, old_netxray_magic, MAGIC_SIZE) == 0) {
 		is_old = TRUE;
 	} else {
-		return 0;
+		return WTAP_OPEN_NOT_MINE;
 	}
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return -1;
+		return WTAP_OPEN_ERROR;
 
 	if (is_old) {
 		version_major = 0;
@@ -517,7 +517,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		} else {
 			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
-			return -1;
+			return WTAP_OPEN_ERROR;
 		}
 	}
 
@@ -546,7 +546,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netxray: the byte after the network type has the value %u, which I don't understand",
 		    hdr.network_plus);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	if (network_type >= NUM_NETXRAY_ENCAPS
@@ -554,7 +554,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
 		    network_type, hdr.network_plus);
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
 	/*
@@ -605,7 +605,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/CAPTYPE_NDIS version %.8s capture",
 					    hdr.timeunit, hdr.version);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				/*
 				XXX: 05/29/07: Use 'realtick' instead of TpS table if timeunit=2;
@@ -629,7 +629,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD version %.8s capture",
 					    hdr.timeunit, hdr.version);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				ticks_per_sec = TpS_gigpod[hdr.timeunit];
 
@@ -649,7 +649,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD version %.8s capture",
 					    hdr.timeunit, hdr.version);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				ticks_per_sec = TpS_otherpod[hdr.timeunit];
 
@@ -669,7 +669,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD2 version %.8s capture",
 					    hdr.timeunit, hdr.version);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				ticks_per_sec = TpS_otherpod2[hdr.timeunit];
 				/*
@@ -691,7 +691,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err_info = g_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD2 version %.8s capture",
 					    hdr.timeunit, hdr.version);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				ticks_per_sec = TpS_gigpod2[hdr.timeunit];
 				/*
@@ -711,7 +711,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				*err_info = g_strdup_printf(
 				    "netxray: Unknown capture type %u for Ethernet version %.8s capture",
 				    hdr.captype, hdr.version);
-				return -1;
+				return WTAP_OPEN_ERROR;
 			}
 			break;
 
@@ -722,7 +722,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				    "netxray: Unknown timeunit %u for %u/%u version %.8s capture",
 				    hdr.timeunit, network_type, hdr.captype,
 				    hdr.version);
-				return -1;
+				return WTAP_OPEN_ERROR;
 			}
 			ticks_per_sec = TpS[hdr.timeunit];
 			break;
@@ -816,7 +816,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
 					   hdr.wan_hdlc_subsub_captype);
-					return -1;
+					return WTAP_OPEN_ERROR;
 				}
 				break;
 
@@ -838,7 +838,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
 				   hdr.captype);
-				return -1;
+				return WTAP_OPEN_ERROR;
 			}
 		} else
 			file_encap = WTAP_ENCAP_ETHERNET;
@@ -972,10 +972,10 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Seek to the beginning of the data records. */
 	if (file_seek(wth->fh, netxray->start_offset, SEEK_SET, err) == -1) {
-		return -1;
+		return WTAP_OPEN_ERROR;
 	}
 
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 /* Read the next packet */
