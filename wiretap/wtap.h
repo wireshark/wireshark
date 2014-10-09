@@ -1294,19 +1294,17 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
  * the ones that don't, to handle the case where a file of one type
  * might be recognized by the heuristics for a different file type.
  */
-/*struct heuristic_open_info {
-    wtap_open_routine_t open_routine;
-    const char *extensions;
-};
-*/
-#define OPEN_INFO_MAGIC      0
-#define OPEN_INFO_HEURISTIC  1
+
+typedef enum {
+	OPEN_INFO_MAGIC = 0,
+	OPEN_INFO_HEURISTIC = 1
+} wtap_open_type;
 
 WS_DLL_PUBLIC void init_open_routines(void);
 
 struct open_info {
     const char *name;
-    int type;
+    wtap_open_type type;
     wtap_open_routine_t open_routine;
     const char *extensions;
     gchar **extensions_set; /* populated using extensions member during initialization */
