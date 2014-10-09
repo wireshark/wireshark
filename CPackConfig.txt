@@ -44,17 +44,13 @@ set(CPACK_GENERATOR "TBZ2")
 set(CPACK_SOURCE_GENERATOR "TBZ2")
 
 #===============================================
-# IF(APPLE)
-#         SET(CPACK_GENERATOR "${CPACK_GENERATOR};Bundle")
-#         SET(CPACK_BUNDLE_ICON "${OBDGPSLogger_SOURCE_DIR}/osx/BundleIcon.icns")
-#         SET(CPACK_BUNDLE_NAME "OBD GPS Logger")
-#         SET(CPACK_BUNDLE_PLIST "${OBDGPSLogger_SOURCE_DIR}/osx/Info.plist")
-#         SET(CPACK_BUNDLE_STARTUP_COMMAND "${OBDGPSLogger_SOURCE_DIR}/osx/StartupCommand")
-#
-#         IF(GPSD_DAEMON)
-#                 INSTALL(PROGRAMS ${GPSD_DAEMON}
-#                                 DESTINATION sbin/)
-#         ENDIF(GPSD_DAEMON)
+IF(APPLE)
+        SET(CPACK_GENERATOR "${CPACK_GENERATOR};DragNDrop")
+        SET(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/packaging/macosx/Resources/Wireshark.icns")
+        SET(CPACK_BUNDLE_NAME "Wireshark")
+        SET(CPACK_BUNDLE_PLIST "${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist")
+#        SET(CPACK_BUNDLE_STARTUP_COMMAND "${OBDGPSLogger_SOURCE_DIR}/osx/StartupCommand")
+ENDIF(APPLE)
 # ELSE(APPLE)
 #
 #         # If we can find rpmbuild, then go for it

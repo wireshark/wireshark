@@ -1098,6 +1098,29 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	)
 endif()
 
+if(ENABLE_APPLICATION_BUNDLE)
+	# Wireshark.app/Contents
+	set(BUNDLE_CONTENTS_FILES
+		${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+	)
+	set_source_files_properties(${BUNDLE_CONTENTS_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION .
+	)
+
+	# Wireshark.app/Contents/Resources
+	set(BUNDLE_RESOURCE_FILES
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Resources/Wireshark.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Resources/Wiresharkdoc.icns
+	)
+	set_source_files_properties(${BUNDLE_RESOURCE_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources
+	)
+
+	set(EXTRA_BUNDLE_FILES ${BUNDLE_CONTENTS_FILES} ${BUNDLE_RESOURCE_FILES})
+else()
+	set(EXTRA_BUNDLE_FILES)
+endif()
+
 if(BUILD_wireshark AND QT_FOUND)
 	set(wireshark_LIBS
 		qtui
@@ -1120,11 +1143,25 @@ if(BUILD_wireshark AND QT_FOUND)
 		cmake_policy(SET CMP0020 OLD)
 	endif()
 
-	add_executable(wireshark ${wireshark_FILES})
+	add_executable(wireshark MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
+	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
+		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
+	endif()
+	if(ENABLE_APPLICATION_BUNDLE)
+		set_target_properties(
+			wireshark PROPERTIES
+				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
+		)
+	endif()
+
 	target_link_libraries(wireshark ${wireshark_LIBS})
-	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(
+		TARGETS wireshark
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)
 
 	# Map for endpoints dialog
 	ADD_CUSTOM_COMMAND(
@@ -1135,6 +1172,20 @@ if(BUILD_wireshark AND QT_FOUND)
 			$<TARGET_FILE_DIR:wireshark>
 	)
 endif()
+
+# Common properties for CLI executables
+macro(set_extra_executable_properties _executable _folder)
+	set_target_properties(${_executable} PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
+		FOLDER ${_folder}
+	)
+
+	if(ENABLE_APPLICATION_BUNDLE)
+		set_target_properties(${_executable} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY run/Wireshark.app/Contents/MacOS
+		)
+	endif()
+endmacro()
 
 if(BUILD_wireshark_gtk AND GTK_FOUND)
 	set(wireshark_gtk_LIBS
@@ -1195,8 +1246,7 @@ if(BUILD_tshark)
 		image/tshark.rc
 	)
 	add_executable(tshark ${tshark_FILES})
-	set_target_properties(tshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(tshark PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(tshark "Executables")
 	target_link_libraries(tshark ${tshark_LIBS})
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1215,8 +1265,7 @@ if(BUILD_tfshark)
 		image/tfshark.rc
 	)
 	add_executable(tfshark ${tfshark_FILES})
-	set_target_properties(tfshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(tfshark PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(tfshark "Executables")
 	target_link_libraries(tfshark ${tfshark_LIBS})
 	install(TARGETS tfshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1235,8 +1284,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		image/rawshark.rc
 	)
 	add_executable(rawshark ${rawshark_FILES})
-	set_target_properties(rawshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(rawshark PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(rawshark "Executables")
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1250,8 +1298,7 @@ if(BUILD_dftest)
 		ui/util.c
 	)
 	add_executable(dftest ${dftest_FILES})
-	set_target_properties(dftest PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(dftest PROPERTIES FOLDER "Tests")
+	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
 	install(TARGETS dftest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1272,8 +1319,7 @@ if(BUILD_randpkt)
 		randpkt.c
 	)
 	add_executable(randpkt ${randpkt_FILES})
-	set_target_properties(randpkt PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(randpkt PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(randpkt "Executables")
 	target_link_libraries(randpkt ${randpkt_LIBS})
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1297,8 +1343,7 @@ if(BUILD_text2pcap)
 		text2pcap-scanner.l
 	)
 	add_executable(text2pcap ${text2pcap_FILES})
-	set_target_properties(text2pcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(text2pcap PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1315,8 +1360,7 @@ if(BUILD_mergecap)
 		image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
-	set_target_properties(mergecap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(mergecap PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(mergecap "Executables")
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1333,8 +1377,7 @@ if(BUILD_reordercap)
 		image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
-	set_target_properties(reordercap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(reordercap PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(reordercap "Executables")
 	target_link_libraries(reordercap ${reordercap_LIBS})
 	install(TARGETS reordercap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1353,8 +1396,7 @@ if(BUILD_capinfos)
 		image/capinfos.rc
 	)
 	add_executable(capinfos ${capinfos_FILES})
-	set_target_properties(capinfos PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(capinfos PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1372,8 +1414,7 @@ if(BUILD_captype)
 		image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
-	set_target_properties(captype PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(captype PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(captype "Executables")
 	target_link_libraries(captype ${captype_LIBS})
 	install(TARGETS captype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1390,8 +1431,7 @@ if(BUILD_editcap)
 		image/editcap.rc
 	)
 	add_executable(editcap ${editcap_FILES})
-	set_target_properties(editcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(editcap PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -1423,12 +1463,10 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
-	set_target_properties(dumpcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(dumpcap PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap
-			RUNTIME
-			DESTINATION ${CMAKE_INSTALL_BINDIR}
+			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}
 			PERMISSIONS ${DUMPCAP_SETUID}
 				OWNER_READ OWNER_WRITE OWNER_EXECUTE
 				GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
@@ -1497,6 +1535,13 @@ ADD_CUSTOM_COMMAND(
         DEPENDS
                 ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
                 ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+)
+endif()
+
+if(ENABLE_APPLICATION_BUNDLE)
+ADD_CUSTOM_COMMAND(
+	OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+	COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
 )
 endif()
 
