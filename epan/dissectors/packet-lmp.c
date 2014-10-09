@@ -506,9 +506,41 @@ enum hf_lmp_filter_keys {
 static int hf_lmp_filter[LMPF_MAX];
 static int hf_lmp_data;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_lmp_maximum_reservable_bandwidth = -1;
+static int hf_lmp_verify_transport_mechanism = -1;
+static int hf_lmp_interface_id_ipv6 = -1;
+static int hf_lmp_minimum_reservable_bandwidth = -1;
+static int hf_lmp_object_length = -1;
+static int hf_lmp_interface_id_unnumbered = -1;
+static int hf_lmp_signal_types_sdh = -1;
+static int hf_lmp_link_type = -1;
+static int hf_lmp_number_of_data_links = -1;
+static int hf_lmp_lmp_version = -1;
+static int hf_lmp_interface_id_ipv4 = -1;
+static int hf_lmp_header_length = -1;
+static int hf_lmp_uni_version = -1;
+static int hf_lmp_subobject_type = -1;
+static int hf_lmp_object_class = -1;
+static int hf_lmp_negotiable = -1;
+static int hf_lmp_signal_types_sonet = -1;
+static int hf_lmp_header_flags = -1;
+static int hf_lmp_verify_interval = -1;
+static int hf_lmp_wavelength = -1;
+static int hf_lmp_channel_status = -1;
+static int hf_lmp_verifydeadinterval = -1;
+static int hf_lmp_data_link_remote_id_ipv6 = -1;
+static int hf_lmp_link = -1;
+static int hf_lmp_subobject_length = -1;
+static int hf_lmp_transmission_rate = -1;
+static int hf_lmp_verify_transport_response = -1;
+static int hf_lmp_data_link_local_id_ipv6 = -1;
+static int hf_lmp_free_timeslots = -1;
+
 static expert_field ei_lmp_checksum_incorrect = EI_INIT;
 static expert_field ei_lmp_invalid_msg_type = EI_INIT;
 static expert_field ei_lmp_invalid_class = EI_INIT;
+static expert_field ei_lmp_trace_len = EI_INIT;
 
 static int
 lmp_valid_class(int lmp_class)
@@ -662,6 +694,8 @@ static int lmp_class_to_subtree(int lmp_class)
     return -1;
 }
 
+static const true_false_string tfs_active_monitoring_not_allocated = { "Allocated - Active Monitoring", "Not Allocated" };
+
 /*------------------------------------------------------------------------------
  * Da code
  */
@@ -672,15 +706,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     int offset = 0;
     proto_tree *lmp_tree = NULL, *ti, *ti2;
     proto_tree *lmp_header_tree;
-    proto_tree *lmp_header_flags_tree;
     proto_tree *lmp_object_tree;
     proto_tree *lmp_object_header_tree;
-    proto_tree *lmp_flags_tree;
     proto_tree *lmp_subobj_tree;
     proto_item *hidden_item, *msg_item;
 
-    guint8 version;
-    guint8 flags;
     guint8 message_type;
     guint16 cksum, computed_cksum;
     vec_t cksum_vec[1];
@@ -693,13 +723,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    version = (tvb_get_guint8(tvb, offset+0)) >> 4;
-    flags = tvb_get_guint8(tvb, offset+2);
     message_type = tvb_get_guint8(tvb, offset+3);
     col_add_str(pinfo->cinfo, COL_INFO,
          val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 
     if (tree) {
+        static const int * header_flags[] = {
+            &hf_lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
+            &hf_lmp_filter[LMPF_HDR_FLAGS_REBOOT],
+            NULL
+        };
+
         msg_length = tvb_get_ntohs(tvb, offset+4);
         ti = proto_tree_add_item(tree, proto_lmp, tvb, offset, msg_length, ENC_NA);
         lmp_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_MAIN]);
@@ -707,18 +741,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             lmp_tree, tvb, offset, 12,
             lmp_subtree[LMP_TREE_HEADER], NULL, "LMP Header. %s",
             val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
-        proto_tree_add_text(lmp_header_tree, tvb, offset, 1, "LMP Version: %u",
-                            version);
-        ti = proto_tree_add_text(lmp_header_tree, tvb, offset+2, 1, "Flags: %02x",
-                                 flags);
-        lmp_header_flags_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_HEADER_FLAGS]);
-        proto_tree_add_boolean(lmp_header_flags_tree, hf_lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
-                               tvb, offset+2, 1, flags);
-        proto_tree_add_boolean(lmp_header_flags_tree, hf_lmp_filter[LMPF_HDR_FLAGS_REBOOT],
-                               tvb, offset+2, 1, flags);
+        proto_tree_add_item(lmp_header_tree, hf_lmp_lmp_version, tvb, offset, 1, ENC_NA);
+
+        proto_tree_add_bitmask(lmp_header_tree, tvb, offset+2, hf_lmp_header_flags, lmp_subtree[LMP_TREE_HEADER_FLAGS], header_flags, ENC_NA);
         msg_item = proto_tree_add_uint(lmp_header_tree, hf_lmp_filter[LMPF_MSG], tvb,
                                        offset+3, 1, message_type);
-        proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
+        proto_tree_add_uint_format_value(lmp_header_tree, hf_lmp_header_length, tvb, offset+4, 2, msg_length, "%d bytes",
                             msg_length);
 /*      if (LMPF_MSG + message_type < LMPF_MSG_MAX && message_type > 0) {*/
     /* this "if" is still a hack, but compared to the former one at least correct */
@@ -753,7 +781,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             }
         }
     } else {
-        proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2, "No checksum");
+        proto_tree_add_uint_format_value(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb, offset+6, 2, 0, "[None]");
     }
 
     offset += 8;
@@ -763,13 +791,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         guint8 type;
         guint8 negotiable;
         int filter_num;
-        const char *object_type;
+        proto_item* trace_item;
 
         obj_length = tvb_get_ntohs(tvb, offset+2);
         lmp_class = tvb_get_guint8(tvb, offset+1);
         type = tvb_get_guint8(tvb, offset);
         negotiable = (type >> 7); type &= 0x7f;
-        object_type = val_to_str_const(lmp_class, lmp_class_vals, "Unknown");
         hidden_item = proto_tree_add_uint(lmp_tree, hf_lmp_filter[LMPF_OBJECT], tvb,
                                           offset, 1, lmp_class);
         PROTO_ITEM_SET_GENERATED(hidden_item);
@@ -791,13 +818,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                                                lmp_class, type, obj_length,
                                                                negotiable ? "Negotiable" : "Not Negotiable");
 
-        proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
-                            negotiable ? "Negotiable" : "Not Negotiable");
-        proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
-                            "Length: %u", obj_length);
-        proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
-                            "Object Class: %u - %s",
-                            lmp_class, object_type);
+        proto_tree_add_item(lmp_object_header_tree, hf_lmp_negotiable, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lmp_object_header_tree, hf_lmp_object_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(lmp_object_header_tree, hf_lmp_object_class, tvb, offset+1, 1, ENC_NA);
         proto_tree_add_uint(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
                             tvb, offset, 1, type);
         offset2 = offset+4;
@@ -1005,37 +1028,28 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             switch(type) {
 
             case 1:
-                l = tvb_get_ntohs(tvb, offset2);
-                ti2 = proto_tree_add_item(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
-                                          tvb, offset2, 2, ENC_BIG_ENDIAN);
+                {
+                float transmission_rate;
+                static const int * verify_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
+                    &hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
+                    NULL
+                };
 
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
-                                       tvb, offset2, 2, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
-                                       tvb, offset2, 2, l);
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+2, 2,
-                                    "Verify Interval: %d ms",
-                                    tvb_get_ntohs(tvb, offset2+2));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 4,
-                                    "Number of Data Links: %d",
-                                    tvb_get_ntohl(tvb, offset2+4));
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS], lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS], verify_flags, ENC_BIG_ENDIAN);
+
+                proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_verify_interval, tvb, offset2+2, 2,
+                                    tvb_get_ntohs(tvb, offset2+2), "%d ms", tvb_get_ntohs(tvb, offset2+2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_number_of_data_links, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
                                     tvb, offset2+8, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2,
-                                    "Verify Transport Mechanism: 0x%0x",
-                                    tvb_get_ntohs(tvb, offset2+10));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4,
-                                    "Transmission Rate: %.3f Mbps",
-                                    tvb_get_ntohieee_float(tvb, offset2+12)*8/1000000);
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4,
-                                    "Wavelength: %d",
-                                    tvb_get_ntohl(tvb, offset2+16));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_verify_transport_mechanism, tvb, offset2+10, 2, ENC_BIG_ENDIAN);
+                transmission_rate = tvb_get_ntohieee_float(tvb, offset2+12)*8/1000000;
+                proto_tree_add_float_format_value(lmp_object_tree, hf_lmp_transmission_rate, tvb, offset2+12, 4,
+                                    transmission_rate, "%.3f Mbps", transmission_rate);
+                proto_tree_add_item(lmp_object_tree, hf_lmp_wavelength, tvb, offset2+16, 4, ENC_BIG_ENDIAN);
+                }
                 break;
 
             default:
@@ -1052,12 +1066,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ": VerifyDeadInterval: %d, TransportResponse: 0x%0x",
                                        tvb_get_ntohs(tvb, offset2),
                                        tvb_get_ntohs(tvb, offset2+2));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2, 2,
-                                    "VerifyDeadInterval: %d ms",
+                proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_verifydeadinterval, tvb, offset2, 2,
+                                    tvb_get_ntohs(tvb, offset2), "%d ms",
                                     tvb_get_ntohs(tvb, offset2));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+2, 2,
-                                    "Verify Transport Response: 0x%0x",
-                                    tvb_get_ntohs(tvb, offset2+2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_verify_transport_response, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -1085,23 +1097,19 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             break;
 
         case LMP_CLASS_TE_LINK:
-            l = tvb_get_guint8(tvb, offset2);
-            ti2 = proto_tree_add_uint(lmp_object_tree,
-                                      hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
-                                      tvb, offset2, 1, l);
+        {
+            static const int * link_flags[] = {
+                &hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
+                &hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
+                NULL
+            };
 
+            ti2 = proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS], lmp_subtree[LMP_TREE_TE_LINK_FLAGS], link_flags, ENC_NA);
+            l = tvb_get_guint8(tvb, offset2);
             proto_item_append_text(ti2, ": %s%s",
                                    (l&0x01) ? "Fault-Mgmt-Supported " : "",
                                    (l&0x02) ? "Link-Verification-Supported " : "");
 
-            lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                    lmp_subtree[LMP_TREE_TE_LINK_FLAGS]);
-            proto_tree_add_boolean(lmp_flags_tree,
-                                   hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
-                                   tvb, offset2, 1, l);
-            proto_tree_add_boolean(lmp_flags_tree,
-                                   hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
-                                   tvb, offset2, 1, l);
             switch(type) {
 
             case 1:
@@ -1145,26 +1153,22 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
                 break;
             }
+        }
             break;
 
         case LMP_CLASS_DATA_LINK:
+        {
+            static const int * link_flags[] = {
+                &hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
+                &hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
+                NULL
+            };
 
+            ti2 = proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS], lmp_subtree[LMP_TREE_DATA_LINK_FLAGS], link_flags, ENC_NA);
             l = tvb_get_guint8(tvb, offset2);
-            ti2 = proto_tree_add_uint(lmp_object_tree,
-                                      hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
-                                      tvb, offset2, 1, l);
             proto_item_append_text(ti2, ": %s%s",
                                    (l&0x01) ? "Interface-Type-Port " : "Interface-Type-Component-Link ",
                                    (l&0x02) ? "Allocated " : "Unallocated ");
-
-            lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                    lmp_subtree[LMP_TREE_DATA_LINK_FLAGS]);
-            proto_tree_add_boolean(lmp_flags_tree,
-                                   hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
-                                   tvb, offset2, 1, l);
-            proto_tree_add_boolean(lmp_flags_tree,
-                                   hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
-                                   tvb, offset2, 1, l);
             switch(type) {
 
             case 1:
@@ -1186,12 +1190,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
                                        tvb_ip6_to_str(tvb, offset2+4),
                                        tvb_ip6_to_str(tvb, offset2+8));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16,
-                                    "Data-Link Local ID - IPv6: %s",
-                                    tvb_ip6_to_str(tvb, offset2));
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16,
-                                    "Data-Link Remote ID - IPv6: %s",
-                                    tvb_ip6_to_str(tvb, offset2+4));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_data_link_local_id_ipv6, tvb, offset2+4, 16, ENC_NA);
+                proto_tree_add_item(lmp_object_tree, hf_lmp_data_link_remote_id_ipv6, tvb, offset2+20, 16, ENC_NA);
                 l = 36;
                 break;
 
@@ -1213,18 +1213,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             }
 
             while (l < obj_length - 4) {
+                float bandwidth;
+
                 mylen = tvb_get_guint8(tvb, offset2+l+1);
                 ti2 = proto_tree_add_item(lmp_object_tree,
                                           hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
                                           tvb, offset2+l, mylen, ENC_NA);
                 lmp_subobj_tree = proto_item_add_subtree(ti2,
                                                          lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
-                proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
-                                    "Subobject Type: %d",
-                                    tvb_get_guint8(tvb, offset2+l));
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_NA);
 
-                proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
-                                    "Subobject Length: %d", mylen);
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_NA);
                 switch(tvb_get_guint8(tvb, offset2+l)) {
 
                 case 1:
@@ -1244,20 +1243,18 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_tree_add_item(lmp_subobj_tree,
                                         hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
                                         tvb, offset2+l+3, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
-                                        "Minimum Reservable Bandwidth: %.3f Mbps",
-                                        tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000);
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8, 4,
-                                        "Maximum Reservable Bandwidth: %.3f Mbps",
-                                        tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
+                    bandwidth = tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000;
+                    proto_tree_add_float_format_value(lmp_subobj_tree, hf_lmp_minimum_reservable_bandwidth, tvb, offset2+l+4, 4,
+                                        bandwidth, "%.3f Mbps", bandwidth);
+                    bandwidth = tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000;
+                    proto_tree_add_float_format_value(lmp_subobj_tree, hf_lmp_maximum_reservable_bandwidth, tvb, offset2+l+8, 4,
+                                        bandwidth, "%.3f Mbps", bandwidth);
                     break;
 
                 case 2:
                     proto_item_set_text(ti2, "Wavelength: %d",
                                         tvb_get_ntohl(tvb, offset2+l+2));
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
-                                        "Wavelength: %d",
-                                        tvb_get_ntohl(tvb, offset2+l+4));
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_wavelength, tvb, offset2+l+4, 4, ENC_BIG_ENDIAN);
                     break;
 
                 default:
@@ -1269,7 +1266,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     THROW(ReportedBoundsError);
                 l += tvb_get_guint8(tvb, offset2+l+1);
             }
-
+        }
             break;
 
         case LMP_CLASS_CHANNEL_STATUS:
@@ -1301,9 +1298,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                                tvb_ip_to_str(tvb, offset2+l));
                     proto_item_append_text(ti2, ": IPv4 %s",
                                            tvb_ip_to_str(tvb, offset2+l));
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
-                                        "Interface ID: IPv4: %s",
-                                        tvb_ip_to_str(tvb, offset2+l));
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_interface_id_ipv4, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
                     l += 4;
                     break;
 
@@ -1311,8 +1306,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     if (j < 4)
                         proto_item_append_text(ti, ": [IPv6-%s", tvb_ip6_to_str(tvb, offset2+l));
                     proto_item_append_text(ti2, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2+l));
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2, 16, "Interface ID: IPv6: %s",
-                                        tvb_ip6_to_str(tvb, offset2+l));
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_interface_id_ipv6, tvb, offset2, 16, ENC_NA);
                     l += 16;
                     break;
 
@@ -1322,9 +1316,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                                tvb_get_ntohl(tvb, offset2+l));
                     proto_item_append_text(ti, ": Unnumbered %d",
                                            tvb_get_ntohl(tvb, offset2+l));
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
-                                        "Interface ID: Unnumbered: %d",
-                                        tvb_get_ntohl(tvb, offset2+l));
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_interface_id_unnumbered, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
                     l += 4;
                     break;
 
@@ -1334,10 +1326,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 }
                 if (l == obj_length - 4) break;
 
-                proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
-                                    tvb_get_guint8(tvb, offset2+l) & 0x80 ?
-                                    "Link Allocated - Active Monitoring" :
-                                    "Link Not Allocated");
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_link, tvb, offset2+l, 4, ENC_NA);
                 if (j < 4)
                     proto_item_append_text(ti, "-%s,%s], ",
                                            tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Act" : "NA",
@@ -1345,10 +1334,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                                       channel_status_short_str, "UNK (%u)."));
                 proto_item_append_text(ti2, ": %s, ",
                                        tvb_get_guint8(tvb, offset2+l) & 0x80 ? "Active" : "Not Active");
-                proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 4,
-                                    "Channel Status: %s",
-                                    val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
-                                               channel_status_str, "Unknown (%u). "));
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_channel_status, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti2, "%s", val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
                                                              channel_status_str, "Unknown (%u). "));
                 j++;
@@ -1395,28 +1381,39 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             switch(type) {
 
             case 1:
+                {
+                static const int * error_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
+                    NULL
+                };
+
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_ERROR], lmp_subtree[LMP_TREE_ERROR_FLAGS], error_flags, ENC_NA);
+
                 proto_item_append_text(ti, ": BEGIN_VERIFY_ERROR: %s%s%s%s",
                                        (l&0x01) ? "Unsupported-Link " : "",
                                        (l&0x02) ? "Unwilling" : "",
                                        (l&0x04) ? "Unsupported-Transport" : "",
                                        (l&0x08) ? "TE-Link-ID" : "");
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
-                                       tvb, offset, 4, l);
+                }
                 break;
 
             case 2:
+                {
+                static const int * error_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
+                    NULL
+                };
+
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_ERROR], lmp_subtree[LMP_TREE_ERROR_FLAGS], error_flags, ENC_NA);
+
                 proto_item_append_text(ti, ": LINK_SUMMARY_ERROR: %s%s%s%s%s%s",
                                        (l&0x01) ? "Unacceptable-Params " : "",
                                        (l&0x02) ? "Renegotiate" : "",
@@ -1424,70 +1421,47 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        (l&0x08) ? "Bad-Data-Link" : "",
                                        (l&0x10) ? "Bad-TE-Link-CType" : "",
                                        (l&0x20) ? "Bad-Data-Link-CType" : "");
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
-                                       tvb, offset, 4, l);
+                }
                 break;
 
             case 3:
+                {
+                static const int * error_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
+                    NULL
+                };
+
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_ERROR], lmp_subtree[LMP_TREE_ERROR_FLAGS], error_flags, ENC_NA);
+
                 proto_item_append_text(ti, ": TRACE_ERROR: %s%s%s",
                                        (l&0x01) ? "Unsupported Trace Type " : "",
                                        (l&0x02) ? "Invalid Trace Message" : "",
                                        (l&0x10) ? "Unknown Object C-Type" : "");
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
-                                       tvb, offset, 4, l);
+                }
                 break;
 
             case 4:
+                {
+                static const int * error_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
+                    &hf_lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
+                    NULL
+                };
+
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_ERROR], lmp_subtree[LMP_TREE_ERROR_FLAGS], error_flags, ENC_NA);
+
                 proto_item_append_text(ti, ": LAD_ERROR: %s%s%s%s%s",
                                        (l&0x01) ? "Domain Routing Area ID mismatch" : "",
                                        (l&0x02) ? "TCP ID mismatch" : "",
                                        (l&0x04) ? "DA DCN mismatch" : "",
                                        (l&0x08) ? "Capability mismatch" : "",
                                        (l&0x10) ? "Unknown Object C-Type" : "");
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_ERROR_FLAGS]);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
-                                       tvb, offset, 4, l);
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
-                                       tvb, offset, 4, l);
+                }
                 break;
 
             default:
@@ -1508,7 +1482,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
 
                 l = tvb_get_ntohs(tvb, offset2+2);
-                proto_tree_add_uint(lmp_object_tree,
+                trace_item = proto_tree_add_uint(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
                                     tvb, offset2+2, 2, l);
                 if (l && l <= obj_length - 8) {
@@ -1520,8 +1494,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                                                              offset2+4,l));
                 }
                 else
-                    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 1,
-                                        "[Invalid Trace Length]");
+                    expert_add_info(pinfo, trace_item, &ei_lmp_trace_len);
                 break;
 
             case 2:
@@ -1574,44 +1547,47 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             switch (type) {
 
             case 1:
+                {
+
+                static const int * sp_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
+                    NULL
+                };
+
                 /* Supported Signaling Protocols Object */
 
                 /* Signaling Protocols */
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_SP_FLAGS], sp_flags, ENC_NA);
                 l = tvb_get_guint8(tvb, offset2);
 
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
-                                          tvb, offset2, 1, l);
                 proto_item_append_text(ti2, ": %s %s",
                                        (l & 0x01) ? "RSVP-based UNI signaling supported " : "",
                                        (l & 0x02) ? "LDP-based UNI signaling supported " : "");
 
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_SERVICE_CONFIG_SP_FLAGS]);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
-                                       tvb, offset2, 1, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
-                                       tvb, offset2, 1, l);
-
                 /* UNI version */
-                proto_tree_add_text(lmp_object_tree, tvb, offset2+1, 1,
-                                    "UNI Version: %u",
-                                    tvb_get_guint8(tvb, offset2+1));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_uni_version, tvb, offset2+1, 1, ENC_NA);
+                }
                 break;
 
             case 2:
+                {
+                static const int * tp_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
+                    NULL
+                };
+
+                static const int * cct_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
+                    NULL
+                };
+
                 /* Client Port-Level Service Attributes Object */
 
                 /* Link Type */
-                proto_tree_add_text(lmp_object_tree, tvb, offset2, 1,
-                                    "Link Type: %s",
-                                    val_to_str(tvb_get_guint8(tvb, offset2),
-                                               service_attribute_link_type_str,
-                                               "UNK (%u). "));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_link_type, tvb, offset2, 1, ENC_NA);
 
                 proto_item_append_text(lmp_object_tree, "%s",
                                        val_to_str(tvb_get_guint8(tvb, offset2),
@@ -1622,11 +1598,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 /* Signal type for SDH */
                 if (l == LMP_CLASS_SERVICE_CONFIG_CPSA_SIGNAL_TYPES_SDH) {
                     /* Signal types for an SDH link */
-                    proto_tree_add_text(lmp_object_tree, tvb, offset2+1, 1,
-                                        "Signal Types: %s",
-                                        val_to_str(tvb_get_guint8(tvb, offset2+1),
-                                                   service_attribute_signal_types_sdh_str,
-                                                   "Unknown (%u).  "));
+                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sdh, tvb, offset2+1, 1, ENC_NA);
 
                     proto_item_append_text(lmp_object_tree, "%s",
                                            val_to_str(tvb_get_guint8(tvb, offset2+1),
@@ -1636,11 +1608,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 if (l == LMP_CLASS_SERVICE_CONFIG_CPSA_SIGNAL_TYPES_SONET) {
                     /* Signal types for a SONET link */
-                    proto_tree_add_text(lmp_object_tree, tvb, offset2+1, 1,
-                                        "Signal Types: %s",
-                                        val_to_str(tvb_get_guint8(tvb, offset2+1),
-                                                   service_attribute_signal_types_sonet_str,
-                                                   "Unknown (%u).  "));
+                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sonet, tvb, offset2+1, 1, ENC_NA);
 
                     proto_item_append_text(lmp_object_tree, "%s",
                                            val_to_str(tvb_get_guint8(tvb, offset2+1),
@@ -1649,43 +1617,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 }
 
                 /* TP Transparency */
-                l = tvb_get_guint8(tvb, offset2+2);
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS],
-                                          tvb, offset2+2, 1, l);
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+2, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_TP_FLAGS], tp_flags, ENC_NA);
 
+                l = tvb_get_guint8(tvb, offset2+2);
                 proto_item_append_text(ti2, ": %s%s%s",
                                        (l & 0x01) ? "Path/VC Overhead Transparency " : "",
                                        (l & 0x02) ? "Line/MS Overhead Transparency " : "",
                                        (l & 0x04) ? "Section/RS Overhead Transparency " : "");
 
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_TP_FLAGS]);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
-                                       tvb, offset2+2, 1, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
-                                       tvb, offset2+2, 1, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
-                                       tvb, offset2+2, 1, l);
-
                 /* Contiguous Concatentation Types */
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+3, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_CCT_FLAGS], cct_flags, ENC_NA);
                 l = tvb_get_guint8(tvb, offset2+3);
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS],
-                                          tvb, offset2+3, 1, l);
-
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_CCT_FLAGS]);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
-                                       tvb, offset2+3, 1, l);
 
                 /* Min and Max NCC */
                 proto_item_append_text(ti, ": Minimum NCC: %d, Maximum NCC: %d",
@@ -1722,79 +1664,57 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID],
                                     tvb, offset2+12, 4, ENC_BIG_ENDIAN);
-
+                }
                 break;
 
             case 3:
+                {
+                static const int * t_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
+                    NULL
+                };
+
+                static const int * tcm_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
+                    NULL
+                };
 
                 /* Network Transparency Support and TCM Monitoring Object */
 
                 /* Transparency */
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS], t_flags, ENC_BIG_ENDIAN);
                 l = tvb_get_ntohl(tvb, offset2);
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS],
-                                          tvb, offset2, 4, l);
-
                 proto_item_append_text(ti2, ": %s %s",
                                        (l & 0x01) ? "Standard SOH/RSOH transparency supported " : "",
                                        (l & 0x02) ? "Standard LOH/MSOH transparency supported " : "");
 
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS]);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
-                                       tvb, offset2, 4, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
-                                       tvb, offset2, 4, l);
-
                 /* TCM Monitoring */
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+7, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_TCM_FLAGS], tcm_flags, ENC_BIG_ENDIAN);
                 l = tvb_get_guint8(tvb, offset2+7);
-
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS],
-                                          tvb, offset2+7, 1, l);
-
                 proto_item_append_text(ti2, ": %s",
                                        (l & 0x01) ? "Transparent Support of TCM available " :  "");
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
-                                       tvb, offset2+7, 1, l);
-
+                }
                 break;
 
             case 4:
+                {
+                static const int * diversity_flags[] = {
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
+                    &hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
+                    NULL
+                };
 
                 /* Network Diversity Object */
+                proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+3, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS], diversity_flags, ENC_BIG_ENDIAN);
                 l = tvb_get_guint8(tvb,offset2+3);
-
-                ti2 = proto_tree_add_uint(lmp_object_tree,
-                                          hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS],
-                                          tvb, offset2+3, 1, l);
-
                 proto_item_append_text(ti2, ": %s%s%s",
                                        (l & 0x01) ? "Node Diversity is supported " :  "",
                                        (l & 0x02) ? "Link Diversity is supported " : "",
                                        (l & 0x04) ? "SRLG Diversity is supported " : "");
 
-
-                lmp_flags_tree = proto_item_add_subtree(ti2,
-                                                        lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS]);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
-                                       tvb, offset2+3, 1, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
-                                       tvb, offset2+3, 1, l);
-
-                proto_tree_add_boolean(lmp_flags_tree,
-                                       hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
-                                       tvb, offset2+3, 1, l);
+                }
                 break;
 
             default:
@@ -1856,17 +1776,15 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                               tvb, offset2+l, mylen, ENC_NA);
                     lmp_subobj_tree = proto_item_add_subtree(ti2,
                                                              lmp_subtree[LMP_TREE_LAD_INFO_SUBOBJ]);
-                    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
-                                        "Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_NA);
 
                     if (mylen == 0 || l + mylen > obj_length - 4) {
-                        proto_tree_add_text(lmp_object_tree, tvb, offset2+l+1, 1,
-                                            "Subobject Length: %d (Invalid)", mylen);
+                        proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1,
+                                            mylen, "%d (Invalid)", mylen);
                         break;
                     }
                     else
-                        proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
-                                            "Subobject Length: %d", mylen);
+                        proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_NA);
 
                     switch(tvb_get_guint8(tvb, offset2+l)) {
 
@@ -1921,8 +1839,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                             tvb, offset2+l+5, 1, ENC_BIG_ENDIAN);
 
                         for (j = 0; j < (mylen - 8) / 4; j++) {
-                            proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8+(j*4), 4,
-                                                "%s: %d free timeslots",
+                            proto_tree_add_uint_format(lmp_subobj_tree, hf_lmp_free_timeslots, tvb, offset2+l+8+(j*4), 4,
+                                                tvb_get_ntoh24(tvb, offset2+l+9+(j*4)), "%s: %d free timeslots",
                                                 val_to_str_ext(tvb_get_guint8(tvb, offset2+l+8+(j*4)),
                                                                &gmpls_sonet_signal_type_str_ext,
                                                                "Unknown Signal Type (%d)"),
@@ -2674,12 +2592,44 @@ proto_register_lmp(void)
         {&hf_lmp_data,
          { "Data", "lmp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_lmp_lmp_version, { "LMP Version", "lmp.lmp_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_header_flags, { "Flags", "lmp.header_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_header_length, { "Length", "lmp.header_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_negotiable, { "Negotiable", "lmp.negotiable", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
+      { &hf_lmp_object_length, { "Length", "lmp.object_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_object_class, { "Object Class", "lmp.object_class", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verify_interval, { "Verify Interval", "lmp.verify_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_number_of_data_links, { "Number of Data Links", "lmp.number_of_data_links", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verify_transport_mechanism, { "Verify Transport Mechanism", "lmp.verify_transport_mechanism", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_transmission_rate, { "Transmission Rate", "lmp.transmission_rate", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_wavelength, { "Wavelength", "lmp.wavelength", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verifydeadinterval, { "VerifyDeadInterval", "lmp.verifydeadinterval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verify_transport_response, { "Verify Transport Response", "lmp.verify_transport_response", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_data_link_local_id_ipv6, { "Data-Link Local ID - IPv6", "lmp.data_link.local_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_data_link_remote_id_ipv6, { "Data-Link Remote ID - IPv6", "lmp.data_link.remote_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_subobject_type, { "Subobject Type", "lmp.subobject_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_subobject_length, { "Subobject Length", "lmp.subobject_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_minimum_reservable_bandwidth, { "Minimum Reservable Bandwidth", "lmp.minimum_reservable_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_maximum_reservable_bandwidth, { "Maximum Reservable Bandwidth", "lmp.maximum_reservable_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_interface_id_ipv4, { "Interface ID - IPv4", "lmp.interface_id.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_interface_id_ipv6, { "Interface ID - IPv6", "lmp.interface_id.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_interface_id_unnumbered, { "Interface ID - Unnumbered", "lmp.interface_id.id_unnumbered", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_link, { "Link", "lmp.link", FT_BOOLEAN, 32, TFS(&tfs_active_monitoring_not_allocated), 0x80000000, NULL, HFILL }},
+      { &hf_lmp_channel_status, { "Channel Status", "lmp.channel_status", FT_UINT32, BASE_DEC, VALS(channel_status_str), 0x7fffffff, NULL, HFILL }},
+      { &hf_lmp_uni_version, { "UNI Version", "lmp.uni_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_link_type, { "Link Type", "lmp.link_type", FT_UINT8, BASE_DEC, VALS(service_attribute_link_type_str), 0x0, NULL, HFILL }},
+      { &hf_lmp_signal_types_sdh, { "Signal Types", "lmp.signal_types", FT_UINT8, BASE_DEC, VALS(service_attribute_signal_types_sdh_str), 0x0, NULL, HFILL }},
+      { &hf_lmp_signal_types_sonet, { "Signal Types", "lmp.signal_types", FT_UINT8, BASE_DEC, VALS(service_attribute_signal_types_sonet_str), 0x0, NULL, HFILL }},
+      { &hf_lmp_free_timeslots, { "Free timeslots", "lmp.free_timeslots", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
         { &ei_lmp_checksum_incorrect, { "lmp.checksum.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect checksum", EXPFILL }},
         { &ei_lmp_invalid_msg_type, { "lmp.invalid_msg_type", PI_PROTOCOL, PI_WARN, "Invalid message type", EXPFILL }},
         { &ei_lmp_invalid_class, { "lmp.invalid_class", PI_PROTOCOL, PI_WARN, "Invalid class", EXPFILL }},
+        { &ei_lmp_trace_len, { "lmp.trace.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid Trace Length", EXPFILL }},
     };
 
     expert_module_t* expert_lmp;
