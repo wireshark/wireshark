@@ -461,6 +461,7 @@ WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"),NOP);
     /* A Protocol field (to be used when adding items to the dissection tree). */
 
 static const wslua_ft_types_t ftenums[] = {
+    {"ftypes.NONE", FT_NONE},
     {"ftypes.BOOLEAN", FT_BOOLEAN},
     {"ftypes.UINT8", FT_UINT8},
     {"ftypes.UINT16", FT_UINT16},
@@ -726,7 +727,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         `ftypes.DOUBLE` , `ftypes.ABSOLUTE_TIME`, `ftypes.RELATIVE_TIME`, `ftypes.STRING`,
         `ftypes.STRINGZ`, `ftypes.UINT_STRING`, `ftypes.ETHER`, `ftypes.BYTES`,
         `ftypes.UINT_BYTES`, `ftypes.IPv4`, `ftypes.IPv6`, `ftypes.IPXNET`, `ftypes.FRAMENUM`,
-        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, or `ftypes.EUI64`.
+        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, `ftypes.EUI64` or `ftypes.NONE`,.
     */
 #define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A table containing the text that
                                                      corresponds to the values. */
@@ -829,6 +830,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             return 0;
         }
         break;
+    case FT_NONE:
     case FT_IPv4:
     case FT_IPv6:
     case FT_IPXNET:
@@ -853,7 +855,6 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             return 0;
         }
         break;
-    case FT_NONE:
     default:
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Invalid field type");
         break;
@@ -1206,6 +1207,12 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 }
 
 #define PROTOFIELD_OTHER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_other(L,FT); }
+/* _WSLUA_CONSTRUCTOR_ ProtoField_none Creates a `ProtoField` of an unstructured type. */
+/* WSLUA_ARG_Protofield_none_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_none_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_none_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ipv4 Creates a `ProtoField` of an IPv4 address (4 bytes). */
 /* WSLUA_ARG_Protofield_ipv4_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_ipv4_NAME Actual name of the field (the string that appears in the tree). */
@@ -1284,6 +1291,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_systemid_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
+PROTOFIELD_OTHER(none,FT_NONE)
 PROTOFIELD_OTHER(ipv4,FT_IPv4)
 PROTOFIELD_OTHER(ipv6,FT_IPv6)
 PROTOFIELD_OTHER(ipx,FT_IPXNET)
@@ -1338,6 +1346,7 @@ static int ProtoField__gc(lua_State* L) {
 
 WSLUA_METHODS ProtoField_methods[] = {
     WSLUA_CLASS_FNREG(ProtoField,new),
+    WSLUA_CLASS_FNREG(ProtoField,none),
     WSLUA_CLASS_FNREG(ProtoField,uint8),
     WSLUA_CLASS_FNREG(ProtoField,uint16),
     WSLUA_CLASS_FNREG(ProtoField,uint24),
