@@ -631,6 +631,7 @@ static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset
 
 /* Global Port Preference */
 static unsigned int mausb_tcp_port_pref = 0;
+static unsigned int mausb_udp_port_pref = 0;
 
 /* Initialize the subtree pointers */
 static gint ett_mausb = -1;
@@ -1872,6 +1873,11 @@ proto_register_mausb(void)
                        "Set the port for Media Agnostic Packets",
                        10, &mausb_tcp_port_pref);
 
+    /* Register UDP port preference */
+    prefs_register_uint_preference(mausb_module, "udp.port", "MAUSB UDP Port",
+                       "Set the port for Media Agnostic Packets",
+                       10, &mausb_udp_port_pref);
+
 }
 
 void
@@ -1879,27 +1885,32 @@ proto_reg_handoff_mausb(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t mausb_tcp_handle;
+    static dissector_handle_t mausb_pkt_handle;
     static guint saved_mausb_tcp_port_pref;
+    static guint saved_mausb_udp_port_pref;
 
     if (!initialized) {
-        dissector_handle_t mausb_snap_handle;
         /* only initialize once */
         mausb_tcp_handle = new_create_dissector_handle(dissect_mausb,
                 proto_mausb);
 
-        mausb_snap_handle = new_create_dissector_handle(dissect_mausb_pkt,
+        mausb_pkt_handle = new_create_dissector_handle(dissect_mausb_pkt,
                 proto_mausb);
 
-        dissector_add_uint("llc.mausb_pid", PID_MAUSB, mausb_snap_handle);
+        dissector_add_uint("llc.mausb_pid", PID_MAUSB, mausb_pkt_handle);
         initialized = TRUE;
 
     } else {
         /* if we have already been initialized */
         dissector_delete_uint("tcp.port", saved_mausb_tcp_port_pref, mausb_tcp_handle);
+        dissector_delete_uint("udp.port", saved_mausb_udp_port_pref, mausb_pkt_handle);
     }
 
     saved_mausb_tcp_port_pref = mausb_tcp_port_pref;
+    saved_mausb_udp_port_pref = mausb_udp_port_pref;
+
     dissector_add_uint("tcp.port", mausb_tcp_port_pref, mausb_tcp_handle);
+    dissector_add_uint("udp.port", mausb_udp_port_pref, mausb_pkt_handle);
 }
 
 void
