@@ -5239,7 +5239,7 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
             proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_henbs, NULL, "Home eNB ID %u",i);
             offset+=7;
             i++;
-            no_mENB--;
+            no_hENB--;
         }
     }
     /* Octet (p+1) to q ECGIs [1..63]
