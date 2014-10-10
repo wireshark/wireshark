@@ -1702,6 +1702,12 @@ set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
+if(ENABLE_APPLICATION_BUNDLE)
+	set_target_properties(epan PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
+	)
+endif()
+
 ABICHECK(libwireshark)
 
 file(GLOB COLUMN_INFO_HEADER column-info.h)

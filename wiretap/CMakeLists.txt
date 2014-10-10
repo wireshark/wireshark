@@ -127,6 +127,12 @@ IF(MSVC)
 	set_target_properties(wiretap PROPERTIES OUTPUT_NAME "wiretap-${PROJECT_VERSION}")
 ENDIF()
 
+if(ENABLE_APPLICATION_BUNDLE)
+	set_target_properties(wiretap PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
+	)
+endif()
+
 ABICHECK(libwiretap)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz
@@ -145,4 +151,3 @@ if(NOT ${ENABLE_STATIC})
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	)
 endif()
-
