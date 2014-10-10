@@ -24,7 +24,7 @@ There are several ways of building qtshark:
    any desired build arguments (e.g. "-D CMAKE_BUILD_TYPE:STRING=Debug" or
    "-D ENABLE_GTK3:BOOL=OFF") and click the "Run CMake" button. When that
    completes select "Build → Open Build and Run Kit Selector..." and make
-   sure qtshark is selected.
+   sure wireshark is selected.
 
 2) CMake:
 
@@ -35,6 +35,10 @@ There are several ways of building qtshark:
     cd cmakebuild
     cmake
     make
+
+   Note that CMake builds an application bundle (Wireshark.app) on Mac OS X
+   by default. Use the option "-DENABLE_APPLICATION_BUNDLE=OFF" to create a
+   traditional UNIX/POSIX build.
 
 3) Autotools:
 

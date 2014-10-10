@@ -58,6 +58,9 @@ Note 1:
   # http://public.kitware.com/Bug/view.php?id=13818
   -DPYTHON_EXECUTABLE=c:/Python27/python
 
+  # Disable building an application bundle (Wireshark.app) on Mac OS X
+  -DENABLE_APPLICATION_BUNDLE=OFF
+
 Note 2:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.
