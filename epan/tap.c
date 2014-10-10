@@ -467,7 +467,7 @@ find_tap_id(const char *name)
  */
 GString *
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
-    guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
+		      guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;
@@ -653,3 +653,16 @@ union_of_tap_listener_flags(void)
 	}
 	return flags;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

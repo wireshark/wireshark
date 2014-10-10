@@ -339,20 +339,33 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 gint
 register_export_pdu_tap(const char *name)
 {
-    gchar *tap_name = g_strdup(name);
-    export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
-    return register_tap(tap_name);
+	gchar *tap_name = g_strdup(name);
+	export_pdu_tap_name_list = g_slist_prepend(export_pdu_tap_name_list, tap_name);
+	return register_tap(tap_name);
 }
 
 static
 gint sort_pdu_tap_name_list(gconstpointer a, gconstpointer b)
 {
-    return g_strcmp0((const char *)a, (const char*)b);
+	return g_strcmp0((const char *)a, (const char*)b);
 }
 
 GSList *
 get_export_pdu_tap_list(void)
 {
-    export_pdu_tap_name_list = g_slist_sort(export_pdu_tap_name_list, sort_pdu_tap_name_list);
-    return export_pdu_tap_name_list;
+	export_pdu_tap_name_list = g_slist_sort(export_pdu_tap_name_list, sort_pdu_tap_name_list);
+	return export_pdu_tap_name_list;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

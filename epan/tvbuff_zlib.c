@@ -319,3 +319,16 @@ tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comp
 		tvb_set_child_real_data_tvbuff (parent, new_tvb);
 	return new_tvb;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

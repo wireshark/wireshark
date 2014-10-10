@@ -1004,9 +1004,9 @@ test_fragment_add_seq_duplicate_conflict(void)
 
 static void
 test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
-				 tvbuff_t *, const int, const packet_info *,
-				 const guint32, const void *, const guint32,
-				 const guint32, const gboolean))
+                                 tvbuff_t *, const int, const packet_info *,
+                                 const guint32, const void *, const guint32,
+                                 const guint32, const gboolean))
 {
     fragment_head *fd_head;
 
@@ -1574,7 +1574,7 @@ main(int argc _U_, char **argv _U_)
     for(i=0; i < sizeof(tests)/sizeof(tests[0]); i++ ) {
         /* re-init the fragment tables */
         reassembly_table_init(&test_reassembly_table,
-        		      &addresses_reassembly_table_functions);
+                              &addresses_reassembly_table_functions);
         ASSERT(test_reassembly_table.fragment_table != NULL);
         ASSERT(test_reassembly_table.reassembled_table != NULL);
 
@@ -1594,3 +1594,16 @@ main(int argc _U_, char **argv _U_)
     printf(failure?"FAILURE\n":"SUCCESS\n");
     return failure;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

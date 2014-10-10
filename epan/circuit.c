@@ -76,9 +76,9 @@ circuit_cleanup(void)
 	 * Free up any space allocated for the circuit hashtable.
 	 *
 	 * We can free the hash as the structures pointed to in the
-         * hash are in "seasonal" memory which is freed separately.
-         * Note: circuit_cleanup() must be called only when
-         *       seasonal memory is also freed.
+	 * hash are in "seasonal" memory which is freed separately.
+	 * Note: circuit_cleanup() must be called only when
+	 *       seasonal memory is also freed.
 	 */
 
 	if (circuit_hashtable != NULL)
@@ -306,3 +306,16 @@ try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
 	}
 	return FALSE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

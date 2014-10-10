@@ -38,3 +38,16 @@ update_crc10_by_bytes_tvb(guint16 crc10, tvbuff_t *tvb, int offset, int len)
 
     return update_crc10_by_bytes(crc10, buf, len);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

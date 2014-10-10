@@ -107,21 +107,21 @@ int Pp[MM+1] = { 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1 };
 #endif
 
 #ifdef STANDARD_ORDER /* first byte transmitted is index of x**(KK-1) in message poly*/
-	/* definitions used in the encode routine*/
-	#define MESSAGE(i) data[KK-(i)-1]
-	#define REMAINDER(i) bb[NN-KK-(i)-1]
-	/* definitions used in the decode routine*/
-	#define RECEIVED(i) data[NN-1-(i)]
-	#define ERAS_INDEX(i) (NN-1-eras_pos[i])
-	#define INDEX_TO_POS(i) (NN-1-(i))
+        /* definitions used in the encode routine*/
+        #define MESSAGE(i) data[KK-(i)-1]
+        #define REMAINDER(i) bb[NN-KK-(i)-1]
+        /* definitions used in the decode routine*/
+        #define RECEIVED(i) data[NN-1-(i)]
+        #define ERAS_INDEX(i) (NN-1-eras_pos[i])
+        #define INDEX_TO_POS(i) (NN-1-(i))
 #else /* first byte transmitted is index of x**0 in message polynomial*/
-	/* definitions used in the encode routine*/
-	#define MESSAGE(i) data[i]
-	#define REMAINDER(i) bb[i]
-	/* definitions used in the decode routine*/
-	#define RECEIVED(i) data[i]
-	#define ERAS_INDEX(i) eras_pos[i]
-	#define INDEX_TO_POS(i) i
+        /* definitions used in the encode routine*/
+        #define MESSAGE(i) data[i]
+        #define REMAINDER(i) bb[i]
+        /* definitions used in the decode routine*/
+        #define RECEIVED(i) data[i]
+        #define ERAS_INDEX(i) eras_pos[i]
+        #define INDEX_TO_POS(i) i
 #endif
 
 
@@ -143,7 +143,7 @@ static gf Index_of[NN + 1];
 /* No legal value in index form represents zero, so
  * we need a special value for this purpose
  */
-#define A0	(NN)
+#define A0      (NN)
 
 /* Generator polynomial g(x) in index form */
 static gf Gg[NN - KK + 1];
@@ -164,21 +164,21 @@ modnn(int x)
   return x;
 }
 
-#define	min_(a,b)	((a) < (b) ? (a) : (b))
+#define min_(a,b)       ((a) < (b) ? (a) : (b))
 
-#define	CLEAR(a,n) {\
+#define CLEAR(a,n) {\
 int ci;\
 for(ci=(n)-1;ci >=0;ci--)\
 (a)[ci] = 0;\
 }
 
-#define	COPY(a,b,n) {\
+#define COPY(a,b,n) {\
 int ci;\
 for(ci=(n)-1;ci >=0;ci--)\
 (a)[ci] = (b)[ci];\
 }
 
-#define	COPYDOWN(a,b,n) {\
+#define COPYDOWN(a,b,n) {\
 int ci;\
 for(ci=(n)-1;ci >=0;ci--)\
 (a)[ci] = (b)[ci];\
@@ -214,8 +214,8 @@ gen_ltab(void)
     taltab[i] = 0;
     for(j=0;j<8;j++) /* for each column of matrix */
       for(k=0;k<8;k++){ /* for each row of matrix */
-	if(i & (1<<k))
-	   taltab[i] ^= tal[7-k] & (1<<j);
+        if(i & (1<<k))
+          taltab[i] ^= tal[7-k] & (1<<j);
       }
     tal1tab[taltab[i]] = i;
   }
@@ -279,8 +279,8 @@ generate_gf(void)
     Index_of[Alpha_to[i]] = i;
     /* If Pp[i] == 1 then, term @^i occurs in poly-repr of @^MM */
     if (Pp[i] != 0)
-      Alpha_to[MM] ^= mask;	/* Bit-wise EXOR operation */
-    mask <<= 1;	/* single left-shift */
+      Alpha_to[MM] ^= mask;     /* Bit-wise EXOR operation */
+    mask <<= 1; /* single left-shift */
   }
   Index_of[Alpha_to[MM]] = MM;
   /*
@@ -327,9 +327,9 @@ gen_poly(void)
      */
     for (j = i; j > 0; j--)
       if (Gg[j] != 0)
-	Gg[j] = Gg[j - 1] ^ Alpha_to[modnn((Index_of[Gg[j]]) + (B0 + i) *PRIM)];
+        Gg[j] = Gg[j - 1] ^ Alpha_to[modnn((Index_of[Gg[j]]) + (B0 + i) *PRIM)];
       else
-	Gg[j] = Gg[j - 1];
+        Gg[j] = Gg[j - 1];
     /* Gg[0] can never be zero */
     Gg[0] = Alpha_to[modnn(Index_of[Gg[0]] + (B0 + i) * PRIM)];
   }
@@ -374,17 +374,17 @@ encode_rs(dtype data[KK], dtype bb[NN-KK])
 
   for(i = KK - 1; i >= 0; i--) {
     feedback = Index_of[MESSAGE(i) ^ REMAINDER(NN - KK - 1)];
-    if (feedback != A0) {	/* feedback term is non-zero */
+    if (feedback != A0) {       /* feedback term is non-zero */
       for (j = NN - KK - 1; j > 0; j--)
-		if (Gg[j] != A0)
-		  REMAINDER(j) = REMAINDER(j - 1) ^ Alpha_to[modnn(Gg[j] + feedback)];
-		else
-		  REMAINDER(j) = REMAINDER(j - 1);
-		  REMAINDER(0) = Alpha_to[modnn(Gg[0] + feedback)];
-    } else {	/* feedback term is zero. encoder becomes a
-		 * single-byte shifter */
+        if (Gg[j] != A0)
+          REMAINDER(j) = REMAINDER(j - 1) ^ Alpha_to[modnn(Gg[j] + feedback)];
+        else
+          REMAINDER(j) = REMAINDER(j - 1);
+      REMAINDER(0) = Alpha_to[modnn(Gg[0] + feedback)];
+    } else {    /* feedback term is zero. encoder becomes a
+                 * single-byte shifter */
       for (j = NN - KK - 1; j > 0; j--)
-	REMAINDER(j) = REMAINDER(j - 1);
+        REMAINDER(j) = REMAINDER(j - 1);
       REMAINDER(0) = 0;
     }
   }
@@ -422,8 +422,8 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
   int deg_lambda, el, deg_omega;
   int i, j, r,k;
   gf u,q,tmp,num1,num2,den,discr_r;
-  gf lambda[NN-KK + 1], s[NN-KK + 1];	/* Err+Eras Locator poly
-					 * and syndrome poly */
+  gf lambda[NN-KK + 1], s[NN-KK + 1];   /* Err+Eras Locator poly
+                                         * and syndrome poly */
   gf b[NN-KK + 1], t[NN-KK + 1], omega[NN-KK + 1];
   gf root[NN-KK], reg[NN-KK + 1], loc[NN-KK];
   int syn_error, count;
@@ -454,7 +454,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
       continue;
     tmp = Index_of[RECEIVED(j)];
 
-    /*	s[i] ^= Alpha_to[modnn(tmp + (B0+i-1)*j)]; */
+    /*  s[i] ^= Alpha_to[modnn(tmp + (B0+i-1)*j)]; */
     for(i=1;i<=NN-KK;i++)
       s[i] ^= Alpha_to[modnn(tmp + (B0+i-1)*PRIM*j)];
   }
@@ -462,7 +462,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
   syn_error = 0;
   for(i=1;i<=NN-KK;i++){
     syn_error |= s[i];
-	/*printf("syndrome %d = %x\n",i,s[i]);*/
+        /*printf("syndrome %d = %x\n",i,s[i]);*/
     s[i] = Index_of[s[i]];
   }
 
@@ -482,9 +482,9 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     for (i = 1; i < no_eras; i++) {
       u = modnn(PRIM*ERAS_INDEX(i));
       for (j = i+1; j > 0; j--) {
-	tmp = Index_of[lambda[j - 1]];
-	if(tmp != A0)
-	  lambda[j] ^= Alpha_to[modnn(u + tmp)];
+        tmp = Index_of[lambda[j - 1]];
+        if(tmp != A0)
+          lambda[j] ^= Alpha_to[modnn(u + tmp)];
       }
     }
 #if DEBUG >= 1
@@ -498,12 +498,12 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     for (i = 1,k=NN-Ldec; i <= NN; i++,k = modnn(NN+k-Ldec)) {
       q = 1;
       for (j = 1; j <= no_eras; j++)
-	if (reg[j] != A0) {
-	  reg[j] = modnn(reg[j] + j);
-	  q ^= Alpha_to[reg[j]];
-	}
+        if (reg[j] != A0) {
+          reg[j] = modnn(reg[j] + j);
+          q ^= Alpha_to[reg[j]];
+        }
       if (q != 0)
-	continue;
+        continue;
       /* store root and error location number indices */
       root[count] = i;
       loc[count] = k;
@@ -531,15 +531,15 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
    */
   r = no_eras;
   el = no_eras;
-  while (++r <= NN-KK) {	/* r is the step number */
+  while (++r <= NN-KK) {        /* r is the step number */
     /* Compute discrepancy at the r-th step in poly-form */
     discr_r = 0;
     for (i = 0; i < r; i++){
       if ((lambda[i] != 0) && (s[r - i] != A0)) {
-	discr_r ^= Alpha_to[modnn(Index_of[lambda[i]] + s[r - i])];
+        discr_r ^= Alpha_to[modnn(Index_of[lambda[i]] + s[r - i])];
       }
     }
-    discr_r = Index_of[discr_r];	/* Index form */
+    discr_r = Index_of[discr_r];        /* Index form */
     if (discr_r == A0) {
       /* 2 lines below: B(x) <-- x*B(x) */
       COPYDOWN(&b[1],b,NN-KK);
@@ -548,23 +548,23 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
       /* 7 lines below: T(x) <-- lambda(x) - discr_r*x*b(x) */
       t[0] = lambda[0];
       for (i = 0 ; i < NN-KK; i++) {
-	if(b[i] != A0)
-	  t[i+1] = lambda[i+1] ^ Alpha_to[modnn(discr_r + b[i])];
-	else
-	  t[i+1] = lambda[i+1];
+        if(b[i] != A0)
+          t[i+1] = lambda[i+1] ^ Alpha_to[modnn(discr_r + b[i])];
+        else
+          t[i+1] = lambda[i+1];
       }
       if (2 * el <= r + no_eras - 1) {
-	el = r + no_eras - el;
-	/*
-	 * 2 lines below: B(x) <-- inv(discr_r) *
-	 * lambda(x)
-	 */
-	for (i = 0; i <= NN-KK; i++)
-	  b[i] = (lambda[i] == 0) ? A0 : modnn(Index_of[lambda[i]] - discr_r + NN);
+        el = r + no_eras - el;
+        /*
+         * 2 lines below: B(x) <-- inv(discr_r) *
+         * lambda(x)
+         */
+        for (i = 0; i <= NN-KK; i++)
+          b[i] = (lambda[i] == 0) ? A0 : modnn(Index_of[lambda[i]] - discr_r + NN);
       } else {
-	/* 2 lines below: B(x) <-- x*B(x) */
-	COPYDOWN(&b[1],b,NN-KK);
-	b[0] = A0;
+        /* 2 lines below: B(x) <-- x*B(x) */
+        COPYDOWN(&b[1],b,NN-KK);
+        b[0] = A0;
       }
       COPY(lambda,t,NN-KK+1);
     }
@@ -582,13 +582,13 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
    * Search
    */
   COPY(&reg[1],&lambda[1],NN-KK);
-  count = 0;		/* Number of roots of lambda(x) */
+  count = 0;            /* Number of roots of lambda(x) */
   for (i = 1,k=NN-Ldec; i <= NN; i++,k = modnn(NN+k-Ldec)) {
     q = 1;
     for (j = deg_lambda; j > 0; j--){
       if (reg[j] != A0) {
-	reg[j] = modnn(reg[j] + j);
-	q ^= Alpha_to[reg[j]];
+        reg[j] = modnn(reg[j] + j);
+        q ^= Alpha_to[reg[j]];
       }
     }
     if (q != 0)
@@ -620,7 +620,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     j = (deg_lambda < i) ? deg_lambda : i;
     for(;j >= 0; j--){
       if ((s[i + 1 - j] != A0) && (lambda[j] != A0))
-	tmp ^= Alpha_to[modnn(s[i + 1 - j] + lambda[j])];
+        tmp ^= Alpha_to[modnn(s[i + 1 - j] + lambda[j])];
     }
     if(tmp != 0)
       deg_omega = i;
@@ -636,7 +636,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     num1 = 0;
     for (i = deg_omega; i >= 0; i--) {
       if (omega[i] != A0)
-	num1  ^= Alpha_to[modnn(omega[i] + i * root[j])];
+        num1  ^= Alpha_to[modnn(omega[i] + i * root[j])];
     }
     num2 = Alpha_to[modnn(root[j] * (B0 - 1) + NN)];
     den = 0;
@@ -644,7 +644,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     /* lambda[i+1] for i even is the formal derivative lambda_pr of lambda[i] */
     for (i = min_(deg_lambda,NN-KK-1) & ~1; i >= 0; i -=2) {
       if(lambda[i+1] != A0)
-	den ^= Alpha_to[modnn(lambda[i+1] + i * root[j])];
+        den ^= Alpha_to[modnn(lambda[i+1] + i * root[j])];
     }
     if (den == 0) {
 #if DEBUG >= 1
@@ -661,17 +661,17 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
   }
  finish:
 #ifdef CCSDS
-    /* Convert to dual- basis */
-    for(i=0;i<NN;i++)
-      RECEIVED(i) = taltab[RECEIVED(i)];
+  /* Convert to dual- basis */
+  for(i=0;i<NN;i++)
+    RECEIVED(i) = taltab[RECEIVED(i)];
 #endif
-    if(eras_pos != NULL){
-      for(i=0;i<count;i++){
+  if(eras_pos != NULL){
+    for(i=0;i<count;i++){
       if(eras_pos!= NULL)
-	eras_pos[i] = INDEX_TO_POS(loc[i]);
-      }
+        eras_pos[i] = INDEX_TO_POS(loc[i]);
     }
-    return count;
+  }
+  return count;
 }
 /* Encoder/decoder initialization - call this first! */
 static void
@@ -687,3 +687,16 @@ init_rs(void)
 #endif
   RS_init = 1;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

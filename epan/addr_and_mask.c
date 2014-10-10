@@ -73,7 +73,7 @@ ipv4_addr_and_mask(tvbuff_t *tvb, int offset, guint8 *addr, guint32 prefix_len)
 
 int
 ipv6_addr_and_mask(tvbuff_t *tvb, int offset, struct e_in6_addr *addr,
-    guint32 prefix_len)
+		   guint32 prefix_len)
 {
 	guint32 addr_len;
 
@@ -90,3 +90,16 @@ ipv6_addr_and_mask(tvbuff_t *tvb, int offset, struct e_in6_addr *addr,
 
 	return addr_len;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

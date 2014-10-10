@@ -476,3 +476,16 @@ guint32 stream_get_pdu_no( const stream_pdu_fragment_t *frag)
     DISSECTOR_ASSERT( frag );
     return frag->pdu->pdu_number;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

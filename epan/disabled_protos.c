@@ -39,8 +39,8 @@
 #include "disabled_protos.h"
 #include <wsutil/file_util.h>
 
-#define GLOBAL_PROTOCOLS_FILE_NAME	"disabled_protos"
-#define PROTOCOLS_FILE_NAME		"disabled_protos"
+#define GLOBAL_PROTOCOLS_FILE_NAME      "disabled_protos"
+#define PROTOCOLS_FILE_NAME             "disabled_protos"
 
 /*
  * List of disabled protocols
@@ -48,7 +48,7 @@
 static GList *global_disabled_protos = NULL;
 static GList *disabled_protos = NULL;
 
-#define INIT_BUF_SIZE	128
+#define INIT_BUF_SIZE   128
 
 static void
 discard_existing_list (GList **flp)
@@ -80,12 +80,12 @@ discard_existing_list (GList **flp)
  */
 
 static int read_disabled_protos_list_file(const char *ff_path, FILE *ff,
-					  GList **flp);
+                                          GList **flp);
 
 void
 read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
-			  int *gread_errno_return,
-			  char **path_return, int *open_errno_return,
+                          int *gread_errno_return,
+                          char **path_return, int *open_errno_return,
                           int *read_errno_return)
 {
   int         err;
@@ -103,7 +103,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
   if ((ff = ws_fopen(gff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     err = read_disabled_protos_list_file(gff_path, ff,
-					 &global_disabled_protos);
+                                         &global_disabled_protos);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -160,7 +160,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
 
 static int
 read_disabled_protos_list_file(const char *ff_path, FILE *ff,
-			       GList **flp)
+                               GList **flp)
 {
   protocol_def *prot;
   int         c;
@@ -181,34 +181,34 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
     /* Skip over leading white space, if any. */
     while ((c = getc(ff)) != EOF && isspace(c)) {
       if (c == '\n') {
-	/* Blank line. */
-	continue;
+        /* Blank line. */
+        continue;
       }
     }
 
     if (c == EOF) {
       if (ferror(ff))
-        goto error;	/* I/O error */
+        goto error;     /* I/O error */
       else
-        break;	/* Nothing more to read */
+        break;  /* Nothing more to read */
     }
-    ungetc(c, ff);	/* Unread the non-white-space character. */
+    ungetc(c, ff);      /* Unread the non-white-space character. */
 
     /* Get the name of the protocol. */
     prot_name_index = 0;
     for (;;) {
       c = getc(ff);
       if (c == EOF)
-	break;	/* End of file, or I/O error */
+        break;  /* End of file, or I/O error */
       if (isspace(c))
-        break;	/* Trailing white space, or end of line. */
+        break;  /* Trailing white space, or end of line. */
       if (c == '#')
-        break;	/* Start of comment, running to end of line. */
+        break;  /* Start of comment, running to end of line. */
       /* Add this character to the protocol name string. */
       if (prot_name_index >= prot_name_len) {
-	/* protocol name buffer isn't long enough; double its length. */
-	prot_name_len *= 2;
-	prot_name = (char *)g_realloc(prot_name, prot_name_len + 1);
+        /* protocol name buffer isn't long enough; double its length. */
+        prot_name_len *= 2;
+        prot_name = (char *)g_realloc(prot_name, prot_name_len + 1);
       }
       prot_name[prot_name_index] = c;
       prot_name_index++;
@@ -219,10 +219,10 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
       while ((c = getc(ff)) != EOF && c != '\n' && isspace(c))
         ;
       if (c != EOF && c != '\n' && c != '#') {
-	/* Non-white-space after the protocol name; warn about it,
-	   in case we come up with a reason to use it. */
-	g_warning("'%s' line %d has extra stuff after the protocol name.",
-	          ff_path, line);
+        /* Non-white-space after the protocol name; warn about it,
+           in case we come up with a reason to use it. */
+        g_warning("'%s' line %d has extra stuff after the protocol name.",
+                  ff_path, line);
       }
     }
     if (c != EOF && c != '\n') {
@@ -233,13 +233,13 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
 
     if (c == EOF) {
       if (ferror(ff))
-        goto error;	/* I/O error */
+        goto error;     /* I/O error */
       else {
-	/* EOF, not error; no newline seen before EOF */
-	g_warning("'%s' line %d doesn't have a newline.", ff_path,
-		  line);
+        /* EOF, not error; no newline seen before EOF */
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+                  line);
       }
-      break;	/* nothing more to read */
+      break;    /* nothing more to read */
     }
 
     /* Null-terminate the protocol name. */
@@ -287,7 +287,7 @@ set_disabled_protos_list(void)
       /* XXX - complain here? */
     } else {
       if (proto_can_toggle_protocol(i))
-	proto_set_decoding(i, FALSE);
+        proto_set_decoding(i, FALSE);
     }
 
     fl_ent = fl_ent->next;
@@ -306,8 +306,8 @@ skip:
       /* XXX - complain here? */
     } else {
       if (proto_can_toggle_protocol(i)) {
-	proto_set_decoding(i, FALSE);
-	proto_set_cant_toggle(i);
+        proto_set_decoding(i, FALSE);
+        proto_set_cant_toggle(i);
       }
     }
 
@@ -332,7 +332,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   protocol_t  *protocol;
   void        *cookie;
 
-  *pref_path_return = NULL;	/* assume no error */
+  *pref_path_return = NULL;     /* assume no error */
 
   ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, TRUE);
 
@@ -408,3 +408,16 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   g_free(ff_path_new);
   g_free(ff_path);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

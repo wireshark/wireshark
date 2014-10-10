@@ -26,7 +26,7 @@
 gchar *
 atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
 {
-  gchar	*cur;
+  gchar *cur;
 
   cur=(gchar *)ep_alloc(14);
   atalk_addr_to_str_buf(addrp, cur, 14);
@@ -38,3 +38,16 @@ atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf, int buf_le
 {
   g_snprintf(buf, buf_len, "%u.%u", addrp->net, addrp->node );
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -50,17 +50,17 @@
 static gsize
 win32_get_total_mem_used_by_app(void)
 {
-   HANDLE pHandle;
-   PROCESS_MEMORY_COUNTERS pmc;
-   SIZE_T workingSize = 0;
+	HANDLE pHandle;
+	PROCESS_MEMORY_COUNTERS pmc;
+	SIZE_T workingSize = 0;
 
-   pHandle = GetCurrentProcess();
+	pHandle = GetCurrentProcess();
 
-   if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
-      workingSize = pmc.WorkingSetSize;
-    }
+	if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
+		workingSize = pmc.WorkingSetSize;
+	}
 
-    CloseHandle(pHandle);
+	CloseHandle(pHandle);
 
 	if(workingSize == 0){
 		return -1;
@@ -211,3 +211,16 @@ memory_usage_gc(void)
 	}
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

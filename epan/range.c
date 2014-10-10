@@ -92,7 +92,7 @@ range_convert_str(range_t **rangep, const gchar *es, guint32 max_value)
  */
 convert_ret_t
 range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
-		       gboolean err_on_max)
+                       gboolean err_on_max)
 {
 
    range_t       *range;
@@ -105,7 +105,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
    unsigned long val;
 
    if ( (rangep == NULL) || (es == NULL) )
-       return CVT_SYNTAX_ERROR;
+      return CVT_SYNTAX_ERROR;
 
    /* Allocate a range; this has room for one subrange. */
    range = (range_t *)g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
@@ -123,122 +123,122 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
    for (;;) {
       /* Skip white space. */
       while ((c = *p) == ' ' || c == '\t')
-	 p++;
+         p++;
       if (c == '\0')
-	 break;
+         break;
 
       /* This must be a subrange.  Make sure we have room for it. */
       if (range->nranges >= nranges) {
-	 /* Grow the structure.
-	  * 4 is an arbitrarily chosen number.
-	  * We start with 1, under the assumption that people
-	  * will often give a single number or range, and then
-	  * proceed to keep it a multiple of 4.
-	  */
-	 if (nranges == 1)
-	    nranges = 4;
-	 else
-	    nranges += 4;
-	 range = (range_t *)g_realloc(range, RANGE_HDR_SIZE +
-			   nranges*sizeof (range_admin_t));
+         /* Grow the structure.
+          * 4 is an arbitrarily chosen number.
+          * We start with 1, under the assumption that people
+          * will often give a single number or range, and then
+          * proceed to keep it a multiple of 4.
+          */
+         if (nranges == 1)
+            nranges = 4;
+         else
+            nranges += 4;
+         range = (range_t *)g_realloc(range, RANGE_HDR_SIZE +
+                                      nranges*sizeof (range_admin_t));
       }
 
       if (c == '-') {
-	 /* Subrange starts with 1. */
-	 range->ranges[range->nranges].low = 1;
+         /* Subrange starts with 1. */
+         range->ranges[range->nranges].low = 1;
       } else if (isdigit((unsigned char)c)) {
-	 /* Subrange starts with the specified number */
-	 errno = 0;
-	 val = strtoul(p, &endp, 10);
-	 if (p == endp) {
-	    /* That wasn't a valid number. */
-	    g_free(range);
-	    return CVT_SYNTAX_ERROR;
-	 }
-	 if (errno == ERANGE || val > max_value) {
-	    /* That was valid, but it's too big.  Return an error if requested
-	     * (e.g., except when reading from the preferences file).
-	     */
-	    if (err_on_max) {
-	        g_free(range);
-	        return CVT_NUMBER_TOO_BIG;
-	    } else {
-		/* Silently use the range's maximum value */
-	        val = max_value;
-	    }
-	 }
-	 p = endp;
-	 range->ranges[range->nranges].low = (guint32)val;
+         /* Subrange starts with the specified number */
+         errno = 0;
+         val = strtoul(p, &endp, 10);
+         if (p == endp) {
+            /* That wasn't a valid number. */
+            g_free(range);
+            return CVT_SYNTAX_ERROR;
+         }
+         if (errno == ERANGE || val > max_value) {
+            /* That was valid, but it's too big.  Return an error if requested
+             * (e.g., except when reading from the preferences file).
+             */
+            if (err_on_max) {
+               g_free(range);
+               return CVT_NUMBER_TOO_BIG;
+            } else {
+               /* Silently use the range's maximum value */
+               val = max_value;
+            }
+         }
+         p = endp;
+         range->ranges[range->nranges].low = (guint32)val;
 
-	 /* Skip white space. */
-	 while ((c = *p) == ' ' || c == '\t')
-	    p++;
+         /* Skip white space. */
+         while ((c = *p) == ' ' || c == '\t')
+            p++;
       } else {
-	 /* Neither empty nor a number. */
-	 g_free(range);
-	 return CVT_SYNTAX_ERROR;
+         /* Neither empty nor a number. */
+         g_free(range);
+         return CVT_SYNTAX_ERROR;
       }
 
       if (c == '-') {
-	 /* There's a hyphen in the range.  Skip past it. */
-	 p++;
+         /* There's a hyphen in the range.  Skip past it. */
+         p++;
 
-	 /* Skip white space. */
-	 while ((c = *p) == ' ' || c == '\t')
-	    p++;
+         /* Skip white space. */
+         while ((c = *p) == ' ' || c == '\t')
+            p++;
 
-	 if (c == ',' || c == '\0') {
-	   /* End of subrange string; that means the subrange ends
-	    * with max_value.
-	    */
-	   range->ranges[range->nranges].high = max_value;
-	 } else if (isdigit((unsigned char)c)) {
-	    /* Subrange ends with the specified number. */
-	    errno = 0;
-	    val = strtoul(p, &endp, 10);
-	    if (p == endp) {
-	       /* That wasn't a valid number. */
-	       g_free(range);
-	       return CVT_SYNTAX_ERROR;
-	    }
-	    if (errno == ERANGE || val > max_value) {
-		/* That was valid, but it's too big.  Return an error if requested
-		 * (e.g., except when reading from the preferences file).
-		 */
-		if (err_on_max) {
-		    g_free(range);
-		    return CVT_NUMBER_TOO_BIG;
-		} else {
-		    /* Silently use the range's maximum value */
-		    val = max_value;
-		}
-	    }
-	    p = endp;
-	    range->ranges[range->nranges].high = (guint32)val;
+         if (c == ',' || c == '\0') {
+            /* End of subrange string; that means the subrange ends
+             * with max_value.
+             */
+            range->ranges[range->nranges].high = max_value;
+         } else if (isdigit((unsigned char)c)) {
+            /* Subrange ends with the specified number. */
+            errno = 0;
+            val = strtoul(p, &endp, 10);
+            if (p == endp) {
+               /* That wasn't a valid number. */
+               g_free(range);
+               return CVT_SYNTAX_ERROR;
+            }
+            if (errno == ERANGE || val > max_value) {
+               /* That was valid, but it's too big.  Return an error if requested
+                * (e.g., except when reading from the preferences file).
+                */
+               if (err_on_max) {
+                  g_free(range);
+                  return CVT_NUMBER_TOO_BIG;
+               } else {
+                  /* Silently use the range's maximum value */
+                  val = max_value;
+               }
+            }
+            p = endp;
+            range->ranges[range->nranges].high = (guint32)val;
 
-	    /* Skip white space. */
-	    while ((c = *p) == ' ' || c == '\t')
-	       p++;
-	 } else {
-	    /* Neither empty nor a number. */
-	    g_free(range);
-	    return CVT_SYNTAX_ERROR;
-	 }
+            /* Skip white space. */
+            while ((c = *p) == ' ' || c == '\t')
+               p++;
+         } else {
+            /* Neither empty nor a number. */
+            g_free(range);
+            return CVT_SYNTAX_ERROR;
+         }
       } else if (c == ',' || c == '\0') {
-	 /* End of subrange string; that means there's no hyphen
-	  * in the subrange, so the start and the end are the same.
-	  */
-	 range->ranges[range->nranges].high = range->ranges[range->nranges].low;
+         /* End of subrange string; that means there's no hyphen
+          * in the subrange, so the start and the end are the same.
+          */
+         range->ranges[range->nranges].high = range->ranges[range->nranges].low;
       } else {
-	 /* Invalid character. */
-	 g_free(range);
-	 return CVT_SYNTAX_ERROR;
+         /* Invalid character. */
+         g_free(range);
+         return CVT_SYNTAX_ERROR;
       }
       range->nranges++;
 
       if (c == ',') {
-	 /* Subrange is followed by a comma; skip it. */
-	 p++;
+         /* Subrange is followed by a comma; skip it. */
+         p++;
       }
    }
 
@@ -248,9 +248,9 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
     */
    for (i=0; i < range->nranges; i++) {
       if (range->ranges[i].low > range->ranges[i].high) {
-	 tmp = range->ranges[i].low;
-	 range->ranges[i].low  = range->ranges[i].high;
-	 range->ranges[i].high = tmp;
+         tmp = range->ranges[i].low;
+         range->ranges[i].low  = range->ranges[i].high;
+         range->ranges[i].high = tmp;
       }
    }
 
@@ -276,7 +276,7 @@ value_is_in_range(range_t *range, guint32 val)
    if (range) {
       for (i=0; i < range->nranges; i++) {
          if (val >= range->ranges[i].low && val <= range->ranges[i].high)
-	     return TRUE;
+            return TRUE;
       }
    }
    return(FALSE);
@@ -297,10 +297,10 @@ ranges_are_equal(range_t *a, range_t *b)
 
    for (i=0; i < a->nranges; i++) {
       if (a->ranges[i].low != b->ranges[i].low)
-	 return FALSE;
+         return FALSE;
 
       if (a->ranges[i].high != b->ranges[i].high)
-	 return FALSE;
+         return FALSE;
    }
 
    return TRUE;
@@ -318,7 +318,7 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    if (range && callback) {
       for (i=0; i < range->nranges; i++) {
          for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
-	    callback(j);
+            callback(j);
       }
    }
 }
@@ -367,14 +367,26 @@ range_copy(range_t *src)
 static void
 value_is_in_range_check(range_t *range, guint32 val)
 {
-  /* Print the result for a given value */
-  printf("Function : value_is_in_range_check Number %u\t",val);
+   /* Print the result for a given value */
+   printf("Function : value_is_in_range_check Number %u\t",val);
 
-  if (value_is_in_range(range, val)) {
-     printf("is in range\n");
-  } else {
-     printf("is not in range\n");
-  }
+   if (value_is_in_range(range, val)) {
+      printf("is in range\n");
+   } else {
+      printf("is not in range\n");
+   }
 }
 #endif
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */

@@ -39,7 +39,7 @@ struct filter_expression **pfilter_expression_head = &_filter_expression_head;
  */
 struct filter_expression *
 filter_expression_new(const gchar *label, const gchar *expr,
-    const gboolean enabled)
+		      const gboolean enabled)
 {
 	struct filter_expression *expression;
 	struct filter_expression *prev;
@@ -75,3 +75,16 @@ filter_expression_init(gboolean enable_prefs)
 	if (enable_prefs)
 		prefs.filter_expressions = pfilter_expression_head;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

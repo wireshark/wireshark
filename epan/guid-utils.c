@@ -192,10 +192,23 @@ guids_resolve_guid_to_str(const e_guid_t *guid)
 	}
 
 	return ep_strdup_printf("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                      guid->data1, guid->data2, guid->data3,
-                      guid->data4[0], guid->data4[1],
-                      guid->data4[2], guid->data4[3],
-                      guid->data4[4], guid->data4[5],
-                      guid->data4[6], guid->data4[7]);
+				guid->data1, guid->data2, guid->data3,
+				guid->data4[0], guid->data4[1],
+				guid->data4[2], guid->data4[3],
+				guid->data4[4], guid->data4[5],
+				guid->data4[6], guid->data4[7]);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
