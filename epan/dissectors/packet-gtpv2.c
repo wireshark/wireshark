@@ -354,10 +354,10 @@ static int hf_gtpv2_uli_sai_lac= -1;
 static int hf_gtpv2_uli_sai_sac= -1;
 static int hf_gtpv2_uli_rai_lac= -1;
 static int hf_gtpv2_uli_rai_rac= -1;
-static int hf_gtpv2_uli_tai_tac= -1;
-static int hf_gtpv2_uli_ecgi_eci= -1;
+static int hf_gtpv2_tai_tac= -1;
+static int hf_gtpv2_ecgi_eci= -1;
 static int hf_gtpv2_uli_lai_lac = -1;
-static int hf_gtpv2_uli_ecgi_eci_spare= -1;
+static int hf_gtpv2_ecgi_eci_spare= -1;
 static int hf_gtpv2_nsapi = -1;
 static int hf_gtpv2_bearer_control_mode= -1;
 
@@ -1901,6 +1901,60 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * It can be found in 3GPP TS 36.413 v8.3.0, but it is expected that it will be moved
  * to 23.003 in a future version.
  */
+static gchar*
+dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint16 tac;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    tac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, TAC 0x%x",
+        mcc_mnc_str,
+        tac);
+
+    return str;
+}
+
+static gchar*
+dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint8      octet;
+    guint32     octet4;
+    guint8      spare;
+    guint32     ECGI;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
+        * and hence they would not make any difference to the hex string following it,
+        * thus we directly read 4 bytes from the tvb
+        */
+
+    octet = tvb_get_guint8(tvb, *offset);
+    spare = octet & 0xF0;
+    octet4 = tvb_get_ntohl(tvb, *offset);
+    ECGI = octet4 & 0x0FFFFFFF;
+    proto_tree_add_uint(tree, hf_gtpv2_ecgi_eci_spare, tvb, *offset, 1, spare);
+    /* The coding of the E-UTRAN cell identifier is the responsibility of each administration.
+     * Coding using full hexadecimal representation shall be used.
+     */
+    proto_tree_add_uint(tree, hf_gtpv2_ecgi_eci, tvb, *offset, 4, ECGI);
+    /*proto_tree_add_item(tree, hf_gtpv2_ecgi_eci, tvb, offset, 4, ENC_BIG_ENDIAN);*/
+    *offset += 4;
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, ECGI 0x%x",
+        mcc_mnc_str,
+        ECGI);
+
+
+    return str;
+}
 
 static gchar*
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 instance _U_, guint flags)
@@ -1983,53 +2037,23 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     /* 8.21.4 TAI field  */
     if (flags & GTPv2_ULI_TAI_MASK)
     {
-        guint16 tac;
         proto_item_append_text(item, "TAI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 5,
             ett_gtpv2_uli_field, NULL, "Tracking Area Identity (TAI)");
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
-        offset += 3;
-        tac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, TAC 0x%x",
-            mcc_mnc_str,
-            tac);
+
+        str = dissect_gtpv2_tai(tvb, pinfo, part_tree, &offset);
+
         if (offset == length)
             return str;
     }
     /* 8.21.5 ECGI field */
     if (flags & GTPv2_ULI_ECGI_MASK)
     {
-        guint8 octet;
-        guint32 octet4;
-        guint8 spare;
-        guint32 ECGI;
-
         proto_item_append_text(item, "ECGI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
             ett_gtpv2_uli_field, NULL, "E-UTRAN Cell Global Identifier (ECGI)");
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
-        offset += 3;
-        /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
-         * and hence they would not make any difference to the hex string following it,
-         * thus we directly read 4 bytes from the tvb
-         */
 
-        octet = tvb_get_guint8(tvb, offset);
-        spare = octet & 0xF0;
-        octet4 = tvb_get_ntohl(tvb, offset);
-        ECGI = octet4 & 0x0FFFFFFF;
-        proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
-        /* The coding of the E-UTRAN cell identifier is the responsibility of each administration.
-         * Coding using full hexadecimal representation shall be used.
-         */
-        proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
-        /*proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ENC_BIG_ENDIAN);*/
-        offset += 4;
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, ECGI 0x%x",
-            mcc_mnc_str,
-            ECGI);
+        str = dissect_gtpv2_ecgi(tvb, pinfo, part_tree, &offset);
 
         if (offset == length)
             return str;
@@ -4113,7 +4137,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         proto_tree_add_item(tree, hf_gtpv2_macro_enodeb_id, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
         /* Tracking Area Code (TAC) */
-        proto_tree_add_item(tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
         return;
 
     case 2:
@@ -5173,6 +5197,7 @@ static int
 dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     /*diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;*/
+    proto_tree *sub_tree;
     int   offset = 0, i;
     guint length;
     guint8 oct, no_tai, no_rai, no_mENB, no_hENB, no_ECGI, no_sai, no_cgi;
@@ -5210,8 +5235,8 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_tai > 0){
         i = 1;
         while (no_tai > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, NULL, "Tracking Area Identity (TAI) Number %u",i);
-            offset+=5;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, NULL, "Tracking Area Identity (TAI) Number %u",i);
+            dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset);
             i++;
             no_tai--;
         }
@@ -5249,8 +5274,8 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_ECGI > 0){
         i = 1;
         while (no_ECGI > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_ecgis, NULL, "ECGI ID %u",i);
-            offset+=7;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_ecgis, NULL, "ECGI ID %u",i);
+            dissect_gtpv2_ecgi(tvb, pinfo, sub_tree, &offset);
             i++;
             no_ECGI--;
         }
@@ -6660,13 +6685,13 @@ void proto_register_gtpv2(void)
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_tai_tac,
-          {"Tracking Area Code", "gtpv2.uli_tai_tac",
+        { &hf_gtpv2_tai_tac,
+          {"Tracking Area Code", "gtpv2.tai_tac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        {&hf_gtpv2_uli_ecgi_eci,
-         {"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
+        {&hf_gtpv2_ecgi_eci,
+         {"ECI (E-UTRAN Cell Identifier)", "gtpv2.ecgi_eci",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
@@ -6675,7 +6700,7 @@ void proto_register_gtpv2(void)
           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
           NULL, HFILL}
         },
-        {&hf_gtpv2_uli_ecgi_eci_spare,
+        {&hf_gtpv2_ecgi_eci_spare,
          {"Spare", "gtpv2.uli_ecgi_eci_spare",
           FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
