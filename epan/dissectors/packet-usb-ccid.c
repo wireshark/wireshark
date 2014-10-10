@@ -326,7 +326,7 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
 
     proto_tree_add_item(desc_tree, hf_ccid_wLcdLayout,
-            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(desc_tree, hf_ccid_bPINSupport,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
