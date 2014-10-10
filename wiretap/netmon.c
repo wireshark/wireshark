@@ -394,7 +394,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		wth->file_tsprec = WTAP_TSPREC_NSEC;
 		break;
 	}
-	return 1;
+	return WTAP_OPEN_MINE;
 }
 
 static void
