@@ -71,6 +71,8 @@ static int hf_ccid_wLcdLayout = -1;
 static int hf_ccid_wLcdLayout_lines = -1;
 static int hf_ccid_wLcdLayout_chars = -1;
 static int hf_ccid_bPINSupport = -1;
+static int hf_ccid_bPINSupport_vrfy = -1;
+static int hf_ccid_bPINSupport_modify = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
 static int hf_ccid_Reserved = -1;
 
@@ -80,6 +82,11 @@ static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport50,
     &hf_ccid_bVoltageSupport30,
     &hf_ccid_bVoltageSupport18,
+    NULL
+};
+static const int *bPINSupport_fields[] = {
+    &hf_ccid_bPINSupport_vrfy,
+    &hf_ccid_bPINSupport_modify,
     NULL
 };
 
@@ -218,6 +225,7 @@ static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
 static gint ett_ccid_voltage_level = -1;
 static gint ett_ccid_lcd_layout = -1;
+static gint ett_ccid_pin_support = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -340,8 +348,9 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(desc_tree, hf_ccid_bPINSupport,
-            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(desc_tree, tvb, offset,
+            hf_ccid_bPINSupport, ett_ccid_pin_support, bPINSupport_fields,
+            ENC_LITTLE_ENDIAN);
     offset++;
 
     proto_tree_add_item(desc_tree, hf_ccid_bMaxCCIDBusySlots,
@@ -640,6 +649,12 @@ proto_register_ccid(void)
         {&hf_ccid_bPINSupport,
          { "PIN support", "usbccid.hf_ccid_bPINSupport",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bPINSupport_vrfy,
+         { "PIN verification", "usbccid.hf_ccid_bPINSupport.verify",
+             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+        {&hf_ccid_bPINSupport_modify,
+         { "PIN modification", "usbccid.hf_ccid_bPINSupport.modify",
+             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
         {&hf_ccid_bMaxCCIDBusySlots,
          { "maximum number of busy slots", "usbccid.hf_ccid_bMaxCCIDBusySlots",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -652,7 +667,8 @@ proto_register_ccid(void)
         &ett_ccid,
         &ett_ccid_desc,
         &ett_ccid_voltage_level,
-        &ett_ccid_lcd_layout
+        &ett_ccid_lcd_layout,
+        &ett_ccid_pin_support
     };
 
     static const enum_val_t sub_enum_vals[] = {
