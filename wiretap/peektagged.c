@@ -247,16 +247,18 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
      * tags are properly opened and closed).
      */
     ret = wtap_file_read_pattern (wth, "<FileVersion>", err, err_info);
-    if (ret != 1) {
-	/* 0 means EOF, which means "not a valid Peek tagged file";
-	   -1 means error, and "err" has been set. */
-	return ret;
+    if (ret == -1)
+	return WTAP_OPEN_ERROR;
+    if (ret == 0) {
+	/* 0 means EOF, which means "not a valid Peek tagged file" */
+	return WTAP_OPEN_NOT_MINE;
     }
     ret = wtap_file_read_number (wth, &fileVersion, err, err_info);
-    if (ret != 1) {
-	/* 0 means EOF, which means "not a valid Peek tagged file";
-	   -1 means error, and "err" has been set. */
-	return ret;
+    if (ret == -1)
+	return WTAP_OPEN_ERROR;
+    if (ret == 0) {
+	/* 0 means EOF, which means "not a valid Peek tagged file" */
+	return WTAP_OPEN_NOT_MINE;
     }
 
     /* If we got this far, we assume it's a Peek tagged file. */
