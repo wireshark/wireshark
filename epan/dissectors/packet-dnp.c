@@ -323,8 +323,8 @@
 #define AL_OBJ_BOC_NOTIME  0x0B01   /* 11 01 Binary Output Change Without Time */
 #define AL_OBJ_BOC_TIME    0x0B02   /* 11 02 Binary Output Change With Time */
 #define AL_OBJ_CTLOP_BLK   0x0C01   /* 12 01 Control Relay Output Block */
-                        /* 0x0C02      12 02 Pattern Control Block */
-                        /* 0x0C03      12 03 Pattern Mask */
+#define AL_OBJ_CTL_PCB     0x0C02   /* 12 02 Pattern Control Block */
+#define AL_OBJ_CTL_PMASK   0x0C03   /* 12 03 Pattern Mask */
 
 #define AL_OBJCTLC_CODE    0x0F    /* Bit-Mask xxxx1111 for Control Code 'Code' */
 #define AL_OBJCTLC_MISC    0x30    /* Bit-Mask xx11xxxx for Control Code Queue (obsolete) and Clear Fields */
@@ -936,6 +936,8 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_BOC_NOTIME, "Binary Output Change Without Time (Obj:11, Var:01)" },
   { AL_OBJ_BOC_TIME,   "Binary Output Change With Time (Obj:11, Var:02)" },
   { AL_OBJ_CTLOP_BLK,  "Control Relay Output Block (Obj:12, Var:01)" },
+  { AL_OBJ_CTL_PCB,    "Pattern Control Block (Obj:12, Var:02)" },
+  { AL_OBJ_CTL_PMASK,  "Pattern Mask (Obj:12, Var:03)" },
   { AL_OBJ_CTR_ALL,    "Binary Counter Default Variation (Obj:20, Var:Default)" },
   { AL_OBJ_CTR_32,     "32-Bit Binary Counter (Obj:20, Var:01)" },
   { AL_OBJ_CTR_16,     "16-Bit Binary Counter (Obj:20, Var:02)" },
@@ -1902,14 +1904,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           /* Bit-based Data objects here */
           case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
           case AL_OBJ_BO:         /* Binary Output (Obj:10, Var:01) */
+          case AL_OBJ_CTL_PMASK:  /* Pattern Mask (Obj:12, Var:03) */
           case AL_OBJ_IIN:        /* Internal Indications - IIN (Obj: 80, Var:01) */
-
-            /* Reset bit index if we've gone onto the next byte */
-            if (bitindex > 7)
-            {
-              bitindex = 0;
-              offset += (indexbytes + 1);
-            }
 
             /* Extract the bit from the packed byte */
             al_bi_val = tvb_get_guint8(tvb, offset);
@@ -1933,9 +1929,14 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             proto_tree_add_boolean(point_tree, hf_dnp3_al_bit, tvb, offset, 1, al_bit);
             proto_item_set_len(point_item, indexbytes + 1);
 
-            /* If we've read the last item, then move the offset past this byte */
-            if (item_num == (num_items-1))
+            /* Increment the bit index for next cycle */
+            bitindex++;
+
+            /* If we have counted 8 bits or read the last item,
+               reset bit index and move onto the next byte */
+            if ((bitindex > 7) || (item_num == (num_items-1)))
             {
+              bitindex = 0;
               offset += (indexbytes + 1);
             }
 
@@ -1962,6 +1963,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             {
               offset += (indexbytes + 1);
             }
+
+            /* Increment the bit index for next cycle */
+            bitindex++;
 
             break;
 
@@ -2082,7 +2086,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             offset = data_pos;
             break;
 
-          case AL_OBJ_CTLOP_BLK:/* Control Relay Output Block (Obj:12, Var:01) */
+          case AL_OBJ_CTLOP_BLK: /* Control Relay Output Block (Obj:12, Var:01) */
+          case AL_OBJ_CTL_PCB: /* Pattern Control Block (Obj:12, Var:02) */
           {
             proto_tree  *tcc_tree;
 
@@ -2734,8 +2739,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
             break;
         }
-        /* Increment the bit index for next time */
-        bitindex++;
 
         /* And increment the point address, may be overwritten by an index value */
         al_ptaddr++;
