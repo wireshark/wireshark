@@ -2599,7 +2599,7 @@ proto_register_lmp(void)
       { &hf_lmp_header_length, { "Length", "lmp.header_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_negotiable, { "Negotiable", "lmp.negotiable", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
       { &hf_lmp_object_length, { "Length", "lmp.object_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_lmp_object_class, { "Object Class", "lmp.object_class", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_object_class, { "Object Class", "lmp.object_class", FT_UINT8, BASE_DEC, VALS(lmp_class_vals), 0x0, NULL, HFILL }},
       { &hf_lmp_verify_interval, { "Verify Interval", "lmp.verify_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_number_of_data_links, { "Number of Data Links", "lmp.number_of_data_links", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_verify_transport_mechanism, { "Verify Transport Mechanism", "lmp.verify_transport_mechanism", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
