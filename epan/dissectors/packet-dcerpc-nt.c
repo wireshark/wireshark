@@ -1367,14 +1367,14 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				hf_nt_domain_sid);
 	/* The dissected stuff cant be more than 28 bytes */
 	if ((newoffset - offset) > 28) {
-		item = proto_tree_get_parent(tree->last_child);
+		item = proto_tree_get_parent(tree? tree->last_child : NULL);
 		expert_add_info(pinfo, item, &ei_dcerpc_nt_badsid);
 
 		/* The rest of the dissection will most probably wrong as we are not dissecting what we expect */
 		return newoffset;
 	}
 
-    /* No matter how much we used for the real dissection of the SID consume 28 bytes */
+	/* No matter how much we used for the real dissection of the SID consume 28 bytes */
 	if (tree) {
 		item = proto_tree_get_parent(tree->last_child);
 		proto_item_set_len(item, 28);
