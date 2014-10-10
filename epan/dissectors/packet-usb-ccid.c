@@ -68,6 +68,8 @@ static int hf_ccid_dwMaxCCIDMessageLength = -1;
 static int hf_ccid_bClassGetResponse = -1;
 static int hf_ccid_bClassEnvelope = -1;
 static int hf_ccid_wLcdLayout = -1;
+static int hf_ccid_wLcdLayout_lines = -1;
+static int hf_ccid_wLcdLayout_chars = -1;
 static int hf_ccid_bPINSupport = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
 static int hf_ccid_Reserved = -1;
@@ -215,6 +217,7 @@ static const value_string ccid_proto_structs_vals[] = {
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
 static gint ett_ccid_voltage_level = -1;
+static gint ett_ccid_lcd_layout = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -244,6 +247,8 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *freq_item;
     proto_tree *desc_tree;
     guint8      num_clock_supp;
+    proto_item *lcd_layout_item;
+    proto_tree *lcd_layout_tree;
 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
@@ -325,9 +330,16 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    proto_tree_add_item(desc_tree, hf_ccid_wLcdLayout,
+    lcd_layout_item = proto_tree_add_item(desc_tree, hf_ccid_wLcdLayout,
             tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    lcd_layout_tree = proto_item_add_subtree(
+            lcd_layout_item, ett_ccid_lcd_layout);
+    proto_tree_add_item(lcd_layout_tree, hf_ccid_wLcdLayout_lines,
+            tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(lcd_layout_tree, hf_ccid_wLcdLayout_chars,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 2;
+
     proto_tree_add_item(desc_tree, hf_ccid_bPINSupport,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -619,6 +631,12 @@ proto_register_ccid(void)
         {&hf_ccid_wLcdLayout,
          { "LCD layout", "usbccid.hf_ccid_wLcdLayout",
              FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_wLcdLayout_lines,
+         { "Lines", "usbccid.hf_ccid_wLcdLayout.lines",
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_wLcdLayout_chars,
+         { "Characters per line", "usbccid.hf_ccid_wLcdLayout.chars",
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bPINSupport,
          { "PIN support", "usbccid.hf_ccid_bPINSupport",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -633,7 +651,8 @@ proto_register_ccid(void)
     static gint *ett[] = {
         &ett_ccid,
         &ett_ccid_desc,
-        &ett_ccid_voltage_level
+        &ett_ccid_voltage_level,
+        &ett_ccid_lcd_layout
     };
 
     static const enum_val_t sub_enum_vals[] = {
