@@ -121,6 +121,11 @@ add_extensions(GSList *extensions, const gchar *extension,
 
 /*
  * File types that can be identified by file extensions.
+ *
+ * These are used in file open dialogs to offer choices of extensions
+ * for which to filter.  Note that the first field can list more than
+ * one type of file, because, for example, ".cap" is a popular
+ * extension used by a number of capture file types.
  */
 static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", "pcap;cap;dmp" },
@@ -310,41 +315,48 @@ wtap_get_all_file_extensions_list(void)
  * However, the caller does have to free the private data pointer when
  * returning 0, since the next file type will be called and will likely
  * just overwrite the pointer.
+ *
+ * The names are used in file open dialogs to select, for files that
+ * don't have magic numbers and that could potentially be files of
+ * more than one type based on the heuristics, a particular file
+ * type to interpret it as, if the file name has no extension, the
+ * extension isn't sufficient to determine the appropriate file type,
+ * or the extension is wrong.
  */
 static struct open_info open_info_base[] = {
-	{ "Pcap",                        OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
-	{ "PcapNG",                      OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
-	{ "NgSniffer",                   OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
-	{ "Snoop",                       OPEN_INFO_MAGIC,     snoop_open,               NULL,       NULL, NULL },
-	{ "IP Trace",                    OPEN_INFO_MAGIC,     iptrace_open,             NULL,       NULL, NULL },
-	{ "Netmon",                      OPEN_INFO_MAGIC,     netmon_open,              NULL,       NULL, NULL },
-	{ "Netxray",                     OPEN_INFO_MAGIC,     netxray_open,             NULL,       NULL, NULL },
-	{ "Radcom",                      OPEN_INFO_MAGIC,     radcom_open,              NULL,       NULL, NULL },
-	{ "Nettl",                       OPEN_INFO_MAGIC,     nettl_open,               NULL,       NULL, NULL },
-	{ "Visual",                      OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
-	{ "5 Views",                     OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
-	{ "Network Instruments",         OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
-	{ "Peek Tagged",                 OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
-	{ "DBS Etherwatch",              OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
-	{ "K12",                         OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
-	{ "Catapult DCT 2000",           OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
-	{ "Aethra",                      OPEN_INFO_MAGIC,     aethra_open,              NULL,       NULL, NULL },
-	{ "BTSNOOP",                     OPEN_INFO_MAGIC,     btsnoop_open,             "log",      NULL, NULL },
-	{ "EYESDN",                      OPEN_INFO_MAGIC,     eyesdn_open,              NULL,       NULL, NULL },
-	{ "TNEF",                        OPEN_INFO_MAGIC,     tnef_open,                NULL,       NULL, NULL },
-	{ "MIME Files with Magic Bytes", OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
-	{ "Lanalyzer",                   OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
+	{ "Wireshark/tcpdump/... - pcap",           OPEN_INFO_MAGIC,     libpcap_open,             "pcap",     NULL, NULL },
+	{ "Wireshark/... - pcapng",                 OPEN_INFO_MAGIC,     pcapng_open,              "pcapng",   NULL, NULL },
+	{ "Sniffer (DOS)",                          OPEN_INFO_MAGIC,     ngsniffer_open,           NULL,       NULL, NULL },
+	{ "Snoop, Shomiti/Finisar Surveyor",        OPEN_INFO_MAGIC,     snoop_open,               NULL,       NULL, NULL },
+	{ "AIX iptrace",                            OPEN_INFO_MAGIC,     iptrace_open,             NULL,       NULL, NULL },
+	{ "Microsoft Network Monitor",              OPEN_INFO_MAGIC,     netmon_open,              NULL,       NULL, NULL },
+	{ "Cinco NetXray/Sniffer (Windows)",        OPEN_INFO_MAGIC,     netxray_open,             NULL,       NULL, NULL },
+	{ "RADCOM WAN/LAN analyzer",                OPEN_INFO_MAGIC,     radcom_open,              NULL,       NULL, NULL },
+	{ "HP-UX nettl trace",                      OPEN_INFO_MAGIC,     nettl_open,               NULL,       NULL, NULL },
+	{ "Visual Networks traffic capture",        OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
+	{ "InfoVista 5View capture",                OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
+	{ "Network Instruments Observer",           OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
+	{ "WildPackets tagged",                     OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
+	{ "DBS Etherwatch (VMS)",                   OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
+	{ "Tektronix K12xx 32-bit .rf5 format",     OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
+	{ "Catapult DCT2000 trace (.out format)",   OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
+	{ "Aethra .aps file",                       OPEN_INFO_MAGIC,     aethra_open,              NULL,       NULL, NULL },
+	{ "Symbian OS btsnoop",                     OPEN_INFO_MAGIC,     btsnoop_open,             "log",      NULL, NULL },
+	{ "EyeSDN USB S0/E1 ISDN trace format",     OPEN_INFO_MAGIC,     eyesdn_open,              NULL,       NULL, NULL },
+	{ "Transport-Neutral Encapsulation Format", OPEN_INFO_MAGIC,     tnef_open,                NULL,       NULL, NULL },
+	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
+	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
 	/*
 	 * PacketLogger must come before MPEG, because its files
 	 * are sometimes grabbed by mpeg_open.
 	 */
-	{ "Packet Logger",               OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
+	{ "OS X PacketLogger",                      OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
 	/* Some MPEG files have magic numbers, others just have heuristics. */
-	{ "Mpeg",                        OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
-	{ "DCT3 Trace",                  OPEN_INFO_HEURISTIC, dct3trace_open,           "xml",      NULL, NULL },
-	{ "Daintree SNA",                OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
-	{ "Stanag 4607",                 OPEN_INFO_HEURISTIC, stanag4607_open,          NULL,       NULL, NULL },
-	{ "BER",                         OPEN_INFO_HEURISTIC, ber_open,                 NULL,       NULL, NULL },
+	{ "MPEG",                                   OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
+	{ "Gammu DCT3 trace",                       OPEN_INFO_HEURISTIC, dct3trace_open,           "xml",      NULL, NULL },
+	{ "Daintree SNA",                           OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
+	{ "STANAG 4607 Format",                     OPEN_INFO_HEURISTIC, stanag4607_open,          NULL,       NULL, NULL },
+	{ "ASN.1 Basic Encoding Rules",             OPEN_INFO_HEURISTIC, ber_open,                 NULL,       NULL, NULL },
 	/*
 	 * I put NetScreen *before* erf, because there were some
 	 * false positives with my test-files (Sake Blok, July 2007)
@@ -358,29 +370,29 @@ static struct open_info open_info_base[] = {
 	 * because there were some cases where files of those types were
 	 * misidentified as vwr files (Guy Harris, December 2013)
 	 */
-	{ "Netscreen",                   OPEN_INFO_HEURISTIC, netscreen_open,           "txt",      NULL, NULL },
-	{ "ERF",                         OPEN_INFO_HEURISTIC, erf_open,                 "erf",      NULL, NULL },
-	{ "IPfix",                       OPEN_INFO_HEURISTIC, ipfix_open,               "pfx;ipfix",NULL, NULL },
-	{ "K12 Text",                    OPEN_INFO_HEURISTIC, k12text_open,             "txt",      NULL, NULL },
-	{ "Peek Classic",                OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
-	{ "PPP Dump",                    OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
-	{ "iSeries",                     OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
-	{ "i4btrace",                    OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
-	{ "Mp2t",                        OPEN_INFO_HEURISTIC, mp2t_open,                "ts;mpg",   NULL, NULL },
-	{ "Csids",                       OPEN_INFO_HEURISTIC, csids_open,               NULL,       NULL, NULL },
-	{ "VMS",                         OPEN_INFO_HEURISTIC, vms_open,                 "txt",      NULL, NULL },
-	{ "Cosine",                      OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
-	{ "Hcidump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL, NULL },
-	{ "Commview",                    OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL, NULL },
-	{ "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "cap",      NULL, NULL },
-	{ "Logcat ",                     OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL, NULL },
-	{ "Logcat Text",                 OPEN_INFO_HEURISTIC, logcat_text_open,         "txt",      NULL, NULL },
+	{ "NetScreen snoop text file",              OPEN_INFO_HEURISTIC, netscreen_open,           "txt",      NULL, NULL },
+	{ "Endace ERF capture",                     OPEN_INFO_HEURISTIC, erf_open,                 "erf",      NULL, NULL },
+	{ "IPFIX File Format",                      OPEN_INFO_HEURISTIC, ipfix_open,               "pfx;ipfix",NULL, NULL },
+	{ "K12 text file",                          OPEN_INFO_HEURISTIC, k12text_open,             "txt",      NULL, NULL },
+	{ "WildPackets classic",                    OPEN_INFO_HEURISTIC, peekclassic_open,         "pkt;tpc;apc;wpz", NULL, NULL },
+	{ "pppd log (pppdump format)",              OPEN_INFO_HEURISTIC, pppdump_open,             NULL,       NULL, NULL },
+	{ "IBM iSeries comm. trace",                OPEN_INFO_HEURISTIC, iseries_open,             "txt",      NULL, NULL },
+	{ "I4B ISDN trace",                         OPEN_INFO_HEURISTIC, i4btrace_open,            NULL,       NULL, NULL },
+	{ "MPEG2 transport stream",                 OPEN_INFO_HEURISTIC, mp2t_open,                "ts;mpg",   NULL, NULL },
+	{ "CSIDS IPLog",                            OPEN_INFO_HEURISTIC, csids_open,               NULL,       NULL, NULL },
+	{ "TCPIPtrace (VMS)",                       OPEN_INFO_HEURISTIC, vms_open,                 "txt",      NULL, NULL },
+	{ "CoSine IPSX L2 capture",                 OPEN_INFO_HEURISTIC, cosine_open,              "txt",      NULL, NULL },
+	{ "Bluetooth HCI dump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL, NULL },
+	{ "TamoSoft CommView",                      OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL, NULL },
+	{ "NetScaler",                              OPEN_INFO_HEURISTIC, nstrace_open,             "cap",      NULL, NULL },
+	{ "Android Logcat Binary format",           OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL, NULL },
+	{ "Android Logcat Text formats",            OPEN_INFO_HEURISTIC, logcat_text_open,         "txt",      NULL, NULL },
 	/* ASCII trace files from Telnet sessions. */
-	{ "Ascend",                      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
-	{ "Toshiba",                     OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
+	{ "Lucent/Ascend access server trace",      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
+	{ "Toshiba Compact ISDN Router snoop",      OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
 	/* Extremely weak heuristics - put them at the end. */
-	{ "VWR",                         OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
-	{ "Camins",                      OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
+	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
+	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this
@@ -1124,8 +1136,12 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 	return TRUE;
 }
 
-/* Table of the file types we know about.
-   Entries must be sorted by WTAP_FILE_TYPE_SUBTYPE_xxx values in ascending order */
+/* Table of the file types and subtypes we know about.
+   Entries must be sorted by WTAP_FILE_TYPE_SUBTYPE_xxx values in ascending
+   order.
+
+   These are used to report what type and subtype a given file is and
+   to let the user select a format when writing out packets. */
 static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL,
@@ -1394,7 +1410,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER */
-	{ "PacketLogger", "pklg", "pklg", NULL,
+	{ "OS X PacketLogger", "pklg", "pklg", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
@@ -1458,37 +1474,50 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
-	/* WTAP_FILE_NETSCALER_3_0 */
+	/* WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0 */
 	{ "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
 	  TRUE, FALSE, 0,
 	  nstrace_30_dump_can_write_encap, nstrace_dump_open, NULL },
 
-	/* WTAP_FILE_LOGCAT */
-	{ "Android Logcat Binary format",          "logcat",         "logcat", NULL,
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT */
+	{ "Android Logcat Binary format", "logcat", "logcat", NULL,
 	  FALSE, FALSE, 0,
 	  logcat_dump_can_write_encap, logcat_binary_dump_open, NULL },
-	{ "Android Logcat Brief text format",      "logcat-brief",      NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF */
+	{ "Android Logcat Brief text format", "logcat-brief", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_brief_dump_can_write_encap, logcat_text_brief_dump_open, NULL },
-	{ "Android Logcat Process text format",    "logcat-process",    NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_PROCESS */
+	{ "Android Logcat Process text format", "logcat-process", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_process_dump_can_write_encap, logcat_text_process_dump_open, NULL },
-	{ "Android Logcat Tag text format",        "logcat-tag",        NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TAG */
+	{ "Android Logcat Tag text format", "logcat-tag", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_tag_dump_can_write_encap, logcat_text_tag_dump_open, NULL },
-	{ "Android Logcat Thread text format",     "logcat-thread",     NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREAD */
+	{ "Android Logcat Thread text format", "logcat-thread", NULL, NULL,
 	   FALSE, FALSE, 0,
 	   logcat_text_thread_dump_can_write_encap, logcat_text_thread_dump_open, NULL },
-	{ "Android Logcat Time text format",       "logcat-time",       NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TIME */
+	{ "Android Logcat Time text format", "logcat-time", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_time_dump_can_write_encap, logcat_text_time_dump_open, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREADTIME */
 	{ "Android Logcat Threadtime text format", "logcat-threadtime", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_threadtime_dump_can_write_encap, logcat_text_threadtime_dump_open, NULL },
-	{ "Android Logcat Long text format",       "logcat-long",       NULL, NULL,
+
+	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG */
+	{ "Android Logcat Long text format", "logcat-long", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  logcat_text_long_dump_can_write_encap, logcat_text_long_dump_open, NULL }
-
 };
 
 gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
