@@ -24,7 +24,7 @@
 #include <glib.h>
 #include <wtap.h>
 
-int ngsniffer_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val ngsniffer_open(wtap *wth, int *err, gchar **err_info);
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err);
 int ngsniffer_dump_can_write_encap(int encap);
 

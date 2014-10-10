@@ -113,7 +113,7 @@
 #define NSPR_HEADER_VERSION206 0x26
 #define NSPR_HEADER_VERSION300 0x30
 
-int nstrace_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info);
 int nstrace_10_dump_can_write_encap(int encap);
 int nstrace_20_dump_can_write_encap(int encap);
 int nstrace_30_dump_can_write_encap(int encap);

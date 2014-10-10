@@ -57,7 +57,7 @@ struct logger_entry_v2 {
 /*    char    msg[0]; *//* the entry's payload */
 };
 
-int      logcat_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val  logcat_open(wtap *wth, int *err, gchar **err_info);
 
 gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err);
 

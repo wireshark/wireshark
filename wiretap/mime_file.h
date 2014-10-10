@@ -24,6 +24,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int mime_file_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val mime_file_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

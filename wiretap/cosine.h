@@ -28,6 +28,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int cosine_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val cosine_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

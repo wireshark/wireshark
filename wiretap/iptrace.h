@@ -25,6 +25,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int iptrace_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val iptrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -24,6 +24,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int aethra_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val aethra_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

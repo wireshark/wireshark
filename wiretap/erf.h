@@ -103,7 +103,7 @@ union erf_subhdr {
 #define RECORDS_FOR_ERF_CHECK 20
 #define FCS_BITS	32
 
-int erf_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info);
 int erf_dump_can_write_encap(int encap);
 int erf_dump_open(wtap_dumper *wdh, int *err);
 

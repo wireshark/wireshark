@@ -26,7 +26,7 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int eyesdn_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info);
 
 enum EyeSDN_TYPES {
     EYESDN_ENCAP_ISDN=0,
