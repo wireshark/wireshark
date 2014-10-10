@@ -44,7 +44,12 @@ int hf_nt_cs_size = -1;
 static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
 static int hf_nt_data_blob_len = -1;
+static int hf_nt_midl_blob_len = -1;
+static int hf_nt_midl_fill_bytes = -1;
+static int hf_nt_midl_version = -1;
+static int hf_nt_midl_hdr_len = -1;
 
+static gint ett_nt_MIDL_BLOB = -1;
 static gint ett_lsa_String = -1;
 static gint ett_nt_data_blob = -1;
 static expert_field ei_dcerpc_nt_badsid = EI_INIT;
@@ -1781,6 +1786,47 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* This might be some sort of header that MIDL generates when creating
+ * marshalling/unmarshalling code for blobs that are not to be transported
+ * ontop of DCERPC and where the DREP fields specifying things such as
+ * endianess and similar are not available.
+ */
+int
+nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep)
+{
+	proto_tree *tree;
+	guint8 val;
+
+	tree=proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_nt_MIDL_BLOB, NULL, "MES header");
+
+	/* modified DREP field that is used for stuff that is transporetd ontop
+	 * of non dcerpc
+	 */
+	proto_tree_add_item(tree, hf_nt_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset++;
+
+	val = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, val>>4);
+
+	offset++;
+
+	if (drep) {
+		*drep = val;
+	}
+
+	proto_tree_add_item(tree, hf_nt_midl_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_nt_midl_fill_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* length of blob that follows */
+	proto_tree_add_item(tree, hf_nt_midl_blob_len, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	return offset;
+}
+
 /*
  * Register ett/hf values and perform DCERPC over SMB specific
  * initialisation.
@@ -1926,6 +1972,23 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_nt_data_blob_len,
 		  { "Blob size", "dcerpc.nt.blob.size",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_midl_blob_len, {
+		  "Blob Length", "nt.midl_blob_len", FT_UINT64, BASE_DEC,
+		  NULL, 0, "Length of NDR encoded data that follows", HFILL }},
+
+		{ &hf_nt_midl_fill_bytes, {
+		  "Fill bytes", "nt.midl.fill_bytes", FT_UINT32, BASE_HEX,
+		  NULL, 0, "Just some fill bytes", HFILL }},
+
+		{ &hf_nt_midl_version, {
+		  "Version", "nt.midl.version", FT_UINT8, BASE_DEC,
+		  NULL, 0, "Version of pickling", HFILL }},
+
+		{ &hf_nt_midl_hdr_len, {
+		  "HDR Length", "nt.midl.hdr_len", FT_UINT16, BASE_DEC,
+		  NULL, 0, "Length of header", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -1942,6 +2005,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_sid_and_attributes,
 		&ett_nt_counted_ascii_string,
 		&ett_lsa_String,
+		&ett_nt_MIDL_BLOB,
 	};
 	static ei_register_info ei[] = {
 		{ &ei_dcerpc_nt_badsid, { "dcerpc.nt.badsid", PI_MALFORMED, PI_ERROR, "Association rejected", EXPFILL }},

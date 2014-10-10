@@ -266,6 +266,8 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 				 dcerpc_info *di, guint8 *drep, int type, const char *text,
 				 int hf_index, int levels);
 
+int nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep);
+
 /*
  * Helper routines for dissecting NDR strings
  */
