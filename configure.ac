@@ -2902,6 +2902,7 @@ AC_OUTPUT(
   doc/Makefile
   docbook/Makefile
   epan/Makefile
+  epan/compress/Makefile
   epan/crypt/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile

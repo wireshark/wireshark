@@ -65,6 +65,7 @@ libwireshark_LIBS = \
 	$(GEOIP_LIBS) \
 	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	compress\lzxpress.lib \
 	crypt\airpdcap.lib \
 	ftypes\ftypes.lib \
 	dfilter\dfilter.lib \
@@ -90,16 +91,16 @@ DOXYGEN_DEP=doxygen
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK
-all: crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.dll
+all: compress crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.dll
 !ELSE
-all: crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.lib
+all: compress crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors libwireshark.lib
 !ENDIF
 
 # For use when making libwireshark.dll
 libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
-libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) compress crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
 		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) nghttp2\nghttp2.lib ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib psapi.lib \
@@ -110,7 +111,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem 
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) compress crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
 		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib $(WSLUA_LIB) nghttp2\nghttp2.lib dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
@@ -128,7 +129,9 @@ clean-local:
 	if exist html rm -rf html
 
 clean:  clean-local
-	cd crypt
+	cd compress
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -162,7 +165,9 @@ distclean-local: clean-local
 		dtd_grammar.out
 
 distclean: distclean-local
-	cd crypt
+	cd compress
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -181,7 +186,9 @@ distclean: distclean-local
 maintainer-clean-local: distclean-local
 
 maintainer-clean: maintainer-clean-local
-	cd crypt
+	cd compress
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -199,6 +206,11 @@ maintainer-clean: maintainer-clean-local
 
 crypt:: ..\config.h
 	cd crypt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+compress:: ..\config.h
+	cd compress
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -272,6 +284,7 @@ TVBTEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 !ELSE
 	dissectors\dissectors.lib \
 	wireshark.lib \
+	compress\lzxpress.lib \
 	crypt\airpdcap.lib \
 	dfilter\dfilter.lib \
 	ftypes\ftypes.lib \
@@ -300,6 +313,7 @@ OIDS_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 !ELSE
 	dissectors\dissectors.lib \
 	wireshark.lib \
+	compress\lzxpress.lib \
 	crypt\airpdcap.lib \
 	dfilter\dfilter.lib \
 	ftypes\ftypes.lib \
@@ -329,6 +343,7 @@ REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 !ELSE
 	dissectors\dissectors.lib \
 	wireshark.lib \
+	compress\lzxpress.lib \
 	crypt\airpdcap.lib \
 	dfilter\dfilter.lib \
 	ftypes\ftypes.lib \

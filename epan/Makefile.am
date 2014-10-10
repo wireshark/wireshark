@@ -33,7 +33,7 @@ wslua_dir =
 wslua_dist_dir = wslua
 endif		# HAVE_LIBLUA
 
-SUBDIRS = crypt ftypes dfilter dissectors nghttp2 wmem $(wslua_dir)
+SUBDIRS = compress crypt ftypes dfilter dissectors nghttp2 wmem $(wslua_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
@@ -133,7 +133,7 @@ libwireshark_la_LIBADD = \
 	${top_builddir}/wsutil/libwsutil.la -lm
 
 libwireshark_la_DEPENDENCIES = \
-	libwireshark_generated.la \
+	libwireshark_generated.la compress/liblzxpress.la\
 	libwireshark_asmopt.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la nghttp2/libnghttp2.la wmem/libwmem.la $(wslua_lib) \
@@ -299,6 +299,8 @@ dumpabi-libwireshark: all abi-descriptor.xml
 	cp *.h abi-check-headers/epan
 	mkdir abi-check-headers/crypt
 	cp crypt/*.h abi-check-headers/crypt
+	mkdir abi-check-headers/compress
+	cp compress/*.h abi-check-headers/compress
 	mkdir abi-check-headers/dfilter
 	cp dfilter/*.h ../tools/lemon/cppmagic.h abi-check-headers/dfilter
 	mkdir abi-check-headers/dissectors
