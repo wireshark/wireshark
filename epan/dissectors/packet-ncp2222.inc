@@ -1745,12 +1745,12 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_key = se_new(ncp_req_hash_key);
+    request_key = wmem_new(wmem_file_scope(), ncp_req_hash_key);
     request_key->conversation = conversation;
 	/* Make sequence number unique */
     request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
 
-    request_value = se_new(ncp_req_hash_value);
+    request_value = wmem_new0(wmem_file_scope(), ncp_req_hash_value);
     request_value->ncp_rec = ncp_rec;
     request_value->req_cond_results = NULL;
     request_value->req_nds_flags = 0;
@@ -1772,10 +1772,10 @@ ncp_eid_hash_insert(guint32 nw_eid)
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_eid_key = se_new(ncp_req_eid_hash_key);
+    request_eid_key = wmem_new(wmem_file_scope(), ncp_req_eid_hash_key);
     request_eid_key->nw_eid = nw_eid;
 
-    request_eid_value = se_new(ncp_req_eid_hash_value);
+    request_eid_value = wmem_new0(wmem_file_scope(), ncp_req_eid_hash_value);
     g_strlcpy(request_eid_value->object_name, " ", 256);
 
     g_hash_table_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
@@ -2448,7 +2448,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length)
         return "";
     }
 
-    dest_buf = (char *)ep_alloc(max_length + 1);
+    dest_buf = (char *)wmem_alloc(wmem_packet_scope(), max_length + 1);
     dest_buf[0] = '\0';
 
     for ( i = 0; i < (gint)str_length; i++ )
@@ -6609,7 +6609,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         ioffset += 4;
         dissect_nds_iterator(ntree, tvb, pinfo, value4, value5, ioffset, TRUE);
 
-        values->vstring = ep_strdup_printf("(%s)", values->vstring);
+        values->vstring = wmem_strdup_printf(wmem_packet_scope(), "(%s)", values->vstring);
         break;
 
     default:
@@ -7690,7 +7690,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             gboolean    *results;
             dfilter_t   *dfilter;
 
-            results = (gboolean *)se_alloc0(sizeof(gboolean)*NUM_REQ_CONDS);
+            results = (gboolean *)wmem_alloc0(wmem_file_scope(), sizeof(gboolean)*NUM_REQ_CONDS);
             needed = ncp_rec->req_cond_indexes;
 
             while (*needed != -1) {
