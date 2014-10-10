@@ -1270,7 +1270,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
-    guint64 nsg_creltime = nstrace->nsg_creltime;
+    guint64 nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
     gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
     gint32 nstrace_buflen = nstrace->nstrace_buflen;
@@ -1290,14 +1290,16 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
             switch (hdp->phd_RecordType)
             {
 
-#define GENERATE_CASE_V30(phdr,type,acttype) \
+#define GENERATE_CASE_FULL_V30(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-        PACKET_DESCRIBE(phdr, TIMEDEF, FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
-        GENERATE_CASE_V30(&wth->phdr,30, 300);
-#undef GENERATE_CASE_V30
+            PACKET_DESCRIBE(phdr,TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
+
+                GENERATE_CASE_FULL_V30(&wth->phdr,30,300);
+
+#undef GENERATE_CASE_FULL_V30
 
                 case NSPR_ABSTIME_V20:
                 {
