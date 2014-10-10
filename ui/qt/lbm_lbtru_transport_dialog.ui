@@ -824,7 +824,7 @@
     <string>NCF frames/count/bytes</string>
    </property>
    <property name="toolTip">
-    <string>Sow the NCF frames/count/bytes column</string>
+    <string>Show the NCF frames/count/bytes column</string>
    </property>
   </action>
   <action name="action_SourceSMFrames">

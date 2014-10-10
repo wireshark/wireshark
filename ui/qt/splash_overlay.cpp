@@ -134,7 +134,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
         action_msg = tr("Initializing tap listeners");
         break;
     case RA_REGISTER:
-        action_msg = tr("Registering dissector");
+        action_msg = tr("Registering dissectors");
         break;
     case RA_PLUGIN_REGISTER:
         action_msg = tr("Registering plugins");
@@ -143,7 +143,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
         action_msg = tr("Registering Python dissectors");
         break;
     case RA_HANDOFF:
-        action_msg = tr("Handing off dissector");
+        action_msg = tr("Handing off dissectors");
         break;
     case RA_PLUGIN_HANDOFF:
         action_msg = tr("Handing off plugins");

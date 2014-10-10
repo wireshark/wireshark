@@ -218,10 +218,10 @@ http://www.parashift.com/c++-faq/mixing-c-and-cpp.html
 
 Qt makes translating the Wireshark UI into different languages easy.
 
-- Add your translation (wireshark_XX.ts) in Wireshark.pro, i18n.qrc, ui/qt/Makefile.common
-    and ui/qt/CMakeList.txt .
+- Add your translation (ui/qt/wireshark_XX.ts) in ui/qt/Wireshark.pro, ui/qt/i18n.qrc,
+    ui/qt/Makefile.common and ui/qt/CMakeLists.txt .
 - Add also in epan/prefs.c, in ui/qt/main.cpp add case in switch(prefs_p->gui_qt_language)
-    and in main_windows_preferences_frame.ui (use qt-design) to add in prefs.
+    and in ui/qt/main_window_preferences_frame.ui (use qt-design) to add in prefs.
 - Run "lupdate Wireshark.pro" to generate/update your translation file.
 - Translate with Qt Linguist.
 - Run "lrelease Wireshark.pro" to create/update wireshark_xx.qm file.

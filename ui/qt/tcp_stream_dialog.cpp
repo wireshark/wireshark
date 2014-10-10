@@ -73,7 +73,7 @@ const double pkt_point_size_ = 3.0;
 // in zoom mode.
 const int min_zoom_pixels_ = 20;
 
-const QString average_throughput_label_ = QObject::tr("Avgerage Througput (bits/s)");
+const QString average_throughput_label_ = QObject::tr("Average Througput (bits/s)");
 const QString round_trip_time_ms_label_ = QObject::tr("Round Trip Time (ms)");
 const QString segment_length_label_ = QObject::tr("Segment Length (B)");
 const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
