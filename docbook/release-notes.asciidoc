@@ -59,6 +59,7 @@ OptoMMP
 corosync/totemnet
 corosync/totemsrp
 ceph
+GVSP
 Stateless Transport Tunneling
 CP ``Cooper'' 2179
 S7 Communication

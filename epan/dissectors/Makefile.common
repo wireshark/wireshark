@@ -647,6 +647,7 @@ DISSECTOR_SRC = \
 	packet-gtpv2.c		\
 	packet-gvcp.c		\
 	packet-gvrp.c		\
+	packet-gvsp.c		\
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
 	packet-h223.c		\

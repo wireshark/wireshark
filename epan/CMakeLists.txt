@@ -729,6 +729,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gtpv2.c
 	dissectors/packet-gvcp.c
 	dissectors/packet-gvrp.c
+	dissectors/packet-gvsp.c
 	dissectors/packet-h1.c
 	dissectors/packet-h221_nonstd.c
 	dissectors/packet-h223.c
