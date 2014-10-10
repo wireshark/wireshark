@@ -49,6 +49,7 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/glib-compat.h>
 #include "packet-tcp.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
@@ -2883,13 +2884,27 @@ dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                FALSE, NULL);
 }
 
+static int current_depth = 0;
+static int len_ndr_pointer_list = 0;
 
 /* ndr pointer handling */
-/* list of pointers encountered so far */
+/* Should we re-read the size of the list ?
+ * Instead of re-calculating the size everytime, use the stored value unless this
+ * flag is set which means: re-read the size of the list
+ */
+static gboolean must_check_size = FALSE;
+/* list of pointers encountered so far in the current level */
 static GSList *ndr_pointer_list = NULL;
 
-/* position where in the list to insert newly encountered pointers */
-static int ndr_pointer_list_pos = 0;
+static GHashTable *ndr_pointer_hash = NULL;
+/*
+ * List of pointer list, in order to avoid huge performance penalty
+ * when dealing with list bigger than 100 elements due to the way we
+ * try to insert in the list.
+ * We instead maintain a stack of pointer list
+ * To make it easier to manage we just use a list to materialize the stack
+ */
+static GSList *list_ndr_pointer_list = NULL;
 
 /* Boolean controlling whether pointers are top-level or embedded */
 static gboolean pointers_are_top_level = TRUE;
@@ -2906,20 +2921,44 @@ typedef struct ndr_pointer_data {
     void                   *callback_args;
 } ndr_pointer_data_t;
 
+static GSList * create_empty_list(void)
+{
+    ndr_pointer_data_t *npd;
+    GSList *list;
+
+    npd = (ndr_pointer_data_t *)g_malloc(sizeof(ndr_pointer_data_t));
+    memset(npd, 0, sizeof(ndr_pointer_data_t));
+
+    /* First add a Dummy entry to get a real GSList pointer */
+    list = g_slist_append(NULL, npd);
+    return list;
+}
+
 void
 init_ndr_pointer_list(dcerpc_info *di)
 {
     di->conformant_run = 0;
+    current_depth = 0;
 
-    while (ndr_pointer_list) {
-        ndr_pointer_data_t *npd = (ndr_pointer_data_t *)g_slist_nth_data(ndr_pointer_list, 0);
-        ndr_pointer_list = g_slist_remove(ndr_pointer_list, npd);
-        g_free(npd);
+    while (list_ndr_pointer_list) {
+        GSList *list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, 0);
+        list_ndr_pointer_list = g_slist_remove(list_ndr_pointer_list, list);
+        g_slist_free_full(list, g_free);
     }
+    g_slist_free_full(list_ndr_pointer_list, g_free);
 
-    ndr_pointer_list = NULL;
-    ndr_pointer_list_pos = 0;
+    list_ndr_pointer_list = NULL;
     pointers_are_top_level = TRUE;
+    must_check_size = FALSE;
+
+    ndr_pointer_list = create_empty_list();
+    list_ndr_pointer_list = g_slist_insert(list_ndr_pointer_list,
+                                           ndr_pointer_list, 0);
+    if (ndr_pointer_hash) {
+        g_hash_table_destroy(ndr_pointer_hash);
+    }
+    ndr_pointer_hash = g_hash_table_new(g_int_hash, g_int_equal);
+    len_ndr_pointer_list = 1;
 }
 
 int
@@ -2928,30 +2967,45 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     int          found_new_pointer;
     int          old_offset;
     int          next_pointer;
+    int          original_depth;
+    int          len;
+    GSList      *current_ndr_pointer_list;
+    ndr_pointer_list = NULL;
 
     next_pointer = 0;
 
-    do{
-        int i, len;
+    original_depth = current_depth;
+    current_ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+
+    len = g_slist_length(current_ndr_pointer_list);
+    do {
+        int i;
 
         found_new_pointer = 0;
-        len = g_slist_length(ndr_pointer_list);
         for (i=next_pointer; i<len; i++) {
-            ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(ndr_pointer_list, i);
+            ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(current_ndr_pointer_list, i);
+
             if (tnpd->fnct) {
+                int saved_len_ndr_pointer_list = 0;
+                GSList *saved_ndr_pointer_list = NULL;
+
                 dcerpc_dissect_fnct_t *fnct;
 
                 next_pointer = i+1;
                 found_new_pointer = 1;
                 fnct = tnpd->fnct;
                 tnpd->fnct = NULL;
-                ndr_pointer_list_pos = i+1;
                 di->hf_index = tnpd->hf_index;
                 /* first a run to handle any conformant
                    array headers */
                 di->conformant_run = 1;
                 di->conformant_eaten = 0;
                 old_offset = offset;
+                current_depth++;
+                saved_ndr_pointer_list = current_ndr_pointer_list;
+                saved_len_ndr_pointer_list = len_ndr_pointer_list;
+                len_ndr_pointer_list = 1;
+                ndr_pointer_list = create_empty_list();
                 offset = (*(fnct))(tvb, offset, pinfo, NULL, di, drep);
 
                 DISSECTOR_ASSERT((offset-old_offset) == di->conformant_eaten);
@@ -3007,14 +3061,71 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
                 if (tnpd->callback)
                     tnpd->callback(pinfo, tnpd->tree, tnpd->item, di, tvb, old_offset, offset, tnpd->callback_args);
                 proto_item_set_len(tnpd->item, offset - old_offset);
-                break;
+                if (len_ndr_pointer_list > 1) {
+                    /* We found some pointers to dissect let's create one more level */
+                    len = len_ndr_pointer_list;
+                    current_ndr_pointer_list = ndr_pointer_list;
+                    /* So we will arrive right away at the second element of the list
+                     * but that's not too importnt because the first one is always empty
+                    */
+                    i = next_pointer = 0;
+                    list_ndr_pointer_list = g_slist_insert(list_ndr_pointer_list,
+                                                           ndr_pointer_list, current_depth);
+                    ndr_pointer_list = create_empty_list();
+                    continue;
+                } else {
+                    current_depth--;
+                    current_ndr_pointer_list = saved_ndr_pointer_list;
+                    len_ndr_pointer_list = saved_len_ndr_pointer_list;
+                }
+            }
+            if (i == (len - 1) && (must_check_size == TRUE)) {
+                len = g_slist_length(ndr_pointer_list);
+                must_check_size = FALSE;
             }
         }
+
+        /* We reached the end of one level, go to the level bellow if possible
+         * reset list a level n
+         */
+        if ((i >= (len - 1)) && (current_depth > original_depth)) {
+            GSList *list;
+            /* Remove existing list */
+            g_slist_free_full(current_ndr_pointer_list, g_free);
+            list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+            current_depth--;
+            list_ndr_pointer_list = g_slist_remove(list_ndr_pointer_list, list);
+
+            /* Rewind on the lower level, in theory it's not too great because we
+             * will one more time iterate on pointers already done
+             * In practice it shouldn't be that bad !
+             */
+            next_pointer = 0;
+            current_ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+            len = g_slist_length(current_ndr_pointer_list);
+            len_ndr_pointer_list = len;
+            found_new_pointer = 1;
+        }
+
     } while (found_new_pointer);
+    DISSECTOR_ASSERT(original_depth == current_depth);
+
+    if (ndr_pointer_list) {
+        g_slist_free_full(ndr_pointer_list, g_free);
+    }
+    ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+    len_ndr_pointer_list = g_slist_length(ndr_pointer_list);
 
     return offset;
 }
 
+static int
+find_pointer_index(guint32 id)
+{
+    guint *p = (guint*) g_hash_table_lookup(ndr_pointer_hash, &id);
+
+    return (p != NULL);
+}
 
 static void
 add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
@@ -3022,6 +3133,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
                     dcerpc_callback_fnct_t *callback, void *callback_args)
 {
     ndr_pointer_data_t *npd;
+    guint *p_id;
 
     /* check if this pointer is valid */
     if (id != 0xffffffff) {
@@ -3059,30 +3171,16 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
     npd->hf_index = hf_index;
     npd->callback = callback;
     npd->callback_args = callback_args;
+    p_id = wmem_new(wmem_file_scope(), guint);
+    *p_id = id;
+
     ndr_pointer_list = g_slist_insert(ndr_pointer_list, npd,
-                                      ndr_pointer_list_pos);
-    ndr_pointer_list_pos++;
+                                      len_ndr_pointer_list);
+    g_hash_table_insert(ndr_pointer_hash, p_id, p_id);
+    len_ndr_pointer_list++;
+    must_check_size = TRUE;
 }
 
-
-static int
-find_pointer_index(guint32 id)
-{
-    ndr_pointer_data_t *npd;
-    int                 i,len;
-
-    len = g_slist_length(ndr_pointer_list);
-    for (i=0; i<len; i++) {
-        npd = (ndr_pointer_data_t *)g_slist_nth_data(ndr_pointer_list, i);
-        if (npd) {
-            if (npd->id == id) {
-                return i;
-            }
-        }
-    }
-
-    return -1;
-}
 
 /* This function dissects an NDR pointer and stores the callback for later
  * deferred dissection.
@@ -3142,7 +3240,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /*TOP LEVEL FULL POINTER*/
     if ( pointers_are_top_level
         && (type == NDR_POINTER_PTR) ) {
-        int idx;
+        int found;
         guint64 id;
         proto_item *item;
 
@@ -3159,10 +3257,10 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* see if we have seen this pointer before
            The value is truncated to 32bits.  64bit values have only been
            seen on fuzz-tested files */
-        idx = find_pointer_index((guint32)id);
+        found = find_pointer_index((guint32)id);
 
         /* we have seen this pointer before */
-        if (idx >= 0) {
+        if (found) {
             proto_tree_add_string(tree, hf_dcerpc_duplicate_ptr, tvb, offset-pointer_size, pointer_size, text);
             goto after_ref_id;
         }
@@ -3273,7 +3371,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /*EMBEDDED FULL POINTER*/
     if ( (!pointers_are_top_level)
         && (type == NDR_POINTER_PTR) ) {
-        int idx;
+        int found;
         guint64 id;
         proto_item *item;
 
@@ -3290,10 +3388,10 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* see if we have seen this pointer before
            The value is truncated to 32bits.  64bit values have only been
            seen on fuzztested files */
-        idx = find_pointer_index((guint32)id);
+        found = find_pointer_index((guint32)id);
 
         /* we have seen this pointer before */
-        if (idx >= 0) {
+        if (found) {
             proto_tree_add_string(tree, hf_dcerpc_duplicate_ptr, tvb, offset-pointer_size, pointer_size, text);
             goto after_ref_id;
         }
