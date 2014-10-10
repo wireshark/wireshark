@@ -280,7 +280,7 @@ dissect_isup_location_number_parameter(parameter_tvb, subtree, NULL);
  if (!parameter_tvb)
         return offset;
 
-dissect_isup_generic_number_parameter(parameter_tvb, tree, NULL);
+dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -433,7 +433,7 @@ proto_tree *subtree;
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+ dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------

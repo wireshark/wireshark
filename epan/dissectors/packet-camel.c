@@ -4339,7 +4339,7 @@ dissect_camel_GenericNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
  if (!parameter_tvb)
         return offset;
 
-dissect_isup_generic_number_parameter(parameter_tvb, tree, NULL);
+dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
   return offset;
 }
@@ -4774,7 +4774,7 @@ dissect_camel_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+ dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
   return offset;
 }

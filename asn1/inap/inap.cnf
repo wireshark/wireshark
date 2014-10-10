@@ -274,7 +274,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+ dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 #.FN_BODY RedirectingPartyID VAL_PTR = &parameter_tvb
 
