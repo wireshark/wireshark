@@ -1058,6 +1058,26 @@ set(INSTALL_FILES
 	docbook/ws.css
 )
 
+set(MAN1_FILES
+	${CMAKE_BINARY_DIR}/capinfos.1
+	${CMAKE_BINARY_DIR}/captype.1
+	${CMAKE_BINARY_DIR}/dftest.1
+	${CMAKE_BINARY_DIR}/dumpcap.1
+	${CMAKE_BINARY_DIR}/editcap.1
+	${CMAKE_BINARY_DIR}/idl2wrs.1
+	${CMAKE_BINARY_DIR}/mergecap.1
+	${CMAKE_BINARY_DIR}/randpkt.1
+	${CMAKE_BINARY_DIR}/rawshark.1
+	${CMAKE_BINARY_DIR}/reordercap.1
+	${CMAKE_BINARY_DIR}/text2pcap.1
+	${CMAKE_BINARY_DIR}/tshark.1
+	${CMAKE_BINARY_DIR}/wireshark.1
+)
+
+set(MAN4_FILES
+	${CMAKE_BINARY_DIR}/wireshark-filter.4
+)
+
 set(LIBEPAN_LIBS
 #		@NSL_LIBS@	# -lnsl
 #		@SOCKET_LIBS@	# -lsocket
@@ -1116,7 +1136,51 @@ if(ENABLE_APPLICATION_BUNDLE)
 		MACOSX_PACKAGE_LOCATION Resources
 	)
 
-	set(EXTRA_BUNDLE_FILES ${BUNDLE_CONTENTS_FILES} ${BUNDLE_RESOURCE_FILES})
+	# Wireshark.app/Contents/Resources/share/man/man1
+	set(BUNDLE_RESOURCE_SHARE_MAN1_FILES ${MAN1_FILES})
+	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources/share/man/man1
+	)
+
+	# Wireshark.app/Contents/Resources/share/man/man1
+	set(BUNDLE_RESOURCE_SHARE_MAN4_FILES ${MAN4_FILES})
+	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
+	)
+
+	# Wireshark.app/Contents/Resources/share/wireshark
+	set(BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES
+		${INSTALL_FILES}
+	)
+	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources/share/wireshark
+	)
+
+	# Wireshark.app/Contents/Resources/share/wireshark/*/*
+	# This is a bit messy but copying directories using
+	# MACOSX_PACKAGE_LOCATION is currently broken:
+	# http://public.kitware.com/Bug/view.php?id=13784
+	# We also assume INSTALL_DIRS are all one level deep
+	set(BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES)
+	foreach (_subdir ${INSTALL_DIRS})
+		file(GLOB _subdir_files RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/${_subdir}/*)
+		set(BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES
+			${BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES}
+			${_subdir_files}
+		)
+		set_source_files_properties(${_subdir_files} PROPERTIES
+			MACOSX_PACKAGE_LOCATION Resources/share/wireshark/${_subdir}
+		)
+	endforeach()
+
+	set(EXTRA_BUNDLE_FILES
+		${BUNDLE_CONTENTS_FILES}
+		${BUNDLE_RESOURCE_FILES}
+		${BUNDLE_RESOURCE_SHARE_MAN1_FILES}
+		${BUNDLE_RESOURCE_SHARE_MAN4_FILES}
+		${BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES}
+		${BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES}
+	)
 else()
 	set(EXTRA_BUNDLE_FILES)
 endif()
@@ -1163,14 +1227,16 @@ if(BUILD_wireshark AND QT_FOUND)
 		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 
-	# Map for endpoints dialog
-	ADD_CUSTOM_COMMAND(
-		TARGET wireshark
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${PROJECT_SOURCE_DIR}/ipmap.html"
-			$<TARGET_FILE_DIR:wireshark>
-	)
+	if(NOT ENABLE_APPLICATION_BUNDLE)
+		# Map for endpoints dialog
+		ADD_CUSTOM_COMMAND(
+			TARGET wireshark
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${PROJECT_SOURCE_DIR}/ipmap.html"
+				$<TARGET_FILE_DIR:wireshark>
+		)
+	endif()
 endif()
 
 # Common properties for CLI executables
@@ -1584,26 +1650,6 @@ add_custom_target(
 		wireshark-filter.html
 )
 set_target_properties(auxiliary PROPERTIES FOLDER "Docs")
-
-set(MAN1_FILES
-	${CMAKE_BINARY_DIR}/capinfos.1
-	${CMAKE_BINARY_DIR}/captype.1
-	${CMAKE_BINARY_DIR}/dftest.1
-	${CMAKE_BINARY_DIR}/dumpcap.1
-	${CMAKE_BINARY_DIR}/editcap.1
-	${CMAKE_BINARY_DIR}/idl2wrs.1
-	${CMAKE_BINARY_DIR}/mergecap.1
-	${CMAKE_BINARY_DIR}/randpkt.1
-	${CMAKE_BINARY_DIR}/rawshark.1
-	${CMAKE_BINARY_DIR}/reordercap.1
-	${CMAKE_BINARY_DIR}/text2pcap.1
-	${CMAKE_BINARY_DIR}/tshark.1
-	${CMAKE_BINARY_DIR}/wireshark.1
-)
-
-set(MAN4_FILES
-	${CMAKE_BINARY_DIR}/wireshark-filter.4
-)
 
 set(CLEAN_FILES
 	${wireshark_FILES}
