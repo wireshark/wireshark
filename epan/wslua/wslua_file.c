@@ -1661,7 +1661,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(read_open,0);
+    INIT_FILEHANDLER_ROUTINE(read_open,WTAP_OPEN_NOT_MINE);
 
     create_wth_priv(L, wth);
 
@@ -1671,7 +1671,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     errno = WTAP_ERR_CANT_OPEN;
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
-            retval = wslua_optboolint(L,-1,0);
+            retval = (wtap_open_return_val)wslua_optboolint(L,-1,0);
             break;
         CASE_ERROR_ERRINFO("read_open")
     }
@@ -1687,12 +1687,18 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
         if (fh->read_ref != LUA_NOREF) {
             wth->subtype_read = wslua_filehandler_read;
         }
-        else return 0;
+        else {
+            g_warning("Lua file format module lacks a read routine");
+            return WTAP_OPEN_NOT_MINE;
+        }
 
         if (fh->seek_read_ref != LUA_NOREF) {
             wth->subtype_seek_read = wslua_filehandler_seek_read;
         }
-        else return 0;
+        else {
+            g_warning("Lua file format module lacks a seek-read routine");
+            return WTAP_OPEN_NOT_MINE;
+        }
 
         /* it's ok to not have a close routine */
         if (fh->read_close_ref != LUA_NOREF)
