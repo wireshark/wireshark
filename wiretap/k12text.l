@@ -410,17 +410,17 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	p += wl;
 	left -= wl;
 
-	wl = g_snprintf(p, left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
+	wl = g_snprintf(p, (gulong)left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
 	p += wl;
 	left -= wl;
 
 	for(i = 0; i < phdr->caplen && left > 2; i++) {
-		wl = g_snprintf(p, left, "%.2x|", pd[i]);
+		wl = g_snprintf(p, (gulong)left, "%.2x|", pd[i]);
 		p += wl;
 		left -= wl;
 	}
 
-	wl = g_snprintf(p, left, "\r\n\r\n");
+	wl = g_snprintf(p, (gulong)left, "\r\n\r\n");
 	left -= wl;
 
 	ret = wtap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);
