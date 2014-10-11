@@ -470,6 +470,22 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+int
+dissect_ndr_nt_NTTIME_hyper (tvbuff_t *tvb, int offset,
+			packet_info *pinfo _U_, proto_tree *tree,
+			dcerpc_info *di, guint8 *drep _U_, int hf_index, gboolean onesec_resolution)
+{
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	ALIGN_TO_8_BYTES;
+
+	offset = dissect_nt_64bit_time_opt(tvb, tree, offset, hf_index, onesec_resolution);
+	return offset;
+}
+
 /* Define this symbol to display warnings about request/response and
    policy handle hash table collisions.	 This happens when a packet with
    the same conversation, smb fid and dcerpc call id occurs.  I think this

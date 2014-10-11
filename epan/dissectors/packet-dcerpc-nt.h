@@ -153,6 +153,10 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			dcerpc_info *di, guint8 *drep, int hf_index);
 int
+dissect_ndr_nt_NTTIME_hyper (tvbuff_t *tvb, int offset,
+				packet_info *pinfo, proto_tree *tree,
+				dcerpc_info *di, guint8 *drep, int hf_index, gboolean onesec_resolution);
+int
 dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep);

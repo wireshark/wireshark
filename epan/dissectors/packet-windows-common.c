@@ -1129,7 +1129,7 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  *	Copyright (C) Andrew Tridgell 1992-1998
  */
 static gboolean
-nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
+nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv, gboolean onesec_resolution)
 {
 	guint64 d;
 	gint64 secs;
@@ -1143,6 +1143,10 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 		return FALSE;
 
 	d = ((guint64)filetime_high << 32) | filetime_low;
+
+	if (onesec_resolution) {
+		d *= 10000000;
+	}
 
 	/* Split into seconds and nanoseconds. */
 	secs = d / 10000000;
@@ -1164,13 +1168,13 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 }
 
 int
-dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
+dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, gboolean onesec_resolution _U_)
 {
-	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL);
+	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL, FALSE);
 }
 
 int
-dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem)
+dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, gboolean onesec_resolution)
 {
 	guint32 filetime_high, filetime_low;
 	nstime_t ts;
@@ -1196,8 +1200,8 @@ dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_dat
 			    "%s: Infinity (absolute time)",
 			    proto_registrar_get_name(hf_date));
 		} else {
-			if (nt_time_to_nstime(filetime_high, filetime_low, &ts)) {
-				item = proto_tree_add_time(tree, hf_date, tvb,
+			if (nt_time_to_nstime(filetime_high, filetime_low, &ts, onesec_resolution)) {
+				proto_tree_add_time(tree, hf_date, tvb,
 				    offset, 8, &ts);
 			} else {
 				item = proto_tree_add_text(tree, tvb, offset, 8,
@@ -1215,6 +1219,11 @@ dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_dat
 	return offset;
 }
 
+int
+dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
+{
+	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, FALSE);
+}
 
 /* Well-known SIDs defined in http://support.microsoft.com/kb/243330 */
 

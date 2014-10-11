@@ -664,7 +664,7 @@ proto_item* parseDouble(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIn
 proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
     proto_item *item = NULL;
-    *pOffset = dissect_nt_64bit_time_ex(tvb, tree, *pOffset, hfIndex, &item);
+    *pOffset = dissect_nt_64bit_time_ex(tvb, tree, *pOffset, hfIndex, &item, FALSE);
     return item;
 }
 

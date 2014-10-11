@@ -242,9 +242,10 @@ extern value_string_ext ms_country_codes_ext;
 
 WS_DLL_PUBLIC
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
-
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem);
+int dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, gboolean onesec_resolution);
+WS_DLL_PUBLIC
+int dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, gboolean onesec_resolution);
 
 /*
  *  SIDs and RIDs
