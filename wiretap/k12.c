@@ -146,18 +146,28 @@ void k12_ascii_dump(guint level, guint8 *buf, guint32 len, guint32 buf_offset) {
 
 
 /*
- * A 32-bit .rf5 file contains:
+ * A 32-bit .rf5 file begins with a 512-byte file header, containing:
  *
- *  a 32-bit big-endian file header length (0x0200 = 512);
+ *  a 32-bit big-endian file header length, in bytes - always 512 in
+ *  the files we've seen;
  *
  *  4 unknown bytes, always 0x12 0x05 0x00 0x10;
  *
  *  a 32-bit big-endian file length, giving the total length of the file,
  *  in bytes;
  *
- *  a 32-bit big-endian number of records;
+ *  a 32-bit big-endian number giving the "page size" of the file, in
+ *  bytes, which is normally 8192;
  *
- *  496 bytes of uncharted territory;
+ *  20 unknown bytes;
+ *
+ *  a 32-bit count of the number of records in the file;
+ *
+ *  4 unknown bytes;
+ *
+ *  a 32-bit count of the number of records in the file;
+ *
+ *  464 unknown bytes;
  *
  * followed by a sequence of records containing:
  *
@@ -175,6 +185,12 @@ void k12_ascii_dump(guint level, guint8 *buf, guint32 len, guint32 buf_offset) {
  * in memory as the file was being written.
  *
  * There's a 16-bit terminator FFFF at the end.
+ *
+ * Older versions of the Wireshark .rf5 writing code incorrectly wrote
+ * the header - they put 512 in the file length field (counting only the
+ * header), put a count of records into the "page size" field, and wrote
+ * out zeroes in the rest of the header.  We detect those files by
+ * checking whether the rest of the header is zero.
  */
 
 /*
@@ -183,6 +199,16 @@ void k12_ascii_dump(guint level, guint8 *buf, guint32 len, guint32 buf_offset) {
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
 
 #define K12_FILE_HDR_LEN      512
+
+/*
+ * Offsets in the file header.
+ */
+#define K12_FILE_HDR_MAGIC_NUMBER   0x00
+#define K12_FILE_HDR_FILE_SIZE      0x08
+#define K12_FILE_HDR_PAGE_SIZE      0x0C
+#define K12_FILE_HDR_RECORD_COUNT_1 0x24
+#define K12_FILE_HDR_RECORD_COUNT_2 0x2C
+
 #define K12_FILE_BLOB_LEN     16
 
 typedef struct {
@@ -396,9 +422,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
     guint8 *buffer = is_random ? file_data->rand_read_buff : file_data->seq_read_buff;
     guint buffer_len = is_random ? file_data->rand_read_buff_len : file_data->seq_read_buff_len;
     guint total_read = 0;
-    guint bytes_read;
     guint left;
-    guint8 junk[K12_FILE_BLOB_LEN+4];
     guint8* writep;
 #ifdef DEBUG_K12
     guint actual_len;
@@ -433,61 +457,21 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
          * We're at the beginning of one of the 16-byte blobs,
          * so we first need to skip the blob.
          *
-         * Or we may just have the 2-byte FFFF marker.
-         * XXX - would the FFFF marker ever be in the 16-byte blob?
-         *
          * XXX - what if the blob is in the middle of the record
          * length?  If the record length is always a multiple of
          * 4 bytes, that won't happen.
          */
-        bytes_read = file_read(junk,K12_FILE_BLOB_LEN,fh);
-        if (bytes_read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
-            K12_DBG(1,("get_record: EOF"));
-            return 0;
-        } else if ( bytes_read < K12_FILE_BLOB_LEN ){
-            K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-            *err = file_error(fh, err_info);
-            if (*err == 0) {
-                *err = WTAP_ERR_SHORT_READ;
-            }
+        if ( ! file_skip( fh, K12_FILE_BLOB_LEN, err ) )
             return -1;
-        }
-        total_read += bytes_read;
+        total_read += K12_FILE_BLOB_LEN;
     }
 
     /*
      * Read the record length.
      */
-    bytes_read = file_read(buffer,4,fh);
-    if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
-        K12_DBG(1,("get_record: EOF"));
-        return 0;
-    } else if (bytes_read == 4 && buffer[0] == 0xff && buffer[1] == 0xff
-                               && buffer[2] == 0x00 && buffer[3] == 0x00) {
-        /*
-         * In at least one k18 RF5 file, there appears to be a "record"
-         * with a length value of 0xffff0000, followed by a bunch of
-         * data that doesn't appear to be records, including a long
-         * list of numbers.
-         *
-         * We treat a length value of 0xffff0000 as an end-of-file
-         * indication.
-         *
-         * XXX - is this a length indication, or will it appear
-         * at the beginning of an 8KB block, so that we should
-         * check for it above?
-         */
-        K12_DBG(1,("get_record: EOF"));
-        return 0;
-    } else if ( bytes_read != 4 ) {
-        K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-        *err = file_error(fh, err_info);
-        if (*err == 0) {
-            *err = WTAP_ERR_SHORT_READ;
-        }
+    if ( !wtap_read_bytes( fh, buffer, 4, err, err_info ) )
         return -1;
-    }
-    total_read += bytes_read;
+    total_read += 4;
 
     left = pntoh32(buffer + K12_RECORD_LEN);
 #ifdef DEBUG_K12
@@ -542,48 +526,27 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
              * The next 16-byte blob is past the end of this record.
              * Just read the rest of the record.
              */
-            bytes_read = file_read(writep, left, fh);
-            if ( bytes_read != left ) {
-                K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-                *err = file_error(fh, err_info);
-                if (*err == 0) {
-                    *err = WTAP_ERR_SHORT_READ;
-                }
+            if ( !wtap_read_bytes( fh, writep, left, err, err_info ) )
                 return -1;
-            }
-            total_read += bytes_read;
+            total_read += left;
             break;
         } else {
             /*
              * The next 16-byte blob is part of this record.
              * Read up to the blob.
              */
-            bytes_read = file_read(writep, junky_offset, fh);
-            if ( bytes_read != junky_offset ) {
-                K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",bytes_read, junky_offset));
-                *err = file_error(fh, err_info);
-                if (*err == 0) {
-                    *err = WTAP_ERR_SHORT_READ;
-                }
+            if ( !wtap_read_bytes( fh, writep, junky_offset, err, err_info ) )
                 return -1;
-            }
 
-            total_read += bytes_read;
-            writep += bytes_read;
+            total_read += junky_offset;
+            writep += junky_offset;
 
             /*
              * Skip the blob.
              */
-            bytes_read = file_read(junk, K12_FILE_BLOB_LEN, fh);
-            if ( bytes_read != K12_FILE_BLOB_LEN ) {
-                K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-                *err = file_error(fh, err_info);
-                if (*err == 0) {
-                    *err = WTAP_ERR_SHORT_READ;
-                }
+            if ( !file_skip( fh, K12_FILE_BLOB_LEN, err ) )
                 return -1;
-            }
-            total_read += bytes_read;
+            total_read += K12_FILE_BLOB_LEN;
 
             left -= junky_offset;
             junky_offset = 8192;
@@ -593,6 +556,20 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
 
     K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
     return total_read;
+}
+
+static gboolean
+memiszero(const void *ptr, size_t count)
+{
+    const guint8 *p = (const guint8 *)ptr;
+
+    while (count != 0) {
+	if (*p != 0)
+	    return FALSE;
+	p++;
+	count--;
+    }
+    return TRUE;
 }
 
 static void
@@ -691,6 +668,12 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     /* ignore the record if it isn't a packet */
     do {
+        if ( k12->num_of_records == 0 ) {
+            /* No more records */
+            *err = 0;
+            return FALSE;
+        }
+
         K12_DBG(5,("k12_read: offset=%i",offset));
 
         *data_offset = offset;
@@ -702,7 +685,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
             return FALSE;
         } else if (len == 0) {
             /* EOF */
-            *err = 0;
+            *err = WTAP_ERR_SHORT_READ;
             return FALSE;
         } else if (len < K12_RECORD_SRC_ID + 4) {
             /* Record not large enough to contain a src ID */
@@ -710,6 +693,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
             *err_info = g_strdup_printf("data record length %d too short", len);
             return FALSE;
         }
+        k12->num_of_records--;
 
         buffer = k12->seq_read_buff;
 
@@ -870,7 +854,35 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
     file_data = new_k12_file_data();
 
     file_data->file_len = pntoh32( header_buffer + 0x8);
-    file_data->num_of_records = pntoh32( header_buffer + 0xC );
+    if (memiszero(header_buffer + 0x10, K12_FILE_HDR_LEN - 0x10)) {
+        /*
+         * The rest of the file header is all zeroes.  That means
+	 * this is a file written by the old Wireshark code, and
+	 * a count of records in the file is at an offset of 0x0C.
+         */
+        file_data->num_of_records = pntoh32( header_buffer + 0x0C );
+    } else {
+        /*
+         * There's at least one non-zero byte in the rest of the
+         * header.  The value 8192 is at 0xC (page size?), and
+         * what appears to be the number of records in the file
+         * is at an offset of 0x24 and at an offset of 0x2c.
+         *
+         * If the two values are not the same, we fail; if that's
+         * the case, we need to see the file to figure out which
+         * of those two values, if any, is the count.
+         */
+        file_data->num_of_records = pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_1 );
+        if ( file_data->num_of_records != pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ) ) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("k12: two different record counts, %u at 0x%02x and %u at 0x%02x",
+                                        file_data->num_of_records,
+                                        K12_FILE_HDR_RECORD_COUNT_1,
+                                        pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ),
+                                        K12_FILE_HDR_RECORD_COUNT_2 );
+            return WTAP_OPEN_ERROR;
+        }
+    }
 
     K12_DBG(5,("k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
             offset,
@@ -878,6 +890,11 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
             file_data->num_of_records ));
 
     do {
+        if ( file_data->num_of_records == 0 ) {
+            *err = WTAP_ERR_SHORT_READ;
+            destroy_k12_file_data(file_data);
+            return WTAP_OPEN_ERROR;
+        }
 
         len = get_record(file_data, wth->fh, offset, FALSE, err, err_info);
 
@@ -886,14 +903,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
-        if (len == 0) {
-            K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
-            *err = WTAP_ERR_SHORT_READ;
-            destroy_k12_file_data(file_data);
-            return WTAP_OPEN_ERROR;
-        }
-
-        if (len == 0) {
+        if ( len == 0 ) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
@@ -923,7 +933,12 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
             }
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
             break;
-        } else if (type == K12_REC_SRCDSC || type == K12_REC_SRCDSC2 ) {
+        }
+
+        switch (type) {
+
+        case K12_REC_SRCDSC:
+        case K12_REC_SRCDSC2:
             rec = g_new0(k12_src_desc_t,1);
 
             if (rec_len < K12_SRCDESC_STACKLEN + 2) {
@@ -1042,22 +1057,21 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
 
             g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
             g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);
+            break;
 
-            offset += len;
-            continue;
-        } else if (type == K12_REC_STK_FILE) {
+        case K12_REC_STK_FILE:
             K12_DBG(1,("k12_open: K12_REC_STK_FILE"));
             K12_DBG(1,("Field 1: 0x%08x",pntoh32( read_buffer + 0x08 )));
             K12_DBG(1,("Field 2: 0x%08x",pntoh32( read_buffer + 0x0c )));
             K12_ASCII_DUMP(1, read_buffer, rec_len, 16);
+            break;
 
-            offset += len;
-            continue;
-        } else {
+        default:
             K12_DBG(1,("k12_open: RECORD TYPE 0x%08x",type));
-            offset += len;
-            continue;
+            break;
         }
+        offset += len;
+        file_data->num_of_records--;
     } while(1);
 
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12;
@@ -1107,10 +1121,12 @@ static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, 
             return FALSE;
 
         k12->file_offset += len + K12_FILE_BLOB_LEN;
+        k12->file_len += len + K12_FILE_BLOB_LEN;
     } else {
         if (! wtap_dump_file_write(wdh, buffer, len, err_p))
             return FALSE;
         k12->file_offset += len;
+        k12->file_len += len;
     }
 
     k12->num_of_records++;
@@ -1290,13 +1306,33 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 
     if (! wtap_dump_file_write(wdh, k12_eof, 2, err))
         return FALSE;
+    k12->file_len += 2;
 
-    if (wtap_dump_file_seek(wdh, 8, SEEK_SET, err) == -1)
+    if (wtap_dump_file_seek(wdh, K12_FILE_HDR_FILE_SIZE, SEEK_SET, err) == -1)
         return FALSE;
 
     d.u = g_htonl(k12->file_len);
 
     if (! wtap_dump_file_write(wdh, d.b, 4, err))
+        return FALSE;
+
+    if (wtap_dump_file_seek(wdh, K12_FILE_HDR_PAGE_SIZE, SEEK_SET, err) == -1)
+        return FALSE;
+
+    d.u = g_htonl(8192);
+
+    if (! wtap_dump_file_write(wdh, d.b, 4, err))
+        return FALSE;
+
+    if (wtap_dump_file_seek(wdh, K12_FILE_HDR_RECORD_COUNT_1, SEEK_SET, err) == -1)
+        return FALSE;
+
+    d.u = g_htonl(k12->num_of_records);
+
+    if (! wtap_dump_file_write(wdh, d.b, 4, err))
+        return FALSE;
+
+    if (wtap_dump_file_seek(wdh, K12_FILE_HDR_RECORD_COUNT_2, SEEK_SET, err) == -1)
         return FALSE;
 
     d.u = g_htonl(k12->num_of_records);
