@@ -608,7 +608,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 			      packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const char *saved_proto;
-	int         ret;
+	int         len;
 
 	saved_proto = pinfo->current_proto;
 
@@ -619,26 +619,26 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 
 	if (handle->is_new) {
 		EP_CHECK_CANARY(("before calling handle->dissector.new_d for %s",handle->name));
-		ret = (*handle->dissector.new_d)(tvb, pinfo, tree, data);
+		len = (*handle->dissector.new_d)(tvb, pinfo, tree, data);
 		EP_CHECK_CANARY(("after calling handle->dissector.new_d for %s",handle->name));
 	} else {
 		EP_CHECK_CANARY(("before calling handle->dissector.old for %s",handle->name));
 		(*handle->dissector.old)(tvb, pinfo, tree);
 		EP_CHECK_CANARY(("after calling handle->dissector.old for %s",handle->name));
-		ret = tvb_length(tvb);
-		if (ret == 0) {
+		len = tvb_length(tvb);
+		if (len == 0) {
 			/*
 			 * XXX - a tvbuff can have 0 bytes of data in
 			 * it, so we have to make sure we don't return
 			 * 0.
 			 */
-			ret = 1;
+			len = 1;
 		}
 	}
 
 	pinfo->current_proto = saved_proto;
 
-	return ret;
+	return len;
 }
 
 /*
@@ -661,7 +661,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
  	packet_info *pinfo = pinfo_arg;
 	const char  *saved_proto;
 	guint16      saved_can_desegment;
-	int          ret;
+	int          len;
 	guint        saved_layers_len = 0;
 
 	if (handle->protocol != NULL &&
@@ -705,14 +705,14 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	}
 
 	if (pinfo->flags.in_error_pkt) {
-		ret = call_dissector_work_error(handle, tvb, pinfo, tree, data);
+		len = call_dissector_work_error(handle, tvb, pinfo, tree, data);
 	} else {
 		/*
  		 * Just call the subdissector.
  		 */
-		ret = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
+		len = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
 	}
-	if (ret == 0) {
+	if (len == 0) {
 		/*
  		 * That dissector didn't accept the packet, so
  		 * remove its protocol's name from the list
@@ -724,7 +724,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
  	}
  	pinfo->current_proto = saved_proto;
  	pinfo->can_desegment = saved_can_desegment;
- 	return ret;
+	return len;
 }
 
 
@@ -735,7 +735,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	packet_info  *pinfo = pinfo_arg;
 	const char   *saved_proto;
 	guint16       saved_can_desegment;
-	volatile int  ret = 0;
+	volatile int  len = 0;
 	gboolean      save_writable;
 	address       save_dl_src;
 	address       save_dl_dst;
@@ -775,7 +775,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 
 	/* Dissect the contained packet. */
 	TRY {
-		ret = call_dissector_through_handle(handle, tvb,pinfo, tree, data);
+		len = call_dissector_through_handle(handle, tvb,pinfo, tree, data);
 	}
 	CATCH(BoundsError) {
 		/*
@@ -819,7 +819,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		* the data in some tvbuff, so we'll assume that
 		* the entire tvbuff was dissected.
 		*/
-		ret = tvb_length(tvb);
+		len = tvb_length(tvb);
 	}
 	ENDTRY;
 
@@ -831,7 +831,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	pinfo->src     = save_src;
 	pinfo->dst     = save_dst;
 	pinfo->want_pdu_tracking = 0;
-	return ret;
+	return len;
 }
 
 /*
@@ -1382,8 +1382,8 @@ dissector_reset_string(const char *name, const gchar *pattern)
 }
 
 /* Look for a given string in a given dissector table and, if found, call
-   the dissector with the arguments supplied, and return TRUE, otherwise
-   return FALSE. */
+   the dissector with the arguments supplied, and return length of dissected data,
+   otherwise return 0. */
 int
 dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
