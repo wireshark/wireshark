@@ -653,6 +653,12 @@ linux*)
 	    [enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;],
 	    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211_CMD_SET_CHANNEL, 1, [SET_CHANNEL is supported])],
 	    [AC_MSG_RESULT(no)])
+
+	AC_MSG_CHECKING([for NL80211_SPLIT_WIPHY_DUMP])
+	  AC_TRY_COMPILE([#include <linux/nl80211.h>],
+	    [enum nl80211_protocol_features x = NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP;],
+	    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211_SPLIT_WIPHY_DUMP, 1, [SPLIT_WIPHY_DUMP is supported])],
+	    [AC_MSG_RESULT(no)])
 	;;
 
 *)

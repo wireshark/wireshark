@@ -47,6 +47,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include <linux/nl80211.h>
 
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+static int ws80211_get_protocol_features(int* features);
+#endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
+
 /* libnl 1.x compatibility code */
 #ifdef HAVE_LIBNL1
 #define nl_sock nl_handle
@@ -64,6 +68,7 @@ static inline void nl_socket_free(struct nl_sock *h)
 struct nl80211_state {
 	struct nl_sock *nl_sock;
 	int nl80211_id;
+	int have_split_wiphy;
 };
 
 static struct nl80211_state nl_state;
@@ -71,6 +76,9 @@ static struct nl80211_state nl_state;
 int ws80211_init(void)
 {
 	int err;
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+	int features = 0;
+#endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
 	struct nl80211_state *state = &nl_state;
 
@@ -92,6 +100,11 @@ int ws80211_init(void)
 		err = -ENOENT;
 		goto out_handle_destroy;
 	}
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+	ws80211_get_protocol_features(&features);
+	if (features & NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP)
+		state->have_split_wiphy = TRUE;
+#endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
 	return 0;
 
@@ -154,6 +167,21 @@ struct nliface_cookie
 	GArray *interfaces;
 };
 
+static struct ws80211_interface *
+	get_interface_by_name(GArray *interfaces,
+			      char* ifname)
+{
+	unsigned int i;
+	struct ws80211_interface *iface;
+
+	for (i = 0; i < interfaces->len; i++) {
+		iface = g_array_index(interfaces, struct ws80211_interface *, i);
+		if (!strcmp(iface->ifname, ifname))
+			return iface;
+	}
+	return NULL;
+}
+
 /*
  * And now for a steaming heap of suck.
  *
@@ -175,6 +203,43 @@ struct nliface_cookie
 #define nla_for_each_nested(pos, nla, rem) \
 	nla_for_each_attr(pos, (struct nlattr *)nla_data(nla), nla_len(nla), rem)
 
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+static int get_features_handler(struct nl_msg *msg, void *arg)
+{
+	int *feat = (int*) arg;
+	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
+	struct genlmsghdr *gnlh = (struct genlmsghdr *)nlmsg_data(nlmsg_hdr(msg));
+
+	nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
+		  genlmsg_attrlen(gnlh, 0), NULL);
+
+	if (tb_msg[NL80211_ATTR_PROTOCOL_FEATURES])
+		*feat = nla_get_u32(tb_msg[NL80211_ATTR_PROTOCOL_FEATURES]);
+
+	return NL_SKIP;
+}
+
+static int ws80211_get_protocol_features(int* features)
+{
+	struct nl_msg *msg;
+	struct nl_cb *cb;
+
+	msg = nlmsg_alloc();
+	if (!msg) {
+		fprintf(stderr, "failed to allocate netlink message\n");
+		return 2;
+	}
+
+	cb = nl_cb_alloc(NL_CB_DEFAULT);
+
+	genlmsg_put(msg, 0, 0, nl_state.nl80211_id, 0, 0,
+		    NL80211_CMD_GET_PROTOCOL_FEATURES, 0);
+
+	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_features_handler, features);
+
+	return nl80211_do_cmd(msg, cb);
+}
+#endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
 #ifdef NL80211_BAND_ATTR_HT_CAPA
 static void parse_band_ht_capa(struct ws80211_interface *iface,
@@ -193,20 +258,18 @@ static void parse_band_ht_capa(struct ws80211_interface *iface,
 }
 #endif /* NL80211_BAND_ATTR_HT_CAPA */
 
-static int parse_supported_iftypes(struct nlattr *tb)
+static void parse_supported_iftypes(struct ws80211_interface *iface,
+				    struct nlattr *tb)
 {
 	struct nlattr *nl_mode;
 	int rem_mode;
-	int cap_monitor = 0;
 
-	if (!tb) return 0;
+	if (!tb) return;
 
 	nla_for_each_nested(nl_mode, tb, rem_mode) {
 		if (nla_type(nl_mode) == NL80211_IFTYPE_MONITOR)
-			cap_monitor = 1;
+			iface->cap_monitor = 1;
 	}
-
-	return cap_monitor;
 }
 
 static void parse_band_freqs(struct ws80211_interface *iface,
@@ -291,40 +354,43 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 	struct genlmsghdr *gnlh = (struct genlmsghdr *)nlmsg_data(nlmsg_hdr(msg));
 
 	struct nliface_cookie *cookie = (struct nliface_cookie *)arg;
+
 	struct ws80211_interface *iface;
-	int cap_monitor = 0;
+	char* ifname;
+	int added = 0;
 
 	nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
 		  genlmsg_attrlen(gnlh, 0), NULL);
 
-	if (!tb_msg[NL80211_ATTR_WIPHY_BANDS])
+	if (!tb_msg[NL80211_ATTR_WIPHY_NAME])
 		return NL_SKIP;
 
-	cap_monitor = parse_supported_iftypes(tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES]);
+	ifname = g_strdup_printf("%s.mon", nla_get_string(tb_msg[NL80211_ATTR_WIPHY_NAME]));
+	iface = get_interface_by_name(cookie->interfaces, ifname);
 
-	if (!cap_monitor)
-		return NL_SKIP;
-
-	iface = (struct ws80211_interface *)g_malloc0(sizeof(*iface));
-	if (!iface)
-		return NL_SKIP;
-
-	iface->frequencies = g_array_new(FALSE, FALSE, sizeof(int));
-	iface->channel_types = 1 << WS80211_CHAN_NO_HT;
-
-	if (tb_msg[NL80211_ATTR_WIPHY_NAME]) {
-		iface->ifname = g_strdup_printf("%s.mon",
-                nla_get_string(tb_msg[NL80211_ATTR_WIPHY_NAME]));
+	if (!iface) {
+		iface = (struct ws80211_interface *)g_malloc0(sizeof(*iface));
+		if (!iface) {
+			g_free(ifname);
+			return NL_SKIP;
+		}
+		added = 1;
+		iface->ifname = ifname;
+		iface->frequencies = g_array_new(FALSE, FALSE, sizeof(int));
+		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
+	} else {
+		g_free(ifname);
 	}
 
+	parse_supported_iftypes(iface, tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES]);
 	parse_wiphy_bands(iface, tb_msg[NL80211_ATTR_WIPHY_BANDS]);
 	parse_supported_commands(iface, tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS]);
 
-	g_array_append_val(cookie->interfaces, iface);
+	if (added)
+		g_array_append_val(cookie->interfaces, iface);
 
 	return NL_SKIP;
 }
-
 
 static int ws80211_get_phys(GArray *interfaces)
 {
@@ -344,10 +410,20 @@ static int ws80211_get_phys(GArray *interfaces)
 	genlmsg_put(msg, 0, 0, nl_state.nl80211_id, 0,
 		    NLM_F_DUMP, NL80211_CMD_GET_WIPHY, 0);
 
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+	if (nl_state.have_split_wiphy) {
+		NLA_PUT_FLAG(msg, NL80211_ATTR_SPLIT_WIPHY_DUMP);
+	}
+#endif /* #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP */
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_phys_handler, &cookie);
 
 	return nl80211_do_cmd(msg, cb);
 
+#ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
+nla_put_failure:
+	fprintf(stderr, "building message failed\n");
+	return -1;
+#endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 }
 
 static int get_freq_wext(const char *ifname)
@@ -478,6 +554,24 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
 	return __ws80211_get_iface_info(name, &__iface_info);
 }
 
+static int ws80211_keep_only_monitor(GArray *interfaces)
+{
+	unsigned int j;
+	struct ws80211_interface *iface;
+restart:
+	for (j = 0; j < interfaces->len; j++) {
+		iface = g_array_index(interfaces, struct ws80211_interface *, j);
+		if (!iface->cap_monitor) {
+			g_array_remove_index(interfaces, j);
+			g_array_free(iface->frequencies, TRUE);
+			g_free(iface->ifname);
+			g_free(iface);
+			goto restart;
+		}
+	}
+	return 0;
+}
+
 static int ws80211_populate_devices(GArray *interfaces)
 {
 	FILE *fh;
@@ -494,6 +588,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 
 	/* Get a list of phy's that can handle monitor mode */
 	ws80211_get_phys(interfaces);
+	ws80211_keep_only_monitor(interfaces);
 
 	fh = g_fopen("/proc/net/dev", "r");
 	if(!fh) {

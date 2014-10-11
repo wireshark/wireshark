@@ -41,6 +41,7 @@ struct ws80211_interface
 	gboolean can_set_freq;
 	GArray *frequencies;
 	int channel_types; /* Union for all bands */
+	int cap_monitor;
 };
 
 struct ws80211_iface_info {
