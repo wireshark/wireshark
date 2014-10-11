@@ -175,15 +175,44 @@ struct nliface_cookie
 #define nla_for_each_nested(pos, nla, rem) \
 	nla_for_each_attr(pos, (struct nlattr *)nla_data(nla), nla_len(nla), rem)
 
-static int get_phys_handler(struct nl_msg *msg, void *arg)
+
+#ifdef NL80211_BAND_ATTR_HT_CAPA
+static void parse_band_ht_capa(struct ws80211_interface *iface,
+			       struct nlattr *tb)
 {
-	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
-	struct genlmsghdr *gnlh = (struct genlmsghdr *)nlmsg_data(nlmsg_hdr(msg));
+	gboolean ht40;
 
-	struct nliface_cookie *cookie = (struct nliface_cookie *)arg;
+	if (!tb) return;
 
-	struct nlattr *tb_band[NL80211_BAND_ATTR_MAX + 1];
+	iface->channel_types |= 1 << WS80211_CHAN_HT20;
+	ht40 = !!(nla_get_u16(tb) & 0x02);
+	if (ht40) {
+		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+	}
+}
+#endif /* NL80211_BAND_ATTR_HT_CAPA */
 
+static int parse_supported_iftypes(struct nlattr *tb)
+{
+	struct nlattr *nl_mode;
+	int rem_mode;
+	int cap_monitor = 0;
+
+	if (!tb) return 0;
+
+	nla_for_each_nested(nl_mode, tb, rem_mode) {
+		if (nla_type(nl_mode) == NL80211_IFTYPE_MONITOR)
+			cap_monitor = 1;
+	}
+
+	return cap_monitor;
+}
+
+static void parse_band_freqs(struct ws80211_interface *iface,
+			     struct nlattr *tb)
+{
+	struct nlattr *nl_freq;
 	struct nlattr *tb_freq[NL80211_FREQUENCY_ATTR_MAX + 1];
 	static struct nla_policy freq_policy[NL80211_FREQUENCY_ATTR_MAX + 1] = {
 		{NLA_UNSPEC, 0, 0},		/* __NL80211_FREQUENCY_ATTR_INVALID */
@@ -194,12 +223,74 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		{NLA_FLAG, 0, 0},		/* NL80211_FREQUENCY_ATTR_RADAR */
 		{NLA_U32, 0, 0}			/* NL80211_FREQUENCY_ATTR_MAX_TX_POWER */
 	};
+	int rem_freq;
 
+	if (!tb) return;
+
+	nla_for_each_nested(nl_freq, tb, rem_freq) {
+		uint32_t freq;
+		nla_parse(tb_freq, NL80211_FREQUENCY_ATTR_MAX,
+			  (struct nlattr *)nla_data(nl_freq),
+			  nla_len(nl_freq), freq_policy);
+		if (!tb_freq[NL80211_FREQUENCY_ATTR_FREQ])
+			continue;
+		if (tb_freq[NL80211_FREQUENCY_ATTR_DISABLED])
+			continue;
+
+		freq = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_FREQ]);
+		g_array_append_val(iface->frequencies, freq);
+	}
+}
+
+static void parse_wiphy_bands(struct ws80211_interface *iface,
+			     struct nlattr *tb)
+{
 	struct nlattr *nl_band;
-	struct nlattr *nl_freq;
-	struct nlattr *nl_mode;
+	struct nlattr *tb_band[NL80211_BAND_ATTR_MAX + 1];
 	int bandidx = 1;
-	int rem_band, rem_freq, rem_mode;
+	int rem_band;
+
+	if (!tb) return;
+
+	nla_for_each_nested(nl_band, tb, rem_band) {
+		bandidx++;
+
+		nla_parse(tb_band, NL80211_BAND_ATTR_MAX,
+			  (struct nlattr *)nla_data(nl_band),
+			  nla_len(nl_band), NULL);
+
+#ifdef NL80211_BAND_ATTR_HT_CAPA
+		parse_band_ht_capa(iface, tb_band[NL80211_BAND_ATTR_HT_CAPA]);
+#endif /* NL80211_BAND_ATTR_HT_CAPA */
+		parse_band_freqs(iface, tb_band[NL80211_BAND_ATTR_FREQS]);
+	}
+}
+
+static void parse_supported_commands(struct ws80211_interface *iface,
+				     struct nlattr *tb)
+{
+	/* Can frequency be set? Only newer versions of cfg80211 supports this */
+#ifdef HAVE_NL80211_CMD_SET_CHANNEL
+	int cmd;
+	struct nlattr *nl_cmd;
+
+	if (!tb) return;
+
+	nla_for_each_nested(nl_cmd, tb, cmd) {
+		if(nla_get_u32(nl_cmd) == NL80211_CMD_SET_CHANNEL)
+			iface->can_set_freq = TRUE;
+	}
+#else
+	iface->can_set_freq = TRUE;
+#endif
+}
+
+static int get_phys_handler(struct nl_msg *msg, void *arg)
+{
+	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
+	struct genlmsghdr *gnlh = (struct genlmsghdr *)nlmsg_data(nlmsg_hdr(msg));
+
+	struct nliface_cookie *cookie = (struct nliface_cookie *)arg;
 	struct ws80211_interface *iface;
 	int cap_monitor = 0;
 
@@ -209,12 +300,8 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 	if (!tb_msg[NL80211_ATTR_WIPHY_BANDS])
 		return NL_SKIP;
 
-	if (tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES]) {
-		nla_for_each_nested(nl_mode, tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES], rem_mode) {
-			if (nla_type(nl_mode) == NL80211_IFTYPE_MONITOR)
-				cap_monitor = 1;
-		}
-	}
+	cap_monitor = parse_supported_iftypes(tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES]);
+
 	if (!cap_monitor)
 		return NL_SKIP;
 
@@ -230,53 +317,9 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
                 nla_get_string(tb_msg[NL80211_ATTR_WIPHY_NAME]));
 	}
 
-	nla_for_each_nested(nl_band, tb_msg[NL80211_ATTR_WIPHY_BANDS], rem_band) {
-		bandidx++;
+	parse_wiphy_bands(iface, tb_msg[NL80211_ATTR_WIPHY_BANDS]);
+	parse_supported_commands(iface, tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS]);
 
-		nla_parse(tb_band, NL80211_BAND_ATTR_MAX,
-			  (struct nlattr *)nla_data(nl_band),
-			  nla_len(nl_band), NULL);
-
-#ifdef NL80211_BAND_ATTR_HT_CAPA
-		if (tb_band[NL80211_BAND_ATTR_HT_CAPA]) {
-			gboolean ht40;
-			iface->channel_types |= 1 << WS80211_CHAN_HT20;
-			ht40 = !!(nla_get_u16(tb_band[NL80211_BAND_ATTR_HT_CAPA]) & 0x02);
-			if (ht40) {
-				iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
-				iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
-			}
-		}
-#endif /* NL80211_BAND_ATTR_HT_CAPA */
-
-		nla_for_each_nested(nl_freq, tb_band[NL80211_BAND_ATTR_FREQS], rem_freq) {
-			uint32_t freq;
-			nla_parse(tb_freq, NL80211_FREQUENCY_ATTR_MAX,
-				  (struct nlattr *)nla_data(nl_freq),
-				  nla_len(nl_freq), freq_policy);
-			if (!tb_freq[NL80211_FREQUENCY_ATTR_FREQ])
-				continue;
-			if (tb_freq[NL80211_FREQUENCY_ATTR_DISABLED])
-				continue;
-
-			freq = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_FREQ]);
-			g_array_append_val(iface->frequencies, freq);
-		}
-	}
-
-	/* Can frequency be set? Only newer versions of cfg80211 supports this */
-#ifdef HAVE_NL80211_CMD_SET_CHANNEL
-	if (tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS]) {
-		int cmd;
-		struct nlattr *nl_cmd;
-		nla_for_each_nested(nl_cmd, tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS], cmd) {
-			if(nla_get_u32(nl_cmd) == NL80211_CMD_SET_CHANNEL)
-				iface->can_set_freq = TRUE;
-		}
-	}
-#else
-	iface->can_set_freq = TRUE;
-#endif
 	g_array_append_val(cookie->interfaces, iface);
 
 	return NL_SKIP;
