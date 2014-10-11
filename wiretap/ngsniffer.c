@@ -532,9 +532,11 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
     unsigned char * outbuf, size_t outlen, int *err, gchar **err_info );
-static gint64 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth,
+static gboolean ng_read_bytes_or_eof(wtap *wth, void *buffer,
+    unsigned int nbytes, gboolean is_random, int *err, gchar **err_info);
+static gboolean ng_read_bytes(wtap *wth, void *buffer, unsigned int nbytes,
     gboolean is_random, int *err, gchar **err_info);
-static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
+static gboolean read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err, gchar **err_info);
 static gboolean ng_file_skip_seq(wtap *wth, gint64 delta, int *err,
     gchar **err_info);
@@ -1128,7 +1130,6 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	ngsniffer_t *ngsniffer;
-	gint64	bytes_read;
 	char	record_type[2];
 	char	record_length[4]; /* only 1st 2 bytes are length */
 	guint16	type, length;
@@ -1142,24 +1143,13 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	/*
 	 * Read the record header.
 	 */
-	bytes_read = ng_file_read(record_type, 2, wth, is_random, err,
-	    err_info);
-	if (bytes_read != 2) {
+	if (!ng_read_bytes_or_eof(wth, record_type, 2, is_random, err, err_info)) {
 		if (*err != 0)
 			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
 		return REC_EOF;
 	}
-	bytes_read = ng_file_read(record_length, 4, wth, is_random, err,
-	    err_info);
-	if (bytes_read != 4) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!ng_read_bytes(wth, record_length, 4, is_random, err, err_info))
 		return -1;
-	}
 
 	type = pletoh16(record_type);
 	length = pletoh16(record_length);
@@ -1179,13 +1169,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		}
 
 		/* Read the f_frame2_struct */
-		bytes_read = ng_file_read(&frame2, (unsigned int)sizeof frame2,
-		   wth, is_random, err, err_info);
-		if (bytes_read != sizeof frame2) {
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!ng_read_bytes(wth, &frame2, (unsigned int)sizeof frame2,
+		   is_random, err, err_info))
 			return -1;
-		}
 		time_low = pletoh16(&frame2.time_low);
 		time_med = pletoh16(&frame2.time_med);
 		time_high = frame2.time_high;
@@ -1210,13 +1196,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		}
 
 		/* Read the f_frame4_struct */
-		bytes_read = ng_file_read(&frame4, (unsigned int)sizeof frame4,
-		    wth, is_random, err, err_info);
-		if (bytes_read != sizeof frame4) {
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!ng_read_bytes(wth, &frame4, (unsigned int)sizeof frame4,
+		    is_random, err, err_info))
 			return -1;
-		}
 		time_low = pletoh16(&frame4.time_low);
 		time_med = pletoh16(&frame4.time_med);
 		time_high = frame4.time_high;
@@ -1243,13 +1225,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 	case REC_FRAME6:
 		/* Read the f_frame6_struct */
-		bytes_read = ng_file_read(&frame6, (unsigned int)sizeof frame6,
-		    wth, is_random, err, err_info);
-		if (bytes_read != sizeof frame6) {
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
+		if (!ng_read_bytes(wth, &frame6, (unsigned int)sizeof frame6,
+		    is_random, err, err_info))
 			return -1;
-		}
 		time_low = pletoh16(&frame6.time_low);
 		time_med = pletoh16(&frame6.time_med);
 		time_high = frame6.time_high;
@@ -1316,13 +1294,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	 * Read the packet data.
 	 */
 	ws_buffer_assure_space(buf, size);
-	bytes_read = ng_file_read(ws_buffer_start_ptr(buf), size, wth,
-	    is_random, err, err_info);
-	if (bytes_read != (gint64) size) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
+	if (!ng_read_bytes(wth, ws_buffer_start_ptr(buf), size, is_random,
+	    err, err_info))
 		return -1;
-	}
 
 	phdr->pkt_encap = fix_pseudo_header(wth->file_encap,
 	    buf, length, &phdr->pseudo_header);
@@ -2402,14 +2376,13 @@ typedef struct {
 	gint64	blob_uncomp_offset;
 } blob_info_t;
 
-static gint64
-ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
-	     int *err, gchar **err_info)
+static gboolean
+ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_random,
+    int *err, gchar **err_info)
 {
 	ngsniffer_t *ngsniffer;
 	FILE_T infile;
 	ngsniffer_comp_stream_t *comp_stream;
-	unsigned int copybytes = nbytes;					/* bytes left to be copied */
 	gint64 copied_bytes = 0;							/* bytes already copied */
 	unsigned char *outbuffer = (unsigned char *)buffer; /* where to write next decompressed data */
 	blob_info_t *blob;
@@ -2426,14 +2399,11 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 	}
 
 	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
-		copied_bytes = file_read(buffer, copybytes, infile);
-		if ((unsigned int) copied_bytes != copybytes)
-			*err = file_error(infile, err_info);
-		if (copied_bytes != -1) {
-			comp_stream->uncomp_offset += copied_bytes;
-			comp_stream->comp_offset += copied_bytes;
-		}
-		return copied_bytes;
+		if (!wtap_read_bytes_or_eof(infile, buffer, nbytes, err, err_info))
+			return FALSE;
+		comp_stream->uncomp_offset += nbytes;
+		comp_stream->comp_offset += nbytes;
+		return TRUE;
 	}
 
 	/* Allocate the stream buffer if it hasn't already been allocated. */
@@ -2463,10 +2433,10 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 		}
 
 		/* Now read the first blob into the buffer. */
-		if (read_blob(infile, comp_stream, err, err_info) < 0)
-			return -1;
+		if (!read_blob(infile, comp_stream, err, err_info))
+			return FALSE;
 	}
-	while (copybytes > 0) {
+	while (nbytes > 0) {
 		bytes_left = comp_stream->nbytes - comp_stream->nextout;
 		if (bytes_left == 0) {
 			/* There's no decompressed stuff left to copy from the current
@@ -2481,7 +2451,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 					 * blob for every byte in the file.
 					 */
 					*err = WTAP_ERR_CANT_SEEK;
-					return -1;
+					return FALSE;
 				}
 			} else {
 				/* If we also have a random stream open, add a new element,
@@ -2498,33 +2468,48 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 				}
 			}
 
-			if (read_blob(infile, comp_stream, err, err_info) < 0)
-				return -1;
+			if (!read_blob(infile, comp_stream, err, err_info))
+				return FALSE;
 			bytes_left = comp_stream->nbytes - comp_stream->nextout;
 		}
 
-		bytes_to_copy = copybytes;
+		bytes_to_copy = nbytes;
 		if (bytes_to_copy > bytes_left)
 			bytes_to_copy = bytes_left;
 		memcpy(outbuffer, &comp_stream->buf[comp_stream->nextout],
 		       bytes_to_copy);
-		copybytes -= bytes_to_copy;
+		nbytes -= bytes_to_copy;
 		copied_bytes += bytes_to_copy;
 		outbuffer += bytes_to_copy;
 		comp_stream->nextout += bytes_to_copy;
 		comp_stream->uncomp_offset += bytes_to_copy;
 	}
-	return copied_bytes;
+	return TRUE;
+}
+
+static gboolean
+ng_read_bytes(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_random,
+    int *err, gchar **err_info)
+{
+	if (!ng_read_bytes_or_eof(wth, buffer, nbytes, is_random, err, err_info)) {
+		/*
+		 * In this case, even reading zero bytes, because we're at
+		 * the end of the file, is a short read.
+		 */
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	return TRUE;
 }
 
 /* Read a blob from a compressed stream.
-   Return -1 and set "*err" and "*err_info" on error, otherwise return 0. */
-static int
+   Return FALSE and set "*err" and "*err_info" on error, otherwise return TRUE. */
+static gboolean
 read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	  gchar **err_info)
 {
 	int in_len;
-	size_t read_len;
 	unsigned short blob_len;
 	gint16 blob_len_host;
 	gboolean uncompressed;
@@ -2532,11 +2517,8 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	int out_len;
 
 	/* Read one 16-bit word which is length of next compressed blob */
-	read_len = file_read(&blob_len, 2, infile);
-	if (2 != read_len) {
-		*err = file_error(infile, err_info);
-		return -1;
-	}
+	if (!wtap_read_bytes_or_eof(infile, &blob_len, 2, err, err_info))
+		return FALSE;
 	comp_stream->comp_offset += 2;
 	blob_len_host = pletoh16(&blob_len);
 
@@ -2553,11 +2535,9 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	file_inbuf = (unsigned char *)g_malloc(INBUF_SIZE);
 
 	/* Read the blob */
-	read_len = file_read(file_inbuf, in_len, infile);
-	if ((size_t) in_len != read_len) {
-		*err = file_error(infile, err_info);
+	if (!wtap_read_bytes(infile, file_inbuf, in_len, err, err_info)) {
 		g_free(file_inbuf);
-		return -1;
+		return FALSE;
 	}
 	comp_stream->comp_offset += in_len;
 
@@ -2571,14 +2551,14 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 					    err_info);
 		if (out_len < 0) {
 			g_free(file_inbuf);
-			return -1;
+			return FALSE;
 		}
 	}
 
 	g_free(file_inbuf);
 	comp_stream->nextout = 0;
 	comp_stream->nbytes = out_len;
-	return 0;
+	return TRUE;
 }
 
 /* Skip some number of bytes forward in the sequential stream. */
@@ -2606,7 +2586,7 @@ ng_file_skip_seq(wtap *wth, gint64 delta, int *err, gchar **err_info)
 		else
 			amount_to_read = (unsigned int) delta;
 
-		if (ng_file_read(buf, amount_to_read, wth, FALSE, err, err_info) < 0) {
+		if (!ng_read_bytes(wth, buf, amount_to_read, FALSE, err, err_info)) {
 			g_free(buf);
 			return FALSE;	/* error */
 		}
@@ -2754,7 +2734,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 		ngsniffer->rand.comp_offset = new_blob->blob_comp_offset;
 
 		/* Now fill the buffer. */
-		if (read_blob(wth->random_fh, &ngsniffer->rand, err, err_info) < 0)
+		if (!read_blob(wth->random_fh, &ngsniffer->rand, err, err_info))
 			return FALSE;
 
 		/* Set "delta" to the amount to move within this blob; it had
