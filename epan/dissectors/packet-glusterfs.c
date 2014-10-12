@@ -426,7 +426,7 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		accmode_hf = proto_registrar_get_nth(hf_glusterfs_flags_accmode);
 		accmode = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_uint_format_value(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode,
-		                                 "%s", val_to_str_const((accmode & accmode_hf->bitmask), glusterfs_accmode_vals, "Unknown"));
+		                                 "%s", val_to_str_const((accmode & (guint32)(accmode_hf->bitmask)), glusterfs_accmode_vals, "Unknown"));
 		if ((accmode & accmode_hf->bitmask) == accmode_hf->bitmask)
 			proto_item_append_text(flag_tree, ", %s", proto_registrar_get_nth(hf_glusterfs_flags_accmode)->name);
 	}
@@ -464,10 +464,8 @@ glusterfs_rpc_dissect_statfs(proto_tree *tree, tvbuff_t *tvb, int offset)
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_favail, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_id, offset);
 
-	/* hf_glusterfs_mnt_flags should be FT_UINT64, but that does not work
-	 * with bitmasks, only the lower 32 bits are used anyway. */
 	if (tree)
-		proto_tree_add_bitmask(tree, tvb, offset + 4,
+		proto_tree_add_bitmask(tree, tvb, offset,
 			hf_glusterfs_mnt_flags, ett_glusterfs_mnt_flags,
 			flag_bits, ENC_BIG_ENDIAN);
 	offset += 8;
@@ -2510,69 +2508,69 @@ proto_register_glusterfs(void)
 				BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flags,
-			{ "Mount flags", "glusterfs.statfs.flags", FT_UINT32,
+			{ "Mount flags", "glusterfs.statfs.flags", FT_UINT64,
 				BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		/* ST_* flags from /usr/include/bits/statvfs.h */
 		{ &hf_glusterfs_mnt_flag_rdonly,
 			{ "ST_RDONLY", "glusterfs.statfs.flag.rdonly",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 1, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 1, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_nosuid,
 			{ "ST_NOSUID", "glusterfs.statfs.flag.nosuid",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 2, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 2, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_nodev,
 			{ "ST_NODEV", "glusterfs.statfs.flag.nodev",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 4, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 4, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_noexec,
 			{ "ST_EXEC", "glusterfs.statfs.flag.noexec",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 8, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 8, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_synchronous,
 			{ "ST_SYNCHRONOUS",
 				"glusterfs.statfs.flag.synchronous",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 16, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 16, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_mandlock,
 			{ "ST_MANDLOCK", "glusterfs.statfs.flag.mandlock",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 64, NULL,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 64, NULL,
 				HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_write,
 			{ "ST_WRITE", "glusterfs.statfs.flag.write",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 128,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 128,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_append,
 			{ "ST_APPEND", "glusterfs.statfs.flag.append",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 256,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 256,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_immutable,
 			{ "ST_IMMUTABLE", "glusterfs.statfs.flag.immutable",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 512,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 512,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_noatime,
 			{ "ST_NOATIME", "glusterfs.statfs.flag.noatime",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 1024,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 1024,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_nodiratime,
 			{ "ST_NODIRATIME", "glusterfs.statfs.flag.nodiratime",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 2048,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 2048,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_mnt_flag_relatime,
 			{ "ST_RELATIME", "glusterfs.statfs.flag.relatime",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 4096,
+				FT_BOOLEAN, 64, TFS(&tfs_set_notset), 4096,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_namemax,
