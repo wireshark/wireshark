@@ -59,3 +59,16 @@ cap_file_init(capture_file *cf)
   memset(cf, 0, sizeof(capture_file));
   cf->snap            = WTAP_MAX_PACKET_SIZE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

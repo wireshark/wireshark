@@ -67,7 +67,7 @@
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {
-  gchar		*name;
+  gchar         *name;
 } rb_file;
 
 /* Ringbuffer data structure */
@@ -79,7 +79,7 @@ typedef struct _ringbuf_data {
   gchar        *fsuffix;             /* Filename suffix */
   gboolean      unlimited;           /* TRUE if unlimited number of files */
 
-  int           fd;		     /* Current ringbuffer file descriptor */
+  int           fd;                  /* Current ringbuffer file descriptor */
   FILE         *pdh;
   gboolean      group_read_access;   /* TRUE if files need to be opened with group read access */
 } ringbuf_data;
@@ -112,7 +112,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   g_snprintf(filenum, sizeof(filenum), "%05u", (rb_data.curr_file_num + 1) % RINGBUFFER_MAX_NUM_FILES);
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
-			    rb_data.fsuffix, NULL);
+                            rb_data.fsuffix, NULL);
 
   if (rfile->name == NULL) {
     if (err != NULL)
@@ -253,8 +253,8 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
     if (err != NULL) {
       *err = errno;
     }
-    ws_close(rb_data.fd);	/* XXX - the above should have closed this already */
-    rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
+    ws_close(rb_data.fd);  /* XXX - the above should have closed this already */
+    rb_data.pdh = NULL;    /* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
     return FALSE;
   }
@@ -321,8 +321,8 @@ ringbuf_free(void)
   if (rb_data.files != NULL) {
     for (i=0; i < rb_data.num_files; i++) {
       if (rb_data.files[i].name != NULL) {
-	g_free(rb_data.files[i].name);
-	rb_data.files[i].name = NULL;
+        g_free(rb_data.files[i].name);
+        rb_data.files[i].name = NULL;
       }
     }
     g_free(rb_data.files);
@@ -372,3 +372,16 @@ ringbuf_error_cleanup(void)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

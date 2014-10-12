@@ -92,20 +92,20 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-        {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
-        {(char *)"autostop", required_argument, NULL, 'a'}, \
-        {(char *)"ring-buffer", required_argument, NULL, 'b'}, \
-        LONGOPT_BUFFER_SIZE \
-        {(char *)"list-interfaces", no_argument, NULL, 'D'}, \
-        {(char *)"interface", required_argument, NULL, 'i'}, \
-        LONGOPT_MONITOR_MODE \
-        {(char *)"list-data-link-types", no_argument, NULL, 'L'}, \
-        {(char *)"no-promiscuous-mode", no_argument, NULL, 'p'}, \
-        {(char *)"snapshot-length", required_argument, NULL, 's'}, \
-        {(char *)"linktype", required_argument, NULL, 'y'},
+    {(char *)"capture-comment",      required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
+    {(char *)"autostop",             required_argument, NULL, 'a'}, \
+    {(char *)"ring-buffer",          required_argument, NULL, 'b'}, \
+    LONGOPT_BUFFER_SIZE \
+    {(char *)"list-interfaces",      no_argument,       NULL, 'D'}, \
+    {(char *)"interface",            required_argument, NULL, 'i'}, \
+    LONGOPT_MONITOR_MODE \
+    {(char *)"list-data-link-types", no_argument,       NULL, 'L'}, \
+    {(char *)"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
+    {(char *)"snapshot-length",      required_argument, NULL, 's'}, \
+    {(char *)"linktype",             required_argument, NULL, 'y'},
 
 #define OPTSTRING_CAPTURE_COMMON \
-     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
+    "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
 
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */
@@ -137,22 +137,22 @@ typedef enum {
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host_info {
-    gchar *remote_host;          /**< Host name or network address for remote capturing */
-    gchar *remote_port;          /**< TCP port of remote RPCAP server */
-    gint auth_type;              /**< Authentication type */
-    gchar *auth_username;        /**< Remote authentication parameters */
-    gchar *auth_password;        /**< Remote authentication parameters */
-    gboolean datatx_udp;
-    gboolean nocap_rpcap;
-    gboolean nocap_local;
+    gchar    *remote_host;      /**< Host name or network address for remote capturing */
+    gchar    *remote_port;      /**< TCP port of remote RPCAP server */
+    gint      auth_type;        /**< Authentication type */
+    gchar    *auth_username;    /**< Remote authentication parameters */
+    gchar    *auth_password;    /**< Remote authentication parameters */
+    gboolean  datatx_udp;
+    gboolean  nocap_rpcap;
+    gboolean  nocap_local;
 };
 
 struct remote_host {
-  gchar    *r_host;          /**< Host name or network address for remote capturing */
-  gchar    *remote_port;          /**< TCP port of remote RPCAP server */
-  gint      auth_type;            /**< Authentication type */
-  gchar    *auth_username;        /**< Remote authentication parameters */
-  gchar    *auth_password;        /**< Remote authentication parameters */
+    gchar    *r_host;           /**< Host name or network address for remote capturing */
+    gchar    *remote_port;      /**< TCP port of remote RPCAP server */
+    gint      auth_type;        /**< Authentication type */
+    gchar    *auth_username;    /**< Remote authentication parameters */
+    gchar    *auth_password;    /**< Remote authentication parameters */
 };
 
 typedef struct remote_options_tag {
@@ -166,38 +166,38 @@ typedef struct remote_options_tag {
 #endif /* HAVE_PCAP_REMOTE */
 
 typedef struct interface_tag {
-    gchar *name;
-    gchar *display_name;
-    gchar *friendly_name;
-    guint type;
-    gchar *addresses;
-    gint no_addresses;
-    gchar *cfilter;
-    GList *links;
-    gint active_dlt;
-    gboolean pmode;
-    gboolean has_snaplen;
-    guint snaplen;
-    gboolean local;
+    gchar          *name;
+    gchar          *display_name;
+    gchar          *friendly_name;
+    guint           type;
+    gchar          *addresses;
+    gint            no_addresses;
+    gchar          *cfilter;
+    GList          *links;
+    gint            active_dlt;
+    gboolean        pmode;
+    gboolean        has_snaplen;
+    guint           snaplen;
+    gboolean        local;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    gint buffer;
+    gint            buffer;
 #endif
 #ifdef HAVE_PCAP_CREATE
-    gboolean monitor_mode_enabled;
-    gboolean monitor_mode_supported;
+    gboolean        monitor_mode_enabled;
+    gboolean        monitor_mode_supported;
 #endif
 #ifdef HAVE_PCAP_REMOTE
-    remote_options remote_opts;
+    remote_options  remote_opts;
 #endif
-    guint32     last_packets;
-    guint32     packet_diff;
-    if_info_t   if_info;
-    gboolean    selected;
-    gboolean    hidden;
-    gboolean    locked;
+    guint32         last_packets;
+    guint32         packet_diff;
+    if_info_t       if_info;
+    gboolean        selected;
+    gboolean        hidden;
+    gboolean        locked;
 #ifdef HAVE_EXTCAP
     /* External capture cached data */
-    GHashTable *external_cap_args_settings;
+    GHashTable     *external_cap_args_settings;
 #endif
 } interface_t;
 
@@ -213,55 +213,55 @@ typedef struct link_row_tag {
 #endif
 
 typedef struct interface_options_tag {
-    gchar *name; /* the name of the interface provided to winpcap/libpcap to specify the interface */
-    gchar *descr;
-    gchar *console_display_name; /* the name displayed in the console, also the basis for autonamed pcap filenames */
-    gchar *cfilter;
-    gboolean has_snaplen;
-    int snaplen;
-    int linktype;
-    gboolean promisc_mode;
-    interface_type if_type;
+    gchar            *name;                 /* the name of the interface provided to winpcap/libpcap to specify the interface */
+    gchar            *descr;
+    gchar            *console_display_name; /* the name displayed in the console, also the basis for autonamed pcap filenames */
+    gchar            *cfilter;
+    gboolean          has_snaplen;
+    int               snaplen;
+    int               linktype;
+    gboolean          promisc_mode;
+    interface_type    if_type;
 #ifdef HAVE_EXTCAP
-    gchar *extcap;
-    gchar *extcap_fifo;
-    GHashTable *extcap_args;
-    GPid extcap_pid; /* pid of running process or INVALID_EXTCAP_PID */
-    guint extcap_child_watch;
+    gchar            *extcap;
+    gchar            *extcap_fifo;
+    GHashTable       *extcap_args;
+    GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
+    guint             extcap_child_watch;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    int buffer_size;
+    int               buffer_size;
 #endif
-    gboolean monitor_mode;
+    gboolean          monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
-    capture_source src_type;
-    gchar *remote_host;
-    gchar *remote_port;
-    capture_auth auth_type;
-    gchar *auth_username;
-    gchar *auth_password;
-    gboolean datatx_udp;
-    gboolean nocap_rpcap;
-    gboolean nocap_local;
+    capture_source    src_type;
+    gchar            *remote_host;
+    gchar            *remote_port;
+    capture_auth      auth_type;
+    gchar            *auth_username;
+    gchar            *auth_password;
+    gboolean          datatx_udp;
+    gboolean          nocap_rpcap;
+    gboolean          nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    capture_sampling sampling_method;
-    int sampling_param;
+    capture_sampling  sampling_method;
+    int               sampling_param;
 #endif
 } interface_options;
 
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    GArray   *ifaces;               /**< the interfaces to use for the
-                                         next capture, entries are of
-                                         type interface_options */
-    GArray   *all_ifaces;           /**< all interfaces, entries are
-                                         of type interface_t */
-    int      ifaces_err;            /**< if all_ifaces is null, the error
-                                         when it was fetched, if any */
-    gchar    *ifaces_err_info;      /**< error string for that error */
-    guint    num_selected;
+    GArray            *ifaces;                /**< the interfaces to use for the
+                                                   next capture, entries are of
+                                                   type interface_options */
+    GArray            *all_ifaces;            /**< all interfaces, entries are
+                                                   of type interface_t */
+    int                ifaces_err;            /**< if all_ifaces is null, the error
+                                                   when it was fetched, if any */
+    gchar             *ifaces_err_info;       /**< error string for that error */
+    guint              num_selected;
 
     /*
      * Options to be applied to all interfaces.
@@ -280,49 +280,49 @@ typedef struct capture_options_tag {
      *
      * These can be overridden per-interface.
      */
-    interface_options default_options;
+    interface_options  default_options;
 
-    gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
-    gchar    *save_file;            /**< the capture file name */
-    gboolean group_read_access;     /**< TRUE is group read permission needs to be set */
-    gboolean use_pcapng;            /**< TRUE if file format is pcapng */
+    gboolean           saving_to_file;        /**< TRUE if capture is writing to a file */
+    gchar             *save_file;             /**< the capture file name */
+    gboolean           group_read_access;     /**< TRUE is group read permission needs to be set */
+    gboolean           use_pcapng;            /**< TRUE if file format is pcapng */
 
     /* GUI related */
-    gboolean real_time_mode;        /**< Update list of packets in real time */
-    gboolean show_info;             /**< show the info dialog */
-    gboolean quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
-    gboolean restart;               /**< restart after closing is done */
-    gchar    *orig_save_file;       /**< the original capture file name (saved for a restart) */
+    gboolean           real_time_mode;        /**< Update list of packets in real time */
+    gboolean           show_info;             /**< show the info dialog */
+    gboolean           quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
+    gboolean           restart;               /**< restart after closing is done */
+    gchar             *orig_save_file;        /**< the original capture file name (saved for a restart) */
 
     /* multiple files (and ringbuffer) */
-    gboolean multi_files_on;        /**< TRUE if ring buffer in use */
+    gboolean           multi_files_on;        /**< TRUE if ring buffer in use */
 
-    gboolean has_file_duration;     /**< TRUE if ring duration specified */
-    gint32 file_duration;           /**< Switch file after n seconds */
-    gboolean has_ring_num_files;    /**< TRUE if ring num_files specified */
-    guint32 ring_num_files;         /**< Number of multiple buffer files */
+    gboolean           has_file_duration;     /**< TRUE if ring duration specified */
+    gint32             file_duration;         /**< Switch file after n seconds */
+    gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
+    guint32            ring_num_files;        /**< Number of multiple buffer files */
 
     /* autostop conditions */
-    gboolean has_autostop_files;    /**< TRUE if maximum number of capture files
-                                         are specified */
-    gint32 autostop_files;          /**< Maximum number of capture files */
+    gboolean           has_autostop_files;    /**< TRUE if maximum number of capture files
+                                                   are specified */
+    gint32             autostop_files;        /**< Maximum number of capture files */
 
-    gboolean has_autostop_packets;  /**< TRUE if maximum packet count is
-                                         specified */
-    int autostop_packets;           /**< Maximum packet count */
-    gboolean has_autostop_filesize; /**< TRUE if maximum capture file size
-                                         is specified */
-    guint32 autostop_filesize;      /**< Maximum capture file size */
-    gboolean has_autostop_duration; /**< TRUE if maximum capture duration
-                                         is specified */
-    gint32 autostop_duration;       /**< Maximum capture duration */
+    gboolean           has_autostop_packets;  /**< TRUE if maximum packet count is
+                                                   specified */
+    int                autostop_packets;      /**< Maximum packet count */
+    gboolean           has_autostop_filesize; /**< TRUE if maximum capture file size
+                                                   is specified */
+    guint32            autostop_filesize;     /**< Maximum capture file size */
+    gboolean           has_autostop_duration; /**< TRUE if maximum capture duration
+                                                   is specified */
+    gint32             autostop_duration;     /**< Maximum capture duration */
 
-    gchar *capture_comment;         /** capture comment to write to the
-                                        output file */
+    gchar             *capture_comment;       /** capture comment to write to the
+                                                  output file */
 
     /* internally used (don't touch from outside) */
-    gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
-    gboolean capture_child;         /**< hidden option: Wireshark child mode */
+    gboolean           output_to_pipe;        /**< save_file is a pipe (named or stdout) */
+    gboolean           capture_child;         /**< hidden option: Wireshark child mode */
 } capture_options;
 
 /* initialize the capture_options with some reasonable values */
@@ -371,5 +371,18 @@ collect_ifaces(capture_options *capture_opts);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
 #endif /* capture_opts.h */

@@ -37,15 +37,15 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef enum {
-    capture_cb_capture_prepared,
-    capture_cb_capture_update_started,
-    capture_cb_capture_update_continue,
-    capture_cb_capture_update_finished,
-    capture_cb_capture_fixed_started,
-    capture_cb_capture_fixed_continue,
-    capture_cb_capture_fixed_finished,
-    capture_cb_capture_stopping,
-    capture_cb_capture_failed
+  capture_cb_capture_prepared,
+  capture_cb_capture_update_started,
+  capture_cb_capture_update_continue,
+  capture_cb_capture_update_finished,
+  capture_cb_capture_fixed_started,
+  capture_cb_capture_fixed_continue,
+  capture_cb_capture_fixed_finished,
+  capture_cb_capture_stopping,
+  capture_cb_capture_failed
 } capture_cbs;
 
 typedef void (*capture_callback_t) (gint event, capture_session *cap_session,
@@ -104,5 +104,18 @@ void capture_stat_stop(if_stat_cache_t *sc);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
 
 #endif /* capture.h */

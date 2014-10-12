@@ -293,7 +293,7 @@ ph_stats_new(void)
 	}
 
 	/* We're done calculating the statistics; destroy the progress bar
-           if it was created. */
+	   if it was created. */
 	if (progbar != NULL)
 		destroy_progress_dlg(progbar);
 
@@ -337,3 +337,16 @@ ph_stats_free(ph_stats_t *ps)
 
 	g_free(ps);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

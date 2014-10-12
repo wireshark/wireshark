@@ -28,12 +28,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _fileset_entry {
-  char     *fullname;      /* File name with path (g_strdup'ed) */
-  char     *name;          /* File name without path (g_strdup'ed) */
-  time_t   ctime;          /* create time */
-  time_t   mtime;          /* last modified time */
-  gint64   size;           /* size of file in bytes */
-  gboolean current;        /* is this the currently loaded file? */
+    char     *fullname;      /* File name with path (g_strdup'ed) */
+    char     *name;          /* File name without path (g_strdup'ed) */
+    time_t   ctime;          /* create time */
+    time_t   mtime;          /* last modified time */
+    gint64   size;           /* size of file in bytes */
+    gboolean current;        /* is this the currently loaded file? */
 } fileset_entry;
 
 
@@ -62,5 +62,18 @@ extern void fileset_update_file(const char *path);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
 #endif /* __FILESET_H__ */

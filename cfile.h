@@ -36,7 +36,7 @@ extern "C" {
 
 /* Current state of file. */
 typedef enum {
-  FILE_CLOSED,	                /* No file open */
+  FILE_CLOSED,                  /* No file open */
   FILE_READ_IN_PROGRESS,        /* Reading a file we've opened */
   FILE_READ_ABORTED,            /* Read aborted by user */
   FILE_READ_DONE                /* Read completed */
@@ -116,11 +116,11 @@ typedef struct _capture_file {
   frame_data  *current_frame;   /* Frame data for current frame */
   gint         current_row;     /* Row number for current frame */
   epan_dissect_t *edt;          /* Protocol dissection for currently selected packet */
-  field_info  *finfo_selected;	/* Field info for currently selected field */
+  field_info  *finfo_selected;  /* Field info for currently selected field */
 #ifdef WANT_PACKET_EDITOR
   GTree       *edited_frames;   /* BST with modified frames */
 #endif
-  gpointer     window;		/* Top-level window associated with file */
+  gpointer     window;          /* Top-level window associated with file */
   GTree       *frames_user_comments;   /* BST with user comments for frames (key = frame_data) */
   gulong       computed_elapsed;
 
@@ -137,5 +137,18 @@ extern const char *cap_file_get_interface_name(void *data, guint32 interface_id)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
 
 #endif /* cfile.h */

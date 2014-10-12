@@ -42,7 +42,7 @@ typedef enum {
 
 /** Return values from functions that read capture files. */
 typedef enum {
-    CF_READ_OK,	     /**< operation succeeded */
+    CF_READ_OK,      /**< operation succeeded */
     CF_READ_ERROR,   /**< operation got an error (function may provide err with details) */
     CF_READ_ABORTED  /**< operation aborted by user */
 } cf_read_status_t;
@@ -56,9 +56,9 @@ typedef enum {
 
 /** Return values from functions that print sets of packets. */
 typedef enum {
-	CF_PRINT_OK,            /**< print operation succeeded */
-	CF_PRINT_OPEN_ERROR,    /**< print operation failed while opening printer */
-	CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
+    CF_PRINT_OK,            /**< print operation succeeded */
+    CF_PRINT_OPEN_ERROR,    /**< print operation failed while opening printer */
+    CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
 } cf_print_status_t;
 
 typedef enum {
@@ -681,5 +681,18 @@ void read_keytab_file(const char *);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
 #endif /* file.h */

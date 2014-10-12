@@ -40,92 +40,104 @@
  */
 
 void rtp_analysis(
-		address *ip_src_fwd,
-		guint32 port_src_fwd,
-		address *ip_dst_fwd,
-		guint32 port_dst_fwd,
-		guint32 ssrc_fwd,
-		address *ip_src_rev,
-		guint32 port_src_rev,
-		address *ip_dst_rev,
-		guint32 port_dst_rev,
-		guint32 ssrc_rev
-		);
+    address *ip_src_fwd,
+    guint32  port_src_fwd,
+    address *ip_dst_fwd,
+    guint32  port_dst_fwd,
+    guint32  ssrc_fwd,
+    address *ip_src_rev,
+    guint32  port_src_rev,
+    address *ip_dst_rev,
+    guint32  port_dst_rev,
+    guint32 ssrc_rev
+    );
 
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
 typedef struct _bw_history_item {
-        double time;
-        guint32 bytes;
+    double time;
+    guint32 bytes;
 } bw_history_item;
 
 #define BUFF_BW 300
 
 typedef struct _tap_rtp_stat_t {
-	gboolean first_packet;     /**< do not use in code that is called after rtp_packet_analyse */
-	                           /* use (flags & STAT_FLAG_FIRST) instead */
-	/* all of the following fields will be initialized after
-	 * rtp_packet_analyse has been called
-	 */
-	address first_packet_mac_addr;	/**< MAC address of first packet, used to determine duplicates due to mirroring */
-	guint32 flags;					/* see STAT_FLAG-defines below */
-	guint16 seq_num;
-	guint32 timestamp;
-	guint32 first_timestamp;
-	guint32 delta_timestamp;
-	double bandwidth;
-	bw_history_item bw_history[BUFF_BW];
-	guint16 bw_start_index;
-	guint16 bw_index;
-	guint32 total_bytes;
-	guint32 clock_rate;
-	double delta;
-	double jitter;
-	double diff;
-	double skew;
-	double sumt;
-	double sumTS;
-	double sumt2;
-	double sumtTS;
-	double time;           /**< Unit is ms */
-	double start_time;
-	double lastnominaltime;
-	double max_delta;
-	double max_jitter;
-	double max_skew;
-	double mean_jitter;
-	guint32 max_nr;
-	guint16 start_seq_nr;
-	guint16 stop_seq_nr;
-	guint32 total_nr;
-	guint32 sequence;
-	gboolean under;
-	gint cycles;
-	guint16 pt;
-	int reg_pt;
+    gboolean        first_packet; /**< do not use in code that is called after rtp_packet_analyse */
+                               /* use (flags & STAT_FLAG_FIRST) instead */
+    /* all of the following fields will be initialized after
+     * rtp_packet_analyse has been called
+     */
+    address         first_packet_mac_addr; /**< MAC address of first packet, used to determine duplicates due to mirroring */
+    guint32         flags;      /* see STAT_FLAG-defines below */
+    guint16         seq_num;
+    guint32         timestamp;
+    guint32         first_timestamp;
+    guint32         delta_timestamp;
+    double          bandwidth;
+    bw_history_item bw_history[BUFF_BW];
+    guint16         bw_start_index;
+    guint16         bw_index;
+    guint32         total_bytes;
+    guint32         clock_rate;
+    double          delta;
+    double          jitter;
+    double          diff;
+    double          skew;
+    double          sumt;
+    double          sumTS;
+    double          sumt2;
+    double          sumtTS;
+    double          time;       /**< Unit is ms */
+    double          start_time;
+    double          lastnominaltime;
+    double          max_delta;
+    double          max_jitter;
+    double          max_skew;
+    double          mean_jitter;
+    guint32         max_nr;
+    guint16         start_seq_nr;
+    guint16         stop_seq_nr;
+    guint32         total_nr;
+    guint32         sequence;
+    gboolean        under;
+    gint            cycles;
+    guint16         pt;
+    int             reg_pt;
 } tap_rtp_stat_t;
 
 #define PT_UNDEFINED -1
 
 /* status flags for the flags parameter in tap_rtp_stat_t */
-#define STAT_FLAG_FIRST				0x001
-#define STAT_FLAG_MARKER			0x002
-#define STAT_FLAG_WRONG_SEQ			0x004
-#define STAT_FLAG_PT_CHANGE			0x008
-#define STAT_FLAG_PT_CN				0x010
-#define STAT_FLAG_FOLLOW_PT_CN		0x020
-#define STAT_FLAG_REG_PT_CHANGE		0x040
-#define STAT_FLAG_WRONG_TIMESTAMP	0x080
-#define STAT_FLAG_PT_T_EVENT		0x100
-#define STAT_FLAG_DUP_PKT			0x200
+#define STAT_FLAG_FIRST             0x001
+#define STAT_FLAG_MARKER            0x002
+#define STAT_FLAG_WRONG_SEQ         0x004
+#define STAT_FLAG_PT_CHANGE         0x008
+#define STAT_FLAG_PT_CN             0x010
+#define STAT_FLAG_FOLLOW_PT_CN      0x020
+#define STAT_FLAG_REG_PT_CHANGE     0x040
+#define STAT_FLAG_WRONG_TIMESTAMP   0x080
+#define STAT_FLAG_PT_T_EVENT        0x100
+#define STAT_FLAG_DUP_PKT           0x200
 
 /* forward */
 struct _rtp_info;
 
 /* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
 extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
-        packet_info *pinfo,
-        const struct _rtp_info *rtpinfo);
+                              packet_info *pinfo,
+                              const struct _rtp_info *rtpinfo);
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
 #endif /* __RTP_ANALYSIS_H__ */

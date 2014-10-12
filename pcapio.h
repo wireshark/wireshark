@@ -1,5 +1,5 @@
 /* pcapio.h
- * Declarations of our own routins for writing libpcap files.
+ * Declarations of our own routines for writing libpcap files.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -101,3 +101,16 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                                    guint32 flags,
                                    guint64 *bytes_written,
                                    int *err);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

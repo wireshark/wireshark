@@ -105,7 +105,7 @@ struct seg_hist_s {
                          /* but a retransmit will have a new seg */
   int flags;             /* Flags as above for ack and seg loss  */
   int acks_first_seq;    /* How many times we have seen an ack
-			    for the first seq number in this seg */
+                            for the first seq number in this seg */
 };
 
 #define SEG_HIST_SIZE 128
@@ -120,25 +120,25 @@ int delayed_ack_wait = 30000; /* 30 mS before an ACK is generated if */
 void
 makeseg(char *eth1, char *eth2, char *ip1, char *ip2, char *p1, char *p2, int *s1, int *s2, char *flags, int len)
 {
-	int i;
+  int i;
 
-	printf("2002/01/07 00:00:%02d.%06d\n", ts/1000000, ts%1000000);
-	printf("0000 %s %s 08 00\n", eth1, eth2);
-	printf("000e 45 00 %02x %02x 00 00 00 00 40 06 00 00 %s %s\n", (len+40)>>8, (len+40)&0xff, ip1, ip2);
-	printf("0022 %s %s %02x %02x %02x %02x %02x %02x %02x %02x 50 %s 80 00 00 00 00 00", p1, p2,
-		((*s1)>>24)&0xff,
-		((*s1)>>16)&0xff,
-		((*s1)>>8)&0xff,
-		((*s1))&0xff,
-		((*s2)>>24)&0xff,
-		((*s2)>>16)&0xff,
-		((*s2)>>8)&0xff,
-		((*s2))&0xff,
-		flags );
-	for(i=0;i<(len<(snap_len-40)?len:snap_len-40);i++)printf(" 00");
-	printf("\n");
-	printf("\n");
-	(*s1)+=len;
+  printf("2002/01/07 00:00:%02d.%06d\n", ts/1000000, ts%1000000);
+  printf("0000 %s %s 08 00\n", eth1, eth2);
+  printf("000e 45 00 %02x %02x 00 00 00 00 40 06 00 00 %s %s\n", (len+40)>>8, (len+40)&0xff, ip1, ip2);
+  printf("0022 %s %s %02x %02x %02x %02x %02x %02x %02x %02x 50 %s 80 00 00 00 00 00", p1, p2,
+         ((*s1)>>24)&0xff,
+         ((*s1)>>16)&0xff,
+         ((*s1)>>8)&0xff,
+         ((*s1))&0xff,
+         ((*s2)>>24)&0xff,
+         ((*s2)>>16)&0xff,
+         ((*s2)>>8)&0xff,
+         ((*s2))&0xff,
+         flags );
+  for(i=0;i<(len<(snap_len-40)?len:snap_len-40);i++)printf(" 00");
+  printf("\n");
+  printf("\n");
+  (*s1)+=len;
 }
 
 /*
@@ -204,12 +204,12 @@ int next_ack_due()
   if (ack_lost) {
     if (delayed_ack) {
       if (((first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE) >= next_slot)
-	/* XXX: FIXME, what about when the window is closed */
-	/* XXX: FIXME, use the correct value for this       */
-	return (((unsigned int)(1<<31)) - 1);
+        /* XXX: FIXME, what about when the window is closed */
+        /* XXX: FIXME, use the correct value for this       */
+        return (((unsigned int)(1<<31)) - 1);
       else
-	return seg_hist[(first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE].ts +
-	  ack_delay + jitter;
+        return seg_hist[(first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE].ts +
+          ack_delay + jitter;
     }
     else
       return seg_hist[slot].ts + ack_delay + jitter;
@@ -311,88 +311,88 @@ gen_next_ack(int force, int spacing)
   else
     cwnd = cwnd + data_acked;
   if (verbose) fprintf(stderr, "Ack rcvd. ts: %d, data_acked: %d, cwnd: %d, window: %d\n",
-	  ts, data_acked, cwnd, window);
+                       ts, data_acked, cwnd, window);
   if (cwnd > window) cwnd = window;
 }
 
 void
 makeackedrun(int len, int spacing, int ackdelay)
 {
-	int next_ack_ts=0;
-        if (verbose) fprintf(stderr, "makeackedrun: Len=%d, spacing=%d, ackdelay=%d\n",
-		len, spacing, ackdelay);
-	while(len>0){
+  int next_ack_ts=0;
+  if (verbose) fprintf(stderr, "makeackedrun: Len=%d, spacing=%d, ackdelay=%d\n",
+                       len, spacing, ackdelay);
+  while(len>0){
 
-	  /*
-	   * Each time we output a segment, we should check to see if an
-	   * ack is due back before the next segment is due ...
-	   */
-		int seglen, saved_seq;
-		seglen=(len>1460)?1460:len;
-		/*
-		 * Only output what is left in the cwnd.
-		 * We assume there is space in the congestion window here
-		 */
-		if (seglen > (cwnd - used_win)) seglen = cwnd - used_win;
+    /*
+     * Each time we output a segment, we should check to see if an
+     * ack is due back before the next segment is due ...
+     */
+    int seglen, saved_seq;
+    seglen=(len>1460)?1460:len;
+    /*
+     * Only output what is left in the cwnd.
+     * We assume there is space in the congestion window here
+     */
+    if (seglen > (cwnd - used_win)) seglen = cwnd - used_win;
 
-		len-=seglen;
-		saved_seq = seq_1;
-		if (verbose) fprintf(stderr, "Sending segment. ts: %d, jitter: %d\n", ts, jitter);
-		if(len){
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "10", seglen);
-		} else {
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "18", seglen);
-		}
-		add_seg_sent(saved_seq, seglen);
+    len-=seglen;
+    saved_seq = seq_1;
+    if (verbose) fprintf(stderr, "Sending segment. ts: %d, jitter: %d\n", ts, jitter);
+    if(len){
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "10", seglen);
+    } else {
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "18", seglen);
+    }
+    add_seg_sent(saved_seq, seglen);
 
-		/*
-		 * Now, if the window is closed, then we have to eject an
-		 * ack, otherwise we can eject more data.
-		 * Also, the other end will tend to ack two segments at
-		 * a time ... and that ack might fall between two
-		 * outgoing segments
-		 */
-		jitter = (rand()%10) - 5; /* What if spacing too small */
+    /*
+     * Now, if the window is closed, then we have to eject an
+     * ack, otherwise we can eject more data.
+     * Also, the other end will tend to ack two segments at
+     * a time ... and that ack might fall between two
+     * outgoing segments
+     */
+    jitter = (rand()%10) - 5; /* What if spacing too small */
 
-		if (verbose) fprintf(stderr, "used win: %d, cwnd: %d\n", used_win, cwnd);
+    if (verbose) fprintf(stderr, "used win: %d, cwnd: %d\n", used_win, cwnd);
 
-		if ((next_ack_ts = next_ack_due()) < ts + spacing + jitter) {
-		  int old_ts = ts;
+    if ((next_ack_ts = next_ack_due()) < ts + spacing + jitter) {
+      int old_ts = ts;
 
-		  /*
-		   * Generate the ack and retire the segments
-		   * If delayed ACK in use, there should be two
-		   * or more outstanding segments ...
-		   */
-		  if (verbose) fprintf(stderr, "Non forced ACK ...ts + spacing + jitter:%d, jitter: %d\n", ts + spacing + jitter, jitter);
-		  gen_next_ack(NO_FORCE_ACK, spacing);
-		  /*
-		   * We don't want time to go backwards ...
-		   */
-		  if (old_ts + spacing + jitter <= ts)
-		    ts++;
-		  else
-		    ts = old_ts + spacing + jitter;
+      /*
+       * Generate the ack and retire the segments
+       * If delayed ACK in use, there should be two
+       * or more outstanding segments ...
+       */
+      if (verbose) fprintf(stderr, "Non forced ACK ...ts + spacing + jitter:%d, jitter: %d\n", ts + spacing + jitter, jitter);
+      gen_next_ack(NO_FORCE_ACK, spacing);
+      /*
+       * We don't want time to go backwards ...
+       */
+      if (old_ts + spacing + jitter <= ts)
+        ts++;
+      else
+        ts = old_ts + spacing + jitter;
 
-		} else if (used_win == cwnd) {
+    } else if (used_win == cwnd) {
 
-		  /*
-		   * We need an ACK, so generate it and retire the
-		   * segments and advance the ts to the time of the ack
-		   */
+      /*
+       * We need an ACK, so generate it and retire the
+       * segments and advance the ts to the time of the ack
+       */
 
-		  if (verbose) fprintf(stderr, "Forced ACK ... \n");
-		  gen_next_ack(FORCE_ACK, spacing);
+      if (verbose) fprintf(stderr, "Forced ACK ... \n");
+      gen_next_ack(FORCE_ACK, spacing);
 
-		  ts+=(spacing+jitter);   /* Should not use spacing here */
+      ts+=(spacing+jitter);   /* Should not use spacing here */
 
-		}
-		else {
-		  ts+=(spacing+jitter);
-		}
+    }
+    else {
+      ts+=(spacing+jitter);
+    }
 
-		if (verbose) fprintf(stderr, "Next Ack Due: %d\n", next_ack_ts);
-	}
+    if (verbose) fprintf(stderr, "Next Ack Due: %d\n", next_ack_ts);
+  }
 
 }
 
@@ -400,88 +400,88 @@ makeackedrun(int len, int spacing, int ackdelay)
 void
 makeackedrundroppedtail8kb(int len, int spacing, int ackdelay)
 {
-	int old_seq1;
-	int dropped_tail;
-	int i;
-	int num_dupes;
-        if (verbose) fprintf(stderr, "makeackedrundroppedtail8kB: Len=%d, spacing=%d, ackdelay=%d\n",
-		len, spacing, ackdelay);
-	old_seq1=seq_1;
-	while(len>0){
-		int seglen;
-		seglen=(len>1460)?1460:len;
-		len-=seglen;
-		if(seglen==1460){
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "10", seglen);
-		} else {
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "18", seglen);
-		}
-		ts+=spacing;
-	}
+  int old_seq1;
+  int dropped_tail;
+  int i;
+  int num_dupes;
+  if (verbose) fprintf(stderr, "makeackedrundroppedtail8kB: Len=%d, spacing=%d, ackdelay=%d\n",
+                       len, spacing, ackdelay);
+  old_seq1=seq_1;
+  while(len>0){
+    int seglen;
+    seglen=(len>1460)?1460:len;
+    len-=seglen;
+    if(seglen==1460){
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "10", seglen);
+    } else {
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &seq_1, &seq_2, "18", seglen);
+    }
+    ts+=spacing;
+  }
 
-	ts+=ackdelay;
+  ts+=ackdelay;
 
-	i=0;
-	num_dupes=-1;
-	dropped_tail=0;
-	while(old_seq1!=seq_1){
-		int ack_len;
+  i=0;
+  num_dupes=-1;
+  dropped_tail=0;
+  while(old_seq1!=seq_1){
+    int ack_len;
 
-		ack_len=((seq_1-old_seq1)>2920)?2920:(seq_1-old_seq1);
+    ack_len=((seq_1-old_seq1)>2920)?2920:(seq_1-old_seq1);
 
-		i++;
-		if(i==6){
-			dropped_tail=old_seq1;
-		}
-		old_seq1+=ack_len;
-		if(i<6){
-			makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &old_seq1, "10", 0);
-		} else if (i==6) {
-			makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
-			num_dupes+=2;
-		} else {
-			makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
-			makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
-			num_dupes+=2;
-		}
-		ts+=spacing/2;
-	}
+    i++;
+    if(i==6){
+      dropped_tail=old_seq1;
+    }
+    old_seq1+=ack_len;
+    if(i<6){
+      makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &old_seq1, "10", 0);
+    } else if (i==6) {
+      makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
+      num_dupes+=2;
+    } else {
+      makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
+      makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &dropped_tail, "10", 0);
+      num_dupes+=2;
+    }
+    ts+=spacing/2;
+  }
 
-	if(!dropped_tail){
-		return;
-	}
+  if(!dropped_tail){
+    return;
+  }
 
-	if(num_dupes<3){
-		int seglen;
-		ts+=1000000;
-		seglen=((seq_1-dropped_tail)>1460)?1460:(seq_1-dropped_tail);
-		if(seglen==1460){
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "10", seglen);
-		} else {
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "18", seglen);
-		}
-		ts+=ackdelay;
+  if(num_dupes<3){
+    int seglen;
+    ts+=1000000;
+    seglen=((seq_1-dropped_tail)>1460)?1460:(seq_1-dropped_tail);
+    if(seglen==1460){
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "10", seglen);
+    } else {
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "18", seglen);
+    }
+    ts+=ackdelay;
 
-		makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &seq_1, "10", 0);
-		ts+=spacing;
-		return;
-	}
+    makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &seq_1, "10", 0);
+    ts+=spacing;
+    return;
+  }
 
-	while(dropped_tail!=seq_1){
-		int seglen;
-		int ack;
-		seglen=((seq_1-dropped_tail)>1460)?1460:(seq_1-dropped_tail);
-		if(seglen==1460){
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "10", seglen);
-		} else {
-			makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "18", seglen);
-		}
-		ts+=ackdelay;
+  while(dropped_tail!=seq_1){
+    int seglen;
+    int ack;
+    seglen=((seq_1-dropped_tail)>1460)?1460:(seq_1-dropped_tail);
+    if(seglen==1460){
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "10", seglen);
+    } else {
+      makeseg(eth_1, eth_2, ip_1, ip_2, port_1, port_2, &dropped_tail, &seq_2, "18", seglen);
+    }
+    ts+=ackdelay;
 
-		ack=dropped_tail;
-		makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &ack, "10", 0);
-		ts+=spacing;
-	}
+    ack=dropped_tail;
+    makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &ack, "10", 0);
+    ts+=spacing;
+  }
 }
 
 void usage()
@@ -556,7 +556,7 @@ process_drop_list(char *drop_list)
 
     if (!all_digits(tok)) {
       fprintf(stderr, "Error in segment offset or count. Not all digits: %s\n",
-	      tok);
+              tok);
       fprintf(stderr, "No packet drops being performed!\n");
       g_free(save);
       g_free(drops);
@@ -577,116 +577,128 @@ process_drop_list(char *drop_list)
 int
 main(int argc, char *argv[])
 {
-	int i;
-	int len;
-	int type;
-	int cnt;
-	extern char *optarg;
-	extern int optind;
-	int opt;
+  int i;
+  int len;
+  int type;
+  int cnt;
+  extern char *optarg;
+  extern int optind;
+  int opt;
 
-	while ((opt = getopt(argc, argv, "a:b:d:Di:I:j:l:n:N:p:P:r:s:vw:")) != EOF) {
-	  switch (opt) {
-	  case 'a':
-	    ack_delay = atoi(optarg);
-	    break;
+  while ((opt = getopt(argc, argv, "a:b:d:Di:I:j:l:n:N:p:P:r:s:vw:")) != EOF) {
+    switch (opt) {
+    case 'a':
+      ack_delay = atoi(optarg);
+      break;
 
-	  case 'b': /* Bytes ... */
-	    total_bytes = atoi(optarg);
-	    break;
+    case 'b': /* Bytes ... */
+      total_bytes = atoi(optarg);
+      break;
 
-	  case 'd': /* A list of drops to simulate */
-	    process_drop_list(optarg);
-	    break;
+    case 'd': /* A list of drops to simulate */
+      process_drop_list(optarg);
+      break;
 
-	  case 'D': /* Toggle tcp_nodelay */
-	    tcp_nodelay = (tcp_nodelay + 1) % 1;
-	    break;
+    case 'D': /* Toggle tcp_nodelay */
+      tcp_nodelay = (tcp_nodelay + 1) % 1;
+      break;
 
-	  case 'i':
-	    ip_1 = optarg;
-	    break;
+    case 'i':
+      ip_1 = optarg;
+      break;
 
-	  case 'I':
-	    ip_2 = optarg;
-	    break;
+    case 'I':
+      ip_2 = optarg;
+      break;
 
-	  case 'l':
-	    snap_len = atoi(optarg);
-	    break;
+    case 'l':
+      snap_len = atoi(optarg);
+      break;
 
-	  case 'n': /* ISN for send dirn, ie, seq_1 */
-	    seq_1 = atoi(optarg);
-	    break;
+    case 'n': /* ISN for send dirn, ie, seq_1 */
+      seq_1 = atoi(optarg);
+      break;
 
-	  case 'N': /* ISN for recv dirn, ie, seq_2 */
-	    seq_2 = atoi(optarg);
-	    break;
+    case 'N': /* ISN for recv dirn, ie, seq_2 */
+      seq_2 = atoi(optarg);
+      break;
 
-	  case 'p':
-	    port_1 = optarg;
-	    break;
+    case 'p':
+      port_1 = optarg;
+      break;
 
-	  case 'P':
-	    port_2 = optarg;
-	    break;
+    case 'P':
+      port_2 = optarg;
+      break;
 
-	  case 'r':
-	    run_type = atoi(optarg);
-	    break;
+    case 'r':
+      run_type = atoi(optarg);
+      break;
 
-	  case 's':
-	    send_spacing = atoi(optarg);
-	    break;
+    case 's':
+      send_spacing = atoi(optarg);
+      break;
 
-	  case 'v':
-	    verbose++;
-	    break;
+    case 'v':
+      verbose++;
+      break;
 
-	  case 'w':  /* Window ... */
-	    window = atoi(optarg);
-	    ssthresh = window / 2;   /* Have to recalc this ... */
-	    break;
+    case 'w':  /* Window ... */
+      window = atoi(optarg);
+      ssthresh = window / 2;   /* Have to recalc this ... */
+      break;
 
-	  default:
-	    usage();
-	    break;
-	  }
-	}
+    default:
+      usage();
+      break;
+    }
+  }
 
-	if (verbose) fprintf(stderr, "IP1: %s, IP2: %s, P1: %s, P2: %s, Ack Delay: %d, Send Spacing: %d\n",
-		ip_1, ip_2, port_1, port_2, ack_delay, send_spacing);
+  if (verbose) fprintf(stderr, "IP1: %s, IP2: %s, P1: %s, P2: %s, Ack Delay: %d, Send Spacing: %d\n",
+                       ip_1, ip_2, port_1, port_2, ack_delay, send_spacing);
 
-	/*return 0; */
+  /*return 0; */
 
-	if (run_type == 0) {
-	  makeackedrun(total_bytes, send_spacing, ack_delay);
-	}
-	else {
-	  for(cnt=0;cnt<200;cnt++){
-	    type=rand()%150;
-	    if(type<75){
-	      int j;
-	      j=5+rand()%10;
-	      for(i=0;i<j;i++){
-		makeackedrun(32768, send_spacing, ack_delay);
-	      }
-	    } else if(type<90) {
-	      int j;
-	      j=4+rand()%4;
-	      for(i=0;i<j;i++){
-		len=100+rand()&0xfff;
-		makeackedrun(len, send_spacing, ack_delay);
-	      }
-	    } else {
-	      for(i=0;i<5;i++){
-		len=100+rand()&0x3fff+0x1fff;
-		makeackedrun(len, send_spacing, ack_delay);
-		/*makeackedrundroppedtail8kb(len, send_spacing, ack_delay);*/
-	      }
-	    }
-	  }
-	}
-	return 0;
+  if (run_type == 0) {
+    makeackedrun(total_bytes, send_spacing, ack_delay);
+  }
+  else {
+    for(cnt=0;cnt<200;cnt++){
+      type=rand()%150;
+      if(type<75){
+        int j;
+        j=5+rand()%10;
+        for(i=0;i<j;i++){
+          makeackedrun(32768, send_spacing, ack_delay);
+        }
+      } else if(type<90) {
+        int j;
+        j=4+rand()%4;
+        for(i=0;i<j;i++){
+          len=100+rand()&0xfff;
+          makeackedrun(len, send_spacing, ack_delay);
+        }
+      } else {
+        for(i=0;i<5;i++){
+          len=100+rand()&0x3fff+0x1fff;
+          makeackedrun(len, send_spacing, ack_delay);
+          /*makeackedrundroppedtail8kb(len, send_spacing, ack_delay);*/
+        }
+      }
+    }
+  }
+  return 0;
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -33,34 +33,34 @@
 #define NUM_TIMESTATS 12
 
 #define GCP_CMD_REPLY_CASE \
-        case GCP_CMD_ADD_REPLY: \
-        case GCP_CMD_MOVE_REPLY: \
-        case GCP_CMD_MOD_REPLY: \
-        case GCP_CMD_SUB_REPLY: \
-        case GCP_CMD_AUDITCAP_REPLY: \
-        case GCP_CMD_AUDITVAL_REPLY: \
-        case GCP_CMD_NOTIFY_REPLY: \
-        case GCP_CMD_SVCCHG_REPLY: \
-        case GCP_CMD_TOPOLOGY_REPLY: \
-        case GCP_CMD_REPLY:
+	case GCP_CMD_ADD_REPLY: \
+	case GCP_CMD_MOVE_REPLY: \
+	case GCP_CMD_MOD_REPLY: \
+	case GCP_CMD_SUB_REPLY: \
+	case GCP_CMD_AUDITCAP_REPLY: \
+	case GCP_CMD_AUDITVAL_REPLY: \
+	case GCP_CMD_NOTIFY_REPLY: \
+	case GCP_CMD_SVCCHG_REPLY: \
+	case GCP_CMD_TOPOLOGY_REPLY: \
+	case GCP_CMD_REPLY:
 
 #define GCP_CMD_REQ_CASE \
-        case GCP_CMD_ADD_REQ: \
-        case GCP_CMD_MOVE_REQ: \
-        case GCP_CMD_MOD_REQ: \
-        case GCP_CMD_SUB_REQ: \
-        case GCP_CMD_AUDITCAP_REQ: \
-        case GCP_CMD_AUDITVAL_REQ: \
-        case GCP_CMD_NOTIFY_REQ: \
-        case GCP_CMD_SVCCHG_REQ: \
-        case GCP_CMD_TOPOLOGY_REQ: \
-        case GCP_CMD_CTX_ATTR_AUDIT_REQ: \
-        case GCP_CMD_OTHER_REQ:
+	case GCP_CMD_ADD_REQ: \
+	case GCP_CMD_MOVE_REQ: \
+	case GCP_CMD_MOD_REQ: \
+	case GCP_CMD_SUB_REQ: \
+	case GCP_CMD_AUDITCAP_REQ: \
+	case GCP_CMD_AUDITVAL_REQ: \
+	case GCP_CMD_NOTIFY_REQ: \
+	case GCP_CMD_SVCCHG_REQ: \
+	case GCP_CMD_TOPOLOGY_REQ: \
+	case GCP_CMD_CTX_ATTR_AUDIT_REQ: \
+	case GCP_CMD_OTHER_REQ:
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _megacostat_t {
 	char *filter;
-        timestat_t rtd[NUM_TIMESTATS];
+	timestat_t rtd[NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
 	guint32 req_dup_num;
@@ -74,20 +74,33 @@ typedef struct _megacostat_t {
 } megacostat_t;
 
 static const value_string megaco_message_type[] = {
-  {  0,	"ADD "},
-  {  1,	"MOVE"},
-  {  2,	"MDFY"},
-  {  3,	"SUBT"},
-  {  4,	"AUCP"},
-  {  5,	"AUVL"},
-  {  6,	"NTFY"},
-  {  7, "SVCC"},
-  {  8, "TOPO"},
-  {  9, "NONE"},
-  {  10,"ALL "},
-  {  0, NULL}
+	{  0, "ADD "},
+	{  1, "MOVE"},
+	{  2, "MDFY"},
+	{  3, "SUBT"},
+	{  4, "AUCP"},
+	{  5, "AUVL"},
+	{  6, "NTFY"},
+	{  7, "SVCC"},
+	{  8, "TOPO"},
+	{  9, "NONE"},
+	{ 10, "ALL "},
+	{  0, NULL}
 };
 
 int megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
 
 #endif /*TAP_MEGACO_COMMON_H*/

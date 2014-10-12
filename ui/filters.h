@@ -31,18 +31,18 @@ extern "C" {
  * Filter lists.
  */
 typedef enum {
-	CFILTER_LIST,	        /* capture filter list - saved */
-	DFILTER_LIST,	        /* display filter list - saved */
-	CFILTER_EDITED_LIST,	/* capture filter list - currently edited */
-	DFILTER_EDITED_LIST	/* display filter list - currently edited */
+  CFILTER_LIST,        /* capture filter list - saved */
+  DFILTER_LIST,        /* display filter list - saved */
+  CFILTER_EDITED_LIST, /* capture filter list - currently edited */
+  DFILTER_EDITED_LIST  /* display filter list - currently edited */
 } filter_list_type_t;
 
 /*
  * Item in a list of filters.
  */
 typedef struct {
-  char *name;		/* filter name */
-  char *strval;		/* filter expression */
+  char *name;          /* filter name */
+  char *strval;        /* filter expression */
 } filter_def;
 
 /*
@@ -54,7 +54,7 @@ typedef struct {
  * and "*errno_return" is set to the error.
  */
 void read_filter_list(filter_list_type_t list_type, char **pref_path_return,
-    int *errno_return);
+                      int *errno_return);
 
 /*
  * Get a pointer to the first entry in a filter list.
@@ -66,7 +66,7 @@ GList *get_filter_list_first(filter_list_type_t list);
  * Returns a pointer to the newly-added entry.
  */
 GList *add_to_filter_list(filter_list_type_t list, const char *name,
-    const char *expression);
+                          const char *expression);
 
 /*
  * Remove a filter from a list.
@@ -82,7 +82,7 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  * and "*errno_return" is set to the error.
  */
 void save_filter_list(filter_list_type_t list_type, char **pref_path_return,
-    int *errno_return);
+                      int *errno_return);
 
 /*
  * Clone the filter list so it can be edited.
@@ -92,5 +92,18 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
 
 #endif /* __UI_FILTERS_H__ */

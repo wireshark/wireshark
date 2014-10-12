@@ -45,7 +45,7 @@ megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
 {
 	switch (cmd->type) {
 
-        GCP_CMD_REPLY_CASE
+	GCP_CMD_REPLY_CASE
 		{
 			gcp_cmd_msg_t *cmd_msg;
 			/* cycle through commands to find same command in the transaction */
@@ -72,7 +72,7 @@ megacostat_had_request(const gcp_cmd_t* cmd)
 {
 	switch (cmd->type) {
 
-        GCP_CMD_REPLY_CASE
+	GCP_CMD_REPLY_CASE
 		{
 			gcp_cmd_msg_t *cmd_msg;
 			/* cycle through commands to find a request in the transaction */
@@ -82,7 +82,7 @@ megacostat_had_request(const gcp_cmd_t* cmd)
 
 				switch (cmd_msg->cmd->type) {
 
-        			GCP_CMD_REQ_CASE
+				GCP_CMD_REQ_CASE
 					return TRUE;
 					break;
 				default:
@@ -110,7 +110,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 	switch (mi->type) {
 
-        GCP_CMD_REQ_CASE
+	GCP_CMD_REQ_CASE
 		if(!mi->trx->initial) {
 			/* Track Context is probably disabled, we cannot
 			 * measure service response time */
@@ -126,7 +126,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		}
 		break;
 
-        GCP_CMD_REPLY_CASE
+	GCP_CMD_REPLY_CASE
 		if(megacostat_is_duplicate_reply(mi)){
 			/* Duplicate is ignored */
 			ms->rsp_dup_num++;
@@ -188,3 +188,15 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	return ret;
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

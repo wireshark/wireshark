@@ -178,6 +178,19 @@
  *
  * Either can be used for exported *function* declarations and definitions.
  */
-#define WS_DLL_PUBLIC	WS_DLL_PUBLIC_DEF extern
+#define WS_DLL_PUBLIC  WS_DLL_PUBLIC_DEF extern
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
 
 #endif /* SYMBOL_EXPORT_H */

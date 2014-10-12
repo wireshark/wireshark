@@ -57,4 +57,17 @@ WS_DLL_PUBLIC gulong register_count(void);
 }
 #endif /* __cplusplus */
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
+
 #endif /* __REGISTER_H__ */

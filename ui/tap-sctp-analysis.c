@@ -399,8 +399,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.initiate_tag = 0;
 	}
 
-    tmp_info.direction = sctp_info->direction;
-    tmp_info.assoc_id = sctp_info->assoc_index;
+	tmp_info.direction = sctp_info->direction;
+	tmp_info.assoc_id = sctp_info->assoc_index;
 	info = find_assoc(&tmp_info);
 	if (!info)
 	{
@@ -1204,3 +1204,16 @@ register_tap_listener_sctp_stat(void)
 		sctp_tapinfo_struct.is_registered=TRUE;
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

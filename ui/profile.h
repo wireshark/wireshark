@@ -40,11 +40,11 @@ extern "C" {
 #define PROF_STAT_COPY     5
 
 typedef struct {
-  char *name;           /* profile name */
-  char *reference;      /* profile reference */
-  int   status;
-  gboolean is_global;
-  gboolean from_global;
+    char     *name;             /* profile name */
+    char     *reference;        /* profile reference */
+    int       status;
+    gboolean  is_global;
+    gboolean  from_global;
 } profile_def;
 
 /** @file
@@ -66,8 +66,8 @@ void init_profile_list(void);
  *
  * @return A pointer to the new profile list
  */
-GList * add_to_profile_list(const char *name, const char *parent, int status,
-        gboolean is_global, gboolean from_global);
+GList *add_to_profile_list(const char *name, const char *parent, int status,
+                           gboolean is_global, gboolean from_global);
 
 /** Refresh the current (non-edited) profile list.
  */
@@ -89,7 +89,7 @@ void remove_from_profile_list(GList *fl_entry);
  *
  * @return The head of the current profile list
  */
-GList * current_profile_list(void);
+GList *current_profile_list(void);
 
 /** Edited profile list
  *
@@ -127,5 +127,18 @@ gboolean delete_current_profile(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
 #endif /* __PROFILE_H__ */

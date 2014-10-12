@@ -42,8 +42,21 @@ typedef struct {
 } ph_stats_t;
 
 
-ph_stats_t* ph_stats_new(void);
+ph_stats_t *ph_stats_new(void);
 
 void ph_stats_free(ph_stats_t *ps);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
 
 #endif /* __UI_PROTO_HIER_STATS_H__ */

@@ -192,3 +192,16 @@ write_failure_message(const char *filename, int err)
 	fprintf(stderr, "dftest: An error occurred while writing to the file \"%s\": %s.\n",
 		filename, g_strerror(err));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
