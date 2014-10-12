@@ -707,6 +707,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gprs-llc.c
 	dissectors/packet-gre.c
 	dissectors/packet-gsm_a_bssmap.c
+	dissectors/packet-gsm_a_common.c
 	dissectors/packet-gsm_a_dtap.c
 	dissectors/packet-gsm_a_gm.c
 	dissectors/packet-gsm_a_rp.c
@@ -1374,6 +1375,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wsp.c
 	dissectors/packet-wtls.c
 	dissectors/packet-wtp.c
+	dissectors/packet-x11.c
 	dissectors/packet-x224.c
 	dissectors/packet-x25.c
 	dissectors/packet-x29.c
@@ -1417,11 +1419,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-zrtp.c
 )
 
-set(DIRTY_DISSECTOR_SRC
-	dissectors/packet-gsm_a_common.c
-	dissectors/packet-x11.c
-)
-
 set(DISSECTOR_SUPPORT_SRC
 	dissectors/packet-dcerpc-nt.c
 	dissectors/usb.c
@@ -1446,7 +1443,6 @@ set(LIBWIRESHARK_ASM_FILES
 
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
-	${DIRTY_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}

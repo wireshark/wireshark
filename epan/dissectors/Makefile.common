@@ -1291,6 +1291,7 @@ DISSECTOR_SRC = \
 	packet-wsp.c		\
 	packet-wtls.c		\
 	packet-wtp.c		\
+	packet-x11.c		\
 	packet-x25.c		\
 	packet-x29.c		\
 	packet-xcsl.c		\
@@ -1332,12 +1333,6 @@ DISSECTOR_SRC = \
 	packet-ziop.c		\
 	packet-zrtp.c	\
 	$(CUSTOM_DISSECTOR_SRC)
-
-#
-# Files that create warnings while building
-#
-DIRTY_DISSECTOR_SRC = \
-	packet-x11.c
 
 #
 # Headers for file dissectors.
@@ -1742,7 +1737,6 @@ noinst_HEADERS =	\
 ALL_DISSECTORS_SRC =	\
 	$(DISSECTOR_SRC)	\
 	$(FILE_DISSECTOR_SRC)	\
-	$(DIRTY_DISSECTOR_SRC)	\
 	$(PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
 	$(DIRTY_ASN1_DISSECTOR_SRC)
