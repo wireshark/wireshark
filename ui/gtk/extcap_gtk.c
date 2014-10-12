@@ -289,9 +289,6 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
         if (parsed_complex == NULL && call_string == NULL)
             continue;
 
-        /* Comparing if the user has changed the value at all, and ignoring it if so */
-        if (extcap_compare_is_default(arg, parsed_complex))
-            continue;
 
         /* Flags are set as is, and have not true/false switch */
         if (arg->arg_type == EXTCAP_ARG_BOOLFLAG)
@@ -311,6 +308,14 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
                  parsed_complex = NULL;
                  continue;
             }
+        }
+        else
+        {
+            /* Comparing if the user has changed the value at all, and ignoring it if so.
+             * This does not apply to EXTCAP_ARG_BOOLFLAG.
+             */
+            if (extcap_compare_is_default(arg, parsed_complex))
+                continue;
         }
 
         if (parsed_complex != NULL && call_string == NULL)

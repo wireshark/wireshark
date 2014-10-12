@@ -342,6 +342,24 @@ extcap_interface_list(char **err_str) {
     return ret;
 }
 
+static void extcap_free_if_configuration(GList *list)
+{
+    GList *elem;
+
+    for (elem = g_list_first(list); elem; elem = elem->next)
+    {
+        GList *arg_list;
+        if (elem->data == NULL)
+        {
+            continue;
+        }
+
+        arg_list = g_list_first((GList *)elem->data);
+        g_list_free_full(arg_list, g_free);
+    }
+    g_list_free(list);
+}
+
 static gboolean search_cb(const gchar *extcap _U_, gchar *output, void *data,
         char **err_str _U_) {
     extcap_token_sentence *tokens = NULL;
@@ -519,8 +537,52 @@ extcaps_init_initerfaces(capture_options *capture_opts)
         add_arg(interface_opts.name);
         add_arg(EXTCAP_ARGUMENT_RUN_PIPE);
         add_arg(interface_opts.extcap_fifo);
-        if (interface_opts.extcap_args != NULL)
+        if (interface_opts.extcap_args == NULL)
+        {
+            /* User did not perform interface configuration.
+             *
+             * Check if there are any boolean flags that are set by default
+             * and hence their argument should be added.
+             */
+            GList *arglist;
+            GList *elem;
+
+            arglist = extcap_get_if_configuration(interface_opts.name);
+            for (elem = g_list_first(arglist); elem; elem = elem->next)
+            {
+                GList * arg_list;
+                extcap_arg *arg_iter;
+
+                if (elem->data == NULL)
+                {
+                    continue;
+                }
+
+                arg_list = g_list_first((GList *)elem->data);
+                while (arg_list != NULL)
+                {
+                    /* In case of boolflags only first element in arg_list is relevant. */
+                    arg_iter = (extcap_arg*) (arg_list->data);
+
+                    if  (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
+                    {
+                        if (arg_iter->default_complex != NULL
+                            && extcap_complex_get_bool(arg_iter->default_complex))
+                        {
+                            add_arg(arg_iter->call);
+                        }
+                    }
+
+                    arg_list = arg_list->next;
+                }
+            }
+
+            extcap_free_if_configuration(arglist);
+        }
+        else
+        {
             g_hash_table_foreach(interface_opts.extcap_args, extcap_arg_cb, args);
+        }
         add_arg(NULL);
 #undef add_arg
 
