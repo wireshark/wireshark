@@ -1627,7 +1627,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 /* Contiguous Concatentation Types */
                 proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+3, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_CCT_FLAGS], cct_flags, ENC_NA);
-                l = tvb_get_guint8(tvb, offset2+3);
 
                 /* Min and Max NCC */
                 proto_item_append_text(ti, ": Minimum NCC: %d, Maximum NCC: %d",
