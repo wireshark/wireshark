@@ -36,6 +36,7 @@ static int hf_usb_ms_dCBWSignature = -1;
 static int hf_usb_ms_dCBWTag = -1;
 static int hf_usb_ms_dCBWDataTransferLength = -1;
 static int hf_usb_ms_dCBWFlags = -1;
+static int hf_usb_ms_dCBWTarget = -1;
 static int hf_usb_ms_dCBWLUN = -1;
 static int hf_usb_ms_dCBWCBLength = -1;
 static int hf_usb_ms_dCSWSignature = -1;
@@ -247,6 +248,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
         offset+=1;
 
         /* dCBWLUN */
+        proto_tree_add_item(tree, hf_usb_ms_dCBWTarget, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_ms_dCBWLUN, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         lun=tvb_get_guint8(tvb, offset)&0x0f;
         offset+=1;
@@ -398,6 +400,10 @@ proto_register_usb_ms(void)
         { &hf_usb_ms_dCBWFlags,
         { "Flags", "usbms.dCBWFlags", FT_UINT8, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_ms_dCBWTarget,
+        { "Target", "usbms.dCBWTarget", FT_UINT8, BASE_HEX_DEC,
+          NULL, 0x70, "Target Number when enabling multi-target mode", HFILL }},
 
         { &hf_usb_ms_dCBWLUN,
         { "LUN", "usbms.dCBWLUN", FT_UINT8, BASE_HEX,
