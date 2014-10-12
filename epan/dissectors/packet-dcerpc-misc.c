@@ -27,27 +27,21 @@ static gint ett_misc_GUID = -1;
 static gint ett_misc_ndr_syntax_id = -1;
 static gint ett_misc_policy_handle = -1;
 static gint ett_misc_KRB5_EDATA_NTSTATUS = -1;
-static gint ett_misc_winreg_Data = -1;
 
 
 /* Header field declarations */
+static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1 = -1;
 static gint hf_misc_GUID_time_mid = -1;
-static gint hf_misc_winreg_Data_value = -1;
+static gint hf_misc_policy_handle_handle_type = -1;
+static gint hf_misc_ndr_syntax_id_uuid = -1;
 static gint hf_misc_GUID_time_low = -1;
 static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown2 = -1;
 static gint hf_misc_GUID_time_hi_and_version = -1;
 static gint hf_misc_KRB5_EDATA_NTSTATUS_ntstatus = -1;
 static gint hf_misc_GUID_node = -1;
-static gint hf_misc_winreg_Data_string = -1;
-static gint hf_misc_winreg_Data_data = -1;
-static gint hf_misc_winreg_Data_binary = -1;
-static gint hf_misc_policy_handle_uuid = -1;
-static gint hf_misc_KRB5_EDATA_NTSTATUS_unknown1 = -1;
-static gint hf_misc_policy_handle_handle_type = -1;
-static gint hf_misc_ndr_syntax_id_uuid = -1;
 static gint hf_misc_opnum = -1;
 static gint hf_misc_GUID_clock_seq = -1;
-static gint hf_misc_winreg_Data_string_array = -1;
+static gint hf_misc_policy_handle_uuid = -1;
 static gint hf_misc_ndr_syntax_id_if_version = -1;
 
 static gint proto_dcerpc_misc = -1;
@@ -100,31 +94,6 @@ const value_string misc_winreg_Type_vals[] = {
 	{ REG_QWORD, "REG_QWORD" },
 { 0, NULL }
 };
-static int misc_dissect_element_winreg_Data_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_binary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_string_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int misc_dissect_element_winreg_Data_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int
-misc_dissect_element_winreg_Data_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_misc_winreg_Data_string , 0);
-	return offset;
-}
-static int
-misc_dissect_element_winreg_Data_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_winreg_Data_value, 0);
-	return offset;
-}
-static int
-misc_dissect_struct_string_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-    /* We don't do it yet */
-    return offset;
-}
 
 
 /* IDL: struct { */
@@ -470,80 +439,6 @@ misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: [default] ; */
 /* IDL: } */
 
-static int
-misc_dissect_element_winreg_Data_binary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, di, drep, hf_misc_winreg_Data_binary, 1);
-
-	return offset;
-}
-
-static int
-misc_dissect_element_winreg_Data_string_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = misc_dissect_struct_string_array(tvb,offset,pinfo,tree,di,drep,hf_misc_winreg_Data_string_array,0);
-
-	return offset;
-}
-
-static int
-misc_dissect_element_winreg_Data_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, di, drep, hf_misc_winreg_Data_data, 1);
-
-	return offset;
-}
-
-static int
-misc_dissect_winreg_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	int old_offset;
-	guint32 level = param;
-
-	old_offset = offset;
-	if (parent_tree) {
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_misc_winreg_Data, &item, "winreg_Data");
-	}
-
-	switch(level) {
-		case REG_NONE:
-		break;
-
-		case REG_SZ:
-			offset = misc_dissect_element_winreg_Data_string(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		case REG_EXPAND_SZ:
-			offset = misc_dissect_element_winreg_Data_string(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		case REG_BINARY:
-			offset = misc_dissect_element_winreg_Data_binary(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		case REG_DWORD:
-			offset = misc_dissect_element_winreg_Data_value(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		case REG_DWORD_BIG_ENDIAN:
-			offset = misc_dissect_element_winreg_Data_value(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		case REG_MULTI_SZ:
-			offset = misc_dissect_element_winreg_Data_string_array(tvb, offset, pinfo, tree, di, drep);
-		break;
-
-		default:
-			offset = misc_dissect_element_winreg_Data_data(tvb, offset, pinfo, tree, di, drep);
-		break;
-	}
-	proto_item_set_len(item, offset-old_offset);
-
-
-	return offset;
-}
 
 static dcerpc_sub_dissector misc_dissectors[] = {
 	{ 0, NULL, NULL, NULL }
@@ -552,10 +447,14 @@ static dcerpc_sub_dissector misc_dissectors[] = {
 void proto_register_dcerpc_misc(void)
 {
 	static hf_register_info hf[] = {
+	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown1,
+		{ "Unknown1", "misc.KRB5_EDATA_NTSTATUS.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_GUID_time_mid,
 		{ "Time Mid", "misc.GUID.time_mid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_value,
-		{ "Value", "misc.winreg_Data.value", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_policy_handle_handle_type,
+		{ "Handle Type", "misc.policy_handle.handle_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_ndr_syntax_id_uuid,
+		{ "Uuid", "misc.ndr_syntax_id.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_GUID_time_low,
 		{ "Time Low", "misc.GUID.time_low", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown2,
@@ -566,26 +465,12 @@ void proto_register_dcerpc_misc(void)
 		{ "Ntstatus", "misc.KRB5_EDATA_NTSTATUS.ntstatus", FT_UINT32, BASE_DEC, VALS(NT_errors), 0, NULL, HFILL }},
 	{ &hf_misc_GUID_node,
 		{ "Node", "misc.GUID.node", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_string,
-		{ "String", "misc.winreg_Data.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_data,
-		{ "Data", "misc.winreg_Data.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_binary,
-		{ "Binary", "misc.winreg_Data.binary", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_policy_handle_uuid,
-		{ "Uuid", "misc.policy_handle.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown1,
-		{ "Unknown1", "misc.KRB5_EDATA_NTSTATUS.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_policy_handle_handle_type,
-		{ "Handle Type", "misc.policy_handle.handle_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_ndr_syntax_id_uuid,
-		{ "Uuid", "misc.ndr_syntax_id.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_opnum,
 		{ "Operation", "misc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_GUID_clock_seq,
 		{ "Clock Seq", "misc.GUID.clock_seq", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_misc_winreg_Data_string_array,
-		{ "String Array", "misc.winreg_Data.string_array", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_misc_policy_handle_uuid,
+		{ "Uuid", "misc.policy_handle.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_ndr_syntax_id_if_version,
 		{ "If Version", "misc.ndr_syntax_id.if_version", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
@@ -597,7 +482,6 @@ void proto_register_dcerpc_misc(void)
 		&ett_misc_ndr_syntax_id,
 		&ett_misc_policy_handle,
 		&ett_misc_KRB5_EDATA_NTSTATUS,
-		&ett_misc_winreg_Data,
 	};
 
 	proto_dcerpc_misc = proto_register_protocol("MISC (pidl)", "MISC", "misc");

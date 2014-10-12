@@ -57,6 +57,7 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-mdssvc.c	\
+	packet-dcerpc-misc.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-rfr.c	\
 	packet-dcerpc-srvsvc.c	\
@@ -70,8 +71,7 @@ PIDL_DISSECTOR_SRC =	\
 #
 DIRTY_PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-drsuapi.c	\
-	packet-dcerpc-mapi.c	\
-	packet-dcerpc-misc.c
+	packet-dcerpc-mapi.c
 
 #
 # Headers for PIDL-generated dissectors.
