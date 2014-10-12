@@ -1094,7 +1094,7 @@ ftype_register_integers(void)
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_uinteger */
+		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_integer64,			/* get_value_integer64 */
 		NULL,				/* get_value_floating */
