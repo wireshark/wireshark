@@ -622,11 +622,6 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
      just not fromhex. In fact, we should accept/coerce a Int64/UInt64 here too someday. */
   s = luaL_checklstring(L, WSLUA_ARG_Struct_tohex_BYTESTRING, &len);
 
-  if (!s) {
-    WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
-    return 0;
-  }
-
   lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,FALSE);
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_tohex_SEPARATOR,NULL);
 
@@ -644,11 +639,6 @@ WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
 
   /* luaL_checklstring coerces the argument to a string, and we don't want to do that */
   s = wslua_checklstring_only(L, WSLUA_ARG_Struct_fromhex_HEXBYTES, &len);
-
-  if (!s) {
-    WSLUA_ARG_ERROR(Struct_fromhex,HEXBYTES,"must be a Lua string");
-    return 0;
-  }
 
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_fromhex_SEPARATOR,NULL);
 

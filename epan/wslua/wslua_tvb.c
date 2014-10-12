@@ -51,11 +51,6 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a `ByteArray` object.
     if (lua_gettop(L) >= 1) {
         s = luaL_checklstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES,&len);
 
-        if (!s) {
-            WSLUA_OPTARG_ERROR(ByteArray_new,HEXBYTES,"must be a string");
-            return 0;
-        }
-
         if (lua_gettop(L) >= 2) {
             if (lua_type(L,2) == LUA_TBOOLEAN && lua_toboolean(L,2)) {
                 ishex = FALSE;

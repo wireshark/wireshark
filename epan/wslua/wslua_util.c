@@ -207,15 +207,8 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
     in the current directory it will look for it in wireshark's user and system directories. */
 #define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run. */
     const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
-    char* filename;
+    char* filename = wslua_get_actual_filename(given_fname);
     int n;
-
-    if (!given_fname) {
-        WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
-        return 0;
-    }
-
-    filename = wslua_get_actual_filename(given_fname);
 
     if (!filename) {
         WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");

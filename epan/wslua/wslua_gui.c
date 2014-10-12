@@ -100,11 +100,6 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
         return 0;
     }
 
-    if(!name) {
-        WSLUA_ARG_ERROR(register_menu,NAME,"Must be a string");
-        return 0;
-    }
-
     if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION)) {
         WSLUA_ARG_ERROR(register_menu,ACTION,"Must be a function");
         return 0;
@@ -239,10 +234,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
         return 0;
     }
 
-    if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
-        WSLUA_ARG_ERROR(new_dialog,TITLE,"Must be a string");
-        return 0;
-    }
+    title = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE);
 
     if (! lua_isfunction(L,WSLUA_ARG_new_dialog_ACTION)) {
         WSLUA_ARG_ERROR(new_dialog,ACTION,"Must be a function");
@@ -269,15 +261,13 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     top -= 2;
 
     for (i = 1; i <= top; i++) {
-        gchar* label = g_strdup(luaL_checkstring(L,i));
-
-        if (! label) {
+        if (! lua_isstring(L,i)) {
             g_ptr_array_free(labels,TRUE);
             WSLUA_ERROR(new_dialog,"All fields must be strings");
             return 0;
         }
 
-        g_ptr_array_add(labels,(gpointer)label);
+        g_ptr_array_add(labels,(gpointer)g_strdup(luaL_checkstring(L,i)));
     }
 
     g_ptr_array_add(labels,NULL);
@@ -499,11 +489,6 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
         return 0;
     }
 
-    if (!text) {
-        WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
-        return 0;
-    }
-
     ops->set_text(tw->ws_tw,text);
 
     /* XXX: this is a bad way to do this - should copy the object on to the stack first */
@@ -520,11 +505,6 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
         return 0;
     }
 
-    if (!text) {
-        WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
-        return 0;
-    }
-
     ops->append_text(tw->ws_tw,text);
 
     /* XXX: this is a bad way to do this - should copy the object on to the stack first */
@@ -538,11 +518,6 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 
     if (!ops->prepend_text) {
         WSLUA_ERROR(TextWindow_prepend,"GUI not available");
-        return 0;
-    }
-
-    if (!text) {
-        WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
         return 0;
     }
 
@@ -743,11 +718,6 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
         return 0;
     }
 
-    if (!copied_str) {
-        WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"Must be a string");
-        return 0;
-    }
-
     gstr = g_string_new(copied_str);
 
     ops->copy_to_clipboard(gstr);
@@ -767,11 +737,6 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
 
     if (!ops->open_file) {
         WSLUA_ERROR(open_capture_file, "GUI not available");
-        return 0;
-    }
-
-    if (!fname) {
-        WSLUA_ARG_ERROR(open_capture_file,FILENAME,"Must be a string");
         return 0;
     }
 
@@ -813,11 +778,6 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
         return 0;
     }
 
-    if (!filter_str) {
-        WSLUA_ARG_ERROR(set_filter,TEXT,"Must be a string");
-        return 0;
-    }
-
     ops->set_filter(filter_str);
 
     return 0;
@@ -831,11 +791,6 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-colorin
 
     if (!ops->set_color_filter_slot) {
         WSLUA_ERROR(set_color_filter_slot, "GUI not available");
-        return 0;
-    }
-
-    if (!filter_str) {
-        WSLUA_ARG_ERROR(set_color_filter_slot,TEXT,"Must be a string");
         return 0;
     }
 
@@ -878,11 +833,6 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browse
         return 0;
     }
 
-    if (!url) {
-        WSLUA_ARG_ERROR(browser_open_url,URL,"Must be a string");
-        return 0;
-    }
-
     ops->browser_open_url(url);
 
     return 0;
@@ -894,11 +844,6 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open a file in a 
 
     if (!ops->browser_open_data_file) {
         WSLUA_ERROR(browser_open_data_file, "GUI not available");
-        return 0;
-    }
-
-    if (!file) {
-        WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"Must be a string");
         return 0;
     }
 

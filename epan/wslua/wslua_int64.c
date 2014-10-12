@@ -255,7 +255,7 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
     size_t len = 0;
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
-    if (s && len > 0) {
+    if (len > 0) {
         sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
     }
     pushInt64(L,(gint64)result);
@@ -815,7 +815,7 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
     size_t len = 0;
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
-    if (s && len > 0) {
+    if (len > 0) {
         sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
     }
     pushUInt64(L,result);

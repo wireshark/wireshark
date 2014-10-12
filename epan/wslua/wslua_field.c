@@ -499,8 +499,6 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Field_new_FIELDNAME);
     Field f;
 
-    if (!name) return 0;
-
     if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name)) {
         WSLUA_ARG_ERROR(Field_new,FIELDNAME,"a field with this name must exist");
         return 0;

@@ -580,11 +580,6 @@ WSLUA_METHOD Column_set(lua_State *L) {
     if (!(c->cinfo))
         return 0;
 
-    if (!s) {
-        WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
-        return 0;
-    }
-
     col_add_str(c->cinfo, c->col, s);
 
     return 0;
@@ -599,11 +594,6 @@ WSLUA_METHOD Column_append(lua_State *L) {
     if (!(c->cinfo))
         return 0;
 
-    if (!s) {
-        WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
-        return 0;
-    }
-
     col_append_str(c->cinfo, c->col, s);
 
     return 0;
@@ -617,11 +607,6 @@ WSLUA_METHOD Column_prepend(lua_State *L) {
 
     if (!(c->cinfo))
         return 0;
-
-    if (!s) {
-        WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
-        return 0;
-    }
 
     col_prepend_fstr(c->cinfo, c->col, "%s",s);
 
@@ -742,8 +727,6 @@ WSLUA_METAMETHOD Columns__index(lua_State *L) {
         luaL_error(L,"expired column");
         return 0;
     }
-
-    if (!colname) return 0;
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {

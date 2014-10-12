@@ -216,11 +216,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap  = luaL_optint(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
-    const char* filename;
-
-    if (! fname) return 0;
-
-    filename = cross_plat_fname(fname);
+    const char* filename = cross_plat_fname(fname);
 
     d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
 
@@ -358,11 +354,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap;
     int err = 0;
-    const char* filename;
-
-    if (! fname) return 0;
-
-    filename = cross_plat_fname(fname);
+    const char* filename = cross_plat_fname(fname);
 
     if (! lua_pinfo ) {
         WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");

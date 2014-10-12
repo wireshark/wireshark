@@ -1282,15 +1282,12 @@ static int FrameInfo_set_data (lua_State* L) {
    if (lua_isstring(L,2)) {
         size_t len = 0;
         const gchar* s = luaL_checklstring(L,2,&len);
-        if (s) {
-            /* Make sure we have enough room for the packet */
-            ws_buffer_assure_space(fi->buf, len);
-            memcpy(ws_buffer_start_ptr(fi->buf), s, len);
-            fi->phdr->caplen = (guint32) len;
-            fi->phdr->len = (guint32) len;
-        } else {
-            luaL_error(L, "FrameInfo's attribute 'data' did not get a valid Lua string");
-        }
+
+        /* Make sure we have enough room for the packet */
+        ws_buffer_assure_space(fi->buf, len);
+        memcpy(ws_buffer_start_ptr(fi->buf), s, len);
+        fi->phdr->caplen = (guint32) len;
+        fi->phdr->len = (guint32) len;
     }
     else
         luaL_error(L, "FrameInfo's attribute 'data' must be a Lua string");

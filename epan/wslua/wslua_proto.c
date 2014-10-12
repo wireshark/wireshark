@@ -297,11 +297,6 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 
     if (! prefs_p ) return 0;
 
-    if (! name ) {
-        WSLUA_ARG_ERROR(Prefs__newindex,NAME,"must be a string");
-        return 0;
-    }
-
     if (! pref ) {
         WSLUA_ARG_ERROR(Prefs__newindex,PREF,"must be a valid Pref");
         return 0;
@@ -419,7 +414,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
     Pref prefs_p = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
 
-    if (! ( name && prefs_p ) ) return 0;
+    if (! prefs_p ) return 0;
 
     if (!prefs_p->next) {
         luaL_error(L,"No preference is registered yet");
@@ -1495,64 +1490,66 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 #define WSLUA_ARG_Proto_new_DESC 2 /* A Long Text description of the protocol (usually lowercase). */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Proto_new_NAME);
     const gchar* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
+    Proto proto;
+    gchar *loname, *hiname;
+    int proto_id;
 
     /* TODO: should really make a common function for all of wslua that does checkstring and non-empty at same time */
-    if (!name[0] || !desc[0])
-        luaL_argerror(L,WSLUA_ARG_Proto_new_NAME,"must not be an empty string");
-
-    if ( name ) {
-        gchar* loname_a;
-        int proto_id;
-
-        loname_a = g_ascii_strdown(name, -1);
-        proto_id = proto_get_id_by_filter_name(loname_a);
-        g_free(loname_a);
-        if ( proto_id > 0 ) {
-            WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
-            return 0;
-        } else {
-            Proto proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
-            gchar* loname = g_ascii_strdown(name, -1);
-            gchar* hiname = g_ascii_strup(name, -1);
-
-            proto->name = hiname;
-            proto->desc = g_strdup(desc);
-            proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
-            proto->ett = -1;
-            proto->is_postdissector = FALSE;
-
-            lua_newtable (L);
-            proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
-
-            lua_newtable (L);
-            proto->expert_info_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-            proto->expert_module = expert_register_protocol(proto->hfid);
-
-            proto->prefs.name = NULL;
-            proto->prefs.label = NULL;
-            proto->prefs.desc = NULL;
-            proto->prefs.value.u = 0;
-            proto->prefs.next = NULL;
-            proto->prefs.proto = proto;
-
-            proto->prefs_module = NULL;
-            proto->handle = NULL;
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
-
-            lua_pushstring(L,loname);
-            pushProto(L,proto);
-
-            lua_settable(L, -3);
-
-            pushProto(L,proto);
-
-            WSLUA_RETURN(1); /* The newly created protocol. */
-        }
+    if (!name[0]) {
+        WSLUA_ARG_ERROR(Proto_new,NAME,"must not be an empty string");
+        return 0;
     }
 
-    WSLUA_ARG_ERROR(Proto_new,NAME,"must be a string");
-    return 0;
+    if (!desc[0]) {
+        WSLUA_ARG_ERROR(Proto_new,DESC,"must not be an empty string");
+        return 0;
+    }
+
+    loname = g_ascii_strdown(name, -1);
+    proto_id = proto_get_id_by_filter_name(loname);
+
+    if (proto_id > 0) {
+        WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
+        g_free(loname);
+        return 0;
+    }
+
+    proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
+    hiname = g_ascii_strup(name, -1);
+
+    proto->name = hiname;
+    proto->desc = g_strdup(desc);
+    proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
+    proto->ett = -1;
+    proto->is_postdissector = FALSE;
+
+    lua_newtable (L);
+    proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    lua_newtable (L);
+    proto->expert_info_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    proto->expert_module = expert_register_protocol(proto->hfid);
+
+    proto->prefs.name = NULL;
+    proto->prefs.label = NULL;
+    proto->prefs.desc = NULL;
+    proto->prefs.value.u = 0;
+    proto->prefs.next = NULL;
+    proto->prefs.proto = proto;
+
+    proto->prefs_module = NULL;
+    proto->handle = NULL;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
+
+    lua_pushstring(L,loname);
+    pushProto(L,proto);
+
+    lua_settable(L, -3);
+
+    pushProto(L,proto);
+
+    WSLUA_RETURN(1); /* The newly created protocol. */
 }
 
 WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a `Proto` object. */
@@ -2028,11 +2025,6 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
     Dissector d;
 
-    if (!name) {
-        WSLUA_ARG_ERROR(Dissector_get,NAME,"must be a string");
-        return 0;
-    }
-
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
         WSLUA_RETURN(1); /* The Dissector reference. */
@@ -2169,8 +2161,6 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     enum ftenum type = (enum ftenum)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     unsigned base = (unsigned)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
 
-    if(!(name && ui_name)) return 0;
-
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
@@ -2264,11 +2254,7 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
      */
 #define WSLUA_ARG_DissectorTable_get_TABLENAME 1 /* The short name of the table. */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_TABLENAME);
-    dissector_table_t table;
-
-    if(!name) return 0;
-
-    table = find_dissector_table(name);
+    dissector_table_t table = find_dissector_table(name);
 
     if (table) {
         DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
@@ -2514,13 +2500,9 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         if (type == FT_STRING) {
             const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
-            if (!pattern) {
+            len = dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, NULL);
+            if (len > 0) {
                 handled = TRUE;
-            } else {
-                len = dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, NULL);
-                if (len > 0) {
-                    handled = TRUE;
-                }
             }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
             int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
@@ -2564,12 +2546,6 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
 
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
-
-        if (!pattern) {
-            WSLUA_ARG_ERROR(DissectorTable_get_dissector,PATTERN,"must be a string");
-            return 0;
-        }
-
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
