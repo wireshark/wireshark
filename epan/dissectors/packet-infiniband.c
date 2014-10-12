@@ -152,7 +152,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* Parsing Methods for specific IB headers. */
 
 static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
-static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, tvbuff_t *, gint *, gint length, proto_tree *);
+static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, tvbuff_t *, gint *, gint length, gint crclen, proto_tree *);
 static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
 static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
@@ -1587,6 +1587,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
     struct e_in6_addr DSTgid;
     gint crc_length = 0;
+    gint crclen = 6;
 
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
@@ -1609,14 +1610,18 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     if (starts_with == IB_PACKET_STARTS_WITH_GRH) {
         /* this is a RoCE packet, skip LRH parsing */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RoCE");
         lnh_val = IBA_GLOBAL;
-        packetLength = tvb_get_ntohs(tvb, 4);   /* since we have no LRH to get PktLen from, use that of the GRH */
+        packetLength = tvb_reported_length_remaining(tvb, offset);
+        crclen = 4;
         goto skip_lrh;
     }
      else if (starts_with == IB_PACKET_STARTS_WITH_BTH) {
          /* this is a RRoCE packet, skip LRH/GRH parsing and go directly to BTH */
+         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRoCE");
          lnh_val = IBA_LOCAL;
          packetLength = tvb_reported_length_remaining(tvb, offset);
+         crclen = 4;
          goto skip_lrh;
      }
 
@@ -1802,7 +1807,7 @@ skip_lrh:
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_DETH_RETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1813,7 +1818,7 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_DETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1824,7 +1829,7 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_DETH_RETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1837,7 +1842,7 @@ skip_lrh:
                 packetLength -= 16; /* RETH */
                 packetLength -= 4;  /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_DETH_RETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1856,14 +1861,14 @@ skip_lrh:
                 packetLength -= 4; /* RDETH */
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RDETH_AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -1907,18 +1912,18 @@ skip_lrh:
 
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case PAYLD:
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case IMMDT_PAYLD:
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH_IMMDT_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
@@ -1927,14 +1932,14 @@ skip_lrh:
                 packetLength -= 16; /* RETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
@@ -1947,7 +1952,7 @@ skip_lrh:
 
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -1974,7 +1979,7 @@ skip_lrh:
 
                 packetLength -= 4; /* IETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case DETH_IMMDT_PAYLD:
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
@@ -1983,13 +1988,13 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case DCCETH:
                 parse_DCCETH(all_headers_tree, tvb, &offset);
                 packetLength -= 16; /* DCCETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, tree);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
 
             default:
@@ -2355,7 +2360,7 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     *offset = local_offset;
 }
 
-/* Parse Payload - Packet Payload / Invariant CRC / Variant CRC
+/* Parse Payload - Packet Payload / Invariant CRC / maybe Variant CRC
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: pinfo - packet info from wireshark
 * IN: info - infiniband info passed to subdissectors
@@ -2365,7 +2370,7 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: top_tree - parent tree of Infiniband dissector */
 static void parse_PAYLOAD(proto_tree *parentTree,
                           packet_info *pinfo, struct infinibandinfo *info,
-                          tvbuff_t *tvb, gint *offset, gint length, proto_tree *top_tree)
+                          tvbuff_t *tvb, gint *offset, gint length, gint crclen, proto_tree *top_tree)
 {
     gint                local_offset    = *offset;
     /* Payload - Packet Payload */
@@ -2544,8 +2549,8 @@ static void parse_PAYLOAD(proto_tree *parentTree,
         reported_length = tvb_reported_length_remaining(tvb,
                                 local_offset);
 
-        if (reported_length >= 6)
-            reported_length -= 6;
+        if (reported_length >= crclen)
+            reported_length -= crclen;
         if (captured_length > reported_length)
             captured_length = reported_length;
 
@@ -2568,8 +2573,8 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         /*parse_RWH(parentTree, tvb, &local_offset, pinfo, top_tree);*/
 
-        /* Will contain ICRC and VCRC = 4+2 */
-        local_offset = tvb_reported_length(tvb) - 6;
+        /* Will contain ICRC <and maybe VCRC> = 4 or 4+2 (crclen) */
+        local_offset = tvb_reported_length(tvb) - crclen;
     }
 
     *offset = local_offset;
@@ -3010,7 +3015,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid); local_offset += 16;
             proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
             tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid); local_offset += 16;
-            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 2;
             local_offset += 1;  /* skip reserved */
             proto_tree_add_item(CM_header_tree, hf_cm_req_primary_packet_rate, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
             proto_tree_add_item(CM_header_tree, hf_cm_req_primary_traffic_class, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
@@ -3024,7 +3029,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             proto_tree_add_item(CM_header_tree, hf_cm_req_alt_remote_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
             proto_tree_add_item(CM_header_tree, hf_cm_req_alt_local_gid, tvb, local_offset, 16, ENC_NA); local_offset += 16;
             proto_tree_add_item(CM_header_tree, hf_cm_req_alt_remote_gid, tvb, local_offset, 16, ENC_NA); local_offset += 16;
-            proto_tree_add_item(CM_header_tree, hf_cm_req_flow_label, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_flow_label, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 2;
             local_offset += 1;  /* skip reserved */
             proto_tree_add_item(CM_header_tree, hf_cm_req_packet_rate, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
             proto_tree_add_item(CM_header_tree, hf_cm_req_alt_traffic_class, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
@@ -5533,7 +5538,7 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_e2e_flow_ctrl, {
                 "End-to-End Flow Control", "infiniband.cm.req.e2eflowctrl",
-                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         {&hf_cm_req_start_psn, {
                 "Starting PSN", "infiniband.cm.req.startpsn",
@@ -5541,11 +5546,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_local_cm_resp_to, {
                 "Local CM Response Timeout", "infiniband.cm.req.localresptout",
-                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
         },
         {&hf_cm_req_retry_count, {
                 "Retry Count", "infiniband.cm.req.retrcount",
-                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
         },
         {&hf_cm_req_pkey, {
                 "Partition Key", "infiniband.cm.req.pkey",
@@ -5553,23 +5558,23 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_path_pp_mtu, {
                 "Path Packet Payload MTU", "infiniband.cm.req.pppmtu",
-                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_cm_req_rdc_exists, {
                 "RDC Exists", "infiniband.cm.req.rdcexist",
-                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
         },
         {&hf_cm_req_rnr_retry_count, {
                 "RNR Retry Count", "infiniband.cm.req.rnrretrcount",
-                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
         },
         {&hf_cm_req_max_cm_retries, {
                 "Max CM Retries", "infiniband.cm.req.maxcmretr",
-                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_cm_req_srq, {
                 "SRQ", "infiniband.cm.req.srq",
-                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
         },
         {&hf_cm_req_primary_local_lid, {
                 "Primary Local Port LID", "infiniband.cm.req.prim_locallid",
@@ -5589,11 +5594,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_primary_flow_label, {
                 "Primary Flow Label", "infiniband.cm.req.prim_flowlabel",
-                FT_UINT24, BASE_HEX, NULL, 0xfffff, NULL, HFILL}
+                FT_UINT24, BASE_HEX, NULL, 0xfffff0, NULL, HFILL}
         },
         {&hf_cm_req_primary_packet_rate, {
                 "Primary Packet Rate", "infiniband.cm.req.prim_pktrate",
-                FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x3f, NULL, HFILL}
         },
         {&hf_cm_req_primary_traffic_class, {
                 "Primary Traffic Class", "infiniband.cm.req.prim_tfcclass",
@@ -5605,15 +5610,15 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_primary_sl, {
                 "Primary SL", "infiniband.cm.req.prim_sl",
-                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_cm_req_primary_subnet_local, {
                 "Primary Subnet Local", "infiniband.cm.req.prim_subnetlocal",
-                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
         },
         {&hf_cm_req_primary_local_ack_to, {
                 "Primary Local ACK Timeout", "infiniband.cm.req.prim_localacktout",
-                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
         },
         {&hf_cm_req_alt_local_lid, {
                 "Alternate Local Port LID", "infiniband.cm.req.alt_locallid",
@@ -5633,11 +5638,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_flow_label, {
                 "Alternate Flow Label", "infiniband.cm.req.alt_flowlabel",
-                FT_UINT24, BASE_HEX, NULL, 0xfffff, NULL, HFILL}
+                FT_UINT24, BASE_HEX, NULL, 0xfffff0, NULL, HFILL}
         },
         {&hf_cm_req_packet_rate, {
                 "Alternate Packet Rate", "infiniband.cm.req.alt_pktrate",
-                FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x3f, NULL, HFILL}
         },
         {&hf_cm_req_alt_traffic_class, {
                 "Alternate Traffic Class", "infiniband.cm.req.alt_tfcclass",
@@ -5649,15 +5654,15 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_SL, {
                 "Alternate SL", "infiniband.cm.req.alt_sl",
-                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_cm_req_subnet_local, {
                 "Alternate Subnet Local", "infiniband.cm.req.alt_subnetlocal",
-                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
         },
         {&hf_cm_req_local_ACK_timeout, {
                 "Alternate Local ACK Timeout", "infiniband.cm.req.alt_localacktout",
-                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
         },
         {&hf_cm_req_private_data, {
                 "PrivateData", "infiniband.cm.req.private",
@@ -5698,23 +5703,23 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_rep_tgtackdelay, {
                 "Target ACK Delay", "infiniband.cm.rep.tgtackdelay",
-                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
         },
         {&hf_cm_rep_failoveracc, {
                 "Failover Accepted", "infiniband.cm.rep.failoveracc",
-                FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x6, NULL, HFILL}
         },
         {&hf_cm_rep_e2eflowctl, {
                 "End-To-End Flow Control", "infiniband.cm.rep.e2eflowctrl",
-                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
         },
         {&hf_cm_rep_rnrretrycount, {
                 "RNR Retry Count", "infiniband.cm.rep.rnrretrcount",
-                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
         },
         {&hf_cm_rep_srq, {
                 "SRQ", "infiniband.cm.rep.srq",
-                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
         },
         {&hf_cm_rep_localcaguid, {
                 "Local CA GUID", "infiniband.cm.rep.localcaguid",
@@ -5748,11 +5753,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_rej_msg_rej, {
                 "Message REJected", "infiniband.cm.rej.msgrej",
-                FT_UINT8, BASE_HEX, NULL, 0x3, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL}
         },
         {&hf_cm_rej_rej_info_len, {
                 "Reject Info Length", "infiniband.cm.rej.rejinfolen",
-                FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xfe, NULL, HFILL}
         },
         {&hf_cm_rej_reason, {
                 "Reason", "infiniband.cm.rej.reason",
