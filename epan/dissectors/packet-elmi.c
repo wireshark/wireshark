@@ -335,6 +335,7 @@ dissect_elmi_info_elem(
                     break;
                 offset += ret;
             }
+            break;
         default:
             offset += len;
             break;
