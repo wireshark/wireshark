@@ -192,6 +192,7 @@ static int hf_ipv6_opt_rpl_flag_rsv             = -1;
 static int hf_ipv6_opt_rpl_instance_id          = -1;
 static int hf_ipv6_opt_rpl_senderrank           = -1;
 static int hf_ipv6_opt_experimental             = -1;
+static int hf_ipv6_opt_unknown_data             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
@@ -331,6 +332,7 @@ static expert_field ei_ipv6_routing_hdr_rpl_reserved = EI_INIT;
 static expert_field ei_ipv6_opt_tel_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_rtalert_invalid_len = EI_INIT;
+static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_mipv6_home_address_invalid_len = EI_INIT;
 static expert_field ei_ipv6_shim6_opt_elemlen_invalid = EI_INIT;
 static expert_field ei_ipv6_shim6_checksum_bad = EI_INIT;
@@ -1042,7 +1044,7 @@ static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item, ws_ip* iph)
 {
     int         len;
-    int         offset_end;
+    int         offset_end, offset_opt_end;
     proto_tree *dstopt_tree, *opt_tree;
     proto_item *ti, *ti_len, *ti_opt, *ti_opt_len;
     guint8      opt_len, opt_type;
@@ -1091,6 +1093,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             opt_len = tvb_get_guint8(tvb, offset);
             proto_item_set_len(ti_opt, opt_len + 2);
             offset += 1;
+            offset_opt_end = offset + opt_len;
 
             switch (opt_type) {
             case IP6OPT_PADN:
@@ -1246,6 +1249,11 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                                     offset, opt_len, ENC_NA);
                 offset += opt_len;
                 break;
+            }
+            if(offset < offset_opt_end){
+                ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data, tvb, offset, offset_opt_end - offset, ENC_NA);
+                expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+                offset = offset_opt_end;
             }
             /* Close the ) to option root label */
             proto_item_append_text(ti_opt, ")");
@@ -2538,6 +2546,9 @@ proto_register_ipv6(void)
           { "Experimental Option","ipv6.opt.experimental",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_ipv6_opt_unknown_data,
+          { "Unknown Data", "ipv6.opt_unknown_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Not interpreted Data", HFILL }},
         { &hf_ipv6_opt_unknown,
           { "Unknown Option Payload","ipv6.opt.unknown",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2938,6 +2949,7 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_tel_invalid_len, { "ipv6.opt.tel.invalid_len", PI_MALFORMED, PI_ERROR, "Tunnel Encapsulation Limit: Invalid length", EXPFILL }},
         { &ei_ipv6_opt_jumbo_invalid_len, { "ipv6.opt.jumbo.invalid_len", PI_MALFORMED, PI_ERROR, "Jumbo payload: Invalid length", EXPFILL }},
         { &ei_ipv6_opt_rtalert_invalid_len, { "ipv6.opt.router_alert.invalid_len", PI_MALFORMED, PI_ERROR, "Router alert: Invalid Length", EXPFILL }},
+        { &ei_ipv6_opt_unknown_data, { "ipv6.opt.unknown_data.expert", PI_UNDECODED, PI_NOTE, "Unknown Data (not interpreted)", EXPFILL }},
         { &ei_ipv6_mipv6_home_address_invalid_len, { "ipv6.mipv6_home_address.invalid_len", PI_MALFORMED, PI_ERROR, "Home Address: Invalid length", EXPFILL }},
         { &ei_ipv6_shim6_opt_elemlen_invalid, { "ipv6.shim6.opt.elemlen.invalid", PI_MALFORMED, PI_ERROR, "Invalid element length", EXPFILL }},
         { &ei_ipv6_shim6_checksum_bad, { "ipv6.shim6.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
