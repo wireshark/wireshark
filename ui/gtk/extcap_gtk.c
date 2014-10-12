@@ -685,7 +685,6 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
         }
 
         prev_value = FALSE;
-        prev_matched = FALSE;
         gtk_tree_store_append(store, &iter, find_data.parent_iter);
 
         if (find_data.parent_iter != NULL)
