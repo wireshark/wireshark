@@ -8884,7 +8884,7 @@ ncxcp            5681/udp # Net-coneX Control Protocol [Ryan_Werber] [Ryan_Werbe
 brightcore       5682/udp # BrightCore control & data transfer exchange [Marko_Bjelac] [Marko_Bjelac] 2010-06-10
 coap             5683/udp # Constrained Application Protocol [IESG] [IETF_Chair] 2011-06-13 2013-07-25 [RFC7252]
 coaps            5684/udp # DTLS-secured CoAP [IESG] [IETF_Chair] 2013-07-25 [RFC7252]
-gog-multiplayer  5687/udp # GOG RakNet Game protocol on Galaxy service [GOG.com] [Michal_Gruchala] 2014-07-31
+gog-multiplayer  5687/udp # GOG multiplayer game protocol [GOG.com] [Michal_Gruchala] 2014-07-31 2014-10-09
 ggz              5688/tcp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 ggz              5688/udp # GGZ Gaming Zone [Josef_Spillner] [Josef_Spillner] 2003-01
 qmvideo          5689/tcp # QM video network management protocol [Jamie_Lokier] [Jamie_Lokier] 2006-05
