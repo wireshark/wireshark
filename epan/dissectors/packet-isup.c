@@ -4565,7 +4565,6 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
         case G_727_Embedded_ADPCM :
           /* four bit config data, TODO decode config */
           if (len > 2) {
-            tempdata = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_isup_configuration_data, tvb, offset, 1, ENC_NA);
             offset = offset + 1;
           }
@@ -4575,7 +4574,6 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
         case G_729_Annex_B :
           /* three bit config data, TODO decode config */
           if (len > 2) {
-            tempdata = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_isup_configuration_data, tvb, offset, 1, ENC_NA);
             offset = offset + 1;
           }
@@ -4627,7 +4625,6 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
       break;
     default:
       offset = offset + 1;
-      tempdata = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_isup_unknown_organisation_identifier, tvb, offset, len, ENC_NA);
       offset = offset + len - 1;
       break;
