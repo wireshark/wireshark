@@ -471,10 +471,10 @@ extcap_arg_cb(gpointer key, gpointer value, gpointer data) {
 
     if ( key != NULL )
     {
-        g_ptr_array_add(args, key);
+        g_ptr_array_add(args, g_strdup((const gchar*)key));
 
         if ( value != NULL )
-            g_ptr_array_add(args, value);
+            g_ptr_array_add(args, g_strdup((const gchar*)value));
     }
 }
 
