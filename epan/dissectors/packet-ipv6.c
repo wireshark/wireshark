@@ -2519,7 +2519,7 @@ proto_register_ipv6(void)
             NULL, HFILL }},
         { &hf_ipv6_opt_rpl_flag,
           { "Flag",                 "ipv6.opt.rpl.flag",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ipv6_opt_rpl_flag_o,
           { "Down",                 "ipv6.opt.rpl.flag.o",
