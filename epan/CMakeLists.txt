@@ -178,17 +178,14 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-nspi.c
 	dissectors/packet-dcerpc-mdssvc.c
 	dissectors/packet-dcerpc-misc.c
+	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-rfr.c
 	dissectors/packet-dcerpc-srvsvc.c
 	dissectors/packet-dcerpc-winreg.c
 	dissectors/packet-dcerpc-wkssvc.c
 	dissectors/packet-dcerpc-wzcsvc.c
 )
-set(DIRTY_PIDL_DISSECTOR_SRC
-	dissectors/packet-dcerpc-mapi.c
 
-
-)
 set(ASN1_DISSECTOR_SRC
 	dissectors/packet-acp133.c
 	dissectors/packet-acse.c
@@ -1452,7 +1449,6 @@ set(DISSECTOR_FILES
 	${DIRTY_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
-	${DIRTY_PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}

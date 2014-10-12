@@ -50,6 +50,7 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-butc.c	\
 	packet-dcerpc-dfs.c	\
 	packet-dcerpc-dnsserver.c	\
+	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c	\
 	packet-dcerpc-efs.c	\
 	packet-dcerpc-eventlog.c	\
@@ -57,6 +58,7 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-mdssvc.c	\
+	packet-dcerpc-mapi.c	\
 	packet-dcerpc-misc.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-rfr.c	\
@@ -64,14 +66,6 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-winreg.c	\
 	packet-dcerpc-wkssvc.c	\
 	packet-dcerpc-wzcsvc.c
-
-
-#
-# PIDL-generated DCE RPC dissectors with warnings.
-#
-DIRTY_PIDL_DISSECTOR_SRC =	\
-	packet-dcerpc-drsuapi.c	\
-	packet-dcerpc-mapi.c
 
 #
 # Headers for PIDL-generated dissectors.
@@ -1750,6 +1744,5 @@ ALL_DISSECTORS_SRC =	\
 	$(FILE_DISSECTOR_SRC)	\
 	$(DIRTY_DISSECTOR_SRC)	\
 	$(PIDL_DISSECTOR_SRC)	\
-	$(DIRTY_PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
 	$(DIRTY_ASN1_DISSECTOR_SRC)

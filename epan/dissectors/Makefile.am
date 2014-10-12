@@ -27,8 +27,7 @@ include Makefile.common
 
 libdirtydissectors_la_SOURCES = \
 	$(DIRTY_DISSECTOR_SRC)		\
-	$(DIRTY_ASN1_DISSECTOR_SRC)	\
-	$(DIRTY_PIDL_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC)
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
