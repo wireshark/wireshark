@@ -1004,7 +1004,7 @@ other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, co
 
 	i = 0;
 	p = buf;
-	bit = 1ULL << (width - 1);
+	bit = G_GUINT64_CONSTANT(1) << (width - 1);
 	for (;;) {
 		if (mask & bit) {
 			/* This bit is part of the field.  Show its value. */
@@ -1051,7 +1051,7 @@ decode_numeric_bitfield(const guint64 val, const guint64 mask, const int width,
 	buf=(char *)ep_alloc(1025); /* isn't this a bit overkill? */
 	/* Compute the number of bits we have to shift the bitfield right
 	   to extract its value. */
-	while ((mask & (1ULL << shift)) == 0)
+	while ((mask & (G_GUINT64_CONSTANT(1) << shift)) == 0)
 		shift++;
 
 	p = decode_bitfield_value(buf, val, mask, width);

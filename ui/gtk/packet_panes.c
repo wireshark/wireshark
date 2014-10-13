@@ -961,7 +961,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
             /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
             if (bitt > 0 && bitt < 32) {
 
-                bmask = ((1ULL << bitc) - 1) << ((8-bitt) & 7);
+                bmask = ((G_GUINT64_CONSTANT(1) << bitc) - 1) << ((8-bitt) & 7);
                 bmask_le = 0; /* ? */
             }
         }
@@ -1025,7 +1025,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
         break;
 
     case BYTES_BITS:
-        bmask = (1ULL << (7-bitoffset));
+        bmask = (G_GUINT64_CONSTANT(1) << (7-bitoffset));
         break;
 
     default:

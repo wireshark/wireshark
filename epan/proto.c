@@ -3507,7 +3507,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 
 	if (hfinfo->bitmask) {
 		/* Mask out irrelevant portions */
-		integer &= hfinfo->bitmask;
+		integer &= (guint32)(hfinfo->bitmask);
 
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
@@ -3649,7 +3649,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 
 	if (hfinfo->bitmask) {
 		/* Mask out irrelevant portions */
-		integer &= hfinfo->bitmask;
+		integer &= (guint32)(hfinfo->bitmask);
 
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
@@ -7028,10 +7028,10 @@ proto_registrar_dump_fields(void)
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
 
-			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%llx\t%s\n",
+			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
 				hfinfo->name, hfinfo->abbrev, enum_name,
 				parent_hfinfo->abbrev, base_name,
-				(unsigned long long) hfinfo->bitmask, blurb);
+				hfinfo->bitmask, blurb);
 		}
 	}
 }
@@ -7396,7 +7396,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		case 8:
 			value = encoding ? tvb_get_letoh64(tvb, offset) :
 			tvb_get_ntoh64(tvb, offset);
-			available_bits = 0xFFFFFFFFFFFFFFFF;
+			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF);
 			break;
 		default:
 			g_assert_not_reached();
