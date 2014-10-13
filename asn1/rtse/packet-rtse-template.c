@@ -144,24 +144,23 @@ static int
 call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tvbuff_t *next_tvb;
+	int len;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)){
+
+	if((len = dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0) {
 		proto_item *item;
 		proto_tree *next_tree;
+
 		next_tree = proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_rtse_unknown, &item,
-							"RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+				"RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 
 		expert_add_info_format(pinfo, item, &ei_rtse_dissector_oid_not_implemented,
-                                        "RTSE: Dissector for OID %s not implemented", oid);
-		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
+                                       "RTSE: Dissector for OID %s not implemented", oid);
+		len = dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
-	/*XXX until we change the #.REGISTER signature for _PDU()s
-	 * into new_dissector_t   we have to do this kludge with
-	 * manually step past the content in the ANY type.
-	 */
-	offset+=tvb_captured_length_remaining(tvb, offset);
+	offset += len;
 
 	return offset;
 }
