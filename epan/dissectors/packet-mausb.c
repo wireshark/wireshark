@@ -32,13 +32,13 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/oui.h>
 
 #include "packet-llc.h"
 #include "packet-usb.h"
 
 void proto_reg_handoff_mausb(void);
 void proto_register_mausb(void);
-void proto_register_mausb_oui(void);
 
 /* For SNAP Packets */
 static int hf_llc_mausb_pid = -1;
@@ -131,11 +131,10 @@ static expert_field ei_cap_resp_desc_len = EI_INIT;
 
 /* for dissecting snap packets */
 /*
- * TODO: determine assigned OUI & PID value
+ * TODO: determine assigned PID value
  * (yet to be assigned as of Earth Day 2014)
  */
-#define OUI_MAUSB 0xdead54
-#define PID_MAUSB 0xf539
+#define PID_MAUSB 0x1500
 
 static const value_string mausb_pid_string[] = {
     { PID_MAUSB, "MAUSB" },
@@ -1897,7 +1896,7 @@ proto_reg_handoff_mausb(void)
         mausb_pkt_handle = new_create_dissector_handle(dissect_mausb_pkt,
                 proto_mausb);
 
-        dissector_add_uint("llc.mausb_pid", PID_MAUSB, mausb_pkt_handle);
+        dissector_add_uint("llc.wfa_pid", PID_MAUSB, mausb_pkt_handle);
         initialized = TRUE;
 
     } else {
@@ -1914,7 +1913,7 @@ proto_reg_handoff_mausb(void)
 }
 
 void
-proto_register_mausb_oui(void)
+proto_register_wfa_oui(void)
 {
     static hf_register_info hf[] = {
       { &hf_llc_mausb_pid,
@@ -1923,7 +1922,7 @@ proto_register_mausb_oui(void)
       }
     };
 
-    llc_add_oui(OUI_MAUSB, "llc.mausb_pid", "LLC MA USB OUI PID", hf);
+    llc_add_oui(OUI_WFA, "llc.wfa_pid", "LLC WFA OUI PID", hf);
 }
 
 /*
