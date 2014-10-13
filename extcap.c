@@ -342,6 +342,11 @@ extcap_interface_list(char **err_str) {
     return ret;
 }
 
+static void g_free_1(gpointer data, gpointer user_data _U_)
+{
+    g_free(data);
+}
+
 static void extcap_free_if_configuration(GList *list)
 {
     GList *elem;
@@ -355,7 +360,8 @@ static void extcap_free_if_configuration(GList *list)
         }
 
         arg_list = g_list_first((GList *)elem->data);
-        g_list_free_full(arg_list, g_free);
+        g_list_foreach(arg_list, g_free_1, NULL);
+        g_list_free(arg_list);
     }
     g_list_free(list);
 }
