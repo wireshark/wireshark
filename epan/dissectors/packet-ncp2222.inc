@@ -2757,8 +2757,7 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
             case 18:
             case 19:
             case 20:            /* string */
-                /* XXX: Should we verify: buffer_size is as large as value returned by get_finfo_length(...)  ???      */
-                uni_to_string(get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer)), buffer);
+                uni_to_string(get_finfo_value_string(PTREE_FINFO(tree_pointer)), MIN(get_finfo_length(PTREE_FINFO(tree_pointer)), buffer_size), buffer);
                 if (repeat_lookup > 0) {
                     if (strlen(temp_buffer) + strlen(buffer) < 250) {
                         g_strlcat(temp_buffer, buffer, 256);
