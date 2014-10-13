@@ -75,7 +75,6 @@ reordercap_OBJECTS = $(reordercap_SOURCES:.c=.obj)
 
 wireshark_gtk_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib ole32.lib psapi.lib \
-	$(GTHREAD_LIBS) \
 	$(HHC_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
@@ -96,7 +95,6 @@ wireshark_gtk_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib psapi.lib \
 	$(GLIB_LIBS) \
-	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
@@ -115,7 +113,6 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tfshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib psapi.lib \
 	$(GLIB_LIBS) \
-	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
@@ -181,8 +178,7 @@ dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	caputils\libcaputils.lib \
 	wsutil\libwsutil.lib \
-	$(GLIB_LIBS) \
-	$(GTHREAD_LIBS)
+	$(GLIB_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib psapi.lib \
@@ -1370,7 +1366,6 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GTK_DIR)\bin\libgthread-2.0-0.dll $(INSTALL_DIR) /d
 !IF "$(GTK_PKG)" != "2.24.14-1.1"
 	xcopy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR) /d
 !ENDIF

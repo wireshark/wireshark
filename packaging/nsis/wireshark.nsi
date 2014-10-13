@@ -330,7 +330,6 @@ File "${STAGING_DIR}\libgio-2.0-0.dll"
 File "${STAGING_DIR}\libglib-2.0-0.dll"
 File "${STAGING_DIR}\libgobject-2.0-0.dll"
 File "${STAGING_DIR}\libgmodule-2.0-0.dll"
-File "${STAGING_DIR}\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${STAGING_DIR}\iconv.dll"
 !endif

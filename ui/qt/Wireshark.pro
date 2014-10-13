@@ -452,7 +452,7 @@ win32 {
         ../../dumpcap.exe \
         ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
-        $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
+        $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
         $${GNUTLS_DIR}/bin/libffi-6.dll $${GNUTLS_DIR}/bin/$${GCC_DLL} \
         $${GNUTLS_DIR}/bin/libgcrypt-20.dll $${GNUTLS_DIR}/bin/libgmp-10.dll \

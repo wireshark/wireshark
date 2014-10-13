@@ -501,7 +501,7 @@ GEOIP_PKG=1.5.1-2
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2014-10-01
+DOWNLOAD_TAG=2014-10-13
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -525,16 +525,16 @@ GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
 #EXPAT_DLL=libexpat-1.dll
-FFI_DLL=libffi-5.dll
+FFI_DLL=libffi-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 FREETYPE_DLL=libfreetype-6.dll
 INTL_DLL=libintl-8.dll
-#HARFBUZZ_DLL=libharfbuzz-0.dll
+HARFBUZZ_DLL=libharfbuzz-0.dll
 JASPER_DLL=libjasper-1.dll
 JPEG_DLL=libjpeg-8.dll
 LZMA_DLL=liblzma-5.dll
 PIXMAN_DLL=libpixman-1-0.dll
-PNG_DLL=libpng15-15.dll
+PNG_DLL=libpng16-16.dll
 #SEH_DLL=libgcc_s_seh-1.dll
 TIFF_DLL=libtiff-5.dll
 XML_DLL=libxml2-2.dll
@@ -543,7 +543,7 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-GTK_PKG=2.24.14-1.1
+GTK_PKG=2.24.23-3.39
 #GTK_PKG=2.24.23-1.1
 PKG_SUFIX=ws
 !ELSE
@@ -1371,7 +1371,6 @@ GLIB_CFLAGS=/I$(GTK_DIR)\include\glib-$(GLIB_VERSION) \
 GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
-GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
 PROGRAM_NAME_GTK=$(PROGRAM_NAME)-gtk
 
