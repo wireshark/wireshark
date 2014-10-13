@@ -1140,25 +1140,17 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
                 /* Decoded an ASN.1 tag with a length indicating this
                  * could be BER encoded data.  Try dissecting as unknown BER.
                  */
-                len = dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+                dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
             } else {
                 proto_tree_add_text(next_tree, next_tvb, 0, length_remaining,
                                     "Unknown Data (%d byte%s)", length_remaining,
                                     plurality(length_remaining, "", "s"));
             }
         }
-
+        len = length_remaining;
     }
 
-    if (len > 0) {
-        offset += len;
-    } else {
-        /*XXX until we change the #.REGISTER signature for _PDU()s
-         * into new_dissector_t   we have to do this kludge with
-         * manually step past the content in the ANY type.
-         */
-        offset += tvb_length_remaining(tvb, offset);
-    }
+    offset += len;
 
     return offset;
 }
@@ -1173,8 +1165,7 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
     if (syntax == NULL ||
         (len = dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, NULL)) == 0)
     {
-        proto_item *item      = NULL;
-        proto_tree *next_tree = NULL;
+        proto_item *item = NULL;
 
         if (syntax == NULL) {
             item = proto_tree_add_expert_format(
@@ -1187,21 +1178,14 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
                     " Contact Wireshark developers if you want this supported",
                     syntax);
         }
-        if (item) {
-            next_tree = proto_item_add_subtree(item, ett_ber_unknown);
+        if (decode_unexpected) {
+            proto_tree *unknown_tree = proto_item_add_subtree(item, ett_ber_unknown);
+            dissect_unknown_ber(pinfo, next_tvb, 0, unknown_tree);
         }
-        len = dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+        len = tvb_length_remaining(tvb, offset);
     }
 
-    if (len > 0) {
-        offset += len;
-    } else {
-        /*XXX until we change the #.REGISTER signature for _PDU()s
-         * into new_dissector_t   we have to do this kludge with
-         * manually step past the content in the ANY type.
-         */
-        offset += tvb_length_remaining(tvb, offset);
-    }
+    offset += len;
 
     return offset;
 }
