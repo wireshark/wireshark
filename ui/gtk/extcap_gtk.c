@@ -316,10 +316,10 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
              */
             if (extcap_compare_is_default(arg, parsed_complex))
                 continue;
-        }
 
-        if (parsed_complex != NULL && call_string == NULL)
-            call_string = extcap_get_complex_as_string(parsed_complex);
+            if (parsed_complex != NULL && call_string == NULL)
+                call_string = extcap_get_complex_as_string(parsed_complex);
+        }
 
         g_hash_table_insert(ret_hash, g_strdup(arg->call),
                 g_strdup(call_string));
