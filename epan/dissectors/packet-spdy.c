@@ -1529,7 +1529,7 @@ static int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   /* Add control bit. */
   control_bit = tvb_get_guint8(tvb, offset) & 0x80;
-  proto_tree_add_item(spdy_tree, hf_spdy_control_bit, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(spdy_tree, hf_spdy_control_bit, tvb, offset, 2, ENC_NA);
 
   /* Process first four bytes of frame, formatted depending on control bit. */
   if (control_bit) {
