@@ -467,7 +467,7 @@ win32 {
 
     wireshark_use_kfw {
         EXTRA_BINFILES += \
-            $${KFW_DIR}/bin/comerr32.dll $${KFW_DIR}/bin/krb5_32.dll $${KFW_DIR}/bin/k5sprt32.dll
+            $${KFW_DIR}/bin/$${COMERR_DLL} $${KFW_DIR}/bin/$${KRB5_DLL} $${KFW_DIR}/bin/$${K5SPRT_DLL}
     }
 
     EXTRA_BINFILES ~= s,/,\\,g

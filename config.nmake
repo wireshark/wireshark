@@ -431,6 +431,9 @@ GCC_DLL=libgcc_s_sjlj-1.dll
 # isn't defined.
 #
 KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3-2-2-i386-ws-vc6
+COMERR_DLL=comerr32.dll
+KRB5_DLL=krb5_32.dll
+K5SPRT_DLL=k5sprt32.dll
 
 # Optional: the LUA library enables scripting support.
 #
@@ -679,7 +682,10 @@ GCC_DLL=libgcc_s_seh-1.dll
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-#KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3.2.2-ws1
+KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3-2-2-x64-ws
+COMERR_DLL=comerr64.dll
+KRB5_DLL=krb5_64.dll
+K5SPRT_DLL=k5sprt64.dll
 
 #
 # Optional: the LUA library enables scripting support.
@@ -1434,7 +1440,7 @@ NEED_XML_DLL=USE
 # GTK+
 ## Note: If Wireshark is ever to be built with Gtk >= 3.10
 ##        then -DGTK_DISABLE_DEPRECATED must be removed
-##        and -DGDK_DISABLE_DEPRECIATION_WARNINGS must
+##        and -DGDK_DISABLE_DEPRECATION_WARNINGS must
 ##        be added below.
 ##       Wireshark changes to handle Gtk 3.10 deprecated features
 ##        will not be done since Wireshark is moving to Qt.
@@ -1610,7 +1616,11 @@ ADNS_CONFIG=
 !IFDEF KFW_DIR
 KFW_PATH=$(KFW_DIR)\bin
 KFW_CFLAGS=/I$(KFW_DIR)\include
+!IF "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 KFW_LIBS=$(KFW_DIR)\lib\krb5_32.lib
+!ELSE
+KFW_LIBS=$(KFW_DIR)\lib\krb5_64.lib
+!ENDIF
 # Nmake uses carets to escape special characters
 KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
 !else

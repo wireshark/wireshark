@@ -511,6 +511,10 @@ guilibsdll = $(guilibsdll)
 
 HHC_LIBS = $(HHC_LIBS)
 
+COMERR_DLL = $(COMERR_DLL)
+KRB5_DLL = $(KRB5_DLL)
+K5SPRT_DLL = $(K5SPRT_DLL)
+
 SH = $(SH)
 PYTHON = $(PYTHON)
 
@@ -983,7 +987,11 @@ process_libs:
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. \
+!IF "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 		kfw-3-2-2-i386-ws-vc6.zip \
+!ELSE
+		kfw-3-2-2-x64-ws.zip \
+!ENDIF
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 #	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 #		. \
@@ -1117,8 +1125,8 @@ clean_setup:
 	rm -r -f gtk-wimp
 	rm -r -f kfw-2.5
 	rm -r -f kfw-3-2-2-final
-	rm -r -f kfw-3.2.2-ws1
 	rm -r -f kfw-3-2-2-i386-ws-vc6
+	rm -r -f kfw-3-2-2-x64-ws
 	rm -r -f libiconv-1.9.1.bin.woe32
 	rm -r -f lua5.1
 	rm -r -f lua5.1.4
@@ -1381,9 +1389,9 @@ install-all: install-generated-files
 	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF KFW_DIR
-	xcopy $(KFW_PATH)\comerr32.dll $(INSTALL_DIR) /d
-	xcopy $(KFW_PATH)\krb5_32.dll $(INSTALL_DIR) /d
-	xcopy $(KFW_PATH)\k5sprt32.dll $(INSTALL_DIR) /d
+	xcopy $(KFW_PATH)\$(COMERR_DLL) $(INSTALL_DIR) /d
+	xcopy $(KFW_PATH)\$(KRB5_DLL) $(INSTALL_DIR) /d
+	xcopy $(KFW_PATH)\$(K5SPRT_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF GNUTLS_DIR
 	xcopy $(GNUTLS_DIR)\bin\libffi-6.dll $(INSTALL_DIR) /d

@@ -344,9 +344,9 @@ File "${STAGING_DIR}\libcares-2.dll"
 File "${STAGING_DIR}\adns_dll.dll"
 !endif
 !ifdef KFW_DIR
-File "${STAGING_DIR}\comerr32.dll"
-File "${STAGING_DIR}\krb5_32.dll"
-File "${STAGING_DIR}\k5sprt32.dll"
+File "${STAGING_DIR}\${COMERR_DLL}"
+File "${STAGING_DIR}\${KRB5_DLL}"
+File "${STAGING_DIR}\${K5SPRT_DLL}"
 !endif
 !ifdef GNUTLS_DIR
 File "${STAGING_DIR}\libffi-6.dll"
