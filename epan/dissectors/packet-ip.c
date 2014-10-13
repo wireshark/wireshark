@@ -170,6 +170,7 @@ static int hf_ip_src_rt = -1;
 static int hf_ip_src_rt_host = -1;
 static int hf_ip_empty_rt = -1;
 static int hf_ip_empty_rt_host = -1;
+static int hf_ip_cipso_tag_type = -1;
 
 static int hf_ip_fragments = -1;
 static int hf_ip_fragment = -1;
@@ -182,6 +183,16 @@ static int hf_ip_fragment_count = -1;
 static int hf_ip_reassembled_in = -1;
 static int hf_ip_reassembled_length = -1;
 static int hf_ip_reassembled_data = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_ip_opt_flag = -1;
+static int hf_ip_opt_overflow = -1;
+static int hf_ip_cipso_tag_data = -1;
+static int hf_ip_cipso_sensitivity_level = -1;
+static int hf_ip_cipso_categories = -1;
+static int hf_ip_cipso_doi = -1;
+static int hf_ip_opt_time_stamp = -1;
+static int hf_ip_opt_time_stamp_addr = -1;
 
 #ifdef HAVE_GEOIP
 static int hf_geoip_country = -1;
@@ -231,6 +242,7 @@ static gint ett_ip_fragment  = -1;
 static gint ett_ip_checksum = -1;
 static gint ett_ip_opt_type = -1;
 static gint ett_ip_opt_sec_prot_auth_flags = -1;
+static gint ett_unknown_ip_tcp_opt = -1;
 
 static expert_field ei_ip_opt_len_invalid = EI_INIT;
 static expert_field ei_ip_opt_sec_prot_auth_fti = EI_INIT;
@@ -244,6 +256,7 @@ static expert_field ei_ip_evil_packet = EI_INIT;
 static expert_field ei_ip_checksum_bad = EI_INIT;
 static expert_field ei_ip_ttl_lncb = EI_INIT;
 static expert_field ei_ip_ttl_too_small = EI_INIT;
+static expert_field ei_ip_cipso_tag = EI_INIT;
 
 
 #ifdef HAVE_GEOIP
@@ -575,15 +588,11 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 #ifdef HAVE_GEOIP
 static void
-add_geoip_info_entry(proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, guint32 ip, int isdst)
+add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, guint32 ip, int isdst)
 {
-  proto_tree *geoip_info_tree;
-
   guint num_dbs = geoip_db_num_dbs();
   guint item_cnt = 0;
   guint dbnum;
-
-  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
 
   for (dbnum = 0; dbnum < num_dbs; dbnum++) {
     const char *geoip_str = geoip_db_lookup_ipv4(dbnum, ip, NULL);
@@ -665,19 +674,19 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 src32,
 {
   guint num_dbs;
   proto_item *geoip_info_item;
+  proto_tree *geoip_info_tree;
 
   num_dbs = geoip_db_num_dbs();
   if (num_dbs < 1)
     return;
 
-  geoip_info_item = proto_tree_add_text(tree, tvb, offset + IPH_SRC, 4, "Source GeoIP: ");
+  geoip_info_tree = proto_tree_add_subtree(tree, tvb, offset + IPH_SRC, 4, ett_geoip_info, &geoip_info_item, "Source GeoIP: ");
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  add_geoip_info_entry(geoip_info_item, tvb, offset + IPH_SRC, src32, 0);
+  add_geoip_info_entry(geoip_info_tree, geoip_info_item, tvb, offset + IPH_SRC, src32, 0);
 
-  geoip_info_item = proto_tree_add_text(tree, tvb, offset + IPH_DST, 4,
-                                        "Destination GeoIP: ");
+  geoip_info_tree = proto_tree_add_subtree(tree, tvb, offset + IPH_DST, 4, ett_geoip_info, &geoip_info_item, "Destination GeoIP: ");
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  add_geoip_info_entry(geoip_info_item, tvb, offset + IPH_DST, dst32, 1);
+  add_geoip_info_entry(geoip_info_tree, geoip_info_item, tvb, offset + IPH_DST, dst32, 1);
 }
 #endif /* HAVE_GEOIP */
 
@@ -742,10 +751,8 @@ dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                    proto_tree *opt_tree, void * data _U_)
 {
   proto_tree *field_tree;
-  proto_item *tf;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", optp->name);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree(opt_tree, tvb, offset,  1, *optp->subtree_index, NULL, optp->name);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
 }
 
@@ -820,9 +827,8 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   guint      val;
   guint      curr_offset = offset;
 
-  tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, curr_offset, optlen, *optp->subtree_index, &tf,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, curr_offset, field_tree, &IP_OPT_TYPES);
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
@@ -884,14 +890,12 @@ dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                            void * data _U_)
 {
   proto_tree *field_tree;
-  proto_item *tf;
   proto_item *tf_sub;
   guint      curr_offset = offset;
   gint      remaining;
 
-  tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, curr_offset, optlen,
+                           *optp->subtree_index, NULL, "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, curr_offset, field_tree, &IP_OPT_TYPES);
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
@@ -917,19 +921,29 @@ dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
  * draft-ietf-cipso-ipsecurity-01.txt and FIPS 188, a copy of both documents
  * can be found at the NetLabel project page, http://netlabel.sf.net or at
  * http://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
+static const value_string cipso_tag_type_vals[] = {
+   {0,   "Padding"},
+   {1,   "Restrictive Category Bitmap"},
+   {2,   "Enumerated Categories"},
+   {5,   "Ranged Categories"},
+   {6,   "Permissive Categories"},
+   {7,   "Free Form"},
+
+   { 0,                          NULL }
+};
+
 static void
 dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                     guint optlen, packet_info *pinfo, proto_tree *opt_tree,
                     void * data _U_)
 {
   proto_tree *field_tree;
-  proto_item *tf;
+  proto_item *tf, *tag_item;
   guint      tagtype, taglen;
   int        offset_max = offset + optlen;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, &tf,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -937,13 +951,13 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
   offset += 2;
 
-  proto_tree_add_text(field_tree, tvb, offset, 4, "DOI: %u",
-                      tvb_get_ntohl(tvb, offset));
+  proto_tree_add_item(field_tree, hf_ip_cipso_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   /* loop through all of the tags in the CIPSO option */
   while (offset < offset_max) {
     tagtype = tvb_get_guint8(tvb, offset);
+    tag_item = proto_tree_add_item(field_tree, hf_ip_cipso_tag_type, tvb, offset, 1, ENC_NA);
 
     if ((offset + 1) < offset_max)
       taglen = tvb_get_guint8(tvb, offset + 1);
@@ -959,20 +973,14 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       /* restrictive bitmap, see CIPSO draft section 3.4.2 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
          ((offset + (int)taglen - 1) > offset_max)) {
-        proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
-                            "Malformed CIPSO tag");
+        expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return;
       }
-
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Restrictive Category Bitmap (%u)",
-                          tagtype);
 
       /* skip past alignment octet */
       offset += 3;
 
-      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
-                          tvb_get_guint8(tvb, offset));
+      proto_tree_add_item(field_tree, hf_ip_cipso_sensitivity_level, tvb, offset, 1, ENC_NA);
       offset += 1;
 
       if (taglen > 4) {
@@ -1019,11 +1027,9 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         }
 
         if (cat_str)
-          proto_tree_add_text(field_tree, tvb, offset, taglen - 4,
-                              "Categories: %s", cat_str);
+          proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset, taglen - 4, cat_str);
         else
-          proto_tree_add_text(field_tree, tvb, offset, taglen - 4,
-                              "Categories: ERROR PARSING CATEGORIES");
+          proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset, taglen - 4, "ERROR PARSING CATEGORIES");
         offset += taglen - 4;
       }
       break;
@@ -1031,20 +1037,15 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       /* enumerated categories, see CIPSO draft section 3.4.3 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
          ((offset + (int)taglen - 1) > offset_max)) {
-        proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
-                            "Malformed CIPSO tag");
+        expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return;
       }
-
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Enumerated Categories (%u)", tagtype);
 
       /* skip past alignment octet */
       offset += 3;
 
       /* sensitivity level */
-      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
-                          tvb_get_guint8(tvb, offset));
+      proto_tree_add_item(field_tree, hf_ip_cipso_sensitivity_level, tvb, offset, 1, ENC_NA);
       offset += 1;
 
       if (taglen > 4) {
@@ -1061,28 +1062,22 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
           g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);
         }
 
-        proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,
-                            "Categories: %s", cat_str);
+        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);
       }
       break;
     case 5:
       /* ranged categories, see CIPSO draft section 3.4.4 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
          ((offset + (int)taglen - 1) > offset_max)) {
-        proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
-                            "Malformed CIPSO tag");
+        expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return;
       }
-
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Ranged Categories (%u)", tagtype);
 
       /* skip past alignment octet */
       offset += 3;
 
       /* sensitivity level */
-      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
-                          tvb_get_guint8(tvb, offset));
+      proto_tree_add_item(field_tree, hf_ip_cipso_sensitivity_level, tvb, offset, 1, ENC_NA);
       offset += 1;
 
       if (taglen > 4) {
@@ -1111,49 +1106,38 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
           g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16);
         }
 
-        proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,
-                            "Categories: %s", cat_str);
+        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);
       }
       break;
     case 6:
       /* permissive categories, see FIPS 188 section 6.9 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
          ((offset + (int)taglen - 1) > offset_max)) {
-        proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
-                            "Malformed CIPSO tag");
+        expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return;
       }
 
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Permissive Categories (%u)", tagtype);
-      proto_tree_add_text(field_tree, tvb, offset + 2, taglen - 2, "Tag data");
+      proto_tree_add_item(field_tree, hf_ip_cipso_tag_data, tvb, offset + 2, taglen - 2, ENC_NA);
       offset += taglen;
       break;
     case 7:
       /* free form, see FIPS 188 section 6.10 for tag format */
       if ((taglen < 2) || (taglen > CIPSO_TAG_LEN_MAX) ||
          ((offset + (int)taglen - 1) > offset_max)) {
-        proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
-                            "Malformed CIPSO tag");
+        expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return;
       }
 
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Free Form (%u)", tagtype);
-      proto_tree_add_text(field_tree, tvb, offset + 2, taglen - 2, "Tag data");
+      proto_tree_add_item(field_tree, hf_ip_cipso_tag_data, tvb, offset + 2, taglen - 2, ENC_NA);
       offset += taglen;
       break;
     default:
       /* unknown tag - stop parsing this IPv4 option */
       if ((offset + 1) <= offset_max) {
         taglen = tvb_get_guint8(tvb, offset + 1);
-        proto_tree_add_text(field_tree, tvb, offset, 1,
-                            "Tag Type: Unknown (%u) (%u bytes)",
-                            tagtype, taglen);
+        proto_item_append_text(tag_item, " (%u bytes)", taglen);
         return;
       }
-      proto_tree_add_text(field_tree, tvb, offset, 1,
-                          "Tag Type: Unknown (%u) (invalid format)", tagtype);
       return;
     }
   }
@@ -1188,9 +1172,8 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   guint8 len, ptr;
   int optoffset = 0;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -1268,9 +1251,8 @@ dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   guint8 len, ptr;
   int optoffset = 0;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -1327,9 +1309,8 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree *field_tree;
   proto_item *tf;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes): %u",
-                           optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes): %u", optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
@@ -1346,9 +1327,8 @@ dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree *field_tree;
   proto_item *tf;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes): %u",
-                           optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes): %u", optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
@@ -1365,9 +1345,8 @@ dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree *field_tree;
   proto_item *tf;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
@@ -1379,6 +1358,12 @@ dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree_add_item(field_tree, hf_ip_opt_originator, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
 }
 
+static const value_string ipopt_timestamp_flag_vals[] = {
+    {IPOPT_TS_TSONLY,    "Time stamps only"                      },
+    {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
+    {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"},
+    {0,                  NULL                                    }};
+
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint optlen, packet_info *pinfo,
@@ -1389,17 +1374,10 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   int        ptr;
   int        optoffset = 0;
   int        flg;
-  static const value_string flag_vals[] = {
-    {IPOPT_TS_TSONLY,    "Time stamps only"                      },
-    {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
-    {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"},
-    {0,                  NULL                                    }};
   guint32 addr;
-  guint ts;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -1408,7 +1386,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   optlen -= 2;      /* subtract size of type and length */
 
   ptr = tvb_get_guint8(tvb, offset + optoffset);
-  proto_tree_add_text(field_tree, tvb, offset + optoffset, 1, "Pointer: %d%s",
+  proto_tree_add_uint_format_value(field_tree, hf_ip_opt_ptr, tvb, offset + optoffset, 1, ptr, "%d%s",
                       ptr, ((ptr == 1) ? " (header is full)" :
                       (ptr < 5) ? " (points before first address)" :
                       (((ptr - 1) & 3) ? " (points to middle of field)" : "")));
@@ -1417,40 +1395,35 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   ptr--;    /* ptr is 1-origin */
 
   flg = tvb_get_guint8(tvb, offset + optoffset);
-  proto_tree_add_text(field_tree, tvb, offset + optoffset, 1, "Overflow: %u",
-                      flg >> 4);
+  proto_tree_add_item(field_tree, hf_ip_opt_overflow, tvb, offset + optoffset, 1, ENC_NA);
   flg &= 0xF;
-  proto_tree_add_text(field_tree, tvb, offset + optoffset, 1, "Flag: %s",
-                      val_to_str(flg, flag_vals, "Unknown (0x%x)"));
+  proto_tree_add_item(field_tree, hf_ip_opt_flag, tvb, offset + optoffset, 1, ENC_NA);
   optoffset++;
   optlen--;
 
   while (optlen > 0) {
     if (flg == IPOPT_TS_TSANDADDR || flg == IPOPT_TS_PRESPEC) {
       if (optlen < 8) {
-        proto_tree_add_text(field_tree, tvb, offset + optoffset, optlen,
-                            "(suboption would go past end of option)");
+        proto_tree_add_expert(field_tree, pinfo, &ei_ip_subopt_too_long, tvb, offset + optoffset, optlen);
         break;
       }
       addr = tvb_get_ipv4(tvb, offset + optoffset);
-      ts = tvb_get_ntohl(tvb, offset + optoffset + 4);
-      optlen -= 8;
-      proto_tree_add_text(field_tree, tvb, offset + optoffset, 8,
-                          "Address = %s, time stamp = %u",
-                          ((addr == 0) ? "-" :
-                          get_hostname(addr)), ts);
-      optoffset += 8;
+      proto_tree_add_ipv4_format_value(field_tree, hf_ip_opt_time_stamp_addr, tvb, offset + optoffset, 4, addr,
+            "%s", ((addr == 0) ? "-" : get_hostname(addr)));
+      optoffset += 4;
+      optlen -= 4;
+
+      proto_tree_add_item(field_tree, hf_ip_opt_time_stamp, tvb, offset + optoffset, 4, ENC_BIG_ENDIAN);
+      optoffset += 4;
+      optlen -= 4;
     } else {
       if (optlen < 4) {
-        proto_tree_add_text(field_tree, tvb, offset + optoffset, optlen,
-                            "(suboption would go past end of option)");
+        proto_tree_add_expert(field_tree, pinfo, &ei_ip_subopt_too_long, tvb, offset + optoffset, optlen);
         break;
       }
-      ts = tvb_get_ntohl(tvb, offset + optoffset);
-      optlen -= 4;
-      proto_tree_add_text(field_tree, tvb, offset + optoffset, 4,
-                          "Time stamp = %u", ts);
+      proto_tree_add_item(field_tree, hf_ip_opt_time_stamp, tvb, offset + optoffset, 4, ENC_BIG_ENDIAN);
       optoffset += 4;
+      optlen -= 4;
     }
   }
 }
@@ -1472,11 +1445,10 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_item *tf;
   guint16 value = tvb_get_ntohs(tvb, offset + 2);
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                           "%s (%u bytes): %s (%u)", optp->name, optlen,
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                           *optp->subtree_index, NULL, "%s (%u bytes): %s (%u)", optp->name, optlen,
                            rval_to_str(value, ra_rvals, "Unknown (%u)"),
                            value);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
@@ -1493,9 +1465,8 @@ dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree *field_tree;
   proto_item *tf;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
-                           optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL,
+                           "%s (%u bytes)", optp->name, optlen);
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -1549,14 +1520,13 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   guint8 rate = command & QS_RATE_MASK;
   guint8 ttl_diff;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                           "%s (%u bytes): %s (%u)", optp->name, optlen,
+  field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                           *optp->subtree_index, NULL, "%s (%u bytes): %s (%u)", optp->name, optlen,
                            val_to_str(function, qs_func_vals, "Unknown (%u)"),
                            function);
-  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
-  proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
+  tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_qs_func, tvb, offset + 2, 1, ENC_NA);
@@ -1743,7 +1713,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         return;
       } else {
         if (optp == NULL) {
-          proto_tree_add_text(opt_tree, tvb, offset, len, "%s (%u byte%s)",
+          proto_tree_add_subtree_format(opt_tree, tvb, offset, len, ett_unknown_ip_tcp_opt, NULL, "%s (%u byte%s)",
                               name, len, plurality(len, "", "s"));
         } else {
           if (dissect != NULL) {
@@ -1753,13 +1723,11 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
             (*dissect)(optp, tvb, offset, len, pinfo, opt_tree, data);
           } else {
             proto_tree *field_tree;
-            proto_item *tf;
 
             /* Option has no data, hence no dissector. */
             proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s",
                                    name);
-            tf = proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
-            field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
+            field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, len, ett_ip_option_other, NULL, name);
             dissect_ipopt_type(tvb, offset, field_tree, opttypes);
           }
         }
@@ -1774,12 +1742,10 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         (*dissect)(optp, tvb, offset, 1, pinfo, opt_tree, data);
       } else {
         proto_tree *field_tree;
-        proto_item *tf;
 
         /* Option has no data, hence no dissector. */
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
-        tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", name);
-        field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
+        field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 1, ett_ip_option_other, NULL, name);
         dissect_ipopt_type(tvb, offset, field_tree, opttypes);
       }
       offset += 1;
@@ -2362,9 +2328,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (hlen > IPH_MIN_LEN) {
     /* There's more than just the fixed-length header.  Decode the options. */
     optlen = hlen - IPH_MIN_LEN;  /* length of options, in bytes */
-    tf = proto_tree_add_text(ip_tree, tvb, offset + 20, optlen,
-                             "Options: (%u bytes)", optlen);
-    field_tree = proto_item_add_subtree(tf, ett_ip_options);
+    field_tree = proto_tree_add_subtree_format(ip_tree, tvb, offset + 20, optlen,
+                             ett_ip_options, &tf, "Options: (%u bytes)", optlen);
     dissect_ip_tcp_options(tvb, offset + 20, optlen, ipopts, N_IP_OPTS,
                            IPOPT_EOOL, &IP_OPT_TYPES, &ei_ip_opt_len_invalid, pinfo, field_tree, tf, iph);
   }
@@ -2940,6 +2905,11 @@ proto_register_ip(void)
       { "Empty Route Host", "ip.empty_rt_host", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
 
+    { &hf_ip_cipso_tag_type,
+      { "Tag Type", "ip.cipso.tag_type", FT_UINT8, BASE_DEC,
+        VALS(cipso_tag_type_vals), 0x0, NULL, HFILL }},
+
+
     { &hf_ip_fragment_overlap,
       { "Fragment overlap", "ip.fragment.overlap", FT_BOOLEAN, BASE_NONE,
         NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
@@ -2985,7 +2955,18 @@ proto_register_ip(void)
 
     { &hf_ip_reassembled_data,
       { "Reassembled IPv4 data", "ip.reassembled.data", FT_BYTES, BASE_NONE,
-        NULL, 0x0, "The reassembled payload", HFILL }}
+        NULL, 0x0, "The reassembled payload", HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_ip_cipso_doi, { "DOI", "ip.cipso.doi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ip_cipso_sensitivity_level, { "Sensitivity Level", "ip.cipso.sensitivity_level", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ip_cipso_categories, { "Categories", "ip.cipso.categories", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ip_cipso_tag_data, { "Tag data", "ip.cipso.tag_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ip_opt_overflow, { "Overflow", "ip.opt.overflow", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+      { &hf_ip_opt_flag, { "Flag", "ip.opt.flag", FT_UINT8, BASE_HEX, VALS(ipopt_timestamp_flag_vals), 0x0F, NULL, HFILL }},
+      { &hf_ip_opt_time_stamp, { "Time stamp", "ip.opt.time_stamp", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ip_opt_time_stamp_addr, { "Address", "ip.opt.time_stamp_addr", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
 };
 
   static gint *ett[] = {
@@ -3013,6 +2994,7 @@ proto_register_ip(void)
     &ett_ip_checksum,
     &ett_ip_opt_type,
     &ett_ip_opt_sec_prot_auth_flags,
+    &ett_unknown_ip_tcp_opt,
 #ifdef HAVE_GEOIP
     &ett_geoip_info
 #endif
@@ -3030,6 +3012,7 @@ proto_register_ip(void)
      { &ei_ip_checksum_bad, { "ip.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
      { &ei_ip_ttl_lncb, { "ip.ttl.lncb", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
      { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
+     { &ei_ip_cipso_tag, { "ip.cipso.malformed", PI_SEQUENCE, PI_ERROR, "Malformed CIPSO tag", EXPFILL }},
   };
 
   /* Decode As handling */

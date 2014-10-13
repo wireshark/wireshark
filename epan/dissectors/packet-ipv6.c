@@ -197,6 +197,8 @@ static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
 static int hf_ipv6_unk_hdr                      = -1;
 static int hf_ipv6_routing_hdr_opt              = -1;
+static int hf_ipv6_routing_hdr_next_header      = -1;
+static int hf_ipv6_routing_hdr_length           = -1;
 static int hf_ipv6_routing_hdr_type             = -1;
 static int hf_ipv6_routing_hdr_left             = -1;
 static int hf_ipv6_routing_hdr_addr             = -1;
@@ -242,6 +244,8 @@ static int hf_ipv6_shim6_checksum_bad   = -1;
 static int hf_ipv6_shim6_checksum_good  = -1;
 static int hf_ipv6_shim6_inonce         = -1; /* also for request nonce */
 static int hf_ipv6_shim6_rnonce         = -1;
+static int hf_ipv6_shim6_reserved       = -1;
+static int hf_ipv6_shim6_reserved2      = -1;
 static int hf_ipv6_shim6_precvd         = -1;
 static int hf_ipv6_shim6_psent          = -1;
 static int hf_ipv6_shim6_psrc           = -1;
@@ -264,6 +268,9 @@ static int hf_ipv6_shim6_loc_weight     = -1;
 static int hf_ipv6_shim6_opt_locnum     = -1;
 static int hf_ipv6_shim6_opt_elemlen    = -1;
 static int hf_ipv6_shim6_opt_fii        = -1;
+static int hf_ipv6_shim6_validator      = -1;
+static int hf_ipv6_shim6_cga_parameter_data_structure = -1;
+static int hf_ipv6_shim6_cga_signature  = -1;
 static int hf_ipv6_traffic_class_dscp   = -1;
 static int hf_ipv6_traffic_class_ect    = -1;
 static int hf_ipv6_traffic_class_ce     = -1;
@@ -614,15 +621,11 @@ static inline gboolean in6_is_addr_multicast(struct e_in6_addr *a) {
 
 #ifdef HAVE_GEOIP_V6
 static void
-add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
+add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
 {
-    proto_tree *geoip_info_tree;
-
     guint       num_dbs  = geoip_db_num_dbs();
     guint       item_cnt = 0;
     guint       dbnum;
-
-    geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
 
     for (dbnum = 0; dbnum < num_dbs; dbnum++) {
         const char *geoip_str = geoip_db_lookup_ipv6(dbnum, *ip, NULL);
@@ -701,18 +704,19 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_
 {
     guint       num_dbs;
     proto_item *geoip_info_item;
+    proto_tree *geoip_info_tree;
 
     num_dbs = geoip_db_num_dbs();
     if (num_dbs < 1)
         return;
 
-    geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_SRC, 16, "Source GeoIP: ");
+    geoip_info_tree = proto_tree_add_subtree(tree, tvb, offset + IP6H_SRC, 16, ett_geoip_info, &geoip_info_item, "Source GeoIP: ");
     PROTO_ITEM_SET_GENERATED(geoip_info_item);
-    add_geoip_info_entry(geoip_info_item, tvb, offset + IP6H_SRC, src, 0);
+    add_geoip_info_entry(geoip_info_tree, geoip_info_item, tvb, offset + IP6H_SRC, src, 0);
 
-    geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_DST, 16, "Destination GeoIP: ");
+    geoip_info_tree = proto_tree_add_subtree(tree, tvb, offset + IP6H_DST, 16, ett_geoip_info, &geoip_info_item, "Destination GeoIP: ");
     PROTO_ITEM_SET_GENERATED(geoip_info_item);
-    add_geoip_info_entry(geoip_info_item, tvb, offset + IP6H_DST, dst, 1);
+    add_geoip_info_entry(geoip_info_tree, geoip_info_item, tvb, offset + IP6H_DST, dst, 1);
 }
 #endif /* HAVE_GEOIP_V6 */
 
@@ -765,13 +769,13 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                         rt.ip6r_type);
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_text(rthdr_tree, tvb,
+        proto_tree_add_uint_format_value(rthdr_tree, hf_ipv6_routing_hdr_next_header, tvb,
                             offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1,
-                            "Next header: %s (%u)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
+                            rt.ip6r_nxt, "%s (%u)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
 
-        proto_tree_add_text(rthdr_tree, tvb,
+        proto_tree_add_uint_format_value(rthdr_tree, hf_ipv6_routing_hdr_length, tvb,
                             offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1,
-                            "Length: %u (%d bytes)", rt.ip6r_len, len);
+                            rt.ip6r_len, "%u (%d bytes)", rt.ip6r_len, len);
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_type, tvb,
                             offset + (int)offsetof(struct ip6_rthdr, ip6r_type), 1, ENC_BIG_ENDIAN);
@@ -1280,24 +1284,6 @@ static guint16 shim_checksum(tvbuff_t *tvb, int offset, int len)
     return in_cksum(&cksum_vec[0], 1);
 }
 
-static int
-dissect_shim_hex(tvbuff_t *tvb, int offset, int len, const char *itemname, guint8 bitmask, proto_tree *tree)
-{
-    proto_item *ti;
-    int         count;
-    gint        p;
-
-    p = offset;
-
-    ti = proto_tree_add_text(tree, tvb, offset, len, "%s", itemname);
-
-    proto_item_append_text(ti, " 0x%02x", tvb_get_guint8(tvb, p) & bitmask);
-    for (count=1; count<len; count++)
-        proto_item_append_text(ti, "%02x", tvb_get_guint8(tvb, p+count));
-
-    return len;
-}
-
 static const value_string shimoptvals[] = {
     { SHIM6_OPT_RESPVAL,  "Responder Validator Option" },
     { SHIM6_OPT_LOCLIST,  "Locator List Option" },
@@ -1467,7 +1453,8 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         switch (tvb_get_ntohs(tvb, offset) >> 1)
         {
         case SHIM6_OPT_RESPVAL:
-            p += dissect_shim_hex(tvb, p, len, "Validator:", 0xff, opt_tree);
+            proto_tree_add_item(opt_tree, hf_ipv6_shim6_validator, tvb, p, len, ENC_NA);
+            p += len;
             if (total_len-(len+4) > 0)
                 proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
@@ -1480,17 +1467,19 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                 proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGAPDM:
-            p += dissect_shim_hex(tvb, p, len, "CGA Parameter Data Structure:", 0xff, opt_tree);
+            proto_tree_add_item(opt_tree, hf_ipv6_shim6_cga_parameter_data_structure, tvb, p, len, ENC_NA);
+            p += len;
             if (total_len-(len+4) > 0)
                 proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_CGASIG:
-            p += dissect_shim_hex(tvb, p, len, "CGA Signature:", 0xff, opt_tree);
+            proto_tree_add_item(opt_tree, hf_ipv6_shim6_cga_signature, tvb, p, len, ENC_NA);
+            p += len;
             if (total_len-(len+4) > 0)
                 proto_tree_add_item(opt_tree, hf_ipv6_padding, tvb, p, total_len-(len+4), ENC_NA);
             break;
         case SHIM6_OPT_ULIDPAIR:
-            proto_tree_add_text(opt_tree, tvb, p, 4, "Reserved");
+            proto_tree_add_item(opt_tree, hf_ipv6_shim6_reserved, tvb, p, 4, ENC_NA);
             p += 4;
             proto_tree_add_item(opt_tree, hf_ipv6_shim6_sulid, tvb, p, 16, ENC_NA);
             p += 16;
@@ -1587,7 +1576,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
         p += 4;
         break;
     case SHIM6_TYPE_R1:
-        proto_tree_add_text(shim_tree, tvb, p, 2, "Reserved2");
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_reserved2, tvb, p, 2, ENC_NA);
         p += 2;
         proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
         p += 4;
@@ -1601,7 +1590,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
         p += 4;
         proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
         p += 4;
-        proto_tree_add_text(shim_tree, tvb, p, 4, "Reserved2");
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_reserved2, tvb, p, 4, ENC_NA);
         p += 4;
         break;
     case SHIM6_TYPE_R2:
@@ -1623,7 +1612,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
         p += 4;
         proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
         p += 4;
-        proto_tree_add_text(shim_tree, tvb, p, 6, "Reserved2");
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_reserved2, tvb, p, 6, ENC_NA);
         p += 6;
         dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
         p += 6;
@@ -1638,7 +1627,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
     case SHIM6_TYPE_KEEPALIVE:
         dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Receiver Context Tag");
         p += 6;
-        proto_tree_add_text(shim_tree, tvb, p, 4, "Reserved2");
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_reserved2, tvb, p, 4, ENC_NA);
         p += 4;
         break;
     case SHIM6_TYPE_PROBE:
@@ -1660,7 +1649,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
                                          p, 1, (tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
                                          "%s", sta);
 
-        proto_tree_add_text(shim_tree, tvb, p, 3, "Reserved2");
+        proto_tree_add_item(shim_tree, hf_ipv6_shim6_reserved2, tvb, p, 3, ENC_NA);
         p += 3;
 
         /* Probes Sent */
@@ -2561,6 +2550,14 @@ proto_register_ipv6(void)
           { "Type",                 "ipv6.routing_hdr.type",
             FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
             "Routing Header Type", HFILL }},
+        { &hf_ipv6_routing_hdr_next_header,
+          { "Next Header",          "ipv6.routing_hdr.next_header",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_ipv6_routing_hdr_length,
+          { "Length",                 "ipv6.routing_hdr.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_ipv6_routing_hdr_left,
           { "Segments Left",        "ipv6.routing_hdr.left",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2757,6 +2754,16 @@ proto_register_ipv6(void)
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ipv6_shim6_reserved,
+          { "Reserved",      "ipv6.shim6.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_shim6_reserved2,
+          { "Reserved2",      "ipv6.shim6.reserved2",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ipv6_shim6_precvd,
           { "Probes Received",      "ipv6.shim6.precvd",
             FT_UINT8, BASE_DEC, NULL, SHIM6_BITMASK_PRECVD,
@@ -2869,6 +2876,21 @@ proto_register_ipv6(void)
         { &hf_ipv6_shim6_opt_fii,
           { "Forked Instance Identifier", "ipv6.shim6.opt.fii",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_shim6_validator,
+          { "Validator", "ipv6.shim6.validator",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_shim6_cga_parameter_data_structure,
+          { "CGA Parameter Data Structure", "ipv6.shim6.cga_parameter_data_structure",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ipv6_shim6_cga_signature,
+          { "CGA Signature", "ipv6.shim6.cga_signature",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ipv6_traffic_class_dscp,
