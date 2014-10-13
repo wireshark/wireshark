@@ -198,7 +198,7 @@ static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
 static int hf_ipv6_unk_hdr                      = -1;
 static int hf_ipv6_routing_hdr_opt              = -1;
-static int hf_ipv6_routing_hdr_next_header      = -1;
+static int hf_ipv6_routing_hdr_nxt              = -1;
 static int hf_ipv6_routing_hdr_length           = -1;
 static int hf_ipv6_routing_hdr_type             = -1;
 static int hf_ipv6_routing_hdr_left             = -1;
@@ -750,7 +750,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     struct ip6_rthdr  rt;
     guint             len, seg_left;
     proto_tree       *rthdr_tree;
-    proto_item       *ti;
+    proto_item       *ti, *ti_len;
     int               offset = 0;
     guint8            buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
 
@@ -771,13 +771,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                         rt.ip6r_type);
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_uint_format_value(rthdr_tree, hf_ipv6_routing_hdr_next_header, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1,
-                            rt.ip6r_nxt, "%s (%u)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_nxt, tvb,
+                            offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1, ENC_NA);
 
-        proto_tree_add_uint_format_value(rthdr_tree, hf_ipv6_routing_hdr_length, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1,
-                            rt.ip6r_len, "%u (%d bytes)", rt.ip6r_len, len);
+        ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_length, tvb,
+                                     offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1, ENC_NA);
+        proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_type, tvb,
                             offset + (int)offsetof(struct ip6_rthdr, ip6r_type), 1, ENC_BIG_ENDIAN);
@@ -2561,9 +2560,9 @@ proto_register_ipv6(void)
           { "Type",                 "ipv6.routing_hdr.type",
             FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
             "Routing Header Type", HFILL }},
-        { &hf_ipv6_routing_hdr_next_header,
-          { "Next Header",          "ipv6.routing_hdr.next_header",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_ipv6_routing_hdr_nxt,
+          { "Next Header",          "ipv6.routing_hdr.nxt",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
             NULL, HFILL }},
         { &hf_ipv6_routing_hdr_length,
           { "Length",                 "ipv6.routing_hdr.length",
