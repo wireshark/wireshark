@@ -88,15 +88,15 @@ scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	scsi_procedure_t       *rp;
 
 	/* we are only interested in response packets */
-	if(ri->type != SCSI_PDU_TYPE_RSP) {
+	if (ri->type != SCSI_PDU_TYPE_RSP) {
 		return 0;
 	}
 	/* we are only interested in a specific commandset */
-	if( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK) != rs->cmdset) ) {
+	if ( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK) != rs->cmdset) ) {
 		return 0;
 	}
 	/* check that the opcode looks sane */
-	if( (!ri->itlq) || (ri->itlq->scsi_opcode > 255) ) {
+	if ( (!ri->itlq) || (ri->itlq->scsi_opcode > 255) ) {
 		return 0;
 	}
 
@@ -105,29 +105,29 @@ scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	/* calculate time delta between request and reply */
 	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->itlq->fc_time);
 
-	if(rp->num == 0) {
+	if (rp->num == 0) {
 		rp->max.secs = delta.secs;
 		rp->max.nsecs = delta.nsecs;
 	}
-	if(rp->num == 0) {
+	if (rp->num == 0) {
 		rp->min.secs = delta.secs;
 		rp->min.nsecs = delta.nsecs;
 	}
-	if( (delta.secs  < rp->min.secs)
-	||( (delta.secs == rp->min.secs)
-	  &&(delta.nsecs < rp->min.nsecs) ) ) {
+	if ( (delta.secs  < rp->min.secs)
+	|| ( (delta.secs == rp->min.secs)
+	  && (delta.nsecs < rp->min.nsecs) ) ) {
 		rp->min.secs = delta.secs;
 		rp->min.nsecs = delta.nsecs;
 	}
-	if( (delta.secs  > rp->max.secs)
-	||( (delta.secs == rp->max.secs)
-	  &&(delta.nsecs > rp->max.nsecs) ) ) {
+	if ( (delta.secs  > rp->max.secs)
+	|| ( (delta.secs == rp->max.secs)
+	  && (delta.nsecs > rp->max.nsecs) ) ) {
 		rp->max.secs = delta.secs;
 		rp->max.nsecs= delta.nsecs;
 	}
 	rp->tot.secs  += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs > NANOSECS_PER_SEC) {
+	if (rp->tot.nsecs > NANOSECS_PER_SEC) {
 		rp->tot.nsecs -= NANOSECS_PER_SEC;
 		rp->tot.secs++;
 	}
@@ -145,10 +145,10 @@ scsistat_draw(void *prs)
 	printf("\n");
 	printf("===========================================================\n");
 	printf("SCSI %s SRT Statistics:\n", rs->prog);
-	printf("Filter: %s\n", rs->filter?rs->filter:"");
+	printf("Filter: %s\n", rs->filter ? rs->filter : "");
 	printf("Procedure            Calls   Min SRT    Max SRT    Avg SRT\n");
 	for(i=0; i < MAX_PROCEDURES; i++) {
-		if(rs->procedures[i].num == 0) {
+		if (rs->procedures[i].num == 0) {
 			continue;
 		}
 		/* scale it to units of 1us.*/
@@ -156,13 +156,13 @@ scsistat_draw(void *prs)
 		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
 		printf("%-19s %6d %3d.%06u %3d.%06u %3d.%06u \n",
-			rs->procedures[i].proc,
-			rs->procedures[i].num,
-			(int)(rs->procedures[i].min.secs),
-			(rs->procedures[i].min.nsecs+500)/1000,
-			(int)(rs->procedures[i].max.secs),
-			(rs->procedures[i].max.nsecs+500)/1000,
-			(int)(td/1000000), (int)(td%1000000)
+		       rs->procedures[i].proc,
+		       rs->procedures[i].num,
+		       (int)(rs->procedures[i].min.secs),
+		       (rs->procedures[i].min.nsecs+500)/1000,
+		       (int)(rs->procedures[i].max.secs),
+		       (rs->procedures[i].max.nsecs+500)/1000,
+		       (int)(td/1000000), (int)(td%1000000)
 		);
 	}
 	printf("===========================================================\n");
@@ -178,8 +178,8 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 	GString    *error_string;
 
 	pos = 0;
-	if(sscanf(opt_arg, "scsi,srt,%d,%n", &program, &pos) == 1) {
-		if(pos) {
+	if (sscanf(opt_arg, "scsi,srt,%d,%n", &program, &pos) == 1) {
+		if (pos) {
 			filter = opt_arg+pos;
 		} else {
 			filter = NULL;
@@ -191,7 +191,7 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 
 	scsi_program = program;
 	rs = g_new(scsistat_t,1);
-	if(filter) {
+	if (filter) {
 		rs->filter = g_strdup(filter);
 	} else {
 		rs->filter = NULL;
@@ -228,17 +228,17 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 	}
 	rs->procedures = g_new(scsi_procedure_t,MAX_PROCEDURES);
 	for(i=0; i < MAX_PROCEDURES; i++) {
-		rs->procedures[i].proc = val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x");
-		rs->procedures[i].num = 0;
-		rs->procedures[i].min.secs = 0;
+		rs->procedures[i].proc	    = val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x");
+		rs->procedures[i].num	    = 0;
+		rs->procedures[i].min.secs  = 0;
 		rs->procedures[i].min.nsecs = 0;
-		rs->procedures[i].max.secs = 0;
+		rs->procedures[i].max.secs  = 0;
 		rs->procedures[i].max.nsecs = 0;
-		rs->procedures[i].tot.secs = 0;
+		rs->procedures[i].tot.secs  = 0;
 		rs->procedures[i].tot.nsecs = 0;
 	}
 	error_string = register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
-	if(error_string) {
+	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs->filter);
@@ -257,3 +257,15 @@ register_tap_listener_scsistat(void)
 	register_stat_cmd_arg("scsi,srt,", scsistat_init, NULL);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

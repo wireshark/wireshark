@@ -125,7 +125,7 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
     if (trans->resp_frame) {
         resp_time = nstime_to_msec(&trans->resp_time);
-        rt = g_new(double,1);
+        rt = g_new(double, 1);
         if (rt == NULL)
             return 0;
         *rt = resp_time;
@@ -264,7 +264,7 @@ icmpstat_draw(void *tapdata)
  * instance for the icmp tap.
  */
 static void
-icmpstat_init(const char *opt_arg, void* userdata _U_)
+icmpstat_init(const char *opt_arg, void *userdata _U_)
 {
     icmpstat_t *icmpstat;
     const char *filter = NULL;
@@ -316,3 +316,15 @@ register_tap_listener_icmpstat(void)
     register_stat_cmd_arg("icmp,srt", icmpstat_init, NULL);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -60,7 +60,7 @@ rtp_streams_stat_draw(void *arg _U_)
 
 
     GList *list;
-    rtp_stream_info_t* strinfo;
+    rtp_stream_info_t *strinfo;
     gchar *payload_type;
     guint32 expected;
     gint32 lost;
@@ -84,11 +84,11 @@ rtp_streams_stat_draw(void *arg _U_)
         strinfo = (rtp_stream_info_t*)(list->data);
 
         /* payload type */
-        if(strinfo->pt>95){
-        if(strinfo->info_payload_type_str != NULL){
+        if (strinfo->pt > 95) {
+        if (strinfo->info_payload_type_str != NULL) {
             payload_type = g_strdup(strinfo->info_payload_type_str);
         }else{
-            payload_type = g_strdup_printf("Unknown(%u)",strinfo->pt);
+            payload_type = g_strdup_printf("Unknown(%u)", strinfo->pt);
         }
 
         }else{
@@ -100,7 +100,7 @@ rtp_streams_stat_draw(void *arg _U_)
         expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
             - strinfo->rtp_stats.start_seq_nr + 1;
         lost = expected - strinfo->rtp_stats.total_nr;
-        if (expected){
+        if (expected) {
             perc = (double)(lost*100)/(double)expected;
         } else {
             perc = 0;
@@ -134,7 +134,7 @@ rtp_streams_stat_draw(void *arg _U_)
 
 
 static void
-rtp_streams_stat_init(const char *opt_arg _U_, void* userdata _U_)
+rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
     GString             *err_p;
 
@@ -156,7 +156,7 @@ rtp_streams_stat_init(const char *opt_arg _U_, void* userdata _U_)
 void
 register_tap_listener_rtp_streams(void)
 {
-    register_stat_cmd_arg("rtp,streams", rtp_streams_stat_init,NULL);
+    register_stat_cmd_arg("rtp,streams", rtp_streams_stat_init, NULL);
 }
 
 /*

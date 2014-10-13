@@ -42,7 +42,7 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 
 	printf("%f %u ", nstime_to_sec(&pinfo->rel_ts), sv_data->smpCnt);
 
-	for(i = 0; i < sv_data->num_phsMeas; i++) {
+	for (i = 0; i < sv_data->num_phsMeas; i++) {
 		printf("%d ", sv_data->phsMeas[i].value);
 	}
 
@@ -52,19 +52,19 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 }
 
 static void
-svstat_init(const char *opt_arg _U_, void* userdata _U_)
+svstat_init(const char *opt_arg _U_, void *userdata _U_)
 {
 	GString	*error_string;
 
 	error_string = register_tap_listener(
-			"sv",
-			NULL,
-			NULL,
-			0,
-			NULL,
-			sv_packet,
-			NULL);
-	if (error_string){
+		"sv",
+		NULL,
+		NULL,
+		0,
+		NULL,
+		sv_packet,
+		NULL);
+	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		fprintf(stderr, "tshark: Couldn't register sv,stat tap: %s\n",
 				error_string->str);
@@ -78,3 +78,16 @@ register_tap_listener_sv(void)
 {
 	register_stat_cmd_arg("sv", svstat_init, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

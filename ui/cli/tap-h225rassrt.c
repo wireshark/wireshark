@@ -41,14 +41,14 @@
 void register_tap_listener_h225rassrt(void);
 
 static const value_string ras_message_category[] = {
-  {  0,	"Gatekeeper    "},
-  {  1,	"Registration  "},
-  {  2,	"UnRegistration"},
-  {  3,	"Admission     "},
-  {  4,	"Bandwidth     "},
-  {  5,	"Disengage     "},
-  {  6,	"Location      "},
-  {  0, NULL }
+	{  0,	"Gatekeeper    "},
+	{  1,	"Registration  "},
+	{  2,	"UnRegistration"},
+	{  3,	"Admission     "},
+	{  4,	"Bandwidth     "},
+	{  5,	"Disengage     "},
+	{  6,	"Location      "},
+	{  0, NULL }
 };
 
 typedef enum _ras_type {
@@ -88,23 +88,23 @@ typedef struct _h225rassrt_t {
 static void
 h225rassrt_reset(void *phs)
 {
-	h225rassrt_t *hs=(h225rassrt_t *)phs;
+	h225rassrt_t *hs = (h225rassrt_t *)phs;
 	int i;
 
-	for(i=0;i<NUM_RAS_STATS;i++) {
-		hs->ras_rtd[i].stats.num = 0;
-		hs->ras_rtd[i].stats.min_num = 0;
-		hs->ras_rtd[i].stats.max_num = 0;
-		hs->ras_rtd[i].stats.min.secs = 0;
-        	hs->ras_rtd[i].stats.min.nsecs = 0;
-        	hs->ras_rtd[i].stats.max.secs = 0;
-        	hs->ras_rtd[i].stats.max.nsecs = 0;
-        	hs->ras_rtd[i].stats.tot.secs = 0;
-        	hs->ras_rtd[i].stats.tot.nsecs = 0;
-		hs->ras_rtd[i].open_req_num = 0;
-		hs->ras_rtd[i].disc_rsp_num = 0;
-		hs->ras_rtd[i].req_dup_num = 0;
-		hs->ras_rtd[i].rsp_dup_num = 0;
+	for (i=0; i<NUM_RAS_STATS; i++) {
+		hs->ras_rtd[i].stats.num       = 0;
+		hs->ras_rtd[i].stats.min_num   = 0;
+		hs->ras_rtd[i].stats.max_num   = 0;
+		hs->ras_rtd[i].stats.min.secs  = 0;
+		hs->ras_rtd[i].stats.min.nsecs = 0;
+		hs->ras_rtd[i].stats.max.secs  = 0;
+		hs->ras_rtd[i].stats.max.nsecs = 0;
+		hs->ras_rtd[i].stats.tot.secs  = 0;
+		hs->ras_rtd[i].stats.tot.nsecs = 0;
+		hs->ras_rtd[i].open_req_num    = 0;
+		hs->ras_rtd[i].disc_rsp_num    = 0;
+		hs->ras_rtd[i].req_dup_num     = 0;
+		hs->ras_rtd[i].rsp_dup_num     = 0;
 	}
 
 }
@@ -112,8 +112,8 @@ h225rassrt_reset(void *phs)
 static int
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
-	h225rassrt_t *hs=(h225rassrt_t *)phs;
-	const h225_packet_info *pi=(const h225_packet_info *)phi;
+	h225rassrt_t *hs = (h225rassrt_t *)phs;
+	const h225_packet_info *pi = (const h225_packet_info *)phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
 	ras_category rascategory = RAS_OTHERS;
@@ -133,10 +133,10 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 		return 0;
 	}
 
-	switch(rasmsg_type) {
+	switch (rasmsg_type) {
 
 	case RAS_REQUEST:
-		if(pi->is_duplicate){
+		if (pi->is_duplicate) {
 			hs->ras_rtd[rascategory].req_dup_num++;
 		}
 		else {
@@ -147,7 +147,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 	case RAS_CONFIRM:
 		/* no break - delay calculation is identical for Confirm and Reject  */
 	case RAS_REJECT:
-		if(pi->is_duplicate){
+		if (pi->is_duplicate) {
 			/* Duplicate is ignored */
 			hs->ras_rtd[rascategory].rsp_dup_num++;
 		}
@@ -157,7 +157,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 		}
 		else {
 			hs->ras_rtd[rascategory].open_req_num--;
-			time_stat_update(&(hs->ras_rtd[rascategory].stats),&(pi->delta_time), pinfo);
+			time_stat_update(&(hs->ras_rtd[rascategory].stats), &(pi->delta_time), pinfo);
 		}
 		break;
 
@@ -170,33 +170,33 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 static void
 h225rassrt_draw(void *phs)
 {
-	h225rassrt_t *hs=(h225rassrt_t *)phs;
+	h225rassrt_t *hs = (h225rassrt_t *)phs;
 	int i;
 	timestat_t *rtd_temp;
 
 	printf("======================================== H225 RAS Service Response Time ========================================\n");
 	printf("H225 RAS Service Response Time (SRT) Statistics:\n");
 	printf("RAS-Messages   | Measurements |     Min SRT    |     Max SRT    |     Avg SRT    | Min in Frame | Max in Frame |\n");
-	for(i=0;i<NUM_RAS_STATS;i++) {
+	for (i=0; i<NUM_RAS_STATS; i++) {
 		rtd_temp = &(hs->ras_rtd[i].stats);
-		if(rtd_temp->num){
+		if (rtd_temp->num) {
 			printf("%s | %10u   | %9.2f msec | %9.2f msec | %9.2f msec |  %10u  |  %10u  |\n",
-		        	val_to_str(i,ras_message_category,"Unknown       "),rtd_temp->num,
-				nstime_to_msec(&(rtd_temp->min)), nstime_to_msec(&(rtd_temp->max)),
-				get_average(&(rtd_temp->tot), rtd_temp->num),
-				rtd_temp->min_num, rtd_temp->max_num
+			       val_to_str(i, ras_message_category, "Unknown       "), rtd_temp->num,
+			       nstime_to_msec(&(rtd_temp->min)), nstime_to_msec(&(rtd_temp->max)),
+			       get_average(&(rtd_temp->tot), rtd_temp->num),
+			       rtd_temp->min_num, rtd_temp->max_num
 			);
 		}
 	}
-        printf("================================================================================================================\n");
+	printf("================================================================================================================\n");
 	printf("RAS-Messages   |   Open REQ   |  Discarded RSP  |   Repeated REQ  |   Repeated RSP  |\n");
-	for(i=0;i<NUM_RAS_STATS;i++) {
+	for (i=0; i<NUM_RAS_STATS; i++) {
 		rtd_temp = &(hs->ras_rtd[i].stats);
-		if(rtd_temp->num){
+		if (rtd_temp->num) {
 			printf("%s | %10u   |    %10u   |    %10u   |    %10u   |\n",
-				val_to_str(i,ras_message_category,"Unknown       "),
-				hs->ras_rtd[i].open_req_num, hs->ras_rtd[i].disc_rsp_num,
-				hs->ras_rtd[i].req_dup_num, hs->ras_rtd[i].rsp_dup_num
+			       val_to_str(i, ras_message_category, "Unknown       "),
+			       hs->ras_rtd[i].open_req_num, hs->ras_rtd[i].disc_rsp_num,
+			       hs->ras_rtd[i].req_dup_num, hs->ras_rtd[i].rsp_dup_num
 			);
 		}
 	}
@@ -206,28 +206,28 @@ h225rassrt_draw(void *phs)
 
 
 static void
-h225rassrt_init(const char *opt_arg, void* userdata _U_)
+h225rassrt_init(const char *opt_arg, void *userdata _U_)
 {
 	h225rassrt_t *hs;
 	GString *error_string;
 
-	hs = g_new(h225rassrt_t,1);
-	if(!strncmp(opt_arg,"h225,srt,",9)){
-		hs->filter=g_strdup(opt_arg+9);
+	hs = g_new(h225rassrt_t, 1);
+	if (!strncmp(opt_arg, "h225,srt,", 9)) {
+		hs->filter = g_strdup(opt_arg+9);
 	} else {
-		hs->filter=NULL;
+		hs->filter = NULL;
 	}
 
 	h225rassrt_reset(hs);
 
-    	error_string=register_tap_listener("h225", hs, hs->filter, 0, NULL, h225rassrt_packet, h225rassrt_draw);
-    	if(error_string){
+	error_string = register_tap_listener("h225", hs, hs->filter, 0, NULL, h225rassrt_packet, h225rassrt_draw);
+	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(hs->filter);
 		g_free(hs);
 
 		fprintf(stderr, "tshark: Couldn't register h225,srt tap: %s\n",
-		    error_string->str);
+			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
@@ -237,5 +237,18 @@ h225rassrt_init(const char *opt_arg, void* userdata _U_)
 void
 register_tap_listener_h225rassrt(void)
 {
-	register_stat_cmd_arg("h225,srt", h225rassrt_init,NULL);
+	register_stat_cmd_arg("h225,srt", h225rassrt_init, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

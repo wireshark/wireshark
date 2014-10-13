@@ -51,10 +51,10 @@ ipv4_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_d
 {
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
-	if((ipv4_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)== DUMMY_ADDRESS_ENTRY){
+	if ((ipv4_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY) == DUMMY_ADDRESS_ENTRY) {
 		printf("%s\t%s",
-			ipv4_hash_table_entry->ip,
-			ipv4_hash_table_entry->name);
+		       ipv4_hash_table_entry->ip,
+		       ipv4_hash_table_entry->name);
 	}
 }
 
@@ -63,10 +63,10 @@ ipv6_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_d
 {
 	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-	if((ipv6_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)== DUMMY_ADDRESS_ENTRY){
+	if ((ipv6_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY) == DUMMY_ADDRESS_ENTRY) {
 		printf("%s\t%s",
-			ipv6_hash_table_entry->ip6,
-			ipv6_hash_table_entry->name);
+		       ipv6_hash_table_entry->ip6,
+		       ipv6_hash_table_entry->name);
 	}
 }
 
@@ -83,12 +83,12 @@ hosts_draw(void *dummy _U_)
 	printf("\n");
 
 	ipv4_hash_table = get_ipv4_hash_table();
-	if(ipv4_hash_table){
+	if (ipv4_hash_table) {
 		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_print_resolved, NULL);
 	}
 
 	ipv6_hash_table = get_ipv6_hash_table();
-	if(ipv6_hash_table){
+	if (ipv6_hash_table) {
 		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_print_resolved, NULL);
 	}
 
@@ -96,7 +96,7 @@ hosts_draw(void *dummy _U_)
 
 
 static void
-hosts_init(const char *opt_arg, void* userdata _U_)
+hosts_init(const char *opt_arg, void *userdata _U_)
 {
 	GString *error_string;
 	gchar **tokens;
@@ -105,13 +105,13 @@ hosts_init(const char *opt_arg, void* userdata _U_)
 	dump_v4 = FALSE;
 	dump_v6 = FALSE;
 
-	if(strcmp(TAP_NAME, opt_arg)==0) {
+	if (strcmp(TAP_NAME, opt_arg) == 0) {
 		/* No arguments; dump everything */
 		dump_v4 = TRUE;
 		dump_v6 = TRUE;
 	} else {
-		tokens = g_strsplit(opt_arg,",", 0);
-		opt_count=0;
+		tokens = g_strsplit(opt_arg, ",", 0);
+		opt_count = 0;
 		while (tokens[opt_count]) {
 			if (strcmp("ipv4", tokens[opt_count]) == 0) {
 				dump_v4 = TRUE;
@@ -126,12 +126,12 @@ hosts_init(const char *opt_arg, void* userdata _U_)
 		g_strfreev(tokens);
 	}
 
-	error_string=register_tap_listener("frame", NULL, NULL, TL_REQUIRES_PROTO_TREE,
+	error_string = register_tap_listener("frame", NULL, NULL, TL_REQUIRES_PROTO_TREE,
 					   NULL, NULL, hosts_draw);
-	if(error_string){
+	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		fprintf(stderr, "tshark: Couldn't register " TAP_NAME " tap: %s\n",
-		    error_string->str);
+			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
@@ -143,3 +143,16 @@ register_tap_listener_hosts(void)
 	register_stat_cmd_arg(TAP_NAME, hosts_init, NULL);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

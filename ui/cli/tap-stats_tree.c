@@ -40,7 +40,7 @@ struct _st_node_pres {
 };
 
 struct _tree_pres {
-	void** dummy;
+	void **dummy;
 };
 
 struct _tree_cfg_pres {
@@ -54,10 +54,10 @@ draw_stats_tree(void *psp)
 	GString *s;
 
 	s= stats_tree_format_as_str(st, ST_FORMAT_PLAIN, stats_tree_get_default_sort_col(st),
-				stats_tree_is_default_sort_DESC(st));
+				    stats_tree_is_default_sort_DESC(st));
 
-	printf("%s",s->str);
-	g_string_free(s,TRUE);
+	printf("%s", s->str);
+	g_string_free(s, TRUE);
 }
 
 static void
@@ -72,21 +72,21 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
 		if (cfg != NULL) {
-			if (strncmp (opt_arg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
-				st = stats_tree_new(cfg,NULL,opt_arg+strlen(cfg->pr->init_string));
+			if (strncmp (opt_arg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0) {
+				st = stats_tree_new(cfg, NULL, opt_arg+strlen(cfg->pr->init_string));
 			} else {
-				report_failure("Wrong stats_tree (%s) found when looking at ->init_string",abbr);
+				report_failure("Wrong stats_tree (%s) found when looking at ->init_string", abbr);
 				return;
 			}
 		} else {
-			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
+			report_failure("no such stats_tree (%s) found in stats_tree registry", abbr);
 			return;
 		}
 
 		g_free(abbr);
 
 	} else {
-		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,opt_arg);
+		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'", abbr, opt_arg);
 		return;
 	}
 
@@ -99,7 +99,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 					     draw_stats_tree);
 
 	if (error_string) {
-		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->name, error_string->str);
 		return;
 	}
 
@@ -132,3 +132,16 @@ register_tap_listener_stats_tree_stat(void)
 	stats_tree_presentation(register_stats_tree_tap, NULL, NULL, NULL, NULL,
 				NULL, free_tree_presentation, NULL, NULL, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

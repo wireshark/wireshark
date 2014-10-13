@@ -42,69 +42,69 @@
 void register_tap_listener_gsm_astat(void);
 
 typedef struct _gsm_a_stat_t {
-    int		bssmap_message_type[0xff];
-    int		dtap_mm_message_type[0xff];
-    int		dtap_rr_message_type[0xff];
-    int		dtap_cc_message_type[0xff];
-    int		dtap_gmm_message_type[0xff];
-    int		dtap_sms_message_type[0xff];
-    int		dtap_sm_message_type[0xff];
-    int		dtap_ss_message_type[0xff];
-    int		dtap_tp_message_type[0xff];
-    int		sacch_rr_message_type[0xff];
+    int         bssmap_message_type[0xff];
+    int         dtap_mm_message_type[0xff];
+    int         dtap_rr_message_type[0xff];
+    int         dtap_cc_message_type[0xff];
+    int         dtap_gmm_message_type[0xff];
+    int         dtap_sms_message_type[0xff];
+    int         dtap_sm_message_type[0xff];
+    int         dtap_ss_message_type[0xff];
+    int         dtap_tp_message_type[0xff];
+    int         sacch_rr_message_type[0xff];
 } gsm_a_stat_t;
 
 
 static int
 gsm_a_stat_packet(
-    void			*tapdata,
-    packet_info			*pinfo _U_,
-    epan_dissect_t		*edt _U_,
-    const void			*data)
+    void                        *tapdata,
+    packet_info                 *pinfo _U_,
+    epan_dissect_t              *edt _U_,
+    const void                  *data)
 {
-    gsm_a_stat_t		*stat_p = (gsm_a_stat_t *)tapdata;
-    const gsm_a_tap_rec_t	*tap_p = (const gsm_a_tap_rec_t *)data;
+    gsm_a_stat_t                *stat_p = (gsm_a_stat_t *)tapdata;
+    const gsm_a_tap_rec_t       *tap_p = (const gsm_a_tap_rec_t *)data;
 
     switch (tap_p->pdu_type)
     {
     case BSSAP_PDU_TYPE_BSSMAP:
-	stat_p->bssmap_message_type[tap_p->message_type]++;
-	break;
+        stat_p->bssmap_message_type[tap_p->message_type]++;
+        break;
 
     case BSSAP_PDU_TYPE_DTAP:
-	switch (tap_p->protocol_disc)
-	{
-	case PD_CC:
-	    stat_p->dtap_cc_message_type[tap_p->message_type]++;
-	    break;
-	case PD_MM:
-	    stat_p->dtap_mm_message_type[tap_p->message_type]++;
-	    break;
-	case PD_RR:
-	    stat_p->dtap_rr_message_type[tap_p->message_type]++;
-	    break;
-	case PD_GMM:
-	    stat_p->dtap_gmm_message_type[tap_p->message_type]++;
-	    break;
-	case PD_SMS:
-	    stat_p->dtap_sms_message_type[tap_p->message_type]++;
-	    break;
-	case PD_SM:
-	    stat_p->dtap_sm_message_type[tap_p->message_type]++;
-	    break;
-	case PD_SS:
-	    stat_p->dtap_ss_message_type[tap_p->message_type]++;
-	    break;
-	case PD_TP:
-	    stat_p->dtap_tp_message_type[tap_p->message_type]++;
-	    break;
-	default:
-	    /*
-	     * unsupported PD
-	     */
-	    return(0);
-	}
-	break;
+        switch (tap_p->protocol_disc)
+        {
+        case PD_CC:
+            stat_p->dtap_cc_message_type[tap_p->message_type]++;
+            break;
+        case PD_MM:
+            stat_p->dtap_mm_message_type[tap_p->message_type]++;
+            break;
+        case PD_RR:
+            stat_p->dtap_rr_message_type[tap_p->message_type]++;
+            break;
+        case PD_GMM:
+            stat_p->dtap_gmm_message_type[tap_p->message_type]++;
+            break;
+        case PD_SMS:
+            stat_p->dtap_sms_message_type[tap_p->message_type]++;
+            break;
+        case PD_SM:
+            stat_p->dtap_sm_message_type[tap_p->message_type]++;
+            break;
+        case PD_SS:
+            stat_p->dtap_ss_message_type[tap_p->message_type]++;
+            break;
+        case PD_TP:
+            stat_p->dtap_tp_message_type[tap_p->message_type]++;
+            break;
+        default:
+            /*
+             * unsupported PD
+             */
+            return(0);
+        }
+        break;
 
    case GSM_A_PDU_TYPE_SACCH:
    switch (tap_p->protocol_disc)
@@ -120,10 +120,10 @@ gsm_a_stat_packet(
 
 
     default:
-	/*
-	 * unknown PDU type !!!
-	 */
-	return(0);
+        /*
+         * unknown PDU type !!!
+         */
+        return(0);
     }
 
     return(1);
@@ -132,10 +132,10 @@ gsm_a_stat_packet(
 
 static void
 gsm_a_stat_draw(
-    void		*tapdata)
+    void                *tapdata)
 {
-    gsm_a_stat_t	*stat_p = (gsm_a_stat_t *)tapdata;
-    guint8		i;
+    gsm_a_stat_t        *stat_p = (gsm_a_stat_t *)tapdata;
+    guint8              i;
 
 
     printf("\n");
@@ -146,15 +146,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_bssmap_msg_strings[i].strptr)
     {
-	if (stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_bssmap_msg_strings[i].value,
-		gsm_a_bssmap_msg_strings[i].strptr,
-		stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value]);
-	}
+        if (stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_bssmap_msg_strings[i].value,
+                   gsm_a_bssmap_msg_strings[i].strptr,
+                   stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_MM]);
@@ -163,15 +163,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_mm_strings[i].strptr)
     {
-	if (stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_mm_strings[i].value,
-		gsm_a_dtap_msg_mm_strings[i].strptr,
-		stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value]);
-	}
+        if (stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_mm_strings[i].value,
+                   gsm_a_dtap_msg_mm_strings[i].strptr,
+                   stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_RR]);
@@ -180,15 +180,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_rr_strings[i].strptr)
     {
-	if (stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_rr_strings[i].value,
-		gsm_a_dtap_msg_rr_strings[i].strptr,
-		stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value]);
-	}
+        if (stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_rr_strings[i].value,
+                   gsm_a_dtap_msg_rr_strings[i].strptr,
+                   stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_CC]);
@@ -197,15 +197,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_cc_strings[i].strptr)
     {
-	if (stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_cc_strings[i].value,
-		gsm_a_dtap_msg_cc_strings[i].strptr,
-		stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value]);
-	}
+        if (stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_cc_strings[i].value,
+                   gsm_a_dtap_msg_cc_strings[i].strptr,
+                   stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_GMM]);
@@ -214,15 +214,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_gmm_strings[i].strptr)
     {
-	if (stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_gmm_strings[i].value,
-		gsm_a_dtap_msg_gmm_strings[i].strptr,
-		stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value]);
-	}
+        if (stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_gmm_strings[i].value,
+                   gsm_a_dtap_msg_gmm_strings[i].strptr,
+                   stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_SMS]);
@@ -231,15 +231,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_sms_strings[i].strptr)
     {
-	if (stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_sms_strings[i].value,
-		gsm_a_dtap_msg_sms_strings[i].strptr,
-		stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value]);
-	}
+        if (stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_sms_strings[i].value,
+                   gsm_a_dtap_msg_sms_strings[i].strptr,
+                   stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_SM]);
@@ -248,15 +248,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_sm_strings[i].strptr)
     {
-	if (stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_sm_strings[i].value,
-		gsm_a_dtap_msg_sm_strings[i].strptr,
-		stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value]);
-	}
+        if (stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_sm_strings[i].value,
+                   gsm_a_dtap_msg_sm_strings[i].strptr,
+                   stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_SS]);
@@ -265,15 +265,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_ss_strings[i].strptr)
     {
-	if (stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_ss_strings[i].value,
-		gsm_a_dtap_msg_ss_strings[i].strptr,
-		stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value]);
-	}
+        if (stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_ss_strings[i].value,
+                   gsm_a_dtap_msg_ss_strings[i].strptr,
+                   stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nDTAP %s\n", gsm_a_pd_str[PD_TP]);
@@ -282,15 +282,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_dtap_msg_tp_strings[i].strptr)
     {
-	if (stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_dtap_msg_tp_strings[i].value,
-		gsm_a_dtap_msg_tp_strings[i].strptr,
-		stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value]);
-	}
+        if (stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_dtap_msg_tp_strings[i].value,
+                   gsm_a_dtap_msg_tp_strings[i].strptr,
+                   stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("\nSACCH Radio Resources Management messages\n");
@@ -299,15 +299,15 @@ gsm_a_stat_draw(
     i = 0;
     while (gsm_a_rr_short_pd_msg_strings[i].strptr)
     {
-	if (stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value] > 0)
-	{
-	    printf("0x%02x  %-50s%d\n",
-		gsm_a_rr_short_pd_msg_strings[i].value,
-		gsm_a_rr_short_pd_msg_strings[i].strptr,
-		stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value]);
-	}
+        if (stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                   gsm_a_rr_short_pd_msg_strings[i].value,
+                   gsm_a_rr_short_pd_msg_strings[i].strptr,
+                   stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value]);
+        }
 
-	i++;
+        i++;
     }
 
     printf("==============================================================\n");
@@ -315,27 +315,27 @@ gsm_a_stat_draw(
 
 
 static void
-gsm_a_stat_init(const char *opt_arg _U_,void* userdata _U_)
+gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
-    gsm_a_stat_t	*stat_p;
-    GString		*err_p;
+    gsm_a_stat_t        *stat_p;
+    GString             *err_p;
 
-    stat_p = g_new(gsm_a_stat_t,1);
+    stat_p = g_new(gsm_a_stat_t, 1);
 
     memset(stat_p, 0, sizeof(gsm_a_stat_t));
 
     err_p =
-	register_tap_listener("gsm_a", stat_p, NULL, 0,
-	    NULL,
-	    gsm_a_stat_packet,
-	    gsm_a_stat_draw);
+        register_tap_listener("gsm_a", stat_p, NULL, 0,
+            NULL,
+            gsm_a_stat_packet,
+            gsm_a_stat_draw);
 
     if (err_p != NULL)
     {
-	g_free(stat_p);
-	g_string_free(err_p, TRUE);
+        g_free(stat_p);
+        g_string_free(err_p, TRUE);
 
-	exit(1);
+        exit(1);
     }
 }
 
@@ -343,5 +343,18 @@ gsm_a_stat_init(const char *opt_arg _U_,void* userdata _U_)
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init,NULL);
+    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

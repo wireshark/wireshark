@@ -77,34 +77,34 @@ static const value_string vals_status_code[] = {
 	{ 301, "Moved Permanently"},
 	{ 302, "Moved Temporarily"},
 	{ 303, "See Other"},
-        { 304, "Not Modified"},
-        { 305, "Use Proxy"},
+	{ 304, "Not Modified"},
+	{ 305, "Use Proxy"},
 	{ 399, "Redirection - Others"},
 
-        { 400, "Bad Request"},
-        { 401, "Unauthorized"},
-        { 402, "Payment Required"},
-        { 403, "Forbidden"},
-        { 404, "Not Found"},
-        { 405, "Method Not Allowed"},
-        { 406, "Not Acceptable"},
-        { 407, "Proxy Authentication Required"},
-        { 408, "Request Time-out"},
-        { 409, "Conflict"},
-        { 410, "Gone"},
-        { 411, "Length Required"},
-        { 412, "Precondition Failed"},
-        { 413, "Request Entity Too Large"},
-        { 414, "Request-URI Too Large"},
-        { 415, "Unsupported Media Type"},
+	{ 400, "Bad Request"},
+	{ 401, "Unauthorized"},
+	{ 402, "Payment Required"},
+	{ 403, "Forbidden"},
+	{ 404, "Not Found"},
+	{ 405, "Method Not Allowed"},
+	{ 406, "Not Acceptable"},
+	{ 407, "Proxy Authentication Required"},
+	{ 408, "Request Time-out"},
+	{ 409, "Conflict"},
+	{ 410, "Gone"},
+	{ 411, "Length Required"},
+	{ 412, "Precondition Failed"},
+	{ 413, "Request Entity Too Large"},
+	{ 414, "Request-URI Too Large"},
+	{ 415, "Unsupported Media Type"},
 	{ 499, "Client Error - Others"},
 
-        { 500, "Internal Server Error"},
-        { 501, "Not Implemented"},
-        { 502, "Bad Gateway"},
-        { 503, "Service Unavailable"},
-        { 504, "Gateway Time-out"},
-        { 505, "HTTP Version not supported"},
+	{ 500, "Internal Server Error"},
+	{ 501, "Not Implemented"},
+	{ 502, "Bad Gateway"},
+	{ 503, "Service Unavailable"},
+	{ 504, "Gateway Time-out"},
+	{ 505, "HTTP Version not supported"},
 	{ 599, "Server Error - Others"},
 
 	{ 0, 	NULL}
@@ -112,41 +112,41 @@ static const value_string vals_status_code[] = {
 
 /* insert some entries */
 static void
-http_init_hash( httpstat_t *sp)
+http_init_hash(httpstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new( g_int_hash, g_int_equal);
+	sp->hash_responses = g_hash_table_new(g_int_hash, g_int_equal);
 
-	for (i=0 ; vals_status_code[i].strptr ; i++ )
+	for (i=0; vals_status_code[i].strptr; i++ )
 	{
-		gint *key = g_new (gint,1);
-		http_response_code_t *sc = g_new (http_response_code_t,1);
+		gint *key = g_new (gint, 1);
+		http_response_code_t *sc = g_new (http_response_code_t, 1);
 		*key = vals_status_code[i].value;
-		sc->packets=0;
+		sc->packets = 0;
 		sc->response_code =  *key;
-		sc->name=vals_status_code[i].strptr;
+		sc->name = vals_status_code[i].strptr;
 		sc->sp = sp;
-		g_hash_table_insert( sc->sp->hash_responses, key, sc);
+		g_hash_table_insert(sc->sp->hash_responses, key, sc);
 	}
-	sp->hash_requests = g_hash_table_new( g_str_hash, g_str_equal);
+	sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
 }
 static void
-http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * format)
+http_draw_hash_requests(gchar *key _U_ , http_request_methode_t *data, gchar *format)
 {
-	if (data->packets==0)
+	if (data->packets == 0)
 		return;
-	printf( format, data->response, data->packets);
+	printf(format, data->response, data->packets);
 }
 
 static void
-http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, char * format)
+http_draw_hash_responses(gint * key _U_ , http_response_code_t *data, char *format)
 {
-	if (data==NULL) {
+	if (data == NULL) {
 		g_warning("No data available, key=%d\n", *key);
 		exit(EXIT_FAILURE);
 	}
-	if (data->packets==0)
+	if (data->packets == 0)
 		return;
 	/* "     HTTP %3d %-35s %9d packets", */
 	printf(format,  data->response_code, data->name, data->packets );
@@ -157,7 +157,7 @@ http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, char * fo
 /* NOT USED at this moment */
 /*
 static void
-http_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
+http_free_hash(gpointer key, gpointer value, gpointer user_data _U_ )
 {
 	g_free(key);
 	g_free(value);
@@ -177,72 +177,72 @@ http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer
 static void
 httpstat_reset(void *psp  )
 {
-	httpstat_t *sp=(httpstat_t *)psp;
+	httpstat_t *sp = (httpstat_t *)psp;
 
-	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
-	g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
+	g_hash_table_foreach(sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
+	g_hash_table_foreach(sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
 
 }
 
 static int
 httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	const http_info_value_t *value=(const http_info_value_t *)pri;
-	httpstat_t *sp=(httpstat_t *) psp;
+	const http_info_value_t *value = (const http_info_value_t *)pri;
+	httpstat_t *sp = (httpstat_t *) psp;
 
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
-	if (value->response_code!=0) {
-		guint *key=g_new(guint,1);
+	if (value->response_code != 0) {
+		guint *key = g_new(guint, 1);
 		http_response_code_t *sc;
 
-		*key=value->response_code;
+		*key = value->response_code;
 		sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
 				key);
-		if (sc==NULL){
+		if (sc == NULL) {
 			/* non standard status code ; we classify it as others
 			 * in the relevant category (Informational,Success,Redirection,Client Error,Server Error)
 			 */
 			int i = value->response_code;
-			if ((i<100) || (i>=600)) {
+			if ((i < 100) || (i >= 600)) {
 				return 0;
 			}
-			else if (i<200){
-				*key=199;	/* Hopefully, this status code will never be used */
+			else if (i < 200) {
+				*key = 199;	/* Hopefully, this status code will never be used */
 			}
-			else if (i<300){
-				*key=299;
+			else if (i < 300) {
+				*key = 299;
 			}
-			else if (i<400){
-				*key=399;
+			else if (i < 400) {
+				*key = 399;
 			}
-			else if (i<500){
-				*key=499;
+			else if (i < 500) {
+				*key = 499;
 			}
 			else{
-				*key=599;
+				*key = 599;
 			}
 			sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
 				key);
-			if (sc==NULL)
+			if (sc == NULL)
 				return 0;
 		}
 		sc->packets++;
 	}
-	else if (value->request_method){
+	else if (value->request_method) {
 		http_request_methode_t *sc;
 
 		sc = (http_request_methode_t *)g_hash_table_lookup(
 				sp->hash_requests,
 				value->request_method);
-		if (sc==NULL){
-			sc=g_new(http_request_methode_t,1);
-			sc->response=g_strdup( value->request_method );
-			sc->packets=1;
+		if (sc == NULL) {
+			sc = g_new(http_request_methode_t, 1);
+			sc->response = g_strdup(value->request_method );
+			sc->packets = 1;
 			sc->sp = sp;
-			g_hash_table_insert( sp->hash_requests, sc->response, sc);
+			g_hash_table_insert(sp->hash_requests, sc->response, sc);
 		} else {
 			sc->packets++;
 		}
@@ -256,7 +256,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 static void
 httpstat_draw(void *psp  )
 {
-	httpstat_t *sp=(httpstat_t *)psp;
+	httpstat_t *sp = (httpstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
 	if (! sp->filter[0])
@@ -264,12 +264,12 @@ httpstat_draw(void *psp  )
 	else
 		printf("HTTP Statistics with filter %s\n", sp->filter);
 
-	printf(	"* HTTP Status Codes in reply packets\n");
-	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses,
-		(gpointer)"    HTTP %3d %s\n");
+	printf("* HTTP Status Codes in reply packets\n");
+	g_hash_table_foreach(sp->hash_responses, (GHFunc)http_draw_hash_responses,
+			     (gpointer)"    HTTP %3d %s\n");
 	printf("* List of HTTP Request methods\n");
-	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests,
-		(gpointer)"    %9s %d \n");
+	g_hash_table_foreach(sp->hash_requests,  (GHFunc)http_draw_hash_requests,
+			     (gpointer)"    %9s %d \n");
 	printf("===================================================================\n");
 }
 
@@ -278,25 +278,25 @@ httpstat_draw(void *psp  )
 /* When called, this function will create a new instance of gtk_httpstat.
  */
 static void
-gtk_httpstat_init(const char *opt_arg,void* userdata _U_)
+gtk_httpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	httpstat_t *sp;
-	const char *filter=NULL;
-	GString	*error_string;
+	const char *filter = NULL;
+	GString	   *error_string;
 
-	if (!strncmp (opt_arg, "http,stat,", 10)){
-		filter=opt_arg+10;
+	if (!strncmp (opt_arg, "http,stat,", 10)) {
+		filter = opt_arg+10;
 	} else {
-		filter=NULL;
+		filter = NULL;
 	}
 
-	sp = g_new(httpstat_t,1);
-	if(filter){
-		sp->filter=g_strdup(filter);
+	sp = g_new(httpstat_t, 1);
+	if (filter) {
+		sp->filter = g_strdup(filter);
 	} else {
-		sp->filter=NULL;
+		sp->filter = NULL;
 	}
-	/*g_hash_table_foreach( http_status, (GHFunc)http_reset_hash_responses, NULL);*/
+	/*g_hash_table_foreach(http_status, (GHFunc)http_reset_hash_responses, NULL);*/
 
 
 	error_string = register_tap_listener(
@@ -307,12 +307,12 @@ gtk_httpstat_init(const char *opt_arg,void* userdata _U_)
 			httpstat_reset,
 			httpstat_packet,
 			httpstat_draw);
-	if (error_string){
+	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
 		g_free(sp);
 		fprintf (stderr, "tshark: Couldn't register http,stat tap: %s\n",
-				error_string->str);
+			 error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
@@ -323,5 +323,18 @@ gtk_httpstat_init(const char *opt_arg,void* userdata _U_)
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_stat_cmd_arg("http,stat,", gtk_httpstat_init,NULL);
+	register_stat_cmd_arg("http,stat,", gtk_httpstat_init, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

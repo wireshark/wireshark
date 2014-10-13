@@ -52,8 +52,8 @@ iousers_draw(void *arg)
 	guint i;
 
 	printf("================================================================================\n");
-	printf("%s Conversations\n",iu->type);
-	printf("Filter:%s\n",iu->filter?iu->filter:"<No Filter>");
+	printf("%s Conversations\n", iu->type);
+	printf("Filter:%s\n", iu->filter ? iu->filter : "<No Filter>");
 
 	switch (timestamp_get_type()) {
 	case TS_ABSOLUTE:
@@ -76,27 +76,27 @@ iousers_draw(void *arg)
 		break;
 	}
 
-	max_frames=UINT_MAX;
+	max_frames = UINT_MAX;
 	do {
-		last_frames=0;
-		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++){
+		last_frames = 0;
+		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
 			guint64 tot_frames;
 
 			iui = &g_array_index(iu->hash.conv_array, conv_item_t, i);
 			tot_frames = iui->rx_frames + iui->tx_frames;
 
-			if ((tot_frames>last_frames) && (tot_frames<max_frames)){
-				last_frames=tot_frames;
+			if ((tot_frames > last_frames) && (tot_frames < max_frames)) {
+				last_frames = tot_frames;
 			}
 		}
 
-		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++){
+		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
 			guint64 tot_frames;
 
 			iui = &g_array_index(iu->hash.conv_array, conv_item_t, i);
 			tot_frames = iui->rx_frames + iui->tx_frames;
 
-			if (tot_frames == last_frames){
+			if (tot_frames == last_frames) {
 				printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
 				       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 				       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
@@ -178,23 +178,23 @@ iousers_draw(void *arg)
 				}
 			}
 		}
-		max_frames=last_frames;
-	} while(last_frames);
+		max_frames = last_frames;
+	} while (last_frames);
 	printf("================================================================================\n");
 }
 
-void init_iousers(struct register_ct* ct, const char *filter)
+void init_iousers(struct register_ct *ct, const char *filter)
 {
 	io_users_t *iu;
 	GString *error_string;
 
-	iu = g_new0(io_users_t,1);
+	iu = g_new0(io_users_t, 1);
 	iu->type = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(ct)));
 	iu->filter = g_strdup(filter);
 	iu->hash.user_data = iu;
 
-	error_string=register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw);
-	if(error_string){
+	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw);
+	if (error_string) {
 		g_free(iu);
 		fprintf(stderr, "tshark: Couldn't register conversations tap: %s\n",
 		    error_string->str);
