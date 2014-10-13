@@ -141,7 +141,8 @@ static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t 
 }
 
 
-static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
+static int
+ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
 {
 	ros_info_t *rinfo;
 	gint32     opcode_lcl = 0;
@@ -200,40 +201,35 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			if(suffix)
 				col_append_str(pinfo->cinfo, COL_INFO, suffix);
 
-			(*opdissector)(tvb, pinfo, ros_tree, NULL);
-
-			return TRUE;
+			return (*opdissector)(tvb, pinfo, ros_tree, NULL);
 		}
 	}
 
-	return FALSE;
+	return 0;
 }
 
 int
 call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct SESSION_DATA_STRUCTURE* session)
 {
 	tvbuff_t *next_tvb;
+	int len;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if(!ros_try_string(oid, next_tvb, pinfo, tree, session) &&
-           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)){
-        proto_item *item;
-        proto_tree *next_tree;
+	if(((len = ros_try_string(oid, next_tvb, pinfo, tree, session)) == 0) &&
+	   ((len = dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree, session)) == 0)) {
+		proto_item *item;
+		proto_tree *next_tree;
 
-        next_tree = proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_ros_unknown, &item,
-                "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		next_tree = proto_tree_add_subtree_format(tree, next_tvb, 0, -1, ett_ros_unknown, &item,
+				"ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 
 		expert_add_info_format(pinfo, item, &ei_ros_dissector_oid_not_implemented,
-                                        "ROS: Dissector for OID %s not implemented", oid);
-		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
+				       "ROS: Dissector for OID %s not implemented", oid);
+		len = dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
-	/*XXX until we change the #.REGISTER signature for _PDU()s
-	 * into new_dissector_t   we have to do this kludge with
-	 * manually step past the content in the ANY type.
-	 */
-	offset+=tvb_length_remaining(tvb, offset);
+	offset += len;
 
 	return offset;
 }
