@@ -1813,7 +1813,7 @@ void proto_register_spdy(void)
     },
     { &hf_spdy_priority,
       { "Priority",       "spdy.priority",
-          FT_UINT8, BASE_DEC, NULL, 0x07,
+          FT_UINT8, BASE_DEC, NULL, 0xE0,
           NULL, HFILL
       }
     },
