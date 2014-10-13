@@ -101,6 +101,10 @@ UniversalOrBMPString
 NonDeliveryReasonCode
 NonDeliveryDiagnosticCode
 
+#.SYNTAX_NEW
+ORAddress
+ORName
+
 # Forward declaration of Classes
 # CONNECTION-PACKAGE CONTRACT from ROS
 #.CLASS CONNECTION-PACKAGE

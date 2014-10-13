@@ -370,6 +370,7 @@ void proto_register_p1(void) {
 				 10, &global_p1_tcp_port);
 
   register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
+#include "packet-p1-syn-reg.c"
 }
 
 
