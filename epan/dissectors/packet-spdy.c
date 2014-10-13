@@ -215,6 +215,8 @@ static int hf_spdy_header_value = -1;
 static int hf_spdy_streamid = -1;
 static int hf_spdy_associated_streamid = -1;
 static int hf_spdy_priority = -1;
+static int hf_spdy_unused = -1;
+static int hf_spdy_slot = -1;
 static int hf_spdy_num_headers = -1;
 static int hf_spdy_rst_stream_status = -1;
 static int hf_spdy_num_settings = -1;
@@ -1110,7 +1112,9 @@ static int dissect_spdy_header_payload(
     offset += 4;
 
     /* Get priority */
-    proto_tree_add_item(frame_tree, hf_spdy_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(frame_tree, hf_spdy_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(frame_tree, hf_spdy_unused, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(frame_tree, hf_spdy_slot, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
 
@@ -1813,8 +1817,20 @@ void proto_register_spdy(void)
     },
     { &hf_spdy_priority,
       { "Priority",       "spdy.priority",
-          FT_UINT8, BASE_DEC, NULL, 0xE0,
+          FT_UINT16, BASE_DEC, NULL, 0xE000,
           NULL, HFILL
+      }
+    },
+    { &hf_spdy_unused,
+      { "Unused",       "spdy.unused",
+          FT_UINT16, BASE_HEX, NULL, 0x1F00,
+          "Reserved for future use", HFILL
+      }
+    },
+    { &hf_spdy_slot,
+      { "Slot",       "spdy.slot",
+          FT_UINT16, BASE_DEC, NULL, 0x00FF,
+          "Specifying the index in the server's CREDENTIAL vector of the client certificate to be used for this reques", HFILL
       }
     },
     { &hf_spdy_num_headers,
