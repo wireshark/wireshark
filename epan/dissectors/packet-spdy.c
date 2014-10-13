@@ -1659,8 +1659,10 @@ static guint get_spdy_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
  */
 static int dissect_spdy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_spdy_message_len, dissect_spdy_frame, data);
-   return tvb_captured_length(tvb);
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_spdy_message_len, dissect_spdy_frame, data);
+  return tvb_captured_length(tvb);
 }
 
 #if 0 /* heuristic too weak */
