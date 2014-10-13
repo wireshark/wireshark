@@ -2568,7 +2568,7 @@ proto_register_ipv6(void)
             "Routing Header Address", HFILL }},
         { &hf_ipv6_frag_nxt,
           { "Next header", "ipv6.fragment.nxt",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
             "Fragment next header", HFILL }},
         { &hf_ipv6_frag_reserved,
           { "Reserved octet", "ipv6.fragment.reserved_octet",
