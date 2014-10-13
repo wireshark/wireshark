@@ -236,7 +236,7 @@ if __name__ == '__main__':
 	parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2"] )
 	parser.add_argument("--message", help="Demonstrates string variable", nargs='?', default="" )
 
-	args = parser.parse_args()
+	args, unknown = parser.parse_known_args()
 	if ( len(sys.argv) <= 1 ):
 		parser.exit("No arguments given!")
 
@@ -246,6 +246,9 @@ if __name__ == '__main__':
 	if ( args.extcap_interfaces == True or args.extcap_interface == None ):
 		extcap_interfaces()
 		sys.exit(0)
+
+	if ( len(unknown) > 1 ):
+		print("Extcap Example %d unknown arguments given" % len(unknown) )
 
 	m = re.match ( 'example(\d+)', args.extcap_interface )
 	if not m:
