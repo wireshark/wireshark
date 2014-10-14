@@ -89,7 +89,7 @@ struct capsarec_hdr {
 	guint16	incl_len;	/* number of octets captured in file */
 	guint16	orig_len;	/* actual length of packet */
 	guint16 unknown5;	/* 0x00 0x00 */
-	guint8 count1;		/* count1*4 bytes values after unknown8 */
+	guint8 count1;		/* count1*4 bytes after unknown8 */
 	guint8 count2;		/* count2*4 bytes after that */
 	guint16 unknown7;	/* 0x01 0x10 */
 	guint32 unknown8;	/* 0x00 0x00 0x00 0x00 or random numbers */
