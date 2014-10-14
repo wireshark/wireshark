@@ -174,25 +174,25 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 	 * Link speed, in megabytes/second?
 	 */
 	if (!file_skip(wth->fh, 2, err))
-		return FALSE;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Flags of some sort?
 	 */
 	if (!file_skip(wth->fh, 4, err))
-		return FALSE;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * File size.
 	 */
 	if (!file_skip(wth->fh, 4, err))
-		return FALSE;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Zeroes?
 	 */
 	if (!file_skip(wth->fh, 4, err))
-		return FALSE;
+		return WTAP_OPEN_ERROR;
 
 	/*
 	 * Count of packets.
