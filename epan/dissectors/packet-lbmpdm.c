@@ -319,9 +319,8 @@ static int proto_lbmpdm = -1;
 /* Protocol fields */
 static int hf_lbmpdm_magic = -1;
 static int hf_lbmpdm_encoding = -1;
-static int hf_lbmpdm_ver_type = -1;
-static int hf_lbmpdm_ver_type_ver = -1;
-static int hf_lbmpdm_ver_type_type = -1;
+static int hf_lbmpdm_ver = -1;
+static int hf_lbmpdm_type = -1;
 static int hf_lbmpdm_next_hdr = -1;
 static int hf_lbmpdm_def_major_ver = -1;
 static int hf_lbmpdm_def_minor_ver = -1;
@@ -386,7 +385,6 @@ static int hf_lbmpdm_field_value_message = -1;
 
 /* Protocol trees */
 static gint ett_lbmpdm = -1;
-static gint ett_lbmpdm_ver_type = -1;
 static gint ett_lbmpdm_segments = -1;
 static gint ett_lbmpdm_segment = -1;
 static gint ett_lbmpdm_offset_entry = -1;
@@ -865,7 +863,7 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     lbmpdm_offset_table_t * ofs_table = NULL;
 
     seglen = lbmpdm_get_segment_length(tvb, offset, encoding, &datalen);
-    subtree_item = proto_tree_add_none_format(tree, hf_lbmpdm_segment, tvb, offset, seglen, "offset Table Segment");
+    subtree_item = proto_tree_add_none_format(tree, hf_lbmpdm_segment, tvb, offset, seglen, "Offset Table Segment");
     subtree = proto_item_add_subtree(subtree_item, ett_lbmpdm_segment);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_next_hdr, tvb, offset + O_LBMPDM_SEG_HDR_T_NEXT_HDR, L_LBMPDM_SEG_HDR_T_NEXT_HDR, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_flags, tvb, offset + O_LBMPDM_SEG_HDR_T_FLAGS, L_LBMPDM_SEG_HDR_T_FLAGS, encoding);
@@ -1243,14 +1241,9 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
-    proto_item * ver_type_item = NULL;
-    proto_tree * ver_type_tree = NULL;
     proto_item * segments_item = NULL;
     proto_tree * segments_tree = NULL;
     proto_item * pi = NULL;
-    guint8 type;
-    guint8 version;
-    guint8 ver_type;
     guint8 next_hdr;
     int dissected_len = 0;
     int encoding;
@@ -1279,14 +1272,8 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     pi = proto_tree_add_string(subtree, hf_lbmpdm_encoding, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC,
         ((encoding == ENC_BIG_ENDIAN) ? "Big-Endian" : "Little-Endian"));
     PROTO_ITEM_SET_GENERATED(pi);
-    ver_type = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE);
-    version = PDM_HDR_VER(ver_type);
-    type = PDM_HDR_TYPE(ver_type);
-    ver_type_item = proto_tree_add_none_format(subtree, hf_lbmpdm_ver_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE,
-        L_LBMPDM_MSG_HDR_T_VER_TYPE, "Version/Type: 0x%02x (Version:%u, Type:%u)", ver_type, version, type);
-    ver_type_tree = proto_item_add_subtree(ver_type_item, ett_lbmpdm_ver_type);
-    proto_tree_add_item(ver_type_tree, hf_lbmpdm_ver_type_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
-    proto_tree_add_item(ver_type_tree, hf_lbmpdm_ver_type_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
+    proto_tree_add_item(subtree, hf_lbmpdm_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
+    proto_tree_add_item(subtree, hf_lbmpdm_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_next_hdr, tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR, L_LBMPDM_MSG_HDR_T_NEXT_HDR, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_def_major_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER, L_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER, encoding);
     msgid.ver_major = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER);
@@ -1348,12 +1335,10 @@ void proto_register_lbmpdm(void)
             { "Magic", "lbmpdm.magic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmpdm_encoding,
             { "Encoding", "lbmpdm.encoding", FT_STRING, BASE_NONE, NULL, 0x0, "encoding as determined by magic number", HFILL } },
-        { &hf_lbmpdm_ver_type,
-            { "Version/Type", "lbmpdm.ver_type", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_lbmpdm_ver_type_ver,
-            { "Version", "lbmpdm.ver_type.ver", FT_UINT8, BASE_DEC, NULL, PDM_HDR_VER_TYPE_VER_MASK, NULL, HFILL } },
-        { &hf_lbmpdm_ver_type_type,
-            { "Type", "lbmpdm.ver_type.type", FT_UINT8, BASE_DEC, NULL, PDM_HDR_VER_TYPE_TYPE_MASK, NULL, HFILL } },
+        { &hf_lbmpdm_ver,
+            { "Version", "lbmpdm.ver", FT_UINT8, BASE_DEC, NULL, PDM_HDR_VER_TYPE_VER_MASK, NULL, HFILL } },
+        { &hf_lbmpdm_type,
+            { "Type", "lbmpdm.type", FT_UINT8, BASE_DEC, NULL, PDM_HDR_VER_TYPE_TYPE_MASK, NULL, HFILL } },
         { &hf_lbmpdm_next_hdr,
             { "Next Header", "lbmpdm.next_hdr", FT_UINT8, BASE_DEC_HEX, VALS(lbmpdm_next_header), 0x0, NULL, HFILL } },
         { &hf_lbmpdm_def_major_ver,
@@ -1480,7 +1465,6 @@ void proto_register_lbmpdm(void)
     static gint * ett[] =
     {
         &ett_lbmpdm,
-        &ett_lbmpdm_ver_type,
         &ett_lbmpdm_segments,
         &ett_lbmpdm_segment,
         &ett_lbmpdm_offset_entry,
