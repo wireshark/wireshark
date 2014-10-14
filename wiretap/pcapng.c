@@ -508,22 +508,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         pcapng_option_header_t oh;
         char *option_content = NULL; /* Allocate as large as the options block */
 
-        /*
-         * Is this block long enough to be an SHB?
-         */
-        if (bh->block_total_length < MIN_SHB_SIZE) {
-                /*
-                 * No.
-                 */
-                if (first_block)
-                        return 0;       /* probably not a pcap-ng file */
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u of an SHB is less than the minimum SHB size %u",
-                              bh->block_total_length, MIN_SHB_SIZE);
-                return -1;
-        }
-
-        /* read block content */
+        /* read fixed-length part of the block */
         errno = WTAP_ERR_CANT_READ;
         bytes_read = file_read(&shb, sizeof shb, fh);
         if (bytes_read != sizeof shb) {
@@ -582,6 +567,21 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
                 return 0;
+        }
+
+        /*
+         * Is this block long enough to be an SHB?
+         */
+        if (bh->block_total_length < MIN_SHB_SIZE) {
+                /*
+                 * No.
+                 */
+                if (first_block)
+                        return 0;       /* probably not a pcap-ng file */
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u of an SHB is less than the minimum SHB size %u",
+                              bh->block_total_length, MIN_SHB_SIZE);
+                return -1;
         }
 
         /* OK, at this point we assume it's a pcap-ng file.
