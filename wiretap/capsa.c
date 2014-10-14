@@ -65,18 +65,6 @@
  * little-endian record offsets, and other data making the block 808 bytes
  * long.  The record offsets are offsets, from the byte just *before* the
  * sequence of record offsets, of the records following the block.
- *
- * Each record begins with:
- *
- *  a 4-byte value - time stamp of some sort?
- *
- *  4 bytes of 0x00;
- *
- *  4 unknown bytes;
- *
- *  4 unknown bytes;
- *
- *  
  */
 
 /* Magic number in Capsa files. */
