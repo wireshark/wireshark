@@ -2308,9 +2308,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wtapng_if_descr_t *wtapng_if_descr;
     wtapng_if_stats_t if_stats;
 
-    *data_offset = file_tell(wth->fh);
-    pcapng_debug1("pcapng_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
-
     wblock.frame_buffer  = wth->frame_buffer;
     wblock.packet_header = &wth->phdr;
 
@@ -2319,6 +2316,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     /* read next block */
     while (1) {
+        *data_offset = file_tell(wth->fh);
+        pcapng_debug1("pcapng_read: data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
         bytes_read = pcapng_read_block(wth, wth->fh, FALSE, pcapng, &wblock, err, err_info);
         if (bytes_read <= 0) {
             pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
@@ -2345,21 +2344,17 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             case(BLOCK_TYPE_IDB):
                 /* A new interface */
                 pcapng_debug0("pcapng_read: block type BLOCK_TYPE_IDB");
-                *data_offset += bytes_read;
                 pcapng_process_idb(wth, pcapng, &wblock);
                 break;
 
             case(BLOCK_TYPE_NRB):
                 /* More name resolution entries */
                 pcapng_debug0("pcapng_read: block type BLOCK_TYPE_NRB");
-                *data_offset += bytes_read;
                 break;
 
             case(BLOCK_TYPE_ISB):
                 /* Another interface statistics report */
                 pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
-                *data_offset += bytes_read;
-                pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
                 if (wth->interface_data->len < wblock.data.if_stats.interface_id) {
                     pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
                 } else {
@@ -2392,8 +2387,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             default:
                 /* XXX - improve handling of "unknown" blocks */
                 pcapng_debug1("pcapng_read: Unknown block type 0x%08x", wblock.type);
-                *data_offset += bytes_read;
-                pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
                 break;
         }
     }
