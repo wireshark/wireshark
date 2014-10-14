@@ -309,13 +309,7 @@ capsa_seek_read(wtap *wth, gint64 seek_off,
 	return TRUE;
 }
 
-/*
- * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
- * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
- *
- * XXX - this is not the correct time origin.
- */
-#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
+#define TIME_FIXUP_CONSTANT 
 
 static int
 capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
@@ -341,7 +335,14 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		orig_size = GUINT16_FROM_LE(capsarec_hdr.orig_len);
 		packet_size = GUINT16_FROM_LE(capsarec_hdr.incl_len);
 		header_size = sizeof capsarec_hdr;
+#if 0
 		timestamp = (((guint64)GUINT32_FROM_LE(capsarec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(capsarec_hdr.timestamplo);
+		/*
+		 * XXX - this is not the correct time origin.
+		 */
+		timestamp -= G_GUINT64_CONSTANT(11644473600);
+#endif
+		phdr->presence_flags = WTAP_HAS_CAP_LEN;
 
 		/*
 		 * OK, the rest of this is variable-length.
@@ -364,6 +365,16 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		packet_size = GUINT16_FROM_LE(pbrec_hdr.incl_len);
 		header_size = sizeof pbrec_hdr;
 		timestamp = (((guint64)GUINT32_FROM_LE(pbrec_hdr.timestamphi))<<32) + GUINT32_FROM_LE(pbrec_hdr.timestamplo);
+		/*
+		 * XXX - this seems to work for one pcap capture
+		 * converted to Capsa format by Packet Builder,
+		 * but it's a random magic number, so it might
+		 * not actually be the right value.
+		 */
+		timestamp -= G_GUINT64_CONSTANT(485946753291483);
+		phdr->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
+		phdr->ts.secs = (time_t)(timestamp / 1000000);
+		phdr->ts.nsecs = ((int)(timestamp % 1000000))*1000;
 		break;
 
 	default:
@@ -417,10 +428,6 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	phdr->pseudo_header.eth.fcs_len = 0;
 
 	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
-	timestamp -= TIME_FIXUP_CONSTANT;
-	phdr->ts.secs = (time_t)(timestamp / 1000000);
-	phdr->ts.nsecs = ((int)(timestamp % 1000000))*1000;
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
 
