@@ -3591,16 +3591,19 @@
 			<enum name="DEFAULT-EPS-BEARER-QOS_MODIFICATION_FAILURE"	code="34"/>
 			<enum name="USER_CSG_HYBRID_SUBSCRIBED_INFORMATION_CHANGE"	code="35"/>
 			<enum name="USER_CSG_ HYBRID_UNSUBSCRIBED_INFORMATION_CHANGE"	code="36"/>
-			<enum name="ROUTING_RULE_CHANGE"				code="37"/>
-			<enum name="MAX_MBR_APN_AMBR_CHANGE"				code="38"/>
-			<enum name="APPLICATION_START"					code="39"/>
-			<enum name="APPLICATION_STOP"					code="40"/>
-			<enum name="ADC_REVALIDATION_TIMEOUT"				code="41"/>
-			<enum name="CS_TO_PS_HANDOVER"					code="42"/>
-			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"				code="43"/>
-			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"			code="44"/>
-			<enum name="ACCESS_NETWORK_INFO_REPORT"				code="45"/>
-			<enum name="TIME_CHANGE"					code="100"/>
+			<enum name="ROUTING_RULE_CHANGE"				                              code="37"/>
+			<enum name="MAX_MBR_APN_AMBR_CHANGE"				                          code="38"/>
+			<enum name="APPLICATION_START"					                              code="39"/>
+			<enum name="APPLICATION_STOP"					                                code="40"/>
+			<enum name="ADC_REVALIDATION_TIMEOUT"				                          code="41"/>
+			<enum name="CS_TO_PS_HANDOVER"					                              code="42"/>
+			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"				                        code="43"/>
+			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"			                      code="44"/>
+      <enum name="ACCESS_NETWORK_INFO_REPORT"				                        code="45"/>
+      <enum name="CREDIT_MANAGEMENT_SESSION_FAILURE"	                      code="46"/>
+      <enum name="DEFAULT_QOS_CHANGE"		          		                      code="47"/>
+      <enum name="CHANGE_OF_UE_PRESENCE_IN_PRESENCE_REPORTING_AREA_REPORT"	code="48"/>
+      <enum name="TIME_CHANGE"					code="100"/>
 			<enum name="TFT DELETED"					code="1000"/>
 			<enum name="LOSS OF BEARER"					code="1001"/>
 			<enum name="RECOVERY OF BEARER"					code="1002"/>
