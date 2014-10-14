@@ -29,6 +29,7 @@ set(CLEAN_FILES
 	ber.c
 	btsnoop.c
 	camins.c
+	capsa.c
 	catapult_dct2000.c
 	commview.c
 	cosine.c

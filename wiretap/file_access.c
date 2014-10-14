@@ -87,6 +87,7 @@
 #include "vwr.h"
 #include "camins.h"
 #include "stanag4607.h"
+#include "capsa.h"
 #include "pcap-encap.h"
 
 /*
@@ -138,6 +139,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "EyeSDN USB S0/E1 ISDN trace format", "trc" },
 	{ "HP-UX nettl trace", "trc0;trc1" },
 	{ "Network Instruments Observer", "bfr" },
+	{ "Colasoft Capsa", "cscpkt" },
 	{ "Novell LANalyzer", "tr1" },
 	{ "Tektronix K12xx 32-bit .rf5 format", "rf5" },
 	{ "WildPackets *Peek", "pkt;tpc;apc;wpz" },
@@ -337,6 +339,7 @@ static struct open_info open_info_base[] = {
 	{ "InfoVista 5View capture",                OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
 	{ "Network Instruments Observer",           OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
 	{ "WildPackets tagged",                     OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
+	{ "Colasoft Capsa",                         OPEN_INFO_MAGIC,     capsa_open,          NULL,       NULL, NULL },
 	{ "DBS Etherwatch (VMS)",                   OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
 	{ "Tektronix K12xx 32-bit .rf5 format",     OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
 	{ "Catapult DCT2000 trace (.out format)",   OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
@@ -1517,7 +1520,17 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG */
 	{ "Android Logcat Long text format", "logcat-long", NULL, NULL,
 	  FALSE, FALSE, 0,
-	  logcat_text_long_dump_can_write_encap, logcat_text_long_dump_open, NULL }
+	  logcat_text_long_dump_can_write_encap, logcat_text_long_dump_open, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_COLASOFT_CAPSA */
+	{ "Colasoft Capsa format", "capsa", "cscpkt", NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_COLASOFT_PACKET_BUILDER */
+	{ "Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
 };
 
 gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
