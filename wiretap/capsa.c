@@ -420,7 +420,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	phdr->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
 	timestamp -= TIME_FIXUP_CONSTANT;
 	phdr->ts.secs = timestamp / 1000000;
-	phdr->ts.nsecs = (timestamp % 1000000)*1000;
+	phdr->ts.nsecs = ((int)(timestamp % 1000000))*1000;
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
 
