@@ -93,6 +93,8 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 }
 #endif /* __cplusplus */
 
+#endif /* __UI_FILTERS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -102,8 +104,6 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* __UI_FILTERS_H__ */

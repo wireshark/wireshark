@@ -63,6 +63,8 @@ extern void fileset_update_file(const char *path);
 }
 #endif /* __cplusplus */
 
+#endif /* __FILESET_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -75,5 +77,3 @@ extern void fileset_update_file(const char *path);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __FILESET_H__ */

@@ -39,6 +39,8 @@ extern gboolean persfilepath_opt(int opt, const char *optstr);
 }
 #endif /* __cplusplus */
 
+#endif /* PERSFILEPATH_OPT_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -51,5 +53,3 @@ extern gboolean persfilepath_opt(int opt, const char *optstr);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PERSFILEPATH_OPT_H */

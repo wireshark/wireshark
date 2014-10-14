@@ -233,6 +233,8 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 #define stat_node_clear_flags(st,name,parent_id,with_children,flags)    \
     (stats_tree_manip_node(MN_CLEAR_FLAGS,(st),(name),(parent_id),(with_children),flags))
 
+#endif /* __STATS_TREE_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -245,5 +247,3 @@ WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __STATS_TREE_H */

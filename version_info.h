@@ -55,6 +55,8 @@ void get_runtime_version_info(GString *str,
 }
 #endif /* __cplusplus */
 
+#endif /* __VERSION_INFO_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -67,5 +69,3 @@ void get_runtime_version_info(GString *str,
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __VERSION_INFO_H__ */

@@ -682,6 +682,8 @@ void read_keytab_file(const char *);
 }
 #endif /* __cplusplus */
 
+#endif /* file.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -694,5 +696,3 @@ void read_keytab_file(const char *);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* file.h */

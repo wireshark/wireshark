@@ -97,6 +97,8 @@ summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary
 }
 #endif /* __cplusplus */
 
+#endif /* summary.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -106,8 +108,6 @@ summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* summary.h */

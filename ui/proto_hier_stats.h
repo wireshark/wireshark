@@ -46,6 +46,8 @@ ph_stats_t *ph_stats_new(void);
 
 void ph_stats_free(ph_stats_t *ps);
 
+#endif /* __UI_PROTO_HIER_STATS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -58,5 +60,3 @@ void ph_stats_free(ph_stats_t *ps);
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif /* __UI_PROTO_HIER_STATS_H__ */

@@ -63,6 +63,8 @@ const gchar * dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 WS_DLL_PUBLIC
 const gchar * dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length);
 
+#endif /* __PACKET_E212_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -75,5 +77,3 @@ const gchar * dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __PACKET_E212_H__ */

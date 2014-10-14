@@ -58,6 +58,8 @@ gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 bl
 }
 #endif /* __cplusplus */
 
+#endif /* __COLOR_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -70,5 +72,3 @@ gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 bl
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif /* __COLOR_H__ */

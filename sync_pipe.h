@@ -86,6 +86,8 @@ sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
 #define SIGNAL_PIPE_FORMAT "\\\\.\\pipe\\wireshark.%s.signal"
 #endif
 
+#endif /* sync_pipe.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -98,5 +100,3 @@ sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* sync_pipe.h */

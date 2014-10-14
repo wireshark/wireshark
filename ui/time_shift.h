@@ -98,6 +98,8 @@ const gchar * time_shift_undo(capture_file *cf);
 }
 #endif /* __cplusplus */
 
+#endif /* __TIME_SHIFT_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -110,5 +112,3 @@ const gchar * time_shift_undo(capture_file *cf);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __TIME_SHIFT_H__ */

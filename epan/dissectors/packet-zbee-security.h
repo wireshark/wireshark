@@ -80,6 +80,8 @@ extern void     zbee_security_handoff   (void);
 extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, guint);
 extern gboolean zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
 
+#endif /* PACKET_ZBEE_SECURITY_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -92,5 +94,3 @@ extern gboolean zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PACKET_ZBEE_SECURITY_H */

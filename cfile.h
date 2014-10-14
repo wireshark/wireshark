@@ -138,6 +138,8 @@ extern const char *cap_file_get_interface_name(void *data, guint32 interface_id)
 }
 #endif /* __cplusplus */
 
+#endif /* cfile.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -147,8 +149,6 @@ extern const char *cap_file_get_interface_name(void *data, guint32 interface_id)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* cfile.h */

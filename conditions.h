@@ -129,6 +129,8 @@ void* cnd_get_user_data(condition*);
  */
 void cnd_set_user_data(condition *, void *);
 
+#endif /* CONDITIONS_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -141,5 +143,3 @@ void cnd_set_user_data(condition *, void *);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* CONDITIONS_H */

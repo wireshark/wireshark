@@ -128,6 +128,8 @@ gboolean delete_current_profile(void);
 }
 #endif /* __cplusplus */
 
+#endif /* __PROFILE_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -140,5 +142,3 @@ gboolean delete_current_profile(void);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __PROFILE_H__ */

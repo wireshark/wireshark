@@ -44,6 +44,8 @@ void parse_token(token_t token, char *str);
 
 int yylex(void);
 
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -56,5 +58,3 @@ int yylex(void);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif

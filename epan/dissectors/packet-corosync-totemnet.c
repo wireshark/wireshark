@@ -514,5 +514,3 @@ proto_reg_handoff_corosync_totemnet(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-/* packet-corosync-totemnet.c ends here */

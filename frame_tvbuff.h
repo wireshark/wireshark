@@ -41,6 +41,8 @@ extern tvbuff_t *file_tvbuff_new_buffer(const frame_data *fd, Buffer *buf);
 }
 #endif /* __cplusplus */
 
+#endif /* __FRAME_TVBUFF_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -53,5 +55,3 @@ extern tvbuff_t *file_tvbuff_new_buffer(const frame_data *fd, Buffer *buf);
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif /* __FRAME_TVBUFF_H__ */

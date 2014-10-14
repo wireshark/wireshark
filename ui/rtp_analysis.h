@@ -127,6 +127,8 @@ extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
                               packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);
 
+#endif /* __RTP_ANALYSIS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -139,5 +141,3 @@ extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __RTP_ANALYSIS_H__ */

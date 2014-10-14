@@ -77,6 +77,8 @@ void decode_clear_all(void);
 }
 #endif /* __cplusplus */
 
+#endif /* __DECODE_AS_UTILS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -89,5 +91,3 @@ void decode_clear_all(void);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __DECODE_AS_UTILS_H__ */

@@ -77,6 +77,8 @@ typedef struct _sctp_frag_msg {
   struct _sctp_frag_msg* next;
 } sctp_frag_msg;
 
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -86,8 +88,6 @@ typedef struct _sctp_frag_msg {
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif

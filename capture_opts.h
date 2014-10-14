@@ -372,6 +372,8 @@ collect_ifaces(capture_options *capture_opts);
 }
 #endif /* __cplusplus */
 
+#endif /* capture_opts.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -384,5 +386,3 @@ collect_ifaces(capture_options *capture_opts);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* capture_opts.h */

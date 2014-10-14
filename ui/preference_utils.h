@@ -108,6 +108,8 @@ void column_prefs_remove_nth(gint col);
 }
 #endif /* __cplusplus */
 
+#endif /* __PREFRENCE_UTILS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -117,8 +119,6 @@ void column_prefs_remove_nth(gint col);
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* __PREFRENCE_UTILS_H__ */

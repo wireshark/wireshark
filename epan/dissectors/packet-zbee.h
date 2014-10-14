@@ -806,6 +806,8 @@
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
 
+#endif /* PACKET_ZBEE_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -818,5 +820,3 @@ extern guint zbee_get_bit_field(guint input, guint mask);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PACKET_ZBEE_H */

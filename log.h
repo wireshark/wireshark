@@ -36,6 +36,8 @@
 /* (might slightly degrade performance) */
 /*#define LOG_CAPTURE_VERBOSE*/
 
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -48,5 +50,3 @@
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif

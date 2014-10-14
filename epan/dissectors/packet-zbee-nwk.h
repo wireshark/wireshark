@@ -203,6 +203,8 @@ extern GHashTable *zbee_table_link_keyring;
 #define ZBEE_IP_BEACON_TLV_TYPE_MASK           0xf0
 #define ZBEE_IP_BEACON_TLV_TYPE_LFDI           0x0
 
+#endif /* PACKET_ZBEE_NWK_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -215,6 +217,3 @@ extern GHashTable *zbee_table_link_keyring;
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PACKET_ZBEE_NWK_H */
-

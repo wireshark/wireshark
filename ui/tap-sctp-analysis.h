@@ -350,6 +350,8 @@ const sctp_assoc_info_t* get_selected_assoc(void);
 }
 #endif /* __cplusplus */
 
+#endif /* __TAP_SCTP_ANALYSIS_H__ */
+
 /*
  * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
  *
@@ -362,5 +364,3 @@ const sctp_assoc_info_t* get_selected_assoc(void);
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif /* __TAP_SCTP_ANALYSIS_H__ */

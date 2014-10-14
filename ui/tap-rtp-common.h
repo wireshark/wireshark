@@ -36,6 +36,8 @@ void rtp_write_header(rtp_stream_info_t*, FILE*);
 void rtp_write_sample(rtp_sample_t*, FILE*);
 int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
 
+#endif /*TAP_RTP_COMMON_H_INCLUDED*/
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -48,5 +50,3 @@ int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /*TAP_RTP_COMMON_H_INCLUDED*/

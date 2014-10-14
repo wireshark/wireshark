@@ -645,6 +645,8 @@ typedef gint16 (*CsnCallBackFcn_t)(void* pv ,...);
 
 #define CSNDESCR(_FuncType) CSNDESCR_##_FuncType
 
+#endif /*_PACKET_CSN1_H_*/
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -654,8 +656,6 @@ typedef gint16 (*CsnCallBackFcn_t)(void* pv ,...);
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /*_PACKET_CSN1_H_*/

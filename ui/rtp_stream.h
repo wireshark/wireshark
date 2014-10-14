@@ -149,6 +149,8 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename);
 */
 void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev);
 
+#endif /* __RTP_STREAM_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -161,5 +163,3 @@ void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* __RTP_STREAM_H__ */

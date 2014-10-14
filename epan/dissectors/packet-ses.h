@@ -207,6 +207,8 @@ struct SESSION_DATA_STRUCTURE
 
 extern value_string_ext ses_vals_ext;
 
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -219,5 +221,3 @@ extern value_string_ext ses_vals_ext;
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif

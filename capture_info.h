@@ -79,6 +79,8 @@ capture_info    *cinfo);
 }
 #endif /* __cplusplus */
 
+#endif /* capture_info.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -91,5 +93,3 @@ capture_info    *cinfo);
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* capture_info.h */

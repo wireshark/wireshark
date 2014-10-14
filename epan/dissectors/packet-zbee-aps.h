@@ -272,6 +272,8 @@ typedef struct{
 
 extern const value_string zbee_aps_cid_names[];
 
+#endif /* PACKET_ZBEE_APS_H*/
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -284,5 +286,3 @@ extern const value_string zbee_aps_cid_names[];
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PACKET_ZBEE_APS_H*/

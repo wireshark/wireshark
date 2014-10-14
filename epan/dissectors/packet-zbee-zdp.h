@@ -388,6 +388,8 @@ extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *o
 extern const value_string zbee_zdp_cluster_names[];
 extern const value_string zbee_zdp_rtg_status_vals[];
 
+#endif /* PACKET_ZBEE_ZDP_H */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -400,5 +402,3 @@ extern const value_string zbee_zdp_rtg_status_vals[];
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-#endif /* PACKET_ZBEE_ZDP_H */

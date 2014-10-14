@@ -116,6 +116,9 @@ void proto_reg_handoff_ioraw(void)
 
    ioraw_handle = create_dissector_handle(dissect_ioraw, proto_ioraw);
 
+   dissector_add_uint("ecatf.type", 3, ioraw_handle);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -125,8 +128,6 @@ void proto_reg_handoff_ioraw(void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * vi: set shiftwidth=3 tabstop=8 expandtab:
  * :indentSize=3:tabSize=8:noTabs=true:
  */
-   dissector_add_uint("ecatf.type", 3, ioraw_handle);
-}

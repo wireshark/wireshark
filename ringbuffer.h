@@ -45,6 +45,8 @@ gboolean ringbuf_libpcap_dump_close(gchar **save_file, int *err);
 void ringbuf_free(void);
 void ringbuf_error_cleanup(void);
 
+#endif /* ringbuffer.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -54,8 +56,6 @@ void ringbuf_error_cleanup(void);
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* ringbuffer.h */

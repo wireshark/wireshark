@@ -123,6 +123,8 @@ const char *get_iface_description_for_interface(capture_options *capture_opts, g
 }
 #endif /* __cplusplus */
 
+#endif /* __CAPTURE_UI_UTILS_H__ */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -132,8 +134,6 @@ const char *get_iface_description_for_interface(capture_options *capture_opts, g
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* __CAPTURE_UI_UTILS_H__ */

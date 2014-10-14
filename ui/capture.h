@@ -105,6 +105,8 @@ void capture_stat_stop(if_stat_cache_t *sc);
 }
 #endif /* __cplusplus */
 
+#endif /* capture.h */
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -114,8 +116,6 @@ void capture_stat_stop(if_stat_cache_t *sc);
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
-#endif /* capture.h */

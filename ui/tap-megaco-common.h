@@ -90,6 +90,8 @@ static const value_string megaco_message_type[] = {
 
 int megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi);
 
+#endif /*TAP_MEGACO_COMMON_H*/
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -102,5 +104,3 @@ int megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, co
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-
-#endif /*TAP_MEGACO_COMMON_H*/
