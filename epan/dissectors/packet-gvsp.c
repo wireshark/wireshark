@@ -130,8 +130,6 @@ void proto_reg_handoff_gvsp(void);
    Pixel types
  */
 
-#define GVSP_PIX_COUNT (0x46)
-
 #define GVSP_PIX_MONO1P                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY1BIT  | 0x0037)
 
 #define GVSP_PIX_MONO2P                  (GVSP_PIX_MONO  | GVSP_PIX_OCCUPY2BIT  | 0x0038)
