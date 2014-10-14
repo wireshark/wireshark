@@ -111,7 +111,7 @@ struct pbrec_hdr {
 };
 
 typedef struct {
-	guint8 format_indicator;
+	guint16 format_indicator;
 	guint32 number_of_frames;
 	guint32 frame_count;
 	gint64 base_offset;
