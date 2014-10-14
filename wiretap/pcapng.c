@@ -2009,9 +2009,9 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
     /*
      * Do we have a handler for this block type?
      */
-    handler = (block_handler *)g_hash_table_lookup(block_handlers,
-                                                   GUINT_TO_POINTER(bh->block_type));
-    if (handler != NULL) {
+    if (block_handlers != NULL &&
+        (handler = (block_handler *)g_hash_table_lookup(block_handlers,
+                                                        GUINT_TO_POINTER(bh->block_type))) != NULL) {
         /* Yes - call it to read this block type. */
         if (!handler->read(fh, block_read, pn->byte_swapped,
                            wblock->packet_header, wblock->frame_buffer,
@@ -3609,9 +3609,9 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             /*
              * Do we have a handler for this block type?
              */
-            handler = (block_handler *)g_hash_table_lookup(block_handlers,
-                                                           GUINT_TO_POINTER(pseudo_header->ftsrec.record_type));
-            if (handler != NULL) {
+            if (block_handlers != NULL &&
+                (handler = (block_handler *)g_hash_table_lookup(block_handlers,
+                                                                GUINT_TO_POINTER(pseudo_header->ftsrec.record_type))) != NULL) {
                 /* Yes. Call it to write out this record. */
                 if (!handler->write(wdh, phdr, pd, err))
                     return FALSE;
