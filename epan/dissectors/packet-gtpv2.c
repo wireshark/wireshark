@@ -120,9 +120,9 @@ static int hf_gtpv2_pt = -1;
 static int hf_gtpv2_ps = -1;
 static int hf_gtpv2_si = -1;
 static int hf_gtpv2_msv = -1;
-static int hf_gtpv2_spare1 = -1;
-static int hf_gtpv2_spare2 = -1;
-static int hf_gtpv2_spare3 = -1;
+static int hf_gtpv2_retloc = -1;
+static int hf_gtpv2_pbic = -1;
+static int hf_gtpv2_srni = -1;
 static int hf_gtpv2_s6af = -1;
 static int hf_gtpv2_s4af = -1;
 static int hf_gtpv2_mbmdt = -1;
@@ -1685,16 +1685,19 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         return;
     }
     /* Only present in version 9 and higher */
-    /* Octet 7 Spare Spare Spare Spare Spare Spare Spare CCRSI */
-    proto_tree_add_item(tree, hf_gtpv2_spare1,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_spare2,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_spare3,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Octet 7 RetLoc PBIC SRNI S6AF S4AF MBMDT ISRAU CCRSI */
+    proto_tree_add_item(tree, hf_gtpv2_retloc,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_pbic,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_srni,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_s6af,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_s4af,            tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_mbmdt,           tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_israu,           tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_ccrsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    /* Octet 8 CPRAI ARRL PPOF PPON/PPEI PPSI CSFBI CLII CPSR */
+
+    /* Octet 9 Spare Spare Spare Spare Spare PCRI AOSI AOPI */
 
 }
 
@@ -5762,7 +5765,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_teid,
           {"Tunnel Endpoint Identifier", "gtpv2.teid",
-           FT_UINT32, BASE_DEC, NULL, 0x0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
            "TEID", HFILL}
         },
         { &hf_gtpv2_seq,
@@ -6047,16 +6050,16 @@ void proto_register_gtpv2(void)
          {"MSV (MS Validated)", "gtpv2.msv",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
-        {&hf_gtpv2_spare1,
-         {"Spare", "gtpv2.spare",
+        {&hf_gtpv2_retloc,
+         {"RetLoc (Retrieve Location Indication Flag)", "gtpv2.retloc",
           FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
         },
-        {&hf_gtpv2_spare2,
-         {"Spare", "gtpv2.spare",
+        {&hf_gtpv2_pbic,
+         {"PBIC (Propagate BBAI Information Change)", "gtpv2.pbic",
           FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
         },
-        {&hf_gtpv2_spare3,
-         {"Spare", "gtpv2.spare",
+        {&hf_gtpv2_srni,
+         {"SRNI (SGW Restoration Needed Indication)", "gtpv2.snri",
           FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
         },
         {&hf_gtpv2_s6af,
