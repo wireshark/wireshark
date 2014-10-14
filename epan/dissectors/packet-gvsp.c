@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -32,22 +32,22 @@
 void proto_register_gvsp(void);
 void proto_reg_handoff_gvsp(void);
 
-#define GVSP_MIN_PACKET_SIZE        8
+#define GVSP_MIN_PACKET_SIZE         8
 #define GVSP_V2_MIN_PACKET_SIZE     20
 
 /*
   Payload types
  */
 
-#define GVSP_PAYLOAD_IMAGE ( 0x0001 )
-#define GVSP_PAYLOAD_RAWDATA (0x0002 )
-#define GVSP_PAYLOAD_FILE ( 0x0003 )
-#define GVSP_PAYLOAD_CHUNKDATA ( 0x0004 )
-#define GVSP_PAYLOAD_EXTENDEDCHUNKDATA ( 0x0005 ) /* Deprecated */
-#define GVSP_PAYLOAD_JPEG ( 0x0006 )
-#define GVSP_PAYLOAD_JPEG2000 ( 0x0007 )
-#define GVSP_PAYLOAD_H264 ( 0x0008 )
-#define GVSP_PAYLOAD_MULTIZONEIMAGE ( 0x0009 )
+#define GVSP_PAYLOAD_IMAGE               ( 0x0001 )
+#define GVSP_PAYLOAD_RAWDATA             ( 0x0002 )
+#define GVSP_PAYLOAD_FILE                ( 0x0003 )
+#define GVSP_PAYLOAD_CHUNKDATA           ( 0x0004 )
+#define GVSP_PAYLOAD_EXTENDEDCHUNKDATA   ( 0x0005 ) /* Deprecated */
+#define GVSP_PAYLOAD_JPEG                ( 0x0006 )
+#define GVSP_PAYLOAD_JPEG2000            ( 0x0007 )
+#define GVSP_PAYLOAD_H264                ( 0x0008 )
+#define GVSP_PAYLOAD_MULTIZONEIMAGE      ( 0x0009 )
 #define GVSP_PAYLOAD_DEVICEPSECIFICSTART ( 0x8000 )
 
 
@@ -55,11 +55,11 @@ void proto_reg_handoff_gvsp(void);
    GVSP packet types
  */
 
-#define GVSP_PACKET_LEADER ( 1 )
-#define GVSP_PACKET_TRAILER ( 2 )
-#define GVSP_PACKET_PAYLOAD ( 3 )
-#define GVSP_PACKET_ALLIN ( 4 )
-#define GVSP_PACKET_PAYLOAD_H264 ( 5 )
+#define GVSP_PACKET_LEADER            ( 1 )
+#define GVSP_PACKET_TRAILER           ( 2 )
+#define GVSP_PACKET_PAYLOAD           ( 3 )
+#define GVSP_PACKET_ALLIN             ( 4 )
+#define GVSP_PACKET_PAYLOAD_H264      ( 5 )
 #define GVSP_PACKET_PAYLOAD_MULTIZONE ( 6 )
 
 
@@ -67,27 +67,27 @@ void proto_reg_handoff_gvsp(void);
    GVSP statuses
  */
 
-#define GEV_STATUS_SUCCESS (0x0000)
-#define GEV_STATUS_PACKET_RESEND (0x0100)
-#define GEV_STATUS_NOT_IMPLEMENTED (0x8001)
-#define GEV_STATUS_INVALID_PARAMETER (0x8002)
-#define GEV_STATUS_INVALID_ADDRESS (0x8003)
-#define GEV_STATUS_WRITE_PROTECT (0x8004)
-#define GEV_STATUS_BAD_ALIGNMENT (0x8005)
-#define GEV_STATUS_ACCESS_DENIED (0x8006)
-#define GEV_STATUS_BUSY (0x8007)
-#define GEV_STATUS_LOCAL_PROBLEM (0x8008)  /* deprecated */
-#define GEV_STATUS_MSG_MISMATCH (0x8009) /* deprecated */
-#define GEV_STATUS_INVALID_PROTOCOL (0x800A) /* deprecated */
-#define GEV_STATUS_NO_MSG (0x800B) /* deprecated */
-#define GEV_STATUS_PACKET_UNAVAILABLE (0x800C)
-#define GEV_STATUS_DATA_OVERRUN (0x800D)
-#define GEV_STATUS_INVALID_HEADER (0x800E)
-#define GEV_STATUS_WRONG_CONFIG (0x800F) /* deprecated */
-#define GEV_STATUS_PACKET_NOT_YET_AVAILABLE (0x8010)
+#define GEV_STATUS_SUCCESS                             (0x0000)
+#define GEV_STATUS_PACKET_RESEND                       (0x0100)
+#define GEV_STATUS_NOT_IMPLEMENTED                     (0x8001)
+#define GEV_STATUS_INVALID_PARAMETER                   (0x8002)
+#define GEV_STATUS_INVALID_ADDRESS                     (0x8003)
+#define GEV_STATUS_WRITE_PROTECT                       (0x8004)
+#define GEV_STATUS_BAD_ALIGNMENT                       (0x8005)
+#define GEV_STATUS_ACCESS_DENIED                       (0x8006)
+#define GEV_STATUS_BUSY                                (0x8007)
+#define GEV_STATUS_LOCAL_PROBLEM                       (0x8008) /* deprecated */
+#define GEV_STATUS_MSG_MISMATCH                        (0x8009) /* deprecated */
+#define GEV_STATUS_INVALID_PROTOCOL                    (0x800A) /* deprecated */
+#define GEV_STATUS_NO_MSG                              (0x800B) /* deprecated */
+#define GEV_STATUS_PACKET_UNAVAILABLE                  (0x800C)
+#define GEV_STATUS_DATA_OVERRUN                        (0x800D)
+#define GEV_STATUS_INVALID_HEADER                      (0x800E)
+#define GEV_STATUS_WRONG_CONFIG                        (0x800F) /* deprecated */
+#define GEV_STATUS_PACKET_NOT_YET_AVAILABLE            (0x8010)
 #define GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY (0x8011)
-#define GEV_STATUS_PACKET_REMOVED_FROM_MEMORY (0x8012)
-#define GEV_STATUS_ERROR (0x8FFF)
+#define GEV_STATUS_PACKET_REMOVED_FROM_MEMORY          (0x8012)
+#define GEV_STATUS_ERROR                               (0x8FFF)
 
 
 /*
@@ -209,15 +209,15 @@ void proto_reg_handoff_gvsp(void);
 /* Structure to hold GVSP packet information */
 typedef struct _gvsp_packet_info
 {
-    gint chunk;
-    guint8 format;
+    gint    chunk;
+    guint8  format;
     guint16 payloadtype;
     guint64 blockid;
     guint32 packetid;
-    gint enhanced;
-    gint flag_resendrangeerror;
-    gint flag_previousblockdropped;
-    gint flag_packetresend;
+    gint    enhanced;
+    gint    flag_resendrangeerror;
+    gint    flag_previousblockdropped;
+    gint    flag_packetresend;
 } gvsp_packet_info;
 
 
@@ -241,150 +241,150 @@ static int ett_gvsp_zoneinfo = -1;
 
 
 static const value_string statusnames[] = {
-    { GEV_STATUS_SUCCESS, "GEV_STATUS_SUCCESS" },
-    { GEV_STATUS_PACKET_RESEND, "GEV_STATUS_PACKET_RESEND" },
-    { GEV_STATUS_NOT_IMPLEMENTED, "GEV_STATUS_NOT_IMPLEMENTED" },
-    { GEV_STATUS_INVALID_PARAMETER, "GEV_STATUS_INVALID_PARAMETER" },
-    { GEV_STATUS_INVALID_ADDRESS, "GEV_STATUS_INVALID_ADDRESS" },
-    { GEV_STATUS_WRITE_PROTECT, "GEV_STATUS_WRITE_PROTECT" },
-    { GEV_STATUS_BAD_ALIGNMENT, "GEV_STATUS_BAD_ALIGNMENT" },
-    { GEV_STATUS_ACCESS_DENIED, "GEV_STATUS_ACCESS_DENIED" },
-    { GEV_STATUS_BUSY, "GEV_STATUS_BUSY" },
-    { GEV_STATUS_LOCAL_PROBLEM, "GEV_STATUS_LOCAL_PROBLEM (deprecated)" },
-    { GEV_STATUS_MSG_MISMATCH, "GEV_STATUS_MSG_MISMATCH (deprecated)" },
-    { GEV_STATUS_INVALID_PROTOCOL, "GEV_STATUS_INVALID_PROTOCOL (deprecated)" },
-    { GEV_STATUS_NO_MSG, "GEV_STATUS_NO_MSG (deprecated)" },
-    { GEV_STATUS_PACKET_UNAVAILABLE, "GEV_STATUS_PACKET_UNAVAILABLE" },
-    { GEV_STATUS_DATA_OVERRUN, "GEV_STATUS_DATA_OVERRUN" },
-    { GEV_STATUS_INVALID_HEADER, "GEV_STATUS_INVALID_HEADER" },
-    { GEV_STATUS_WRONG_CONFIG, "GEV_STATUS_WRONG_CONFIG (deprecated)" },
-    { GEV_STATUS_PACKET_NOT_YET_AVAILABLE, "GEV_STATUS_PACKET_NOT_YET_AVAILABLE" },
+    { GEV_STATUS_SUCCESS,                             "GEV_STATUS_SUCCESS" },
+    { GEV_STATUS_PACKET_RESEND,                       "GEV_STATUS_PACKET_RESEND" },
+    { GEV_STATUS_NOT_IMPLEMENTED,                     "GEV_STATUS_NOT_IMPLEMENTED" },
+    { GEV_STATUS_INVALID_PARAMETER,                   "GEV_STATUS_INVALID_PARAMETER" },
+    { GEV_STATUS_INVALID_ADDRESS,                     "GEV_STATUS_INVALID_ADDRESS" },
+    { GEV_STATUS_WRITE_PROTECT,                       "GEV_STATUS_WRITE_PROTECT" },
+    { GEV_STATUS_BAD_ALIGNMENT,                       "GEV_STATUS_BAD_ALIGNMENT" },
+    { GEV_STATUS_ACCESS_DENIED,                       "GEV_STATUS_ACCESS_DENIED" },
+    { GEV_STATUS_BUSY,                                "GEV_STATUS_BUSY" },
+    { GEV_STATUS_LOCAL_PROBLEM,                       "GEV_STATUS_LOCAL_PROBLEM (deprecated)" },
+    { GEV_STATUS_MSG_MISMATCH,                        "GEV_STATUS_MSG_MISMATCH (deprecated)" },
+    { GEV_STATUS_INVALID_PROTOCOL,                    "GEV_STATUS_INVALID_PROTOCOL (deprecated)" },
+    { GEV_STATUS_NO_MSG,                              "GEV_STATUS_NO_MSG (deprecated)" },
+    { GEV_STATUS_PACKET_UNAVAILABLE,                  "GEV_STATUS_PACKET_UNAVAILABLE" },
+    { GEV_STATUS_DATA_OVERRUN,                        "GEV_STATUS_DATA_OVERRUN" },
+    { GEV_STATUS_INVALID_HEADER,                      "GEV_STATUS_INVALID_HEADER" },
+    { GEV_STATUS_WRONG_CONFIG,                        "GEV_STATUS_WRONG_CONFIG (deprecated)" },
+    { GEV_STATUS_PACKET_NOT_YET_AVAILABLE,            "GEV_STATUS_PACKET_NOT_YET_AVAILABLE" },
     { GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY, "GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY" },
-    { GEV_STATUS_PACKET_REMOVED_FROM_MEMORY, "GEV_STATUS_PACKET_REMOVED_FROM_MEMORY" },
-    { GEV_STATUS_ERROR, "GEV_STATUS_ERROR" },
+    { GEV_STATUS_PACKET_REMOVED_FROM_MEMORY,          "GEV_STATUS_PACKET_REMOVED_FROM_MEMORY" },
+    { GEV_STATUS_ERROR,                               "GEV_STATUS_ERROR" },
     { 0, NULL },
 };
 
 static value_string_ext statusnames_ext = VALUE_STRING_EXT_INIT(statusnames);
 
 static const value_string formatnames[] = {
-    { GVSP_PACKET_LEADER, "LEADER" },
-    { GVSP_PACKET_TRAILER, "TRAILER" },
-    { GVSP_PACKET_PAYLOAD, "PAYLOAD" },
-    { GVSP_PACKET_ALLIN, "ALLIN" },
-    { GVSP_PACKET_PAYLOAD_H264, "H264" },
-    { GVSP_PACKET_PAYLOAD_MULTIZONE, "MULTIZONE" },
-    { 0x80 | GVSP_PACKET_LEADER, "LEADER (ext IDs)" },
-    { 0x80 | GVSP_PACKET_TRAILER, "TRAILER (ext IDs)" },
-    { 0x80 | GVSP_PACKET_PAYLOAD, "PAYLOAD (ext IDs)" },
-    { 0x80 | GVSP_PACKET_ALLIN, "ALLIN (ext IDs)" },
-    { 0x80 | GVSP_PACKET_PAYLOAD_H264, "H264 (ext IDs)" },
+    { GVSP_PACKET_LEADER,                   "LEADER" },
+    { GVSP_PACKET_TRAILER,                  "TRAILER" },
+    { GVSP_PACKET_PAYLOAD,                  "PAYLOAD" },
+    { GVSP_PACKET_ALLIN,                    "ALLIN" },
+    { GVSP_PACKET_PAYLOAD_H264,             "H264" },
+    { GVSP_PACKET_PAYLOAD_MULTIZONE,        "MULTIZONE" },
+    { 0x80 | GVSP_PACKET_LEADER,            "LEADER (ext IDs)" },
+    { 0x80 | GVSP_PACKET_TRAILER,           "TRAILER (ext IDs)" },
+    { 0x80 | GVSP_PACKET_PAYLOAD,           "PAYLOAD (ext IDs)" },
+    { 0x80 | GVSP_PACKET_ALLIN,             "ALLIN (ext IDs)" },
+    { 0x80 | GVSP_PACKET_PAYLOAD_H264,      "H264 (ext IDs)" },
     { 0x80 | GVSP_PACKET_PAYLOAD_MULTIZONE, "MULTIZONE (ext IDs)" },
     { 0, NULL },
 };
 
 static const value_string payloadtypenames[] = {
-    { GVSP_PAYLOAD_IMAGE, "IMAGE" },
-    { GVSP_PAYLOAD_RAWDATA, "RAWDATA" },
-    { GVSP_PAYLOAD_FILE, "FILE" },
-    { GVSP_PAYLOAD_CHUNKDATA, "CHUNKDATA" },
-    { GVSP_PAYLOAD_EXTENDEDCHUNKDATA, "EXTENDEDCHUNKDATA (obsolete with v2.0)" },
-    { GVSP_PAYLOAD_JPEG, "JPEG" },
-    { GVSP_PAYLOAD_JPEG2000, "JPEG2000" },
-    { GVSP_PAYLOAD_H264, "H264" },
-    { GVSP_PAYLOAD_MULTIZONEIMAGE, "MUTLIZONEIAMGE" },
-    { 0x4000 | GVSP_PAYLOAD_IMAGE, "IMAGE (v2.0 chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_RAWDATA, "RAWDATA (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_FILE, "FILE (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_CHUNKDATA, "CHUNKDATA (v2.0 Chunks)" },
+    { GVSP_PAYLOAD_IMAGE,                      "IMAGE" },
+    { GVSP_PAYLOAD_RAWDATA,                    "RAWDATA" },
+    { GVSP_PAYLOAD_FILE,                       "FILE" },
+    { GVSP_PAYLOAD_CHUNKDATA,                  "CHUNKDATA" },
+    { GVSP_PAYLOAD_EXTENDEDCHUNKDATA,          "EXTENDEDCHUNKDATA (obsolete with v2.0)" },
+    { GVSP_PAYLOAD_JPEG,                       "JPEG" },
+    { GVSP_PAYLOAD_JPEG2000,                   "JPEG2000" },
+    { GVSP_PAYLOAD_H264,                       "H264" },
+    { GVSP_PAYLOAD_MULTIZONEIMAGE,             "MUTLIZONEIAMGE" },
+    { 0x4000 | GVSP_PAYLOAD_IMAGE,             "IMAGE (v2.0 chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_RAWDATA,           "RAWDATA (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_FILE,              "FILE (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_CHUNKDATA,         "CHUNKDATA (v2.0 Chunks)" },
     { 0x4000 | GVSP_PAYLOAD_EXTENDEDCHUNKDATA, "EXTENDEDCHUNKDATA (v2.0 chunks?)" },
-    { 0x4000 | GVSP_PAYLOAD_JPEG, "JPEG (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_JPEG2000, "JPEG2000 (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_H264, "H264 (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_MULTIZONEIMAGE, "MULTIZONEIMAGE (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_JPEG,              "JPEG (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_JPEG2000,          "JPEG2000 (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_H264,              "H264 (v2.0 Chunks)" },
+    { 0x4000 | GVSP_PAYLOAD_MULTIZONEIMAGE,    "MULTIZONEIMAGE (v2.0 Chunks)" },
     { 0, NULL },
 };
 
 static value_string_ext payloadtypenames_ext = VALUE_STRING_EXT_INIT(payloadtypenames);
 
 static const value_string pixeltypenames[] = {
-    { GVSP_PIX_MONO1P, "GVSP_PIX_MONO1P" },
-    { GVSP_PIX_MONO2P, "GVSP_PIX_MONO2P" },
-    { GVSP_PIX_MONO4P, "GVSP_PIX_MONO4P" },
-    { GVSP_PIX_MONO8, "GVSP_PIX_MONO8" },
-    { GVSP_PIX_MONO8S, "GVSP_PIX_MONO8S" },
-    { GVSP_PIX_MONO10, "GVSP_PIX_MONO10" },
-    { GVSP_PIX_MONO10_PACKED, "GVSP_PIX_MONO10_PACKED" },
-    { GVSP_PIX_MONO12, "GVSP_PIX_MONO12" },
-    { GVSP_PIX_MONO12_PACKED, "GVSP_PIX_MONO12_PACKED" },
-    { GVSP_PIX_MONO14, "GVSP_PIX_MONO14" },
-    { GVSP_PIX_MONO16, "GVSP_PIX_MONO16" },
-    { GVSP_PIX_BAYGR8, "GVSP_PIX_BAYGR8" },
-    { GVSP_PIX_BAYRG8, "GVSP_PIX_BAYRG8" },
-    { GVSP_PIX_BAYGB8, "GVSP_PIX_BAYGB8" },
-    { GVSP_PIX_BAYBG8, "GVSP_PIX_BAYBG8" },
-    { GVSP_PIX_BAYGR10, "GVSP_PIX_BAYGR10" },
-    { GVSP_PIX_BAYRG10, "GVSP_PIX_BAYRG10" },
-    { GVSP_PIX_BAYGB10, "GVSP_PIX_BAYGB10" },
-    { GVSP_PIX_BAYBG10, "GVSP_PIX_BAYBG10" },
-    { GVSP_PIX_BAYGR12, "GVSP_PIX_BAYGR12" },
-    { GVSP_PIX_BAYRG12, "GVSP_PIX_BAYRG12" },
-    { GVSP_PIX_BAYGB12, "GVSP_PIX_BAYGB12" },
-    { GVSP_PIX_BAYBG12, "GVSP_PIX_BAYBG12" },
-    { GVSP_PIX_BAYGR10_PACKED, "GVSP_PIX_BAYGR10_PACKED" },
-    { GVSP_PIX_BAYRG10_PACKED, "GVSP_PIX_BAYRG10_PACKED" },
-    { GVSP_PIX_BAYGB10_PACKED, "GVSP_PIX_BAYGB10_PACKED" },
-    { GVSP_PIX_BAYBG10_PACKED, "GVSP_PIX_BAYBG10_PACKED" },
-    { GVSP_PIX_BAYGR12_PACKED, "GVSP_PIX_BAYGR12_PACKED" },
-    { GVSP_PIX_BAYRG12_PACKED, "GVSP_PIX_BAYRG12_PACKED" },
-    { GVSP_PIX_BAYGB12_PACKED, "GVSP_PIX_BAYGB12_PACKED" },
-    { GVSP_PIX_BAYBG12_PACKED, "GVSP_PIX_BAYBG12_PACKED" },
-    { GVSP_PIX_BAYGR16, "GVSP_PIX_BAYGR16" },
-    { GVSP_PIX_BAYRG16, "GVSP_PIX_BAYRG16" },
-    { GVSP_PIX_BAYGB16, "GVSP_PIX_BAYGB16" },
-    { GVSP_PIX_BAYBG16, "GVSP_PIX_BAYBG16" },
-    { GVSP_PIX_RGB8, "GVSP_PIX_RGB8" },
-    { GVSP_PIX_BGR8, "GVSP_PIX_BGR8" },
-    { GVSP_PIX_RGBA8, "GVSP_PIX_RGBA8" },
-    { GVSP_PIX_BGRA8, "GVSP_PIX_BGRA8" },
-    { GVSP_PIX_RGB10, "GVSP_PIX_RGB10" },
-    { GVSP_PIX_BGR10, "GVSP_PIX_BGR10" },
-    { GVSP_PIX_RGB12, "GVSP_PIX_RGB12" },
-    { GVSP_PIX_BGR12, "GVSP_PIX_BGR12" },
-    { GVSP_PIX_RGB16, "GVSP_PIX_RGB16" },
-    { GVSP_PIX_RGB10V1_PACKED, "GVSP_PIX_RGB10V1_PACKED" },
-    { GVSP_PIX_RGB10P32, "GVSP_PIX_RGB10P32" },
-    { GVSP_PIX_RGB12V1_PACKED, "GVSP_PIX_RGB12V1_PACKED" },
-    { GVSP_PIX_RGB565P, "GVSP_PIX_RGB565P" },
-    { GVSP_PIX_BGR565P, "GVSP_PIX_BGR565P" },
-    { GVSP_PIX_YUV411_8_UYYVYY, "GVSP_PIX_YUV411_8_UYYVYY" },
-    { GVSP_PIX_YUV422_8_UYVY, "GVSP_PIX_YUV422_8_UYVY" },
-    { GVSP_PIX_YUV422_8, "GVSP_PIX_YUV422_8" },
-    { GVSP_PIX_YUV8_UYV, "GVSP_PIX_YUV8_UYV" },
-    { GVSP_PIX_YCBCR8_CBYCR, "GVSP_PIX_YCBCR8_CBYCR" },
-    { GVSP_PIX_YCBCR422_8, "GVSP_PIX_YCBCR422_8" },
-    { GVSP_PIX_YCBCR422_8_CBYCRY, "GVSP_PIX_YCBCR422_8_CBYCRY" },
-    { GVSP_PIX_YCBCR422_8_CBYYCRYY, "GVSP_PIX_YCBCR422_8_CBYYCRYY" },
-    { GVSP_PIX_YCBCR601_8_CBYCR, "GVSP_PIX_YCBCR601_8_CBYCR" },
-    { GVSP_PIX_YCBCR601_422_8, "GVSP_PIX_YCBCR601_422_8" },
-    { GVSP_PIX_YCBCR601_422_8_CBYCRY, "GVSP_PIX_YCBCR601_422_8_CBYCRY" },
+    { GVSP_PIX_MONO1P,                  "GVSP_PIX_MONO1P" },
+    { GVSP_PIX_MONO2P,                  "GVSP_PIX_MONO2P" },
+    { GVSP_PIX_MONO4P,                  "GVSP_PIX_MONO4P" },
+    { GVSP_PIX_MONO8,                   "GVSP_PIX_MONO8" },
+    { GVSP_PIX_MONO8S,                  "GVSP_PIX_MONO8S" },
+    { GVSP_PIX_MONO10,                  "GVSP_PIX_MONO10" },
+    { GVSP_PIX_MONO10_PACKED,           "GVSP_PIX_MONO10_PACKED" },
+    { GVSP_PIX_MONO12,                  "GVSP_PIX_MONO12" },
+    { GVSP_PIX_MONO12_PACKED,           "GVSP_PIX_MONO12_PACKED" },
+    { GVSP_PIX_MONO14,                  "GVSP_PIX_MONO14" },
+    { GVSP_PIX_MONO16,                  "GVSP_PIX_MONO16" },
+    { GVSP_PIX_BAYGR8,                  "GVSP_PIX_BAYGR8" },
+    { GVSP_PIX_BAYRG8,                  "GVSP_PIX_BAYRG8" },
+    { GVSP_PIX_BAYGB8,                  "GVSP_PIX_BAYGB8" },
+    { GVSP_PIX_BAYBG8,                  "GVSP_PIX_BAYBG8" },
+    { GVSP_PIX_BAYGR10,                 "GVSP_PIX_BAYGR10" },
+    { GVSP_PIX_BAYRG10,                 "GVSP_PIX_BAYRG10" },
+    { GVSP_PIX_BAYGB10,                 "GVSP_PIX_BAYGB10" },
+    { GVSP_PIX_BAYBG10,                 "GVSP_PIX_BAYBG10" },
+    { GVSP_PIX_BAYGR12,                 "GVSP_PIX_BAYGR12" },
+    { GVSP_PIX_BAYRG12,                 "GVSP_PIX_BAYRG12" },
+    { GVSP_PIX_BAYGB12,                 "GVSP_PIX_BAYGB12" },
+    { GVSP_PIX_BAYBG12,                 "GVSP_PIX_BAYBG12" },
+    { GVSP_PIX_BAYGR10_PACKED,          "GVSP_PIX_BAYGR10_PACKED" },
+    { GVSP_PIX_BAYRG10_PACKED,          "GVSP_PIX_BAYRG10_PACKED" },
+    { GVSP_PIX_BAYGB10_PACKED,          "GVSP_PIX_BAYGB10_PACKED" },
+    { GVSP_PIX_BAYBG10_PACKED,          "GVSP_PIX_BAYBG10_PACKED" },
+    { GVSP_PIX_BAYGR12_PACKED,          "GVSP_PIX_BAYGR12_PACKED" },
+    { GVSP_PIX_BAYRG12_PACKED,          "GVSP_PIX_BAYRG12_PACKED" },
+    { GVSP_PIX_BAYGB12_PACKED,          "GVSP_PIX_BAYGB12_PACKED" },
+    { GVSP_PIX_BAYBG12_PACKED,          "GVSP_PIX_BAYBG12_PACKED" },
+    { GVSP_PIX_BAYGR16,                 "GVSP_PIX_BAYGR16" },
+    { GVSP_PIX_BAYRG16,                 "GVSP_PIX_BAYRG16" },
+    { GVSP_PIX_BAYGB16,                 "GVSP_PIX_BAYGB16" },
+    { GVSP_PIX_BAYBG16,                 "GVSP_PIX_BAYBG16" },
+    { GVSP_PIX_RGB8,                    "GVSP_PIX_RGB8" },
+    { GVSP_PIX_BGR8,                    "GVSP_PIX_BGR8" },
+    { GVSP_PIX_RGBA8,                   "GVSP_PIX_RGBA8" },
+    { GVSP_PIX_BGRA8,                   "GVSP_PIX_BGRA8" },
+    { GVSP_PIX_RGB10,                   "GVSP_PIX_RGB10" },
+    { GVSP_PIX_BGR10,                   "GVSP_PIX_BGR10" },
+    { GVSP_PIX_RGB12,                   "GVSP_PIX_RGB12" },
+    { GVSP_PIX_BGR12,                   "GVSP_PIX_BGR12" },
+    { GVSP_PIX_RGB16,                   "GVSP_PIX_RGB16" },
+    { GVSP_PIX_RGB10V1_PACKED,          "GVSP_PIX_RGB10V1_PACKED" },
+    { GVSP_PIX_RGB10P32,                "GVSP_PIX_RGB10P32" },
+    { GVSP_PIX_RGB12V1_PACKED,          "GVSP_PIX_RGB12V1_PACKED" },
+    { GVSP_PIX_RGB565P,                 "GVSP_PIX_RGB565P" },
+    { GVSP_PIX_BGR565P,                 "GVSP_PIX_BGR565P" },
+    { GVSP_PIX_YUV411_8_UYYVYY,         "GVSP_PIX_YUV411_8_UYYVYY" },
+    { GVSP_PIX_YUV422_8_UYVY,           "GVSP_PIX_YUV422_8_UYVY" },
+    { GVSP_PIX_YUV422_8,                "GVSP_PIX_YUV422_8" },
+    { GVSP_PIX_YUV8_UYV,                "GVSP_PIX_YUV8_UYV" },
+    { GVSP_PIX_YCBCR8_CBYCR,            "GVSP_PIX_YCBCR8_CBYCR" },
+    { GVSP_PIX_YCBCR422_8,              "GVSP_PIX_YCBCR422_8" },
+    { GVSP_PIX_YCBCR422_8_CBYCRY,       "GVSP_PIX_YCBCR422_8_CBYCRY" },
+    { GVSP_PIX_YCBCR422_8_CBYYCRYY,     "GVSP_PIX_YCBCR422_8_CBYYCRYY" },
+    { GVSP_PIX_YCBCR601_8_CBYCR,        "GVSP_PIX_YCBCR601_8_CBYCR" },
+    { GVSP_PIX_YCBCR601_422_8,          "GVSP_PIX_YCBCR601_422_8" },
+    { GVSP_PIX_YCBCR601_422_8_CBYCRY,   "GVSP_PIX_YCBCR601_422_8_CBYCRY" },
     { GVSP_PIX_YCBCR601_411_8_CBYYCRYY, "GVSP_PIX_YCBCR601_411_8_CBYYCRYY" },
-    { GVSP_PIX_YCBCR709_411_8_CBYCR, "GVSP_PIX_YCBCR709_411_8_CBYCR" },
-    { GVSP_PIX_YCBCR709_422_8, "GVSP_PIX_YCBCR709_422_8" },
-    { GVSP_PIX_YCBCR709_422_8, "GVSP_PIX_YCBCR709_422_8" },
+    { GVSP_PIX_YCBCR709_411_8_CBYCR,    "GVSP_PIX_YCBCR709_411_8_CBYCR" },
+    { GVSP_PIX_YCBCR709_422_8,          "GVSP_PIX_YCBCR709_422_8" },
+    { GVSP_PIX_YCBCR709_422_8,          "GVSP_PIX_YCBCR709_422_8" },
     { GVSP_PIX_YCBCR709_411_8_CBYYCRYY, "GVSP_PIX_YCBCR709_411_8_CBYYCRYY" },
-    { GVSP_PIX_RGB8_PLANAR, "GVSP_PIX_RGB8_PLANAR" },
-    { GVSP_PIX_RGB10_PLANAR, "GVSP_PIX_RGB10_PLANAR" },
-    { GVSP_PIX_RGB12_PLANAR, "GVSP_PIX_RGB12_PLANAR" },
-    { GVSP_PIX_RGB16_PLANAR, "GVSP_PIX_RGB16_PLANAR" },
+    { GVSP_PIX_RGB8_PLANAR,             "GVSP_PIX_RGB8_PLANAR" },
+    { GVSP_PIX_RGB10_PLANAR,            "GVSP_PIX_RGB10_PLANAR" },
+    { GVSP_PIX_RGB12_PLANAR,            "GVSP_PIX_RGB12_PLANAR" },
+    { GVSP_PIX_RGB16_PLANAR,            "GVSP_PIX_RGB16_PLANAR" },
     { 0, NULL },
 };
 
 static value_string_ext pixeltypenames_ext = VALUE_STRING_EXT_INIT(pixeltypenames);
 
 static const value_string colornames[] = {
-    { GVSP_PIX_MONO >> 24, "Mono" },
-    { GVSP_PIX_COLOR >> 24, "Color" },
+    { GVSP_PIX_MONO >> 24,   "Mono" },
+    { GVSP_PIX_COLOR >> 24,  "Color" },
     { GVSP_PIX_CUSTOM >> 24, "Custom" },
     { 0, NULL },
 };
@@ -1214,14 +1214,14 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
     else
     {
-            guint8 flags;
-            flags = tvb_get_guint8(tvb, offset + 1);
-            info.flag_resendrangeerror = flags & 0x04;
-            info.flag_previousblockdropped = flags & 0x02;
-            info.flag_packetresend = flags & 0x01;
+        guint8 flags;
+        flags = tvb_get_guint8(tvb, offset + 1);
+        info.flag_resendrangeerror = flags & 0x04;
+        info.flag_previousblockdropped = flags & 0x02;
+        info.flag_packetresend = flags & 0x01;
 
-            proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_flags,
-                                   ett_gvsp_flags, flags_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_flags,
+                               ett_gvsp_flags, flags_fields, ENC_BIG_ENDIAN);
     }
 
     offset += 2;
@@ -1369,7 +1369,7 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 /*
-    \brief Registers the dissector. Invoked when the pluging library is loaded.
+    \brief Registers the dissector. Invoked at program startup.
  */
 
 void proto_register_gvsp(void)
@@ -1958,14 +1958,8 @@ void proto_register_gvsp(void)
 
 void proto_reg_handoff_gvsp(void)
 {
-    static int gvsp_initialized = FALSE;
-
-    if (!gvsp_initialized)
-    {
-        gvsp_handle = new_create_dissector_handle((new_dissector_t)dissect_gvsp, proto_gvsp);
-        heur_dissector_add("udp", dissect_gvsp_heur, proto_gvsp);
-        gvsp_initialized = TRUE;
-    }
+    gvsp_handle = new_create_dissector_handle((new_dissector_t)dissect_gvsp, proto_gvsp);
+    heur_dissector_add("udp", dissect_gvsp_heur, proto_gvsp);
 }
 
 /*
