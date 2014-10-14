@@ -106,7 +106,8 @@ static const value_string pimtypevals[] = {
 };
 
 
-
+#if 0
+/* PIM_TYPE_DF_ELECT (subtype) not implemented yet */
 static const value_string pimbdirdfvals[] = {
     { PIM_BDIR_DF_OFFER,    "offer"},
     { PIM_BDIR_DF_WINNER, "DF Winner"},
@@ -114,6 +115,7 @@ static const value_string pimbdirdfvals[] = {
     { PIM_BDIR_DF_PASS, "DF Pass"},
     { 0, NULL }
 };
+#endif
 
 static const value_string pim_opt_vals[] = {
     {1, "Hold Time"},
