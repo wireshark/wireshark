@@ -10023,15 +10023,15 @@ void proto_reg_handoff_r3 (void)
   dissector_add_uint ("tcp.port", 8023, r3_handle);
 }
 
-
 /*
- * Editor modelines
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local variables:
+ * Local Variables:
  * c-basic-offset: 2
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
