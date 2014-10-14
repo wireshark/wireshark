@@ -309,8 +309,6 @@ capsa_seek_read(wtap *wth, gint64 seek_off,
 	return TRUE;
 }
 
-#define TIME_FIXUP_CONSTANT 
-
 static int
 capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
