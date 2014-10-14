@@ -42,8 +42,21 @@ strncasecmp (const char *s1, const char *s2, size_t n)
       c1 = tolower (*p1++);
       c2 = tolower (*p2++);
       if (c1 == '\0' || c1 != c2)
-	return c1 - c2;
+        return c1 - c2;
     } while (--n > 0);
 
   return c1 - c2;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

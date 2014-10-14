@@ -40,7 +40,7 @@ size_t ws_base64_decode_inplace(char *s)
 	/* we will allow CR and LF - but ignore them */
 	cr_idx = (int) (strchr(b64, '\r') - b64);
 
-	i=0;
+	i = 0;
 
 	while (*s && (p=strchr(b64, *s))) {
 		idx = (int)(p - b64);
@@ -63,3 +63,16 @@ size_t ws_base64_decode_inplace(char *s)
 	d[i*3/4] = 0;
 	return i*3/4;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

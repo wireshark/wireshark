@@ -66,8 +66,21 @@ static const guint8 swaptab[256] =
 
 void bitswap_buf_inplace(guint8 *buf, size_t len)
 {
-	size_t i;
+  size_t i;
 
-	for (i = 0; i < len; i++)
-		buf[i] = swaptab[buf[i]];
+  for (i = 0; i < len; i++)
+    buf[i] = swaptab[buf[i]];
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

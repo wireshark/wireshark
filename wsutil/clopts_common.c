@@ -47,7 +47,7 @@ get_natural_int(const char *string, const char *name)
   }
   if (number > INT_MAX) {
     cmdarg_err("The specified %s \"%s\" is too large (greater than %d)",
-	       name, string, INT_MAX);
+               name, string, INT_MAX);
     exit(1);
   }
   return (int)number;
@@ -68,3 +68,16 @@ get_positive_int(const char *string, const char *name)
 
   return number;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -72,14 +72,27 @@ static const guint16 byte_crc10_table[256] = {
 /* Update the data block's CRC-10 remainder one byte at a time */
 guint16
 update_crc10_by_bytes(guint16 crc10_accum, const guint8 *data_blk_ptr,
-                      int data_blk_size)
+		      int data_blk_size)
 {
-    register int i;
+	register int i;
 
-    for (i = 0;  i < data_blk_size; i++) {
-        crc10_accum = ((crc10_accum << 8) & 0x3ff)
-            ^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
-            ^ *data_blk_ptr++;
-    }
-    return crc10_accum;
+	for (i = 0;  i < data_blk_size; i++) {
+		crc10_accum = ((crc10_accum << 8) & 0x3ff)
+			^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
+			^ *data_blk_ptr++;
+	}
+	return crc10_accum;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

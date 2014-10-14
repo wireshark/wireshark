@@ -1061,8 +1061,8 @@ guint16 update_crc6_by_bytes(guint16 crc6, guint8 byte1, guint8 byte2) {
     guint32 polynomial = 0x6F << 15;
 
     for (bit = 15;
-		 bit >= 0;
-		 --bit)
+         bit >= 0;
+         --bit)
     {
         if (remainder & (0x40 << bit))
         {
@@ -1082,7 +1082,7 @@ guint16 crc6_compute(const guint8 *data_blk_ptr, int data_blk_size)
     h = 0;
     byteIndex = 0;
 
-    if(data_blk_size == 0)
+    if (data_blk_size == 0)
     {
         return 0;
     }
@@ -1094,7 +1094,20 @@ guint16 crc6_compute(const guint8 *data_blk_ptr, int data_blk_size)
         h = crc6_table[h];
         byteIndex++;
     }
-    while(byteIndex < data_blk_size);
+    while (byteIndex < data_blk_size);
 
     return h;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

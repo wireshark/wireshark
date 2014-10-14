@@ -101,16 +101,16 @@ utf_8to16(const char *utf8str)
 void
 utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
 {
-    va_list ap;
-    gchar* dst;
+  va_list ap;
+  gchar* dst;
 
-    va_start(ap,fmt);
-    dst = g_strdup_vprintf(fmt, ap);
-    va_end(ap);
+  va_start(ap,fmt);
+  dst = g_strdup_vprintf(fmt, ap);
+  va_end(ap);
 
-    StringCchPrintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));
+  StringCchPrintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));
 
-    g_free(dst);
+  g_free(dst);
 }
 
 /* Convert from UTF-16 to UTF-8. */
@@ -169,3 +169,16 @@ arg_list_utf_16to8(int argc, char *argv[]) {
 }
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

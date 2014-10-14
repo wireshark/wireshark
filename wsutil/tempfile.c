@@ -77,7 +77,7 @@ mkstemp (char *template)
     }
 
   if (g_snprintf (&template[len - 5], 6, "%.5u",
-	       (unsigned int) getpid () % 100000) != 5)
+                  (unsigned int) getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return -1;
 
@@ -89,7 +89,7 @@ mkstemp (char *template)
 
       fd = ws_open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
       if (fd >= 0)
-	return fd;
+        return fd;
     }
 
   /* We return the null string if we can't find a unique file name.  */
@@ -121,7 +121,7 @@ mkdtemp (char *template)
     }
 
   if (g_snprintf (&template[len - 5], 6, "%.5u",
-	       (unsigned int) getpid () % 100000) != 5)
+                  (unsigned int) getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return NULL;
 
@@ -133,7 +133,7 @@ mkdtemp (char *template)
 
       ret = ws_mkdir(template, 0700);
       if (ret >= 0)
-	return template;
+        return template;
     }
 
   /* We return the null string if we can't find a unique file name.  */
@@ -150,7 +150,7 @@ mkdtemp (char *template)
  */
 char *get_tempfile_path(const char *filename)
 {
-    return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
+  return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
 }
 
 #define MAX_TEMPFILES   3
@@ -169,74 +169,74 @@ char *get_tempfile_path(const char *filename)
 int
 create_tempfile(char **namebuf, const char *pfx)
 {
-	static struct _tf {
-		char *path;
-		unsigned long len;
-	} tf[MAX_TEMPFILES];
-	static int idx;
+  static struct _tf {
+    char *path;
+    unsigned long len;
+  } tf[MAX_TEMPFILES];
+  static int idx;
 
-	const char *tmp_dir;
-	int old_umask;
-	int fd;
-	time_t current_time;
-	char timestr[14 + 1];
-	gchar *tmp_file;
-	gchar *safe_pfx;
-	gchar sep[2] = {0, 0};
+  const char *tmp_dir;
+  int old_umask;
+  int fd;
+  time_t current_time;
+  char timestr[14 + 1];
+  gchar *tmp_file;
+  gchar *safe_pfx;
+  gchar sep[2] = {0, 0};
 
-	/* The characters in "delimiters" come from:
-	 * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
-	 * Add to the list as necessary for other OS's.
-	 */
-	const gchar *delimiters = "<>:\"/\\|?*"
-		"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
-		"\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
-		"\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+  /* The characters in "delimiters" come from:
+   * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
+   * Add to the list as necessary for other OS's.
+   */
+  const gchar *delimiters = "<>:\"/\\|?*"
+    "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
+    "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
+    "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
 
-	/* Sanitize the pfx to resolve bug 7877 */
-	safe_pfx = g_strdup(pfx);
-	safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
+  /* Sanitize the pfx to resolve bug 7877 */
+  safe_pfx = g_strdup(pfx);
+  safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
 
-	idx = (idx + 1) % MAX_TEMPFILES;
+  idx = (idx + 1) % MAX_TEMPFILES;
 
-	/*
-	 * Allocate the buffer if it's not already allocated.
-	 */
-	if (tf[idx].path == NULL) {
-		tf[idx].len = INITIAL_PATH_SIZE;
-		tf[idx].path = (char *)g_malloc(tf[idx].len);
-	}
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (tf[idx].path == NULL) {
+    tf[idx].len = INITIAL_PATH_SIZE;
+    tf[idx].path = (char *)g_malloc(tf[idx].len);
+  }
 
-	tmp_dir = g_get_tmp_dir();
+  tmp_dir = g_get_tmp_dir();
 
 #ifdef _WIN32
-	_tzset();
+  _tzset();
 #endif
-	current_time = time(NULL);
-	strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
-	sep[0] = G_DIR_SEPARATOR;
-	tmp_file = g_strconcat(tmp_dir, sep, safe_pfx, "_", timestr, "_", TMP_FILE_SUFFIX, NULL);
-	g_free(safe_pfx);
-	if (strlen(tmp_file) > tf[idx].len) {
-		tf[idx].len = (int)strlen(tmp_file) + 1;
-		tf[idx].path = (char *)g_realloc(tf[idx].path, tf[idx].len);
-	}
-	g_strlcpy(tf[idx].path, tmp_file, tf[idx].len);
-	g_free(tmp_file);
+  current_time = time(NULL);
+  strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
+  sep[0] = G_DIR_SEPARATOR;
+  tmp_file = g_strconcat(tmp_dir, sep, safe_pfx, "_", timestr, "_", TMP_FILE_SUFFIX, NULL);
+  g_free(safe_pfx);
+  if (strlen(tmp_file) > tf[idx].len) {
+    tf[idx].len = (int)strlen(tmp_file) + 1;
+    tf[idx].path = (char *)g_realloc(tf[idx].path, tf[idx].len);
+  }
+  g_strlcpy(tf[idx].path, tmp_file, tf[idx].len);
+  g_free(tmp_file);
 
-	if (namebuf) {
-		*namebuf = tf[idx].path;
-	}
-	/* The Single UNIX Specification doesn't say that "mkstemp()"
-	   creates the temporary file with mode rw-------, so we
-	   won't assume that all UNIXes will do so; instead, we set
-	   the umask to 0077 to take away all group and other
-	   permissions, attempt to create the file, and then put
-	   the umask back. */
-	old_umask = umask(0077);
-	fd = mkstemp(tf[idx].path);
-	umask(old_umask);
-	return fd;
+  if (namebuf) {
+    *namebuf = tf[idx].path;
+  }
+  /* The Single UNIX Specification doesn't say that "mkstemp()"
+     creates the temporary file with mode rw-------, so we
+     won't assume that all UNIXes will do so; instead, we set
+     the umask to 0077 to take away all group and other
+     permissions, attempt to create the file, and then put
+     the umask back. */
+  old_umask = umask(0077);
+  fd = mkstemp(tf[idx].path);
+  umask(old_umask);
+  return fd;
 }
 
 /**
@@ -251,33 +251,46 @@ create_tempfile(char **namebuf, const char *pfx)
 const char *
 create_tempdir(char **namebuf, const char *pfx)
 {
-	static char *td_path[3];
-	static int td_path_len[3];
-	static int idx;
-	const char *tmp_dir;
+  static char *td_path[3];
+  static int td_path_len[3];
+  static int idx;
+  const char *tmp_dir;
 
-	idx = (idx + 1) % 3;
+  idx = (idx + 1) % 3;
 
-	/*
-	 * Allocate the buffer if it's not already allocated.
-	 */
-	if (td_path[idx] == NULL) {
-		td_path_len[idx] = INITIAL_PATH_SIZE;
-		td_path[idx] = (char *)g_malloc(td_path_len[idx]);
-	}
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (td_path[idx] == NULL) {
+    td_path_len[idx] = INITIAL_PATH_SIZE;
+    td_path[idx] = (char *)g_malloc(td_path_len[idx]);
+  }
 
-	/*
-	 * We can't use get_tempfile_path here because we're called from dumpcap.c.
-	 */
-	tmp_dir = g_get_tmp_dir();
+  /*
+   * We can't use get_tempfile_path here because we're called from dumpcap.c.
+   */
+  tmp_dir = g_get_tmp_dir();
 
-	while (g_snprintf(td_path[idx], td_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > td_path_len[idx]) {
-		td_path_len[idx] *= 2;
-		td_path[idx] = (char *)g_realloc(td_path[idx], td_path_len[idx]);
-	}
+  while (g_snprintf(td_path[idx], td_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > td_path_len[idx]) {
+    td_path_len[idx] *= 2;
+    td_path[idx] = (char *)g_realloc(td_path[idx], td_path_len[idx]);
+  }
 
-	if (namebuf) {
-		*namebuf = td_path[idx];
-	}
-	return mkdtemp(td_path[idx]);
+  if (namebuf) {
+    *namebuf = td_path[idx];
+  }
+  return mkdtemp(td_path[idx]);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

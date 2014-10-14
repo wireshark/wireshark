@@ -104,7 +104,7 @@ void u3_runtime_info(GString *str)
 
 void u3_register_pid(void)
 {
-  int	pid;
+  int   pid;
   int   pid_fd;
   char *u3hostexecpath;
   int   pf_size;
@@ -195,3 +195,16 @@ static const char *u3_change_path(const char *path, const char *old, const char 
   return path;
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -38,7 +38,7 @@
 */
 
 void crypt_rc4_init(rc4_state_struct *rc4_state,
-		    const unsigned char *key, int key_len)
+                    const unsigned char *key, int key_len)
 {
   int ind;
   unsigned char j = 0;
@@ -98,3 +98,16 @@ void crypt_rc4(rc4_state_struct *rc4_state, unsigned char *data, int data_len)
   rc4_state->index_i = index_i;
   rc4_state->index_j = index_j;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

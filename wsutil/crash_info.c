@@ -125,7 +125,7 @@ struct crashreporter_annotations_t {
 
 CRASH_REPORTER_CLIENT_HIDDEN
 struct crashreporter_annotations_t gCRAnnotations
-    __attribute__((section("__DATA," CRASHREPORTER_ANNOTATIONS_SECTION))) = {
+	__attribute__((section("__DATA," CRASHREPORTER_ANNOTATIONS_SECTION))) = {
 	CRASHREPORTER_ANNOTATIONS_VERSION,	/* version */
 	0,					/* message */
 	0,					/* signature_string */
@@ -170,3 +170,16 @@ ws_add_crash_info(const char *fmt _U_, ...)
 {
 }
 #endif /* __APPLE__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
