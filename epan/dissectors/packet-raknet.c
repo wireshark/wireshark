@@ -414,7 +414,7 @@ static const struct raknet_handler_entry raknet_handler[] = {
 /*
  * Look up packet id to packet name, value_string is wireshark type.
  */
-static value_string packet_names[RAKNET_PACKET_ID_COUNT];
+static value_string packet_names[RAKNET_PACKET_ID_COUNT+1];
 
 static void
 raknet_init_packet_names(void)
@@ -422,9 +422,11 @@ raknet_init_packet_names(void)
     unsigned int i;
 
     for (i = 0; i < RAKNET_PACKET_ID_COUNT; i++) {
-        packet_names[i].value = raknet_handler[i].vs.value;
+        packet_names[i].value  = raknet_handler[i].vs.value;
         packet_names[i].strptr = raknet_handler[i].vs.strptr;
     }
+    packet_names[RAKNET_PACKET_ID_COUNT].value  = 0;
+    packet_names[RAKNET_PACKET_ID_COUNT].strptr = NULL;
 }
 
 /*
@@ -447,7 +449,7 @@ init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
     ti = proto_tree_add_item(tree, proto_raknet, tvb, 0, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_raknet);
 
-    packet_id = tvb_get_guint8(tvb,  *offset);
+    packet_id = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(sub_tree, hf_raknet_packet_id, tvb, *offset,
                         1, ENC_BIG_ENDIAN);
     *offset += 1;
