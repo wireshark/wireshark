@@ -153,12 +153,6 @@ static const true_false_string tfs_reserved_private_long_code =
     "Private long code"
 };
 
-static const true_false_string tfs_ansi_a_ti_flag =
-{
-    "allocated by receiver",
-    "allocated by sender"
-};
-
 static const true_false_string tfs_a2p_bearer_form_format_bearer_addr_flag =
 {
     "Override Bearer Session IP Address",
@@ -10791,7 +10785,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_ti_flag,
             { "Transaction Identifier (TI) Flag", "ansi_a_bsmap.ti.flag",
-            FT_BOOLEAN, 8, TFS(&tfs_ansi_a_ti_flag), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_allocated_by_receiver_sender), 0x80,
             NULL, HFILL }
         },
         { &hf_ansi_a_ti_ti,

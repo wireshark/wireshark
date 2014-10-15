@@ -1143,8 +1143,6 @@ be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 /*
  * [2] 3.2.2.9 Layer 3 Header Information
  */
-static const true_false_string tfs_allocated_by_receiver_sender = {"allocated by receiver", "allocated by sender"};
-
 static guint16
 be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {

@@ -5832,8 +5832,6 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 /* GENERIC DISSECTOR FUNCTIONS */
 
-static const true_false_string tfs_ti_flags = { "allocated by receiver", "allocated by sender"};
-
 static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -7064,7 +7062,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_ti_flag,
           { "TI flag", "gsm_a.dtap.ti_flag",
-            FT_BOOLEAN, 8, TFS(&tfs_ti_flags), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_allocated_by_receiver_sender), 0x80,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_tio,

@@ -80,4 +80,5 @@ const true_false_string tfs_required_not_required = { "Required", "Not required"
 const true_false_string tfs_registered_not_registered = { "Registered", "Not registered" };
 const true_false_string tfs_provisioned_not_provisioned = { "Provisioned", "Not provisioned" };
 const true_false_string tfs_included_not_included = { "Included", "Not included" };
+const true_false_string tfs_allocated_by_receiver_sender = {"allocated by receiver", "allocated by sender"};
 
