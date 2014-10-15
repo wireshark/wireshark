@@ -6839,13 +6839,10 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		 * a tree connect, we create a dummy sessison, so we can hang the
 		 * tree data on it
 		 */
-		si->session              = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
-		si->session->sesid       = si->sesid;
-		si->session->acct_name   = NULL;
-		si->session->domain_name = NULL;
-		si->session->host_name   = NULL;
-		si->session->auth_frame  = (guint32)-1;
-		si->session->tids        = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+		si->session = wmem_new0(wmem_file_scope(), smb2_sesid_info_t);
+		si->session->sesid      = si->sesid;
+		si->session->auth_frame = (guint32)-1;
+		si->session->tids       = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
 		g_hash_table_insert(si->conv->sesids, si->session, si->session);
 
 		return offset;
