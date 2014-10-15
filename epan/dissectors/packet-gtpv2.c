@@ -350,10 +350,10 @@ static int hf_gtpv2_mm_context_nas_ul_cnt = -1;
 
 static int hf_gtpv2_uli_cgi_lac= -1;
 static int hf_gtpv2_uli_cgi_ci= -1;
-static int hf_gtpv2_uli_sai_lac= -1;
-static int hf_gtpv2_uli_sai_sac= -1;
-static int hf_gtpv2_uli_rai_lac= -1;
-static int hf_gtpv2_uli_rai_rac= -1;
+static int hf_gtpv2_sai_lac= -1;
+static int hf_gtpv2_sai_sac= -1;
+static int hf_gtpv2_rai_lac= -1;
+static int hf_gtpv2_rai_rac= -1;
 static int hf_gtpv2_tai_tac= -1;
 static int hf_gtpv2_ecgi_eci= -1;
 static int hf_gtpv2_uli_lai_lac = -1;
@@ -1694,8 +1694,14 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_tree_add_item(tree, hf_gtpv2_mbmdt,           tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_israu,           tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_ccrsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
+    if (length == 3) {
+        return;
+    }
     /* Octet 8 CPRAI ARRL PPOF PPON/PPEI PPSI CSFBI CLII CPSR */
+
+    proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
     /* Octet 9 Spare Spare Spare Spare Spare PCRI AOSI AOPI */
 
@@ -1960,6 +1966,75 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
 }
 
 static gchar*
+dissect_gtpv2_rai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint16     lac, rac;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    lac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_rai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    rac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_rai_rac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, RAC 0x%x",
+        mcc_mnc_str,
+        lac,
+        rac);
+
+    return str;
+}
+
+static gchar*
+dissect_gtpv2_sai_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint16     lac, sac;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    lac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_sai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    sac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_sai_sac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, SAC 0x%x",
+        mcc_mnc_str,
+        lac,
+        sac);
+
+    return str;
+}
+
+static gchar*
+dissect_gtpv2_cgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint16     lac, ci;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    lac = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    ci = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, CI 0x%x",
+        mcc_mnc_str,
+        lac,
+        ci);
+
+    return str;
+}
+
+static gchar*
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 instance _U_, guint flags)
 {
     int         offset = 1;     /* flags are already dissected */
@@ -1970,23 +2045,13 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     /* 8.21.1 CGI field  */
     if (flags & GTPv2_ULI_CGI_MASK)
     {
-        guint16 lac, ci;
 
         proto_item_append_text(item, "CGI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
                 ett_gtpv2_uli_field, NULL, "Cell Global Identity (CGI)");
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
-        offset += 3;
-        lac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        ci = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, CI 0x%x",
-            mcc_mnc_str,
-            lac,
-            ci);
+
+        str = dissect_gtpv2_cgi(tvb, pinfo, part_tree, &offset);
+
         if (offset == length)
             return str;
     }
@@ -1994,45 +2059,23 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     /* 8.21.2 SAI field  */
     if (flags & GTPv2_ULI_SAI_MASK)
     {
-        guint16 lac, sac;
-
         proto_item_append_text(item, "SAI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
                 ett_gtpv2_uli_field, NULL, "Service Area Identity (SAI)");
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
-        offset += 3;
-        lac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        sac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, SAC 0x%x",
-            mcc_mnc_str,
-            lac,
-            sac);
+
+        str = dissect_gtpv2_sai_common(tvb, pinfo, part_tree, &offset);
+
         if (offset == length)
             return str;
     }
     /* 8.21.3 RAI field  */
     if (flags & GTPv2_ULI_RAI_MASK)
     {
-        guint16 lac, rac;
         proto_item_append_text(item, "RAI ");
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
                 ett_gtpv2_uli_field, NULL, "Routeing Area Identity (RAI)");
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
-        offset += 3;
-        lac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        rac = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, RAC 0x%x",
-            mcc_mnc_str,
-            lac,
-            rac);
+
+        str = dissect_gtpv2_rai(tvb, pinfo, part_tree, &offset);
 
         if (offset == length)
             return str;
@@ -4094,6 +4137,56 @@ static const value_string gtpv2_target_type_vals[] = {
 };
 static value_string_ext gtpv2_target_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_target_type_vals);
 
+static gchar*
+dissect_gtpv2_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint32     macro_enodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+    /* The Macro eNodeB ID consists of 20 bits.
+     * Bit 4 of Octet 4 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
+     */
+    macro_enodeb_id = tvb_get_ntoh24(tvb, *offset) & 0x0fffff;
+    proto_tree_add_item(tree, hf_gtpv2_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN);
+    *offset += 3;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro eNodeB ID 0x%x",
+        mcc_mnc_str,
+        macro_enodeb_id);
+
+    return str;
+}
+
+static gchar*
+dissect_gtpv2_home_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint32     home_enodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, TRUE);
+    *offset += 3;
+
+    /* Octet 10 to 12 Home eNodeB ID
+        * The Home eNodeB ID consists of 28 bits. See 3GPP TS 36.413 [10].
+        * Bit 4 of Octet 9 is the most significant bit and bit 1 of Octet 12 is the least significant bit.
+        * The coding of the Home eNodeB ID is the responsibility of each administration.
+        * Coding using full hexadecimal representation shall be used.
+        */
+    home_enodeb_id = tvb_get_ntohl(tvb, *offset) & 0x0fffffff;
+    proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, *offset, 4 , ENC_BIG_ENDIAN);
+    *offset += 4;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Home eNodeB ID 0x%x",
+        mcc_mnc_str,
+        home_enodeb_id);
+
+    return str;
+}
+
 static void
 dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
@@ -4131,16 +4224,11 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         return;
     case 1:
         /* Macro eNodeB ID*/
-        new_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, TRUE);
-        offset += 3;
-        /* The Macro eNodeB ID consists of 20 bits.
-         * Bit 4 of Octet 4 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
-         */
-        proto_tree_add_item(tree, hf_gtpv2_macro_enodeb_id, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
+        dissect_gtpv2_macro_enodeb_id(tvb, pinfo, tree, &offset);
+
         /* Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+
         return;
 
     case 2:
@@ -4153,17 +4241,8 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         return;
     case 3:
         /* Home eNodeB ID */
-        new_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, TRUE);
-        offset += 3;
-        /* Octet 10 to 12 Home eNodeB ID
-         * The Home eNodeB ID consists of 28 bits. See 3GPP TS 36.413 [10].
-         * Bit 4 of Octet 9 is the most significant bit and bit 1 of Octet 12 is the least significant bit.
-         * The coding of the Home eNodeB ID is the responsibility of each administration.
-         * Coding using full hexadecimal representation shall be used.
-         */
-        proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, offset, 4 , ENC_BIG_ENDIAN);
-        offset += 4;
+        dissect_gtpv2_home_enodeb_id(tvb, pinfo, tree, &offset);
+
         /* Octet 13 to 14 Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
         return;
@@ -5201,10 +5280,11 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
 {
     /*diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;*/
     proto_tree *sub_tree;
+    proto_item *item;
     int   offset = 0, i;
     guint length;
     guint8 oct, no_tai, no_rai, no_mENB, no_hENB, no_ECGI, no_sai, no_cgi;
-
+    gchar *append_str;
     length       = tvb_reported_length(tvb);
 
     /* Octet 9  Number of TAI   Number of RAI */
@@ -5238,8 +5318,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_tai > 0){
         i = 1;
         while (no_tai > 0){
-            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, NULL, "Tracking Area Identity (TAI) Number %u",i);
-            dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset);
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, &item, "Tracking Area Identity (TAI) Number %u",i);
+            append_str = dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_tai--;
         }
@@ -5251,8 +5332,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_mENB > 0){
         i = 1;
         while (no_mENB > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_menbs, NULL, "Macro eNB ID %u",i);
-            offset+=6;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_menbs, &item, "Macro eNB ID %u",i);
+            append_str = dissect_gtpv2_macro_enodeb_id(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_mENB--;
         }
@@ -5264,8 +5346,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_hENB > 0){
         i = 1;
         while (no_hENB > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_henbs, NULL, "Home eNB ID %u",i);
-            offset+=7;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_henbs, &item, "Home eNB ID %u",i);
+            append_str = dissect_gtpv2_home_enodeb_id(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_hENB--;
         }
@@ -5277,8 +5360,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_ECGI > 0){
         i = 1;
         while (no_ECGI > 0){
-            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_ecgis, NULL, "ECGI ID %u",i);
-            dissect_gtpv2_ecgi(tvb, pinfo, sub_tree, &offset);
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_ecgis, &item, "ECGI ID %u",i);
+            append_str = dissect_gtpv2_ecgi(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_ECGI--;
         }
@@ -5290,8 +5374,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_rai > 0){
         i = 1;
         while (no_rai > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_rais, NULL, "RAI ID %u",i);
-            offset+=7;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_rais, &item, "RAI ID %u",i);
+            append_str = dissect_gtpv2_rai(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_rai--;
         }
@@ -5303,8 +5388,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_sai > 0){
         i = 1;
         while (no_sai > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_sais, NULL, "SAI ID %u",i);
-            offset+=7;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_sais, &item, "SAI ID %u",i);
+            append_str = dissect_gtpv2_sai_common(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_sai--;
         }
@@ -5316,8 +5402,9 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     if(no_cgi > 0){
         i = 1;
         while (no_cgi > 0){
-            proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_cgis, NULL, "CGI ID %u",i);
-            offset+=7;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 7, ett_gtpv2_preaa_cgis, &item, "CGI ID %u",i);
+            append_str = dissect_gtpv2_cgi(tvb, pinfo, sub_tree, &offset);
+            proto_item_append_text(item, " %s",append_str);
             i++;
             no_cgi--;
         }
@@ -6668,23 +6755,23 @@ void proto_register_gtpv2(void)
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_sai_lac,
-          {"Location Area Code", "gtpv2.uli_sai_lac",
+        { &hf_gtpv2_sai_lac,
+          {"Location Area Code", "gtpv2.sai_lac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_sai_sac,
-          {"Service Area Code", "gtpv2.uli_sai_sac",
+        { &hf_gtpv2_sai_sac,
+          {"Service Area Code", "gtpv2.sai_sac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_rai_lac,
-          {"Location Area Code", "gtpv2.uli_rai_lac",
+        { &hf_gtpv2_rai_lac,
+          {"Location Area Code", "gtpv2.rai_lac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_rai_rac,
-          {"Routing Area Code", "gtpv2.uli_rai_rac",
+        { &hf_gtpv2_rai_rac,
+          {"Routing Area Code", "gtpv2.rai_rac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
