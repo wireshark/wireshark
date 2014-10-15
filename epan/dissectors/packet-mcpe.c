@@ -36,7 +36,6 @@ static guint mcpe_udp_port_requested = MCPE_UDP_PORT_DEFAULT;
 
 static int proto_mcpe = -1;
 static gint ett_mcpe = -1; /* Should this node be expanded */
-static dissector_handle_t raknet_dissector = NULL;
 
 
 /*
@@ -332,8 +331,8 @@ proto_register_mcpe(void)
      */
     proto_mcpe = proto_register_protocol (
             "Minecraft Pocket Edition", /* name */
-            "MCPE", /* short name */
-            "mcpe" /* abbrev */
+            "MCPE",                     /* short name */
+            "mcpe"                      /* abbrev */
             );
 
     /*
@@ -354,7 +353,7 @@ proto_register_mcpe(void)
 void
 proto_reg_handoff_mcpe(void)
 {
-    dissector_handle_t mcpe_gen_handle;
+    static dissector_handle_t raknet_dissector = NULL;
     static guint last_server_port;
     static gboolean init_done = FALSE;
 
@@ -367,6 +366,8 @@ proto_reg_handoff_mcpe(void)
         /*
          * First time, create dissector handle, and find raknet dissector.
          */
+        dissector_handle_t mcpe_gen_handle;
+
         init_done = TRUE;
         raknet_dissector = find_dissector("raknet");
 
@@ -388,15 +389,16 @@ proto_reg_handoff_mcpe(void)
     /* MCPE is the protocol that carries RakNet packets over UDP */
     dissector_add_uint("udp.port", mcpe_udp_port_requested, raknet_dissector);
 }
+
 /*
- * Editor modelines
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

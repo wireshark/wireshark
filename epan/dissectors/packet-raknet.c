@@ -75,7 +75,7 @@ static int hf_raknet_0x1C_server_id_str = -1;
  */
 void proto_register_raknet(void);
 void proto_reg_handoff_raknet(void);
-static proto_tree* init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset);
+static proto_tree *init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset);
 
 
 struct raknet_handler_entry {
@@ -472,7 +472,7 @@ init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
  * RakNet is just a dissector.  It is invoked by protocols whose applications
  * are built using the RakNet libs.
  */
-void
+static void
 dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 packet_id;
@@ -530,7 +530,7 @@ proto_register_raknet(void)
                 NULL, HFILL }
         },
         { &hf_raknet_general_raknet_proto_ver,
-            { "RAKNET RakNet protocol version", "raknet.raknet_proto_ver",
+            { "RAKNET RakNet protocol version", "raknet.proto_ver",
                 FT_UINT8, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
@@ -557,7 +557,7 @@ proto_register_raknet(void)
          * Packet ID 0x05
          */
         { &hf_raknet_0x05_null_padding,
-            { "RAKNET Null padding", "raknet.raknet_proto_ver",
+            { "RAKNET Null padding", "raknet.null_padding",
                 FT_BYTES, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
@@ -613,7 +613,7 @@ proto_register_raknet(void)
                                   EXPFILL }
         }
     };
-    expert_module_t* expert_raknet;
+    expert_module_t *expert_raknet;
 
     /*
      * Init data structs.
@@ -631,8 +631,8 @@ proto_register_raknet(void)
      */
     proto_raknet = proto_register_protocol (
             "RAKNET game libs", /* name */
-            "RAKNET", /* short name */
-            "raknet" /* abbrev */
+            "RAKNET",           /* short name */
+            "raknet"            /* abbrev */
             );
 
     /*
@@ -664,15 +664,16 @@ proto_reg_handoff_raknet(void)
                            raknet_handle_tmp);
     }
 }
+
 /*
- * Editor modelines
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
