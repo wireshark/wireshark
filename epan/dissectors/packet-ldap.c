@@ -706,7 +706,7 @@ attribute_types_initialize_cb(void)
   guint i;
   gchar* attribute_type;
 
-  if (attribute_types_hash) {
+  if (attribute_types_hash && hf) {
     guint hf_size = g_hash_table_size (attribute_types_hash);
     /* Unregister all fields */
     for (i = 0; i < hf_size; i++) {
