@@ -1164,8 +1164,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                                     offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
-                                    offset, cmpt_length, ENC_NA);
-                offset += cmpt_length;
+                                    offset, cmpt_length*4, ENC_NA);
+                offset += cmpt_length*4;
                 break;
             }
             case IP6OPT_QUICKSTART:
