@@ -30,6 +30,11 @@
 static inline guint32
 ws_sign_ext32(guint32 val, int no_of_bits)
 {
+	g_assert (no_of_bits >= 0 && no_of_bits <= 32);
+
+	if (no_of_bits == 0)
+		return val;
+
 	if (val & (1 << (no_of_bits-1)))
 		val |= (-1 << no_of_bits);
 
@@ -39,6 +44,11 @@ ws_sign_ext32(guint32 val, int no_of_bits)
 static inline guint64
 ws_sign_ext64(guint64 val, int no_of_bits)
 {
+	g_assert (no_of_bits >= 0 && no_of_bits <= 64);
+
+	if (no_of_bits == 0)
+		return val;
+
 	if (val & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
 		val |= (G_GINT64_CONSTANT(-1) << no_of_bits);
 
