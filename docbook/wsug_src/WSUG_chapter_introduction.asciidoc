@@ -133,8 +133,8 @@ Here are some things Wireshark does not provide:
 
 The amount of resources Wireshark needs depends on your environment and on the
 size of the capture file you are analyzing. The values below should be fine for
-small to medium-sized capture files no mor than a few hundred MB. Larger capture
-files will require more memory and disk space.
+small to medium-sized capture files no more than a few hundred MB. Larger
+capture files will require more memory and disk space.
 
 [NOTE]
 .Busy networks mean large captures

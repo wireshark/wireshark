@@ -592,7 +592,7 @@ This option sets a capture filter so that the traffic flowing back from the
 Remote Packet Capture Protocol service to Wireshark isn't captured as well and
 also send back. The recursion in this saturates the link with duplicate traffic.
 +
-You only should switch this off when capturing on an interface other then the
+You only should switch this off when capturing on an interface other than the
 interface connecting back to Wireshark.
 
 _Use UDP for data transfer_::
