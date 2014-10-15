@@ -1219,6 +1219,10 @@ if(BUILD_wireshark AND QT_FOUND)
 			wireshark PROPERTIES
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
 		)
+		add_custom_command(
+			TARGET wireshark POST_BUILD
+			COMMAND ln -sf ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/Wireshark ${CMAKE_BINARY_DIR}/run/wireshark
+		)
 	endif()
 
 	target_link_libraries(wireshark ${wireshark_LIBS})
@@ -1251,6 +1255,10 @@ macro(set_extra_executable_properties _executable _folder)
 		set_target_properties(${_executable} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY run/Wireshark.app/Contents/MacOS
 		)
+	add_custom_command(
+		TARGET ${_executable} POST_BUILD
+		COMMAND ln -sf ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/${_executable} ${CMAKE_BINARY_DIR}/run/
+	)
 	endif()
 endmacro()
 
