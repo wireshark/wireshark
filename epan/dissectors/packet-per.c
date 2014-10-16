@@ -710,15 +710,19 @@ static const char*
 sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 {
   int i, j;
-  char c, c_max, c_min;
+  guchar c, c_max, c_min;
   char tmp_buf[256];
 
+  /*
+   * XXX - presumably all members of alphabet will be in the
+   * range 0 to 127.
+   */
   if (!alphabet_length) return sorted_alphabet;
   memset(tmp_buf, 0, 256);
-  c_min = c_max = alphabet[0];
+  c_min = c_max = (guchar)alphabet[0];
   for (i=0; i<alphabet_length; i++) {
-    c = alphabet[i];
-    tmp_buf[(int)c] = 1;
+    c = (guchar)alphabet[i];
+    tmp_buf[c] = 1;
     if (c > c_max) c_max = c;
     else if (c < c_min) c_min = c;
   }
