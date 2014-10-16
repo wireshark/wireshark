@@ -2427,8 +2427,8 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     ret = pcapng_read_block(wth, wth->random_fh, pcapng, &wblock, err, err_info);
     pcapng_free_wtapng_block_data(&wblock);
     if (ret != PCAPNG_BLOCK_OK) {
-        pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
-                      *err, errno, bytes_read);
+        pcapng_debug1("pcapng_seek_read: couldn't read packet block (err=%d).",
+                      *err);
         return FALSE;
     }
 
