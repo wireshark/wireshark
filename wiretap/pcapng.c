@@ -491,9 +491,9 @@ pcapng_free_wtapng_block_data(wtapng_block_t *wblock)
 }
 
 typedef enum {
-	PCAPNG_BLOCK_OK,
-	PCAPNG_BLOCK_NOT_SHB,
-	PCAPNG_BLOCK_ERROR
+    PCAPNG_BLOCK_OK,
+    PCAPNG_BLOCK_NOT_SHB,
+    PCAPNG_BLOCK_ERROR
 } block_return_val;
 
 static block_return_val
@@ -2082,9 +2082,11 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
         if (!pn->shb_read) {
             /*
              * No SHB seen yet, so we're trying to read the first block
-             * during an open; if what we read isn't an SHB, this isn't
-             * a pcap-ng file.
+             * during an open, to see whether it's an SHB; if what we
+             * read doesn't look like an SHB, this isn't a pcap-ng file.
              */
+            *err = 0;
+            *err_info = NULL;
             return PCAPNG_BLOCK_NOT_SHB;
         }
         switch (bh.block_type) {
