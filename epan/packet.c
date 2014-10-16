@@ -1555,6 +1555,124 @@ dissector_handle_t dissector_get_custom_table_handle(dissector_table_t sub_disse
 
 	return NULL;
 }
+/* Add an entry to a guid dissector table. */
+void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t handle)
+{
+	dissector_table_t  sub_dissectors;
+	dtbl_entry_t      *dtbl_entry;
+
+	sub_dissectors = find_dissector_table(name);
+
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
+
+	/* sanity checks */
+	g_assert(handle!=NULL);
+    if (sub_dissectors->type != FT_GUID) {
+		g_assert_not_reached();
+	}
+
+	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry->current = handle;
+	dtbl_entry->initial = dtbl_entry->current;
+
+	/* do the table insertion */
+	g_hash_table_insert( sub_dissectors->hash_table,
+			     guid_val, (gpointer)dtbl_entry);
+
+	/*
+	 * Now add it to the list of handles that could be used with this
+	 * table, because it *is* being used with this table.
+	 */
+	dissector_add_handle(name, handle);
+
+}
+
+/* Look for a given value in a given guid dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
+int dissector_try_guid_new(dissector_table_t sub_dissectors,
+    guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data)
+{
+	dtbl_entry_t            *dtbl_entry;
+	struct dissector_handle *handle;
+	int len;
+
+	dtbl_entry = (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, guid_val);
+	if (dtbl_entry != NULL) {
+		/*
+		 * Is there currently a dissector handle for this entry?
+		 */
+		handle = dtbl_entry->current;
+		if (handle == NULL) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return 0;
+		}
+
+		/*
+		 * Save the current value of "pinfo->match_uint",
+		 * set it to the uint_val that matched, call the
+		 * dissector, and restore "pinfo->match_uint".
+		 */
+		len = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
+
+		/*
+		 * If a new-style dissector returned 0, it means that
+		 * it didn't think this tvbuff represented a packet for
+		 * its protocol, and didn't dissect anything.
+		 *
+		 * Old-style dissectors can't reject the packet.
+		 *
+		 * 0 is also returned if the protocol wasn't enabled.
+		 *
+		 * If the packet was rejected, we return 0, so that
+		 * other dissectors might have a chance to dissect this
+		 * packet, otherwise we return the dissected length.
+		 */
+		return len;
+	}
+	return 0;
+}
+
+int dissector_try_guid(dissector_table_t sub_dissectors,
+    guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    return dissector_try_guid_new(sub_dissectors, guid_val, tvb, pinfo, tree, TRUE, NULL);
+}
+
+/** Look for a given value in a given guid dissector table and, if found,
+ * return the current dissector handle for that value.
+ *
+ * @param[in] sub_dissectors Dissector table to search.
+ * @param[in] uint_val Value to match, e.g. the port number for the TCP dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
+dissector_handle_t dissector_get_guid_handle(
+    dissector_table_t const sub_dissectors, guid_key* guid_val)
+{
+	dtbl_entry_t *dtbl_entry;
+
+	dtbl_entry = (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, guid_val);
+	if (dtbl_entry != NULL)
+		return dtbl_entry->current;
+	else
+		return NULL;
+}
+
 
 dissector_handle_t
 dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
@@ -1635,6 +1753,24 @@ ftenum_t
 dissector_table_get_type(dissector_table_t dissector_table) {
 	if (!dissector_table) return FT_NONE;
 	return dissector_table->type;
+}
+
+static gint
+uuid_equal(gconstpointer k1, gconstpointer k2)
+{
+    const guid_key *key1 = (const guid_key *)k1;
+    const guid_key *key2 = (const guid_key *)k2;
+    return ((memcmp(&key1->guid, &key2->guid, sizeof (e_guid_t)) == 0)
+            && (key1->ver == key2->ver));
+}
+
+static guint
+uuid_hash(gconstpointer k)
+{
+    const guid_key *key = (const guid_key *)k;
+    /* This isn't perfect, but the Data1 part of these is almost always
+       unique. */
+    return key->guid.data1;
 }
 
 /**************************************************/
@@ -1915,7 +2051,12 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 							       &g_free,
 							       &g_free );
 		break;
-
+	case FT_GUID:
+		sub_dissectors->hash_table = g_hash_table_new_full( uuid_hash,
+							       uuid_equal,
+							       NULL,
+							       &g_free );
+		break;
 	default:
 		g_assert_not_reached();
 	}

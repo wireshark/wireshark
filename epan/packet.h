@@ -29,6 +29,7 @@
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"
+#include "guid-utils.h"
 #include "tfs.h"
 #include "ws_symbol_export.h"
 
@@ -235,7 +236,7 @@ WS_DLL_PUBLIC int get_dissector_table_param(const char *name);
 WS_DLL_PUBLIC void dissector_dump_dissector_tables(void);
 
 /* Add an entry to a uint dissector table. */
-WS_DLL_PUBLIC void dissector_add_uint(const char *abbrev, const guint32 pattern,
+WS_DLL_PUBLIC void dissector_add_uint(const char *name, const guint32 pattern,
     dissector_handle_t handle);
 
 /* Add an range of entries to a uint dissector table. */
@@ -350,7 +351,39 @@ WS_DLL_PUBLIC void dissector_add_custom_table_handle(const char *name, void *pat
  */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_custom_table_handle(
     dissector_table_t sub_dissectors, void *key);
+/* Key for GUID dissector tables.  This is based off of DCE/RPC needs
+   so some dissector tables may not need the ver portion of the hash
+ */
+typedef struct _guid_key {
+    e_guid_t guid;
+    guint16 ver;
+} guid_key;
 
+/* Add an entry to a guid dissector table. */
+WS_DLL_PUBLIC void dissector_add_guid(const char *name, guid_key* guid_val,
+    dissector_handle_t handle);
+
+/* Look for a given value in a given guid dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
+WS_DLL_PUBLIC int dissector_try_guid(dissector_table_t sub_dissectors,
+    guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Look for a given value in a given guid dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
+WS_DLL_PUBLIC int dissector_try_guid_new(dissector_table_t sub_dissectors,
+    guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
+
+/** Look for a given value in a given guid dissector table and, if found,
+ * return the current dissector handle for that value.
+ *
+ * @param[in] sub_dissectors Dissector table to search.
+ * @param[in] uint_val Value to match, e.g. the port number for the TCP dissector.
+ * @return The matching dissector handle on success, NULL if no match is found.
+ */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_guid_handle(
+    dissector_table_t const sub_dissectors, guid_key* guid_val);
 
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
