@@ -50,27 +50,15 @@ static gboolean
 raw_flag_needed(const gchar *pattern)
 {
     gboolean found = FALSE;
-    /*
-     * gchar is neither guaranteed to be signed nor guaranteed to be
-     * unsigned.  Make s point to guint8, and use regular hex constants,
-     * to make sure the comparisons are unsigned vs. unsigned (on at
-     * least one ARM version of gcc, with char being unsigned, the
-     * comparisons before those changes warned about always being
-     * true due to the limited range of the data type).
-     */
-    const guint8 *s;
+    const gchar *s = pattern;
     size_t i, len;
 
     /* find any character whose hex value is two letters */
-    len = strlen(pattern);
-    s = (const guint8 *)pattern;
+    len = strlen(s);
     for (i = 0; i < len; i++) {
-        if ((s[i] >= 0xAA && s[i] <= 0xAF) ||
-            (s[i] >= 0xBA && s[i] <= 0xBF) ||
-            (s[i] >= 0xCA && s[i] <= 0xCF) ||
-            (s[i] >= 0xDA && s[i] <= 0xDF) ||
-            (s[i] >= 0xEA && s[i] <= 0xEF) ||
-            (s[i] >= 0xFA && s[i] <= 0xFF))
+        /* Upper and lower-nibble must be >= 0xA */
+        if ((guchar)(s[i] & 0xF0) >= 0xA0 &&
+            (guchar)(s[i] & 0x0F) >= 0x0A)
         {
             found = TRUE;
             break;
