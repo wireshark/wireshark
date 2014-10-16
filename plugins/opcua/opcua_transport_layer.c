@@ -80,7 +80,7 @@ void registerTransportLayerTypes(int proto)
 }
 
 /* Transport Layer: message parsers */
-int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
@@ -90,11 +90,11 @@ int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    parseString(tree, tvb, pOffset, hf_opcua_transport_endpoint);
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_endpoint);
     return -1;
 }
 
-int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
@@ -107,17 +107,17 @@ int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     return -1;
 }
 
-int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseError(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    parseString(tree, tvb, pOffset, hf_opcua_transport_reason);
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
     return -1;
 }
 
-int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
@@ -130,7 +130,7 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     return -1;
 }
 
-int parseService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_item *ti;
     proto_item *ti_inner;
@@ -150,13 +150,13 @@ int parseService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
     proto_item_set_end(ti_inner, tvb, *pOffset);
 
-    dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
 
     proto_item_set_end(ti, tvb, *pOffset);
     return ServiceId;
 }
 
-int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_item *ti;
     proto_item *ti_inner;
@@ -168,9 +168,9 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    parseString(tree, tvb, pOffset, hf_opcua_transport_spu);
-    parseByteString(tree, tvb, pOffset, hf_opcua_transport_scert);
-    parseByteString(tree, tvb, pOffset, hf_opcua_transport_rcthumb);
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_spu);
+    parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_scert);
+    parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_rcthumb);
     proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 
@@ -182,13 +182,13 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
     proto_item_set_end(ti_inner, tvb, *pOffset);
 
-    dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
 
     proto_item_set_end(ti, tvb, *pOffset);
     return ServiceId;
 }
 
-int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_item *ti;
     proto_item *ti_inner;
@@ -211,7 +211,7 @@ int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
     proto_item_set_end(ti_inner, tvb, *pOffset);
 
-    dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+    dispatchService(encobj_tree, tvb, pinfo, pOffset, ServiceId);
 
     proto_item_set_end(ti, tvb, *pOffset);
     return ServiceId;

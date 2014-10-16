@@ -43,7 +43,7 @@ extern const int g_NumServices;
 /* forward reference */
 void proto_reg_handoff_opcua(void);
 /* declare parse function pointer */
-typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 
 static int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
@@ -317,7 +317,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset = 0;
 
         /* call the transport message dissector */
-        iServiceId = (*pfctParse)(transport_tree, tvb, &offset);
+        iServiceId = (*pfctParse)(transport_tree, tvb, pinfo, &offset);
 
         /* parse the service if not chunked or last chunk */
         if (msgtype == MSG_MESSAGE && bParseService)
@@ -326,7 +326,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             {
                 offset = 0;
             }
-            iServiceId = parseService(transport_tree, next_tvb, &offset);
+            iServiceId = parseService(transport_tree, next_tvb, pinfo, &offset);
         }
 
         /* display the service type in addition to the message type */
