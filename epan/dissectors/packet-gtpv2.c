@@ -3876,7 +3876,7 @@ static const value_string gtpv2_complete_req_msg_type_vals[] = {
     {0, NULL                               }
 };
 static void
-dissect_complete_request_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_complete_request_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     tvbuff_t  *new_tvb;
     int        offset;
@@ -3888,7 +3888,7 @@ dissect_complete_request_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset += 1;
 
     /* Add the Complete Request Message */
-    new_tvb = tvb_new_subset_remaining(tvb, offset);
+    new_tvb = tvb_new_subset(tvb, offset, length-1, length-1);
     call_dissector(nas_eps_handle, new_tvb, pinfo, tree);
 
 }
