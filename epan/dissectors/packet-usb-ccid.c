@@ -51,9 +51,9 @@ static int hf_ccid_wLevelParameter = -1;
 static int hf_ccid_bcdCCID = -1;
 static int hf_ccid_bMaxSlotIndex = -1;
 static int hf_ccid_bVoltageSupport = -1;
-static int hf_ccid_bVoltageSupport50 = -1;
-static int hf_ccid_bVoltageSupport30 = -1;
 static int hf_ccid_bVoltageSupport18 = -1;
+static int hf_ccid_bVoltageSupport30 = -1;
+static int hf_ccid_bVoltageSupport50 = -1;
 static int hf_ccid_dwProtocols = -1;
 static int hf_ccid_dwDefaultClock = -1;
 static int hf_ccid_dwMaximumClock = -1;
@@ -73,30 +73,30 @@ static int hf_ccid_wLcdLayout = -1;
 static int hf_ccid_wLcdLayout_lines = -1;
 static int hf_ccid_wLcdLayout_chars = -1;
 static int hf_ccid_bPINSupport = -1;
-static int hf_ccid_bPINSupport_vrfy = -1;
 static int hf_ccid_bPINSupport_modify = -1;
+static int hf_ccid_bPINSupport_vrfy = -1;
 static int hf_ccid_bMaxCCIDBusySlots = -1;
 static int hf_ccid_Reserved = -1;
 
 static dissector_handle_t usb_ccid_handle;
 
 static const int *bVoltageLevel_fields[] = {
-    &hf_ccid_bVoltageSupport50,
-    &hf_ccid_bVoltageSupport30,
     &hf_ccid_bVoltageSupport18,
+    &hf_ccid_bVoltageSupport30,
+    &hf_ccid_bVoltageSupport50,
     NULL
 };
 
 static const int *bFeatures_fields[] = {
-    &hf_ccid_dwFeatures_autoParam,
-    &hf_ccid_dwFeatures_autoIccActivation,
     /* XXX - add the missing components */
+    &hf_ccid_dwFeatures_autoIccActivation,
+    &hf_ccid_dwFeatures_autoParam,
     NULL
 };
 
 static const int *bPINSupport_fields[] = {
-    &hf_ccid_bPINSupport_vrfy,
     &hf_ccid_bPINSupport_modify,
+    &hf_ccid_bPINSupport_vrfy,
     NULL
 };
 
@@ -601,15 +601,15 @@ proto_register_ccid(void)
         {&hf_ccid_bVoltageSupport,
          { "voltage support", "usbccid.bVoltageSupport", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
-        {&hf_ccid_bVoltageSupport50,
-         { "supports 5.0V", "usbccid.bVoltageSupport.50", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
-        {&hf_ccid_bVoltageSupport30,
-         { "supports 3.0V", "usbccid.bVoltageSupport.30", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
         {&hf_ccid_bVoltageSupport18,
-         { "supports 1.8V", "usbccid.bVoltageSupport.18", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
+         { "1.8V", "usbccid.bVoltageSupport.18", FT_BOOLEAN, 8,
+            TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport30,
+         { "3.0V", "usbccid.bVoltageSupport.30", FT_BOOLEAN, 8,
+            TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport50,
+         { "5.0V", "usbccid.bVoltageSupport.50", FT_BOOLEAN, 8,
+            TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
         {&hf_ccid_dwProtocols,
          { "dwProtocols", "usbccid.dwProtocols", FT_UINT32, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
@@ -640,14 +640,14 @@ proto_register_ccid(void)
         {&hf_ccid_dwFeatures,
          { "intelligent features", "usbccid.dwFeatures",
              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        {&hf_ccid_dwFeatures_autoParam,
-         { "Automatic parameter configuration based on ATR",
-             "usbccid.dwFeatures.autoParam", FT_BOOLEAN, 32,
-             TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
         {&hf_ccid_dwFeatures_autoIccActivation,
          { "Automatic activation of ICC on inserting",
              "usbccid.dwFeatures.autoIccActivation", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoParam,
+         { "Automatic parameter configuration based on ATR",
+             "usbccid.dwFeatures.autoParam", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
         {&hf_ccid_dwMaxCCIDMessageLength,
          { "maximum CCID message length", "usbccid.dwMaxCCIDMessageLength",
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -669,12 +669,12 @@ proto_register_ccid(void)
         {&hf_ccid_bPINSupport,
          { "PIN support", "usbccid.hf_ccid_bPINSupport",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        {&hf_ccid_bPINSupport_vrfy,
-         { "PIN verification", "usbccid.hf_ccid_bPINSupport.verify",
-             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
         {&hf_ccid_bPINSupport_modify,
          { "PIN modification", "usbccid.hf_ccid_bPINSupport.modify",
-             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
+             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
+        {&hf_ccid_bPINSupport_vrfy,
+         { "PIN verification", "usbccid.hf_ccid_bPINSupport.verify",
+             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
         {&hf_ccid_bMaxCCIDBusySlots,
          { "maximum number of busy slots", "usbccid.hf_ccid_bMaxCCIDBusySlots",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
