@@ -2854,9 +2854,12 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pinfo->destport = sep_data.stream_number;
 #endif
 
-    bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
-    call_dissector(rtp_handle, tvb, pinfo, tree);
-
+    if (bta2dp_codec_info.content_protection_type == 0 && codec_dissector == aptx_handle) {
+        call_dissector_with_data(aptx_handle, tvb, pinfo, tree, &bta2dp_codec_info);
+    } else {
+        bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
+        call_dissector(rtp_handle, tvb, pinfo, tree);
+    }
     offset += tvb_length_remaining(tvb, offset);
 
     return offset;
@@ -2939,7 +2942,6 @@ proto_reg_handoff_bta2dp(void)
     mpeg_audio_handle = find_dissector("mpeg-audio");
 /* TODO: ATRAC dissector does not exist yet */
     atrac_handle = find_dissector("atrac");
-    aptx_handle = find_dissector("aptx");
 
     rtp_handle   = find_dissector("rtp");
 
