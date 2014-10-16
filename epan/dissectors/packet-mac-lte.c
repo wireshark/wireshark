@@ -1944,22 +1944,21 @@ static guint    s_rapid_ranges_RA;
 
 /* Return TRUE if we have been configured.  Set out parameter to point at
    a literal string tha may be safely referenced afterwards */
-static gboolean get_mac_lte_rapid_description(guint8 rapid, const gchar **description)
+static const gchar *get_mac_lte_rapid_description(guint8 rapid)
 {
     if (!s_rapid_ranges_configured) {
-        return FALSE;
+        return "";
     }
     else {
         if (rapid < s_rapid_ranges_groupA) {
-            *description = "[GroupA]";
+            return "[GroupA]";
         }
         else if (rapid < s_rapid_ranges_RA) {
-            *description = "[GroupB]";
+            return "[GroupB]";
         }
         else {
-            *description = "[Non-RA]";
+            return "[Non-RA]";
         }
-        return TRUE;
     }
 }
 
@@ -2480,7 +2479,6 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint32     ul_grant;
     guint16     temp_crnti;
     const gchar *rapid_description;
-    gboolean rapid_description_found;
 
     /* Create tree for this Body */
     rar_body_ti = proto_tree_add_item(tree,
@@ -2550,11 +2548,11 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    rapid_description_found = get_mac_lte_rapid_description(rapid, &rapid_description);
+    rapid_description = get_mac_lte_rapid_description(rapid);
 
     write_pdu_label_and_info(pdu_ti, rar_body_ti, pinfo,
                              "(RAPID=%u%s: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
-                             rapid, (rapid_description_found) ? rapid_description : "",
+                             rapid, rapid_description,
                              timing_advance, ul_grant, temp_crnti);
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
@@ -2657,16 +2655,15 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* RAPID case */
             /* TODO: complain if the same RAPID appears twice in same frame? */
             const gchar *rapid_description;
-            gboolean rapid_description_found;
 
             rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
             proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            rapid_description_found = get_mac_lte_rapid_description(rapids[number_of_rars], &rapid_description);
+            rapid_description = get_mac_lte_rapid_description(rapids[number_of_rars]);
 
             proto_item_append_text(rar_header_ti, "(RAPID=%u%s)",
                                    rapids[number_of_rars],
-                                   (rapid_description_found) ? rapid_description : "");
+                                   rapid_description);
 
             number_of_rars++;
         }
@@ -5304,7 +5301,6 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_item *preamble_ti;
         proto_tree *preamble_tree;
         const gchar *rapid_description;
-        gboolean rapid_description_found;
 
         switch (p_mac_lte_info->oob_event) {
             case ltemac_send_preamble:
@@ -5321,13 +5317,13 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                          tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
                 PROTO_ITEM_SET_GENERATED(ti);
 
-                rapid_description_found = get_mac_lte_rapid_description(p_mac_lte_info->rapid, &rapid_description);
+                rapid_description = get_mac_lte_rapid_description(p_mac_lte_info->rapid);
 
                 /* Info column */
                 write_pdu_label_and_info(pdu_ti, preamble_ti, pinfo,
                                          "RACH Preamble chosen for UE %u (RAPID=%u%s, attempt=%u)",
                                          p_mac_lte_info->ueid, p_mac_lte_info->rapid,
-                                         (rapid_description_found) ? rapid_description : "",
+                                         rapid_description,
                                          p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (a note, unless attempt > 1) */
@@ -5335,7 +5331,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                     (p_mac_lte_info->rach_attempt_number > 1) ? &ei_mac_lte_rach_preamble_sent_warn : &ei_mac_lte_rach_preamble_sent_note,
                                        "RACH Preamble sent for UE %u (RAPID=%u%s, attempt=%u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rapid,
-                                       (rapid_description_found) ? rapid_description : "",
+                                       rapid_description,
                                        p_mac_lte_info->rach_attempt_number);
                 break;
             case ltemac_send_sr:
