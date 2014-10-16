@@ -64,6 +64,8 @@ static int hf_ccid_bNumDataRatesSupported = -1;
 static int hf_ccid_dwSynchProtocols = -1;
 static int hf_ccid_dwMechanical = -1;
 static int hf_ccid_dwFeatures = -1;
+static int hf_ccid_dwFeatures_autoParam = -1;
+static int hf_ccid_dwFeatures_autoIccActivation = -1;
 static int hf_ccid_dwMaxCCIDMessageLength = -1;
 static int hf_ccid_bClassGetResponse = -1;
 static int hf_ccid_bClassEnvelope = -1;
@@ -84,6 +86,14 @@ static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport18,
     NULL
 };
+
+static const int *bFeatures_fields[] = {
+    &hf_ccid_dwFeatures_autoParam,
+    &hf_ccid_dwFeatures_autoIccActivation,
+    /* XXX - add the missing components */
+    NULL
+};
+
 static const int *bPINSupport_fields[] = {
     &hf_ccid_bPINSupport_vrfy,
     &hf_ccid_bPINSupport_modify,
@@ -224,6 +234,7 @@ static const value_string ccid_proto_structs_vals[] = {
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
 static gint ett_ccid_voltage_level = -1;
+static gint ett_ccid_features = -1;
 static gint ett_ccid_lcd_layout = -1;
 static gint ett_ccid_pin_support = -1;
 
@@ -323,8 +334,9 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(desc_tree, hf_ccid_dwFeatures,
-            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(desc_tree, tvb, offset,
+            hf_ccid_dwFeatures, ett_ccid_features, bFeatures_fields,
+            ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(desc_tree, hf_ccid_dwMaxCCIDMessageLength,
@@ -628,6 +640,14 @@ proto_register_ccid(void)
         {&hf_ccid_dwFeatures,
          { "intelligent features", "usbccid.dwFeatures",
              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoParam,
+         { "Automatic parameter configuration based on ATR",
+             "usbccid.dwFeatures.autoParam", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoIccActivation,
+         { "Automatic activation of ICC on inserting",
+             "usbccid.dwFeatures.autoIccActivation", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
         {&hf_ccid_dwMaxCCIDMessageLength,
          { "maximum CCID message length", "usbccid.dwMaxCCIDMessageLength",
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -667,6 +687,7 @@ proto_register_ccid(void)
         &ett_ccid,
         &ett_ccid_desc,
         &ett_ccid_voltage_level,
+        &ett_ccid_features,
         &ett_ccid_lcd_layout,
         &ett_ccid_pin_support
     };
