@@ -61,10 +61,12 @@
  * Following that is a sequence of { record offset block, up to 200 records }
  * pairs.
  *
- * A record offset block has 4 bytes of unknown data, a sequence of 4-byte
- * little-endian record offsets, and other data making the block 808 bytes
- * long.  The record offsets are offsets, from the byte just *before* the
- * sequence of record offsets, of the records following the block.
+ * A record offset block has 1 byte with the value 0xfe, a sequence of
+ * up to 200 4-byte little-endian record offsets, and 4 or more bytes
+ * of unknown data, making the block 805 bytes long.
+ *
+ * The record offsets are offsets, from the beginning of the record offset
+ * block (i.e., from the 0xfe byte), of the records following the block.
  */
 
 /* Magic number in Capsa files. */
@@ -205,7 +207,7 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Skip past what we think is file header.
 	 */
-	if (!file_seek(wth->fh, 0x44f0, SEEK_SET, err))
+	if (!file_seek(wth->fh, 0x44ef, SEEK_SET, err))
 		return WTAP_OPEN_ERROR;
 
 	wth->file_type_subtype = file_type_subtype;
@@ -245,16 +247,23 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 	if (frame_within_block == 0) {
 		/*
 		 * Here's a record offset block.
-		 * Offsets in the block are relative to the offset
-		 * after those 4 bytes, minus 1(!).
+		 * Get the offset of the block, and then skip the
+		 * first byte.
 		 */
-		capsa->base_offset = file_tell(wth->fh) - 1;
-		if (!wtap_read_bytes_or_eof(wth->fh, &capsa->record_offsets,
+		capsa->base_offset = file_tell(wth->fh);
+		if (!file_skip(wth->fh, 1, err))
+			return FALSE;
+
+		/*
+		 * Now read the record offsets.
+		 */
+		if (!wtap_read_bytes(wth->fh, &capsa->record_offsets,
 		    sizeof capsa->record_offsets, err, err_info))
 			return FALSE;
 
 		/*
-		 * Skip the last 4 bytes; it's some unknown data.
+		 * And finish processing all 805 bytes by skipping
+		 * the last 4 bytes.
 		 */
 		if (!file_skip(wth->fh, 4, err))
 			return FALSE;
@@ -279,17 +288,6 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 	}
 
 	capsa->frame_count++;
-
-	/*
-	 * Is this the last record within a group?
-	 */
-	if (frame_within_block == N_RECORDS_PER_GROUP - 1) {
-		/*
-		 * Skip 1 extra byte.
-		 */
-		if (!file_skip(wth->fh, 1, err))
-			return FALSE;
-	}
 
 	return TRUE;
 }
