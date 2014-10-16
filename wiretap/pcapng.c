@@ -2114,7 +2114,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
         wth->priv = (void *)pcapng;
         *pcapng = pn;
-        pcapng->interfaces = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
+        pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
 
         wth->subtype_read = pcapng_read;
         wth->subtype_seek_read = pcapng_seek_read;
