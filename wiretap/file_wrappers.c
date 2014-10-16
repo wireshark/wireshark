@@ -924,8 +924,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
     struct fast_seek_point *here;
     guint n;
 
-    /* can only seek from start or relative to current position */
-    if (whence != SEEK_SET && whence != SEEK_CUR) {
+    if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
         g_assert_not_reached();
 /*
  *err = EINVAL;
@@ -933,8 +932,18 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 */
     }
 
-    /* normalize offset to a SEEK_CUR specification */
-    if (whence == SEEK_SET)
+    /* Normalize offset to a SEEK_CUR specification */
+    if (whence == SEEK_END) {
+        /* Try skip until end-of-file */
+        if (gz_skip(file, G_MAXINT64) == -1) {
+            *err = file->err;
+            return -1;
+        }
+        if (offset == 0) {
+            /* We are done */
+            return file->pos;
+        }
+    } else if (whence == SEEK_SET)
         offset -= file->pos;
     else if (file->seek_pending)
         offset += file->skip;
