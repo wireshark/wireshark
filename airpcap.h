@@ -284,7 +284,7 @@ typedef struct _AirpcapChannelInfo
 
         In case of 802.11a/b/g channels (802.11n legacy mode), this field should be set to 0.
     */
-    gchar ExtChannel;
+    gint8 ExtChannel;
     guint8 Reserved[3]; /* < Reserved. It should be set to {0,0,0}. */
 }
     AirpcapChannelInfo, *PAirpcapChannelInfo;
