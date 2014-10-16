@@ -197,7 +197,7 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
     {
         if (iLen == -1)
         {
-            proto_tree_add_text(tree, tvb, *pOffset, 4, "[OpcUa Null ByteString]");
+            proto_tree_add_bytes_format(tree, hf_opcua_ByteString, tvb, *pOffset, 4, NULL, "[OpcUa Null ByteString]");
         }
         else if (iLen >= 0)
         {
@@ -206,8 +206,7 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
         }
         else
         {
-            char *szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid ByteString] Invalid length: %d", iLen);
-            proto_tree_add_text(tree, tvb, *pOffset, 4, "%s", szValue);
+            proto_tree_add_bytes_format(tree, hf_opcua_ByteString, tvb, *pOffset, 4, NULL, "[Invalid ByteString] Invalid length: %d", iLen);
         }
     }
 

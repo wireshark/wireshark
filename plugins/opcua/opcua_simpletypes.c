@@ -61,6 +61,7 @@
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
 
+static int hf_opcua_diag_mask = -1;
 static int hf_opcua_diag_mask_symbolicflag = -1;
 static int hf_opcua_diag_mask_namespaceflag = -1;
 static int hf_opcua_diag_mask_localizedtextflag = -1;
@@ -68,8 +69,10 @@ static int hf_opcua_diag_mask_localeflag = -1;
 static int hf_opcua_diag_mask_additionalinfoflag = -1;
 static int hf_opcua_diag_mask_innerstatuscodeflag = -1;
 static int hf_opcua_diag_mask_innerdiaginfoflag = -1;
+static int hf_opcua_loctext_mask = -1;
 static int hf_opcua_loctext_mask_localeflag = -1;
 static int hf_opcua_loctext_mask_textflag = -1;
+static int hf_opcua_datavalue_mask = -1;
 static int hf_opcua_datavalue_mask_valueflag = -1;
 static int hf_opcua_datavalue_mask_statuscodeflag = -1;
 static int hf_opcua_datavalue_mask_sourcetimestampflag = -1;
@@ -99,6 +102,7 @@ static int hf_opcua_diag_localizedtext = -1;
 static int hf_opcua_diag_locale = -1;
 static int hf_opcua_diag_additionalinfo = -1;
 static int hf_opcua_diag_innerstatuscode = -1;
+static int hf_opcua_extobj_mask = -1;
 static int hf_opcua_extobj_mask_binbodyflag = -1;
 static int hf_opcua_extobj_mask_xmlbodyflag = -1;
 static int hf_opcua_ArraySize = -1;
@@ -358,6 +362,7 @@ void registerSimpleTypes(int proto)
     static hf_register_info hf[] =
     {
         /* id                                            full name                          abbreviation                                type                display                 strings                 bitmask                                                 blurb HFILL */
+        {&hf_opcua_diag_mask,                           {"EncodingMask",                    "opcua.diag.mask",                          FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_diag_mask_symbolicflag,              {"has symbolic id",                 "opcua.diag.has_symbolic_id",               FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG,            NULL, HFILL}},
         {&hf_opcua_diag_mask_namespaceflag,             {"has namespace",                   "opcua.diag.has_namespace",                 FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG,             NULL, HFILL}},
         {&hf_opcua_diag_mask_localizedtextflag,         {"has localizedtext",               "opcua.diag.has_localizedtext",             FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG,         NULL, HFILL}},
@@ -365,6 +370,7 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_diag_mask_additionalinfoflag,        {"has additional info",             "opcua.diag.has_additional_info",           FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_ADDITIONALINFO_FLAG,        NULL, HFILL}},
         {&hf_opcua_diag_mask_innerstatuscodeflag,       {"has inner statuscode",            "opcua.diag.has_inner_statuscode",          FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_INNERSTATUSCODE_FLAG,       NULL, HFILL}},
         {&hf_opcua_diag_mask_innerdiaginfoflag,         {"has inner diagnostic info",       "opcua.diag.has_inner_diagnostic_code",     FT_BOOLEAN,         8,                      NULL,                   DIAGNOSTICINFO_ENCODINGMASK_INNERDIAGNOSTICINFO_FLAG,   NULL, HFILL}},
+        {&hf_opcua_loctext_mask,                        {"EncodingMask",                    "opcua.loctext.mask",                       FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_loctext_mask_localeflag,             {"has locale information",          "opcua.loctext.has_locale_information",     FT_BOOLEAN,         8,                      NULL,                   LOCALIZEDTEXT_ENCODINGBYTE_LOCALE,                      NULL, HFILL}},
         {&hf_opcua_loctext_mask_textflag,               {"has text",                        "opcua.loctext.has_text",                   FT_BOOLEAN,         8,                      NULL,                   LOCALIZEDTEXT_ENCODINGBYTE_TEXT,                        NULL, HFILL}},
         {&hf_opcua_nodeid_encodingmask,                 {"NodeId EncodingMask",             "opcua.nodeid.encodingmask",                FT_UINT8,           BASE_HEX,               VALS(g_nodeidmasks),    0x0F,                                                   NULL, HFILL}},
@@ -379,6 +385,7 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_localizedtext_text,                  {"Text",                            "opcua.loctext.Text",                       FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_qualifiedname_id,                    {"Id",                              "opcua.qualname.Id",                        FT_UINT16,          BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_qualifiedname_name,                  {"Name",                            "opcua.qualname.Name",                      FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_datavalue_mask,                      {"EncodingMask",                    "opcua.datavalue.mask",                     FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_datavalue_mask_valueflag,            {"has value",                       "opcua.datavalue.has_value",                FT_BOOLEAN,         8,                      NULL,                   DATAVALUE_ENCODINGBYTE_VALUE,                           NULL, HFILL}},
         {&hf_opcua_datavalue_mask_statuscodeflag,       {"has statuscode",                  "opcua.datavalue.has_statuscode",           FT_BOOLEAN,         8,                      NULL,                   DATAVALUE_ENCODINGBYTE_STATUSCODE,                      NULL, HFILL}},
         {&hf_opcua_datavalue_mask_sourcetimestampflag,  {"has source timestamp",            "opcua.datavalue.has_source_timestamp",     FT_BOOLEAN,         8,                      NULL,                   DATAVALUE_ENCODINGBYTE_SOURCETIMESTAMP,                 NULL, HFILL}},
@@ -396,6 +403,7 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_diag_locale,                         {"Locale",                          "opcua.diag.Locale",                        FT_INT32,           BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_diag_additionalinfo,                 {"AdditionalInfo",                  "opcua.diag.AdditionalInfo",                FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_diag_innerstatuscode,                {"InnerStatusCode",                 "opcua.diag.InnerStatusCode",               FT_UINT32,          BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_extobj_mask,                         {"EncodingMask",                    "opcua.extobj.mask",                        FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_extobj_mask_binbodyflag,             {"has binary body",                 "opcua.extobj.has_binary_body",             FT_BOOLEAN,         8,                      NULL,                   EXTOBJ_ENCODINGMASK_BINBODY_FLAG,                       NULL, HFILL}},
         {&hf_opcua_extobj_mask_xmlbodyflag,             {"has xml body",                    "opcua.extobj.has_xml_body",                FT_BOOLEAN,         8,                      NULL,                   EXTOBJ_ENCODINGMASK_XMLBODY_FLAG,                       NULL, HFILL}},
         {&hf_opcua_ArraySize,                           {"ArraySize",                       "opcua.variant.ArraySize",                  FT_INT32,           BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
@@ -567,21 +575,20 @@ proto_item* parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int 
 
 void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
+    static const int *loctext_mask[] = {&hf_opcua_loctext_mask_localeflag,
+                                        &hf_opcua_loctext_mask_textflag,
+                                        NULL};
+
     gint        iOffset = *pOffset;
     guint8      EncodingMask;
-    proto_tree *mask_tree;
     proto_tree *subtree;
     proto_item *ti;
-    proto_item *ti_inner;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_localizedtext, &ti, "%s: LocalizedText", szFieldName);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_localizedtext_encodingmask);
-    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_localeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_textflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_loctext_mask, ett_opcua_localizedtext_encodingmask, loctext_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & LOCALIZEDTEXT_ENCODINGBYTE_LOCALE)
@@ -670,26 +677,25 @@ proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hf
 
 void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
+    static const int *diag_mask[] = {&hf_opcua_diag_mask_symbolicflag,
+                                     &hf_opcua_diag_mask_namespaceflag,
+                                     &hf_opcua_diag_mask_localizedtextflag,
+                                     &hf_opcua_diag_mask_localeflag,
+                                     &hf_opcua_diag_mask_additionalinfoflag,
+                                     &hf_opcua_diag_mask_innerstatuscodeflag,
+                                     &hf_opcua_diag_mask_innerdiaginfoflag,
+                                     NULL};
+
     gint        iOffset = *pOffset;
     guint8      EncodingMask;
-    proto_tree *mask_tree;
     proto_tree *subtree;
     proto_item *ti;
-    proto_item *ti_inner;
 
     subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_diagnosticinfo, &ti, "%s: DiagnosticInfo", szFieldName);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_diagnosticinfo_encodingmask);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_symbolicflag,        tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_namespaceflag,       tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localizedtextflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localeflag,          tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_additionalinfoflag,  tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerstatuscodeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerdiaginfoflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_diag_mask, ett_opcua_diagnosticinfo_encodingmask, diag_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG)
@@ -739,23 +745,22 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
+    static const int *datavalue_mask[] = {&hf_opcua_datavalue_mask_valueflag,
+                                          &hf_opcua_datavalue_mask_statuscodeflag,
+                                          &hf_opcua_datavalue_mask_sourcetimestampflag,
+                                          &hf_opcua_datavalue_mask_servertimestampflag,
+                                          &hf_opcua_datavalue_mask_sourcepicoseconds,
+                                          &hf_opcua_datavalue_mask_serverpicoseconds,
+                                          NULL};
+
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
                         ett_opcua_datavalue, &ti, "%s: DataValue", szFieldName);
-    proto_tree *mask_tree;
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
-    proto_item *ti_inner;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_datavalue_encodingmask);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_valueflag,           tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_servertimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcepicoseconds,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_serverpicoseconds,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_datavalue_mask, ett_opcua_datavalue_encodingmask, datavalue_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & DATAVALUE_ENCODINGBYTE_VALUE)
@@ -1049,13 +1054,15 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szF
 
 void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
+    static const int *extobj_mask[] = {&hf_opcua_extobj_mask_binbodyflag,
+                                       &hf_opcua_extobj_mask_xmlbodyflag,
+                                       NULL};
+
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
     guint32 TypeId;
     proto_tree *extobj_tree;
-    proto_tree *mask_tree;
     proto_item *ti;
-    proto_item *ti_inner;
 
     /* add extension object subtree */
     extobj_tree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_extensionobject, &ti, "%s: ExtensionObject", szFieldName);
@@ -1066,10 +1073,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti_inner = proto_tree_add_text(extobj_tree, tvb, iOffset, 1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_extensionobject_encodingmask);
-    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_binbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_xmlbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(extobj_tree, tvb, iOffset, hf_opcua_extobj_mask, ett_opcua_extensionobject_encodingmask, extobj_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & EXTOBJ_ENCODINGMASK_BINBODY_FLAG) /* has binary body ? */
