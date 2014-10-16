@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
@@ -117,6 +118,8 @@ static int hf_opcua_status_InfoBit_Historian_MultiValue = -1;
 static int hf_opcua_status_InfoType = -1;
 static int hf_opcua_status_Limit = -1;
 static int hf_opcua_status_Historian = -1;
+
+static expert_field ei_array_length = EI_INIT;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
@@ -362,6 +365,8 @@ static gint *ett[] =
 
 void registerSimpleTypes(int proto)
 {
+    expert_module_t* expert_proto;
+
     static hf_register_info hf[] =
     {
         /* id                                            full name                          abbreviation                                type                display                 strings                 bitmask                                                 blurb HFILL */
@@ -423,8 +428,15 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_status_Historian,                    {"Historian",                       "opcua.statuscode.historian",               FT_UINT16,          BASE_HEX,               VALS(g_historian),      0x0003,                                                 NULL, HFILL}},
     };
 
+    static ei_register_info ei[] = {
+        { &ei_array_length, { "opcua.array.length", PI_UNDECODED, PI_ERROR, "Max array length exceeded", EXPFILL }},
+    };
+
     proto_register_field_array(proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_proto = expert_register_protocol(proto);
+    expert_register_field_array(expert_proto, ei, array_length(ei));
 }
 
 proto_item* parseBoolean(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset, int hfIndex)
@@ -855,9 +867,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
 
             if (ArrayDimensions > MAX_ARRAY_LEN)
             {
-                proto_item *pi;
-                pi = proto_tree_add_text(subtree_2, tvb, iOffset, 4, "ArrayDimensions length %d too large to process", ArrayDimensions);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_tree_add_expert_format(subtree_2, pinfo, &ei_array_length, tvb, iOffset, 4, "ArrayDimensions length %d too large to process", ArrayDimensions);
                 return;
             }
 
@@ -924,9 +934,7 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        proto_item *pi;
-        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_tree_add_expert_format(subtree, pinfo, &ei_array_length, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
         return;
     }
 
@@ -959,9 +967,7 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        proto_item *pi;
-        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_tree_add_expert_format(subtree, pinfo, &ei_array_length, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
         return;
     }
 
@@ -990,9 +996,7 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        proto_item *pi;
-        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_tree_add_expert_format(subtree, pinfo, &ei_array_length, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
         return;
     }
 
