@@ -7862,7 +7862,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 
 	/* As noted above, we currently only produce a bitmap if the crumbs span less than 4 octets of the tvb.
 	   It would be a useful enhancement to eliminate this restriction. */
-	if (mask_greatest_bit_offset <= 32) {
+	if (mask_greatest_bit_offset > 0 && mask_greatest_bit_offset <= 32) {
 		other_decode_bitfield_value(bf_str,
 					    (guint32)(composite_bitmap  >> (64 - mask_greatest_bit_offset)),
 					    (guint32)(composite_bitmask >> (64 - mask_greatest_bit_offset)),
