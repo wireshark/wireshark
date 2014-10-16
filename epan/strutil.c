@@ -594,14 +594,14 @@ gboolean
 hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar **endptr,
                           const guint encoding, const gboolean fail_if_partial)
 {
-    gchar c, d;
+    gint8 c, d;
     guint8 val;
     const gchar *end = hex_str;
     gboolean retval = FALSE;
     gchar sep = -1;
 
     /* a map from ASCII hex chars to their value */
-    static const gchar str_to_nibble[256] = {
+    static const gint8 str_to_nibble[256] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -630,14 +630,14 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
         sep = get_valid_byte_sep(*(end+2), encoding);
 
         while (*end) {
-            c = str_to_nibble[(int)*end];
+            c = str_to_nibble[(guchar)*end];
             if (c < 0) {
                 if (fail_if_partial) retval = FALSE;
                 break;
             }
             ++end;
 
-            d = str_to_nibble[(int)*end];
+            d = str_to_nibble[(guchar)*end];
             if (d < 0) {
                 if (fail_if_partial) retval = FALSE;
                 break;

@@ -526,9 +526,9 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
     luaL_Buffer b;
     guint i = 0;
     guint seplen = 0;
-    char c, d;
+    gint8 c, d;
 
-    static const char str_to_nibble[256] = {
+    static const gint8 str_to_nibble[256] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -552,7 +552,7 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
     luaL_buffinit(L, &b);
 
     for (i = 0; i < len;) {
-        c = str_to_nibble[(int)data[i]];
+        c = str_to_nibble[(guchar)data[i]];
         if (c < 0) {
             if (seplen && strncmp(&data[i], sep, seplen) == 0) {
                 i += seplen;
@@ -561,7 +561,7 @@ int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* 
                 break;
             }
         }
-        d = str_to_nibble[(int)data[++i]];
+        d = str_to_nibble[(guchar)data[++i]];
         if (d < 0) break;
         luaL_addchar(&b, (c * 16) + d);
         i++;
