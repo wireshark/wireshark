@@ -502,7 +502,6 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
                                  int *err, gchar **err_info)
 {
     int     bytes_read;
-    guint   block_read;
     guint to_read, opt_cont_buf_len;
     pcapng_section_header_block_t shb;
     pcapng_option_header_t oh;
@@ -525,7 +524,6 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         }
         return PCAPNG_BLOCK_ERROR;
     }
-    block_read = (guint)sizeof shb;
 
     /* is the magic number one we expect? */
     switch (shb.magic) {
@@ -633,7 +631,6 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             pcapng_debug0("pcapng_read_section_header_block: failed to read option");
             return PCAPNG_BLOCK_ERROR;
         }
-        block_read += bytes_read;
         to_read -= bytes_read;
 
         /* handle option content */
@@ -701,7 +698,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     guint64 time_units_per_second = 1000000; /* default = 10^6 */
     int     tsprecision = WTAP_TSPREC_USEC;
     int     bytes_read;
-    guint   block_read;
     guint to_read, opt_cont_buf_len;
     pcapng_interface_description_block_t idb;
     pcapng_option_header_t oh;
@@ -740,7 +736,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         pcapng_debug0("pcapng_read_if_descr_block: failed to read IDB");
         return FALSE;
     }
-    block_read = (guint)sizeof idb;
 
     /* mandatory values */
     if (pn->byte_swapped) {
@@ -806,7 +801,6 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             pcapng_debug0("pcapng_read_if_descr_block: failed to read option");
             return FALSE;
         }
-        block_read += bytes_read;
         to_read -= bytes_read;
 
         /* handle option content */
