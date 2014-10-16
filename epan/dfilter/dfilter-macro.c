@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
 
 #include "dfilter-int.h"
@@ -288,7 +287,7 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 				}
 				break;
 			} case NAME: {
-				if ( isalnum((int)c) || c == '_' || c == '-' || c == '.' ) {
+				if ( g_ascii_isalnum(c) || c == '_' || c == '-' || c == '.' ) {
 					g_string_append_c(name,c);
 				} else if ( c == ':') {
 					state = ARGS;
@@ -588,7 +587,7 @@ static gboolean macro_name_chk(void* r _U_, const char* in_name, guint name_len,
 	}
 
 	for (i=0; i < name_len; i++) {
-		if (!(in_name[i] == '_' || isalnum((guchar)in_name[i]) ) ) {
+		if (!(in_name[i] == '_' || g_ascii_isalnum(in_name[i]) ) ) {
 			*error = "invalid char in name";
 			return FALSE;
 		}
