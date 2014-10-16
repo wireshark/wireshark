@@ -2065,9 +2065,8 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pn.if_fcslen = -1;
         pn.version_major = -1;
         pn.version_minor = -1;
-        pn.interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
+        pn.interface_data = NULL;
         pn.number_of_interfaces = 0;
-
 
         /* we don't expect any packet blocks yet */
         wblock.frame_buffer = NULL;
@@ -2115,6 +2114,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
         wth->priv = (void *)pcapng;
         *pcapng = pn;
+        pcapng->interfaces = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
 
         wth->subtype_read = pcapng_read;
         wth->subtype_seek_read = pcapng_seek_read;
