@@ -646,7 +646,7 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
             ++end;
 
             /* check for separator and peek at next char to make sure we should keep going */
-            if (sep > 0 && *end == sep && str_to_nibble[(int)*(end+1)] > -1) {
+            if (sep > 0 && *end == sep && str_to_nibble[(guchar)*(end+1)] > -1) {
                 /* yes, it's the right sep and followed by more hex, so skip the sep */
                 ++end;
             } else if (sep != 0 && *end) {
