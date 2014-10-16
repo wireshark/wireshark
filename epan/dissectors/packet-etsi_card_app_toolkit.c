@@ -915,18 +915,18 @@ static const string_string ims_status_code[] = {
 	{ 0, NULL }
 };
 
-#define AID_RFID_ETSI  G_GINT64_CONSTANT(0xA000000009)
-#define AID_RFID_3GPP  G_GINT64_CONSTANT(0xA000000087)
-#define AID_RFID_3GPP2 G_GINT64_CONSTANT(0xA000000343)
-#define AID_RFID_OMA   G_GINT64_CONSTANT(0xA000000412)
-#define AID_RFID_WIMAX G_GINT64_CONSTANT(0xA000000424)
+#define AID_RID_ETSI   G_GINT64_CONSTANT(0xA000000009)
+#define AID_RID_3GPP   G_GINT64_CONSTANT(0xA000000087)
+#define AID_RID_3GPP2  G_GINT64_CONSTANT(0xA000000343)
+#define AID_RID_OMA    G_GINT64_CONSTANT(0xA000000412)
+#define AID_RID_WIMAX  G_GINT64_CONSTANT(0xA000000424)
 
 static const val64_string aid_rid_vals[] = {
-	{ AID_RFID_ETSI, "ETSI"},
-	{ AID_RFID_3GPP, "3GPP"},
-	{ AID_RFID_3GPP2, "3GPP2"},
-	{ AID_RFID_OMA, "OMA"},
-	{ AID_RFID_WIMAX, "WiMAX Forum"},
+	{ AID_RID_ETSI, "ETSI"},
+	{ AID_RID_3GPP, "3GPP"},
+	{ AID_RID_3GPP2, "3GPP2"},
+	{ AID_RID_OMA, "OMA"},
+	{ AID_RID_WIMAX, "WiMAX Forum"},
 	{ 0, NULL}
 };
 
@@ -967,7 +967,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	unsigned int pos = 0;
 	tvbuff_t *new_tvb;
 	gboolean ims_event = FALSE, dns_server = FALSE;
-	guint length = tvb_length(tvb);
+	guint length = tvb_reported_length(tvb);
 	gsm_sms_data_t sms_data;
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
@@ -1228,11 +1228,11 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				guint64 rid = tvb_get_ntoh40(tvb, pos);
 
 				proto_tree_add_uint64(elem_tree, hf_ctlv_aid_rid, tvb, pos, 5, rid);
-				if (rid == AID_RFID_ETSI) {
+				if (rid == AID_RID_ETSI) {
 					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_etsi, tvb, pos+5, 2, ENC_BIG_ENDIAN);
-				} else if (rid == AID_RFID_3GPP) {
+				} else if (rid == AID_RID_3GPP) {
 					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_3gpp, tvb, pos+5, 2, ENC_BIG_ENDIAN);
-				} else if (rid == AID_RFID_3GPP2) {
+				} else if (rid == AID_RID_3GPP2) {
 					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code_3gpp2, tvb, pos+5, 2, ENC_BIG_ENDIAN);
 				} else {
 					proto_tree_add_item(elem_tree, hf_ctlv_aid_pix_app_code, tvb, pos+5, 2, ENC_BIG_ENDIAN);
