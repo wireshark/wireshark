@@ -2035,7 +2035,6 @@ static block_return_val
 pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     block_return_val ret;
-    int block_read;
     pcapng_block_header_t bh;
     guint32 block_total_length;
 
@@ -2060,7 +2059,6 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
         return PCAPNG_BLOCK_ERROR;
     }
 
-    block_read = sizeof bh;
     if (pn->byte_swapped) {
         bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
         bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
