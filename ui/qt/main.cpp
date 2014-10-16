@@ -909,6 +909,9 @@ int main(int argc, char *argv[])
         case 6: /* Japanese */
         locale = "ja_JP";
         break;
+        case 7: /* Italian */
+        locale = "it";
+        break;
         default: /* Auto-Detect */
         locale = QLocale::system().name();
         break;

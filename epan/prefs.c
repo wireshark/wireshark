@@ -1270,6 +1270,7 @@ static const enum_val_t gui_qt_language[] = {
     {"Chinese", "zh_CN", 4},
     {"Polish", "pl", 5},
     {"Japanese", "ja_JP", 6},
+    {"Italian", "it", 7},
     {NULL, NULL, -1}
 };
 
