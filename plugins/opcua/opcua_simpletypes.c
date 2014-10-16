@@ -80,6 +80,7 @@ static int hf_opcua_datavalue_mask_servertimestampflag = -1;
 static int hf_opcua_datavalue_mask_sourcepicoseconds = -1;
 static int hf_opcua_datavalue_mask_serverpicoseconds = -1;
 static int hf_opcua_nodeid_encodingmask = -1;
+static int hf_opcua_expandednodeid_mask = -1;
 static int hf_opcua_expandednodeid_mask_namespaceuri = -1;
 static int hf_opcua_expandednodeid_mask_serverindex = -1;
 static int hf_opcua_variant_encodingmask = -1;
@@ -277,6 +278,7 @@ static gint ett_opcua_diagnosticinfo = -1;
 static gint ett_opcua_diagnosticinfo_encodingmask = -1;
 static gint ett_opcua_nodeid = -1;
 static gint ett_opcua_expandednodeid = -1;
+static gint ett_opcua_expandednodeid_encodingmask = -1;
 static gint ett_opcua_localizedtext = -1;
 static gint ett_opcua_localizedtext_encodingmask = -1;
 static gint ett_opcua_qualifiedname = -1;
@@ -319,6 +321,7 @@ static gint *ett[] =
     &ett_opcua_diagnosticinfo_encodingmask,
     &ett_opcua_nodeid,
     &ett_opcua_expandednodeid,
+    &ett_opcua_expandednodeid_encodingmask,
     &ett_opcua_localizedtext,
     &ett_opcua_localizedtext_encodingmask,
     &ett_opcua_qualifiedname,
@@ -373,12 +376,13 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_loctext_mask,                        {"EncodingMask",                    "opcua.loctext.mask",                       FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_loctext_mask_localeflag,             {"has locale information",          "opcua.loctext.has_locale_information",     FT_BOOLEAN,         8,                      NULL,                   LOCALIZEDTEXT_ENCODINGBYTE_LOCALE,                      NULL, HFILL}},
         {&hf_opcua_loctext_mask_textflag,               {"has text",                        "opcua.loctext.has_text",                   FT_BOOLEAN,         8,                      NULL,                   LOCALIZEDTEXT_ENCODINGBYTE_TEXT,                        NULL, HFILL}},
-        {&hf_opcua_nodeid_encodingmask,                 {"NodeId EncodingMask",             "opcua.nodeid.encodingmask",                FT_UINT8,           BASE_HEX,               VALS(g_nodeidmasks),    0x0F,                                                   NULL, HFILL}},
-        {&hf_opcua_nodeid_nsindex,                      {"NodeId Namespace Index",          "opcua.nodeid.nsindex",                     FT_UINT16,          BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
-        {&hf_opcua_nodeid_numeric,                      {"NodeId Identifier Numeric",       "opcua.nodeid.numeric",                     FT_UINT32,          BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
-        {&hf_opcua_nodeid_string,                       {"NodeId Identifier String",        "opcua.nodeid.string",                      FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
-        {&hf_opcua_nodeid_guid,                         {"NodeId Identifier Guid",          "opcua.nodeid.guid",                        FT_GUID,            BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
-        {&hf_opcua_nodeid_bytestring,                   {"NodeId Identifier ByteString",    "opcua.nodeid.bytestring",                  FT_BYTES,           BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeid_encodingmask,                 {"EncodingMask",                    "opcua.nodeid.encodingmask",                FT_UINT8,           BASE_HEX,               VALS(g_nodeidmasks),    0x0F,                                                   NULL, HFILL}},
+        {&hf_opcua_nodeid_nsindex,                      {"Namespace Index",                 "opcua.nodeid.nsindex",                     FT_UINT16,          BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeid_numeric,                      {"Identifier Numeric",              "opcua.nodeid.numeric",                     FT_UINT32,          BASE_DEC,               NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeid_string,                       {"Identifier String",               "opcua.nodeid.string",                      FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeid_guid,                         {"Identifier Guid",                 "opcua.nodeid.guid",                        FT_GUID,            BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeid_bytestring,                   {"Identifier ByteString",           "opcua.nodeid.bytestring",                  FT_BYTES,           BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_expandednodeid_mask,                 {"EncodingMask",                    "opcua.expandednodeid.mask",                FT_UINT8,           BASE_HEX,               NULL,                   0x0,                                                    NULL, HFILL}},
         {&hf_opcua_expandednodeid_mask_namespaceuri,    {"has namespace uri",               "opcua.expandednodeid.has_namespace_uri",   FT_BOOLEAN,         8,                      NULL,                   NODEID_NAMESPACEURIFLAG,                                NULL, HFILL}},
         {&hf_opcua_expandednodeid_mask_serverindex,     {"has server index",                "opcua.expandednodeid.has_server_index",    FT_BOOLEAN,         8,                      NULL,                   NODEID_SERVERINDEXFLAG,                                 NULL, HFILL}},
         {&hf_opcua_localizedtext_locale,                {"Locale",                          "opcua.loctext.Locale",                     FT_STRING,          BASE_NONE,              NULL,                   0x0,                                                    NULL, HFILL}},
@@ -1087,6 +1091,11 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
+    static const int *expandednodeid_mask[] = {&hf_opcua_nodeid_encodingmask,
+                                               &hf_opcua_expandednodeid_mask_namespaceuri,
+                                               &hf_opcua_expandednodeid_mask_serverindex,
+                                               NULL};
+
     proto_item *ti;
     proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1,
                 ett_opcua_expandednodeid, &ti, "%s: ExpandedNodeId", szFieldName);
@@ -1094,9 +1103,7 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
     guint8  EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(subtree, hf_opcua_expandednodeid_mask_namespaceuri, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(subtree, hf_opcua_expandednodeid_mask_serverindex, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_expandednodeid_mask, ett_opcua_expandednodeid_encodingmask, expandednodeid_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     switch(EncodingMask & 0x0F)
