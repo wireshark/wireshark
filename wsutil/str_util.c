@@ -27,8 +27,6 @@
 #include <glib.h>
 #include "str_util.h"
 
-#include <ctype.h>
-
 /* Convert all ASCII letters to lower case, in place. */
 gchar *
 ascii_strdown_inplace(gchar *str)
@@ -79,7 +77,7 @@ isdigit_string(guchar *str)
 
 	/* Loop until we reach the end of the string (a null) */
 	for(pos = 0; str[pos] != '\0'; pos++){
-		if(!isdigit(str[pos])){
+		if(!g_ascii_isdigit(str[pos])){
 			/* The string contains a non-digit character */
 			return FALSE;
 		}
