@@ -260,17 +260,19 @@ static value_string_ext asnd_cid_vals_ext = VALUE_STRING_EXT_INIT(asnd_cid_vals)
 /* MAX Frame offset */
 #define EPL_MAX_FRAME_OFFSET  0x64
 
-typedef struct _epl_sdo_duplication{
-	guint32 sequence[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
-	guint32 duplication[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
-	guint32 frame[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
-}epl_sdo_duplication;
+/* duplication table key */
+typedef struct {
+	guint8 src;
+	guint8 dest;
+	guint8 seq_send;
+	guint8 seq_recv;
+} duplication_key;
 
-typedef struct{
+/* duplication table value */
+typedef struct {
 	guint32 frame;
-}epl_sdo_frame_ref;
+} duplication_data;
 
-static epl_sdo_duplication epl_asnd_sdo_duplication;
 static guint32 ct = 0;
 static guint32 count = 0;
 
@@ -1299,12 +1301,139 @@ static dissector_handle_t epl_handle;
 static gint ett_epl_asnd_sdo_data_reassembled = -1;
 
 static reassembly_table epl_reassembly_table;
+static GHashTable *epl_duplication_table = NULL;
+
+/* epl duplication table hash function */
+static guint
+epl_duplication_hash(gconstpointer k)
+{
+	duplication_key *key = (duplication_key*)k;
+	guint hash;
+
+	hash = ((key->src)<<24) | ((key->dest)<<16)|
+		((key->seq_recv)<<8)|(key->seq_send);
+
+	return hash;
+}
+
+/* epl duplication table equal function */
+static gint
+epl_duplication_equal(gconstpointer k1, gconstpointer k2)
+{
+	duplication_key *key1 = (duplication_key*)k1;
+	duplication_key *key2 = (duplication_key*)k2;
+	gint hash;
+
+	hash = (key1->src == key2->src)&&(key1->dest == key2->dest)&&
+		(key1->seq_recv == key2->seq_recv)&&(key1->seq_send == key2->seq_send);
+
+	return hash;
+}
+
+/* free the permanent key */
+void
+free_key(gpointer ptr)
+{
+	duplication_key *key = (duplication_key *)ptr;
+
+	if(key)
+		g_slice_free(duplication_key, key);
+}
+
+/* removes the table entries of a specific transfer */
+void
+epl_duplication_remove(GHashTable* table, guint8 src, guint8 dest)
+{
+	GHashTableIter iter;
+	gpointer pkey, pvalue;
+	duplication_key *key;
+
+	g_hash_table_iter_init(&iter, table);
+
+	while(g_hash_table_iter_next(&iter, &pkey, &pvalue))
+	{
+		key = (duplication_key *)pkey;
+
+		if((src == key->src) && (dest == key->dest))
+		{
+			/* remove the key + value from the hash table */
+			g_hash_table_iter_remove(&iter);
+		}
+	}
+}
+
+/* insert function */
+void
+epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
+{
+	duplication_data *data = NULL;
+	duplication_key *key = NULL;
+	gpointer *pkey = NULL;
+	gpointer pdata;
+
+	/* check if the values are stored */
+	if(g_hash_table_lookup_extended(table,ptr,pkey,&pdata))
+	{
+			/* it happened that pkey was NULL
+			to prevent a crash this if was created */
+			if(pkey != NULL)
+			{
+				data = (duplication_data *)pdata;
+				data->frame = frame;
+				g_hash_table_insert(table, pkey, data);
+			}
+	}
+	/* insert the data struct into the table */
+	else
+	{
+		key = (duplication_key *)g_memdup(ptr,sizeof(duplication_key));
+		/* create memory */
+		data = (duplication_data *)g_malloc0(sizeof(duplication_data));
+		data->frame = frame;
+		g_hash_table_insert(table,(gpointer)key, data);
+	}
+}
+
+/* create a key*/
+gpointer
+epl_duplication_key(guint8 src, guint8 dest, guint8 seq_recv, guint8 seq_send)
+{
+	duplication_key *key = g_slice_new(duplication_key);
+
+	key->src = src;
+	key->dest = dest;
+	key->seq_recv = seq_recv;
+	key->seq_send = seq_send;
+
+	return (gpointer)key;
+}
+
+/* get the saved data */
+guint32
+epl_duplication_get(GHashTable* table, gpointer ptr)
+{
+	duplication_data *data = NULL;
+	gpointer *pkey = NULL;
+	gpointer pdata;
+
+	if(g_hash_table_lookup_extended(table,ptr,pkey,&pdata))
+	{
+		data = (duplication_data *)pdata;
+		if(data->frame == 0x00)
+			return 0x00;
+	}
+	if(data != NULL)
+		return data->frame;
+	else
+		return 0x00;
+}
 
 static void
 setup_dissector(void)
 {
-	/* create memory block for duplication*/
-	memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+	/* init duplication hash table */
+	epl_duplication_table = g_hash_table_new(epl_duplication_hash, epl_duplication_equal);
+
 	/* create memory block for uploda/download */
 	memset(&epl_asnd_sdo_reassembly_write, 0, sizeof(epl_sdo_reassembly));
 	memset(&epl_asnd_sdo_reassembly_read, 0, sizeof(epl_sdo_reassembly));
@@ -2226,7 +2355,8 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	proto_tree *sod_seq_tree;
 	proto_item *item;
 	guint8 duplication = 0x00;
-	epl_sdo_frame_ref *frame_ref = NULL;
+	gpointer key;
+	guint32 saved_frame;
 
 	/* read buffer */
 	seq_recv = tvb_get_guint8(tvb, offset);
@@ -2245,20 +2375,21 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	/* get the current frame-number */
 	frame = pinfo->fd->num;
 
-	/* get frame_ref */
-	frame_ref = (epl_sdo_frame_ref *)p_get_proto_data(wmem_file_scope(), pinfo,proto_epl,frame);
-	/* if the frame is opened the first time create a new memory block */
-	if(!frame_ref)
-		frame_ref = (epl_sdo_frame_ref *)wmem_new0(wmem_file_scope(), epl_sdo_frame_ref);
+	/* Create a key */
+	key = epl_duplication_key(epl_segmentation.src,epl_segmentation.dest,seq_recv,seq_send);
+
+	/* Get the saved data */
+	saved_frame = epl_duplication_get(epl_duplication_table, key);
 
 	/* clear array at the start Sequence */
 	if((rcon < EPL_VALID && scon < EPL_VALID)
 		||(rcon == EPL_VALID && scon < EPL_VALID)
 		||(rcon < EPL_VALID && scon == EPL_VALID))
 	{
-		/* reset memory block */
-		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
-		duplication = 0x00;
+		/* remove all the keys of the specified src and dest address*/
+		epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
+		/* There is no cmd layer */
+		pinfo->fd->subnum = 0x02;
 	}
 	/* if cooked/fuzzed capture*/
 	else if(seq_recv >= EPL_MAX_SEQUENCE || seq_send >= EPL_MAX_SEQUENCE
@@ -2288,89 +2419,49 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 		/* if retransmission request or connection valid with acknowledge request */
 		if((rcon == EPL_VALID && scon == EPL_RETRANSMISSION) || (rcon == EPL_RETRANSMISSION && scon == EPL_VALID))
 		{
-			epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
-			epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+			/* replace the saved frame with the new frame */
+			epl_duplication_insert(epl_duplication_table, key, frame);
 		}
-		/* if connection valid*/
+		/* if connection valid */
 		else
 		{
-			/* for a filter to prevent false detection of duplicated frames add
-			100 frames to the saved frame, in this time retransmission can occur,
-			if the frame is bigger, then no retransmission occurs.
-			--------------------------------------------------------------------
-			if the saved frame is bigger than the current frame save the frame
-			and reset duplication value. */
-			if(((frame > (epl_asnd_sdo_duplication.frame[seq_recv][seq_send] + EPL_MAX_FRAME_OFFSET))
-				||(epl_asnd_sdo_duplication.frame[seq_recv][seq_send] > frame))
-				&& epl_asnd_sdo_duplication.frame[seq_recv][seq_send] != 0x00)
+			/* store the new frame in the hash table */
+			if(saved_frame == 0x00)
 			{
-				epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+				/* store the new frame in the hash table */
+				epl_duplication_insert(epl_duplication_table,key,frame);
 			}
-			/* if the frame is the same as the saved frame reset the value */
-			if((frame == epl_asnd_sdo_duplication.frame[seq_recv][seq_send])
-				&&(epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] == 0x01))
+			/* if the frame is bigger than the stored frame + the max frame offset
+			   or the saved frame is bigger that the current frame then store the current
+			   frame */
+			else if(((frame > (saved_frame + EPL_MAX_FRAME_OFFSET))
+				||(saved_frame > frame)))
 			{
-				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+				/* store the new frame in the hash table */
+				epl_duplication_insert(epl_duplication_table,key,frame);
 			}
-			else
-				epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] = 0x01;
-
-			/* if the frame is a duplicated frame */
-			if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] == epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
+			else if((frame < (saved_frame + EPL_MAX_FRAME_OFFSET))
+				&&(frame > saved_frame))
 			{
-				/* if the frame has no frame reference */
-				if(frame_ref->frame == 0x00)
-				{
-					duplication = 0x01;
-					/* store the frame with the first occurrence of this SequenceNumber
-					 in the frame_ref_num */
-					frame_ref->frame = epl_asnd_sdo_duplication.frame[seq_recv][seq_send];
-				}
-				/* if the frame has a reference */
-				else if(frame_ref->frame != frame)
-				{
-					duplication = 0x01;
-				}
-			}
-			/* if stored values are not equal */
-			else if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] != epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
-			{
-				/* if the frame has no frame_ref_num */
-				if(frame_ref->frame == 0x00)
-				{
-					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
-					/* save the frame number */
-					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-					/* save the frame as a reference for possible duplicated frames */
-					frame_ref->frame = frame;
-				}
-				/* if the frame is in the frame_ref_num */
-				else if(frame_ref->frame == frame)
-				{
-					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
-					/* save the frame number */
-					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
-				}
+				duplication = 0x01;
 			}
 		}
 	}
 	/* if the frame is a duplicated frame */
-	if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum != 0x00))
+	if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum == 0x01))
 	{
 		pinfo->fd->subnum = 0x01;
 		expert_add_info_format(pinfo, epl_tree, &ei_duplicated_frame,
 			"Duplication of Frame: %d ReceiveSequenceNumber: %d and SendSequenceNumber: %d ",
-			frame_ref->frame,seq_recv,seq_send );
+			saved_frame,seq_recv,seq_send );
 	}
 	/* if the last frame in the ReceiveSequence is sent get new memory */
 	if(seq_recv == 0x3f && seq_send <= 0x3f)
 	{
-		/* reset memory block */
-		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+		/* reset all entries of the transfer */
+		epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
 	}
-
-	p_add_proto_data(wmem_file_scope(), pinfo,proto_epl,frame,frame_ref);
+	free_key(key);
 	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
 	sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
 	/* Asynchronuous SDO Sequence Layer */
