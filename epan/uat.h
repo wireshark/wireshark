@@ -357,7 +357,7 @@ CHK_STR_IS_DECL(isxdigit);
 gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
-			if (! what((int)c)) { \
+			if (! g_ascii_ ## what(c)) { \
 				*err = ep_strdup_printf("invalid char pos=%d value=%.2x",i,c); return FALSE;  } } \
 		*err = NULL; return TRUE; }
 

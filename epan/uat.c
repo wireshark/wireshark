@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <ctype.h>
 #include <stdarg.h>
 
 #include <glib.h>
@@ -475,7 +474,7 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, guint len, const void
     }
 
     for(i = 0; i < len; i++)
-      if(!(isdigit(strptr[i]) || strptr[i] == '.')) {
+      if(!(g_ascii_isdigit(strptr[i]) || strptr[i] == '.')) {
         *err = "Only digits [0-9] and \".\" allowed in an OID";
         break;
       }
@@ -659,7 +658,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
                         char c1 = *(s+1);
                         char c0 = *(s+2);
 
-                        if (isxdigit((guchar)c1) && isxdigit((guchar)c0)) {
+                        if (g_ascii_isxdigit(c1) && g_ascii_isxdigit(c0)) {
                             *(p++) = (ws_xton(c1) * 0x10) + ws_xton(c0);
                             s += 2;
                         } else {
