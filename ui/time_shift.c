@@ -25,7 +25,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <math.h>
 
 #include <glib.h>
@@ -138,7 +137,7 @@ time_string_parse(const gchar *time_text, int *year, int *month, int *day, gbool
         return "Unable to convert time.";
 
     /* strip whitespace */
-    while (isspace(pts[0]))
+    while (g_ascii_isspace(pts[0]))
         ++pts;
 
     if (year && month && day) {

@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
 
 #include <epan/epan.h>
@@ -1034,7 +1033,7 @@ recent_set_arg(char *prefarg)
 	 * as we allow it in the preferences file, we might as well
 	 * allow it here).
 	 */
-	while (isspace((guchar)*p))
+	while (g_ascii_isspace(*p))
 		p++;
 	if (*p == '\0') {
 		/*
