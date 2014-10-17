@@ -77,7 +77,6 @@
 
 
 #include <assert.h>
-#include <ctype.h>
 #include <limits.h>
 #include <stddef.h>
 #include <string.h>
@@ -212,13 +211,13 @@ typedef struct Header {
 
 /* For options that take a number argument, gets the number  */
 static int getnum (const gchar **fmt, int df) {
-  if (!isdigit(**fmt))  /* no number? */
+  if (!g_ascii_isdigit(**fmt))  /* no number? */
     return df;  /* return default value */
   else {
     int a = 0;
     do {
       a = a*10 + *((*fmt)++) - '0';
-    } while (isdigit(**fmt));
+    } while (g_ascii_isdigit(**fmt));
     return a;
   }
 }
@@ -484,7 +483,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
     switch (opt) {
       case 'b': case 'B': case 'h': case 'H':
       case 'l': case 'L': case 'T': case 'i':  case 'I': {  /* integer types */
-        int issigned = islower(opt);
+        int issigned = g_ascii_islower(opt);
         lua_Number res = getinteger(data+pos, h.endian, issigned, (int)size);
         lua_pushnumber(L, res);
         break;
@@ -563,7 +562,7 @@ WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
       luaL_argerror(L, 1, "option 's' has no fixed size");
     else if (opt == 'c' && size == 0)
       luaL_argerror(L, 1, "option 'c0' has no fixed size");
-    if (!isalnum(opt))
+    if (!g_ascii_isalnum(opt))
       controloptions(L, opt, &fmt, &h);
     pos += size;
   }
@@ -599,7 +598,7 @@ WSLUA_CONSTRUCTOR Struct_values (lua_State *L) {
       default:
         break;
     }
-    if (!isalnum(opt))
+    if (!g_ascii_isalnum(opt))
       controloptions(L, opt, &fmt, &h);
     else if (size && !h.noassign)
       vals++;
