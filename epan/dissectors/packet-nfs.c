@@ -384,8 +384,10 @@ static int hf_nfs4_specdata1 = -1;
 static int hf_nfs4_specdata2 = -1;
 static int hf_nfs4_lock_type = -1;
 static int hf_nfs4_open_rflags = -1;
-static int hf_nfs4_open_rflags_mlock = -1;
 static int hf_nfs4_open_rflags_confirm = -1;
+static int hf_nfs4_open_rflags_locktype_posix = -1;
+static int hf_nfs4_open_rflags_preserve_unlinked = -1;
+static int hf_nfs4_open_rflags_may_notify_lock = -1;
 static int hf_nfs4_reclaim = -1;
 static int hf_nfs4_length = -1;
 static int hf_nfs4_changeid = -1;
@@ -7833,30 +7835,25 @@ dissect_nfs4_lockdenied(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static const value_string names_open4_result_flags[] = {
-#define OPEN4_RESULT_MLOCK 0x00000001
-	{ OPEN4_RESULT_MLOCK, "OPEN4_RESULT_MLOCK" },
-#define OPEN4_RESULT_CONFIRM 0x00000002
-	{ OPEN4_RESULT_CONFIRM, "OPEN4_RESULT_CONFIRM" },
-#define OPEN4_RESULT_LOCKTYPE_POSIX 0x00000004
-	{ OPEN4_RESULT_LOCKTYPE_POSIX, "OPEN4_RESULT_LOCKTYPE_POSIX" },
-	{ 0, NULL }
+#define OPEN4_RESULT_CONFIRM		0x00000002
+#define OPEN4_RESULT_LOCKTYPE_POSIX	0x00000004
+#define OPEN4_RESULT_PRESERVE_UNLINKED	0x00000008
+#define OPEN4_RESULT_MAY_NOTIFY_LOCK	0x00000020
+
+static const int *open4_result_flag_fields[] = {
+	&hf_nfs4_open_rflags_confirm,
+	&hf_nfs4_open_rflags_locktype_posix,
+	&hf_nfs4_open_rflags_preserve_unlinked,
+	&hf_nfs4_open_rflags_may_notify_lock,
+	NULL
 };
 
 static int
 dissect_nfs4_open_rflags(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	if (tree)
-	{
-		proto_item *rflags_item;
-		proto_item *rflags_tree;
-
-		rflags_item = proto_tree_add_item(tree, hf_nfs4_open_rflags, tvb, offset, 4, ENC_BIG_ENDIAN);
-		rflags_tree = proto_item_add_subtree(rflags_item, ett_nfs4_open_result_flags);
-		proto_tree_add_item(rflags_tree, hf_nfs4_open_rflags_mlock, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rflags_tree, hf_nfs4_open_rflags_confirm, tvb, offset, 4, ENC_BIG_ENDIAN);
-	}
-
+		proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_open_rflags,
+			ett_nfs4_open_result_flags, open4_result_flag_fields, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -11180,16 +11177,28 @@ proto_register_nfs(void)
 			VALS(names_nfs_lock_type4), 0, NULL, HFILL }},
 
 		{ &hf_nfs4_open_rflags, {
-			"results_flags", "nfs.open_rflags", FT_UINT32, BASE_HEX,
-			VALS(names_nfs_lock_type4), 0, NULL, HFILL }},
-
-		{ &hf_nfs4_open_rflags_mlock, {
-			"mlock", "nfs.open_rflags.mlock", FT_UINT32, BASE_DEC,
-			VALS(names_open4_result_flags), OPEN4_RESULT_MLOCK, NULL, HFILL }},
+			"result flags", "nfs.open_rflags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_open_rflags_confirm, {
-			"confirm", "nfs.open_rflags.confirm", FT_UINT32, BASE_DEC,
-			VALS(names_open4_result_flags), OPEN4_RESULT_CONFIRM, NULL, HFILL }},
+			"confirm", "nfs.open_rflags.confirm",
+			FT_BOOLEAN, 32,
+			NULL, OPEN4_RESULT_CONFIRM, NULL, HFILL }},
+
+		{ &hf_nfs4_open_rflags_locktype_posix, {
+			"locktype posix", "nfs.open_rflags.locktype_posix",
+			FT_BOOLEAN, 32,
+			NULL, OPEN4_RESULT_LOCKTYPE_POSIX, NULL, HFILL }},
+
+		{ &hf_nfs4_open_rflags_preserve_unlinked, {
+			"preserve unlinked", "nfs.open_rflags.preserve_unlinked",
+			FT_BOOLEAN, 32,
+			NULL, OPEN4_RESULT_PRESERVE_UNLINKED, NULL, HFILL }},
+
+		{ &hf_nfs4_open_rflags_may_notify_lock, {
+			"may notify lock", "nfs.open_rflags.may_notify_lock",
+			FT_BOOLEAN, 32,
+			NULL, OPEN4_RESULT_MAY_NOTIFY_LOCK, NULL, HFILL }},
 
 		{ &hf_nfs4_reclaim, {
 			"reclaim", "nfs.reclaim4", FT_BOOLEAN, BASE_NONE,
