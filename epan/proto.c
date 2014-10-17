@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <glib.h>
 #include <float.h>
 #include <errno.h>
@@ -4824,7 +4823,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	const char *existing_name;
 	gint *key;
 	guint i;
-	guchar c;
+	gchar c;
 	gboolean found_invalid;
 
 	/*
@@ -4863,7 +4862,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	found_invalid = FALSE;
 	for (i = 0; filter_name[i]; i++) {
 		c = filter_name[i];
-		if (!(islower(c) || isdigit(c) || c == '-' || c == '_' || c == '.')) {
+		if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '-' || c == '_' || c == '.')) {
 			found_invalid = TRUE;
 		}
 	}
