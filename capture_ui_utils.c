@@ -490,7 +490,7 @@ get_if_name(const char *if_text)
         * Unfortunately, another colon can be used in "rpcap://host:port/"
         * before port. Check if colon is followed by digit.
         */
-       if ((strncmp(if_name, "://", 3) != 0) && !isdigit(if_name[1])) {
+       if ((strncmp(if_name, "://", 3) != 0) && !g_ascii_isdigit(if_name[1])) {
          /*
           * OK, we've found a colon followed neither by "//" nor by digit.  
           * Skip blanks following it.
