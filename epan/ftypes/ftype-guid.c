@@ -22,7 +22,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <ftypes-int.h>
 #include <epan/guid-utils.h>
@@ -53,7 +52,7 @@ get_guid(const char *s, e_guid_t *guid)
         return FALSE;
     for (i=0; i<n; i++) {
         if (fmt[i] == 'X') {
-            if (!isxdigit((guchar)s[i]))
+            if (!g_ascii_isxdigit(s[i]))
                 return FALSE;
         } else {
             if (s[i] != fmt[i])

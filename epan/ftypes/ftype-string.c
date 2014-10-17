@@ -27,7 +27,6 @@
 
 #define CMP_MATCHES cmp_matches
 
-#include <ctype.h>
 #include <strutil.h>
 
 static void
