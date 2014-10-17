@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
 
 #include <glib.h>
@@ -55,7 +54,7 @@ persfilepath_opt(int opt _U_, const char *optstr)
     * as we allow it in the preferences file, we might as well
     * allow it here).
     */
-    while (isspace((guchar)*p))
+    while (g_ascii_isspace(*p))
         p++;
     if (*p == '\0') {
         /*
