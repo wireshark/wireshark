@@ -506,6 +506,20 @@ if (g_s1ap_dissect_container) {
    }
 
 
+#.FN_BODY Cdma2000PDU VAL_PTR = &parameter_tvb
+
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree = NULL;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+if (gcsna_handle) {
+        subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_Cdma2000PDU);
+        call_dissector(gcsna_handle, parameter_tvb, %(ACTX)s->pinfo, subtree);
+}
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
 

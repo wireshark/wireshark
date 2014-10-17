@@ -81,6 +81,7 @@ static int ett_s1ap_ToSourceTransparentContainer = -1;
 static int ett_s1ap_RRCContainer = -1;
 static int ett_s1ap_UERadioCapability = -1;
 static int ett_s1ap_RIMInformation = -1;
+static int ett_s1ap_Cdma2000PDU = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -98,6 +99,8 @@ static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static guint32 handover_type_value;
 static guint32 message_type;
 static gboolean g_s1ap_dissect_container = TRUE;
+
+static dissector_handle_t gcsna_handle = NULL;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -191,6 +194,7 @@ proto_reg_handoff_s1ap(void)
 	static guint SctpPort;
 
 	s1ap_handle = find_dissector("s1ap");
+    gcsna_handle = find_dissector("gcsna");
 
 	if (!Initialized) {
 		nas_eps_handle = find_dissector("nas-eps");
@@ -239,6 +243,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_RRCContainer,
 		  &ett_s1ap_UERadioCapability,
 		  &ett_s1ap_RIMInformation,
+          &ett_s1ap_Cdma2000PDU,
 #include "packet-s1ap-ettarr.c"
   };
 
