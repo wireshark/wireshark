@@ -257,7 +257,7 @@ daintree_sna_hex_char(guchar *str, int *err _U_) {
 	bytes = 0;
 	/* convert hex string to guint8 */
 	while(*str) {
-		if (!isxdigit((guchar)*str)) return 0;
+		if (!g_ascii_isxdigit(*str)) return 0;
 		/* most significant nibble */
 		if(g_ascii_isdigit(*str)) {
 			*p = (*str - '0') << 4;
@@ -266,7 +266,7 @@ daintree_sna_hex_char(guchar *str, int *err _U_) {
 		}
 		str++;
 
-		if (!isxdigit((guchar)*str)) return 0;
+		if (!g_ascii_isxdigit(*str)) return 0;
 		/* least significant nibble */
 		if(g_ascii_isdigit((guchar)*str)) {
 			*p += *str - '0';
