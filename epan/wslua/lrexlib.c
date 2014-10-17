@@ -29,9 +29,16 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+ * Modified to use the g_ascii_isXXX() routines instead of
+ * the ctype.h isXXX() routines, to avoid locale dependency
+ * and to handle possibly-signed chars.
+ */
+
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <glib.h>
+
 #include "lua.h"
 #include "lauxlib.h"
 #include "lrexlib.h"
@@ -240,7 +247,7 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
       bufferZ_addlstring (BufRep, p, q - p);
     if (q < end) {
       if (++q < end) {  /* skip % */
-        if (isdigit (*q)) {
+        if (g_ascii_isdigit (*q)) {
           int num;
           *dbuf = *q;
           num = (int) strtol (dbuf, NULL, 10);
