@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* This module reads the output of the various VMS TCPIP trace utilities
  * such as TCPIPTRACE, TCPTRACE and UCX$TRACE
@@ -323,12 +322,12 @@ isdumpline( gchar *line )
 {
     int i, j;
 
-    while (*line && !isalnum((guchar)*line))
+    while (*line && !g_ascii_isalnum(*line))
 	line++;
 
     for (j=0; j<4; j++) {
 	for (i=0; i<8; i++, line++)
-	    if (! isxdigit((guchar)*line))
+	    if (! g_ascii_isxdigit(*line))
 		return FALSE;
 
 	for (i=0; i<3; i++, line++)
@@ -336,7 +335,7 @@ isdumpline( gchar *line )
 		return FALSE;
     }
 
-    return isspace((guchar)*line);
+    return g_ascii_isspace(*line);
 }
 
 /* Parses a packet record header. */
@@ -399,7 +398,7 @@ parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_inf
 	}
         if ( (! pkt_len) && (p = strstr(line, "Length"))) {
             p += sizeof("Length ");
-            while (*p && ! isdigit((guchar)*p))
+            while (*p && ! g_ascii_isdigit(*p))
                 p++;
 
             if ( !*p ) {
@@ -457,7 +456,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 		}
 		line[VMS_LINE_LENGTH] = '\0';
 	    }
-            while (line[offset] && !isxdigit((guchar)line[offset]))
+            while (line[offset] && !g_ascii_isxdigit(line[offset]))
                 offset++;
 	}
 	if (!parse_single_hex_dump_line(line, buf, i,

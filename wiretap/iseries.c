@@ -159,7 +159,6 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
 
 #include <wsutil/str_util.h>
@@ -541,7 +540,7 @@ append_hex_digits(char *ascii_buf, int ascii_offset, int max_offset,
             {
               goto done;
             }
-          if (!isxdigit(c) || islower(c))
+          if (!g_ascii_isxdigit(c) || g_ascii_islower(c))
             {
               /*
                * Not a hex digit, or a lower-case hex digit.
@@ -755,7 +754,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /*
        * Skip leading white space.
        */
-      for (offset = 0; isspace((guchar)data[offset]); offset++)
+      for (offset = 0; g_ascii_isspace(data[offset]); offset++)
         ;
 
       /*

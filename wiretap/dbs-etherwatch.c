@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* This module reads the text output of the 'DBS-ETHERTRACE' command in VMS
  * It was initially based on vms.c.
@@ -356,7 +355,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	 * 'HEX' character
 	 */
 	p = line;
-	while(!isxdigit((guchar)*p)) {
+	while(!g_ascii_isxdigit(*p)) {
 		p++;
 	}
 	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR,
@@ -577,8 +576,8 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 	/* Get the byte_offset directly from the record */
 	value = 0;
 	for(i = 0; i < COUNT_SIZE; i++) {
-		if(!isspace((guchar)rec[pos])) {
-			if(isdigit((guchar)rec[pos])) {
+		if(!g_ascii_isspace(rec[pos])) {
+			if(g_ascii_isdigit(rec[pos])) {
 				value *= 10;
 				value += rec[pos] - '0';
 			} else {
@@ -613,21 +612,21 @@ parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
 	count = 0;
 	while(dump[pos] != end) {
 		/* Check the hex value */
-		if(!(isxdigit((guchar)dump[pos]) &&
-		    isxdigit((guchar)dump[pos + 1]))) {
+		if(!(g_ascii_isxdigit(dump[pos]) &&
+		    g_ascii_isxdigit(dump[pos + 1]))) {
 			return 0;
 		}
 		/* Get the hex value value */
-		if(isdigit((guchar)dump[pos])) {
+		if(g_ascii_isdigit(dump[pos])) {
 			buf[count] = (dump[pos] - '0') << 4;
 		} else {
-			buf[count] = (toupper(dump[pos]) - 'A' + 10) << 4;
+			buf[count] = (g_ascii_toupper(dump[pos]) - 'A' + 10) << 4;
 		}
 		pos++;
-		if(isdigit((guchar)dump[pos])) {
+		if(g_ascii_isdigit(dump[pos])) {
 			buf[count] += dump[pos] - '0';
 		} else {
-			buf[count] += toupper(dump[pos]) - 'A' + 10;
+			buf[count] += g_ascii_toupper(dump[pos]) - 'A' + 10;
 		}
 		pos++;
 		count++;

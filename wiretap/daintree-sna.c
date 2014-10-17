@@ -53,7 +53,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "wtap.h"
 #include "wtap-int.h"
@@ -260,19 +259,19 @@ daintree_sna_hex_char(guchar *str, int *err _U_) {
 	while(*str) {
 		if (!isxdigit((guchar)*str)) return 0;
 		/* most significant nibble */
-		if(isdigit((guchar)*str)) {
+		if(g_ascii_isdigit(*str)) {
 			*p = (*str - '0') << 4;
 		} else {
-			*p = ((tolower(*str) - 'a') + 10) << 4;
+			*p = ((g_ascii_tolower(*str) - 'a') + 10) << 4;
 		}
 		str++;
 
 		if (!isxdigit((guchar)*str)) return 0;
 		/* least significant nibble */
-		if(isdigit((guchar)*str)) {
+		if(g_ascii_isdigit((guchar)*str)) {
 			*p += *str - '0';
 		} else {
-			*p += (tolower(*str) - 'a') + 10;
+			*p += (g_ascii_tolower(*str) - 'a') + 10;
 		}
 		str++;
 
