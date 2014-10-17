@@ -24,7 +24,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
 
 #ifdef HAVE_UNISTD_H
@@ -112,7 +111,7 @@ skip_whitespace(FILE *ff)
 {
   int c;
 
-  while ((c = getc(ff)) != EOF && c != '\n' && isascii(c) && isspace(c))
+  while ((c = getc(ff)) != EOF && c != '\n' && g_ascii_isspace(c))
     ;
   return c;
 }
