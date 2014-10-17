@@ -87,6 +87,9 @@ static expert_field ei_per_size_constraint_too_many = EI_INIT;
 static expert_field ei_per_choice_extension_unknown = EI_INIT;
 static expert_field ei_per_sequence_extension_unknown = EI_INIT;
 static expert_field ei_per_encoding_error = EI_INIT;
+static expert_field ei_per_oid_not_implemented = EI_INIT;
+
+static dissector_table_t per_oid_dissector_table    = NULL;
 
 /*
 #define DEBUG_ENTRY(x) \
@@ -164,7 +167,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
 	/*  XXX - why are we doing this?  Shouldn't we throw an exception if we've
 	 *  been asked to decode more octets than exist?
 	 */
-	actual_length = tvb_length_remaining(tvb,boffset);
+	actual_length = tvb_captured_length_remaining(tvb,boffset);
 	if (length <= actual_length)
 		actual_length = length;
 
@@ -994,7 +997,7 @@ dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 	offset = dissect_per_any_oid(tvb, offset, actx, tree, hf_index, (value_stringx) ? &value_tvb : NULL, is_absolute);
 
 	if (value_stringx) {
-		if (value_tvb && (length = tvb_length(value_tvb))) {
+		if (value_tvb && (length = tvb_captured_length(value_tvb))) {
 			*value_stringx = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
 		} else {
 			*value_stringx = "";
@@ -2539,6 +2542,46 @@ dissect_per_external_type(tvbuff_t *tvb _U_, guint32 offset, asn1_ctx_t *actx, p
 	return offset;
 }
 
+/*
+ * Calls the callback defined with new_register_per_oid_dissector() if found.
+ * Offset is in bits.
+ */
+
+int
+call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index)
+{
+    guint32 type_length, end_offset, start_offset;
+    tvbuff_t *val_tvb = NULL;
+	int len = 0;
+
+	start_offset = offset;
+    offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length);
+    if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+    end_offset = offset + type_length;
+
+
+    val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
+
+    if (oid == NULL ||
+        (len = dissector_try_string(per_oid_dissector_table, oid, val_tvb, pinfo, tree, actx) == 0))
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_per_oid_not_implemented, val_tvb, 0, -1);
+        dissect_per_open_type(tvb, start_offset, actx, tree, hf_index, NULL);
+    }
+
+    return end_offset;
+}
+
+void
+new_register_per_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
+{
+    dissector_handle_t dissector_handle;
+
+    dissector_handle = new_create_dissector_handle(dissector, proto);
+    dissector_add_string("per.oid", oid, dissector_handle);
+    oid_add_from_string(name, oid);
+}
+
 
 void
 proto_register_per(void)
@@ -2657,6 +2700,8 @@ proto_register_per(void)
 		  { "per.sequence_extension_unknown", PI_UNDECODED, PI_NOTE, "unknown sequence extension", EXPFILL }},
 		{ &ei_per_encoding_error,
 		  { "per.encoding_error", PI_MALFORMED, PI_WARN, "Encoding error", EXPFILL }},
+        { &ei_per_oid_not_implemented,
+          { "per.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "PER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
 	};
 
 	module_t *per_module;
@@ -2675,6 +2720,9 @@ proto_register_per(void)
 				       "Display the internal PER fields in the tree",
 				       "Whether the dissector should put the internal PER data in the tree or if it should hide it",
 				       &display_internal_per_fields);
+
+    per_oid_dissector_table = register_dissector_table("per.oid", "PER OID Dissectors", FT_STRING, BASE_NONE);
+
 
 }
 

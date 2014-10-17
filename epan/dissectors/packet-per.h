@@ -134,4 +134,7 @@ extern gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *na
 
 extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length);
 
+WS_DLL_PUBLIC int call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index);
+WS_DLL_PUBLIC void new_register_per_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name);
+
 #endif  /* __PACKET_PER_H__ */
