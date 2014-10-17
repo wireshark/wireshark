@@ -53,7 +53,6 @@
 /* #define DEBUG_K12 */
 #ifdef DEBUG_K12
 #include <stdio.h>
-#include <ctype.h>
 #include <stdarg.h>
 #include <wsutil/file_util.h>
 

@@ -32,7 +32,6 @@
 #include <unistd.h>
 #endif
 
-#include <ctype.h>
 #include <string.h>
 
 /* Last updated: Feb 03 2005: Josh Bailey (joshbailey@lucent.com).
