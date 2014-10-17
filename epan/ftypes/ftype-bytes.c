@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <ftypes-int.h>
 #include <string.h>
-#include <ctype.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/oids.h>
