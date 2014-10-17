@@ -26,28 +26,11 @@
 #include "dfilter-int.h"
 
 #include <string.h>
-#include <ctype.h>
 
 #include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
 #include <epan/emem.h>
-
-/* lowercase an ASCII character.
- * (thanks to Guy Harris for the function) */
-static gchar
-string_ascii_to_lower(gchar c)
-{
-    return ((c & 0x80) ? c : tolower(c));
-}
-
-/* uppercase an ASCII character. */
-static gchar
-string_ascii_to_upper(gchar c)
-{
-    return ((c & 0x80) ? c : toupper(c));
-}
-
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
@@ -65,7 +48,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
             s = (char *)ep_strdup((gchar *)fvalue_get(arg_fvalue));
             for (c = s; *c; c++) {
-                    /**c = string_ascii_to_lower(*c);*/
+                    /**c = g_ascii_tolower(*c);*/
                     *c = conv_func(*c);
             }
 
@@ -83,14 +66,14 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 static gboolean
 df_func_lower(GList* arg1list, GList *arg2junk _U_, GList **retval)
 {
-    return string_walk(arg1list, retval, string_ascii_to_lower);
+    return string_walk(arg1list, retval, g_ascii_tolower);
 }
 
 /* dfilter function: upper() */
 static gboolean
 df_func_upper(GList* arg1list, GList *arg2junk _U_, GList **retval)
 {
-    return string_walk(arg1list, retval, string_ascii_to_upper);
+    return string_walk(arg1list, retval, g_ascii_toupper);
 }
 
 /* dfilter function: len() */
