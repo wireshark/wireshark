@@ -70,6 +70,7 @@ static int hf_sgsap_vlr_name = -1;
 static int hf_sgsap_imeisv = -1;
 static int hf_sgsap_unknown_msg = -1;
 static int hf_sgsap_message_elements = -1;
+static int hf_sgsap_csri = -1;
 
 static int ett_sgsap = -1;
 
@@ -570,6 +571,19 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * (packet-gsm_a_bssmap.c)
  */
 
+/*
+ *
+ */
+static guint16
+de_sgsap_add_paging_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+
+    /* Octet 3 0 0 0 0 0 0 0 CSRI */
+    proto_tree_add_item(tree, hf_sgsap_csri, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return(len);
+}
+
 static const value_string sgsap_elem_strings[] = {
     { DE_SGSAP_IMSI, "IMSI" },                                              /* 9.4.6 */
     { DE_SGSAP_VLR_NAME, "VLR name" },                                      /* 9.4.22 */
@@ -610,7 +624,8 @@ static const value_string sgsap_elem_strings[] = {
     { DE_SGSAP_TAID, "Tracking Area Identity" },                            /* 9.4.21a */
     { DE_SGSAP_ECGI, "E-UTRAN Cell Global Identity" },                      /* 9.4.3a */
     { DE_SGSAP_UE_EMM_MODE, "UE EMM mode" },                                /* 9.4.21c */
-
+    { DE_SGSAP_ADD_PAGING_IND, "Additional paging indicators" },            /* 9.4.25 */
+    { DE_SGSAP_TMSI_BASED_NRI_CONT, "TMSI based NRI container" },           /* 9.4.26 */
     { 0, NULL }
 };
 value_string_ext sgsap_elem_strings_ext = VALUE_STRING_EXT_INIT(sgsap_elem_strings);
@@ -667,6 +682,8 @@ typedef enum
     DE_SGSAP_TAID,                                  /. 9.4.21a Tracking Area Identity ./
     DE_SGSAP_ECGI,                                  /. 9.4.3a E-UTRAN Cell Global Identity ./
     DE_SGSAP_UE_EMM_MODE,                           /. 9.4.21c UE EMM mode./
+    DE_SGSAP_ADD_PAGING_IND,                        /. 9.4.25 Additional paging indicators ./
+    DE_SGSAP_TMSI_BASED_NRI_CONT,                   /. 9.4.26 TMSI based NRI container ./
 
     DE_SGAP_NONE                            /. NONE ./
 }
@@ -712,7 +729,9 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     NULL/*DE_SGSAP_MSC_2*/,                                 /* 9.4.14a Mobile Station Classmark 2 */
     NULL/*DE_SGSAP_TAID*/,                                  /* 9.4.21a Tracking Area Identity */
     de_sgsap_ecgi,                                          /* 9.4.3a E-UTRAN Cell Global Identity */
-    de_sgsap_ue_emm_mode        ,                           /* 9.4.21c UE EMM mode*/
+    de_sgsap_ue_emm_mode,                                   /* 9.4.21c UE EMM mode*/
+    de_sgsap_add_paging_ind,                                /* 9.4.25 Additional paging indicators */
+    NULL/*DE_SGSAP_TMSI_BASED_NRI_CONT*/,                   /* 9.4.26 TMSI based NRI container */
 
     NULL,   /* NONE */
 };
@@ -958,7 +977,12 @@ sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     ELEM_OPT_TLV( 0x07 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL );
     /* IMEISV   IMEISV 9.4.5    O   TLV 10 */
     ELEM_OPT_TLV(0x15, SGSAP_PDU_TYPE, DE_SGSAP_IMEISV, NULL);
-
+    /* TAI Tracking Area Identity 9.4.21a O TLV 7 */
+    ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
+    /* E-CGI E-UTRAN Cell Global Identity 9.4.3a O TLV 9 */
+    ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
+    /* TMSI based NRI container TMSI based NRI container 9.4.26 O TLV 4 */
+    /* Selected CS domain operator Selected CS domain operator 9.4.27 O TLV 5 */
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -1040,6 +1064,8 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_BSSMAP, BE_CHAN_NEEDED, NULL);
     /* eMLPP Priority   eMLPP Priority 9.4.24   O   TLV 3 */
     ELEM_OPT_TLV(0x06, GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, NULL);
+    /* Additional paging indicators Additional paging indicators 9.4.25 O TLV 3 */
+    ELEM_OPT_TLV(0x26, SGSAP_PDU_TYPE, DE_SGSAP_ADD_PAGING_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1256,6 +1282,28 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 /* No IE's */
 
 /*
+ * 8.25 SGsAP-MO-CSFB-INDICATION message
+ */
+static void
+sgsap_mo_csfb_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len    = len;
+
+    /* IMSI IMSI 9.4.6 M LV 6-10 */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+    /* TAI Tracking Area Identity 9.4.21a O TLV 7 */
+    ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
+    /* E-CGI E-UTRAN Cell Global Identity 9.4.3a O TLV 9 */
+    ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
  * 9.2  Message type
  */
 static const value_string sgsap_msg_strings[] = {
@@ -1289,13 +1337,13 @@ static const value_string sgsap_msg_strings[] = {
     { 0x15, "SGsAP-RESET-INDICATION"},              /* 8.16 */
     { 0x16, "SGsAP-RESET-ACK"},                     /* 8.15 */
     { 0x17, "SGsAP-SERVICE-ABORT-REQUEST"},         /* 8.24 */
+    { 0x18, "SGsAP-MO-CSFB-INDICATION"},            /* 8.25 */
 /*
  * 0 0 0 1 1 0 0 0
  * to
  * 0 0 0 1 1 0 0 1
  * Unassigned: treated as an unknown Message type
  */
-    { 0x18, "Unassigned"},
     { 0x19, "Unassigned"},
 
     { 0x1a, "SGsAP-MM-INFORMATION-REQUEST"},        /* 8.12 */
@@ -1345,13 +1393,13 @@ static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     sgsap_reset_ind,                /* 0x15,    "SGsAP-RESET-INDICATION" 8.16 */
     sgsap_reset_ack,                /* 0x16,    "SGsAP-RESET-ACK" 8.15 */
     NULL,/* No IE's */              /* 0x17,    "SGsAP-SERVICE-ABORT-REQUEST" 8.24 */
+    sgsap_mo_csfb_ind,              /* 0x18,    "SGsAP-MO-CSFB-INDICATION" 8.25 */
 /*
- * 0 0 0 1 1 0 0 0
+ * 0 0 0 1 1 0 0 1
  * to
  * 0 0 0 1 1 0 0 1
  * Unassigned: treated as an unknown Message type
  */
-    NULL,                           /* 0x18,    "Unassigned" */
     NULL,                           /* 0x19,    "Unassigned" */
 
     sgsap_mm_info_req,              /* 0x1a,    "SGsAP-MM-INFORMATION-REQUEST" 8.12 */
@@ -1396,8 +1444,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
     guint8          oct;
 
-    /* Save pinfo */
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     /* Make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -1532,6 +1579,11 @@ void proto_register_sgsap(void) {
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
+    { &hf_sgsap_csri,
+        {"CS restoration indicator (CSRI)", "sgsap.csri",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+        NULL, HFILL }},
+
   };
 
     /* Setup protocol subtree array */

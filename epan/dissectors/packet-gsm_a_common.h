@@ -1434,6 +1434,8 @@ typedef enum
     DE_SGSAP_TAID,                                  /* 9.4.21a Tracking Area Identity */
     DE_SGSAP_ECGI,                                  /* 9.4.3a E-UTRAN Cell Global Identity */
     DE_SGSAP_UE_EMM_MODE,                           /* 9.4.21c UE EMM mode*/
+    DE_SGSAP_ADD_PAGING_IND,                        /* 9.4.25 Additional paging indicators */
+    DE_SGSAP_TMSI_BASED_NRI_CONT,                   /* 9.4.26 TMSI based NRI container */
 
     DE_SGAP_NONE                            /* NONE */
 }
