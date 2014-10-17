@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <stdio.h>
-#include <ctype.h>
 #include <string.h>
 
 #include <epan/filesystem.h>
@@ -470,7 +469,7 @@ read_filters_file(FILE *f, gpointer user_data)
     guint32   name_len         = INIT_BUF_SIZE;
     guint32   filter_exp_len   = INIT_BUF_SIZE;
     guint32   i                = 0;
-    gint32    c;
+    int       c;
     guint16   fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
     gboolean  disabled         = FALSE;
     gboolean  skip_end_of_line = FALSE;
@@ -490,7 +489,7 @@ read_filters_file(FILE *f, gpointer user_data)
             skip_end_of_line = FALSE;
         }
 
-        while ((c = getc(f)) != EOF && isspace(c)) {
+        while ((c = getc(f)) != EOF && g_ascii_isspace(c)) {
             if (c == '\n') {
                 continue;
             }

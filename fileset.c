@@ -46,7 +46,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -111,7 +110,7 @@ fileset_filename_match_pattern(const char *fname)
     while(minlen--) {
         baselen--;
 
-        if(!isdigit( (guchar) filename[baselen])) {
+        if(!g_ascii_isdigit( filename[baselen])) {
             g_free(filename);
             return FALSE;
         }
