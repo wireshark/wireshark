@@ -28,7 +28,6 @@
 #ifdef HAVE_LIBPCAP
 
 #include <string.h>
-#include <ctype.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -259,7 +258,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
      * as we allow it in the preferences file, we might as well
      * allow it here).
      */
-    while (isspace((guchar)*p))
+    while (g_ascii_isspace((guchar)*p))
         p++;
     if (*p == '\0') {
         /*
@@ -310,7 +309,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
      * as we allow it in the preferences file, we might as well
      * allow it here).
      */
-    while (isspace((guchar)*p))
+    while (g_ascii_isspace((guchar)*p))
         p++;
     if (*p == '\0') {
         /*
@@ -356,7 +355,7 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
     p = colonp;
     *p++ = '\0';
 
-    while (isspace((guchar)*p))
+    while (g_ascii_isspace((guchar)*p))
         p++;
     if (*p == '\0') {
         *colonp = ':';
@@ -414,7 +413,7 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
     p = colonp;
     *p++ = '\0';
 
-    while (isspace((guchar)*p))
+    while (g_ascii_isspace((guchar)*p))
         p++;
 
     if (capture_opts->ifaces->len > 0) {
