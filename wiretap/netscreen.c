@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* XXX TODO:
  *
@@ -88,7 +87,7 @@ static gboolean info_line(const gchar *line)
 	int i=NETSCREEN_SPACES_ON_INFO_LINE;
 
 	while (i-- > 0) {
-		if (isspace((guchar)*line)) {
+		if (g_ascii_isspace(*line)) {
 			line++;
 			continue;
 		} else {
@@ -348,7 +347,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 		 * interfaces, there may be 14 extra spaces before
 		 * the hex data.
 		 */
-		for (p = &line[0]; isspace((guchar)*p); p++)
+		for (p = &line[0]; g_ascii_isspace(*p); p++)
 			;
 		/* packets are delimited with empty lines */
 		if (*p == '\0') {

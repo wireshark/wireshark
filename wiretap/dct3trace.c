@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 
 /*
@@ -85,7 +84,7 @@ static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 static int
 hc2b(unsigned char hex)
 {
-	hex = tolower(hex);
+	hex = g_ascii_tolower(hex);
 	if ((hex >= '0') && (hex <= '9'))
 		return hex - '0';
 	if ((hex >= 'a') && (hex <= 'f'))

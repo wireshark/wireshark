@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /*
 
@@ -182,7 +181,7 @@ static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 static gboolean empty_line(const gchar *line)
 {
 	while (*line) {
-		if (isspace((guchar)*line)) {
+		if (g_ascii_isspace(*line)) {
 			line++;
 			continue;
 		} else {
