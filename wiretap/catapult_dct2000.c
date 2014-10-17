@@ -22,7 +22,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -871,7 +870,7 @@ parse_line(gchar *linebuff, gint line_length,
             *is_comment = TRUE;
             break;
         }
-        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-')) {
+        if (!g_ascii_isalnum(linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-')) {
             return FALSE;
         }
         context_name[n] = linebuff[n];
@@ -899,7 +898,7 @@ parse_line(gchar *linebuff, gint line_length,
              (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
              n++, port_digits++) {
 
-            if (!isdigit((guchar)linebuff[n])) {
+            if (!g_ascii_isdigit(linebuff[n])) {
                 return FALSE;
             }
             port_number_string[port_digits] = linebuff[n];
@@ -928,7 +927,7 @@ parse_line(gchar *linebuff, gint line_length,
              (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
              n++, protocol_chars++) {
 
-            if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_') {
+            if (!g_ascii_isalnum(linebuff[n]) && linebuff[n] != '_') {
                 return FALSE;
             }
             protocol_name[protocol_chars] = linebuff[n];
@@ -949,10 +948,10 @@ parse_line(gchar *linebuff, gint line_length,
 
         /* Following the / is the variant number.  No digits indicate 1 */
         for (variant_digits = 0;
-             (isdigit((guchar)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+             (g_ascii_isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
              n++, variant_digits++) {
 
-            if (!isdigit((guchar)linebuff[n])) {
+            if (!g_ascii_isdigit(linebuff[n])) {
                 return FALSE;
             }
             variant_name[variant_digits] = linebuff[n];
@@ -983,11 +982,11 @@ parse_line(gchar *linebuff, gint line_length,
             n++;
 
             for (outhdr_chars = 0;
-                 (isdigit((guchar)linebuff[n]) || linebuff[n] == ',') &&
+                 (g_ascii_isdigit(linebuff[n]) || linebuff[n] == ',') &&
                  (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
                  n++, outhdr_chars++) {
 
-                if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ',')) {
+                if (!g_ascii_isdigit(linebuff[n]) && (linebuff[n] != ',')) {
                     return FALSE;
                 }
                 outhdr_name[outhdr_chars] = linebuff[n];
@@ -1102,7 +1101,7 @@ parse_line(gchar *linebuff, gint line_length,
 
             aal_header_chars[header_chars_seen] = linebuff[n];
             /* Next 6 characters after '9' are mapped to a->f */
-            if (!isdigit((guchar)linebuff[n])) {
+            if (!g_ascii_isdigit(linebuff[n])) {
                 aal_header_chars[header_chars_seen] = 'a' + (linebuff[n] - '9') -1;
             }
         }
@@ -1118,7 +1117,7 @@ parse_line(gchar *linebuff, gint line_length,
     /* If there is a number, skip all info to next '/'.
        TODO: for IP encapsulation, should store PDCP ueid, drb in pseudo info
        and display dct2000 dissector... */
-    if (isdigit((guchar)linebuff[n])) {
+    if (g_ascii_isdigit(linebuff[n])) {
         while ((n+1 < line_length) && linebuff[n] != '/') {
             n++;
         }
@@ -1165,7 +1164,7 @@ parse_line(gchar *linebuff, gint line_length,
         return FALSE;
     }
 
-    for (; (n < line_length) && !isdigit((guchar)linebuff[n]); n++);
+    for (; (n < line_length) && !g_ascii_isdigit(linebuff[n]); n++);
     if (n >= line_length) {
         return FALSE;
     }
@@ -1179,7 +1178,7 @@ parse_line(gchar *linebuff, gint line_length,
          (n < line_length);
          n++, seconds_chars++) {
 
-        if (!isdigit((guchar)linebuff[n])) {
+        if (!g_ascii_isdigit(linebuff[n])) {
             /* Found a non-digit before decimal point. Fail */
             return FALSE;
         }
@@ -1208,7 +1207,7 @@ parse_line(gchar *linebuff, gint line_length,
          (n < line_length);
          n++, subsecond_decimals_chars++) {
 
-        if (!isdigit((guchar)linebuff[n])) {
+        if (!g_ascii_isdigit(linebuff[n])) {
             return FALSE;
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
@@ -1432,7 +1431,7 @@ set_aal_info(union wtap_pseudo_header *pseudo_header,
 
     /* cid is usually last byte.  Unless last char is not hex digit, in which
        case cid is derived from last char in ascii */
-    if (isalnum((guchar)aal_header_chars[11])) {
+    if (g_ascii_isalnum(aal_header_chars[11])) {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
             hex_byte_from_chars(aal_header_chars+10);
     }

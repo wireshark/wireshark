@@ -51,7 +51,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "wtap.h"
 #include "wtap-int.h"
@@ -240,28 +239,28 @@ daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, Buffer *buf,
 	/* convert hex string to guint8 */
 	while(*str) {
 		/* most significant nibble */
-		if (!isxdigit((guchar)*str)) {
+		if (!g_ascii_isxdigit(*str)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("daintree_sna: non-hex digit in hex data");
 			return FALSE;
 		}
-		if(isdigit((guchar)*str)) {
+		if(g_ascii_isdigit(*str)) {
 			*p = (*str - '0') << 4;
 		} else {
-			*p = ((tolower(*str) - 'a') + 10) << 4;
+			*p = ((g_ascii_tolower(*str) - 'a') + 10) << 4;
 		}
 		str++;
 
 		/* least significant nibble */
-		if (!isxdigit((guchar)*str)) {
+		if (!g_ascii_isxdigit(*str)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("daintree_sna: non-hex digit in hex data");
 			return FALSE;
 		}
-		if(isdigit((guchar)*str)) {
+		if(g_ascii_isdigit(*str)) {
 			*p += *str - '0';
 		} else {
-			*p += (tolower(*str) - 'a') + 10;
+			*p += (g_ascii_tolower(*str) - 'a') + 10;
 		}
 		str++;
 
