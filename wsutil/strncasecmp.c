@@ -19,7 +19,6 @@
 
 #include <ansidecl.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "wsutil/strncasecmp.h"
 

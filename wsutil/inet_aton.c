@@ -49,8 +49,6 @@ static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";
 #include <arpa/inet.h>
 #endif
 
-#include <ctype.h>
-
 #include "inet_aton.h"
 
 /*
