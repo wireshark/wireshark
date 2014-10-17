@@ -25,7 +25,6 @@
 #include "main_window.h"
 #include "wireshark_application.h"
 
-#include <ctype.h>
 #include "globals.h"
 
 #include <glib.h>

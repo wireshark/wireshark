@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif

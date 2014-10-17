@@ -32,7 +32,6 @@
 #include <unistd.h>
 #endif
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 

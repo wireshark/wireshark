@@ -30,8 +30,6 @@
 #include <unistd.h>
 #endif
 
-#include <ctype.h>
-
 #include <gtk/gtk.h>
 
 #include <epan/follow.h>
