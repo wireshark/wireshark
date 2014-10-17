@@ -28,7 +28,6 @@
 
 #define CMP_MATCHES cmp_matches
 
-#include <ctype.h>
 
 static void
 string_fvalue_new(fvalue_t *fv)

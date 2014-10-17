@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <ctype.h>
 #include <string.h>
 
 /*
@@ -140,7 +139,7 @@ get_nsecs(char *startp, int *nsecs)
 	while (p != startp) {
 		p--;
 
-		if (!isdigit((unsigned char)*p)) {
+		if (!g_ascii_isdigit(*p)) {
 			/*
 			 * Not a digit - error.
 			 */
@@ -263,7 +262,7 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 		if (*curptr != '.')
 			goto fail;	/* it's not */
 		curptr++;	/* skip the "." */
-		if (!isdigit((unsigned char)*curptr))
+		if (!g_ascii_isdigit((unsigned char)*curptr))
 			goto fail;	/* not a digit, so not valid */
 		if (!get_nsecs(curptr, &fv->value.time.nsecs))
 			goto fail;
