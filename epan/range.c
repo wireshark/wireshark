@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
 
 #include <glib.h>
@@ -147,7 +146,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
       if (c == '-') {
 	 /* Subrange starts with 1. */
 	 range->ranges[range->nranges].low = 1;
-      } else if (isdigit((unsigned char)c)) {
+      } else if (g_ascii_isdigit(c)) {
 	 /* Subrange starts with the specified number */
 	 errno = 0;
 	 val = strtoul(p, &endp, 10);
@@ -193,7 +192,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
 	    * with max_value.
 	    */
 	   range->ranges[range->nranges].high = max_value;
-	 } else if (isdigit((unsigned char)c)) {
+	 } else if (g_ascii_isdigit(c)) {
 	    /* Subrange ends with the specified number. */
 	    errno = 0;
 	    val = strtoul(p, &endp, 10);

@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <glib.h>
 #include "strutil.h"
 #include "emem.h"
@@ -294,7 +293,7 @@ format_text_wsp(const guchar *string, size_t len)
         if (isprint(c)) {
             fmtbuf[idx][column] = c;
             column++;
-        } else if  (isspace(c)) {
+        } else if (g_ascii_isspace(c)) {
             fmtbuf[idx][column] = ' ';
             column++;
         } else {
@@ -367,7 +366,7 @@ is_byte_sep(guint8 c)
 gboolean
 hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators) {
     guint8        val;
-    const guchar    *p, *q, *r, *s, *punct;
+    const gchar    *p, *q, *r, *s, *punct;
     char        four_digits_first_half[3];
     char        four_digits_second_half[3];
     char        two_digits[3];
@@ -377,15 +376,15 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
         return FALSE;
     }
     g_byte_array_set_size(bytes, 0);
-    p = (const guchar *)hex_str;
+    p = hex_str;
     while (*p) {
         q = p+1;
         r = p+2;
         s = p+3;
 
         if (*q && *r && *s
-                && isxdigit(*p) && isxdigit(*q) &&
-                isxdigit(*r) && isxdigit(*s)) {
+                && g_ascii_isxdigit(*p) && g_ascii_isxdigit(*q) &&
+                g_ascii_isxdigit(*r) && g_ascii_isxdigit(*s)) {
             four_digits_first_half[0] = *p;
             four_digits_first_half[1] = *q;
             four_digits_first_half[2] = '\0';
@@ -421,7 +420,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             p = punct;
             continue;
         }
-        else if (*q && isxdigit(*p) && isxdigit(*q)) {
+        else if (*q && g_ascii_isxdigit(*p) && g_ascii_isxdigit(*q)) {
             two_digits[0] = *p;
             two_digits[1] = *q;
             two_digits[2] = '\0';
@@ -451,7 +450,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             p = punct;
             continue;
         }
-        else if (*q && isxdigit(*p) && is_byte_sep(*q)) {
+        else if (*q && g_ascii_isxdigit(*p) && is_byte_sep(*q)) {
             one_digit[0] = *p;
             one_digit[1] = '\0';
 
@@ -463,7 +462,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
             p = q + 1;
             continue;
         }
-        else if (!*q && isxdigit(*p)) {
+        else if (!*q && g_ascii_isxdigit(*p)) {
             one_digit[0] = *p;
             one_digit[1] = '\0';
 
@@ -490,15 +489,15 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 gboolean
 uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
     guint8        val;
-    const guchar    *p;
-    guchar        hex_digit[HEX_DIGIT_BUF_LEN];
+    const gchar    *p;
+    gchar         hex_digit[HEX_DIGIT_BUF_LEN];
 
     g_byte_array_set_size(bytes, 0);
     if (! uri_str) {
         return FALSE;
     }
 
-    p = (const guchar *)uri_str;
+    p = uri_str;
 
     while (*p) {
         if (! isascii(*p) || ! isprint(*p))
@@ -511,9 +510,9 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
             if (*p == '\0') return FALSE;
             hex_digit[1] = *p;
             hex_digit[2] = '\0';
-            if (! isxdigit(hex_digit[0]) || ! isxdigit(hex_digit[1]))
+            if (! g_ascii_isxdigit(hex_digit[0]) || ! g_ascii_isxdigit(hex_digit[1]))
                 return FALSE;
-            val = (guint8) strtoul((char *)hex_digit, NULL, 16);
+            val = (guint8) strtoul(hex_digit, NULL, 16);
             g_byte_array_append(bytes, &val, 1);
         } else {
             g_byte_array_append(bytes, (const guint8 *) p, 1);
@@ -627,7 +626,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
     p = oid_str;
     dot = NULL;
     while (*p) {
-        if (!isdigit((guchar)*p) && (*p != '.')) return FALSE;
+        if (!g_ascii_isdigit(*p) && (*p != '.')) return FALSE;
         if (*p == '.') {
             if (p == oid_str) return FALSE;
             if (!*(p+1)) return FALSE;
@@ -643,7 +642,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
     subid0 = 0;    /* squelch GCC complaints */
     while (*p) {
         subid = 0;
-        while (isdigit((guchar)*p)) {
+        while (g_ascii_isdigit(*p)) {
             subid *= 10;
             subid += *p - '0';
             p++;
@@ -776,7 +775,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
 {
     size_t n_bytes;
     const char *p;
-    guchar c;
+    gchar c;
     guint8 *bytes, *q, byte_val;
 
     n_bytes = 0;
@@ -785,11 +784,11 @@ convert_string_to_hex(const char *string, size_t *nbytes)
         c = *p++;
         if (c == '\0')
             break;
-        if (isspace(c))
+        if (g_ascii_isspace(c))
             continue;    /* allow white space */
         if (c==':' || c=='.' || c=='-')
             continue; /* skip any ':', '.', or '-' between bytes */
-        if (!isxdigit(c)) {
+        if (!g_ascii_isxdigit(c)) {
             /* Not a valid hex digit - fail */
             return NULL;
         }
@@ -799,7 +798,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
          * hex digit immediately after that hex digit.
          */
         c = *p++;
-        if (!isxdigit(c))
+        if (!g_ascii_isxdigit(c))
             return NULL;
 
         /* 2 hex digits = 1 byte */
@@ -825,7 +824,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
         c = *p++;
         if (c == '\0')
             break;
-        if (isspace(c))
+        if (g_ascii_isspace(c))
             continue;    /* allow white space */
         if (c==':' || c=='.' || c=='-')
             continue; /* skip any ':', '.', or '-' between bytes */

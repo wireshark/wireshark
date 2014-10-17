@@ -26,7 +26,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1041,7 +1040,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
 
   for (i = 0; i < 6; i++) {
     /* Get a hex number, 1 or 2 digits, no sign characters allowed. */
-    if (!isxdigit((unsigned char)*cp))
+    if (!g_ascii_isxdigit(*cp))
       return FALSE;
     num = strtoul(cp, &p, 16);
     if (p == cp)
@@ -1059,13 +1058,13 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
         return FALSE;
       }
       cp++; /* skip past the '/' to get to the mask */
-      if (!isdigit((unsigned char)*cp))
+      if (!g_ascii_isdigit(*cp))
         return FALSE;   /* no sign allowed */
       num = strtoul(cp, &p, 10);
       if (p == cp)
         return FALSE;   /* failed */
       cp = p;   /* skip past the number */
-      if (*cp != '\0' && !isspace((unsigned char)*cp))
+      if (*cp != '\0' && !g_ascii_isspace(*cp))
         return FALSE;   /* bogus terminator */
       if (num == 0 || num >= 48)
         return FALSE;   /* bogus mask */
