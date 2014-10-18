@@ -39,7 +39,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <math.h>
 
 #include <epan/strutil.h>
@@ -113,7 +112,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
-#line 65 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 64 "../../asn1/lcsap/packet-lcsap-template.c"
 /* Strcture to hold ProcedureCode */
 struct pro_code {
         guint8 code;
@@ -240,7 +239,7 @@ static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-lcsap-hf.c ---*/
-#line 79 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 78 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
@@ -295,7 +294,7 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 84 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 83 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2219,7 +2218,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 197 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 196 "../../asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2318,7 +2317,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 257 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 256 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2800,7 +2799,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 302 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 301 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2856,7 +2855,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 308 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 307 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;
