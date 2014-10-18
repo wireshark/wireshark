@@ -206,7 +206,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
-  gboolean is_ascii;
+  gboolean is_printable_ascii;
 
 %(DEFAULT_BODY)s
 
@@ -215,14 +215,14 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   length = tvb_reported_length(parameter_tvb);
 
-  is_ascii = TRUE;
+  is_printable_ascii = TRUE;
   for (p_offset=0; p_offset < length; p_offset++){
-	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
-		is_ascii = FALSE;
+	 if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, p_offset ))){
+		is_printable_ascii = FALSE;
 		break;
 	 }
   }
-  if (is_ascii)
+  if (is_printable_ascii)
   		proto_item_append_text(actx->created_item,"(%%s)",tvb_format_text(parameter_tvb, 0, length));
 
 #.END
