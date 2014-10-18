@@ -1080,6 +1080,8 @@ static int hf_mip6_opt_ipv4coa_addr = -1;
 static int hf_pmip6_gre_key = -1;
 static int hf_mip6_opt_mhipv6ap_opt_code = -1;
 static int hf_mip6_opt_mhipv6ap_prefix_l = -1;
+static int hf_mip6_opt_mhipv6ap_ipv6_address = -1;
+static int hf_mip6_opt_mhipv6ap_ipv6_address_prefix = -1;
 static int hf_mip6_ipv4dra_reserved = -1;
 static int hf_mip6_ipv4dra_dra = -1;
 
@@ -2638,6 +2640,7 @@ dissect_pmip6_opt_mhipv6ap(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     guint8 prefix_l;
+    proto_item *ti;
 
     /* offset points to tag(opt) */
     offset++;
@@ -2646,10 +2649,15 @@ dissect_pmip6_opt_mhipv6ap(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_opt_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+
     prefix_l = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_prefix_l, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_text(opt_tree, tvb, offset, prefix_l, "IPv6 Address/Prefix");
+
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address, tvb, offset, 16, ENC_NA);
+    ti = proto_tree_add_string(opt_tree, hf_mip6_opt_mhipv6ap_ipv6_address_prefix, tvb, offset -1, 16+1, tvb_ip6_to_str(tvb, offset));
+    proto_item_append_text(ti, "/%u", prefix_l);
+    PROTO_ITEM_SET_GENERATED(ti);
 
 }
 /* 35 Binding Identifier [RFC5648]  */
@@ -4379,6 +4387,16 @@ proto_register_mip6(void)
     { &hf_mip6_opt_mhipv6ap_prefix_l,
       { "Prefix Length", "mip6.mhipv6ap.len",
         FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_mhipv6ap_ipv6_address,
+      { "IPv6 Address", "mip6.mhipv6ap.ipv6_address",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_mhipv6ap_ipv6_address_prefix,
+      { "IPv6 Address/Prefix", "mip6.mhipv6ap.ipv6_address_prefix",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_bi_bid,
