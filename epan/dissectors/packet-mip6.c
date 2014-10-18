@@ -2355,7 +2355,7 @@ dissect_pmip6_opt_mnlli(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mnlli_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(opt_tree, hf_mip6_opt_mnlli_lli, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mnlli_lli, tvb, offset, optlen-2-2, ENC_NA);
 
 }
 
