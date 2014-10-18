@@ -1183,10 +1183,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                     offset += 1;
                     proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_NA);
                     ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
-                    offset += 1;
-                    ti = proto_tree_add_uint_format_value(opt_tree, hf_ipv6_opt_qs_ttl_diff,
-                                                          tvb, offset, 1, ttl_diff,
-                                                          "%u", ttl_diff);
+                    ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff,
+                                                          tvb, offset, 1, ttl_diff);
                     PROTO_ITEM_SET_GENERATED(ti);
                     proto_item_append_text(ti_opt, ", %s, QS TTL %u, QS TTL diff %u",
                                            val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
