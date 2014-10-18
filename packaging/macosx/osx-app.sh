@@ -41,9 +41,9 @@ exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@execu
 
 
 # "qt" or "gtk"
-ui_toolkit="gtk"
+ui_toolkit="qt"
 # Name of the Wireshark executable
-wireshark_bin_name="wireshark-gtk"
+wireshark_bin_name="wireshark"
 
 binary_list="
 	capinfos
@@ -95,7 +95,9 @@ OPTIONS
 	-sdkroot
 		specify the root of the SDK to use
 	-qt,--qt-flavor
-		use the Qt flavor
+		Use the Qt flavor. This is the default.
+	-gtk,--gtk-flavor
+		Use the GTK+ flavor.
 
 EXAMPLE
 	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
@@ -122,6 +124,10 @@ do
 		-qt|--qt-flavor)
 			ui_toolkit="qt"
 			wireshark_bin_name="wireshark"
+			;;
+		-gtk|--gtk-flavor)
+			ui_toolkit="gtk"
+			wireshark_bin_name="wireshark-gtk"
 			;;
 		-h|--help)
 			help

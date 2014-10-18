@@ -1444,8 +1444,6 @@ if test "x$enable_wireshark" = "xyes"; then
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
-			OSX_APP_FLAGS="$OSX_APP_FLAGS -qt"
-			OSX_DMG_FLAGS="-qt"
 		],
 		[AC_MSG_ERROR([Qt is not available])])
 
@@ -1548,6 +1546,8 @@ if test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/gtk"
 	use_glib_cflags="false"
+	OSX_APP_FLAGS="$OSX_APP_FLAGS -gtk"
+	OSX_DMG_FLAGS="-gtk"
 fi
 if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	# We have neither GTK+ nor Qt.

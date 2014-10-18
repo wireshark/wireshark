@@ -42,8 +42,8 @@ rw_name="RWwireshark.dmg"
 volume_name="Wireshark"
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
-ws_bin="$app_bundle/Contents/Resources/bin/wireshark-bin"
-readme_name="Read_me_first_gtk.rtf"
+ws_bin="$app_bundle/Contents/Resources/bin/Wireshark"
+readme_name="Read_me_first_qt.rtf"
 
 if [ -d /Applications/Xcode.app/Developer ]
 then
@@ -69,14 +69,16 @@ USAGE
 
 OPTIONS
 	-h,--help
-		display this help message
+		Display this help message.
 	-s
-		set a new apperance (do not actually create a bundle)
+		Set a new apperance (do not actually create a bundle).
 	-b,--app-bundle
-		set the path to the Wireshark.app that should be copied
-		in the dmg
+		Set the path to the Wireshark.app that should be copied
+		in the dmg.
 	-qt,--qt-flavor
-		use the Qt flavor
+		Use the Qt flavor. This is the default.
+	-gtk,--gtk-flavor
+		Use the GTK+ flavor.
 "
 }
 
@@ -95,6 +97,10 @@ do
 		-qt|--qt-flavor)
 			readme_name="Read_me_first_qt.rtf"
 			ws_bin="$app_bundle/Contents/MacOS/Wireshark"
+			;;
+		-gtk|--gtk-flavor)
+			readme_name="Read_me_first_gtk.rtf"
+			ws_bin="$app_bundle/Contents/MacOS/wireshark-bin"
 			;;
 		*)
 			echo "Invalid command line option"
