@@ -289,14 +289,6 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
 }
 
 gchar*
-ipxnet_to_string(const guint8 *ad)
-{
-    guint32 addr = pntoh32(ad);
-    return ipxnet_to_str_punct(addr, ' ');
-}
-
-
-gchar*
 tvb_ipxnet_to_string(tvbuff_t *tvb, const gint offset)
 {
     return ipxnet_to_str_punct(tvb_get_ntohl(tvb, offset), ' ');
