@@ -29,8 +29,6 @@
 #include <glib.h>
 #include "strutil.h"
 #include "emem.h"
-#include <../isprint.h>
-
 
 #ifdef _WIN32
 #include <windows.h>
@@ -184,7 +182,7 @@ format_text(const guchar *string, size_t len)
         }
         c = *string++;
 
-        if (isprint(c)) {
+        if (g_ascii_isprint(c)) {
             fmtbuf[idx][column] = c;
             column++;
         } else {
@@ -290,7 +288,7 @@ format_text_wsp(const guchar *string, size_t len)
         }
         c = *string++;
 
-        if (isprint(c)) {
+        if (g_ascii_isprint(c)) {
             fmtbuf[idx][column] = c;
             column++;
         } else if (g_ascii_isspace(c)) {
@@ -500,7 +498,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
     p = uri_str;
 
     while (*p) {
-        if (! isascii(*p) || ! isprint(*p))
+        if (! g_ascii_isprint(*p) )
             return FALSE;
         if (*p == '%') {
             p++;
@@ -571,7 +569,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
         }
         c = bytes->data[column];
 
-        if (!isascii(c) || !isprint(c) || c == '%') {
+        if (!g_ascii_isprint(c) || c == '%') {
             is_reserved = TRUE;
         }
 
@@ -829,7 +827,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
         if (c==':' || c=='.' || c=='-')
             continue; /* skip any ':', '.', or '-' between bytes */
         /* From the loop above, we know this is a hex digit */
-        if (isdigit(c))
+        if (g_ascii_isdigit(c))
             byte_val = c - '0';
         else if (c >= 'a')
             byte_val = (c - 'a') + 10;
@@ -839,7 +837,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
 
         /* We also know this is a hex digit */
         c = *p++;
-        if (isdigit(c))
+        if (g_ascii_isdigit(c))
             byte_val |= c - '0';
         else if (c >= 'a')
             byte_val |= (c - 'a') + 10;
@@ -905,7 +903,7 @@ escape_string_len(const char *string)
         }
         /* Values that can't nicely be represented
          * in ASCII need to be escaped. */
-        else if (!isprint((unsigned char)c)) {
+        else if (!g_ascii_isprint(c)) {
             /* c --> \xNN */
             repr_len += 4;
         }
@@ -936,7 +934,7 @@ escape_string(char *buf, const char *string)
         }
         /* Values that can't nicely be represented
          * in ASCII need to be escaped. */
-        else if (!isprint((unsigned char)c)) {
+        else if (!g_ascii_isprint(c)) {
             /* c --> \xNN */
             g_snprintf(hexbuf,sizeof(hexbuf), "%02x", (unsigned char) c);
             *bufp++ = '\\';
