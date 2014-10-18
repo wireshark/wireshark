@@ -1321,7 +1321,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 static gboolean
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
-    guint block_read;
     interface_info_t iface_info;
     pcapng_simple_packet_block_t spb;
     wtapng_simple_packet_t simple_packet;
@@ -1362,7 +1361,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         pcapng_debug0("pcapng_read_simple_packet_block: failed to read packet data");
         return FALSE;
     }
-    block_read = (guint)sizeof spb;
 
     if (0 >= pn->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1458,7 +1456,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     }
     wblock->packet_header->caplen = simple_packet.cap_len - pseudo_header_len;
     wblock->packet_header->len = simple_packet.packet_len - pseudo_header_len;
-    block_read += pseudo_header_len;
     if (pseudo_header_len != pcap_get_phdr_size(iface_info.wtap_encap, &wblock->packet_header->pseudo_header)) {
         pcapng_debug1("pcapng_read_simple_packet_block: Could only read %d bytes for pseudo header.",
                       pseudo_header_len);
@@ -1470,13 +1467,11 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
                                 simple_packet.cap_len, err, err_info))
         return FALSE;
-    block_read += simple_packet.cap_len;
 
     /* jump over potential padding bytes at end of the packet data */
     if ((simple_packet.cap_len % 4) != 0) {
         if (!file_skip(fh, 4 - (simple_packet.cap_len % 4), err))
             return FALSE;
-        block_read += 4 - (simple_packet.cap_len % 4);
     }
 
     pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
