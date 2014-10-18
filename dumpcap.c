@@ -26,7 +26,6 @@
 #include <glib.h>
 
 #include <string.h>
-#include <ctype.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
