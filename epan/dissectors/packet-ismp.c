@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/etypes.h>
@@ -95,6 +96,16 @@ static int hf_ismp_edp_num_neighbors = -1;
 static int hf_ismp_edp_neighbors = -1;
 static int hf_ismp_edp_num_tuples = -1;
 static int hf_ismp_edp_tuples = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_ismp_assigned_neighbor_state = -1;
+static int hf_ismp_hold_time = -1;
+static int hf_ismp_interface_name = -1;
+static int hf_ismp_tuple_length = -1;
+static int hf_ismp_neighborhood_mac_address = -1;
+static int hf_ismp_unknown_tuple_data = -1;
+static int hf_ismp_tuple_type = -1;
+static int hf_ismp_system_description = -1;
+static int hf_ismp_interface_ipx_address = -1;
 
 
 /* Initialize the subtree pointers */
@@ -105,6 +116,8 @@ static gint ett_ismp_edp_neighbors = -1;
 static gint ett_ismp_edp_neighbors_leaf = -1;
 static gint ett_ismp_edp_tuples = -1;
 static gint ett_ismp_edp_tuples_leaf = -1;
+
+static expert_field ei_ismp_malformed = EI_INIT;
 
 /* ISMP TYPES */
 #define ISMPTYPE_EDP	2
@@ -205,13 +218,6 @@ static const value_string edp_tuple_types[] =
 	{ 0,NULL }
 };
 
-/* Is value set? */
-static const true_false_string is_set = {
-	"set",
-	"not set"
-};
-
-
 /* Function to dissect EDP portion of ISMP message */
 static void
 dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp_tree)
@@ -220,18 +226,14 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	int neighbors_count = 0;
 	int tuples_count = 0;
 	guint16 device_type = 0;
-	guint32	options = 0;
 	guint16 num_neighbors = 0;
 	guint16 num_tuples = 0;
 	guint16 tuple_type = 0;
 	guint16 tuple_length = 0;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *edp_ti;
+	proto_item *edp_ti, *ti;
 	proto_tree *edp_tree;
-
-	proto_item *edp_options_ti;
-	proto_tree *edp_options_tree;
 
 	proto_item *edp_neighbors_ti;
 	proto_tree *edp_neighbors_tree;
@@ -248,9 +250,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* create display subtree for EDP */
-	if (ismp_tree) {
-		edp_ti  = proto_tree_add_item(ismp_tree, hf_ismp_edp, tvb, offset,
-			tvb_length_remaining(tvb, offset), ENC_NA);
+		edp_ti  = proto_tree_add_item(ismp_tree, hf_ismp_edp, tvb, offset, -1, ENC_NA);
 		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
@@ -278,57 +278,69 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2), tvb_get_guint8(tvb, offset+3));
 		offset += 4;
 
-		/* create display subtree for EDP options */
-		options = tvb_get_ntohl(tvb, offset);
-		edp_options_ti = proto_tree_add_uint_format(edp_tree, hf_ismp_edp_options, tvb, offset, 4,
-			options,"Options: 0x%08x",options);
-		edp_options_tree = proto_item_add_subtree(edp_options_ti, ett_ismp_edp_options);
-
 		/* depending on device_type, show the appropriate options */
 		switch (device_type) {
 			case EDP_DEVICE_TYPE_SFS17:
 			case EDP_DEVICE_TYPE_SFS18:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_flood, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_core, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_switch, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_isolated, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_redun, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_conmsg, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_calltap, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_tagflood, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused2, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_resolve, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_flood, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_lsp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_sfssup, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused1, tvb, offset, 4, ENC_BIG_ENDIAN);
+                {
+		        static const gint *options[] = {
+			        &hf_ismp_edp_sfs_option_uplink_flood,
+			        &hf_ismp_edp_sfs_option_uplink_port,
+			        &hf_ismp_edp_sfs_option_uplink_core,
+			        &hf_ismp_edp_sfs_option_uplink_switch,
+			        &hf_ismp_edp_sfs_option_isolated,
+			        &hf_ismp_edp_sfs_option_redun,
+			        &hf_ismp_edp_sfs_option_conmsg,
+			        &hf_ismp_edp_sfs_option_calltap,
+			        &hf_ismp_edp_sfs_option_tagflood,
+			        &hf_ismp_edp_sfs_option_unused2,
+			        &hf_ismp_edp_sfs_option_resolve,
+			        &hf_ismp_edp_sfs_option_flood,
+			        &hf_ismp_edp_sfs_option_lsp,
+			        &hf_ismp_edp_sfs_option_sfssup,
+			        &hf_ismp_edp_sfs_option_unused1,
+		            NULL
+		        };
+		        proto_tree_add_bitmask(edp_tree, tvb, offset, hf_ismp_edp_options, ett_ismp_edp_options, options, ENC_BIG_ENDIAN);
+                }
 				break;
 			case EDP_DEVICE_TYPE_ROUTER:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_level1, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_trans, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_route, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp_snoop, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gvrp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_8021q, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_dvmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ospf, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_bgp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_rip, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ssr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                {
+		        static const gint *options[] = {
+			        &hf_ismp_edp_rtr_option_level1,
+			        &hf_ismp_edp_rtr_option_trans,
+			        &hf_ismp_edp_rtr_option_route,
+			        &hf_ismp_edp_rtr_option_igmp_snoop,
+			        &hf_ismp_edp_rtr_option_gmrp,
+			        &hf_ismp_edp_rtr_option_gvrp,
+			        &hf_ismp_edp_rtr_option_8021q,
+			        &hf_ismp_edp_rtr_option_dvmrp,
+			        &hf_ismp_edp_rtr_option_ospf,
+			        &hf_ismp_edp_rtr_option_bgp,
+			        &hf_ismp_edp_rtr_option_rip,
+			        &hf_ismp_edp_rtr_option_igmp,
+			        &hf_ismp_edp_rtr_option_ssr,
+		            NULL
+		        };
+
+		        proto_tree_add_bitmask(edp_tree, tvb, offset, hf_ismp_edp_options, ett_ismp_edp_options, options, ENC_BIG_ENDIAN);
+                }
 				break;
 			case EDP_DEVICE_TYPE_BRIDGE:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_level1, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_trans, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_route, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_igmp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gvrp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_8021q, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-			case EDP_DEVICE_TYPE_VLANMAN:
+                {
+		        static const gint *options[] = {
+			        &hf_ismp_edp_switch_option_level1,
+			        &hf_ismp_edp_switch_option_trans,
+			        &hf_ismp_edp_switch_option_route,
+			        &hf_ismp_edp_switch_option_igmp,
+			        &hf_ismp_edp_switch_option_gmrp,
+			        &hf_ismp_edp_switch_option_gvrp,
+			        &hf_ismp_edp_switch_option_8021q,
+		            NULL
+		        };
+
+		        proto_tree_add_bitmask(edp_tree, tvb, offset, hf_ismp_edp_options, ett_ismp_edp_options, options, ENC_BIG_ENDIAN);
+                }
 				break;
 			case EDP_DEVICE_TYPE_NTSERVER:
 			case EDP_DEVICE_TYPE_NTCLIENT:
@@ -336,12 +348,21 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			case EDP_DEVICE_TYPE_WIN98:
 			case EDP_DEVICE_TYPE_UNIXSERVER:
 			case EDP_DEVICE_TYPE_UNIXCLIENT:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_ad, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
+                {
+		        static const gint *options[] = {
+			        &hf_ismp_edp_end_station_option_ad,
+			        &hf_ismp_edp_end_station_option_dns,
+			        &hf_ismp_edp_end_station_option_dhcp,
+		            NULL
+		        };
+
+		        proto_tree_add_bitmask(edp_tree, tvb, offset, hf_ismp_edp_options, ett_ismp_edp_options, options, ENC_BIG_ENDIAN);
+                }
 				break;
+			case EDP_DEVICE_TYPE_VLANMAN:
 			case EDP_DEVICE_TYPE_ACCESSPOINT:
 			default:
+		        proto_tree_add_item(edp_tree, hf_ismp_edp_options, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 		}
 		offset += 4;
@@ -360,17 +381,14 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				edp_neighbors_leaf_tree = proto_tree_add_subtree_format(edp_neighbors_tree, tvb, offset, 10,
 										ett_ismp_edp_neighbors_leaf, NULL, "Neighbor%d", (neighbors_count+1));
 
-				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 6,
-					"MAC Address: %s", tvb_ether_to_str(tvb, offset));
-				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 4,
-					"Assigned Neighbor State: 0x%04x", tvb_get_ntohl(tvb, offset));
+				proto_tree_add_item(edp_neighbors_leaf_tree, hf_ismp_neighborhood_mac_address, tvb, offset, 6, ENC_NA);
+				proto_tree_add_item(edp_neighbors_leaf_tree, hf_ismp_assigned_neighbor_state, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 10;
 				neighbors_count++;
 			}
 			if (neighbors_count != num_neighbors)
 			{
-				proto_tree_add_text(edp_tree, tvb, offset, -1,
-				"MALFORMED PACKET");
+				proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
 				return;
 			}
 		}
@@ -385,8 +403,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_text(edp_tree, tvb, offset,
-				tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
+			proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
 			return;
 		}
 		else
@@ -398,7 +415,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		if (num_tuples && tvb_reported_length_remaining(tvb, offset) >= 4)
 		{
 			edp_tuples_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_tuples, tvb,
-				offset, tvb_reported_length_remaining(tvb, offset), NULL, "Tuples");
+				offset, -1, NULL, "Tuples");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
 			while ( (tuples_count < num_tuples) && (tvb_reported_length_remaining(tvb, offset) >= 4) )
@@ -409,42 +426,35 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 					ett_ismp_edp_tuples_leaf, NULL, "Tuple%d", tuples_count+1);
 
 				tuple_type = tvb_get_ntohs(tvb, offset);
-				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
-					"Tuple Type: %s(%d)", val_to_str_const( tuple_type, edp_tuple_types, "Unknown"), tuple_type );
+				proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_tuple_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
-				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
-					"Tuple Length: %d", tuple_length);
+				proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_tuple_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
 				if (tvb_reported_length_remaining(tvb, offset) >= tuple_length)
 				{
-					tvb_ensure_bytes_exist(tvb, offset, tuple_length);
 					switch (tuple_type)
 					{
 						case EDP_TUPLE_HOLD:
-							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Hold Time = %d", tvb_get_ntohs(tvb, offset));
+							ti = proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_hold_time, tvb, offset, hf_ismp_hold_time, ENC_BIG_ENDIAN);
+                            proto_item_set_len(ti, tuple_length);
 							break;
 						case EDP_TUPLE_INT_NAME:
-							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Interface Name = %s", tvb_format_text(tvb, offset, tuple_length));
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_interface_name, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, ", ifName %s",
 								tvb_format_text(tvb, offset, tuple_length));
 							break;
 						case EDP_TUPLE_SYS_DESCRIPT:
-							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"System Description = %s", tvb_format_text(tvb, offset, tuple_length));
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_system_description, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
 							break;
 						case EDP_TUPLE_IPX_ADDR:
-							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Interface IPX_address = %s",
+							proto_tree_add_string(edp_tuples_leaf_tree, hf_ismp_interface_ipx_address ,tvb, offset, tuple_length,
 								ipx_addr_to_str(tvb_get_ntohl(tvb, offset),
 								tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, tuple_length-4, ENC_ASCII)));
 							break;
 						case EDP_TUPLE_UNKNOWN:
 						default:
-							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Unknown Tuple Data %s", tvb_format_text(tvb, offset, tuple_length));
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_unknown_tuple_data, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
 							break;
 					}
 				}
@@ -453,20 +463,10 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				tuples_count++;
 			}
 			if (tuples_count != num_tuples)
-			{
-				proto_tree_add_text(edp_tree, tvb, offset,
-					tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
-				return;
-			}
-			else
-			{
-				return;
-			}
+				proto_tree_add_expert(edp_tree, pinfo, &ei_ismp_malformed, tvb, offset, -1);
+
+			return;
 		}
-
-	}
-
-
 }
 
 
@@ -496,31 +496,28 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (tvb_memeql(tvb, offset, weird_stuff, sizeof weird_stuff) == 0)
 		offset += 3;	/* skip the weird stuff, for now */
-	if (tree) {
-		/* create display subtree for ismp */
-		ti = proto_tree_add_item(tree, proto_ismp, tvb, offset, -1, ENC_NA);
 
-		ismp_tree = proto_item_add_subtree(ti, ett_ismp);
+	/* create display subtree for ismp */
+	ti = proto_tree_add_item(tree, proto_ismp, tvb, offset, -1, ENC_NA);
+	ismp_tree = proto_item_add_subtree(ti, ett_ismp);
 
-		/* add an items to the subtree */
-		proto_tree_add_item(ismp_tree, hf_ismp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-		message_type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ismp_tree, hf_ismp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-		proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-		code_length = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-		proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
-		offset += code_length;
+	/* add an items to the subtree */
+	proto_tree_add_item(ismp_tree, hf_ismp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	message_type = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(ismp_tree, hf_ismp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	code_length = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
+	offset += code_length;
 
-		/* if Enterasys Discover Protocol, dissect it */
-		if(message_type == ISMPTYPE_EDP)
-			dissect_ismp_edp(tvb, pinfo, offset, tree);
-	}
-
+	/* if Enterasys Discover Protocol, dissect it */
+	if(message_type == ISMPTYPE_EDP)
+		dissect_ismp_edp(tvb, pinfo, offset, tree);
 }
 
 
@@ -531,13 +528,6 @@ proto_register_ismp(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-#if 0
-		{ &hf_ismp,
-			{ "ISMP", "ismp",
-			FT_PROTOCOL, BASE_NONE, NULL, 0x0,
-			"Inter Switch Message Protocol", HFILL }
-		},
-#endif
 		{ &hf_ismp_version,
 			{ "Version",           "ismp.version",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -610,197 +600,197 @@ proto_register_ismp(void)
 		},
 		{ &hf_ismp_edp_options,
 			{ "Device Options", "ismp.edp.options",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_unused1,
 			{ "Unused", "ismp.edp.sfs_option_unused1",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UNUSED1,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UNUSED1,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_sfssup,
 			{ "SFS Support", "ismp.edp.sfs_option_sfssup",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_SFSSUP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_SFSSUP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_lsp,
 			{ "LSP Support", "ismp.edp.sfs_option_lsp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_LSP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_LSP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_flood,
 			{ "Flood Path Support", "ismp.edp.sfs_option_flood",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_FLOOD,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_FLOOD,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_resolve,
 			{ "Resolve Support", "ismp.edp.sfs_option_resolve",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_RESOLVE,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_RESOLVE,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_unused2,
 			{ "Unused", "ismp.edp.sfs_option_unused2",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UNUSED2,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UNUSED2,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_tagflood,
 			{ "Tagged Flood Support", "ismp.edp.sfs_option_tagflood",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_TAGFLOOD,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_TAGFLOOD,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_calltap,
 			{ "Call Tap Support", "ismp.edp.sfs_option_calltap",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_CALLTAP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_CALLTAP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_conmsg,
 			{ "Connection Message Support", "ismp.edp.sfs_option_conmsg",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_CONMSG,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_CONMSG,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_redun,
 			{ "Redundant Access Support", "ismp.edp.sfs_option_redun",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_REDUN,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_REDUN,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_isolated,
 			{ "Isolated Switch", "ismp.edp.sfs_option_isolated",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_ISOLATED,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_ISOLATED,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_switch,
 			{ "Uplink Switch", "ismp.edp.sfs_option_uplink_switch",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_SWITCH,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UPLINK_SWITCH,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_core,
 			{ "Uplink Core", "ismp.edp.sfs_option_uplink_core",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_CORE,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UPLINK_CORE,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_port,
 			{ "Uplink Port", "ismp.edp.sfs_option_uplink_port",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_PORT,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UPLINK_PORT,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_flood,
 			{ "Uplink Flood Support", "ismp.edp.sfs_option_uplink_flood",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_FLOOD,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SFS_OPTION_UPLINK_FLOOD,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_ssr,
 			{ "SSR Type Device", "ismp.edp.rtr_option_ssr",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_SSR,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_SSR,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_igmp,
 			{ "IGMP Active", "ismp.edp.rtr_option_igmp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_IGMP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_IGMP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_rip,
 			{ "RIP Active", "ismp.edp.rtr_option_rip",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_RIP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_RIP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_bgp,
 			{ "BGP Active", "ismp.edp.rtr_option_bgp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_BGP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_BGP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_ospf,
 			{ "OSPF Active", "ismp.edp.rtr_option_ospf",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_OSPF,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_OSPF,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_dvmrp,
 			{ "DVMRP Active", "ismp.edp.rtr_option_dvmrp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_DVMRP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_DVMRP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_8021q,
 			{ "802.1Q Support", "ismp.edp.rtr_option_8021q",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_8021Q,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_8021Q,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_gvrp,
 			{ "GVRP Support", "ismp.edp.rtr_option_gvrp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_GVRP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_GVRP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_gmrp,
 			{ "GMRP Support", "ismp.edp.rtr_option_gmrp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_GMRP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_GMRP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_igmp_snoop,
 			{ "IGMP Snooping Support", "ismp.edp.rtr_option_igmp_snoop",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_IGMP_SNOOP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_IGMP_SNOOP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_route,
 			{ "Route Bridging", "ismp.edp.rtr_option_route",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_ROUTE,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_ROUTE,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_trans,
 			{ "Transparent Bridging", "ismp.edp.rtr_option_trans",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_TRANS,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_TRANS,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_level1,
 			{ "Level 1 Functionality", "ismp.edp.rtr_option_level1",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_LEVEL1,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_RTR_OPTION_LEVEL1,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_8021q,
 			{ "802.1Q Support", "ismp.edp.switch_option_8021q",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_8021Q,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_8021Q,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_gvrp,
 			{ "GVRP Support", "ismp.edp.switch_option_gvrp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_GVRP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_GVRP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_gmrp,
 			{ "GMRP Support", "ismp.edp.switch_option_gmrp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_GMRP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_GMRP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_igmp,
 			{ "IGMP Snooping Support", "ismp.edp.switch_option_igmp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_IGMP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_IGMP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_route,
 			{ "Route Bridging", "ismp.edp.switch_option_route",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_ROUTE,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_ROUTE,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_trans,
 			{ "Transparent Bridging", "ismp.edp.switch_option_trans",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_TRANS,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_TRANS,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_level1,
 			{ "Level 1 Functionality", "ismp.edp.switch_option_level1",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_LEVEL1,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_SWITCH_OPTION_LEVEL1,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_dhcp,
 			{ "DHCP Enabled", "ismp.edp.end_station_option_dhcp",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_DHCP,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_END_STATION_OPTION_DHCP,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_dns,
 			{ "DNS Enabled", "ismp.edp.end_station_option_dns",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_DNS,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_END_STATION_OPTION_DNS,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_ad,
 			{ "Active Directory Enabled", "ismp.edp.end_station_option_ad",
-			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_AD,
+			FT_BOOLEAN, 32, TFS(&tfs_set_notset), EDP_END_STATION_OPTION_AD,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_num_neighbors,
@@ -823,6 +813,17 @@ proto_register_ismp(void)
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_ismp_neighborhood_mac_address, { "MAC Address", "ismp.neighborhood_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_assigned_neighbor_state, { "Assigned Neighbor State", "ismp.assigned_neighbor_state", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_tuple_type, { "Tuple Type", "ismp.tuple_type", FT_UINT16, BASE_DEC, VALS(edp_tuple_types), 0x0, NULL, HFILL }},
+		{ &hf_ismp_tuple_length, { "Tuple Length", "ismp.tuple_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_hold_time, { "Hold Time", "ismp.hold_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_interface_name, { "Interface Name", "ismp.interface_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_system_description, { "System Description", "ismp.system_description", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_interface_ipx_address, { "Interface IPX_address", "ismp.interface_ipx_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ismp_unknown_tuple_data, { "Unknown Tuple Data", "ismp.unknown_tuple_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 /* Setup protocol subtree array */
@@ -836,6 +837,12 @@ proto_register_ismp(void)
 		&ett_ismp_edp_tuples_leaf,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ismp_malformed, { "ismp.malformed", PI_MALFORMED, PI_ERROR, "Malformed packet", EXPFILL }},
+	};
+
+	expert_module_t* expert_ismp;
+
 /* Register the protocol name and description */
 	proto_ismp = proto_register_protocol("InterSwitch Message Protocol",
 	    "ISMP", "ismp");
@@ -843,6 +850,8 @@ proto_register_ismp(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ismp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ismp = expert_register_protocol(proto_ismp);
+	expert_register_field_array(expert_ismp, ei, array_length(ei));
 }
 
 
