@@ -40,7 +40,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <ctype.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -330,7 +329,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 70 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 69 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -809,7 +808,7 @@ static int hf_s1ap_candidateCellList = -1;        /* CandidateCellList */
 static int hf_s1ap_CandidateCellList_item = -1;   /* IRAT_Cell_ID */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 77 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 76 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -1064,7 +1063,7 @@ static gint ett_s1ap_HOReport = -1;
 static gint ett_s1ap_CandidateCellList = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 88 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 87 "../../asn1/s1ap/packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -3123,7 +3122,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
-  gboolean is_ascii;
+  gboolean is_ascii_alpha;
 
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
                                           1, 150, TRUE);
@@ -3134,14 +3133,14 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   length = tvb_length(parameter_tvb);
 
-  is_ascii = TRUE;
+  is_ascii_alpha = TRUE;
   for (p_offset=0; p_offset < length; p_offset++){
-	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
-		is_ascii = FALSE;
+	 if(!g_ascii_isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
+		is_ascii_alpha = FALSE;
 		break;
 	 }
   }
-  if (is_ascii)
+  if (is_ascii_alpha)
   		proto_item_append_text(actx->created_item,"(%s)",tvb_format_text(parameter_tvb, 0, length));
 
 
@@ -9158,7 +9157,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 133 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 132 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -9449,7 +9448,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 205 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 204 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -11350,7 +11349,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 233 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 232 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -11606,7 +11605,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 245 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 244 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
