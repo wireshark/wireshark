@@ -118,8 +118,8 @@ static long dbg_r = 0;
 
 #define DISP_DBG(attrs) ( dispatcher_debug attrs )
 #define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
-#define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); DISP_DBG((0,"Log Started"));  } while(0)
-#define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",FD,CH,TY(T),RH, (dbg_r>0?"ok":strerror(errno)))))
+#define DISP_DBG_START(fname) do { debug_fp = ws_fopen(fname,"a"); DCOM(); DISP_DBG((0,"Log Started"));  } while(0)
+#define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",FD,CH,TY(T),RH, (dbg_r>0?"ok":g_strerror(errno)))))
 #define CHLD_SET_STATE(c,st) do { DISP_DBG((1,"Child[%d] State %s => %s",(c)->chld_id, ST((c)->state), ST((st)) )); (c)->state=(st); } while(0)
 #else
 #define DISP_DBG(attrs)
@@ -470,10 +470,12 @@ static void set_dumpcap_pid(int pid) {
 }
 
 static void preinit_epan(char* argv0, int (*main)(int, char **)) {
-	// char *gpf_path, *pf_path;
 	char *gdp_path, *dp_path;
-	// int gpf_open_errno, gpf_read_errno;
-	// int pf_open_errno, pf_read_errno;
+#if 0
+	char *gpf_path, *pf_path;
+	int gpf_open_errno, gpf_read_errno;
+	int pf_open_errno, pf_read_errno;
+#endif
 	int gdp_open_errno, gdp_read_errno;
 	int dp_open_errno, dp_read_errno;
 	char* error;
@@ -527,14 +529,15 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	DISP_DBG((1,"---7"));
 
 	DISP_DBG((1,"---8"));
-    timestamp_set_precision(TS_PREC_AUTO_USEC);
+	timestamp_set_precision(TS_PREC_AUTO);
 
-	// sleep(10);
+#if 0
+	sleep(10);
 
-	// initialize_funnel_ops();
-	// stuff.prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path, &pf_open_errno, &pf_read_errno, &pf_path);
-	// check 4 errors
-
+	initialize_funnel_ops();
+	stuff.prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path, &pf_open_errno, &pf_read_errno, &pf_path);
+	check 4 errors
+#endif
 
 	DISP_DBG((2,"epan preinit done"));
 }
@@ -712,7 +715,7 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 
 		DISP_DBG((5,"new_child pipe(dispatcher)"));
 		if( pipe(disp_pipe_fds) < 0) {
-			dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT OPEN PARENT PIPE: %s",strerror(errno));
+			dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT OPEN PARENT PIPE: %s",g_strerror(errno));
 			return;
 		}
 
@@ -723,7 +726,7 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 		if( pipe(child_pipe_fds) < 0) {
 			close(pipe_from_disp);
 			close(pipe_to_child);
-			dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT OPEN CHILD PIPE: %s",strerror(errno));
+			dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT OPEN CHILD PIPE: %s",g_strerror(errno));
 			return;
 		}
 
@@ -737,7 +740,7 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 				close(pipe_to_disp);
 				close(pipe_from_child);
 				close(pipe_from_disp);
-				dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT FORK: %s",strerror(errno));
+				dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT FORK: %s",g_strerror(errno));
 				return;
 			}
 			case 0: {
@@ -957,7 +960,7 @@ int dispatcher_loop(void) {
 		DISP_DBG((5,"Select()ed nfds=%d",nchld,nfds));
 
 		if (nfds < 0) {
-			DISP_DBG((1,"select error='%s'",strerror(errno) ));
+			DISP_DBG((1,"select error='%s'",g_strerror(errno) ));
 			continue;
 		}
 
