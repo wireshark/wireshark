@@ -143,7 +143,7 @@ static gint ett_q2931_ie = -1;
 static gint ett_q2931_ie_ext = -1;
 static gint ett_q2931_nsap = -1;
 
-static void dissect_q2931_ie(tvbuff_t *tvb, int offset, int len,
+static void dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			     proto_tree *tree, guint8 info_element, guint8 info_element_ext);
 
 /*
@@ -1140,7 +1140,7 @@ static const value_string q2931_rejection_reason_vals[] = {
 };
 
 static void
-dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		       proto_tree *tree)
 {
 	guint8 octet;
@@ -1222,7 +1222,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		info_element = tvb_get_guint8(tvb, offset);
 		info_element_ext = tvb_get_guint8(tvb, offset + 1);
 		info_element_len = tvb_get_ntohs(tvb, offset + 2);
-		dissect_q2931_ie(tvb, offset, info_element_len, tree,
+		dissect_q2931_ie(tvb, pinfo, offset, info_element_len, tree,
 		    info_element, info_element_ext);
 		break;
 
@@ -1349,7 +1349,7 @@ static const value_string q2931_screening_indicator_vals[] = {
 };
 
 static void
-dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			proto_tree *tree)
 {
 	guint8 octet;
@@ -1391,7 +1391,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 			return;
 		}
 		nsap_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_q2931_nsap, NULL, "Number");
-		dissect_atm_nsap(tvb, offset, len, nsap_tree);
+		dissect_atm_nsap(tvb, pinfo, offset, len, nsap_tree);
 		break;
 
 	default:
@@ -1745,7 +1745,7 @@ dissect_q2931_endpoint_state_ie(tvbuff_t *tvb, int offset, int len,
 }
 
 static void
-dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			  proto_tree *tree, guint8 info_element)
 {
 	switch (info_element) {
@@ -1794,7 +1794,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
 
 	case Q2931_IE_CALLED_PARTY_NUMBER:
 	case Q2931_IE_CALLING_PARTY_NUMBER:
-		dissect_q2931_number_ie(tvb, offset, len, tree);
+		dissect_q2931_number_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_CALLED_PARTY_SUBADDR:
@@ -1803,7 +1803,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
 		break;
 
 	case Q2931_IE_CAUSE:
-		dissect_q2931_cause_ie(tvb, offset, len, tree);
+		dissect_q2931_cause_ie(tvb, pinfo, offset, len, tree);
 		break;
 
 	case Q2931_IE_CONNECTION_IDENTIFIER:
@@ -1849,7 +1849,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, int offset, int len,
 }
 
 static void
-dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
+dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree,
 		 guint8 info_element, guint8 info_element_ext)
 {
 	proto_item	*ti;
@@ -1871,7 +1871,7 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 
 	if ((info_element_ext & Q2931_IE_COMPAT_CODING_STD)
 	    == Q2931_ITU_STANDARDIZED_CODING) {
-		dissect_q2931_ie_contents(tvb, offset + 4,
+		dissect_q2931_ie_contents(tvb, pinfo, offset + 4,
 		    len, ie_tree, info_element);
 	} else {
 		/*
@@ -1966,7 +1966,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		info_element_ext = tvb_get_guint8(tvb, offset + 1);
 		info_element_len = tvb_get_ntohs(tvb, offset + 2);
 		if (q2931_tree != NULL) {
-			dissect_q2931_ie(tvb, offset, info_element_len,
+			dissect_q2931_ie(tvb, pinfo, offset, info_element_len,
 			    q2931_tree, info_element, info_element_ext);
 		}
 #if 0 /* XXX: Is codeset & etc supoosed to be used somehow ? */

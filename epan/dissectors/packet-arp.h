@@ -26,7 +26,7 @@
 
 const gchar *tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type);
 
-void dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree);
+void dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree);
 
 extern const value_string arp_hrd_vals[];
 
