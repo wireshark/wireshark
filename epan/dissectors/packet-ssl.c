@@ -2615,7 +2615,6 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         if (tree)
         {
             /* tell the user how many cipher specs they've won */
-            tvb_ensure_bytes_exist(tvb, offset, cipher_spec_length);
             ti = proto_tree_add_none_format(tree, dissect_ssl3_hf.hf.hs_cipher_suites,
                                             tvb, offset, cipher_spec_length,
                                             "Cipher Specs (%u specs)",
@@ -2642,16 +2641,12 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         /* if there's a session id, show it */
         if (session_id_length > 0)
         {
-            if (tree)
-            {
-                tvb_ensure_bytes_exist(tvb, offset, session_id_length);
-                proto_tree_add_bytes_format(tree,
+            proto_tree_add_bytes_format(tree,
                                             dissect_ssl3_hf.hf.hs_session_id,
                                             tvb, offset, session_id_length,
                                             NULL, "Session ID (%u byte%s)",
                                             session_id_length,
                                             plurality(session_id_length, "", "s"));
-            }
 
             /* PAOLO: get session id and reset session state for key [re]negotiation */
             if (ssl)
@@ -2667,10 +2662,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         /* if there's a challenge, show it */
         if (challenge_length > 0)
         {
-            tvb_ensure_bytes_exist(tvb, offset, challenge_length);
-
-            if (tree)
-                proto_tree_add_item(tree, hf_ssl2_handshake_challenge,
+            proto_tree_add_item(tree, hf_ssl2_handshake_challenge,
                                 tvb, offset, challenge_length, ENC_NA);
             if (ssl)
             {
@@ -2745,7 +2737,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
     offset += 2;
 
     if (CH_CIPHER_SPECS_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CH_CIPHER_SPECS_LENGTH);
         CH_CIPHER_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cipher_spec, tvb, offset, CH_CIPHER_SPECS_LENGTH, ENC_NA);
         CH_CIPHER_SPECS_tree = proto_item_add_subtree(CH_CIPHER_SPECS_ti, ett_pct_cipher_suites);
 
@@ -2760,7 +2751,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
     }
 
     if (CH_HASH_SPECS_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CH_HASH_SPECS_LENGTH);
         CH_HASH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_hash_spec, tvb, offset, CH_HASH_SPECS_LENGTH, ENC_NA);
         CH_HASH_SPECS_tree = proto_item_add_subtree(CH_HASH_SPECS_ti, ett_pct_hash_suites);
 
@@ -2771,7 +2761,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
     }
 
     if (CH_CERT_SPECS_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CH_CERT_SPECS_LENGTH);
         CH_CERT_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cert_spec, tvb, offset, CH_CERT_SPECS_LENGTH, ENC_NA);
         CH_CERT_SPECS_tree = proto_item_add_subtree(CH_CERT_SPECS_ti, ett_pct_cert_suites);
 
@@ -2782,7 +2771,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
     }
 
     if (CH_EXCH_SPECS_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CH_EXCH_SPECS_LENGTH);
         CH_EXCH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_exch_spec, tvb, offset, CH_EXCH_SPECS_LENGTH, ENC_NA);
         CH_EXCH_SPECS_tree = proto_item_add_subtree(CH_EXCH_SPECS_ti, ett_pct_exch_suites);
 
@@ -2793,7 +2781,6 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
     }
 
     if (CH_KEY_ARG_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CH_KEY_ARG_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CH_KEY_ARG_LENGTH, "IV data (%d bytes)", CH_KEY_ARG_LENGTH);
     }
 }
@@ -2889,19 +2876,16 @@ dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset, pa
     }
 
     if (SH_CERT_SPECS_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, SH_CERT_SPECS_LENGTH);
         proto_tree_add_text(tree, tvb, offset, SH_CERT_SPECS_LENGTH, "Client CERT_SPECS (%d bytes)", SH_CERT_SPECS_LENGTH);
         offset += SH_CERT_SPECS_LENGTH;
     }
 
     if (SH_CLIENT_SIG_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, SH_CLIENT_SIG_LENGTH);
         proto_tree_add_text(tree, tvb, offset, SH_CLIENT_SIG_LENGTH, "Client Signature (%d bytes)", SH_CLIENT_SIG_LENGTH);
         offset += SH_CLIENT_SIG_LENGTH;
     }
 
     if (SH_RESPONSE_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, SH_RESPONSE_LENGTH);
         proto_tree_add_text(tree, tvb, offset, SH_RESPONSE_LENGTH, "Server Response (%d bytes)", SH_RESPONSE_LENGTH);
     }
 
@@ -2946,32 +2930,26 @@ dissect_pct_msg_client_master_key(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     offset += 2;
 
     if (CMK_CLEAR_KEY_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_CLEAR_KEY_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CMK_CLEAR_KEY_LENGTH, "Clear Key data (%d bytes)", CMK_CLEAR_KEY_LENGTH);
         offset += CMK_CLEAR_KEY_LENGTH;
     }
     if (CMK_ENCRYPTED_KEY_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_ENCRYPTED_KEY_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CMK_ENCRYPTED_KEY_LENGTH, "Encrypted Key data (%d bytes)", CMK_ENCRYPTED_KEY_LENGTH);
         offset += CMK_ENCRYPTED_KEY_LENGTH;
     }
     if (CMK_KEY_ARG_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_KEY_ARG_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CMK_KEY_ARG_LENGTH, "IV data (%d bytes)", CMK_KEY_ARG_LENGTH);
         offset += CMK_KEY_ARG_LENGTH;
     }
     if (CMK_VERIFY_PRELUDE) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_VERIFY_PRELUDE);
         proto_tree_add_text(tree, tvb, offset, CMK_VERIFY_PRELUDE, "Verify Prelude data (%d bytes)", CMK_VERIFY_PRELUDE);
         offset += CMK_VERIFY_PRELUDE;
     }
     if (CMK_CLIENT_CERT_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_CLIENT_CERT_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CMK_CLIENT_CERT_LENGTH, "Client Certificate data (%d bytes)", CMK_CLIENT_CERT_LENGTH);
         offset += CMK_CLIENT_CERT_LENGTH;
     }
     if (CMK_RESPONSE_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, CMK_RESPONSE_LENGTH);
         proto_tree_add_text(tree, tvb, offset, CMK_RESPONSE_LENGTH, "Response data (%d bytes)", CMK_RESPONSE_LENGTH);
     }
 }
@@ -2993,7 +2971,6 @@ dissect_pct_msg_server_verify(tvbuff_t *tvb,
     offset += 2;
 
     if (SV_RESPONSE_LENGTH) {
-        tvb_ensure_bytes_exist(tvb, offset, SV_RESPONSE_LENGTH);
         proto_tree_add_text(tree, tvb, offset, SV_RESPONSE_LENGTH, "Server Response (%d bytes)", SV_RESPONSE_LENGTH);
     }
 }
@@ -3083,7 +3060,6 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
     /* show the variable length fields */
     if (clear_key_length > 0)
     {
-        tvb_ensure_bytes_exist(tvb, offset, clear_key_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_clear_key,
                             tvb, offset, clear_key_length, ENC_NA);
         offset += clear_key_length;
@@ -3091,7 +3067,6 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
 
     if (encrypted_key_length > 0)
     {
-        tvb_ensure_bytes_exist(tvb, offset, encrypted_key_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_enc_key,
                             tvb, offset, encrypted_key_length, ENC_NA);
         offset += encrypted_key_length;
@@ -3099,7 +3074,6 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
 
     if (key_arg_length > 0)
     {
-        tvb_ensure_bytes_exist(tvb, offset, key_arg_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_key_arg,
                             tvb, offset, key_arg_length, ENC_NA);
     }
@@ -3192,7 +3166,6 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     if (cipher_spec_length > 0)
     {
         /* provide a collapsing node for the cipher specs */
-        tvb_ensure_bytes_exist(tvb, offset, cipher_spec_length);
         ti = proto_tree_add_none_format(tree,
                                         dissect_ssl3_hf.hf.hs_cipher_suites,
                                         tvb, offset, cipher_spec_length,
@@ -3217,7 +3190,6 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
 
     if (connection_id_length > 0)
     {
-        tvb_ensure_bytes_exist(tvb, offset, connection_id_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_connection_id,
                             tvb, offset, connection_id_length, ENC_NA);
     }

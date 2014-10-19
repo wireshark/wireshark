@@ -1183,7 +1183,6 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
     if (fn)
         fn(auth_tvb, 0, pinfo, tree, &di, hdr->drep);
     else {
-        tvb_ensure_bytes_exist(auth_tvb, 0, hdr->auth_len);
         proto_tree_add_text(tree, auth_tvb, 0, hdr->auth_len,
                             "%s Verifier",
                             val_to_str(auth_info->auth_type,
@@ -1923,8 +1922,7 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   hf_dcerpc_array_actual_count, &len);
 
     DISSECTOR_ASSERT(len <= G_MAXUINT32);
-    if (tree && len) {
-        tvb_ensure_bytes_exist(tvb, offset, (guint32)len);
+    if (len) {
         proto_tree_add_item(tree, di->hf_index, tvb, offset, (guint32)len,
                             ENC_NA);
     }
@@ -2515,7 +2513,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* get the referent id */
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, di, drep, -1, &id);
 
-        tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* we got a NULL pointer */
         if (id == 0) {
             proto_tree_add_text(tree, tvb, offset-pointer_size,
@@ -2560,7 +2557,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* get the referent id */
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, di, drep, -1, &id);
 
-        tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* we got a NULL pointer */
         if (id == 0) {
             proto_tree_add_text(tree, tvb, offset-pointer_size,
@@ -2594,7 +2590,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* get the referent id */
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, di, drep, -1, &id);
 
-        tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* new pointer */
         tr = proto_tree_add_subtree(tree, tvb, offset-pointer_size,
                                  pointer_size,
@@ -2620,7 +2615,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* get the referent id */
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, di, drep, -1, &id);
 
-        tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* we got a NULL pointer */
         if (id == 0) {
             proto_tree_add_text(tree, tvb, offset-pointer_size,
@@ -2655,7 +2649,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* get the referent id */
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, di, drep, -1, &id);
 
-        tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
         /* we got a NULL pointer */
         if (id == 0) {
             proto_tree_add_text(tree, tvb, offset-pointer_size,
@@ -2775,27 +2768,23 @@ show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
         if ((auth_info != NULL) &&
             (auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)) {
             if (is_encrypted) {
-                tvb_ensure_bytes_exist(tvb, offset, length);
                 proto_tree_add_text(dcerpc_tree, tvb, offset, length,
                                     "Encrypted stub data (%d byte%s)",
                                     length, plurality(length, "", "s"));
                 /* is the padding is still inside the encrypted blob, don't display it explicit */
                 auth_pad_len = 0;
             } else {
-                tvb_ensure_bytes_exist(tvb, offset, plain_length);
                 proto_tree_add_text(dcerpc_tree, tvb, offset, plain_length,
                                     "Decrypted stub data (%d byte%s)",
                                     plain_length, plurality(plain_length, "", "s"));
             }
         } else {
-            tvb_ensure_bytes_exist(tvb, offset, plain_length);
             proto_tree_add_text(dcerpc_tree, tvb, offset, plain_length,
                                 "Stub data (%d byte%s)", plain_length,
                                 plurality(plain_length, "", "s"));
         }
         /* If there is auth padding at the end of the stub, display it */
         if (auth_pad_len != 0) {
-            tvb_ensure_bytes_exist(tvb, auth_pad_offset, auth_pad_len);
             proto_tree_add_text(dcerpc_tree, tvb, auth_pad_offset,
                                 auth_pad_len,
                                 "Auth Padding (%u byte%s)",
@@ -3025,7 +3014,6 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 
             /* If there is auth padding at the end of the stub, display it */
             if (auth_pad_len != 0) {
-                tvb_ensure_bytes_exist(tvb, auth_pad_offset, auth_pad_len);
                 proto_tree_add_text(sub_tree, decrypted_tvb, auth_pad_offset,
                                     auth_pad_len,
                                     "Auth Padding (%u byte%s)",
@@ -3083,7 +3071,6 @@ dissect_dcerpc_verifier(tvbuff_t *tvb, packet_info *pinfo,
                 show_exception(auth_tvb, pinfo, dcerpc_tree, EXCEPT_CODE, GET_MESSAGE);
             } ENDTRY;
         } else {
-            tvb_ensure_bytes_exist(tvb, 0, hdr->auth_len);
             proto_tree_add_text(dcerpc_tree, auth_tvb, 0, hdr->auth_len,
                                 "Auth Verifier");
         }
@@ -3444,7 +3431,6 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_sec_addr_len, &sec_addr_len);
     if (sec_addr_len != 0) {
-        tvb_ensure_bytes_exist(tvb, offset, sec_addr_len);
         proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
                             sec_addr_len, ENC_ASCII|ENC_NA);
         offset += sec_addr_len;
@@ -4267,7 +4253,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                      */
                     if (dcerpc_tree) {
                         if (stub_length > 0) {
-                            tvb_ensure_bytes_exist(tvb, offset, stub_length);
                             proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                                 "Fault stub data (%d byte%s)",
                                                 stub_length,
@@ -4278,7 +4263,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     /* PDU is fragmented and this isn't the first fragment */
                     if (dcerpc_tree) {
                         if (stub_length > 0) {
-                            tvb_ensure_bytes_exist(tvb, offset, stub_length);
                             proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                                 "Fragment data (%d byte%s)",
                                                 stub_length,
@@ -4293,7 +4277,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    third means we can attempt reassembly. */
                 if (dcerpc_tree) {
                     if (length > 0) {
-                        tvb_ensure_bytes_exist(tvb, offset, stub_length);
                         proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                             "Fragment data (%d byte%s)",
                                             stub_length,
@@ -4340,7 +4323,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                              */
                             if (dcerpc_tree) {
                                 if (length > 0) {
-                                    tvb_ensure_bytes_exist(tvb, offset, stub_length);
                                     proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                                         "Fault stub data (%d byte%s)",
                                                         stub_length,
@@ -5315,7 +5297,6 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
             /* PDU is fragmented and this isn't the first fragment */
             if (dcerpc_tree) {
                 if (length > 0) {
-                    tvb_ensure_bytes_exist(tvb, offset, stub_length);
                     proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                         "Fragment data (%d byte%s)",
                                         stub_length,
@@ -5330,7 +5311,6 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
            third means we can attempt reassembly. */
         if (dcerpc_tree) {
             if (length > 0) {
-                tvb_ensure_bytes_exist(tvb, offset, stub_length);
                 proto_tree_add_text(dcerpc_tree, tvb, offset, stub_length,
                                     "Fragment data (%d byte%s)", stub_length,
                                     plurality(stub_length, "", "s"));

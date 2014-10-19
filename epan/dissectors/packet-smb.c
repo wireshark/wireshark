@@ -925,7 +925,6 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 			bc = bc_remaining; \
 		} \
 		if (bc) { \
-			tvb_ensure_bytes_exist(tvb, offset, bc); \
 			proto_tree_add_text(tree, tvb, offset, bc, \
 			    "Extra byte parameters");		\
 		} \
@@ -2308,10 +2307,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	BYTE_COUNT;
 
-	if (tree) {
-		tvb_ensure_bytes_exist(tvb, offset, bc);
-		tr = proto_tree_add_subtree(tree, tvb, offset, bc, ett_smb_dialects, NULL, "Requested Dialects");
-	}
+	tr = proto_tree_add_subtree(tree, tvb, offset, bc, ett_smb_dialects, NULL, "Requested Dialects");
 
 	if (!pinfo->fd->flags.visited && si->sip) {
 		dialects = wmem_new(wmem_file_scope(), struct negprot_dialects);
@@ -2411,7 +2407,6 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			"%u: %s", dialect, dialect_name);
 		break;
 	default:
-		tvb_ensure_bytes_exist(tvb, offset, wc*2);
 		proto_tree_add_text(tree, tvb, offset, wc*2,
 			"Words for unknown response format");
 		offset += wc*2;
@@ -9137,7 +9132,6 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	DISSECTOR_ASSERT(si);
 
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, len);
 		if (nti != NULL) {
 			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
 				ett_smb_nt_trans_data, NULL, "%s Data",
@@ -9225,7 +9219,6 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		nti = NULL;
 
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, len);
 		if (nti != NULL) {
 			tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
 				ett_smb_nt_trans_param, NULL, "%s Parameters",
@@ -9435,7 +9428,6 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 		nti = NULL;
 
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, len);
 		if (nti != NULL) {
 			/*item = */proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Setup",
@@ -13888,7 +13880,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				si->unicode, &an_len, FALSE, FALSE, &bc);
 			if (an == NULL)
 				goto endofcommand;
-			tvb_ensure_bytes_exist(tvb, offset, an_len);
 			proto_tree_add_string(tree, hf_smb_trans_name, tvb,
 				offset, an_len, an);
 			COUNT_BYTES(an_len);
@@ -13911,7 +13902,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		padcnt = po-offset;
 		if (padcnt > bc)
 			padcnt = bc;
-		tvb_ensure_bytes_exist(tvb, offset, padcnt);
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
@@ -13940,7 +13930,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		padcnt = od-offset;
 		if (padcnt > bc)
 			padcnt = bc;
-		tvb_ensure_bytes_exist(tvb, offset, padcnt);
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}

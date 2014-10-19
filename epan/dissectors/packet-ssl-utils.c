@@ -4927,7 +4927,6 @@ ssl_dissect_hnd_hello_ext_npn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         ext_len--;
 
         if (npn_length > 0) {
-            tvb_ensure_bytes_exist(tvb, offset, npn_length);
             proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str,
                                 tvb, offset, npn_length, ENC_ASCII|ENC_NA);
             offset += npn_length;
@@ -4957,7 +4956,6 @@ ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1;
 
     if (reneg_info_length > 0) {
-        tvb_ensure_bytes_exist(tvb, offset, reneg_info_length);
         proto_tree_add_text(reneg_info_tree, tvb, offset, reneg_info_length, "Renegotiation Info");
         offset += reneg_info_length;
     }
@@ -4997,7 +4995,6 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
        ext_len -= 2;
 
        if (server_name_length > 0) {
-           tvb_ensure_bytes_exist(tvb, offset, server_name_length);
            proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
                                tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
            offset += server_name_length;
@@ -5780,7 +5777,6 @@ ssl_dissect_hnd_hello_ext_elliptic_curves(ssl_common_dissect_t *hf, tvbuff_t *tv
                         tvb, offset, 2, ENC_BIG_ENDIAN);
 
     offset += 2;
-    tvb_ensure_bytes_exist(tvb, offset, curves_length);
     ti = proto_tree_add_none_format(tree,
                                     hf->hf.hs_ext_elliptic_curves,
                                     tvb, offset, curves_length,
@@ -5815,7 +5811,6 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
         tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    tvb_ensure_bytes_exist(tvb, offset, ecpf_length);
     ti = proto_tree_add_none_format(tree,
                                     hf->hf.hs_ext_elliptic_curves,
                                     tvb, offset, ecpf_length,

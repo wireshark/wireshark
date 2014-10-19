@@ -803,13 +803,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         } else {
                             length += 1;
                         }
-                        if (tree) {
-                            tvb_ensure_bytes_exist(tvb, offset - 1, length + 1);
-                            proto_tree_add_string(mmse_tree,
+                        proto_tree_add_string(mmse_tree,
                                     hf_mmse_content_location,
                                     tvb, offset - 1, length + 1,
                                     "<Undecoded value for m-mbox-delete-conf>");
-                        }
                     } else {
                         length = get_text_string(tvb, offset, &strval);
                         if (tree) {
@@ -828,11 +825,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         tval = get_long_integer(tvb, offset, &count);
                         tmptime.secs = tval;
                         tmptime.nsecs = 0;
-                        if (tree) {
-                            tvb_ensure_bytes_exist(tvb, offset - 1, count + 1);
-                            proto_tree_add_time(mmse_tree, hf_mmse_date, tvb,
+                        proto_tree_add_time(mmse_tree, hf_mmse_date, tvb,
                                     offset - 1, count + 1, &tmptime);
-                        }
                     }
                     offset += count;
                     break;
@@ -860,7 +854,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         tmptime.secs = tval;
                         tmptime.nsecs = 0;
 
-                        tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
                         if (field == 0x80)
                             proto_tree_add_time(mmse_tree,
                                     hf_mmse_delivery_time_abs,
@@ -890,7 +883,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         tmptime.secs = tval;
                         tmptime.nsecs = 0;
 
-                        tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
                         if (field == 0x80)
                             proto_tree_add_time(mmse_tree, hf_mmse_expiry_abs,
                                     tvb, offset - 1,
@@ -910,7 +902,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                     length = get_value_length(tvb, offset, &count);
                     if (tree) {
                         field = tvb_get_guint8(tvb, offset + count);
-                        tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
                         if (field == 0x81) {
                             proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
                                     offset-1, length + count + 1,
@@ -1124,7 +1115,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         tmptime.secs = tval;
                         tmptime.nsecs = 0;
 
-                        tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
                         if (field == 0x80)
                             proto_tree_add_time(mmse_tree, hf_mmse_reply_charging_deadline_abs,
                                     tvb, offset - 1,
@@ -1205,7 +1195,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         strval = abs_time_to_str(wmem_packet_scope(), &tmptime, ABSOLUTE_TIME_LOCAL,
                             TRUE);
                         /* Now render the fields */
-                        tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
                         tii = proto_tree_add_string_format(mmse_tree,
                                 hf_mmse_prev_sent_date,
                                 tvb, offset - 1, 1 + count + length,

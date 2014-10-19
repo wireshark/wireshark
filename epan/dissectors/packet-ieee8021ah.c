@@ -265,25 +265,19 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_set_text(ieee8021ah_tag_tree, "I-Tag, I-SID: %d",
                             tci & IEEE8021AH_ISIDMASK);
 
-        /* ensure size of tag */
-        tvb_ensure_bytes_exist(tvb, 4, 12);
+        proto_tree_add_item(tree, hf_ieee8021ah_c_daddr, tvb, 4, 6, ENC_NA);
+        proto_tree_add_item(tree, hf_ieee8021ah_c_saddr, tvb, 10, 6, ENC_NA);
 
         /* parse out IP addrs */
         dst_addr = tvb_get_ptr(tvb, 4, 6); /* safe to use this function? */
         src_addr = tvb_get_ptr(tvb, 10, 6);
 
-        proto_tree_add_ether(tree, hf_ieee8021ah_c_daddr,
-                                         tvb, 4, 6, dst_addr);
-
-        proto_tree_add_ether(tree, hf_ieee8021ah_c_saddr,
-                                         tvb, 10, 6, src_addr);
-
         /* add text to 802.1ad label */
         if (parent) {
             proto_item_append_text(tree, ", I-SID: %d, C-Src: %s (%s), C-Dst: %s (%s)",
                                    tci & IEEE8021AH_ISIDMASK, get_ether_name(src_addr),
-                                   ether_to_str(src_addr), get_ether_name(dst_addr),
-                                   ether_to_str(dst_addr));
+                                   tvb_ether_to_str(tvb, 10), get_ether_name(dst_addr),
+                                   tvb_ether_to_str(tvb, 4));
         }
     }
 

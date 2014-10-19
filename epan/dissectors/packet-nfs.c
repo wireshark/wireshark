@@ -7744,7 +7744,6 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			int start_off = offset;
 
 			/* Make sure we have 16 bytes (value follows + cookie + name length) */
-			tvb_ensure_bytes_exist(tvb, offset, 16);
 			name_len = tvb_get_ntohl(tvb, offset + 12);
 			tvb_ensure_bytes_exist(tvb, offset, 16 + name_len);
 			/*
