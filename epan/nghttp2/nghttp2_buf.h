@@ -229,6 +229,22 @@ int nghttp2_bufs_wrap_init(nghttp2_bufs *bufs, uint8_t *begin, size_t len);
 void nghttp2_bufs_wrap_free(nghttp2_bufs *bufs);
 
 /*
+ * Reallocates internal buffer using |chunk_length|.  The max_chunk,
+ * chunk_keep and offset do not change.  After successful allocation
+ * of new buffer, previous buffers are deallocated without copying
+ * anything into new buffers.  chunk_used is reset to 1.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * NGHTTP2_ERR_NOMEM
+ *     Out of memory.
+ * NGHTTP2_ERR_INVALID_ARGUMENT
+ *     chunk_length < offset
+ */
+int nghttp2_bufs_realloc(nghttp2_bufs *bufs, size_t chunk_length);
+
+/*
  * Appends the |data| of length |len| to the |bufs|. The write starts
  * at bufs->cur->buf.last. A new buffers will be allocated to store
  * all data.

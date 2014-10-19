@@ -20,7 +20,7 @@ find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<nghttp2.h>
 Change path to nghttp2ver.h
 find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/"nghttp2ver.h"/g'  {} \;
 
-Fix c++-compat error
+Fix c++-compat error and unused-parameter error
 
 in nghttp2/nghttp2_helper.h remove check for CONFIG.H
 
