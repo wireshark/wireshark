@@ -83,8 +83,7 @@ static int hf_nhrp_flag_U2 = -1;
 static int hf_nhrp_flag_S = -1;
 static int hf_nhrp_flag_NAT = -1;
 static int hf_nhrp_src_nbma_addr = -1;
-
-/* static int hf_nhrp_src_nbma_saddr = -1; */     /* TBD: Not used */
+static int hf_nhrp_src_nbma_saddr = -1;
 static int hf_nhrp_src_prot_addr = -1;
 static int hf_nhrp_dst_prot_addr = -1;
 static int hf_nhrp_request_id = -1;
@@ -103,7 +102,7 @@ static int hf_nhrp_cli_saddr_tl_len = -1;
 static int hf_nhrp_cli_prot_len = -1;
 static int hf_nhrp_pref = -1;
 static int hf_nhrp_client_nbma_addr = -1;
-/* static int hf_nhrp_client_nbma_saddr = -1; */ /* TBD: Not used */
+static int hf_nhrp_client_nbma_saddr = -1;
 static int hf_nhrp_client_prot_addr = -1;
 static int hf_nhrp_ext_C = -1;
 static int hf_nhrp_ext_type = -1;
@@ -122,6 +121,17 @@ static int hf_nhrp_devcap_ext_srccap_V = -1;
 static int hf_nhrp_devcap_ext_dstcap = -1;
 static int hf_nhrp_devcap_ext_dstcap_V = -1;
 static int hf_nhrp_unknown_ext_value = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_nhrp_dst_prot_addr_bytes = -1;
+static int hf_nhrp_auth_ext_src_addr_bytes = -1;
+static int hf_nhrp_vendor_ext_data = -1;
+static int hf_nhrp_protocol_type = -1;
+static int hf_nhrp_src_nbma_addr_bytes = -1;
+static int hf_nhrp_client_nbma_address_bytes = -1;
+static int hf_nhrp_client_prot_addr_bytes = -1;
+static int hf_nhrp_auth_data = -1;
+static int hf_nhrp_src_prot_addr_bytes = -1;
 
 static gint ett_nhrp = -1;
 static gint ett_nhrp_hdr = -1;
@@ -362,9 +372,7 @@ static void dissect_nhrp_hdr(tvbuff_t     *tvb,
          * XXX - we should check that this is zero, as RFC 2332
          * says it should be zero.
          */
-        proto_tree_add_text(nhrp_tree, tvb, offset, 5,
-                        "Protocol Type (long form): %s",
-                        tvb_bytes_to_ep_str(tvb, offset, 5));
+        proto_tree_add_item(nhrp_tree, hf_nhrp_protocol_type, tvb, offset, 5, ENC_NA);
         offset += 5;
     }
 
@@ -479,8 +487,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Code=%s",
                     val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
             }
-            proto_tree_add_text(cie_tree, tvb, offset, 1, "Code: %s",
-                                val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
+            proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, ENC_NA);
         }
         offset += 1;
 
@@ -529,34 +536,26 @@ static void dissect_cie_list(tvbuff_t    *tvb,
                 if (cli_addr_len == 4)
                     proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
                 else {
-                    proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
-                        "Client NBMA Address: %s",
-                        tvb_bytes_to_ep_str(tvb, offset, cli_addr_len));
+                    proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_address_bytes, tvb, offset, cli_addr_len, ENC_NA);
                 }
                 break;
 
             default:
-                proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
-                    "Client NBMA Address: %s",
-                    tvb_bytes_to_ep_str(tvb, offset, cli_addr_len));
+                proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_address_bytes, tvb, offset, cli_addr_len, ENC_NA);
                 break;
             }
             offset += cli_addr_len;
         }
 
         if (cli_saddr_len) {
-            proto_tree_add_text(cie_tree, tvb, offset, cli_saddr_len,
-                                "Client NBMA Sub Address: %s",
-                                tvb_bytes_to_ep_str(tvb, offset, cli_saddr_len));
+            proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_saddr, tvb, offset, cli_saddr_len, ENC_NA);
         }
 
         if (cli_prot_len) {
             if (cli_prot_len == 4)
                 proto_tree_add_item(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
             else {
-                proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
-                                    "Client Protocol Address: %s",
-                                    tvb_bytes_to_ep_str(tvb, offset, cli_prot_len));
+                proto_tree_add_item(cie_tree, hf_nhrp_client_prot_addr_bytes, tvb, offset, cli_prot_len, ENC_NA);
             }
             offset += cli_prot_len;
         }
@@ -583,8 +582,6 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     gboolean isInd   = FALSE;
 
     proto_tree *nhrp_tree;
-
-    tvb_ensure_bytes_exist(tvb, offset, mandLen);
 
     switch (hdr->ar_op_type)
     {
@@ -673,16 +670,12 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
             if (shl == 4)
                 proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
             else {
-                proto_tree_add_text(nhrp_tree, tvb, offset, shl,
-                    "Source NBMA Address: %s",
-                    tvb_bytes_to_ep_str(tvb, offset, shl));
+                proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr_bytes, tvb, offset, shl, ENC_NA);
             }
             break;
 
         default:
-            proto_tree_add_text(nhrp_tree, tvb, offset, shl,
-                "Source NBMA Address: %s",
-                tvb_bytes_to_ep_str(tvb, offset, shl));
+            proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr_bytes, tvb, offset, shl, ENC_NA);
             break;
         }
         offset += shl;
@@ -690,9 +683,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
 
     ssl = NHRP_SHTL_LEN(hdr->ar_sstl);
     if (ssl) {
-        proto_tree_add_text(nhrp_tree, tvb, offset, ssl,
-                            "Source NBMA Sub Address: %s",
-                            tvb_bytes_to_ep_str(tvb, offset, ssl));
+        proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_saddr, tvb, offset, ssl, ENC_NA);
         offset += ssl;
     }
 
@@ -701,9 +692,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         offset += 4;
     }
     else if (*srcLen) {
-        proto_tree_add_text(nhrp_tree, tvb, offset, *srcLen,
-                            "Source Protocol Address: %s",
-                            tvb_bytes_to_ep_str(tvb, offset, *srcLen));
+        proto_tree_add_item(nhrp_tree, hf_nhrp_src_prot_addr_bytes, tvb, offset, *srcLen, ENC_NA);
         offset += *srcLen;
     }
 
@@ -712,9 +701,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         offset += 4;
     }
     else if (dstLen) {
-        proto_tree_add_text(nhrp_tree, tvb, offset, dstLen,
-                            "Destination Protocol Address: %s",
-                            tvb_bytes_to_ep_str(tvb, offset, dstLen));
+        proto_tree_add_item(nhrp_tree, hf_nhrp_dst_prot_addr_bytes, tvb, offset, dstLen, ENC_NA);
         offset += dstLen;
     }
 
@@ -823,10 +810,6 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
     gint offset = *pOffset;
     gint extEnd = offset + extLen;
 
-    proto_item *ti;
-
-    tvb_ensure_bytes_exist(tvb, offset, extLen);
-
     while ((offset + 4) <= extEnd)
     {
         proto_tree *nhrp_tree;
@@ -853,7 +836,6 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
         offset += 2;
 
         if (len && (extType != NHRP_EXT_NULL)) {
-            tvb_ensure_bytes_exist(tvb, offset, len);
             if ((extType == NHRP_EXT_NAT_ADDRESS) && (len == 8)) {
                 /* Assume it's not really a Cisco NAT extension, but a device
                  * capabilities extension instead (see RFC 2735). */
@@ -887,10 +869,8 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
             case NHRP_EXT_AUTH:
             case NHRP_EXT_MOBILE_AUTH:
                 if (len < (4 + srcLen)) {
-                    ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
-                        "Malformed Extension: %s",
-                        tvb_bytes_to_ep_str(tvb, offset, len));
-                    expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
+                    proto_tree_add_expert_format(nhrp_tree, pinfo, &ei_nhrp_ext_malformed, tvb, offset, len,
+                        "Incomplete Authentication Extension");
                 }
                 else {
                     proto_tree *auth_tree;
@@ -903,23 +883,18 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     if (srcLen == 4)
                         proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                     else if (srcLen) {
-                        proto_tree_add_text(auth_tree, tvb, offset + 4, srcLen,
-                            "Source Address: %s",
-                            tvb_bytes_to_ep_str(tvb, offset + 4, srcLen));
+                        proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr_bytes, tvb, offset + 4, srcLen, ENC_NA);
                     }
                     if (len > (4 + srcLen)) {
-                        proto_tree_add_text(auth_tree, tvb, offset + 4 + srcLen, len - (4 + srcLen),
-                            "Data: %s", tvb_bytes_to_ep_str(tvb, offset + 4 + srcLen, len - (4 + srcLen)));
+                        proto_tree_add_item(auth_tree, hf_nhrp_auth_data, tvb, offset + 4 + srcLen, len - (4 + srcLen), ENC_NA);
                     }
                 }
                 break;
 
             case NHRP_EXT_VENDOR_PRIV:
                 if (len < 3) {
-                    ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
-                        "Malformed Extension: %s",
-                        tvb_bytes_to_ep_str(tvb, offset, len));
-                    expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
+                    proto_tree_add_expert_format(nhrp_tree, pinfo, &ei_nhrp_ext_malformed, tvb, offset, len,
+                        "Incomplete Vendor-Private Extension");
                 }
                 else {
                     proto_tree *vendor_tree;
@@ -932,8 +907,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
                         offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {
-                        proto_tree_add_text(vendor_tree, tvb, offset + 3, len - 3,
-                            "Data: %s", tvb_bytes_to_ep_str(tvb, offset + 3, len - 3));
+                        proto_tree_add_item(vendor_tree, hf_nhrp_vendor_ext_data, tvb, offset + 3, len - 3, ENC_NA);
                     }
                 }
                 break;
@@ -950,9 +924,8 @@ skip_switch:
         if (!nested) {
             len = tvb_reported_length_remaining(tvb, offset);
             if ((extType == NHRP_EXT_NULL) && len) {
-                ti = proto_tree_add_text(tree, tvb, offset, len,
+                proto_tree_add_expert_format(tree, pinfo, &ei_nhrp_ext_extra, tvb, offset, len,
                     "Unknown Data (%d bytes)", len);
-                expert_add_info(pinfo, ti, &ei_nhrp_ext_extra);
                 break;
             }
         }
@@ -1160,13 +1133,11 @@ proto_register_nhrp(void)
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-#if 0
         { &hf_nhrp_src_nbma_saddr,
           { "Source NBMA Sub Address", "nhrp.src.nbma.saddr",
-            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-#endif
         { &hf_nhrp_src_prot_addr,
           { "Source Protocol Address", "nhrp.src.prot.addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1180,7 +1151,7 @@ proto_register_nhrp(void)
 
         { &hf_nhrp_code,
           { "Code", "nhrp.code",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(nhrp_cie_code_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_nhrp_prefix_len,
@@ -1248,13 +1219,11 @@ proto_register_nhrp(void)
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-#if 0
         { &hf_nhrp_client_nbma_saddr,
           { "Client NBMA Sub Address", "nhrp.client.nbma.saddr",
-            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-#endif
         { &hf_nhrp_client_prot_addr,
           { "Client Protocol Address", "nhrp.client.prot.addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1346,6 +1315,17 @@ proto_register_nhrp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_nhrp_protocol_type, { "Protocol Type (long form)", "nhrp.protocol_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_client_nbma_address_bytes, { "Client NBMA Address", "nhrp.client.nbma.addr_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_client_prot_addr_bytes, { "Client Protocol Address", "nhrp.client.prot.addr_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_src_nbma_addr_bytes, { "Source NBMA Address", "nhrp.src.nbma.addr_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_src_prot_addr_bytes, { "Source Protocol Address", "nhrp.src.prot.addr_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_dst_prot_addr_bytes, { "Destination Protocol Address", "nhrp.dst.prot.addr_byets", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_auth_ext_src_addr_bytes, { "Source Address", "nhrp.auth_ext.src_addr_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_auth_data, { "Data", "nhrp.auth_ext.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_nhrp_vendor_ext_data, { "Data", "nhrp.vendor_ext.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
