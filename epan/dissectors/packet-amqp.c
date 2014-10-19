@@ -54,10 +54,20 @@ static guint amqp_port = 5672;
 
 /*  Generic defines  */
 
+#if 0
 #define AMQP_INCREMENT(offset, addend, bound) {\
     offset += (addend);\
     THROW_ON((offset > bound), ReportedBoundsError);  \
 }
+#else /* --> (temporary until in-progress code review completed; See Bug #10582) */
+#define AMQP_INCREMENT(offset, addend, bound) {\
+        THROW_ON( \
+            (((unsigned)(offset) + (unsigned)(addend)) < (unsigned)(offset)) || \
+            (((unsigned)(offset) + (unsigned)(addend)) > (unsigned)(bound )) \
+            , ReportedBoundsError);  \
+    offset += (addend); \
+}
+#endif
 
 /*
  * This dissector handles AMQP 0-9, 0-10 and 1.0. The conversation structure
