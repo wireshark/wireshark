@@ -26,12 +26,9 @@ AM_CPPFLAGS = -I$(top_srcdir)
 
 include Makefile.common
 
-#
-# XXX - how to make this apply only to clean files?
-#
-#if HAVE_WARNINGS_AS_ERRORS
-#AM_CFLAGS = -Werror
-#endif
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS = -Werror
+endif
 
 plugindir = @plugindir@
 
