@@ -246,6 +246,7 @@ static int hf_smpp_dcs                                = -1;
 static int hf_smpp_dcs_sms_coding_group               = -1;
 static int hf_smpp_dcs_text_compression               = -1;
 static int hf_smpp_dcs_class_present                  = -1;
+static int hf_smpp_dcs_reserved                       = -1;
 static int hf_smpp_dcs_charset                        = -1;
 static int hf_smpp_dcs_class                          = -1;
 static int hf_smpp_dcs_cbs_coding_group               = -1;
@@ -1323,7 +1324,9 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
         }
         else
         {
-            proto_tree_add_text(tree, tvb, *offset, len, "Invalid time: %s", strval);
+            tmptime.secs = 0;
+            tmptime.nsecs = 0;
+            proto_tree_add_time_format_value(tree, field_R, tvb, *offset, len, &tmptime, "%s", strval);
         }
     }
     *offset += len;
@@ -1794,7 +1797,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
     guint8      val;
     int         off     = *offset;
-    proto_tree *subtree = NULL;
+    proto_tree *subtree, *code_tree;
     proto_item *pi;
 
     val = tvb_get_guint8(tvb, off);
@@ -1803,67 +1806,59 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
     /* SMPP Data Coding Scheme */
     proto_tree_add_uint(subtree, hf_smpp_dcs, tvb, off, 1, val);
     /* GSM SMS Data Coding Scheme */
-    proto_tree_add_text(subtree, tvb, off, 1,
-                        "GSM SMS Data Coding");
-    proto_tree_add_uint(subtree,
+    code_tree = proto_tree_add_subtree(subtree, tvb, off, 1, ett_dcs, NULL, "GSM SMS Data Coding");
+
+    proto_tree_add_uint(code_tree,
                         hf_smpp_dcs_sms_coding_group, tvb, off, 1, val);
     if (val>>6 == 2) { /* Reserved */
         ;
     } else if (val < 0xF0) {
-        proto_tree_add_boolean(subtree,
+        proto_tree_add_boolean(code_tree,
                                hf_smpp_dcs_text_compression, tvb, off, 1, val);
-        proto_tree_add_boolean(subtree,
+        proto_tree_add_boolean(code_tree,
                                hf_smpp_dcs_class_present, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_charset, tvb, off, 1, val);
         if (val & 0x10)
-            proto_tree_add_uint(subtree,
+            proto_tree_add_uint(code_tree,
                                 hf_smpp_dcs_class, tvb, off, 1, val);
     } else {
-        if (val & 0x08)
-            proto_tree_add_text(subtree, tvb, off, 1,
-                                "SMPP: Bit .... 1... should be 0 (reserved)");
-        proto_tree_add_uint(subtree,
-                            hf_smpp_dcs_charset, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
-                            hf_smpp_dcs_class, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_reserved, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_charset, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_class, tvb, off, 1, val);
     }
     /* Cell Broadcast Service (CBS) Data Coding Scheme */
-    proto_tree_add_text(subtree, tvb, off, 1,
+    code_tree = proto_tree_add_subtree(subtree, tvb, off, 1, ett_dcs, NULL,
                         "GSM CBS Data Coding");
-    proto_tree_add_uint(subtree,
+    proto_tree_add_uint(code_tree,
                         hf_smpp_dcs_cbs_coding_group, tvb, off, 1, val);
     if (val < 0x40) { /* Language specified */
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_cbs_language, tvb, off, 1, val);
     } else if (val>>6 == 1) { /* General Data Coding indication */
-        proto_tree_add_boolean(subtree,
+        proto_tree_add_boolean(code_tree,
                                hf_smpp_dcs_text_compression, tvb, off, 1, val);
-        proto_tree_add_boolean(subtree,
+        proto_tree_add_boolean(code_tree,
                                hf_smpp_dcs_class_present, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_charset, tvb, off, 1, val);
         if (val & 0x10)
-            proto_tree_add_uint(subtree,
+            proto_tree_add_uint(code_tree,
                                 hf_smpp_dcs_class, tvb, off, 1, val);
     } else if (val>>6 == 2) { /* Message with UDH structure */
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_charset, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_class, tvb, off, 1, val);
     } else if (val>>4 == 14) { /* WAP Forum */
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_wap_charset, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
+        proto_tree_add_uint(code_tree,
                             hf_smpp_dcs_wap_class, tvb, off, 1, val);
     } else if (val>>4 == 15) { /* Data coding / message handling */
-        if (val & 0x08)
-            proto_tree_add_text(subtree, tvb, off, 1,
-                                "SMPP: Bit .... 1... should be 0 (reserved)");
-        proto_tree_add_uint(subtree,
-                            hf_smpp_dcs_charset, tvb, off, 1, val);
-        proto_tree_add_uint(subtree,
-                            hf_smpp_dcs_cbs_class, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_reserved, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_charset, tvb, off, 1, val);
+        proto_tree_add_uint(code_tree, hf_smpp_dcs_cbs_class, tvb, off, 1, val);
     }
 
     (*offset)++;
@@ -1930,6 +1925,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     const char *src_str = NULL;
     const char *dst_str = NULL;
     address   save_src, save_dst;
+    nstime_t  zero_time = {0, 0};
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
@@ -1953,15 +1949,13 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
                          hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                            "Scheduled delivery time: Immediate delivery");
+        proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
         smpp_handle_time(tree, tvb, hf_smpp_validity_period,
                          hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                            "Validity period: SMSC default validity period");
+        proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
     }
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
@@ -2007,25 +2001,24 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb)
     int          offset = 0;
     guint8       flag;
     guint8       length;
+    nstime_t  zero_time = {0, 0};
 
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
-        if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+    if (tvb_get_guint8(tvb,offset)) {
+        smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
                                 hf_smpp_schedule_delivery_time_r, &offset);
-        } else { /* Time = NULL */
-                proto_tree_add_text(tree, tvb, offset++, 1,
-                                "Scheduled delivery time: Keep initial delivery time setting");
-        }
-        if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+    } else { /* Time = NULL */
+        proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Keep initial delivery time setting");
+    }
+    if (tvb_get_guint8(tvb,offset)) {
+        smpp_handle_time(tree, tvb, hf_smpp_validity_period,
                                 hf_smpp_validity_period_r, &offset);
-        } else { /* Time = NULL */
-                proto_tree_add_text(tree, tvb, offset++, 1,
-                                "Validity period: Keep initial validity period setting");
-        }
+    } else { /* Time = NULL */
+        proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1,&zero_time, "Keep initial validity period setting");
+    }
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_uint(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
@@ -2061,6 +2054,7 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
     int          offset = 0;
     guint8       flag;
     guint8       length;
+    nstime_t     zero_time = {0, 0};
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
@@ -2083,15 +2077,12 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
         smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
                 hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                "Scheduled delivery time: Immediate delivery");
+        proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period,
-                hf_smpp_validity_period_r, &offset);
+        smpp_handle_time(tree, tvb, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                "Validity period: SMSC default validity period");
+        proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
     }
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
@@ -2161,6 +2152,7 @@ static void
 broadcast_sm(proto_tree *tree, tvbuff_t *tvb)
 {
     int          offset = 0;
+    nstime_t     zero_time = {0, 0};
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
@@ -2172,15 +2164,12 @@ broadcast_sm(proto_tree *tree, tvbuff_t *tvb)
         smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
                 hf_smpp_schedule_delivery_time_r, &offset);
     } else { /* Time = NULL means Immediate delivery */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                "Scheduled delivery time: Immediate delivery");
+        proto_tree_add_time_format_value(tree, hf_smpp_schedule_delivery_time_r, tvb, offset++, 1, &zero_time, "Immediate delivery");
     }
     if (tvb_get_guint8(tvb,offset)) {
-        smpp_handle_time(tree, tvb, hf_smpp_validity_period,
-                hf_smpp_validity_period_r, &offset);
+        smpp_handle_time(tree, tvb, hf_smpp_validity_period, hf_smpp_validity_period_r, &offset);
     } else { /* Time = NULL means SMSC default validity */
-        proto_tree_add_text(tree, tvb, offset++, 1,
-                "Validity period: SMSC default validity period");
+        proto_tree_add_time_format_value(tree, hf_smpp_validity_period_r, tvb, offset++, 1, &zero_time, "SMSC default validity period");
     }
     smpp_handle_int1(tree, tvb, hf_smpp_replace_if_present_flag, &offset);
     smpp_handle_dcs(tree, tvb, &offset);
@@ -3483,6 +3472,12 @@ proto_register_smpp(void)
                 {       "DCS Class present", "smpp.dcs.class_present",
                         FT_BOOLEAN, 8, TFS(&tfs_dcs_class_present), 0x10,
                         "Indicates if the message class is present (defined).", HFILL
+                }
+        },
+        {       &hf_smpp_dcs_reserved,
+                {       "Reserved (should be zero)", "smpp.dcs.reserved",
+                        FT_UINT8, BASE_DEC, NULL, 0x08,
+                        NULL, HFILL
                 }
         },
         {       &hf_smpp_dcs_charset,
