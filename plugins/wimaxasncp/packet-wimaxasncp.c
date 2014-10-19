@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -2461,7 +2460,7 @@ static char *alnumerize(
 
     for ( ; (c = *r); ++r)
     {
-        if (isalnum((unsigned char)c) || c == '_' || c == '.')
+        if (g_ascii_isalnum(c) || c == '_' || c == '.')
         {
             /* These characters are fine - copy them */
             *(w++) = c;
