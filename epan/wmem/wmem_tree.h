@@ -112,7 +112,10 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key);
 /** Insert a new value under a string key. Like wmem_tree_insert32 but where the
  * key is a null-terminated string instead of a guint32. You may pass
  * WMEM_TREE_STRING_NOCASE to the flags argument in order to make it store the
- * key in a case-insensitive way. */
+ * key in a case-insensitive way.  (Note that "case-insensitive" refers
+ * only to the ASCII letters A-Z and a-z; it is locale-independent.
+ * Do not expect it to honor the rules of your language; for example, "I"
+ * will always be mapped to "i". */
 WS_DLL_PUBLIC
 void
 wmem_tree_insert_string(wmem_tree_t *tree, const gchar* key, void *data,

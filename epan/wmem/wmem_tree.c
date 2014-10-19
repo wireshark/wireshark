@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
@@ -479,8 +478,8 @@ pack_string(const gchar *key, guint32 *divx, guint32 flags)
 
         ch = (unsigned char)key[i];
         if (flags & WMEM_TREE_STRING_NOCASE) {
-            if (isupper(ch)) {
-                ch = tolower(ch);
+            if (g_ascii_isupper(ch)) {
+                ch = g_ascii_tolower(ch);
             }
         }
         tmp <<= 8;
