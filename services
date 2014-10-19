@@ -8190,6 +8190,7 @@ sia-ctrl-plane   4787/tcp # Service Insertion Architecture (SIA) Control-Plane [
 xmcp             4788/tcp # eXtensible Messaging Client Protocol [Cisco] [Glenn_Matthews] 2011-05-23 2011-10-25 Defined TXT keys:     txtvers=1 (as described in the draft)      protovers=<comma-separated list of major/minor versions supported>(examples: "protovers=1.0" "protovers=1.1,2.0"
 vxlan            4789/udp # Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2013-04-19 2014-06-17 [RFC7348]
 vxlan-gpe        4790/udp # Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN) [Lawrence_Kreeger] [Lawrence_Kreeger] 2014-08-26
+roce             4791/udp # IP Routable RocE [InfiniBand_Trade_Association] [Diego_Crupnicoff] 2014-10-17
 iims             4800/tcp # Icona Instant Messenging System
 iims             4800/udp # Icona Instant Messenging System
 iwec             4801/tcp # Icona Web Embedded Chat
@@ -11263,6 +11264,7 @@ m2ap            36443/sctp # M2 Application Part [Dario_S_Tonesi] [Dario_S_Tones
 m3ap            36444/sctp # M3 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
 febooti-aw      36524/tcp # Febooti Automation Workshop [Maris_Bormanis] [Maris_Bormanis] 2011-06-10
 observium-agent 36602/tcp # Observium statistics collection agent [Observium] [Adam_Armstrong] 2013-05-10
+mapx            36700/tcp # MapX communication [MicroTechniX] [Yarochkin_Michail] 2014-10-13
 kastenxpipe     36865/tcp # KastenX Pipe [Guy_Cheng] [Guy_Cheng]
 kastenxpipe     36865/udp # KastenX Pipe [Guy_Cheng] [Guy_Cheng]
 neckar          37475/tcp # science + computing's Venus Administration Port [Ralf_Allrutz] [Ralf_Allrutz] 2002-02
