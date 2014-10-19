@@ -3170,7 +3170,7 @@ proto_register_tds(void)
       { &hf_tds_line_number32, { "line number", "tds.line_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_tds_ack, { "Ack", "tds.ack", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_tds_text_length, { "Text length", "tds.text_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_tds_server_version, { "Server Version", "tds.server_version", FT_UINT32, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_tds_server_version, { "Server Version", "tds.server_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_tds_columns, { "Columns", "tds.columns", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_tds_usertype32, { "usertype", "tds.usertype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_tds_usertype16, { "usertype", "tds.usertype", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
