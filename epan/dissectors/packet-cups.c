@@ -23,9 +23,8 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
+#include <wsutil/str_util.h>
 #include <epan/packet.h>
 
 /**********************************************************************/
@@ -230,17 +229,8 @@ get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset)
     int c;
     guint u = 0;
 
-    while (isxdigit(c = tvb_get_guint8(tvb, offset))) {
-        if (isdigit(c))
-            c -= '0';
-        else if (isupper(c))
-            c -= 'A' - 10;
-        else if (islower(c))
-            c -= 'a' - 10;
-        else
-            c = 0; /* This should not happen. */
-
-        u = 16*u + c;
+    while (g_ascii_isxdigit(c = tvb_get_guint8(tvb, offset))) {
+        u = 16*u + ws_xton(c);
 
         offset++;
     }

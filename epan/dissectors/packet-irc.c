@@ -41,7 +41,6 @@
 #include "config.h"
 
 #include <glib.h>
-#include <ctype.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
@@ -172,9 +171,9 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 
         /* Warn if there is a "numeric" command */
         if ((end_offset-offset == 3) &&
-            (isdigit(tvb_get_guint8(tvb, offset))) &&
-            (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-            (isdigit(tvb_get_guint8(tvb, offset+2))))
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset))) &&
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset+1))) &&
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset+2))))
         {
             expert_add_info(pinfo, request_item, &ei_irc_numeric_request_command);
         }
@@ -187,9 +186,9 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 
     /* Warn if there is a "numeric" command */
     if ((eoc_offset-offset == 3) &&
-       (isdigit(tvb_get_guint8(tvb, offset))) &&
-       (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-       (isdigit(tvb_get_guint8(tvb, offset+2))))
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset))) &&
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset+1))) &&
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset+2))))
     {
         expert_add_info(pinfo, request_item, &ei_irc_numeric_request_command);
     }
@@ -341,9 +340,9 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
         /* if response command is numeric, allow it to be filtered as an integer */
         if ((end_offset-offset == 3) &&
-            (isdigit(tvb_get_guint8(tvb, offset))) &&
-            (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-            (isdigit(tvb_get_guint8(tvb, offset+2))))
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset))) &&
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset+1))) &&
+            (g_ascii_isdigit(tvb_get_guint8(tvb, offset+2))))
         {
             num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
             hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, end_offset-offset, num_command);
@@ -358,9 +357,9 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
     /* if response command is numeric, allow it to be filtered as an integer */
     if ((eoc_offset-offset == 3) &&
-       (isdigit(tvb_get_guint8(tvb, offset))) &&
-       (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-       (isdigit(tvb_get_guint8(tvb, offset+2))))
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset))) &&
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset+1))) &&
+       (g_ascii_isdigit(tvb_get_guint8(tvb, offset+2))))
     {
         num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
         hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, eoc_offset-offset, num_command);

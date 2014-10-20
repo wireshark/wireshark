@@ -34,8 +34,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 #include <epan/conversation.h>
 #include <epan/packet.h>
@@ -1057,8 +1055,8 @@ static spdy_header_info_t* spdy_find_saved_header_block(packet_info *pinfo _U_,
 static gchar* spdy_parse_content_type(gchar *content_type) {
   gchar *cp = content_type;
 
-  while (*cp != '\0' && *cp != ';' && !isspace(*cp)) {
-    *cp = tolower(*cp);
+  while (*cp != '\0' && *cp != ';' && !g_ascii_isspace(*cp)) {
+    *cp = g_ascii_tolower(*cp);
     ++cp;
   }
   if (*cp == '\0') {
@@ -1067,7 +1065,7 @@ static gchar* spdy_parse_content_type(gchar *content_type) {
 
   if (cp != NULL) {
     *cp++ = '\0';
-    while (*cp == ';' || isspace(*cp)) {
+    while (*cp == ';' || g_ascii_isspace(*cp)) {
       ++cp;
     }
     if (*cp != '\0') {

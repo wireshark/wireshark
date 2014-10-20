@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -2244,7 +2242,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             {
                 c = tvb_get_guint8(tvb, current_offset);
 
-                if (!isdigit(c))
+                if (!g_ascii_isdigit(c))
                 {
                     if (current_offset > port_offset)
                     {
@@ -2312,7 +2310,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             while (current_offset < line_end_offset)
             {
                 c = tvb_get_guint8(tvb, current_offset);
-                if (!isalpha(c) && (c != '-'))
+                if (!g_ascii_isalpha(c) && (c != '-'))
                 {
                     break;
                 }
@@ -3047,7 +3045,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                            of method name */
                         for (sub_value_offset=0; sub_value_offset < value_len; sub_value_offset++)
                         {
-                            if (!isdigit((guchar)value[sub_value_offset]))
+                            if (!g_ascii_isdigit(value[sub_value_offset]))
                             {
                                 proto_tree_add_uint(cseq_tree, hf_sip_cseq_seq_no,
                                                     tvb, value_offset, sub_value_offset,
@@ -3058,7 +3056,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                         for (; sub_value_offset < value_len; sub_value_offset++)
                         {
-                            if (isalpha((guchar)value[sub_value_offset]))
+                            if (g_ascii_isalpha(value[sub_value_offset]))
                             {
                                 /* Have reached start of method name */
                                 break;
@@ -3120,7 +3118,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* RSeq number */
                         for (sub_value_offset=0; sub_value_offset < value_len; sub_value_offset++)
                         {
-                            if (!isdigit((guchar)value[sub_value_offset]))
+                            if (!g_ascii_isdigit(value[sub_value_offset]))
                             {
                                 proto_tree_add_uint(rack_tree, hf_sip_rack_rseq_no,
                                                     tvb, value_offset, sub_value_offset,
@@ -3143,7 +3141,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* CSeq number */
                         for ( ; sub_value_offset < value_len; sub_value_offset++)
                         {
-                            if (!isdigit((guchar)value[sub_value_offset]))
+                            if (!g_ascii_isdigit(value[sub_value_offset]))
                             {
                                 proto_tree_add_uint(rack_tree, hf_sip_rack_cseq_no,
                                                     tvb, value_offset+cseq_no_offset,
@@ -3156,7 +3154,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* Get to start of CSeq method name */
                         for ( ; sub_value_offset < value_len; sub_value_offset++)
                         {
-                            if (isalpha((guchar)value[sub_value_offset]))
+                            if (g_ascii_isalpha(value[sub_value_offset]))
                             {
                                 /* Have reached start of method name */
                                 break;
@@ -4017,9 +4015,9 @@ sip_parse_line(tvbuff_t *tvb, int offset, gint linelen, guint *token_1_lenp)
              */
             return OTHER_LINE;
         }
-        if (!isdigit(tvb_get_guint8(tvb, token_2_start)) ||
-            !isdigit(tvb_get_guint8(tvb, token_2_start + 1)) ||
-            !isdigit(tvb_get_guint8(tvb, token_2_start + 2))) {
+        if (!g_ascii_isdigit(tvb_get_guint8(tvb, token_2_start)) ||
+            !g_ascii_isdigit(tvb_get_guint8(tvb, token_2_start + 1)) ||
+            !g_ascii_isdigit(tvb_get_guint8(tvb, token_2_start + 2))) {
             /*
              * 3 characters yes, 3 digits no.
              */

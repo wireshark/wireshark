@@ -28,7 +28,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <string.h>
 #include <glib.h>
@@ -218,7 +217,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
         /*
          * Look for a digit.
          */
-        while ((c = *p) != '\0' && !isdigit(c))
+        while ((c = *p) != '\0' && !g_ascii_isdigit(c))
             p++;
 
         if (*p == '\0') {
@@ -255,7 +254,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
          * Well, that didn't work.  Skip the first number we found,
          * and keep trying.
          */
-        while ((c = *p) != '\0' && isdigit(c))
+        while ((c = *p) != '\0' && g_ascii_isdigit(c))
             p++;
     }
 
@@ -267,9 +266,9 @@ isvalid_rfc2428_delimiter(const guchar c)
 {
     /* RFC2428 sect. 2 states rules for a valid delimiter */
     const gchar *forbidden = "0123456789abcdef.:";
-    if (c < 33 || c > 126)
+    if (!g_ascii_isgraph(c))
         return FALSE;
-    if (strchr(forbidden, tolower(c)))
+    if (strchr(forbidden, g_ascii_tolower(c)))
         return FALSE;
     return TRUE;
 }
@@ -629,8 +628,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * treat non-continuation lines not beginning with digits
          * as errors?
          */
-        if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
-            && isdigit(line[2])) {
+        if (linelen >= 3 && g_ascii_isdigit(line[0]) && g_ascii_isdigit(line[1])
+            && g_ascii_isdigit(line[2])) {
             /*
              * One-line reply, or first or last line
              * of a multi-line reply.

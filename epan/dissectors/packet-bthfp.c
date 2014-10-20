@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -900,9 +898,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvb_memcpy(tvb, at_stream, offset, length);
     at_stream[length] = '\0';
     while (at_stream[i_char]) {
-        at_stream[i_char] = toupper(at_stream[i_char]);
+        at_stream[i_char] = g_ascii_toupper(at_stream[i_char]);
         if (!command_number) {
-            col_str[i_char] = toupper(col_str[i_char]);
+            col_str[i_char] = g_ascii_toupper(col_str[i_char]);
             if (!g_ascii_isgraph(col_str[i_char])) col_str[i_char] = ' ';
         }
         i_char += 1;

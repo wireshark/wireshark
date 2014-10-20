@@ -41,7 +41,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -433,7 +432,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* assume at least one digit in version */
     tvb_current_offset = tvb_previous_offset + 1;
 
-    if (isdigit(tvb_get_guint8(tvb, tvb_current_offset))) {
+    if (g_ascii_isdigit(tvb_get_guint8(tvb, tvb_current_offset))) {
         /* 2-digit version */
         tvb_current_offset++;
     }
@@ -525,7 +524,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Find token length */
     for (tvb_offset=tvb_previous_offset; tvb_offset < tvb_len-1; tvb_offset++){
-        if (!isalpha(tvb_get_guint8(tvb, tvb_offset ))){
+        if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_offset ))){
             break;
         }
     }
@@ -1489,7 +1488,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 
         /* Find token length */
         for (tvb_offset=tvb_previous_offset; tvb_offset < tvb_descriptors_end_offset -1; tvb_offset++){
-            if (!isalpha(tvb_get_guint8(tvb, tvb_offset ))){
+            if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_offset ))){
                 break;
             }
         }
@@ -1669,7 +1668,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 
         /* Find token length */
         for (tvb_next_offset=tvb_current_offset; tvb_next_offset < tvb_last_RBRKT; tvb_next_offset++){
-                if (!isalpha(tvb_get_guint8(tvb, tvb_next_offset ))){
+                if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_next_offset ))){
                 break;
             }
         }
@@ -2067,7 +2066,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
     tvb_signals_end_offset   = tvb_RBRKT;
     tvb_signals_start_offset = tvb_previous_offset;
 
-    if(toupper(tvb_get_guint8(tvb, tvb_previous_offset+1))=='G')
+    if(g_ascii_toupper(tvb_get_guint8(tvb, tvb_previous_offset+1))=='G')
       tokenlen = 2;                             /* token is compact text (SG) */
     else
       tokenlen = 7;                             /* token must be verbose text (Signals) */
@@ -2366,7 +2365,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
         tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
         /* Find token length */
         for (tvb_offset=tvb_previous_offset; tvb_offset < tvb_RBRKT; tvb_offset++){
-            if (!isalpha(tvb_get_guint8(tvb, tvb_offset ))){
+            if (!g_ascii_isalpha(tvb_get_guint8(tvb, tvb_offset ))){
                 break;
             }
         }
@@ -3081,7 +3080,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
         for (tvb_offset=tvb_current_offset; tvb_offset < tvb_next_offset; tvb_offset++){
             guint8 octet;
             octet = tvb_get_guint8(tvb, tvb_offset);
-            if (!isalnum(octet)){
+            if (!g_ascii_isalnum(octet)){
                 if ((octet!='/')&&(octet!='_')){
                     break;
                 }

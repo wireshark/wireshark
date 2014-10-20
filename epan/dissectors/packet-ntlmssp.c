@@ -29,7 +29,6 @@
 #include <stdio.h>
 #endif
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -565,7 +564,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     str_to_unicode(ntlmssph->acct_name, buf);
     for (j = 0; j < (2*user_len); j++) {
       if (buf[j] != '\0') {
-        user_uppercase[j] = toupper(buf[j]);
+        user_uppercase[j] = g_ascii_toupper(buf[j]);
       }
     }
   }
@@ -682,7 +681,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     if (password_len > NTLMSSP_KEY_LEN)
       password_len = NTLMSSP_KEY_LEN;
     for (i = 0; i < password_len; i++) {
-      lm_password_upper[i] = toupper(nt_password[i]);
+      lm_password_upper[i] = g_ascii_toupper(nt_password[i]);
     }
   }
   else

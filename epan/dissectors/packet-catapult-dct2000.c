@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -1408,7 +1407,7 @@ static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_
 
         /* Find digits */
         for ( ; n < outhdr_string_len; n++) {
-            if (!isdigit(outhdr_string[n])) {
+            if (!g_ascii_isdigit(outhdr_string[n])) {
                 break;
             }
             else {
@@ -1922,8 +1921,8 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* Extract & add the string. */
         char *string = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII);
-        if (isascii(string[0])) {
-            /* If looks printable treat as string... */
+        if (g_ascii_isprint(string[0])) {
+            /* If the first byte of the string is printable ASCII treat as string... */
             proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
                                          tvb, offset,
                                          linelen, string,
