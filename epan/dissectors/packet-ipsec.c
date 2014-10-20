@@ -366,7 +366,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
 	    }
 	  else
 	    {
-	      suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = toupper(ipv6_address[ipv6_len - cpt - 1]);
+	      suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = g_ascii_toupper(ipv6_address[ipv6_len - cpt - 1]);
 	      cpt_seg ++;
 	      cpt_suffix ++;
 	      cpt++;
