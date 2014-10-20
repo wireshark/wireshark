@@ -46,7 +46,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -1180,7 +1179,7 @@ alnumerize(char *name)
 	char c;
 
 	for (;(c = *r); r++) {
-		if (isalnum((unsigned char)c) || c == '_' || c == '-' || c == '.') {
+		if (g_ascii_isalnum(c) || c == '_' || c == '-' || c == '.') {
 			*(w++) = c;
 		}
 	}

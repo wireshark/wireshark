@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -243,7 +242,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msg_off++;
     pri = 0;
     while (tvb_bytes_exist(tvb, msg_off, 1) &&
-           isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
+           g_ascii_isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
       pri = pri * 10 + (tvb_get_guint8(tvb, msg_off) - '0');
       msg_off++;
     }

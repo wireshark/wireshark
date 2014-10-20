@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -519,9 +518,9 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      */
     is_msrp_response = FALSE;
     if (token_3_len == 3) {
-            if (isdigit(tvb_get_guint8(tvb, token_3_start)) &&
-                isdigit(tvb_get_guint8(tvb, token_3_start + 1)) &&
-                isdigit(tvb_get_guint8(tvb, token_3_start + 2))) {
+            if (g_ascii_isdigit(tvb_get_guint8(tvb, token_3_start)) &&
+                g_ascii_isdigit(tvb_get_guint8(tvb, token_3_start + 1)) &&
+                g_ascii_isdigit(tvb_get_guint8(tvb, token_3_start + 2))) {
                 is_msrp_response = TRUE;
             }
     }

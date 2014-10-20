@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <ctype.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
@@ -252,7 +251,7 @@ static int num_len(tvbuff_t *tvb, int offset)
 {
   unsigned int i = 0;
 
-  while (isdigit(tvb_get_guint8(tvb, offset + i))) i++;
+  while (g_ascii_isdigit(tvb_get_guint8(tvb, offset + i))) i++;
 
   return i;
 

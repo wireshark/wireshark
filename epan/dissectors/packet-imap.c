@@ -32,7 +32,6 @@
 #include "packet-ssl.h"
 
 #include <stdio.h>
-#include <ctype.h>
 
 static int proto_imap = -1;
 static int hf_imap_isrequest = -1;
@@ -164,7 +163,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  tokenlen = get_token_len(line, line + linelen, &next_token);
 			  if (tokenlen != 0) {
 			    for (iter = 0; iter < tokenlen && iter < MAX_BUFFER-1; iter++) {
-			      tokenbuf[iter] = tolower(line[iter]);
+			      tokenbuf[iter] = g_ascii_tolower(line[iter]);
 			    }
 			    if ( TRUE == is_request && strncmp(tokenbuf,"uid",tokenlen) == 0) {
 			      proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
@@ -184,7 +183,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Save command string to do specialized processing.
 				 */
 				for (iter = 0; iter < uid_tokenlen && iter < MAX_BUFFER-1; iter++) {
-				  command_token[iter] = tolower(uid_line[iter]);
+				  command_token[iter] = g_ascii_tolower(uid_line[iter]);
 				}
 				commandlen = uid_tokenlen;
 
@@ -205,7 +204,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Save command string to do specialized processing.
 				 */
 				for (iter = 0; iter < tokenlen && iter < 256; iter++) {
-				  command_token[iter] = tolower(line[iter]);
+				  command_token[iter] = g_ascii_tolower(line[iter]);
 				}
 				commandlen = tokenlen;
 

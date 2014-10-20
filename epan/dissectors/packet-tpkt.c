@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -121,11 +119,11 @@ is_asciitpkt(tvbuff_t *tvb)
         return -1;      /* there aren't */
 
         /*
-         * The first four  octets should be ASCII
+         * The first four  octets should be alphanumeric ASCII
          */
     for (count = 0; count <=7 ; count ++)
         {
-        if(!isalnum(tvb_get_guint8(tvb,count)))
+        if(!g_ascii_isalnum(tvb_get_guint8(tvb,count)))
           {
           return 0;
           }

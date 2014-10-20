@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -233,12 +231,12 @@ get_hex_uint(tvbuff_t *tvb, gint offset, gint *next_offset)
     int c;
     guint u = 0;
 
-    while (isxdigit(c = tvb_get_guint8(tvb, offset))) {
-        if (isdigit(c))
+    while (g_ascii_isxdigit(c = tvb_get_guint8(tvb, offset))) {
+        if (g_ascii_isdigit(c))
             c -= '0';
-        else if (isupper(c))
+        else if (g_ascii_isupper(c))
             c -= 'A' - 10;
-        else if (islower(c))
+        else if (g_ascii_islower(c))
             c -= 'a' - 10;
         else
             c = 0; /* This should not happen. */

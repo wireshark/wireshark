@@ -283,7 +283,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <ctype.h>
 #include <glib.h>
 #include <math.h>
 
@@ -1403,17 +1402,17 @@ static void insert_in_objkey_hash(GHashTable *hash, const gchar *obj, guint32 le
 static gint8 hex_char_to_val(guchar c){
   gint8 retval ;
 
-  if (!isxdigit(c)) {
+  if (!g_ascii_isxdigit(c)) {
     return -1;
   }
-  if (isdigit(c)) {
-    retval = c - 48;            /* convert digit */
+  if (g_ascii_isdigit(c)) {
+    retval = c - '0';           /* convert digit */
     return retval;
   }
 
-  c = toupper(c);               /* convert to uppercase */
+  c = g_ascii_toupper(c);       /* convert to uppercase */
   if (c >= 'A' && c <= 'F') {
-    retval = c - 55;
+    retval = c - 'A' + 10;
     return retval;
   }
   else {
@@ -1448,7 +1447,7 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out){
   /* skip past IOR:  and convert character pairs to guint8 */
 
   for (i=4; i<in_len-1; i+=2) {
-    if ( isxdigit(in[i]) && isxdigit(in[i+1]) ) { /* hex ? */
+    if ( g_ascii_isxdigit(in[i]) && g_ascii_isxdigit(in[i+1]) ) { /* hex ? */
 
       if ( (tmpval_msb = hex_char_to_val(in[i])) < 0 ) {
         g_warning("giop: Invalid value in IOR %i \n", tmpval_msb);

@@ -32,7 +32,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -475,7 +474,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
         size_t len = strlen(rtsp_methods[ii]);
         if (linelen >= len &&
             g_ascii_strncasecmp(rtsp_methods[ii], line, len) == 0 &&
-            (len == linelen || isspace(line[len])))
+            (len == linelen || g_ascii_isspace(line[len])))
         {
             *type = RTSP_REQUEST;
             rtsp_stat_info->request_method = ep_strndup(rtsp_methods[ii], len+1);
@@ -522,7 +521,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 
     /* Get past "Transport:" and spaces */
     tmp = buf + STRLEN_CONST(rtsp_transport);
-    while (*tmp && isspace(*tmp))
+    while (*tmp && g_ascii_isspace(*tmp))
         tmp++;
 
     /* Work out which transport type is here */
@@ -672,11 +671,11 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
     buf[line_len] = '\0';
 
     tmp = buf + STRLEN_CONST(rtsp_content_length);
-    while (*tmp && isspace(*tmp))
+    while (*tmp && g_ascii_isspace(*tmp))
         tmp++;
     content_length = strtol(tmp, &p, 10);
     up = p;
-    if (up == tmp || (*up != '\0' && !isspace(*up)))
+    if (up == tmp || (*up != '\0' && !g_ascii_isspace(*up)))
         return -1;  /* not a valid number */
     return (int)content_length;
 }
@@ -887,20 +886,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
             c = *linep++;
 
             /*
-             * This must be a CHAR to be part of a token; that
-             * means it must be ASCII.
-             */
-            if (!isascii(c))
-                break;  /* not ASCII, thus not a CHAR */
-
-            /*
-             * This mustn't be a CTL to be part of a token.
+             * This must be a CHAR, and not a CTL, to be part of a token;
+             * that means it must be printable ASCII.
              *
              * XXX - what about leading LWS on continuation
              * lines of a header?
              */
-            if (iscntrl(c))
-                break;  /* CTL, not part of a header */
+            if (!g_ascii_isprint(c))
+                break;  /* not ASCII, thus not a CHAR, or a CTL */
 
             switch (c) {
 
@@ -1286,7 +1279,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
         size_t len = strlen(rtsp_methods[ii]);
         if (linelen >= len &&
             g_ascii_strncasecmp(rtsp_methods[ii], data, len) == 0 &&
-            (len == linelen || isspace(data[len])))
+            (len == linelen || g_ascii_isspace(data[len])))
             break;
     }
     if (ii == RTSP_NMETHODS) {
@@ -1312,15 +1305,15 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
     /* URL */
     url = data;
     /* Skip method name again */
-    while (url < lineend && !isspace(*url))
+    while (url < lineend && !g_ascii_isspace(*url))
         url++;
     /* Skip spaces */
-    while (url < lineend && isspace(*url))
+    while (url < lineend && g_ascii_isspace(*url))
         url++;
     /* URL starts here */
     url_start = url;
     /* Scan to end of URL */
-    while (url < lineend && !isspace(*url))
+    while (url < lineend && !g_ascii_isspace(*url))
         url++;
     /* Create a URL-sized buffer and copy contents */
     tmp_url = ep_strndup(url_start, url - url_start);
@@ -1352,16 +1345,16 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
     /* status code */
 
     /* Skip protocol/version */
-    while (status < lineend && !isspace(*status))
+    while (status < lineend && !g_ascii_isspace(*status))
         status++;
     /* Skip spaces */
-    while (status < lineend && isspace(*status))
+    while (status < lineend && g_ascii_isspace(*status))
         status++;
 
     /* Actual code number now */
     status_start = status;
     status_i = 0;
-    while (status < lineend && isdigit(*status))
+    while (status < lineend && g_ascii_isdigit(*status))
         status_i = status_i * 10 + *status++ - '0';
 
     /* Add field to tree */
