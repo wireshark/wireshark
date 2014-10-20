@@ -28,8 +28,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>

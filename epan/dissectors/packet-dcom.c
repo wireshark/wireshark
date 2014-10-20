@@ -86,7 +86,6 @@
 #endif
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <ctype.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 

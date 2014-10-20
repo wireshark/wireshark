@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <ctype.h>
 
 void proto_register_at_command(void);
 void proto_reg_handoff_at_command(void);

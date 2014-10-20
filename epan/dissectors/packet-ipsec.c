@@ -611,7 +611,6 @@ static gboolean g_ah_payload_in_subtree = FALSE;
 
 #ifdef HAVE_LIBGCRYPT
 #if 0
-#include <ctype.h>
 
 /*
    Name : static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)

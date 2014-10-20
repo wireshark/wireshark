@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 

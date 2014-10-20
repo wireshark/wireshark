@@ -29,7 +29,6 @@
 
 #include <glib.h>
 #include <string.h>
-#include <ctype.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 

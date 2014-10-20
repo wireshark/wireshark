@@ -26,8 +26,6 @@
 
 #include "config.h"
 
-#include <ctype.h>
-
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
