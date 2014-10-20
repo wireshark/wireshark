@@ -682,6 +682,7 @@ guint32 cf_comment_types(capture_file *cf);
  * @param phdr the struct wtap_pkthdr for the frame
  * @param pd the raw packet data for the frame
  */
+WS_DLL_PUBLIC
 void cf_set_frame_edited(capture_file *cf, frame_data *fd, struct wtap_pkthdr *phdr, guint8 *pd);
 #endif
 
