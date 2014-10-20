@@ -4665,7 +4665,12 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
             offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                           dfdpck_top_row_fields);
           } else {
-            offset += dissect_unknown_data(tn5250_tree, tvb, offset, start, length);
+            guint32 step;
+
+            step = dissect_unknown_data(tn5250_tree, tvb, offset, start, length);
+            if (step==0)
+              break;
+            offset += step;
           }
         }
         break;
