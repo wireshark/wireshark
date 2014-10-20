@@ -2056,7 +2056,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                 transport_slash_count++;
             }
             else
-            if (!transport_name_started && (transport_slash_count == 2) && isalpha(c))
+            if (!transport_name_started && (transport_slash_count == 2) && g_ascii_isalpha(c))
             {
                 transport_name_started = TRUE;
                 transport_start_offset = current_offset;
