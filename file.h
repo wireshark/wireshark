@@ -673,6 +673,18 @@ gboolean cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gcha
  */
 guint32 cf_comment_types(capture_file *cf);
 
+#ifdef WANT_PACKET_EDITOR
+/**
+ * Give a frame new, edited data.
+ *
+ * @param cf the capture file
+ * @param fd frame_data structure for the frame
+ * @param phdr the struct wtap_pkthdr for the frame
+ * @param pd the raw packet data for the frame
+ */
+void cf_set_frame_edited(capture_file *cf, frame_data *fd, struct wtap_pkthdr *phdr, guint8 *pd);
+#endif
+
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 WS_DLL_PUBLIC
 void read_keytab_file(const char *);

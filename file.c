@@ -4036,6 +4036,50 @@ cf_comment_types(capture_file *cf)
   return comment_types;
 }
 
+#ifdef WANT_PACKET_EDITOR
+static gint
+g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+{
+  if (a > b)
+    return 1;
+  else if (a < b)
+    return -1;
+  else
+    return 0;
+}
+
+static void
+modified_frame_data_free(gpointer data)
+{
+  modified_frame_data *mfd = (modified_frame_data *)data;
+
+  g_free(mfd->pd);
+  g_free(mfd);
+}
+
+/*
+ * Give a frame new, edited data.
+ */
+void
+cf_set_frame_edited(capture_file *cf, frame_data *fd,
+                    struct wtap_pkthdr *phdr, guint8 *pd)
+{
+  modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
+
+  mfd->phdr = *phdr;
+  mfd->pd = pd;
+
+  if (cf->edited_frames == NULL)
+    cf->edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL,
+                                        modified_frame_data_free);
+  g_tree_insert(cf->edited_frames, GINT_TO_POINTER(fd->num), mfd);
+  fd->file_off = -1;
+
+  /* Mark the file as having unsaved changes */
+  cf->unsaved_changes = TRUE;
+}
+#endif
+
 typedef struct {
   wtap_dumper *pdh;
   const char  *fname;
@@ -4050,7 +4094,7 @@ typedef struct {
  * up a message box for the failure.
  */
 static gboolean
-save_record(capture_file *cf _U_, frame_data *fdata,
+save_record(capture_file *cf, frame_data *fdata,
             struct wtap_pkthdr *phdr, const guint8 *pd,
             void *argsp)
 {

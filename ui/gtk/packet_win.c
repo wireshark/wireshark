@@ -900,22 +900,6 @@ edit_pkt_destroy_new_window(GObject *object _U_, gpointer user_data)
 	/* XXX, notify main packet list that packet should be redisplayed */
 }
 
-static gint g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_) {
-	if (a > b)
-		return 1;
-	else if (a < b)
-		return -1;
-	else
-		return 0;
-}
-
-static void modifed_frame_data_free(gpointer data) {
-	modified_frame_data *mfd = (modified_frame_data *) data;
-
-	g_free(mfd->pd);
-	g_free(mfd);
-}
-
 #endif /* WANT_PACKET_EDITOR */
 
 void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _U_)
@@ -1044,15 +1028,11 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 #ifdef WANT_PACKET_EDITOR
 	if (editable && DataPtr->frame->cap_len != 0) {
 		/* XXX, there's no Save button here, so lets assume packet is always edited */
-		modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
+		cf_set_frame_edited(&cfile, DataPtr->frame, &DataPtr->phdr,
+		    DataPtr->pd);
 
-		mfd->pd = DataPtr->pd;
-		mfd->phdr = DataPtr->phdr;
-
-		if (cfile.edited_frames == NULL)
-			cfile.edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL, modifed_frame_data_free);
-		g_tree_insert(cfile.edited_frames, GINT_TO_POINTER(DataPtr->frame->num), mfd);
-		DataPtr->frame->file_off = -1;
+		/* Update the main window, as we now have unsaved changes. */
+		main_update_for_unsaved_changes(&cfile);
 	}
 #endif
 }
