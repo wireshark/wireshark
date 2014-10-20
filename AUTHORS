@@ -3623,6 +3623,10 @@ Alexander Gaertner	<gaertner.alex[AT]gmx.de> {
 	KNXnetIP dissector
 }
 
+Raphaël Doursenaud	<rdoursenaud[AT]free.fr> {
+	Harman Pro HiQnet dissector
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

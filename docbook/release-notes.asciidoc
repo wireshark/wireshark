@@ -85,6 +85,7 @@ Android ADB
 Android Logcat text
 Couchbase
 AllJoyn Reliable Datagram Protocol
+HiQnet
 --sort-and-group--
 
 === Updated Protocol Support
