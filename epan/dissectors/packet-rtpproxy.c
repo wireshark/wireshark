@@ -516,7 +516,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	tvbuff_t *subtvb;
 
 	/* If it does not start with a printable character it's not RTPProxy */
-	if(!isprint(tvb_get_guint8(tvb, 0)))
+	if(!g_ascii_isprint(tvb_get_guint8(tvb, 0)))
 		return 0;
 
 	/* Extract Cookie */
