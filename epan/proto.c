@@ -5262,7 +5262,7 @@ proto_register_fields_manual(const int parent, header_field_info **hfi, const in
 void
 proto_unregister_field (const int parent, gint hf_id)
 {
-	hf_register_info *hf;
+	header_field_info *hfi;
 	protocol_t       *proto;
 	guint             i;
 
@@ -5275,10 +5275,10 @@ proto_unregister_field (const int parent, gint hf_id)
 	}
 
 	for (i = 0; i < proto->fields->len; i++) {
-		hf = (hf_register_info *)g_ptr_array_index(proto->fields, i);
-		if (*hf->p_id == hf_id) {
+		hfi = (header_field_info *)g_ptr_array_index(proto->fields, i);
+		if (hfi->id == hf_id) {
 			/* Found the hf_id in this protocol */
-			g_hash_table_steal(gpa_name_map, hf->hfinfo.abbrev);
+			g_hash_table_steal(gpa_name_map, hfi->abbrev);
 			g_ptr_array_remove_index_fast(proto->fields, i);
 			return;
 		}
