@@ -105,9 +105,22 @@
 #define A_GROUPVALUE_RES 0x040
 #define A_GROUPVALUE_WRT 0x080
 #define A_ADC_RED 0x180
+#define A_ADC_RES 0x1C0
 #define A_MEM_RED 0x200
 #define A_MEM_RES 0x240
 #define A_MEM_WRT 0x280
+#define A_SYS_RED 0x1C8
+#define A_SYS_RES 0x1C9
+#define A_SYS_WRT 0x1CA
+#define A_SYS_BROAD 0x1CB
+#define GROUPADD 0x80
+#define COUPLER_SPECIFIC_SERVICE 0x3C0
+#define A_AUTHORIZE_REQ 0x3D1
+#define A_AUTHORIZE_RES 0x3D2
+#define A_KEY_WRT 0x3D3
+#define A_KEY_RES 0x3D4
+#define A_PROPVALUE_RED 0x3D5
+#define A_PROPVALUE_RES 0x3D6
 
 #define FLAGS_CEMI_CONTROL1_FT 0x80
 #define FLAGS_CEMI_CONTROL1_R 0x20
@@ -234,6 +247,12 @@ static int hf_knxnetip_cemi_type_preamble_length = -1;
 static int hf_knxnetip_cemi_type_postamble_length = -1;
 static int hf_knxnetip_cemi_subfunction = -1;
 static int hf_knxnetip_cemi_manuspecificdata = -1;
+static int hf_knxnetip_cemi_apci_mem_address = -1;
+static int hf_knxnetip_cemi_channel = -1;
+static int hf_knxnetip_cemi_apci_key = -1;
+static int hf_knxnetip_cemi_apci_level = -1;
+static int hf_knxnetip_cemi_apci_object = -1;
+static int hf_knxnetip_cemi_apci_propid = -1;
 
 
 /*FLAGS
@@ -910,40 +929,91 @@ static guint dissect_selector(tvbuff_t *tvb, guint32 offset, proto_tree *insert_
 static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree, gboolean tpdu){
 
     guint16 type;
+    guint16 sub_type;
     guint8 length;
 
     length = tvb_get_guint8(tvb, *offset-1);
     if (tpdu == TRUE){
-        proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_reserved, tvb, (*offset*8), 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN);
     }
     else {
-        proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_tpci, tvb, (*offset*8), 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_tpci, tvb, *offset, 1, ENC_BIG_ENDIAN);
         type = (tvb_get_guint8(tvb, *offset)&0xC0);
         if (type == 0x40 || type == 0xC0){
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_counter, tvb, ((*offset*8)+2), 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(insert_tree, hf_knxnetip_cemi_counter, tvb, *offset, 1, ENC_BIG_ENDIAN);
         }
     }
 
     if (length != 0) {
         type = (tvb_get_ntohs(tvb, *offset) & 0x03C0);
+        switch (type){
+            case(A_ADC_RED):
+            case(A_ADC_RES):
+                type = (tvb_get_ntohs(tvb, *offset) & 0x2FF);
+                if (type == A_SYS_RED || type == A_SYS_RES || type == A_SYS_WRT || type == A_SYS_BROAD){
+                    proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 10, ENC_BIG_ENDIAN);
+                }
+                else {
+                    proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_channel, tvb, (*offset*8)+10, 6, ENC_BIG_ENDIAN);
+                }
+                *offset+=2;
+                break;
+            case(A_GROUPVALUE_RES):
+            case(A_GROUPVALUE_WRT):
+                proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 4, ENC_BIG_ENDIAN);
+                    if (length == 1){
+                        proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_data, tvb, (*offset*8)+10, 6, ENC_BIG_ENDIAN);
+                    }
+                *offset+=2;
+                break;
+            case(A_MEM_RED):
+            case(A_MEM_RES):
+            case(A_MEM_WRT):
+                proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci_memory_number, tvb, (*offset*8)+12, 4, ENC_BIG_ENDIAN);
+                *offset+=2;
+                proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_mem_address, tvb, *offset, 2, ENC_BIG_ENDIAN);
+                *offset+=2;
+                break;
+            case(COUPLER_SPECIFIC_SERVICE):
+                sub_type = (tvb_get_ntohs(tvb, *offset) & 0x3FF);
+                proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 10, ENC_BIG_ENDIAN);
+                *offset+=2;
+                switch(sub_type){
+                    case(A_AUTHORIZE_REQ):
+                    case(A_KEY_WRT):
+                        proto_tree_add_item(insert_tree, hf_knxnetip_reserved, tvb, *offset, 1, ENC_NA);
+                        *offset+=1;
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_key, tvb, *offset, 4, ENC_NA);
+                        *offset+=4;
+                        break;
+                    case(A_AUTHORIZE_RES):
+                    case(A_KEY_RES):
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_level, tvb, *offset, 1, ENC_NA);
+                        *offset+=1;
+                        break;
+                    case(A_PROPVALUE_RED):
+                    case(A_PROPVALUE_RES):
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_object, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                        *offset+=1;
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_propid, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                        *offset+=1;
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_noe, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_six, tvb, *offset, 2, ENC_BIG_ENDIAN);
+                        *offset+=2;
+                }
+                break;
+            default:
+                proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 10, ENC_BIG_ENDIAN);
+                *offset+=2;
+        }
 
-        if (type == A_GROUPVALUE_RES || type == A_GROUPVALUE_WRT || type == A_ADC_RED){
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_data, tvb, (*offset*8)+10, 6, ENC_BIG_ENDIAN);
-        }
-        else if(type == A_MEM_RED || type == A_MEM_RES || type == A_MEM_WRT ){
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 6, ENC_BIG_ENDIAN);
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci_memory_number, tvb, (*offset*8)+12, 4, ENC_BIG_ENDIAN);
-        }
-        else {
-            proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 10, ENC_BIG_ENDIAN);
-        }
-        *offset+=2;
         if (length >= 1){
            length-=1;
         }
 
-        if (length >= 1){
+        if (length >= 1 && (tvb_reported_length_remaining(tvb, *offset) > 0)){
             proto_tree_add_item(insert_tree, hf_knxnetip_data, tvb, *offset, -1, ENC_NA);
             *offset+=length;
         }
@@ -1076,7 +1146,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                         }
                         break;
                     case(BIBAT_INFO):
-                        proto_tree_add_bits_item(additional_subtree, hf_knxnetip_cemi_type_bibat, tvb, (*offset*8), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(additional_subtree, hf_knxnetip_cemi_type_bibat, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset+=1;
                         proto_tree_add_item(additional_subtree, hf_knxnetip_cemi_type_bibat_block, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset+=1;
@@ -1164,17 +1234,21 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                 proto_tree_add_uint_format(cemi_tree, hf_knxnetip_cemi_sourceaddress, tvb, *offset, 2, knx_address, "Source Address %d.%d.%d", ((knx_address & 0xF000)>>12),((knx_address & 0x0F00)>>8),(knx_address & 0xFF));
                 *offset+=2;
                 knx_address = tvb_get_ntohs(tvb, *offset);
-                proto_tree_add_uint_format(cemi_tree, hf_knxnetip_cemi_destaddress, tvb, *offset, 2, knx_address, "Destination Address %d/%d/%d", ((knx_address & 0xF000)>>12),((knx_address & 0x0F00)>>8),(knx_address & 0xFF));
+                if ((tvb_get_guint8(tvb, *offset-3) & 0x80) == GROUPADD){
+                    proto_tree_add_uint_format(cemi_tree, hf_knxnetip_cemi_destaddress, tvb, *offset, 2, knx_address, "Destination Address %d/%d/%d or %d/%d", ((knx_address & 0x7800)>>11),((knx_address & 0x0700)>>8),(knx_address & 0xFF), ((knx_address & 0x7800)>>11),(knx_address & 0x7FF));
+                }
+                else {
+                    proto_tree_add_uint_format(cemi_tree, hf_knxnetip_cemi_destaddress, tvb, *offset, 2, knx_address, "Destination Address %d.%d.%d", ((knx_address & 0xF000)>>12),((knx_address & 0x0F00)>>8),(knx_address & 0xFF));
+                }
                 *offset+=2;
                 if (messagecode == POLL_DATA_REQ){
-                    proto_tree_add_bits_item(cemi_tree, hf_knxnetip_cemi_numberofslots, tvb, (*offset*8)+4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_numberofslots, tvb, *offset, 1, ENC_BIG_ENDIAN);
                     *offset+=1;
                 }
                 else if (messagecode == POLL_DATA_CON){
-                    proto_tree_add_bits_item(cemi_tree, hf_knxnetip_cemi_numberofslots, tvb, (*offset*8)+4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_numberofslots, tvb, *offset, 1, ENC_BIG_ENDIAN);
                     *offset+=1;
                     proto_tree_add_item(cemi_tree, hf_knxnetip_polldata, tvb, *offset, -1, ENC_NA);
-
                 }
                 else {
                     npdu_length = proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_npdu_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -1212,9 +1286,9 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                 proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_pid, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 *offset+=1;
                 noe = ((tvb_get_guint8(tvb, *offset)& 0xF0)>>4);
-                proto_tree_add_bits_item(cemi_tree, hf_knxnetip_cemi_noe, tvb, (*offset*8), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_noe, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 six = tvb_get_bits16(tvb, (*offset*8+4), 12, ENC_BIG_ENDIAN);
-                proto_tree_add_bits_item(cemi_tree, hf_knxnetip_cemi_six, tvb, (*offset*8)+4, 12, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_six, tvb, *offset, 2, ENC_BIG_ENDIAN);
                 *offset+=2;
                 if (messagecode == PROPREAD_REQ || (messagecode == PROPREAD_CON && noe > 0)){
                     break;
@@ -1474,37 +1548,37 @@ void proto_register_knxnetip (void) {
 
     static hf_register_info hf[] = {
         { &hf_knxnetip_headerlength,
-            { "Header Length", "knxnetip.headerlength", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Header Length", "knxnetip.header_length", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_version,
             { "Protocol Version", "knxnetip.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_servicetype,
-            { "Service Type Identifier", "knxnetip.servicetype", FT_UINT16, BASE_HEX, VALS(knxnetip_service_identifier), 0x0, NULL, HFILL }},
+            { "Service Type Identifier", "knxnetip.service_type_identifier", FT_UINT16, BASE_HEX, VALS(knxnetip_service_identifier), 0x0, NULL, HFILL }},
         { &hf_knxnetip_totallength,
-            { "Total Length", "knxnetip.totallength", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Total Length", "knxnetip.total_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai,
             { "HPAI", "knxnetip.hpai", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_structure_length,
-            { "Structure Length", "knxnetip.hpailength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Structure Length", "knxnetip.hpai_structure_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_structure_length,
-            { "Structure Length", "knxnetip.structlength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Structure Length", "knxnetip.struct_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_host_protocol,
-            { "Host Protocol Code", "knxnetip.hpaihostprotocol", FT_UINT8, BASE_HEX, VALS(knxnetip_host_protocol_codes), 0x0, NULL, HFILL }},
+            { "Host Protocol Code", "knxnetip.hpai_host_protocol", FT_UINT8, BASE_HEX, VALS(knxnetip_host_protocol_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_ip_address,
-            { "IP Address", "knxnetip.hpaiip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "IP Address", "knxnetip.hpai_ip_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_port,
-            { "IP Port", "knxnetip.hpaiport", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "IP Port", "knxnetip.hpai_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib,
             { "DIB", "knxnetip.dib", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cri,
             { "Connection Request Information", "knxnetip.cri", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_type,
-            { "Description Type", "knxnetip.dibtype", FT_UINT8, BASE_HEX, VALS(knxnetip_dib_description_type_codes), 0x0, NULL, HFILL }},
+            { "Description Type", "knxnetip.dib_type", FT_UINT8, BASE_HEX, VALS(knxnetip_dib_description_type_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_medium,
-            { "KNX medium", "knxnetip.dibmedium", FT_UINT8, BASE_HEX, VALS(knxnetip_dib_medium_codes), 0x0, NULL, HFILL }},
+            { "KNX medium", "knxnetip.dib_medium", FT_UINT8, BASE_HEX, VALS(knxnetip_dib_medium_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_status,
-            { "Device Status", "knxnetip.dibstatus", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Device Status", "knxnetip.dib_status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_projectid,
-            { "Project-Installation identifier", "knxnetip.dibprojectid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Project-Installation identifier", "knxnetip.dib_projectid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_knxaddress,
             { "KNX Individual Address", "knxnetip.knxaddress", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_serialnumber,
@@ -1516,69 +1590,69 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_dib_friendly,
             { "Device Friendly Name", "knxnetip.devicename", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_service,
-            { "Service ID", "knxnetip.dibservice", FT_UINT8, BASE_HEX, VALS(knxnetip_service_types), 0x0, NULL, HFILL }},
+            { "Service ID", "knxnetip.dib_service", FT_UINT8, BASE_HEX, VALS(knxnetip_service_types), 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_ipaddress,
-            { "IP Address", "knxnetip.dibipaddress", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "IP Address", "knxnetip.dib_ipaddress", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_subnet,
-            { "Subnet Mask", "knxnetip.dibsubnet", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Subnet Mask", "knxnetip.dib_subnet", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_gateway,
-            { "Default Gateway", "knxnetip.dibgateway", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Default Gateway", "knxnetip.dib_gateway", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_ipcapa,
-            { "IP Capabilities", "knxnetip.dibipcapabilities", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "IP Capabilities", "knxnetip.dib_ipcapabilities", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_ipassign,
-            { "IP assignment method", "knxnetip.dibassignment", FT_UINT8, BASE_HEX, VALS(knxnetip_ip_assignment_method), 0x0, NULL, HFILL }},
+            { "IP assignment method", "knxnetip.dib_assignment", FT_UINT8, BASE_HEX, VALS(knxnetip_ip_assignment_method), 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_dhcp,
-            { "DHCP Server", "knxnetip.dibdhcp", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "DHCP Server", "knxnetip.dib_dhcp", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_manuid,
-            { "Manufacturer ID", "knxnetip.manid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Manufacturer ID", "knxnetip.manufacturer_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_manudata,
-            { "Manufacturer specific data", "knxnetip.mandata", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Manufacturer specific data", "knxnetip.manufacturer_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_connection_type,
-            { "Connection Type", "knxnetip.contype", FT_UINT8, BASE_HEX, VALS(knxnetip_connection_types), 0x0, NULL, HFILL }},
+            { "Connection Type", "knxnetip.connection_type", FT_UINT8, BASE_HEX, VALS(knxnetip_connection_types), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cri_protocol_data,
-            { "Protocol Data", "knxnetip.cridata", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Protocol Data", "knxnetip.cri_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_communication_channel_id,
-            { "Communication Channel ID", "knxnetip.commid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Communication Channel ID", "knxnetip.communication_channel_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_connect_status,
-            { "Status", "knxnetip.connectstatus", FT_UINT8, BASE_HEX, VALS(knxnetip_connect_response_status_codes), 0x0, NULL, HFILL }},
+            { "Status", "knxnetip.connect_status", FT_UINT8, BASE_HEX, VALS(knxnetip_connect_response_status_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_crd_protocol_data,
-            { "Protocol Data", "knxnetip.crddata", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Protocol Data", "knxnetip.crd_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_crd,
             { "Connection Response Data Block", "knxnetip.crd", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_connectionstate_status,
-            { "Status", "knxnetip.connectstatestatus", FT_UINT8, BASE_HEX, VALS(knxnetip_connectionstate_response_status_codes), 0x0, NULL, HFILL }},
+            { "Status", "knxnetip.connect_state_status", FT_UINT8, BASE_HEX, VALS(knxnetip_connectionstate_response_status_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_counter,
-            { "Sequence Counter", "knxnetip.sequencecounter", FT_UINT8, BASE_DEC, 0x0, 0x0, NULL, HFILL }},
+            { "Sequence Counter", "knxnetip.sequence_counter", FT_UINT8, BASE_DEC, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_confack_status,
-            { "Status", "knxnetip.confackstatus", FT_UINT8, BASE_HEX, VALS(knxnetip_device_configuration_ack_status_codes), 0x0, NULL, HFILL }},
+            { "Status", "knxnetip.confirm_ack_status", FT_UINT8, BASE_HEX, VALS(knxnetip_device_configuration_ack_status_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_tunnelack_status,
-            { "Status", "knxnetip.tunnelstatus", FT_UINT8, BASE_HEX, VALS(knxnetip_tunneling_error_codes), 0x0, NULL, HFILL }},
+            { "Status", "knxnetip.tunnel_status", FT_UINT8, BASE_HEX, VALS(knxnetip_tunneling_error_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_dib_status_flag_reserved,
-            { "reserved", "knxnetip.dibreserved", FT_UINT8, BASE_HEX, NULL, FLAGS_DEVICESTATUS_RESERVED, NULL, HFILL }},
+            { "reserved", "knxnetip.dib_reserved", FT_UINT8, BASE_HEX, NULL, FLAGS_DEVICESTATUS_RESERVED, NULL, HFILL }},
         { &hf_knxnetip_dib_status_flag_program,
-            { "program mode", "knxnetip.dibprog", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATUS_PROGRAM, NULL , HFILL }},
+            { "program mode", "knxnetip.dib_program_mode", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATUS_PROGRAM, NULL , HFILL }},
         { &hf_knxnetip_dib_ipcapa_flag_reserved,
-            { "reserved", "knxnetip.ipcapareserved", FT_UINT8, BASE_HEX, NULL, FLAGS_IPCAPABILITES_RESERVED, NULL, HFILL }},
+            { "reserved", "knxnetip.ip_capabilities_reserved", FT_UINT8, BASE_HEX, NULL, FLAGS_IPCAPABILITES_RESERVED, NULL, HFILL }},
         { &hf_knxnetip_dib_ipcapa_flag_bootip,
-            { "BootIP", "knxnetip.ipcapabootip", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_BOOTIP, NULL, HFILL }},
+            { "BootIP", "knxnetip.ip_capabilities_bootip", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_BOOTIP, NULL, HFILL }},
         { &hf_knxnetip_dib_ipcapa_flag_dhcp,
-            { "DHCP", "knxnetip.ipcapadhcp", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_DHCP, NULL, HFILL }},
+            { "DHCP", "knxnetip.ip_capabilities_dhcp", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_DHCP, NULL, HFILL }},
         { &hf_knxnetip_dib_ipcapa_flag_autoip,
-            { "AutoIP", "knxnetip.ipcapaautoip", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_AUTOIP, NULL, HFILL }},
+            { "AutoIP", "knxnetip.ip_capabilities_autoip", FT_UINT8, BASE_DEC, NULL, FLAGS_IPCAPABILITES_AUTOIP, NULL, HFILL }},
         { &hf_knxnetip_devicestate,
             { "DeviceState", "knxnetip.devicestate", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_devicestate_reserved,
-            { "reserved", "knxnetip.devicestatereserved", FT_UINT8, BASE_HEX, NULL, FLAGS_DEVICESTATE_RESERVED, NULL, HFILL }},
+            { "reserved", "knxnetip.devicestate_reserved", FT_UINT8, BASE_HEX, NULL, FLAGS_DEVICESTATE_RESERVED, NULL, HFILL }},
         { &hf_knxnetip_devicestate_knx,
-            { "KNX Fault", "knxnetip.devicestateknx", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATE_KNX, "is set if KNX network cannot be accessed", HFILL }},
+            { "KNX Fault", "knxnetip.devicestate_knx", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATE_KNX, "is set if KNX network cannot be accessed", HFILL }},
         { &hf_knxnetip_devicestate_ip,
-            { "IP Fault", "knxnetip.devicestateip", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATE_IP, "is set if IP network cannot be accessed", HFILL }},
+            { "IP Fault", "knxnetip.devicestate_ip", FT_UINT8, BASE_DEC, NULL, FLAGS_DEVICESTATE_IP, "is set if IP network cannot be accessed", HFILL }},
         { &hf_knxnetip_numberoflost,
-            { "NumberofLostMessages", "knxnetip.losmessages", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "NumberofLostMessages", "knxnetip.number_of_lost_msg", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_busywaittime,
-            { "Busy Wait Time", "knxnetip.busytime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Busy Wait Time", "knxnetip.busy_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_busycontrol,
-            { "Busy Control Field", "knxnetip.busycontrol", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Busy Control Field", "knxnetip.busy_control", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_knxlayer,
             { "KNX Layer", "knxnetip.layer", FT_UINT8, BASE_HEX, VALS(knxnetip_knxlayer_values), 0x0, NULL, HFILL }},
         { &hf_knxnetip_selector_type,
@@ -1588,41 +1662,41 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi,
             { "cEMI", "knxnetip.cemi", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_mc,
-            { "messagecode", "knxnetip.cemimc", FT_UINT8, BASE_HEX, VALS(cemi_messagecodes), 0x0, NULL, HFILL }},
+            { "messagecode", "knxnetip.cemi_messagecode", FT_UINT8, BASE_HEX, VALS(cemi_messagecodes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_addlength,
-            { "add information length", "knxnetip.addlength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "add information length", "knxnetip.additional_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_additemlength,
-            { "Length", "knxnetip.addlength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Length", "knxnetip.additional_item_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_typid,
-            { "Type id", "knxnetip.cemitypeid", FT_UINT8, BASE_HEX, VALS(cemi_add_type_id), 0x0, NULL, HFILL }},
+            { "Type id", "knxnetip.cemi_type_id", FT_UINT8, BASE_HEX, VALS(cemi_add_type_id), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_pl,
-            { "Domain-Address", "knxnetip.cemitypepl", FT_UINT16, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+            { "Domain-Address", "knxnetip.cemi_type_pl", FT_UINT16, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_bus,
-            { "Busmonitor error flags", "knxnetip.cemitypebus", FT_UINT8, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+            { "Busmonitor error flags", "knxnetip.cemi_type_bus", FT_UINT8, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_relt,
-            { "relative timestamp", "knxnetip.cemitypereltime", FT_UINT16, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+            { "relative timestamp", "knxnetip.cemi_type_reltime", FT_UINT16, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_delay,
-            { "delay", "knxnetip.cemitypedelay", FT_UINT32, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+            { "delay", "knxnetip.cemi_type_delay", FT_UINT32, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_exttime,
-            { "extended timestamp", "knxnetip.cemitypeexttime", FT_UINT32, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+            { "extended timestamp", "knxnetip.cemi_type_exttime", FT_UINT32, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_bibat,
-            { "BiBat", "knxnetip.cemitypebibat", FT_UINT8, BASE_HEX, VALS(cemi_bibat_ctrl), 0x0, NULL, HFILL }},
+            { "BiBat", "knxnetip.cemi_type_bibat", FT_UINT8, BASE_HEX, VALS(cemi_bibat_ctrl), 0xF8, NULL, HFILL }},
         { &hf_knxnetip_cemi_controlfield1,
-            { "Controlfield 1", "knxnetip.controlone", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Controlfield 1", "knxnetip.controlfield_one", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_flag_frametype,
-            { "Frametype", "knxnetip.controltype", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_FT, "0: extended frame; 1: standard frame", HFILL }},
+            { "Frametype", "knxnetip.controlfield_type", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_FT, "0: extended frame; 1: standard frame", HFILL }},
         { &hf_knxnetip_cemi_flag_repeat,
-            { "Repeat", "knxnetip.controlrepeat", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_R, "0: repeat if error frame; 1: do not repeat", HFILL }},
+            { "Repeat", "knxnetip.controlfield_repeat", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_R, "0: repeat if error frame; 1: do not repeat", HFILL }},
         { &hf_knxnetip_cemi_flag_sb,
-            { "System-Broadcast", "knxnetip.controlcast", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_SB, "0: system-broadcast; 1: broadcast", HFILL }},
+            { "System-Broadcast", "knxnetip.controlfield_broadcast", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_SB, "0: system-broadcast; 1: broadcast", HFILL }},
         { &hf_knxnetip_cemi_flag_priority,
-            { "Priority", "knxnetip.controlprio", FT_UINT8, BASE_HEX, NULL, FLAGS_CEMI_CONTROL1_P, NULL, HFILL }},
+            { "Priority", "knxnetip.controlfield_priority", FT_UINT8, BASE_HEX, NULL, FLAGS_CEMI_CONTROL1_P, NULL, HFILL }},
         { &hf_knxnetip_cemi_flag_ack,
-            { "Acknowledge-Request", "knxnetip.controlack", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_A, "0: no request for ack; 1: request ack", HFILL }},
+            { "Acknowledge-Request", "knxnetip.controlfield_ack", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_A, "0: no request for ack; 1: request ack", HFILL }},
         { &hf_knxnetip_cemi_flag_confirm,
-            { "Confirm-Flag", "knxnetip.controlconf", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_C, "0: no error in frame; 1: error in frame", HFILL }},
+            { "Confirm-Flag", "knxnetip.controlfield_confirm", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL1_C, "0: no error in frame; 1: error in frame", HFILL }},
         { &hf_knxnetip_cemi_controlfield2,
-            { "Controlfield 2", "knxnetip.controltwo", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "Controlfield 2", "knxnetip.controlfield_two", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_flag_destaddress,
             { "Destination address type", "knxnetip.controldestaddress", FT_UINT8, BASE_DEC, NULL, FLAGS_CEMI_CONTROL2_AT, "0: individual; 1: group", HFILL }},
         { &hf_knxnetip_flag_hop,
@@ -1634,19 +1708,19 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi_destaddress,
             { "Destination Address", "knxnetip.cemidestination", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_tpci,
-            { "TPCI", "knxnetip.cemitpci", FT_UINT8, BASE_HEX, VALS(cemi_tpci_vals), 0x0, NULL, HFILL }},
+            { "TPCI", "knxnetip.cemitpci", FT_UINT8, BASE_HEX, VALS(cemi_tpci_vals), 0xC0, NULL, HFILL }},
         { &hf_knxnetip_cemi_npdu_length,
             { "NPDU length", "knxnetip.npdulength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_tpdu_length,
             { "TPDU length", "knxnetip.tpdulength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_counter,
-            { "sequence NCD/NDT", "knxnetip.npduseq", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "sequence NCD/NDT", "knxnetip.npduseq", FT_UINT8, BASE_DEC, NULL, 0x3C, NULL, HFILL }},
         { &hf_knxnetip_cemi_apci,
             { "APCI", "knxnetip.npduapci", FT_UINT16, BASE_HEX, VALS(cemi_apci_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_data,
             { "Data", "knxnetip.cemidata", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_numberofslots,
-            { "number of slots", "knxnetip.ceminumberofslots", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "number of slots", "knxnetip.ceminumberofslots", FT_UINT8, BASE_DEC, NULL, 0xF, NULL, HFILL }},
         { &hf_knxnetip_cemi_apci_memory_number,
             { "number of octets to be read/write", "knxnetip.cemidata", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_iot,
@@ -1656,9 +1730,9 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi_pid,
             { "Property Identifier", "knxnetip.cemipid", FT_UINT8, BASE_DEC, VALS(cemi_propertyid), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_noe,
-            { "Number of Elements", "knxnetip.ceminoe", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Number of Elements", "knxnetip.ceminoe", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
         { &hf_knxnetip_cemi_six,
-            { "Startindex", "knxnetip.cemipid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Startindex", "knxnetip.cemipid", FT_UINT16, BASE_DEC, NULL, 0xFFF, NULL, HFILL }},
         { &hf_knxnetip_cemi_numberofelements,
             { "Number of Elements", "knxnetip.ceminumber", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_error,
@@ -1666,7 +1740,7 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi_return,
             { "retrun code", "knxnetip.cemireturn", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_reserved,
-            { "reserved", "knxnetip.cemireserved", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            { "reserved", "knxnetip.cemireserved", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_rf_info,
             { "RF-Info", "knxnetip.cemirfinfo", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_rf_mesure,
@@ -1740,7 +1814,19 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_additional,
             { "Additional information", "knxnetip.additional", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_unknown,
-            { "UNKNOWN", "knxnetip.unknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+            { "UNKNOWN", "knxnetip.unknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_apci_mem_address,
+            { "Memory Address", "knxnetip.cemimemaddress", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_channel,
+            { "Channel nr", "knxnetip.cemichannel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_apci_key,
+            { "key", "knxnetip.apcikey", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_apci_level,
+            { "level", "knxnetip.apcilevel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_apci_object,
+            { "object index", "knxnetip.apciobjidx", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_knxnetip_cemi_apci_propid,
+            { "property id", "knxnetip.apcipropid", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
