@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -1022,8 +1021,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           line_code[0] = tvb_get_guint8(tvb, offset);
           line_code[1] = tvb_get_guint8(tvb, offset+1);
           line_code[2] = tvb_get_guint8(tvb, offset+2);
-          if (isdigit(line_code[0]) && isdigit(line_code[1])
-              && isdigit(line_code[2])) {
+          if (g_ascii_isdigit(line_code[0]) && g_ascii_isdigit(line_code[1])
+              && g_ascii_isdigit(line_code[2])) {
             /*
              * We have a 3-digit response code.
              */

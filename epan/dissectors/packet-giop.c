@@ -281,7 +281,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <ctype.h>
 #include <glib.h>
 #include <math.h>
 
@@ -297,6 +296,7 @@
 #include "packet-ziop.h"
 #include "packet-tcp.h"
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 
 void proto_register_giop(void);
@@ -1402,38 +1402,6 @@ static void insert_in_objkey_hash(GHashTable *hash, const gchar *obj, guint32 le
 
 }
 
-
-
-/*
- * convert an ascii char representing a hex value,
- * to a numeric value.
- *
- * returns value, or -1 if problem.
- *
- */
-
-static gint8 hex_char_to_val(guchar c) {
-  gint8 retval;
-
-  if (!isxdigit(c)) {
-    return -1;
-  }
-  if (isdigit(c)) {
-    retval = c - 48;            /* convert digit */
-    return retval;
-  }
-
-  c = toupper(c);               /* convert to uppercase */
-  if (c >= 'A' && c <= 'F') {
-    retval = c - 55;
-    return retval;
-  }
-  else {
-    return -1;
-  }
-
-}
-
 /*
  * Convert from  stringified IOR of the kind IOR:af4f7e459f....
  * to an IOR octet sequence.
@@ -1458,14 +1426,14 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out) {
   /* skip past IOR:  and convert character pairs to guint8 */
 
   for (i=4; i<in_len-1; i+=2) {
-    if ( isxdigit(in[i]) && isxdigit(in[i+1]) ) { /* hex ? */
+    if ( g_ascii_isxdigit(in[i]) && g_ascii_isxdigit(in[i+1]) ) { /* hex ? */
 
-      if ( (tmpval_msb = hex_char_to_val(in[i])) < 0 ) {
+      if ( (tmpval_msb = ws_xton(in[i])) < 0 ) {
         g_warning("giop: Invalid value in IOR %i \n", tmpval_msb);
 
       }
 
-      if ( (tmpval_lsb = hex_char_to_val(in[i+1])) < 0 ) {
+      if ( (tmpval_lsb = ws_xton(in[i+1])) < 0 ) {
         g_warning("giop: Invalid value in IOR %i \n", tmpval_lsb);
       }
 

@@ -34,7 +34,6 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include <time.h>
 #include <string.h>
 #include <glib.h>
-#include <ctype.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -1595,12 +1594,12 @@ get_count(const guchar *desc, int *countp)
 	int count = 0;
 	guchar c;
 
-	if (!isdigit(*desc)) {
+	if (!g_ascii_isdigit(*desc)) {
 		*countp = 1;	/* no count was supplied */
 		return desc;
 	}
 
-	while ((c = *desc) != '\0' && isdigit(c)) {
+	while ((c = *desc) != '\0' && g_ascii_isdigit(c)) {
 		count = (count * 10) + c - '0';
 		desc++;
 	}

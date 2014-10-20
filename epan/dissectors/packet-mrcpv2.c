@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -502,7 +501,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return -1;
             field4 = tvb_get_string(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start);
 
-            if (isdigit(field3[0])) /* request ID is number, so it has to be response */
+            if (g_ascii_isdigit(field3[0])) /* request ID is number, so it has to be response */
                 line_type = RESPONSE_LINE;
             else
                 line_type = EVENT_LINE;

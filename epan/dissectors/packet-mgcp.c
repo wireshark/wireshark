@@ -36,7 +36,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -1024,7 +1023,7 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 	if (maxlength >= 3)
 	{
 		tvb_get_nstringz0(tvb, offset, sizeof(word), word);
-		if (isdigit(word[0]) && isdigit(word[1]) && isdigit(word[2]))
+		if (g_ascii_isdigit(word[0]) && g_ascii_isdigit(word[1]) && g_ascii_isdigit(word[2]))
 		{
 			returnvalue = TRUE;
 		}
@@ -1163,7 +1162,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 					for (counter = 1;
 					    ((len > (counter + tvb_current_offset-offset)) &&
 					    (is_rfc2234_alpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset+counter)) ||
-					     isdigit(tempchar))) ;
+					     g_ascii_isdigit(tempchar))) ;
 					     counter++);
 
 					if (tempchar == ':')

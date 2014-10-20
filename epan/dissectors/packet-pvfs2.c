@@ -32,7 +32,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -2432,7 +2431,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 		tmp_entry_length = entry_length;
 
 		/* Remove all whitespace from front of entry */
-		while ((tmp_entry_length > 0) && (!isalnum(*tmp_entry)) &&
+		while ((tmp_entry_length > 0) && (!g_ascii_isalnum(*tmp_entry)) &&
 				(*tmp_entry != '<'))
 		{
 			tmp_entry++;

@@ -57,7 +57,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 
@@ -323,7 +322,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
 
     while (*p) {
 
-        while ((*p) && isspace((guchar)*p))
+        while ((*p) && g_ascii_isspace(*p))
             p++; /* Skip white space */
 
         if (g_ascii_strncasecmp(p, key, keylen) == 0)
@@ -363,7 +362,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
          */
         p = start;
         while (*p) {
-            if (*p == ';' || isspace((guchar)*p))
+            if (*p == ';' || g_ascii_isspace(*p))
                 break;
             p++;
             len++;
