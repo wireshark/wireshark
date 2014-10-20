@@ -849,14 +849,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			c = *linep++;
 
 			/*
-			 * This must be a CHAR, and not a CTL, to be part
-			 * of a token; that means it must be printable ASCII.
+			 * This must be a CHAR, and must not be a CTL,
+			 * to be part of a token; that means it must be
+			 * printable ASCII.
 			 *
 			 * XXX - what about leading LWS on continuation
 			 * lines of a header?
 			 */
 			if (!g_ascii_isprint(c))
-				break;	/* not ASCII, thus not a CHAR, or a CTL */
+				break;
 
 			/*
 			 * This mustn't be a SEP to be part of a token;
