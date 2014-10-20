@@ -4740,7 +4740,6 @@ dissect_structured_fields(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t 
     display_sf_hdr(tn3270_tree, tvb, offset, sf_length,
                    sf_length, sf_id_len, sf_id_str);
     offset += sf_length;
-    continue;
   } /* while */
 
   return (offset - start);
