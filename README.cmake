@@ -73,10 +73,14 @@ Note 3:
 How to do an out of tree build using Visual C++ 2013:
 [This is advanced alpha and should build all executables except the GTK3
  Wireshark for 32-bit.]
-1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
+1) Follow https://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
    Steps 1-9
-1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the
-   library directory).
+1a) Set the library search path.
+    If you set WIRESHARK_LIB_DIR, it will be used as the top-level library
+    directory.
+    If you set WIRESHARK_BASE_DIR,
+    %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs will
+    be used as the top-level library directory.
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
 1c) set QT5_BASE_DIR=C:\Qt\5.3\msvc2013_opengl (must match the Qt component path
     on your system)

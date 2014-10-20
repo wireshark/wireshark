@@ -38,10 +38,15 @@ else()
 	endif()
 	find_path( GTHREAD2_INCLUDE_DIRS gthread.h PATH_SUFFIXES glib-2.0 glib GLib.framework/Headers/glib glib-2.0/glib HINTS "${GTHREAD2_HINTS}/include" )
 	find_library( GTHREAD2_LIBRARIES gthread-2.0 HINTS "${GTHREAD2_HINTS}/lib" )
-	if( NOT GTHREAD2_LIBRARIES AND APPLE )
-		# Fallback as APPLE glib libs already contain this - except
-		# Homebrew which needs the non-Apple setup
-		find_library( GTHREAD2_LIBRARIES glib )
+	if( NOT GTHREAD2_LIBRARIES )
+		# GLib contains GThread in some cases.
+		if( APPLE )
+			# Fallback as APPLE glib libs already contain this - except
+			# Homebrew which needs the non-Apple setup
+			find_library( GTHREAD2_LIBRARIES glib )
+		elseif( WIN32 )
+			find_library( GTHREAD2_LIBRARIES glib-2.0 HINTS "${GTHREAD2_HINTS}/lib" )
+		endif()
 	endif()
 	include( FindPackageHandleStandardArgs )
 	find_package_handle_standard_args( GTHREAD2 DEFAULT_MSG GTHREAD2_LIBRARIES GTHREAD2_INCLUDE_DIRS )
