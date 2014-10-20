@@ -3378,7 +3378,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
           g_string_truncate(cur_var, 0);
           g_string_append_c(cur_var, (gchar) got_c);
           pline = fline;
-        } else if (isspace(got_c) && cur_var->len > 0 && got_val) {
+        } else if (g_ascii_isspace(got_c) && cur_var->len > 0 && got_val) {
           state = PRE_VAL;
         } else if (got_c == '#') {
           state = IN_SKIP;
@@ -3401,7 +3401,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
         }
         break;
       case PRE_VAL:
-        if (!isspace(got_c)) {
+        if (!g_ascii_isspace(got_c)) {
           state = IN_VAL;
           g_string_append_c(cur_val, (gchar) got_c);
         }
