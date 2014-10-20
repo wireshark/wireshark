@@ -308,6 +308,7 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_tree *subtree;
     gint        len;
     int         offset = start_offset;
+    int         messages = 0;
 
     if (has_length_field) {
         proto_tree_add_item(tree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -333,8 +334,10 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         offset += 4;
 
         offset = dissect_kafka_message(tvb, pinfo, subtree, offset);
+        messages += 1;
     }
 
+    proto_item_append_text(ti, " (%d Messages)", messages);
     proto_item_set_len(ti, offset - start_offset);
 
     return offset;
