@@ -4651,6 +4651,8 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
           length = tvb_get_guint8(tvb,offset);
           proto_tree_add_item(tn5250_tree, hf_tn5250_length, tvb, offset,
                               1, ENC_BIG_ENDIAN);
+          if (length==0)
+            break;
           proto_tree_add_item(tn5250_tree, hf_tn5250_dpt_ec, tvb, offset,
                               length, ENC_EBCDIC|ENC_NA);
           offset += length;
