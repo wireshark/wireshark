@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include <ctype.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -90,6 +91,7 @@ enum{
 	UNSUCCESSFUL_OUTCOME
 };
 
+
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
@@ -98,6 +100,7 @@ static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static guint32 handover_type_value;
 static guint32 message_type;
 static gboolean g_s1ap_dissect_container = TRUE;
+static const char *obj_id = NULL;
 
 static dissector_handle_t gcsna_handle = NULL;
 
