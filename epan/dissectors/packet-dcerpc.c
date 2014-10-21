@@ -1480,7 +1480,7 @@ dissect_dcerpc_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8 data;
 
     data = tvb_get_guint8(tvb, offset);
-    if (tree) {
+    if (tree && hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 1, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
@@ -1499,7 +1499,7 @@ dissect_dcerpc_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letohs(tvb, offset)
             : tvb_get_ntohs(tvb, offset));
 
-    if (tree) {
+    if (tree && hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 2, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
@@ -1518,7 +1518,7 @@ dissect_dcerpc_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letohl(tvb, offset)
             : tvb_get_ntohl(tvb, offset));
 
-    if (tree) {
+    if (tree && hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 4, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
@@ -1541,7 +1541,7 @@ dissect_dcerpc_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     tv.secs = data;
     tv.nsecs = 0;
-    if (tree) {
+    if (tree && hfindex != -1) {
         if (data == 0xffffffff) {
             /* special case,   no time specified */
             proto_tree_add_time_format_value(tree, hfindex, tvb, offset, 4, &tv, "No time specified");
@@ -1566,7 +1566,7 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             ? tvb_get_letoh64(tvb, offset)
             : tvb_get_ntoh64(tvb, offset));
 
-    if (tree) {
+    if (tree && hfindex != -1) {
         header_field_info *hfinfo;
 
         /* This might be a field that is either 32bit, in NDR or
@@ -1608,7 +1608,7 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         data = ((drep[0] & DREP_LITTLE_ENDIAN)
                 ? tvb_get_letohieee_float(tvb, offset)
                 : tvb_get_ntohieee_float(tvb, offset));
-        if (tree) {
+        if (tree && hfindex != -1) {
             proto_tree_add_float(tree, hfindex, tvb, offset, 4, data);
         }
         break;
@@ -1619,7 +1619,7 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         /* ToBeDone: non IEEE floating formats */
         /* Set data to a negative infinity value */
         data = -G_MAXFLOAT;
-        if (tree) {
+        if (tree && hfindex != -1) {
             proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE floating formats currently not implemented (drep=%u)!", drep[1]);
         }
     }
@@ -1642,7 +1642,7 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         data = ((drep[0] & DREP_LITTLE_ENDIAN)
                 ? tvb_get_letohieee_double(tvb, offset)
                 : tvb_get_ntohieee_double(tvb, offset));
-        if (tree) {
+        if (tree && hfindex != -1) {
             proto_tree_add_double(tree, hfindex, tvb, offset, 8, data);
         }
         break;
@@ -1653,7 +1653,7 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         /* ToBeDone: non IEEE double formats */
         /* Set data to a negative infinity value */
         data = -G_MAXDOUBLE;
-        if (tree) {
+        if (tree && hfindex != -1) {
             proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE double formats currently not implemented (drep=%u)!", drep[1]);
         }
     }
@@ -1676,7 +1676,7 @@ dissect_dcerpc_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     } else {
         tvb_get_ntohguid(tvb, offset, (e_guid_t *) &uuid);
     }
-    if (tree) {
+    if (tree && hfindex != -1) {
         proto_tree_add_guid(tree, hfindex, tvb, offset, 16, (e_guid_t *) &uuid);
     }
     if (pdata) {
