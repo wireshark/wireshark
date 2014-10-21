@@ -490,6 +490,7 @@ static const wslua_ft_types_t ftenums[] = {
     {"ftypes.OID", FT_OID},
     {"ftypes.SYSTEM_ID", FT_SYSTEM_ID},
     {"ftypes.REL_OID", FT_REL_OID},
+    {"ftypes.EUI64", FT_EUI64},
     {NULL, FT_NONE}
 };
 
@@ -727,7 +728,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         `ftypes.DOUBLE` , `ftypes.ABSOLUTE_TIME`, `ftypes.RELATIVE_TIME`, `ftypes.STRING`,
         `ftypes.STRINGZ`, `ftypes.UINT_STRING`, `ftypes.ETHER`, `ftypes.BYTES`,
         `ftypes.UINT_BYTES`, `ftypes.IPv4`, `ftypes.IPv6`, `ftypes.IPXNET`, `ftypes.FRAMENUM`,
-        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, `ftypes.EUI64` or `ftypes.NONE`,.
+        `ftypes.PCRE`, `ftypes.GUID`, `ftypes.OID`, `ftypes.REL_OID`, `ftypes.SYSTEM_ID`,
+        `ftypes.EUI64` or `ftypes.NONE`.
     */
 #define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A table containing the text that
                                                      corresponds to the values. */
@@ -846,6 +848,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_OID:
     case FT_SYSTEM_ID:
     case FT_REL_OID:
+    case FT_EUI64:
         if (base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.NONE");
             return 0;
@@ -1291,6 +1294,12 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_systemid_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
+/* _WSLUA_CONSTRUCTOR_ ProtoField_eui64 Creates a `ProtoField` for an EUI64. */
+/* WSLUA_ARG_Protofield_eui64_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_eui64_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_eui64_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
 PROTOFIELD_OTHER(none,FT_NONE)
 PROTOFIELD_OTHER(ipv4,FT_IPv4)
 PROTOFIELD_OTHER(ipv6,FT_IPv6)
@@ -1307,6 +1316,7 @@ PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
 PROTOFIELD_OTHER(rel_oid,FT_REL_OID)
 PROTOFIELD_OTHER(systemid,FT_SYSTEM_ID)
+PROTOFIELD_OTHER(eui64,FT_EUI64)
 
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
@@ -1375,6 +1385,7 @@ WSLUA_METHODS ProtoField_methods[] = {
     WSLUA_CLASS_FNREG(ProtoField,oid),
     WSLUA_CLASS_FNREG(ProtoField,rel_oid),
     WSLUA_CLASS_FNREG(ProtoField,systemid),
+    WSLUA_CLASS_FNREG(ProtoField,eui64),
     { NULL, NULL }
 };
 
