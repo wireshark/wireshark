@@ -235,12 +235,6 @@ else()
 	)
 endif()
 
-if (WANT_PACKET_EDITOR)
-	add_definitions(
-		-DWANT_PACKET_EDITOR
-	)
-endif()
-
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		capture_if_details_dlg_win32.c
