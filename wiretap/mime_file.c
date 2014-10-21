@@ -89,10 +89,8 @@ static const mime_files_t magic_files[] = {
  * reassembly, it would *still* have to allocate a buffer the size of
  * the file, so it's not as if we'd neve try to allocate a buffer the
  * size of the file.
- *
- * For now, go for 16MB.
  */
-#define MAX_FILE_SIZE	(16*1024*1024)
+#define MAX_FILE_SIZE	G_MAXINT
 
 static gboolean
 mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
