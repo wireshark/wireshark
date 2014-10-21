@@ -4707,13 +4707,13 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
           offset++;
           /*
            * XXX - the documentation cited above says this is a
-           * "4-byte EBCDIC code for the value of text pitch that is  
+           * "4-byte EBCDIC code for the value of text pitch that is
            * displayed on the status line".  Does that mean that
            * each of these entries is 5 bytes long?
            */
           proto_tree_add_item(tn5250_tree, hf_tn5250_dpt_ec, tvb, offset,
-                              length, ENC_EBCDIC|ENC_NA);
-          offset++;
+                              4, ENC_EBCDIC|ENC_NA);
+          offset += 4;
         }
         break;
       case DEFINE_FAKE_DP_COMMAND_KEY_FUNCTION:
