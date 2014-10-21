@@ -2334,7 +2334,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
             proto_tree_add_item(mq_tree, hf_mq_id_FapLevel, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
             /* ID Capability flags 1 */
-            proto_tree_add_bitmask(mq_tree, tvb, offset + 44, hf_mq_id_icf1, ett_mq_id_icf1, pf_flds_icf1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mq_tree, tvb, offset + 5, hf_mq_id_icf1, ett_mq_id_icf1, pf_flds_icf1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mq_tree, hf_mq_id_Eicf1, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
             /* Error flags 1*/
