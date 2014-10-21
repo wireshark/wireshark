@@ -3357,6 +3357,10 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       case CW_TITLE_FOOTER:
         length = tvb_get_guint8(tvb,offset);
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cw_tf_fields);
+        if (length < 6) {
+          /* XXX - expert info on the length field */
+          break;
+        }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_cw_tf_text, tvb, offset,
                             (length - 6), ENC_EBCDIC|ENC_NA);
         offset += (guint32)((length - 6));
@@ -3375,6 +3379,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   int start = offset;
   int length = 0;
   int done = 0, minor_structure = 0, digit_selection = 0;
+  int minor_structure_start;
 
   static const int *ds_flag1[] = {
     &hf_tn5250_wdsf_ds_flag1_mouse_characteristics, &hf_tn5250_wdsf_ds_flag1_reserved,
@@ -3554,6 +3559,11 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       case DS_CHOICE_TEXT:
         length = tvb_get_guint8(tvb, offset);
         digit_selection = tvb_get_guint8(tvb, offset+2);
+        /*
+         * XXX - the document says the AID field is present only if
+         * the "AID if selected" flag bit is set.
+         */
+        minor_structure_start = offset;
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_ct_fields);
         if (digit_selection & DS_NUMERIC_SELECTION_SINGLE_DIGIT) {
           proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_ds_ct_numeric_onebyte,
@@ -3561,12 +3571,17 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
           offset++;
         } else if (digit_selection & DS_NUMERIC_SELECTION_DOUBLE_DIGIT) {
           proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_ds_ct_numeric_twobyte,
-                              tvb, offset, 1, ENC_BIG_ENDIAN);
-          offset++;
+                              tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset+=2;
+        }
+        if (length < (offset - minor_structure_start)) {
+          /* XXX - expert info on the length field */
+          break;
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_ds_ct_text, tvb, offset,
-                            (length - (offset - start)), ENC_EBCDIC|ENC_NA);
-        offset += (guint32)((length - (offset - start)));
+                            (length - (offset - minor_structure_start)),
+                            ENC_EBCDIC|ENC_NA);
+        offset += (guint32)((length - (offset - minor_structure_start)));
         break;
       case DS_MENU_BAR_SEPARATOR:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_mbs_fields);
@@ -3720,6 +3735,7 @@ static guint32
 dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
+  int minor_structure_start;
   int length = 0, type;
   int done = 0, ln_left = 0, i = 0;
 
@@ -3826,17 +3842,26 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
         break;
       case WRITE_DATA:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, wdf_fields);
+        if (length < 6) {
+          /* XXX - expert info on the length field */
+          break;
+        }
         proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
                             (length - 6), ENC_EBCDIC|ENC_NA);
         offset += (guint32)((length - 6));
         break;
       case PROGRAMMABLE_MOUSE_BUTTONS:
+        minor_structure_start = start;
         proto_tree_add_item(tn5250_tree, hf_tn5250_reserved, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tn5250_tree, hf_tn5250_reserved, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         offset +=2;
-        ln_left = length - (offset - start);
+        if (length < (offset - minor_structure_start)) {
+          /* XXX - expert info on length field */
+          break;
+        }
+        ln_left = length - (offset - minor_structure_start);
         for (i = 0; i < ln_left; i+=4) {
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, pmb_fields);
         }
@@ -4186,6 +4211,11 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, standard_fields);
 
+  /*
+   * XXX - the documentation says "Unlike the WSF command (X'F3'),
+   * a WSSF command does not have to be the last command in the data stream.",
+   * so should we be looping here, or what?
+   */
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
     switch (type) {
       case WSC_CUSTOMIZATION:
@@ -4584,9 +4614,14 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case DEFINE_AUDIT_WINDOW__TABLE:
         proto_tree_add_item(tn5250_tree, hf_tn5250_dawt_id, tvb, offset,
                             1, ENC_BIG_ENDIAN);
+        offset += 1;
         while ((offset - start) < sf_length) {
           length = tvb_get_guint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dawt_fields);
+          if (length < 2) {
+            /* XXX - expert info on the length field */
+            break;
+          }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dawt_message, tvb, offset,
                               (length - 2), ENC_EBCDIC|ENC_NA);
           offset += length;
@@ -4595,10 +4630,15 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case DEFINE_COMMAND_KEY_FUNCTION:
         proto_tree_add_item(tn5250_tree, hf_tn5250_dckf_id, tvb, offset,
                             1, ENC_BIG_ENDIAN);
+        offset++;
         while ((offset - start) < sf_length) {
           length = tvb_get_guint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                         dckf_fields);
+          if (length < 2) {
+            /* XXX - expert info on the length field */
+            break;
+          }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dckf_prompt_text, tvb,
                               offset, (length - 2), ENC_EBCDIC|ENC_NA);
           offset += length;
@@ -4628,6 +4668,10 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
         used = tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                    wts_line_data_fields);
         offset += used;
+        if (length < used) {
+          /* XXX - expert info on the length field */
+          break;
+        }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wts_cld_li, tvb, offset,
                             (length - used), ENC_EBCDIC|ENC_NA);
         break;
@@ -4638,10 +4682,15 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case DEFINE_OPERATOR_ERROR_MESSAGES:
         proto_tree_add_item(tn5250_tree, hf_tn5250_dorm_id, tvb, offset,
                             1, ENC_BIG_ENDIAN);
+        offset++;
         while ((offset - start) < sf_length) {
           length = tvb_get_guint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                         dorm_fields);
+          if (length < 2) {
+            /* XXX - expert info on the length field */
+            break;
+          }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dorm_mt, tvb, offset,
                               (length - 2), ENC_EBCDIC|ENC_NA);
           offset += length;
@@ -4650,15 +4699,21 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case DEFINE_PITCH_TABLE:
         proto_tree_add_item(tn5250_tree, hf_tn5250_dpt_id, tvb, offset,
                             1, ENC_BIG_ENDIAN);
+        offset++;
         while ((offset - start) < sf_length) {
           length = tvb_get_guint8(tvb,offset);
           proto_tree_add_item(tn5250_tree, hf_tn5250_length, tvb, offset,
                               1, ENC_BIG_ENDIAN);
-          if (length==0)
-            break;
+          offset++;
+          /*
+           * XXX - the documentation cited above says this is a
+           * "4-byte EBCDIC code for the value of text pitch that is  
+           * displayed on the status line".  Does that mean that
+           * each of these entries is 5 bytes long?
+           */
           proto_tree_add_item(tn5250_tree, hf_tn5250_dpt_ec, tvb, offset,
                               length, ENC_EBCDIC|ENC_NA);
-          offset += length;
+          offset++;
         }
         break;
       case DEFINE_FAKE_DP_COMMAND_KEY_FUNCTION:
