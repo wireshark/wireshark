@@ -193,6 +193,51 @@ static int hf_alljoyn_string_size_8bit = -1;    /* 8-bit size of string */
 static int hf_alljoyn_string_size_32bit = -1;   /* 32-bit size of string */
 static int hf_alljoyn_string_data = -1;         /* string characters */
 
+/* Protocol identifiers. */
+static int proto_AllJoyn_ardp = -1;  /* The top level. Entire AllJoyn Reliable Datagram Protocol. */
+
+#define ARDP_SYN_FIXED_HDR_LEN  22 /* Size of the fixed part for the ARDP connection packet header. */
+#define ARDP_FIXED_HDR_LEN      34 /* Size of the fixed part for the ARDP header. */
+#define ARDP_DATA_LENGTH_OFFSET  6 /* Offset into the ARDP header for the data length. */
+#define ARDP_HEADER_LEN_OFFSET   1 /* Offset into the ARDP header for the actual length of the header. */
+
+/* These are bit masks for ARDP flags. */
+/* These bits are depricated and do not exist for version 1. */
+#define ARDP_SYN 0x01
+#define ARDP_ACK 0x02
+#define ARDP_EAK 0x04
+#define ARDP_RST 0x08
+#define ARDP_NUL 0x10
+#define ARDP_UNUSED 0x20
+#define ARDP_VER0 0x40
+#define ARDP_VER1 0x80
+#define ARDP_VER (ARDP_VER0 | ARDP_VER1)
+
+static int hf_ardp_syn_flag = -1;       /* 0x01 -- SYN */
+static int hf_ardp_ack_flag = -1;       /* 0x02 -- ACK */
+static int hf_ardp_eak_flag = -1;       /* 0x04 -- EAK */
+static int hf_ardp_rst_flag = -1;       /* 0x08 -- RST */
+static int hf_ardp_nul_flag = -1;       /* 0x10 -- NUL */
+static int hf_ardp_unused_flag = -1;    /* 0x20 -- UNUSED */
+static int hf_ardp_version_field = -1;  /* 0xc0 */
+
+static int hf_ardp_hlen = -1;   /* header length */
+static int hf_ardp_src = -1;    /* source port */
+static int hf_ardp_dst = -1;    /* destination port */
+static int hf_ardp_dlen = -1;   /* data length */
+static int hf_ardp_seq = -1;    /* sequence number */
+static int hf_ardp_ack = -1;    /* acknowledge number */
+static int hf_ardp_ttl = -1;    /* time to live (ms) */
+static int hf_ardp_lcs = -1;    /* last consumed sequence number */
+static int hf_ardp_nsa = -1;    /* next sequence to ack */
+static int hf_ardp_fss = -1;    /* fragment starting sequence number */
+static int hf_ardp_fcnt = -1;   /* fragment count */
+static int hf_ardp_bmp = -1;    /* EACK bitmap */
+static int hf_ardp_segmax = -1; /* The maximum number of outstanding segments the other side can send without acknowledgement. */
+static int hf_ardp_segbmax = -1;/* The maximum segment size we are willing to receive. */
+static int hf_ardp_dackt = -1;  /* Receiver's delayed ACK timeout. Used in TTL estimate prior to sending a message. */
+static int hf_ardp_options = -1;/* Options for the connection. Always Sequenced Delivery Mode (SDM). */
+
 /* These are the ids of the subtrees we will be creating */
 static gint ett_alljoyn_ns = -1;    /* This is the top NS tree. */
 static gint ett_alljoyn_ns_header = -1;
@@ -209,6 +254,7 @@ static gint ett_alljoyn_header_flags = -1;
 static gint ett_alljoyn_mess_header_field = -1;
 static gint ett_alljoyn_mess_header = -1;
 static gint ett_alljoyn_mess_body_parameters = -1;
+static gint ett_alljoyn_ardp = -1;  /* This is the top ARDP tree. */
 
 #define ROUND_TO_2BYTE(len) ((len + 1) & ~1)
 #define ROUND_TO_4BYTE(len) ((len + 3) & ~3)
@@ -433,6 +479,25 @@ find_sasl_command(tvbuff_t *tvb,
     return NULL;
 }
 
+/* Call this to test whether desegmentation is possible and if so correctly
+ * set the pinfo structure with the applicable data.
+ * @param pinfo contains information about the incoming packet.
+ * @param next_offset is the offset into the tvbuff where it is desired to start processing next time.
+ * @param addition_bytes_needed is the additional bytes required beyond what is already available.
+ * @returns TRUE if desegmentation is possible. FALSE if not.
+ */
+static gboolean set_pinfo_desegment(packet_info *pinfo, gint next_offset, gint addition_bytes_needed)
+{
+    if(pinfo->can_desegment) {
+        pinfo->desegment_offset = next_offset;
+        pinfo->desegment_len = addition_bytes_needed;
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 /* This is called by dissect_AllJoyn_message() to handle SASL messages.
  * If it was a SASL message and was handled then return the number of bytes
  * used (should be the entire packet). If not a SASL message or unhandled return 0.
@@ -466,13 +531,13 @@ handle_message_sasl(tvbuff_t    *tvb,
 
         /* If not found see if we should request another segment. */
         if(0 == newline_offset) {
-            if((guint)tvb_captured_length_remaining(tvb, offset) < MAX_SASL_PACKET_LENGTH && pinfo->can_desegment) {
-                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                pinfo->desegment_offset = offset;
-                /* Return the length of the buffer we need for this command. */
+            if((guint)tvb_captured_length_remaining(tvb, offset) < MAX_SASL_PACKET_LENGTH &&
+                set_pinfo_desegment(pinfo, offset, DESEGMENT_ONE_MORE_SEGMENT)) {
+
+                /* Return the length of the buffer we successfully parsed. */
                 return_value = offset + command->length;
             } else {
-                /* If we can't desegment then return 0. */
+                /* If we can't desegment then return 0 meaning we didn't do anything. */
                 return_value = 0;
             }
 
@@ -486,7 +551,6 @@ handle_message_sasl(tvbuff_t    *tvb,
 
             /* Add a subtree/row for the command. */
             proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, length, ENC_ASCII|ENC_NA);
-
             offset += length;
             length = newline_offset - offset;
 
@@ -1383,7 +1447,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
         end_of_body = packet_length;
     }
 
-    while(offset < end_of_body && *signature) {
+    while(offset < end_of_body && signature && *signature) {
         offset = parse_arg(tvb,
                            pinfo,
                            NULL,
@@ -1413,7 +1477,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
  * If it was a message with valid header and optional body then return TRUE.
  * If not a valid message return false.
  * @param tvb is the incoming network data buffer.
- * @param pinfo contains information about the incoming packet which
+ * @param pinfo contains information about the incoming packet.
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
  * @returns the offset into the packet that has successfully been handled or
@@ -1446,10 +1510,7 @@ handle_message_header_body(tvbuff_t    *tvb,
     }
 
     if(remaining_packet_length < MESSAGE_HEADER_LENGTH) {
-        if(pinfo->can_desegment) {
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = MESSAGE_HEADER_LENGTH - remaining_packet_length;
-        } else {
+        if(!set_pinfo_desegment(pinfo, offset, MESSAGE_HEADER_LENGTH - remaining_packet_length)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected >= %d && <= %d",
             remaining_packet_length, MESSAGE_HEADER_LENGTH, MAX_PACKET_LEN);
         }
@@ -1462,10 +1523,7 @@ handle_message_header_body(tvbuff_t    *tvb,
     packet_length_needed = ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH;
 
     if(packet_length_needed > remaining_packet_length) {
-        if(pinfo->can_desegment) {
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = packet_length_needed - remaining_packet_length;
-        } else {
+        if(!set_pinfo_desegment(pinfo, offset, packet_length_needed - remaining_packet_length)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected %d",
                 remaining_packet_length, packet_length_needed);
         }
@@ -1530,23 +1588,27 @@ handle_message_header_body(tvbuff_t    *tvb,
 /* Test to see if this buffer contains something that might be an AllJoyn message.
  * @param tvb is the incoming network data buffer.
  * @param offset where to start parsing the buffer.
+ * @param is_ardp If true then this is an ARDP packet which needs special treatment.
  * @returns TRUE if probably an AllJoyn message.
  *          FALSE if probably not an AllJoyn message.
  */
 static gboolean
-protocol_is_alljoyn_message(tvbuff_t *tvb, gint offset)
+protocol_is_alljoyn_message(tvbuff_t *tvb, gint offset, gboolean is_ardp)
 {
     gint length = tvb_captured_length(tvb);
 
     if(length < offset + 1)
         return FALSE;
 
-    /* initial byte for a connect message. */
-    if(tvb_get_guint8(tvb, offset) == 0)
-        return TRUE;
+    /* There is no initial connect byte or SASL when using ARDP. */
+    if(!is_ardp) {
+        /* initial byte for a connect message. */
+        if(tvb_get_guint8(tvb, offset) == 0)
+            return TRUE;
 
-    if(find_sasl_command(tvb, offset) != NULL)
-        return TRUE;
+        if(find_sasl_command(tvb, offset) != NULL)
+            return TRUE;
+    }
 
     if(get_message_header_endianness(tvb, offset) == ENC_ALLJOYN_BAD_ENCODING)
         return FALSE;
@@ -1564,6 +1626,9 @@ protocol_is_alljoyn_message(tvbuff_t *tvb, gint offset)
  * @param pinfo contains information about the incoming packet which
  *         we update as we dissect the packet.
  * @param tree is the tree data items should be added to.
+ * @param offset is the offset into the already partial dissected buffer
+ *         from dissect_AllJoyn_ardp() or 0 because this is just a bare
+ *         AllJoyn message.
  * @return 0 if not AllJoyn message protocol, or
  *         the offset into the buffer we have successfully dissected (which
  *         should normally be the packet length), or
@@ -1578,16 +1643,17 @@ static gint
 dissect_AllJoyn_message(tvbuff_t    *tvb,
                         packet_info *pinfo,
                         proto_tree  *tree,
-                        void        *data _U_)
+                        gint        offset)
 {
-    gint        offset      = 0;
     proto_item *message_item;
     proto_tree *message_tree;
     gint        last_offset = -1;
     gint        packet_length;
+    gboolean    is_ardp = FALSE;
 
-    if(!protocol_is_alljoyn_message(tvb, offset)) {
-        return 0;
+    /* If called after dissecting the ARDP protocol. This is the only time the offset will not be zero. */
+    if(offset != 0) {
+        is_ardp = TRUE;
     }
 
     pinfo->desegment_len = 0;
@@ -1603,16 +1669,20 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
     /* Continue as long as we are making progress and we haven't finished with the packet. */
     while(offset < packet_length && offset > last_offset) {
         last_offset = offset;
-        offset = handle_message_connect(tvb, pinfo, offset, message_tree);
 
-        if(offset >= packet_length) {
-            break;
-        }
+        /* There is no initial connect byte or SASL when using ARDP. */
+        if(!is_ardp) {
+            offset = handle_message_connect(tvb, pinfo, offset, message_tree);
 
-        offset = handle_message_sasl(tvb, pinfo, offset, message_tree);
+            if(offset >= packet_length) {
+                break;
+            }
 
-        if(offset >= packet_length) {
-            break;
+            offset = handle_message_sasl(tvb, pinfo, offset, message_tree);
+
+            if(offset >= packet_length) {
+                break;
+            }
         }
 
         offset = handle_message_header_body(tvb, pinfo, offset, message_tree);
@@ -2028,6 +2098,280 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
     }
 
     return tvb_reported_length(tvb);
+}
+
+/* This is a container for the ARDP info and Wireshark tree information.
+ */
+typedef struct _alljoyn_ardp_tree_data
+{
+    gint offset;
+    gint syn;
+    gint ack;
+    gint eak;
+    gint rst;
+    gint nul;
+    gint sequence;
+    gint acknowledge;
+    proto_tree *alljoyn_tree;
+} alljoyn_ardp_tree_data;
+
+/* This is called by dissect_AllJoyn_ardp() to read the header
+ * and fill out most of tree_data.
+ * @param tvb is the incoming network data buffer.
+ * @param pinfo contains information about the incoming packet which
+ *         we update as we dissect the packet.
+ * @param tree_data is the destinationn of the data..
+ */
+static void
+ardp_parse_header(tvbuff_t *tvb,
+                  packet_info *pinfo,
+                  alljoyn_ardp_tree_data *tree_data)
+{
+    guint8      flags, header_length;
+    gint        eaklen, packet_length;
+    guint16     data_length;
+
+    packet_length = tvb_reported_length(tvb);
+
+    flags = tvb_get_guint8(tvb, 0);
+
+    tree_data->syn = (flags & ARDP_SYN) != 0 ? 1 : 0;
+    tree_data->ack = (flags & ARDP_ACK) != 0 ? 1 : 0;
+    tree_data->eak = (flags & ARDP_EAK) != 0 ? 1 : 0;
+    tree_data->rst = (flags & ARDP_RST) != 0 ? 1 : 0;
+    tree_data->nul = (flags & ARDP_NUL) != 0 ? 1 : 0;
+
+    /* The packet length has to be ARDP_HEADER_LEN_OFFSET long or protocol_is_ardp() would
+       have returned false. Length is expressed in words so multiply by 2. */
+    header_length = 2 * tvb_get_guint8(tvb, ARDP_HEADER_LEN_OFFSET);
+
+    if(packet_length < ARDP_DATA_LENGTH_OFFSET + 2) {
+        /* If we need more data before dissecting then communicate the number of additional bytes needed. */
+        set_pinfo_desegment(pinfo, 0, ARDP_DATA_LENGTH_OFFSET + 2 - packet_length);
+
+        /* Inform the caller we made it this far. Returning zero means we made no progress.
+           This is the offset just past the last byte we successfully retrieved. */
+        tree_data->offset = ARDP_HEADER_LEN_OFFSET + 1;
+
+        return;
+    }
+
+    data_length = tvb_get_ntohs(tvb, ARDP_DATA_LENGTH_OFFSET);
+
+    if(packet_length < header_length + data_length) {
+        /* If we need more data before dissecting then communicate the number of additional bytes needed. */
+        set_pinfo_desegment(pinfo, 0, header_length + data_length - packet_length);
+
+        /* Inform the caller we made it this far. Returning zero it means we made no progress.
+           This is the offset just past the last byte we successfully retrieved. */
+        tree_data->offset = ARDP_DATA_LENGTH_OFFSET + 2;
+        return;
+    }
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_syn_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_ack_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_eak_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_rst_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_nul_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_unused_flag, tvb, tree_data->offset, 1, ENC_NA);
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_version_field, tvb, tree_data->offset, 1, ENC_NA);
+
+    tree_data->offset += 1;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_hlen, tvb, tree_data->offset, 1, ENC_NA);
+    tree_data->offset += 1;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_src, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+    tree_data->offset += 2;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_dst, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+    tree_data->offset += 2;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_dlen, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+    tree_data->offset += 2;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_seq, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+    tree_data->sequence = tvb_get_ntohl(tvb, tree_data->offset);
+    tree_data->offset += 4;
+
+    proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_ack, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+    tree_data->acknowledge = tvb_get_ntohl(tvb, tree_data->offset);
+    tree_data->offset += 4;
+
+    if(tree_data->syn) {
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_segmax, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+        tree_data->offset += 2;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_segbmax, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+        tree_data->offset += 2;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_dackt, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->offset += 4;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_options, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+        tree_data->offset += 2;
+    } else {
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_ttl, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->offset += 4;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_lcs, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->offset += 4;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_nsa, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->offset += 4;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_fss, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->offset += 4;
+
+        proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_fcnt, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+        tree_data->offset += 2;
+
+        eaklen = header_length - ARDP_FIXED_HDR_LEN;
+
+        /* In the case of a corrupted packet eaklen could be < 0 and bad things could happen. */
+        if(eaklen > 0) {
+            if(tree_data->eak) {
+                proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_bmp, tvb, tree_data->offset, eaklen, ENC_NA);
+            }
+
+            tree_data->offset += eaklen;
+        }
+
+        /* The data_length bytes, if any, will be passed on to the dissect_AllJoyn_message() handler. */
+    }
+}
+
+/* Test to see if this buffer contains something that might be the AllJoyn ARDP protocol.
+ * @param tvb is the incoming network data buffer.
+ * @returns TRUE if probably the AllJoyn ARDP protocol.
+ *          FALSE if probably not the AllJoyn ARDP protocol.
+ */
+static gboolean
+protocol_is_ardp(tvbuff_t *tvb)
+{
+    guint8      flags, header_length;
+    gint length = tvb_captured_length(tvb);
+
+    /* We must be able to get the byte value at this offset to determine if it is an ARDP protocol. */
+    if(length < ARDP_HEADER_LEN_OFFSET + 1) {
+        return FALSE;
+    }
+
+    /* Length is expressed in words. */
+    header_length = 2 * tvb_get_guint8(tvb, ARDP_HEADER_LEN_OFFSET);
+
+    flags = tvb_get_guint8(tvb, 0);
+
+    if((flags & ARDP_SYN) && header_length != ARDP_SYN_FIXED_HDR_LEN) {
+        return FALSE;
+    }
+
+    if(!(flags & ARDP_SYN) && header_length < ARDP_FIXED_HDR_LEN) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/* This is called by Wireshark for packet types that are registered
+   in the proto_reg_handoff_AllJoyn() function. This function handles
+   the packets for the ARDP and bare AllJoyn message protocols. A test
+   for bare AllJoyn message protocol is done first. If it is an AllJoyn
+   packet then only dissect_AllJoyn_message() is called to dissect the
+   data. If protocol_is_alljoyn_message() returns FALSE then a test for
+   the ARDP protocol is performed. If it succeeds then ARDP dissection
+   proceeds and may call dissect_AllJoyn_message() with the offset just
+   past the ARDP protocol.
+ * @param tvb is the incoming network data buffer.
+ * @param pinfo contains information about the incoming packet which
+ * we update as we dissect the packet.
+ * @param tree is the tree data items should be added to.
+ * @return 0 if not AllJoyn ARDP protocol, or
+ *         the offset into the buffer we have dissected (which should normally
+ *         be the packet length), or
+ *         the offset into the buffer we have dissected with
+ *         pinfo->desegment_len == additional bytes needed from the next packet
+ *         before we can dissect.
+ */
+static int
+dissect_AllJoyn_ardp(tvbuff_t    *tvb,
+                     packet_info *pinfo,
+                     proto_tree  *tree,
+                     void *data   _U_)
+{
+    alljoyn_ardp_tree_data tree_data = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    gint packet_length = tvb_reported_length(tvb);
+    proto_item *alljoyn_item = NULL;
+
+    if(protocol_is_alljoyn_message(tvb, 0, FALSE)) {
+        return dissect_AllJoyn_message(tvb, pinfo, tree, 0);
+    }
+
+    if(!protocol_is_ardp(tvb)) {
+        return 0;
+    }
+
+    pinfo->desegment_len = 0;
+
+    /* Add a subtree covering the remainder of the packet */
+    alljoyn_item = proto_tree_add_item(tree, proto_AllJoyn_ardp, tvb, 0, -1, ENC_NA);
+    tree_data.alljoyn_tree = proto_item_add_subtree(alljoyn_item, ett_alljoyn_ardp);
+
+    ardp_parse_header(tvb, pinfo, &tree_data);
+
+    /* Is desegmention needed? */
+    if(pinfo->desegment_len != 0) {
+        return tree_data.offset;
+    }
+
+    if(tree_data.offset != 0) {
+        /* This is ARDP traffic. Mark it as such at the top level. */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALLJOYN-ARDP");
+    }
+
+    if(tree_data.offset < packet_length) {
+        gint return_value = 0;
+
+        if(protocol_is_alljoyn_message(tvb, tree_data.offset, TRUE)) {
+            return_value = dissect_AllJoyn_message(tvb, pinfo, tree, tree_data.offset);
+        }
+
+        /* return_value will be the offset into the successfully parsed
+         * buffer, the requested length of a reassembled packet (with pinfo->desegment_len
+         * and pinfo->desegment_offset set appropriately), 0 if desegmentation is needed but
+         * isn't available, or the initial value (tree_data.offset) if no progress was made.
+         * If dissect_AllJoyn_message() made progress or is requesting desegmentation then
+         * return leaving the column info as handled by the AllJoyn message dissector. If
+         * not then we fall through to set the column info in this dissector.
+         */
+        if(return_value > tree_data.offset) {
+            return return_value;
+        }
+    }
+
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    col_append_str(pinfo->cinfo, COL_INFO, "flags:");
+    if(tree_data.syn) {
+        col_append_str(pinfo->cinfo, COL_INFO, " SYN");
+    }
+    if(tree_data.ack) {
+        col_append_str(pinfo->cinfo, COL_INFO, " ACK");
+    }
+    if(tree_data.eak) {
+        col_append_str(pinfo->cinfo, COL_INFO, " EAK");
+    }
+    if(tree_data.rst) {
+        col_append_str(pinfo->cinfo, COL_INFO, " RST");
+    }
+    if(tree_data.nul) {
+        col_append_str(pinfo->cinfo, COL_INFO, " NUL");
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " SEQ: %10u", tree_data.sequence);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ACK: %10u", tree_data.acknowledge);
+
+    return tree_data.offset;
 }
 
 void
@@ -2483,6 +2827,102 @@ proto_register_AllJoyn(void)
           FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
+        /******************
+         * Wireshark header fields for the AllJoyn Reliable Data Protocol.
+         ******************/
+        {&hf_ardp_syn_flag,
+         {"SYN", "ardp.hdr.SYN",
+          FT_BOOLEAN, 8, NULL, ARDP_SYN,
+          NULL, HFILL}
+        },
+        {&hf_ardp_ack_flag,
+         {"ACK", "ardp.hdr.ACK",
+          FT_BOOLEAN, 8, NULL, ARDP_ACK,
+          NULL, HFILL}},
+        {&hf_ardp_eak_flag,
+         {"EAK", "ardp.hdr.EAK",
+          FT_BOOLEAN, 8, NULL, ARDP_EAK,
+          NULL, HFILL}},
+        {&hf_ardp_rst_flag,
+         {"RST", "ardp.hdr.RST",
+          FT_BOOLEAN, 8, NULL, ARDP_RST,
+          NULL, HFILL}},
+        {&hf_ardp_nul_flag,
+         {"NUL", "ardp.hdr.NUL",
+          FT_BOOLEAN, 8, NULL, ARDP_NUL,
+          NULL, HFILL}},
+        {&hf_ardp_unused_flag,
+         {"UNUSED", "ardp.hdr.UNUSED",
+          FT_BOOLEAN, 8, NULL, ARDP_UNUSED,
+          NULL, HFILL}},
+        {&hf_ardp_version_field,
+         {"VER", "ardp.hdr.ver",
+          FT_UINT8, BASE_HEX, NULL, ARDP_VER,
+          NULL, HFILL}},
+        {&hf_ardp_hlen,
+         {"Header Length", "ardp.hdr.hlen",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_src,
+         {"Source Port", "ardp.hdr.src",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_dst,
+         {"Destination Port", "ardp.hdr.dst",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_dlen,
+         {"Data Length", "ardp.hdr.dlen",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_seq,
+         {"Sequence", "ardp.hdr.seq",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_ack,
+         {"Acknowledge", "ardp.hdr.ack",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_ttl,
+         {"Time to Live", "ardp.hdr.ttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_lcs,
+         {"Last Consumed Sequence", "ardp.hdr.lcs",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_nsa,
+         {"Next Sequence to ACK", "ardp.hdr.nsa",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_fss,
+         {"Fragment Starting Sequence", "ardp.hdr.fss",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_fcnt,
+         {"Fragment Count", "ardp.hdr.fcnt",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_bmp,
+         {"EACK Bitmap", "ardp.hdr.bmp",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_segmax,
+         {"Segment Max", "ardp.hdr.segmentmax",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_segbmax,
+         {"Segment Buffer Max", "ardp.hdr.segmentbmax",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_dackt,
+         {"Receiver's delayed ACK timeout", "ardp.hdr.dackt",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_ardp_options,
+         {"Options", "ardp.hdr.options",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -2500,7 +2940,8 @@ proto_register_AllJoyn(void)
         &ett_alljoyn_header_flags,
         &ett_alljoyn_mess_header_field,
         &ett_alljoyn_mess_header,
-        &ett_alljoyn_mess_body_parameters
+        &ett_alljoyn_mess_body_parameters,
+        &ett_alljoyn_ardp
     };
 
     /* The following are protocols as opposed to data within a protocol. These appear
@@ -2515,6 +2956,9 @@ proto_register_AllJoyn(void)
 
     proto_register_field_array(proto_AllJoyn_ns, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* ARDP */                        /* name, short name, abbrev */
+    proto_AllJoyn_ardp = proto_register_protocol("AllJoyn Reliable Datagram Protocol", "AllJoyn ARDP", "ardp");
 }
 
 void
@@ -2522,23 +2966,26 @@ proto_reg_handoff_AllJoyn(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t alljoyn_handle_ns;
-    static dissector_handle_t alljoyn_handle_mess;
+    static dissector_handle_t alljoyn_handle_ardp;
 
     if(!initialized) {
         alljoyn_handle_ns = new_create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
-        alljoyn_handle_mess = new_create_dissector_handle(dissect_AllJoyn_message, proto_AllJoyn_mess);
+        alljoyn_handle_ardp = new_create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
     } else {
         dissector_delete_uint("udp.port", name_server_port, alljoyn_handle_ns);
         dissector_delete_uint("tcp.port", name_server_port, alljoyn_handle_ns);
-        dissector_delete_uint("udp.port", message_port, alljoyn_handle_mess);
-        dissector_delete_uint("tcp.port", message_port, alljoyn_handle_mess);
+
+        dissector_delete_uint("udp.port", message_port, alljoyn_handle_ardp);
+        dissector_delete_uint("tcp.port", message_port, alljoyn_handle_ardp);
     }
 
     dissector_add_uint("udp.port", name_server_port, alljoyn_handle_ns);
     dissector_add_uint("tcp.port", name_server_port, alljoyn_handle_ns);
 
-    dissector_add_uint("udp.port", message_port, alljoyn_handle_mess);
-    dissector_add_uint("tcp.port", message_port, alljoyn_handle_mess);
+    /* The ARDP dissector will directly call the AllJoyn message dissector if needed.
+     * This includes the case where there is no ARDP data. */
+    dissector_add_uint("udp.port", message_port, alljoyn_handle_ardp);
+    dissector_add_uint("tcp.port", message_port, alljoyn_handle_ardp);
 }
 
 /*
@@ -2553,3 +3000,4 @@ proto_reg_handoff_AllJoyn(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
+
