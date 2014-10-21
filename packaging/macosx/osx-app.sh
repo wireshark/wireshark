@@ -229,7 +229,7 @@ mkdir -p "$pkgbin"
 mkdir -p "$pkgplugin"
 
 if [ "$ui_toolkit" = "qt" ] ; then
-	cp "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
+	cp -v "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
 else
 # Build and add the launcher
 #----------------------------------------------------------
