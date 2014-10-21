@@ -34,10 +34,11 @@
 #include <QStringList>
 
 QMap<int, int> PacketListRecord::cinfo_column_;
+unsigned PacketListRecord::col_data_ver_ = 1;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
-//    columnized_(false),
+    data_ver_(0),
     colorized_(false)
 {
 }
@@ -51,7 +52,7 @@ const QVariant PacketListRecord::columnString(capture_file *cap_file, int column
         return QVariant();
     }
 
-    if (column >= col_text_.size() || col_text_[column].isNull() || !colorized_) {
+    if (column >= col_text_.size() || col_text_[column].isNull() || data_ver_ != col_data_ver_ || !colorized_) {
         dissect(cap_file, !colorized_);
     }
 
@@ -60,6 +61,8 @@ const QVariant PacketListRecord::columnString(capture_file *cap_file, int column
 
 void PacketListRecord::resetColumns(column_info *cinfo)
 {
+    col_data_ver_++;
+
     if (!cinfo) {
         return;
     }
@@ -87,7 +90,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     gboolean create_proto_tree;
     struct wtap_pkthdr phdr; /* Packet header */
     Buffer buf; /* Packet data */
-    gboolean dissect_columns = col_text_.isEmpty();
+    gboolean dissect_columns = col_text_.isEmpty() || data_ver_ != col_data_ver_;
 
     if (!cap_file) {
         return;
@@ -154,6 +157,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     if (dissect_color) {
         colorized_ = true;
     }
+    data_ver_ = col_data_ver_;
 
     epan_dissect_cleanup(&edt);
     ws_buffer_free(&buf);

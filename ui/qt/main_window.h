@@ -61,6 +61,10 @@
 #include "about_dialog.h"
 
 class QAction;
+class QActionGroup;
+
+Q_DECLARE_METATYPE(ts_type)
+Q_DECLARE_METATYPE(ts_precision)
 
 namespace Ui {
     class MainWindow;
@@ -119,6 +123,8 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
+    QActionGroup *time_display_actions_;
+    QActionGroup *time_precision_actions_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -151,6 +157,10 @@ private:
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
     bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
     void captureStop();
+
+    void initMainToolbarIcons();
+    void initTimeDisplayFormatMenu();
+    void initTimePrecisionFormatMenu();
 
     void setTitlebarForSelectedTreeRow();
     void setTitlebarForCaptureFile();
@@ -282,6 +292,10 @@ private slots:
     void on_actionEditPacketComment_triggered();
     void on_actionEditConfigurationProfiles_triggered();
     void on_actionEditPreferences_triggered();
+
+    void setTimestampFormat(QAction *action);
+    void setTimestampPrecision(QAction *action);
+    void on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked);
 
     void zoomText();
     void on_actionViewZoomIn_triggered();

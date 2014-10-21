@@ -1177,9 +1177,9 @@ int main(int argc, char *argv[])
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: timestamp types should be set elsewhere");
-    timestamp_set_type(TS_RELATIVE);
-    timestamp_set_precision(TS_PREC_AUTO);
+    // XXX Is there a better place to set the timestamp format & precision?
+    timestamp_set_type(recent.gui_time_format);
+    timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
 #ifdef HAVE_LIBPCAP

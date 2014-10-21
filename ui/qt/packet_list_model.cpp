@@ -82,6 +82,9 @@ guint PacketListModel::recreateVisibleRows()
     beginResetModel();
     visible_rows_.clear();
     number_to_row_.clear();
+    if (cap_file_) {
+        PacketListRecord::resetColumns(&cap_file_->cinfo);
+    }
     endResetModel();
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (record, physical_rows_) {
@@ -132,7 +135,6 @@ int PacketListModel::columnTextSize(const char *str)
 void PacketListModel::setMonospaceFont(const QFont &mono_font)
 {
     mono_font_ = mono_font;
-    recreateVisibleRows();
 }
 
 // The Qt MVC documentation suggests using QSortFilterProxyModel for sorting

@@ -91,7 +91,7 @@ public slots:
     void ignoreAllDisplayedFrames(bool set);
     void setTimeReference();
     void unsetAllTimeReferences();
-    void updateAll();
+    void redrawVisiblePackets();
 
 private slots:
     void addRelatedFrame(int related_frame);

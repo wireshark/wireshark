@@ -56,6 +56,7 @@
 #include "qt_ui_utils.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -149,6 +150,8 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_(new DisplayFilterCombo()),
     cap_file_(NULL),
     previous_focus_(NULL),
+    time_display_actions_(NULL),
+    time_precision_actions_(NULL),
     capture_stopping_(false),
     capture_filter_valid_(false),
 #ifdef _WIN32
@@ -205,46 +208,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
-#if defined(Q_OS_WIN)
-    // Current GTK+ and other Windows app behavior.
-    main_ui_->mainToolBar->setIconSize(QSize(16, 16));
-#else
-    // Force icons to 24x24 for now, otherwise actionFileOpen looks wonky.
-    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
-#endif
-
-    // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
-    // toolbar item but that clutters up our menu. Set menu icons sparingly.
-
-    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
-    main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
-    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
-    main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
-
-    // Menu icons are disabled in main_window.ui for these items.
-    main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
-    main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
-    main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
-//    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
-
-    main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
-    main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
-    main_ui_->actionGoNextPacket->setIcon(StockIcon("go-next"));
-    main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
-    main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
-    main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
-
-    main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
-    main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
-//    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
-
-    QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
-    zi_seq << QKeySequence(Qt::CTRL + Qt::Key_Equal);
-    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
-    main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
-    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
-    main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
-    main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
+    initMainToolbarIcons();
 
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
@@ -305,6 +269,9 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->installEventFilter(this);
 
     main_welcome_ = main_ui_->welcomePage;
+
+    initTimeDisplayFormatMenu();
+    initTimePrecisionFormatMenu();
 
     connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
@@ -1392,6 +1359,110 @@ void MainWindow::captureStop() {
     while(cap_file_ && cap_file_->state == FILE_READ_IN_PROGRESS) {
         WiresharkApplication::processEvents();
     }
+}
+
+void MainWindow::initMainToolbarIcons()
+{
+#if defined(Q_OS_WIN)
+    // Current GTK+ and other Windows app behavior.
+    main_ui_->mainToolBar->setIconSize(QSize(16, 16));
+#else
+    // Force icons to 24x24 for now, otherwise actionFileOpen looks wonky.
+    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
+#endif
+
+    // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
+    // toolbar item but that clutters up our menu. Set menu icons sparingly.
+
+    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
+    main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
+    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
+    main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
+
+    // Menu icons are disabled in main_window.ui for these items.
+    main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
+    main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
+    main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
+//    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+
+    main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
+    main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
+    main_ui_->actionGoNextPacket->setIcon(StockIcon("go-next"));
+    main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
+    main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
+    main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
+
+    main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
+    main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
+//    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
+
+    QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
+    zi_seq << QKeySequence(Qt::CTRL + Qt::Key_Equal);
+    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
+    main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
+    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
+    main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
+    main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
+}
+
+void MainWindow::initTimeDisplayFormatMenu()
+{
+    if (time_display_actions_) {
+        return;
+    }
+
+    time_display_actions_ = new QActionGroup(this);
+    QMap<QAction *, ts_type> td_actions;
+
+    td_actions[main_ui_->actionViewTimeDisplayFormatDateYMDandTimeOfDay] = TS_ABSOLUTE_WITH_YMD;
+    td_actions[main_ui_->actionViewTimeDisplayFormatDateYDOYandTimeOfDay] = TS_ABSOLUTE_WITH_YDOY;
+    td_actions[main_ui_->actionViewTimeDisplayFormatTimeOfDay] = TS_ABSOLUTE;
+    td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSinceEpoch] = TS_EPOCH;
+    td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture] = TS_RELATIVE;
+    td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket] = TS_DELTA;
+    td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket] = TS_DELTA_DIS;
+    td_actions[main_ui_->actionViewTimeDisplayFormatUTCDateYMDandTimeOfDay] = TS_UTC_WITH_YMD;
+    td_actions[main_ui_->actionViewTimeDisplayFormatUTCDateYDOYandTimeOfDay] = TS_UTC_WITH_YDOY;
+    td_actions[main_ui_->actionViewTimeDisplayFormatUTCTimeOfDay] = TS_UTC;
+
+    foreach (QAction* tda, td_actions.keys()) {
+        tda->setData(qVariantFromValue(td_actions[tda]));
+        time_display_actions_->addAction(tda);
+        if (recent.gui_time_format == td_actions[tda]) {
+            tda->setChecked(true);
+        }
+    }
+
+    connect(time_display_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampFormat(QAction*)));
+
+    main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes->setChecked(recent.gui_seconds_format == TS_SECONDS_HOUR_MIN_SEC);
+}
+
+void MainWindow::initTimePrecisionFormatMenu()
+{
+    if (time_precision_actions_) {
+        return;
+    }
+
+    time_precision_actions_ = new QActionGroup(this);
+    QMap<QAction *, ts_precision> tp_actions;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionAutomatic] = TS_PREC_AUTO;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionSeconds] = TS_PREC_FIXED_SEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionDeciseconds] = TS_PREC_FIXED_DSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionCentiseconds] = TS_PREC_FIXED_CSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionMilliseconds] = TS_PREC_FIXED_MSEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionMicroseconds] = TS_PREC_FIXED_USEC;
+    tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionNanoseconds] = TS_PREC_FIXED_NSEC;
+
+    foreach (QAction* tpa, tp_actions.keys()) {
+        tpa->setData(qVariantFromValue(tp_actions[tpa]));
+        time_precision_actions_->addAction(tpa);
+        if (recent.gui_time_precision == tp_actions[tpa]) {
+            tpa->setChecked(true);
+        }
+    }
+
+    connect(time_precision_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampPrecision(QAction*)));
 }
 
 // Titlebar

@@ -1212,7 +1212,7 @@ void MainWindow::recreatePacketList()
     col_cleanup(&cfile.cinfo);
     build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
-    packet_list_->updateAll();
+    packet_list_->redrawVisiblePackets();
     packet_list_->hide();
     packet_list_->show();
 
@@ -1700,6 +1700,63 @@ void MainWindow::on_actionEditPreferences_triggered()
 }
 
 // View Menu
+
+void MainWindow::setTimestampFormat(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+    ts_type tsf = action->data().value<ts_type>();
+    if (recent.gui_time_format != tsf) {
+        timestamp_set_type(tsf);
+        recent.gui_time_format = tsf;
+        if (cap_file_) {
+            /* This call adjusts column width */
+            cf_timestamp_auto_precision(cap_file_);
+        }
+        if (packet_list_) {
+            packet_list_->redrawVisiblePackets();
+        }
+    }
+}
+
+void MainWindow::setTimestampPrecision(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+    ts_precision tsp = action->data().value<ts_precision>();
+    if (recent.gui_time_precision != tsp) {
+        /* the actual precision will be set in packet_list_queue_draw() below */
+        timestamp_set_precision(tsp);
+        recent.gui_time_precision = tsp;
+        if (cap_file_) {
+            /* This call adjusts column width */
+            cf_timestamp_auto_precision(cap_file_);
+        }
+        if (packet_list_) {
+            packet_list_->redrawVisiblePackets();
+        }
+    }
+}
+
+void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked)
+{
+    if (checked) {
+        recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
+    } else {
+        recent.gui_seconds_format = TS_SECONDS_DEFAULT;
+    }
+    timestamp_set_seconds_type(recent.gui_seconds_format);
+
+    if (cap_file_) {
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(cap_file_);
+    }
+    if (packet_list_) {
+        packet_list_->redrawVisiblePackets();
+    }
+}
 
 void MainWindow::zoomText()
 {

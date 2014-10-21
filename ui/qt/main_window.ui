@@ -241,20 +241,46 @@
     </widget>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
-      <string>Zoom</string>
+      <string>&amp;Zoom</string>
      </property>
      <addaction name="actionViewZoomIn"/>
      <addaction name="actionViewZoomOut"/>
      <addaction name="actionViewNormalSize"/>
     </widget>
+    <widget class="QMenu" name="menuTime_Display_Format">
+     <property name="title">
+      <string>&amp;Time Display Format</string>
+     </property>
+     <addaction name="actionViewTimeDisplayFormatDateYMDandTimeOfDay"/>
+     <addaction name="actionViewTimeDisplayFormatDateYDOYandTimeOfDay"/>
+     <addaction name="actionViewTimeDisplayFormatTimeOfDay"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSinceEpoch"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket"/>
+     <addaction name="actionViewTimeDisplayFormatUTCDateYMDandTimeOfDay"/>
+     <addaction name="actionViewTimeDisplayFormatUTCDateYDOYandTimeOfDay"/>
+     <addaction name="actionViewTimeDisplayFormatUTCTimeOfDay"/>
+     <addaction name="separator"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionAutomatic"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionSeconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionDeciseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionCentiseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionMilliseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionMicroseconds"/>
+     <addaction name="actionViewTimeDisplayFormatPrecisionNanoseconds"/>
+     <addaction name="separator"/>
+     <addaction name="actionViewTimeDisplaySecondsWithHoursAndMinutes"/>
+    </widget>
+    <addaction name="menuTime_Display_Format"/>
+    <addaction name="separator"/>
+    <addaction name="menuZoom"/>
     <addaction name="separator"/>
     <addaction name="actionViewExpandSubtrees"/>
     <addaction name="actionViewExpandAll"/>
     <addaction name="actionViewCollapseAll"/>
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
-    <addaction name="separator"/>
-    <addaction name="menuZoom"/>
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
@@ -1797,6 +1823,210 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatDateYMDandTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Date and Time of Day (1970-01-01 01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the date and time of day.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+1</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatDateYDOYandTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the year, day of the year and time of day.</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Time of Day (01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the date and time of day.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+2</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatSecondsSinceEpoch">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds Since 1970-01-01</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+3</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds Since Beginning of Capture</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the date and time of day.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+4</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds Since Previous Captured Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the seconds since the previous captured packet.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+5</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds Since Previous Displayed Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the seconds since the previous displayed packet.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+6</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatUTCDateYMDandTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the UTC date and time of day.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+7</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatUTCDateYDOYandTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the UTC year, day of the year and time of day.</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatUTCTimeOfDay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>UTC Time of Day (01:02:03.123456)</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as the UTC time of day.</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+8</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionAutomatic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic (from capture file)</string>
+   </property>
+   <property name="toolTip">
+    <string>Use the time precision indicated in the capture file.</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionSeconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionDeciseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tenths of a second</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionCentiseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hundredths of a second</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionMilliseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Milliseconds</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionMicroseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Microseconds</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatPrecisionNanoseconds">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Nanoseconds</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplaySecondsWithHoursAndMinutes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display Seconds With Hours and Minutes</string>
+   </property>
+   <property name="toolTip">
+    <string>Display seconds with hours and minutes</string>
    </property>
   </action>
  </widget>

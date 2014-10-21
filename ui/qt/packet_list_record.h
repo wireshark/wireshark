@@ -57,8 +57,9 @@ private:
     static QMap<int, int> cinfo_column_;
 
 
-    /** Has this record been columnized? */
-//    gboolean columnized_;
+    /** Data versions. Used to invalidate col_text_ */
+    static unsigned col_data_ver_;
+    unsigned data_ver_;
     /** Has this record been colorized? */
     bool colorized_;
 

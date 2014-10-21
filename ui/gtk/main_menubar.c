@@ -1794,7 +1794,7 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
     { "/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket",NULL, "Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", NULL, TS_DELTA_DIS },
     { "/View/TimeDisplayFormat/UTCDateYMDandTimeofDay",             NULL, "UTC Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>7", NULL, TS_UTC_WITH_YMD },
     { "/View/TimeDisplayFormat/UTCDateYDOYandTimeofDay",            NULL, "UTC Date (with day of year) and Time of Day:   1970/001 01:02:03.123456", NULL, NULL, TS_UTC_WITH_YDOY },
-    { "/View/TimeDisplayFormat/UTCTimeofDay",                       NULL, "UTC Time of Day:   01:02:03.123456", "<alt><control>7", NULL, TS_UTC },
+    { "/View/TimeDisplayFormat/UTCTimeofDay",                       NULL, "UTC Time of Day:   01:02:03.123456", "<alt><control>8", NULL, TS_UTC },
 };
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_entries [] =

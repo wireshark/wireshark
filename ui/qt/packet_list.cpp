@@ -213,7 +213,7 @@ void
 packet_list_queue_draw(void)
 {
     if (gbl_cur_packet_list)
-        gbl_cur_packet_list->updateAll();
+        gbl_cur_packet_list->redrawVisiblePackets();
 }
 
 void
@@ -394,7 +394,7 @@ PacketList::PacketList(QWidget *parent) :
     gbl_cur_packet_list = this;
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateAll()));
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -537,7 +537,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 void PacketList::markFramesReady()
 {
     packets_bar_update();
-    updateAll();
+    redrawVisiblePackets();
 }
 
 void PacketList::setFrameMark(gboolean set, frame_data *fdata)
@@ -571,7 +571,6 @@ void PacketList::setFrameReftime(gboolean set, frame_data *fdata)
         cap_file_->displayed_count--;
         packet_list_model_->recreateVisibleRows();
     }
-    updateAll();
 }
 
 void PacketList::setColumnVisibility()
@@ -581,22 +580,21 @@ void PacketList::setColumnVisibility()
     }
 }
 
-
 // Redraw the packet list and detail
-void PacketList::updateAll() {
-    update();
-
+void PacketList::redrawVisiblePackets() {
     if (!cap_file_) return;
-
-    if (selectedIndexes().length() > 0) {
-        cf_select_packet(cap_file_, selectedIndexes()[0].row());
-    }
 
     if (cap_file_->edt && cap_file_->edt->tree) {
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
 
+    int row = currentIndex().row();
     packet_list_model_->resetColumns();
+    if (row > 0) {
+        setCurrentIndex(packet_list_model_->index(row, 0));
+    }
+
+    update();
 }
 
 void PacketList::freeze()
@@ -760,7 +758,7 @@ void PacketList::setPacketComment(QString new_comment)
 
     cf_set_user_packet_comment(cap_file_, fdata, new_packet_comment);
 
-    updateAll();
+    redrawVisiblePackets();
 }
 
 QString PacketList::allPacketComments()
@@ -800,6 +798,7 @@ void PacketList::setCaptureFile(capture_file *cf)
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
     packet_list_model_->setMonospaceFont(mono_font);
+    redrawVisiblePackets();
 }
 
 void PacketList::goNextPacket(void) {
@@ -834,6 +833,8 @@ void PacketList::markFrame()
     if (!cap_file_ || !packet_list_model_) return;
 
     fdata = packet_list_model_->getRowFdata(row);
+
+    if (!fdata) return;
 
     setFrameMark(!fdata->flags.marked, fdata);
     markFramesReady();
@@ -899,13 +900,15 @@ void PacketList::setTimeReference()
                 timestamp_set_type(TS_RELATIVE);
                 recent.gui_time_format  = TS_RELATIVE;
                 cf_timestamp_auto_precision(cap_file_);
+                setFrameReftime(!cap_file_->current_frame->flags.ref_time,
+                                cap_file_->current_frame);
             }
         } else {
             setFrameReftime(!cap_file_->current_frame->flags.ref_time,
                             cap_file_->current_frame);
         }
     }
-    updateAll();
+    redrawVisiblePackets();
 }
 
 void PacketList::unsetAllTimeReferences()
@@ -921,7 +924,7 @@ void PacketList::unsetAllTimeReferences()
             setFrameReftime(FALSE, fdata);
         }
     }
-    updateAll();
+    redrawVisiblePackets();
 }
 
 void PacketList::addRelatedFrame(int related_frame)
