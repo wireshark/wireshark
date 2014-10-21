@@ -489,7 +489,8 @@ static int
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     usb_conv_info_t *usb_conv_info;
-    proto_tree      *tree   = NULL;
+    proto_tree      *tree;
+    proto_item      *ti;
     gint             offset;
     guint            length = tvb_length(tvb);
 
@@ -501,13 +502,8 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
 
-    if (parent_tree)
-    {
-        proto_item *ti;
-
-        ti   = proto_tree_add_protocol_format(parent_tree, proto_usb_audio, tvb, 0, -1, "USB Audio");
-        tree = proto_item_add_subtree(ti, ett_usb_audio);
-    }
+    ti   = proto_tree_add_protocol_format(parent_tree, proto_usb_audio, tvb, 0, -1, "USB Audio");
+    tree = proto_item_add_subtree(ti, ett_usb_audio);
 
     switch (usb_conv_info->interfaceSubclass)
     {
