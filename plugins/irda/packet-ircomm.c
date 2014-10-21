@@ -136,11 +136,11 @@ static int hf_control = -1;
 static int hf_control_len = -1;
 
 static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_info* pinfo,
-                                          proto_tree* tree, guint list_index, guint8 attr_type);
+                                          proto_tree* tree, guint list_index, guint8 attr_type, guint8 circuit_id);
 static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
-                                        proto_tree* tree, guint list_index, guint8 attr_type);
+                                        proto_tree* tree, guint list_index, guint8 attr_type, guint8 circuit_id);
 static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
-                                        proto_tree* tree, guint list_index, guint8 attr_type);
+                                        proto_tree* tree, guint list_index, guint8 attr_type, guint8 circuit_id);
 
 ias_attr_dissector_t ircomm_attr_dissector[] = {
 /* IrDA:IrCOMM attribute dissectors */
@@ -242,7 +242,7 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
  * Dissect IrCOMM IAS "Parameters" attribute
  */
 static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_info* pinfo _U_,
-                                          proto_tree* tree, guint list_index, guint8 attr_type)
+                                          proto_tree* tree, guint list_index, guint8 attr_type, guint8 circuit_id _U_)
 {
     guint    len;
     guint    n = 0;
@@ -332,7 +332,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
  * Dissect IrCOMM IAS "IrDA:TinyTP:LsapSel" attribute
  */
 static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
-                                        proto_tree* tree, guint list_index _U_, guint8 attr_type)
+                                        proto_tree* tree, guint list_index _U_, guint8 attr_type, guint8 circuit_id)
 {
     guint8 dlsap;
 
@@ -340,7 +340,7 @@ static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info
     if ((dlsap = check_iap_lsap_result(tvb, tree, offset, "IrDA:TinyTP:LsapSel", attr_type)) == 0)
         return FALSE;
 
-    add_lmp_conversation(pinfo, dlsap, TRUE, dissect_cooked_ircomm);
+    add_lmp_conversation(pinfo, dlsap, TRUE, dissect_cooked_ircomm, circuit_id);
 
     return FALSE;
 }
@@ -350,7 +350,7 @@ static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info
  * Dissect IrCOMM/IrLPT IAS "IrDA:IrLMP:LsapSel" attribute
  */
 static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
-                                        proto_tree* tree, guint list_index _U_, guint8 attr_type)
+                                        proto_tree* tree, guint list_index _U_, guint8 attr_type, guint8 circuit_id)
 {
     guint8 dlsap;
 
@@ -358,7 +358,7 @@ static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info
     if ((dlsap = check_iap_lsap_result(tvb, tree, offset, "IrDA:IrLMP:LsapSel", attr_type)) == 0)
         return FALSE;
 
-    add_lmp_conversation(pinfo, dlsap, FALSE, dissect_raw_ircomm);
+    add_lmp_conversation(pinfo, dlsap, FALSE, dissect_raw_ircomm, circuit_id);
 
     return FALSE;
 }
