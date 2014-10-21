@@ -3,8 +3,8 @@
  * Routines for the RTCWeb Data Channel Protocol dissection
  * as specified in
  * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
- * and the upcoming version specified in
- * http://tools.ietf.org/html/draft-ietf-rtcweb-data-protocol-00
+ * and specified in
+ * http://tools.ietf.org/html/draft-ietf-rtcweb-data-protocol-08
  * We might want to remove the support of
  * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
  * in the future, but I'll leave it in for now.
@@ -220,7 +220,7 @@ dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(rtcdc_tree, hf_new_priority, tvb, NEW_PRIORITY_OFFSET, NEW_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_new_reliability, tvb, NEW_RELIABILITY_OFFSET, NEW_RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
         reliability = tvb_get_ntohl(tvb, NEW_RELIABILITY_OFFSET);
-        if ((reliability > 0) && ((channel_type & 0x80) == 0)) {
+        if ((reliability > 0) && ((channel_type & 0x7f) == 0x00)) {
             expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_reliability_non_zero);
         }
         proto_tree_add_item(rtcdc_tree, hf_new_label_length, tvb, NEW_LABEL_LENGTH_OFFSET, NEW_LABEL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
