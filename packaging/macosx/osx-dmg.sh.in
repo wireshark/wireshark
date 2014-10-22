@@ -42,7 +42,7 @@ rw_name="RWwireshark.dmg"
 volume_name="Wireshark"
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
-ws_bin="$app_bundle/Contents/Resources/bin/Wireshark"
+ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 readme_name="Read_me_first_qt.rtf"
 
 if [ -d /Applications/Xcode.app/Developer ]
