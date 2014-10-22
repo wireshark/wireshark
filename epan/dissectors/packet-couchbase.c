@@ -243,9 +243,7 @@ static int hf_extras_expiration = -1;
 static int hf_extras_delta = -1;
 static int hf_extras_initial = -1;
 static int hf_extras_unknown = -1;
-static int hf_extras_missing = -1;
 static int hf_key = -1;
-static int hf_key_missing = -1;
 static int hf_value = -1;
 static int hf_uint64_response = -1;
 static int hf_observe = -1;
@@ -994,7 +992,7 @@ dissect_couchbase_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   tcp_dissect_pdus(tvb, pinfo, tree, couchbase_desegment_body, 12,
                      get_couchbase_pdu_len, dissect_couchbase, data);
 
-  return tvb_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -1031,9 +1029,7 @@ proto_register_couchbase(void)
     { &hf_extras_delta, { "Amount to Add", "couchbase.extras.delta", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_initial, { "Initial Value", "couchbase.extras.initial", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_unknown, { "Unknown", "couchbase.extras.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, "Unknown Extras", HFILL } },
-    { &hf_extras_missing, { "Extras Missing", "couchbase.extras.missing", FT_NONE, BASE_NONE, NULL, 0x0, "Extras is mandatory for this command", HFILL } },
     { &hf_key, { "Key", "couchbase.key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_key_missing, { "Key Missing", "couchbase.key.missing", FT_NONE, BASE_NONE, NULL, 0x0, "Key is mandatory for this command", HFILL } },
     { &hf_value, { "Value", "couchbase.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_uint64_response, { "Response", "couchbase.extras.response", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_observe, { "Observe", "couchbase.observe", FT_STRING, BASE_NONE, NULL, 0x0, "The observe properties", HFILL } },
