@@ -150,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_(new DisplayFilterCombo()),
     cap_file_(NULL),
     previous_focus_(NULL),
+    show_hide_actions_(NULL),
     time_display_actions_(NULL),
     time_precision_actions_(NULL),
     capture_stopping_(false),
@@ -270,6 +271,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_welcome_ = main_ui_->welcomePage;
 
+    initShowHideMainWidgets();
     initTimeDisplayFormatMenu();
     initTimePrecisionFormatMenu();
 
@@ -1403,6 +1405,41 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
     main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
     main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
+}
+
+void MainWindow::initShowHideMainWidgets()
+{
+    if (show_hide_actions_) {
+        return;
+    }
+
+    show_hide_actions_ = new QActionGroup(this);
+    QMap<QAction *, QWidget *> shmw_actions;
+
+    show_hide_actions_->setExclusive(false);
+    shmw_actions[main_ui_->actionViewMainToolbar] = main_ui_->mainToolBar;
+    shmw_actions[main_ui_->actionViewFilterToolbar] = main_ui_->displayFilterToolBar;
+    shmw_actions[main_ui_->actionViewWirelessToolbar] = NULL; // Doesn't exist yet.
+    shmw_actions[main_ui_->actionViewStatusBar] = main_ui_->statusBar;
+    shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
+    shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
+    shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
+
+    main_ui_->actionViewMainToolbar->setChecked(recent.main_toolbar_show);
+    main_ui_->actionViewFilterToolbar->setChecked(recent.filter_toolbar_show);
+    main_ui_->actionViewWirelessToolbar->setChecked(recent.wireless_toolbar_show);
+    main_ui_->actionViewStatusBar->setChecked(recent.statusbar_show);
+    main_ui_->actionViewPacketList->setChecked(recent.packet_list_show);
+    main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show);
+    main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show);
+
+    foreach (QAction *shmwa, shmw_actions.keys()) {
+        shmwa->setData(qVariantFromValue(shmw_actions[shmwa]));
+        show_hide_actions_->addAction(shmwa);
+        showHideMainWidgets(shmwa);
+    }
+
+    connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
 
 void MainWindow::initTimeDisplayFormatMenu()

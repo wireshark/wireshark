@@ -296,11 +296,23 @@ void MainWindow::layoutPanes()
     parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
     parents[2]->addWidget(getLayoutWidget(prefs.gui_layout_content_3));
 
+    QList<QWidget *>split_widgets;
     for (int i = 0; i < master_split_.count(); i++) {
-        master_split_.widget(i)->show();
+        split_widgets << master_split_.widget(i);
     }
     for (int i = 0; i < extra_split_.count(); i++) {
-        extra_split_.widget(i)->show();
+        split_widgets << master_split_.widget(i);
+    }
+    foreach (QWidget *widget, split_widgets) {
+        bool show = true;
+        if (widget == packet_list_ && !recent.packet_list_show) {
+            show = false;
+        } else if (widget == proto_tree_ && !recent.tree_view_show) {
+            show = false;
+        } else if (widget == byte_view_tab_ && !recent.byte_view_show) {
+            show = false;
+        }
+        widget->setVisible(show);
     }
 }
 
@@ -1701,6 +1713,35 @@ void MainWindow::on_actionEditPreferences_triggered()
 
 // View Menu
 
+void MainWindow::showHideMainWidgets(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+    bool show = action->isChecked();
+    QWidget *widget = action->data().value<QWidget*>();
+
+    if (widget == main_ui_->mainToolBar) {
+        recent.main_toolbar_show = show;
+    } else if (widget == main_ui_->displayFilterToolBar) {
+        recent.filter_toolbar_show = show;
+    // } else if (widget == main_ui_->wirelessToolbar) {
+    //    recent.wireless_toolbar_show = show;
+    } else if (widget == main_ui_->statusBar) {
+        recent.statusbar_show = show;
+    } else if (widget == packet_list_) {
+        recent.packet_list_show = show;
+    } else if (widget == proto_tree_) {
+        recent.tree_view_show = show;
+    } else if (widget == byte_view_tab_) {
+        recent.byte_view_show = show;
+    }
+
+    if (widget) {
+        widget->setVisible(show);
+    }
+}
+
 void MainWindow::setTimestampFormat(QAction *action)
 {
     if (!action) {
@@ -1805,30 +1846,6 @@ void MainWindow::on_actionViewResizeColumns_triggered()
 void MainWindow::on_actionViewReload_triggered()
 {
     cf_reload(&cfile);
-}
-
-// gets called when user checks/unchecks the View->Toolbar->Main Toolbar
-void MainWindow::on_actionViewToolbarMainToolbar_triggered()
-{
-    // just checking for isChecked() was sufficient here, but I was worried about a loop
-    // so I'm checking both conditions
-    if (main_ui_->actionViewToolbarMainToolbar->isChecked() && !main_ui_->mainToolBar->isVisible()) {
-        main_ui_->mainToolBar->show();
-    } else if (!main_ui_->actionViewToolbarMainToolbar->isChecked() && main_ui_->mainToolBar->isVisible()) {
-        main_ui_->mainToolBar->hide();
-    }
-}
-
-// gets called when user checks/unchecks the View->Toolbar->Display Filter
-void MainWindow::on_actionViewToolbarDisplayFilter_triggered()
-{
-    // just checking for isChecked() was sufficient here, but I was worried about a loop
-    // so I'm checking both conditions
-    if (main_ui_->actionViewToolbarDisplayFilter->isChecked() && !main_ui_->displayFilterToolBar->isVisible()) {
-        main_ui_->displayFilterToolBar->show();
-    } else if (!main_ui_->actionViewToolbarDisplayFilter->isChecked() && main_ui_->displayFilterToolBar->isVisible()) {
-        main_ui_->displayFilterToolBar->hide();
-    }
 }
 
 // Expand / collapse slots in proto_tree

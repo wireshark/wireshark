@@ -232,13 +232,6 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <widget class="QMenu" name="menuToolbars">
-     <property name="title">
-      <string>Toolbars</string>
-     </property>
-     <addaction name="actionViewToolbarMainToolbar"/>
-     <addaction name="actionViewToolbarDisplayFilter"/>
-    </widget>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
       <string>&amp;Zoom</string>
@@ -272,6 +265,15 @@
      <addaction name="separator"/>
      <addaction name="actionViewTimeDisplaySecondsWithHoursAndMinutes"/>
     </widget>
+    <addaction name="actionViewMainToolbar"/>
+    <addaction name="actionViewFilterToolbar"/>
+    <addaction name="actionViewWirelessToolbar"/>
+    <addaction name="actionViewStatusBar"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewPacketList"/>
+    <addaction name="actionViewPacketDetails"/>
+    <addaction name="actionViewPacketBytes"/>
+    <addaction name="separator"/>
     <addaction name="menuTime_Display_Format"/>
     <addaction name="separator"/>
     <addaction name="menuZoom"/>
@@ -285,7 +287,6 @@
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
     <addaction name="actionViewReload"/>
-    <addaction name="menuToolbars"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
     <property name="title">
@@ -1727,7 +1728,7 @@
     <string>Create graphs based on display filter fields</string>
    </property>
   </action>
-  <action name="actionViewToolbarMainToolbar">
+  <action name="actionViewMainToolbar">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1735,13 +1736,13 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Main Toolbar</string>
+    <string>&amp;Main Toolbar</string>
    </property>
    <property name="toolTip">
-    <string>Show/hide the main toolbar</string>
+    <string>Show or hide the main toolbar</string>
    </property>
   </action>
-  <action name="actionViewToolbarDisplayFilter">
+  <action name="actionViewFilterToolbar">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1749,10 +1750,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Display Filter</string>
+    <string>&amp;Filter Toolbar</string>
    </property>
    <property name="toolTip">
-    <string>Show/hide the display filter toolbar</string>
+    <string>Show or hide the display filter toolbar</string>
    </property>
   </action>
   <action name="actionFileExportObjectsTFTP">
@@ -2029,6 +2030,79 @@
     <string>Display seconds with hours and minutes</string>
    </property>
   </action>
+  <action name="actionViewWirelessToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wire&amp;less Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the wireless toolbar</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionViewStatusBar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Status Bar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the status bar</string>
+   </property>
+  </action>
+  <action name="actionViewPacketList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packet &amp;List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the packet list</string>
+   </property>
+  </action>
+  <action name="actionViewPacketDetails">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packet &amp;Details</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the packet details</string>
+   </property>
+  </action>
+  <action name="actionViewPacketBytes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Packet &amp;Bytes</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the packet bytes</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2072,38 +2146,6 @@
     <hint type="destinationlabel">
      <x>408</x>
      <y>258</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mainToolBar</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionViewToolbarMainToolbar</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>479</x>
-     <y>39</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>displayFilterToolBar</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionViewToolbarDisplayFilter</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>479</x>
-     <y>64</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
     </hint>
    </hints>
   </connection>

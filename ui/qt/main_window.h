@@ -123,6 +123,7 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
+    QActionGroup *show_hide_actions_;
     QActionGroup *time_display_actions_;
     QActionGroup *time_precision_actions_;
 
@@ -159,6 +160,7 @@ private:
     void captureStop();
 
     void initMainToolbarIcons();
+    void initShowHideMainWidgets();
     void initTimeDisplayFormatMenu();
     void initTimePrecisionFormatMenu();
 
@@ -293,10 +295,10 @@ private slots:
     void on_actionEditConfigurationProfiles_triggered();
     void on_actionEditPreferences_triggered();
 
+    void showHideMainWidgets(QAction *action);
     void setTimestampFormat(QAction *action);
     void setTimestampPrecision(QAction *action);
     void on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked);
-
     void zoomText();
     void on_actionViewZoomIn_triggered();
     void on_actionViewZoomOut_triggered();
@@ -304,8 +306,6 @@ private slots:
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewResizeColumns_triggered();
     void on_actionViewReload_triggered();
-    void on_actionViewToolbarMainToolbar_triggered();
-    void on_actionViewToolbarDisplayFilter_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
