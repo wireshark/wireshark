@@ -226,7 +226,7 @@ NSIS_FLAGS=\
 !IFDEF HHC_DIR
 	/DHHC_DIR="$(HHC_DIR)" \
 !ENDIF
-!IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
+!IF EXIST("..\..\wireshark-qt-release\qtshark.exe") && 0
 	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")

@@ -10,6 +10,10 @@
 SetCompressor /SOLID lzma
 SetCompressorDictSize 64 ; MB
 
+; As of 1.12.2 we no longer ship the Wireshark 2 Preview.
+!ifdef QT_DIR
+!undef QT_DIR
+!endif
 !include "common.nsh"
 !include 'LogicLib.nsh'
 
