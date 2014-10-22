@@ -35,6 +35,7 @@ typedef struct _isup_tap_rec_t {
     gchar           *called_number;
     gchar           *calling_number;
     guint8          cause_value;
+    guint32         circuit_id;
 } isup_tap_rec_t;
 
 

@@ -1253,7 +1253,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tmp_listinfo=(voip_calls_info_t *)list->data;
 		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)) {
 			tmp_isupinfo = (isup_calls_info_t *)tmp_listinfo->prot_info;
-			if ((tmp_isupinfo->cic == pinfo->circuit_id)&&(tmp_isupinfo->ni == mtp3_ni)) {
+			if ((tmp_isupinfo->cic == pi->circuit_id)&&(tmp_isupinfo->ni == mtp3_ni)) {
 				if ((tmp_isupinfo->opc == mtp3_opc)&&(tmp_isupinfo->dpc == mtp3_dpc)) {
 					 forward = TRUE;
 				} else if ((tmp_isupinfo->dpc == mtp3_opc)&&(tmp_isupinfo->opc == mtp3_dpc)) {
@@ -1308,7 +1308,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tmp_isupinfo->opc = mtp3_opc;
 		tmp_isupinfo->dpc = mtp3_dpc;
 		tmp_isupinfo->ni = mtp3_ni;
-		tmp_isupinfo->cic = pinfo->circuit_id;
+		tmp_isupinfo->cic = pi->circuit_id;
 		callsinfo->npackets = 0;
 		callsinfo->call_num = tapinfo->ncalls++;
 		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
@@ -1334,11 +1334,11 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			if (forward) {
 				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
 				 mtp3_ni, mtp3_opc,
-				 mtp3_ni, mtp3_dpc, pinfo->circuit_id);
+				 mtp3_ni, mtp3_dpc, pi->circuit_id);
 			} else {
 				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
 				 mtp3_ni, mtp3_dpc,
-				 mtp3_ni, mtp3_opc, pinfo->circuit_id);
+				 mtp3_ni, mtp3_opc, pi->circuit_id);
 			}
 		}
 

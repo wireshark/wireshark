@@ -9875,7 +9875,7 @@ dissect_japan_chg_inf(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isu
 
 /* ------------------------------------------------------------------ */
 static void
-dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
+dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant, guint32 circuit_id)
 {
   isup_tap_rec_t *tap_rec;
 
@@ -9902,6 +9902,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
+  tap_rec->circuit_id     = circuit_id;
 
   parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 
@@ -10014,7 +10015,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
                                             ett_isup_pass_along_message, NULL, "Pass-along: %s Message (%u)",
                                             val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
                                             pa_message_type);
-      dissect_ansi_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant);
+      dissect_ansi_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant, circuit_id);
       break;
     }
     case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
@@ -10143,7 +10144,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
+dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant, guint32 circuit_id)
 {
   isup_tap_rec_t *tap_rec;
 
@@ -10202,6 +10203,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
+  tap_rec->circuit_id     = circuit_id;
 
   parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 
@@ -10316,7 +10318,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                             "Pass-along: %s Message (%u)",
                                             val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
                                             pa_message_type);
-      dissect_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant);
+      dissect_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant, circuit_id);
       break;
     }
     case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
@@ -10537,7 +10539,6 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       isup_standard = ANSI_STANDARD;
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
       cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x3FFF; /*since upper 2 bits spare */
-      pinfo->circuit_id = cic;
       if (isup_show_cic_in_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "%s (CIC %u) ",
@@ -10553,7 +10554,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
-      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
+      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, cic);
       break;
     default:
       isup_standard = ITU_STANDARD;
@@ -10586,7 +10587,6 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           used_value_string_ext = &isup_message_type_value_acro_ext;
           break;
       }
-      pinfo->circuit_id = cic;
       if (isup_show_cic_in_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "%s (CIC %u) ",
@@ -10602,7 +10602,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
-      dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
+      dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant, cic);
   }
 }
 
@@ -10654,7 +10654,6 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
   pinfo->ctype = CT_BICC;
-  pinfo->circuit_id = bicc_cic;
 
   col_clear(pinfo->cinfo, COL_INFO);
   if (isup_show_cic_in_info) {
@@ -10680,7 +10679,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
-  dissect_isup_message(message_tvb, pinfo, bicc_tree, itu_isup_variant);
+  dissect_isup_message(message_tvb, pinfo, bicc_tree, itu_isup_variant, bicc_cic);
   col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
@@ -10711,7 +10710,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       }
 
       message_tvb = tvb_new_subset_remaining(tvb, 0);
-      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
+      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, 0);
       return tvb_length(tvb);
     } else if (strstr(content_type_parameter_str, "spirou")) {
       isup_standard    = ITU_STANDARD;
@@ -10773,7 +10772,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, 0);
-  dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
+  dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant, 0);
   return tvb_length(tvb);
 }
 /* ---------------------------------------------------- stats tree
