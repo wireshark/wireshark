@@ -1083,16 +1083,10 @@ static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean revers
 
 static void  iax2_populate_pinfo_from_packet_data(packet_info *pinfo, const iax_packet_data *p)
 {
-  /* info for subdissectors. We always pass on the original forward circuit,
-   * and steal the p2p_dir flag to indicate the direction */
-  if (p->call_data == NULL) {
+  if (p->call_data != NULL) {
      /* if we missed the NEW packet for this call, call_data will be null. it's
       * tbd what the best thing to do here is. */
-    pinfo -> ctype = CT_NONE;
-  } else {
-    pinfo -> ctype = CT_IAX2;
-    pinfo -> circuit_id = (guint32)p->call_data->forward_circuit_ids[0];
-    pinfo -> p2p_dir = p->reversed?P2P_DIR_RECV:P2P_DIR_SENT;
+    pinfo->p2p_dir = p->reversed?P2P_DIR_RECV:P2P_DIR_SENT;
 
     col_set_str(pinfo->cinfo, COL_IF_DIR, p->reversed ? "rev" : "fwd");
   }
@@ -2183,7 +2177,20 @@ static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
   if (!video && iax_call && iax_call->subdissector) {
-    call_dissector(iax_call->subdissector, tvb, pinfo, tree);
+    iax2_dissector_info_t dissector_info;
+
+    /* info for subdissectors. We always pass on the original forward circuit,
+     * and steal the p2p_dir flag to indicate the direction */
+    if (iax_packet->call_data == NULL) {
+     /* if we missed the NEW packet for this call, call_data will be null. it's
+      * tbd what the best thing to do here is. */
+      memset(&dissector_info, 0, sizeof(dissector_info));
+    } else {
+      dissector_info.ctype = CT_IAX2;
+      dissector_info.circuit_id = (guint32)iax_packet->call_data->forward_circuit_ids[0];
+    }
+
+    call_dissector_with_data(iax_call->subdissector, tvb, pinfo, tree, &dissector_info);
   } else if (codec != 0 && dissector_try_uint(iax2_codec_dissector_table, codec, tvb, pinfo, tree)) {
     /* codec dissector handled our data */
   } else {

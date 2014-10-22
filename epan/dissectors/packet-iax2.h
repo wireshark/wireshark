@@ -252,4 +252,11 @@ typedef struct _iax2_info_t
 	const guint8 *payload_data;
 } iax2_info_t;
 
+/* Container for passing data between dissectors */
+typedef struct _iax2_dissector_info_t
+{
+	circuit_type ctype;
+	guint32 circuit_id;
+} iax2_dissector_info_t;
+
 #endif
