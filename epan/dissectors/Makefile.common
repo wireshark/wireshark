@@ -1354,6 +1354,7 @@ DISSECTOR_INCLUDES =	\
 	packet-acp133.h	\
 	packet-acse.h	\
 	packet-actrace.h	\
+	packet-adb_service.h	\
 	packet-afp.h	\
 	packet-aim.h	\
 	packet-alcap.h	\
