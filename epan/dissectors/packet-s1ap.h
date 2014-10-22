@@ -31,6 +31,14 @@
 #ifndef PACKET_S1AP_H
 #define PACKET_S1AP_H
 
+typedef struct _s1ap_ctx_t {
+    guint32 message_type;
+    guint32 ProcedureCode;
+    guint32 ProtocolIE_ID;
+    guint32 ProtocolExtensionID;
+} s1ap_ctx_t;
+
+
 
 /*--- Included file: packet-s1ap-exp.h ---*/
 #line 1 "../../asn1/s1ap/packet-s1ap-exp.h"
@@ -52,6 +60,6 @@ int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-s1ap-exp.h ---*/
-#line 27 "../../asn1/s1ap/packet-s1ap-template.h"
+#line 35 "../../asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */

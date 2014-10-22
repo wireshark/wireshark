@@ -23,6 +23,14 @@
 #ifndef PACKET_S1AP_H
 #define PACKET_S1AP_H
 
+typedef struct _s1ap_ctx_t {
+    guint32 message_type;
+    guint32 ProcedureCode;
+    guint32 ProtocolIE_ID;
+    guint32 ProtocolExtensionID;
+} s1ap_ctx_t;
+
+
 #include "packet-s1ap-exp.h"
 
 #endif  /* PACKET_S1AP_H */
