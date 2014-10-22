@@ -34,7 +34,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -362,6 +362,18 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET,            "TAP VBucket Set"          },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
+  { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "Open DCP Connection"      },
+  { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "Add DCP Stream"           },
+  { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "Close DCP Stream"         },
+  { PROTOCOL_BINARY_DCP_STREAM_REQUEST,             "DCP Stream Request"       },
+  { PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST,       "Get DCP Failover Log"     },
+  { PROTOCOL_BINARY_DCP_STREAM_END,                 "DCP Stream End"           },
+  { PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER,            "DCP Snapshot Marker"      },
+  { PROTOCOL_BINARY_DCP_MUTATION,                   "DCP (Key) Mutation"       },
+  { PROTOCOL_BINARY_DCP_DELETION,                   "DCP (Key) Deletion"       },
+  { PROTOCOL_BINARY_DCP_EXPIRATION,                 "DCP (Key) Expiration"     },
+  { PROTOCOL_BINARY_DCP_FLUSH,                      "DCP Flush"                },
+  { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "Set DCP VBucket State"    },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -373,10 +385,10 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_SELECT_BUCKET,              "Select Bucket"            },
   { PROTOCOL_BINARY_CMD_START_REPLICATION,          "Start Replication"        },
   { PROTOCOL_BINARY_CMD_STOP_REPLICATION,           "Stop Replication"         },
+  { PROTOCOL_BINARY_CMD_OBSERVE,                    "Observe"                  },
   { PROTOCOL_BINARY_CMD_EVICT_KEY,                  "Evict Key"                },
   { PROTOCOL_BINARY_CMD_GET_LOCKED,                 "Get Locked"               },
   { PROTOCOL_BINARY_CMD_UNLOCK_KEY,                 "Unlock Key"               },
-  { PROTOCOL_BINARY_CMD_OBSERVE,                    "Observe"                  },
   { PROTOCOL_BINARY_CMD_SYNC,                       "Sync"                     },
   { PROTOCOL_BINARY_CMD_LAST_CLOSED_CHECKPOINT,     "Last Closed Checkpoint"   },
   { PROTOCOL_BINARY_CMD_RESTORE_FILE,               "Restore File"             },
@@ -397,18 +409,6 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_VBUCKET_BATCH_COUNT,        "VBucket Batch Count"      },
   { PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
-  { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "Open DCP Connection"      },
-  { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "Add DCP Stream"           },
-  { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "Close DCP Stream"         },
-  { PROTOCOL_BINARY_DCP_STREAM_REQUEST,             "DCP Stream Request"       },
-  { PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST,       "Get DCP Failover Log"     },
-  { PROTOCOL_BINARY_DCP_STREAM_END,                 "DCP Stream End"           },
-  { PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER,            "DCP Snapshot Marker"      },
-  { PROTOCOL_BINARY_DCP_MUTATION,                   "DCP (Key) Mutation"       },
-  { PROTOCOL_BINARY_DCP_DELETION,                   "DCP (Key) Deletion"       },
-  { PROTOCOL_BINARY_DCP_EXPIRATION,                 "DCP (Key) Expiration"     },
-  { PROTOCOL_BINARY_DCP_FLUSH,                      "DCP Flush"                },
-  { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "Set DCP VBucket State"    },
   /* Internally defined values not valid here */
   { 0, NULL }
 };
