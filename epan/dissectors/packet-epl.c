@@ -2676,16 +2676,19 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 				/* save the current frame and increase the counter */
 				epl_asnd_sdo_reassembly_write.frame[epl_segmentation.recv][epl_segmentation.send] = frame;
 				ct += 1;
+				/* add the frame to reassembly_table */
+				frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
+							  fragmentId, NULL, ct, payload_length, end_segment ? FALSE : TRUE );
 			}
 			else if(epl_asnd_sdo_reassembly_write.frame[epl_segmentation.recv][epl_segmentation.send] == 0x00)
 			{
 				/* save the current frame and increase counter */
 				epl_asnd_sdo_reassembly_write.frame[epl_segmentation.recv][epl_segmentation.send] = frame;
 				ct += 1;
-			}
-			/* add the frame to reassembly_table */
-			frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
+				/* add the frame to reassembly_table */
+				frag_msg = fragment_add_seq_check(&epl_reassembly_table, tvb, offset, pinfo,
 							  fragmentId, NULL, ct, payload_length, end_segment ? FALSE : TRUE );
+			}
 
 			/* if the reassembly_table is not Null and the frame stored is the same as the current frame */
 			if(frag_msg != NULL && (epl_asnd_sdo_reassembly_write.frame[epl_segmentation.recv][epl_segmentation.send] == frame))
