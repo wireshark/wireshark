@@ -137,7 +137,7 @@ void InterfaceTree::display()
         if (global_capture_opts.ifaces_err == 0) {
             err_label = new QLabel("No interfaces found");
         } else {
-            err_label = new QLabel(gchar_free_to_qstring(global_capture_opts.ifaces_err_info));
+            err_label = new QLabel(global_capture_opts.ifaces_err_info);
         }
         err_label->setWordWrap(true);
 
