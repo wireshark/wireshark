@@ -153,8 +153,6 @@ do
 	shift 1
 done
 
-echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
-
 # Safety tests
 if [ ! -e "$LIBPREFIX" ]; then
 	echo "Cannot find the directory containing the libraries: $LIBPREFIX" >&2
@@ -162,6 +160,8 @@ if [ ! -e "$LIBPREFIX" ]; then
 fi
 
 if [ "$create_bundle" = "true" ]; then
+	echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
+
 	for binary in $wireshark_bin_name $binary_list ; do
 		if [ ! -x "$binary_path/$binary" ]; then
 			echo "Couldn't find $binary (or it's not executable)" >&2

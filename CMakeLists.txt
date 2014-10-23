@@ -1084,6 +1084,8 @@ set( IN_FILES
 	image/wiretap.rc.in
 	image/wireshark.exe.manifest.in
 	packaging/macosx/Info.plist.in
+	packaging/macosx/osx-dmg.sh.in
+	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
 	${CUSTOM_PLUGIN_IN_FILES}
 	ui/doxygen.cfg.in
 	ui/gtk/doxygen.cfg.in
@@ -2298,6 +2300,56 @@ if(ENABLE_APPLICATION_BUNDLE)
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
 	)
 	add_dependencies(app_bundle ${PROGLIST})
+
+	ADD_CUSTOM_COMMAND(
+		OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+		COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+	)
+
+	ADD_CUSTOM_TARGET( osx-app
+		COMMAND ${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh
+		DEPENDS ${CMAKE_BINARY_DIR}/run/Wireshark.app
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
+	)
+
+	ADD_CUSTOM_TARGET( osx-dmg
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${PROJECT_SOURCE_DIR}/ipmap.html"
+					$<TARGET_FILE_DIR:wireshark>
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF
+					${CMAKE_BINARY_DIR}/run/ChmodBPF
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/packaging/macosx/Resources
+					${CMAKE_BINARY_DIR}/run/Resources
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/packaging/macosx/Scripts
+					${CMAKE_BINARY_DIR}/run/Scripts
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/packaging/macosx/utility-launcher
+					${CMAKE_BINARY_DIR}/run/utility-launcher
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${CMAKE_SOURCE_DIR}/COPYING
+					${CMAKE_BINARY_DIR}/run/COPYING.txt
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.pkgproj
+					${CMAKE_BINARY_DIR}/run/Wireshark.pkgproj
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark_package.pmdoc
+					${CMAKE_BINARY_DIR}/run/Wireshark_package.pmdoc
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${CMAKE_BINARY_DIR}/packaging/macosx/Wireshark_package.pmdoc/index.xml
+					${CMAKE_BINARY_DIR}/run/Wireshark_package.pmdoc/index.xml
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${CMAKE_SOURCE_DIR}/packaging/macosx/dmg_background.png
+					${CMAKE_BINARY_DIR}/run/dmg_background.png
+		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
+			--source-directory ${CMAKE_SOURCE_DIR}/packaging/macosx
+		DEPENDS osx-app
+		# We create Wireshark.app in "run". Do our work there.
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
+	)
+
 endif()
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/androiddump 1 )

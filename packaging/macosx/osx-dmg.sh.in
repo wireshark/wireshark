@@ -40,10 +40,13 @@ ds_store_root="root.ds_store"
 app_bundle="Wireshark.app"
 rw_name="RWwireshark.dmg"
 volume_name="Wireshark"
+src_dir="."
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
-ws_bin="$app_bundle/Contents/MacOS/Wireshark"
+
+# Qt defaults
 readme_name="Read_me_first_qt.rtf"
+bundle_bin_name="Wireshark"
 
 if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
 then
@@ -70,6 +73,9 @@ then
 elif [ -f /usr/bin/packagemaker ]
 then
 	packagemaker=/usr/bin/packagemaker
+elif [ -f /usr/local/bin/packagemaker ]
+then
+	packagemaker=/usr/local/bin/packagemaker
 fi
 if [ -z "$packagemaker" ]
 then
@@ -99,6 +105,9 @@ OPTIONS
 		Use the Qt flavor. This is the default.
 	-gtk,--gtk-flavor
 		Use the GTK+ flavor.
+	-S,--source-directory
+		If this is an out-of-tree build, set this to the path
+		to the packaging/macosx source directory.
 "
 }
 
@@ -115,19 +124,21 @@ do
 			app_bundle="$2"
 			shift 1 ;;
 		-qt|--qt-flavor)
-			readme_name="Read_me_first_qt.rtf"
-			ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 			;;
 		-gtk|--gtk-flavor)
 			readme_name="Read_me_first_gtk.rtf"
-			ws_bin="$app_bundle/Contents/MacOS/wireshark-bin"
+			bundle_bin_name="wireshark-bin"
 			;;
+		-S|--source-directory)
+			src_dir="$2"
+			shift 1 ;;
 		*)
 			echo "Invalid command line option"
 			exit 2 ;;
 	esac
 	shift 1
 done
+
 
 # Safety checks
 if [ ! -e "$app_bundle" ]; then
@@ -136,6 +147,7 @@ if [ ! -e "$app_bundle" ]; then
 fi
 
 # Get the architecture
+ws_bin="$app_bundle/Contents/MacOS/$bundle_bin_name"
 case `file $ws_bin` in
 	*Mach-O*64-bit*x86_64*)
 		architecture="Intel 64"
@@ -199,7 +211,7 @@ echo -e "Copying files to temp directory"
 # Copy the installer package
 cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Copy the readme
-cp "$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
+cp "$src_dir/$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
@@ -207,7 +219,7 @@ if [ ${set_ds_store} = "false" ]; then
 	# window size, appearance, etc.  Most of this can be set
 	# with Apple script but involves user intervention so we
 	# just keep a copy of the correct settings and use that instead.
-	cp $ds_store_root "$tmp_dir/.DS_Store" || exit 1
+	cp $src_dir/$ds_store_root "$tmp_dir/.DS_Store" || exit 1
 	auto_open_opt=-noautoopen
 fi
 
