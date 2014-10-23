@@ -1119,6 +1119,38 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
+	#
+	# Add -Wl,-single_module to the LDFLAGS used with shared
+	# libraries, to fix some error that show up in some cases;
+	# some Apple documentation recommends it for most shared
+	# libraries.
+	#
+	set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-single_module ${CMAKE_SHARED_LINKER_FLAGS}" )
+	#
+	# Add -Wl,-headerpad_max_install_names to the LDFLAGS, as
+	# code-signing issues is running out of padding space.
+	#
+	# Add -Wl,-search_paths_first to make sure that if we search
+	# directories A and B, in that order, for a given library, a
+	# non-shared version in directory A, rather than a shared
+	# version in directory B, is chosen (so we can use
+	# --with-pcap=/usr/local to force all programs to be linked
+	# with a static version installed in /usr/local/lib rather than
+	# the system version in /usr/lib).
+	#
+	# Also add -Wl,-rpath,@executable_path/../lib and
+	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
+	# bundle, we can tweak all the executable images, shared
+	# libraries, and plugins in the bundle to look for non-system
+	# libraries in the rpath, rather than having a script tweak
+	# DYLD_LIBRARY_PATH.
+	#
+
+	set(CMAKE_EXE_LINKER_FLAGS
+	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/usr/local/lib ${CMAKE_EXE_LINKER_FLAGS}"
+	)
+
+	# Add files to the app bundle
 	# Wireshark.app/Contents
 	set(BUNDLE_CONTENTS_FILES
 		${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
@@ -1617,6 +1649,11 @@ if(ENABLE_APPLICATION_BUNDLE)
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
 	COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+)
+
+ADD_CUSTOM_TARGET(osx-app
+	COMMAND ${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
 )
 endif()
 
