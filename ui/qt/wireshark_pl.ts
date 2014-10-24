@@ -83,23 +83,23 @@
     </message>
     <message>
         <source>Elapsed Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Upłynęło:</translation>
     </message>
     <message>
         <source>Prepend packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj pakiety na początku</translation>
     </message>
     <message>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wstaw pakiety z wybranego pliku na początek. Czasy pakietów będą zignorowane.</translation>
     </message>
     <message>
         <source>Merge chronologically</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalaj chronologicznie</translation>
     </message>
     <message>
         <source>Insert packets in chronological order.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wstaw pakiety w kolejności chronologicznej</translation>
     </message>
     <message>
         <source>Append packets</source>
@@ -107,43 +107,43 @@
     </message>
     <message>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wstaw pakiety z wybranego pliku na koniec. Czasy pakietów będą zignorowane.</translation>
     </message>
     <message>
         <source>Display Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie</translation>
     </message>
     <message>
         <source>&amp;MAC name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązywanie nazw adresu MAC</translation>
     </message>
     <message>
         <source>&amp;Transport name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązywanie nazw transportu</translation>
     </message>
     <message>
         <source>&amp;Network name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązywanie nazw sieciowych</translation>
     </message>
     <message>
         <source>&amp;External name resolver</source>
-        <translation type="unfinished"></translation>
+        <translation>Zewnętrzne rozwijanie nazw</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompresuj używając gzip</translation>
     </message>
     <message>
         <source>Wireshark: Open Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Otwórz</translation>
     </message>
     <message>
         <source>Wireshark: Save Capture File As</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Zapisz jako</translation>
     </message>
     <message>
         <source>Save as:</source>
@@ -151,19 +151,19 @@
     </message>
     <message>
         <source>Wireshark: Export Specified Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Eksportuj wybrane pakiety</translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj jako:</translation>
     </message>
     <message>
         <source>Wireshark: Merge Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Scalenie plików zrzutu</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>directory</source>
@@ -187,15 +187,15 @@
     </message>
     <message>
         <source>more than %1 (preview timeout)</source>
-        <translation type="unfinished">więcej niż %1 (podgląd timeout)</translation>
+        <translation>więcej niż %1 (podgląd timeout)</translation>
     </message>
     <message>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>nieznany</translation>
     </message>
 </context>
 <context>
@@ -209,34 +209,34 @@
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished">Wpis filtru przechwytywania</translation>
+        <translation>Wpis filtru przechwytywania</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished">Wpisz filtr przechwytywania %1</translation>
+        <translation>Wpisz filtr przechwytywania %1</translation>
     </message>
 </context>
 <context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Wireshark: Capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Interfejsy</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Wejście</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfejs</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruch</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr przechwytywania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -248,7 +248,7 @@
     </message>
     <message>
         <source>Manage Interfaces...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj interfejsami...</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
@@ -256,11 +256,11 @@
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyjście</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format wyjściowy:</translation>
     </message>
     <message>
         <source>pcap-ng</source>
@@ -271,16 +271,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture directly to file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Browse...</source>
-        <translation type="unfinished">Przeglądaj...</translation>
+        <translation>Przeglądaj...</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik:</translation>
     </message>
     <message>
         <source>Create a new file automatically after...</source>
@@ -288,11 +284,11 @@
     </message>
     <message>
         <source>Megabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mebibajtach</translation>
     </message>
     <message>
         <source>Kilobytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Kibibajtach</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -300,11 +296,11 @@
     </message>
     <message>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>sekundach</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minutach</translation>
     </message>
     <message>
         <source>hours</source>
@@ -316,7 +312,7 @@
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Opcje</translation>
+        <translation>Opcje</translation>
     </message>
     <message>
         <source>Display Options</source>
@@ -328,7 +324,7 @@
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne przewijanie podczas przechwytywania</translation>
     </message>
     <message>
         <source>Show extra capture information dialog</source>
@@ -336,27 +332,27 @@
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązywanie nazw</translation>
     </message>
     <message>
         <source>Resolve MAC Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązuj adresy MAC</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązuj nazwy sieciowe</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązuj nazwy transportu</translation>
     </message>
     <message>
         <source>Stop capture automatically after...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj przechwytywanie automatycznie po...</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Start</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -368,15 +364,15 @@
     </message>
     <message>
         <source>n/a</source>
-        <translation type="unfinished"></translation>
+        <translation>n/a</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagłówek warstwy łącza</translation>
     </message>
     <message>
         <source>Promiscuous</source>
@@ -388,22 +384,14 @@
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bufor (MiB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb monitora</translation>
     </message>
     <message>
         <source>Capture in promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. If you don&apos;t enter something here, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -421,7 +409,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Gigabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibibajtów</translation>
     </message>
     <message>
         <source>If the selected file size is exceeded, capturing switches to the next file.
@@ -490,15 +478,15 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresy</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres</translation>
     </message>
     <message>
         <source>no addresses</source>
@@ -519,6 +507,18 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <message>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture to a permanent file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -577,23 +577,23 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Wyświetlaj</translation>
+        <translation>Wyświetlane</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Tytuł</translation>
+        <translation>Tytuł</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Field name</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Pole</translation>
     </message>
     <message>
         <source>Field occurence</source>
@@ -601,93 +601,49 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     </message>
     <message>
         <source>Field occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>Występowanie pola</translation>
     </message>
 </context>
 <context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Skompilowany filtr wyjścia</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
+        <translation>Kopiuj</translation>
     </message>
     <message>
         <source>Copy filter text to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj filtr do schowka.</translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
     <message>
-        <source>Wireshark: Conversations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Conversation Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Kopiuj</translation>
     </message>
     <message>
         <source>Follow Stream...</source>
-        <translation type="unfinished"></translation>
+        <translation>Podążaj zastrumieniem...</translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podążaj za strumieniem TCP lub UDP.</translation>
     </message>
     <message>
         <source>Graph...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres...</translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres konwersacji TCP.</translation>
     </message>
     <message>
         <source>Conversation %1 failed to register tap listener</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwersacja %1 nie może się zarejestrowac w kanale komunikacyjnym</translation>
     </message>
 </context>
 <context>
@@ -761,11 +717,11 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation type="unfinished">Wybór filtru wyświetlania</translation>
+        <translation>Wybór filtru</translation>
     </message>
     <message>
         <source>Select from previously used filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz z uprzednio używanych filtrów</translation>
     </message>
 </context>
 <context>
@@ -788,186 +744,201 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     </message>
     <message>
         <source>Bookmark this filter string</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz ten filtr</translation>
     </message>
     <message>
         <source>Clear the filter string and update the display</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść filtr i odśwież listę pakietów</translation>
     </message>
     <message>
         <source>Apply this filter string to the display</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj ten filtr</translation>
     </message>
     <message>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; może mieć nieoczekiwany rezultat (zobacz Podręcznik Użytkownika)</translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation>Mapuj</translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation>Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
+    </message>
+    <message>
+        <source>Endpoint %1 failed to register tap listener</source>
+        <translation>Punkt krańcowy %1 nie może się zarejestrować w kanale komunikacyjnym</translation>
     </message>
 </context>
 <context>
     <name>ExportDissectionDialog</name>
     <message>
         <source>Wireshark: Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Eksport prezentacji pakietu</translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj jako:</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tekst (*.txt)</translation>
     </message>
     <message>
         <source>Comma Separated Values - summary (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartości rozdzialane przecinkami - podsumowanie (*.csv)</translation>
     </message>
     <message>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML - podsumowanie (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDML - szczegóły (*.pdml, *.xml)</translation>
     </message>
     <message>
         <source>C Arrays - bytes (*.c, *.h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tablica w języku C - bajty (*.c, *.h)</translation>
     </message>
 </context>
 <context>
     <name>ExportObjectDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Pakiet</translation>
+        <translation>Pakiet</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa hosta</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ zawartości</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa pliku</translation>
     </message>
     <message>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukanie obiektów</translation>
     </message>
     <message>
         <source>Wireshark: %1 object list</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: lista obiektów %1</translation>
     </message>
     <message>
         <source>Tap registration error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd rejestracji kanału komunikacyjnego</translation>
     </message>
     <message>
         <source>Unable to register </source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zarejestrować</translation>
     </message>
     <message>
         <source> tap: </source>
-        <translation type="unfinished"></translation>
+        <translation> kanał komunikacyjny: </translation>
     </message>
     <message>
         <source>Wireshark: Save Object As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Zapisz obiekt jako...</translation>
     </message>
     <message>
         <source>Wireshark: Save All Objects In...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Zapisz wszystkie obiekty jako...</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj obiekt</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pewne pliki nie zostały zapisane.</translation>
     </message>
 </context>
 <context>
     <name>ExportPDUDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
 </context>
 <context>
     <name>FileSetDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog:</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa pliku</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>Utworzono</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmodyfikowano</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>Wireshark: No files in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Brak plików w zbiorze</translation>
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie załadowano zrzutu</translation>
     </message>
     <message>
         <source>Open this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz plik zrzutu</translation>
     </message>
     <message>
         <source>Wireshark: %1 File%2 in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: %1 Plik%2 ze zbioru</translation>
     </message>
 </context>
 <context>
     <name>FilterExpressionsPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktywny</translation>
+        <translation>Aktywny</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
     <message>
         <source>Filter Expression</source>
-        <translation type="unfinished">Wyrażenie filtru</translation>
+        <translation>Wyrażenie filtru</translation>
     </message>
 </context>
 <context>
@@ -1080,70 +1051,106 @@ PLEASE NOTE: One option MUST be selecteds.</source>
         <source>Error reading temporary file</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C Arrays</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EBCDIC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hex Dump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet %1. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Click to select.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save stream content as</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation type="unfinished">Główna czcionka:</translation>
+        <translation>Główna czcionka:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation type="unfinished">Wybierz czcionkę</translation>
+        <translation>Wybierz czcionkę</translation>
     </message>
     <message>
         <source>Colors:</source>
-        <translation type="unfinished">Kolory:</translation>
+        <translation>Kolory:</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
-        <translation type="unfinished">Przykładowy ignorowany pakiet</translation>
+        <translation>Przykładowy ignorowany pakiet</translation>
     </message>
     <message>
         <source>Sample marked packet text</source>
-        <translation type="unfinished">Przykładowy zaznaczony pakiet</translation>
+        <translation>Przykładowy zaznaczony pakiet</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation type="unfinished">Przykładowy &quot;Podążaj za strumieniem&quot; pakiet klienta</translation>
+        <translation>Przykładowy &quot;Podążaj za strumieniem&quot; pakiet klienta</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation type="unfinished">Przykładowy &quot;Podążaj za strumieniem&quot; pakiet serwera</translation>
+        <translation>Przykładowy &quot;Podążaj za strumieniem&quot; pakiet serwera</translation>
     </message>
     <message>
         <source>Sample valid filter</source>
-        <translation type="unfinished">Przykładowy prawidłowy filtr</translation>
+        <translation>Przykładowy prawidłowy filtr</translation>
     </message>
     <message>
         <source>Sample invalid filter</source>
-        <translation type="unfinished">Przykładowy nieprawidłowy filtr</translation>
+        <translation>Przykładowy nieprawidłowy filtr</translation>
     </message>
     <message>
         <source>Sample deprecated filter</source>
-        <translation type="unfinished">Przykładowy nie w pełni prawidłowy filtr</translation>
+        <translation>Przykładowy nie w pełni prawidłowy filtr</translation>
     </message>
     <message>
         <source>Wireshark: Font</source>
-        <translation type="unfinished">Wireshark: Czcionka</translation>
+        <translation>Wireshark: Czcionka</translation>
     </message>
 </context>
 <context>
     <name>IOGraph</name>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany</translation>
     </message>
 </context>
 <context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message utf8="true">
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -1172,335 +1179,360 @@ PLEASE NOTE: One option MUST be selecteds.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Przydatne skróty klawiaturowe&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Powiększ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Pomniejsz&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Resetuj wykres do stanu początkowego&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 1 piksel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Idź do pakietu pod kursorem&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Przełącz między czasem zrzutu a sesji&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Przełącz wskaźniki wykresu&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Styl</translation>
     </message>
     <message>
         <source>Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Oś Y</translation>
     </message>
     <message>
         <source>Y Field</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole osi Y</translation>
     </message>
     <message>
         <source>Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygładzanie</translation>
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowa reguła.</translation>
     </message>
     <message>
         <source>Remove this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń regułę.</translation>
     </message>
     <message>
         <source>Copy this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj regułę.</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Mysz</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągaj prz użyciu myszy.</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>przesuwanie</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybieranie przy pomocy myszy.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>powiększanie</translation>
     </message>
     <message>
         <source>Interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Interwał</translation>
     </message>
     <message>
         <source>Time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas dnia</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Skala logarytmiczna</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres do stanu początkowego.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Pomniejsz</translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Powiększ</translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>W górę</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>W lewo</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>W prawo</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w górę</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w lewo</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w dół</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągnij / Powiększ/pomniejsz</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas sesji / zrzutu</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz między czasem zrzutu a sesji</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaźniki</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz wskaźnik wykresu</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacja</translation>
     </message>
     <message>
         <source>Save As...</source>
-        <translation type="unfinished">Zapisz jako...</translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message>
         <source>0.001 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0,001 s</translation>
     </message>
     <message>
         <source>0.01 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0,01 s</translation>
     </message>
     <message>
         <source>0.1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>0,1 s</translation>
     </message>
     <message>
         <source>1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>1 s</translation>
     </message>
     <message>
         <source>10 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>10 s</translation>
     </message>
     <message>
         <source>1 min</source>
-        <translation type="unfinished"></translation>
+        <translation>1 min</translation>
     </message>
     <message>
         <source>10 min</source>
-        <translation type="unfinished"></translation>
+        <translation>10 min</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Czas (s)</translation>
+        <translation>Czas (s)</translation>
     </message>
     <message>
         <source>Wireshark IO Graphs: </source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark Wykres: </translation>
     </message>
     <message>
         <source>No Capture Data</source>
-        <translation type="unfinished">Brak przechwyconych danych</translation>
+        <translation>Brak przechwyconych danych</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie pakiety</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędy TCP</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń kursor nad wykresem by zobaczyć szczegóły.</translation>
     </message>
     <message>
         <source>No packets in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pakietów w zadanym czasie</translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished">Kliknij by wybrać pakiet</translation>
+        <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Pakiet</translation>
+        <translation>Pakiet</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">Powiększenie, x = %1 to %2, y = %3 to %4</translation>
+        <translation>Powiększenie, x = %1 do %2, y = %3 do %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished">Niemożna wybrać danego zakresu.</translation>
+        <translation>Niemożna wybrać danego zakresu.</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished">Kliknij by wybrać obszar grafu.</translation>
+        <translation>Kliknij by wybrać obszar wykresu.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF Format (*.pdf)</translation>
+        <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG Format (*.png)</translation>
+        <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows Format (*.bmp)</translation>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG Format (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished">Wireshark: Zapisz obraz jako...</translation>
+        <translation>Wireshark: Zapisz obraz jako...</translation>
     </message>
 </context>
 <context>
@@ -1714,26 +1746,26 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>InterfaceTree</name>
     <message>
         <source>Welcome screen list</source>
-        <translation type="unfinished">Ekran startowy</translation>
+        <translation>Ekran startowy</translation>
     </message>
     <message>
         <source>Waiting for startup</source>
-        <translation type="unfinished">Wczytywanie</translation>
+        <translation>Wczytywanie</translation>
     </message>
     <message>
         <source>Interface information not available</source>
-        <translation type="unfinished">Interfejsy niedostępne</translation>
+        <translation>Interfejsy niedostępne</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>włączony</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>wyłączony</translation>
     </message>
 </context>
 <context>
@@ -2366,10 +2398,6 @@ PLEASE NOTE: One option MUST be selecteds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sow the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show the SM frames column</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2481,87 +2509,91 @@ PLEASE NOTE: One option MUST be selecteds.</source>
         <source>LBT-RU Statistics failed to attach to tap</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show the NCF frames/count/bytes column</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LBMStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień</translation>
     </message>
     <message>
         <source>Endpoint A</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy A</translation>
     </message>
     <message>
         <source>Endpoint B</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy B</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bajtów</translation>
+        <translation>Bajtów</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Pierwszy pakiet</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Pierwszy pakiet</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj statystyki używając filtru</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako YAML</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <source>LBM Stream failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień LBM nie może się podłączyć do kanału komunikacyjnego</translation>
     </message>
 </context>
 <context>
     <name>LBMUIMFlowDialog</name>
     <message>
         <source>LBM UIM Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepływy LBM UIM</translation>
     </message>
     <message utf8="true">
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -2584,242 +2616,265 @@ PLEASE NOTE: One option MUST be selecteds.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Przydatne skróty klawiaturowe&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Resetuj wykres do stanu początkowego&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 1 piksel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Idź do pakietu pod kursorem&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Podpowiedź&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Show:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż: </translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie pakiety</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlane pakiety</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj diagram</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj diagram do stanu początkowego.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Move up 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>W górę</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Move left 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>W lewo</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Move right 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>W prawo</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Move down 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Move up 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w górę</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Move left 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w lewo</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Move right 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Move down 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w dół</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie przepływy</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj przepływy dla wszystkich pakietów</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepływy TCP</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj tylko przepływy dla TCP</translation>
     </message>
     <message>
         <source>Save As...</source>
-        <translation type="unfinished">Zapisz jako...</translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln węzłów</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln obiekt(ów)</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
         </translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF Format (*.pdf)</translation>
+        <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG Format (*.png)</translation>
+        <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows Format (*.bmp)</translation>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG Format (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII (*.txt)</translation>
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished">Wireshark: Zapisz obraz jako...</translation>
+        <translation>Wireshark: Zapisz obraz jako...</translation>
     </message>
 </context>
 <context>
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Pane 1:</source>
-        <translation type="unfinished">Komponent 1:</translation>
+        <translation>Komponent 1:</translation>
     </message>
     <message>
         <source>Packet List</source>
-        <translation type="unfinished">Lista pakietów</translation>
+        <translation>Lista pakietów</translation>
     </message>
     <message>
         <source>Packet Details</source>
-        <translation type="unfinished">Szczegóły pakietu</translation>
+        <translation>Szczegóły pakietu</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
-        <translation type="unfinished">Bajty pakietu</translation>
+        <translation>Bajty pakietu</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Pane 2:</source>
-        <translation type="unfinished">Komponent 2:</translation>
+        <translation>Komponent 2:</translation>
     </message>
     <message>
         <source>Pane 3:</source>
-        <translation type="unfinished">Komponent 3:</translation>
+        <translation>Komponent 3:</translation>
     </message>
 </context>
 <context>
@@ -2940,31 +2995,30 @@ In-depth discussions about Wireshark and protocol analysis.
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;
 &lt;body&gt;
 
 &lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Podręcznik użytkownika&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;
-How to install Wireshark and how to use each of its features.&lt;br/&gt;
-Other formats and command-line man pages can be found on&lt;br/&gt;
-the &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;documentation page&lt;/a&gt;.
+Jak zainstalować Wiresharka i jak używać jego funkcji.&lt;br/&gt;
+Inne formaty i komendy konsolowe można znaleźć na &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;stronie dokumentacji&lt;/a&gt;.
 &lt;/p&gt;
 
 &lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;Wireshark Wiki&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;
-User-contributed pages on different aspects of using Wireshark.&lt;br/&gt;
-Capturing in different environments, filtering, specific protocols,&lt;br/&gt;
-and a variety of other information.
+Opisane przez użytkowników różne aspekty Wiresharka.&lt;br/&gt;
+Przechwytywanie w różnych środowiskach, filtrowanie, specyficzne protokoły,&lt;br/&gt;
+i dużo innych informacji.
 &lt;/p&gt;
 
 &lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;A&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Question and answer site for Wireshark and protocol analysis.
+&lt;p&gt;.
+Pytania i odpowiedzi na temat analizy protokołów i Wiresharka.
 &lt;/p&gt;
 
-&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Grupa Dyskusujne&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-In-depth discussions about Wireshark and protocol analysis.
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Grupy Dyskusujne&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;.
+Dyskusje o Wireshku i analizie protokołów.
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -3090,19 +3144,19 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj prezentację pakietów</translation>
     </message>
     <message>
         <source>&amp;Capture</source>
-        <translation>Przechwytuj</translation>
+        <translation>Prze&amp;chwytuj</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>Pomoc</translation>
+        <translation>P&amp;omoc</translation>
     </message>
     <message>
         <source>Manual pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki pomocy</translation>
     </message>
     <message>
         <source>&amp;Go</source>
@@ -3114,7 +3168,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Toolbars</source>
-        <translation>Paski narzędzi</translation>
+        <translation type="obsolete">Paski narzędzi</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
@@ -3130,7 +3184,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>&amp;Statistics</source>
@@ -3138,31 +3192,31 @@ more about Wireshark</source>
     </message>
     <message>
         <source>TCP Stream Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf strumienia TCP</translation>
     </message>
     <message>
         <source>BACnet</source>
-        <translation type="unfinished"></translation>
+        <translation>BACnet</translation>
     </message>
     <message>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP</translation>
     </message>
     <message>
         <source>29West</source>
-        <translation type="unfinished"></translation>
+        <translation>29West</translation>
     </message>
     <message>
         <source>Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>Tematy</translation>
     </message>
     <message>
         <source>Queues</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolejki</translation>
     </message>
     <message>
         <source>UIM</source>
-        <translation type="unfinished"></translation>
+        <translation>UIM</translation>
     </message>
     <message>
         <source>Telephon&amp;y</source>
@@ -3170,7 +3224,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>RTSP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -3190,7 +3244,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -3202,19 +3256,15 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>&amp;Interfaces...</source>
-        <translation>&amp;Interfejsy</translation>
+        <translation type="obsolete">&amp;Interfejsy</translation>
     </message>
     <message>
         <source>Show interface details</source>
-        <translation>Pokaż szczegóły interfejsu</translation>
-    </message>
-    <message>
-        <source>Ctrl+I</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Pokaż szczegóły interfejsu</translation>
     </message>
     <message>
         <source>&amp;Start</source>
@@ -3222,7 +3272,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Start capturing packets</source>
-        <translation type="unfinished">Uruchom przechwytywanie pakietów</translation>
+        <translation>Uruchom przechwytywanie pakietów</translation>
     </message>
     <message>
         <source>Ctrl+E</source>
@@ -3242,11 +3292,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Close the current capture file</source>
-        <translation>Zamknij aktualny plik</translation>
+        <translation type="obsolete">Zamknij aktualny plik</translation>
     </message>
     <message>
         <source>Ctrl+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+W</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -3254,47 +3304,47 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Podrę&amp;cznik</translation>
     </message>
     <message>
         <source>F1</source>
-        <translation type="unfinished"></translation>
+        <translation>F1</translation>
     </message>
     <message>
         <source>Wireshark Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>TShark</source>
-        <translation type="unfinished"></translation>
+        <translation>TShark</translation>
     </message>
     <message>
         <source>RawShark</source>
-        <translation type="unfinished"></translation>
+        <translation>RawShark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Dumpcap</translation>
     </message>
     <message>
         <source>Mergecap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <source>Editcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Editcap</translation>
     </message>
     <message>
         <source>Text2cap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Strona www</translation>
     </message>
     <message>
         <source>FAQ&apos;s</source>
-        <translation type="unfinished"></translation>
+        <translation>FAQ</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -3318,7 +3368,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+w dół</translation>
     </message>
     <message>
         <source>Previous Packet</source>
@@ -3330,7 +3380,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+w górę</translation>
     </message>
     <message>
         <source>First Packet</source>
@@ -3342,7 +3392,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Home</translation>
     </message>
     <message>
         <source>Last Packet</source>
@@ -3354,7 +3404,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+End</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+End</translation>
     </message>
     <message>
         <source>E&amp;xpand Subtrees</source>
@@ -3362,11 +3412,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Expand the current packet detail</source>
-        <translation type="unfinished">Rozwiń detale pakietu</translation>
+        <translation>Rozwiń detale pakietu</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
@@ -3378,7 +3428,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+w prawo</translation>
     </message>
     <message>
         <source>Collapse &amp;All</source>
@@ -3390,11 +3440,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+w lewo</translation>
     </message>
     <message>
         <source>Go to Packet...</source>
-        <translation>Idź do pakietu,,,</translation>
+        <translation>Idź do pakietu...</translation>
     </message>
     <message>
         <source>Go to specified packet</source>
@@ -3402,7 +3452,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <source>&amp;Merge...</source>
@@ -3426,11 +3476,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Save the current file</source>
-        <translation>Zapisz aktualny plik</translation>
+        <translation type="obsolete">Zapisz aktualny plik</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
@@ -3442,39 +3492,39 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <source>Export Specified Packets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj wybrane pakiety...</translation>
     </message>
     <message>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj wybrane pakiety</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj  bajty pakietu...</translation>
     </message>
     <message>
         <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+H</translation>
     </message>
     <message>
         <source>Export SSL Session Keys...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj klucze sesji SSH...</translation>
     </message>
     <message>
         <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation>Drukuj...</translation>
     </message>
     <message>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <source>List Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetl pliki</translation>
     </message>
     <message>
         <source>Next File</source>
@@ -3490,11 +3540,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Reload the current file</source>
-        <translation>Przeładuj aktualny plik</translation>
+        <translation type="obsolete">Przeładuj aktualny plik</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>&amp;Options...</source>
@@ -3506,27 +3556,27 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje przechwytywania</translation>
     </message>
     <message>
         <source>Ctrl+K</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+K</translation>
     </message>
     <message>
         <source>Capture &amp;Filters...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtry przechwytywania...</translation>
     </message>
     <message>
         <source>Capture filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtry przechwytywania...</translation>
     </message>
     <message>
         <source>Refresh Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Odśwież interfejsy</translation>
     </message>
     <message>
         <source>Refresh interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Odśwież interfejsy</translation>
     </message>
     <message>
         <source>&amp;Restart</source>
@@ -3534,159 +3584,159 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Restart current capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Restartuj aktualne przechwytywanie</translation>
     </message>
     <message>
         <source>As Plain &amp;Text...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako tekst...</translation>
     </message>
     <message>
         <source>As CSV...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako CSV...</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako tablica języka C...</translation>
     </message>
     <message>
         <source>As PSML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako PSML XML...</translation>
     </message>
     <message>
         <source>As PDML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako PDML XML...</translation>
     </message>
     <message>
         <source>&amp;HTTP...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;HTTP...</translation>
     </message>
     <message>
         <source>&amp;DICOM...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DICOM...</translation>
     </message>
     <message>
         <source>&amp;SMB...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;SMB...</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis</translation>
     </message>
     <message>
         <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+D</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa pola</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+F</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako filtr</translation>
     </message>
     <message>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Wybrane</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nie wybrane</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrane</translation>
     </message>
     <message>
         <source>... &amp;and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... &amp;i wybrane</translation>
     </message>
     <message>
         <source>... and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... lub wybrane</translation>
     </message>
     <message>
         <source>... &amp;or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... &amp;lub wybrane</translation>
     </message>
     <message>
         <source>... or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... lub wybrane</translation>
     </message>
     <message>
         <source>... a&amp;nd not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... i ni&amp;e wybrane</translation>
     </message>
     <message>
         <source>... and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... i nie wybrane</translation>
     </message>
     <message>
         <source>... o&amp;r not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>... l&amp;ub nie wybrane</translation>
     </message>
     <message>
         <source>... or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>...lub nie wybrane</translation>
     </message>
     <message>
         <source>Display Filters...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlane filtry...</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlane filtry i &amp;makra...</translation>
     </message>
     <message>
         <source>&amp;Find Packet...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Znajdź pakiet...</translation>
     </message>
     <message>
         <source>Find a packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź pakiet</translation>
     </message>
     <message>
         <source>Ctrl+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+F</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt...</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź &amp;następny...</translation>
     </message>
     <message>
         <source>Find the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź następny pakiet</translation>
     </message>
     <message>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <source>Find Pre&amp;vious...</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź &amp;poprzedni...</translation>
     </message>
     <message>
         <source>Find the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź poprzedni pakiet</translation>
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
@@ -3698,7 +3748,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -3710,7 +3760,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
         <source>Unmark All Displayed</source>
@@ -3722,7 +3772,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Meta+Alt+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+M</translation>
     </message>
     <message>
         <source>Next Mark</source>
@@ -3730,167 +3780,167 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Go to the next marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do następnego zaznaczonego pakietu</translation>
     </message>
     <message>
         <source>Meta+Shift+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+N</translation>
     </message>
     <message>
         <source>Previous Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzeglądaj</translation>
     </message>
     <message>
         <source>Go to the previous marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do poprzedniego zaznaczonego pakietu</translation>
     </message>
     <message>
         <source>Meta+Shift+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+B</translation>
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj/odignoruj pakiet</translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj/odignoruj pakiet</translation>
     </message>
     <message>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+D</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj wszystkie wyświetlane</translation>
     </message>
     <message>
         <source>Ignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
         <source>Unignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Odignoruj wszystkie wyświetlane</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Odignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
         <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+D</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw/wyłącz referencje czasu</translation>
     </message>
     <message>
         <source>Set or unset a time reference for this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw/wyłącz referencje czasu dla pakietu</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <source>Unset All Time References</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyłącz wszystkie referencje czasu</translation>
     </message>
     <message>
         <source>Remove all time references</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wszystkie referencje czasu</translation>
     </message>
     <message>
         <source>Ctrl+Alt+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+T</translation>
     </message>
     <message>
         <source>Next Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Następna referencja czasu</translation>
     </message>
     <message>
         <source>Go to the next time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do następnej referencji czasu</translation>
     </message>
     <message>
         <source>Ctrl+Alt+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+N</translation>
     </message>
     <message>
         <source>Previous Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzednia referencja czasu</translation>
     </message>
     <message>
         <source>Go to the previous time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do poprzedniej referencji czasu</translation>
     </message>
     <message>
         <source>Ctrl+Alt+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+B</translation>
     </message>
     <message>
         <source>Time Shift...</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń czas...</translation>
     </message>
     <message>
         <source>Shift or change packet timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń lub zmień czas pakietu</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Packet Comment...</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarz pakietu...</translation>
     </message>
     <message>
         <source>Add or change a packet comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj lub zmień komentarz pakietu</translation>
     </message>
     <message>
         <source>Configuration Profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja profili...</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja profili</translation>
     </message>
     <message>
         <source>Manage your configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj swoimi konfiguracjami profili</translation>
     </message>
     <message>
         <source>Ctrl+Shift+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+A</translation>
     </message>
     <message>
         <source>&amp;Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Preferencje</translation>
     </message>
     <message>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj preferencjami Wiresharka</translation>
     </message>
     <message>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Podsumowanie</translation>
     </message>
     <message>
         <source>Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Hierarchia protokołów</translation>
     </message>
     <message>
         <source>Capinfos</source>
-        <translation type="unfinished"></translation>
+        <translation>Capinfos</translation>
     </message>
     <message>
         <source>Reordercap</source>
-        <translation type="unfinished"></translation>
+        <translation>Reordercap</translation>
     </message>
     <message>
         <source>Time Sequence (Stevens)</source>
@@ -3926,15 +3976,15 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Follow TCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Śledź strumień TCP</translation>
     </message>
     <message>
         <source>Follow UDP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Śledź strumień UDP</translation>
     </message>
     <message>
         <source>Follow SSL Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Śledź strumień SSL</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -3946,7 +3996,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Analyse this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizuj asocjacje</translation>
     </message>
     <message>
         <source>Show All Associations</source>
@@ -3962,11 +4012,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>ANCP</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP</translation>
     </message>
     <message>
         <source>ANCP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki ANCP</translation>
     </message>
     <message>
         <source>Packets sorted by Instance ID</source>
@@ -4018,11 +4068,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Packet Counter</source>
-        <translation type="unfinished"></translation>
+        <translation>Licznik pakietów</translation>
     </message>
     <message>
         <source>HTTP packet counter</source>
-        <translation type="unfinished"></translation>
+        <translation>Licznik pakietów HTTP</translation>
     </message>
     <message>
         <source>Requests</source>
@@ -4030,7 +4080,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>HTTP requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądania HTTP</translation>
     </message>
     <message>
         <source>Load Distribution</source>
@@ -4042,7 +4092,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Packet Lengths</source>
-        <translation type="unfinished"></translation>
+        <translation>Długości pakietu</translation>
     </message>
     <message>
         <source>Packet length statistics</source>
@@ -4058,7 +4108,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Komunikaty &amp;ISUP</translation>
     </message>
     <message>
         <source>ISUP message statistics</source>
@@ -4070,7 +4120,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>SM&amp;PP Operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacje SM&amp;PP</translation>
     </message>
     <message>
         <source>SMPP operation statistics</source>
@@ -4078,7 +4128,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&amp;UCP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Komunikaty &amp;UCP</translation>
     </message>
     <message>
         <source>UCP message statistics</source>
@@ -4086,7 +4136,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Decode &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekoduj jako...</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -4150,22 +4200,10 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&amp;I/O Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show/hide the main toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show/hide the display filter toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4194,7 +4232,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>A temporary capture file can&apos;t be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tymczasowy plik zrzutu nie może zostać scalony.</translation>
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
@@ -4226,7 +4264,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>.</source>
-        <translation type="unfinished"></translation>
+        <translation>.</translation>
     </message>
     <message>
         <source>You have unsaved packets</source>
@@ -4246,7 +4284,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translation>?</translation>
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
@@ -4270,7 +4308,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -4314,11 +4352,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>900000000</source>
-        <translation type="unfinished"></translation>
+        <translation>900000000</translation>
     </message>
     <message>
         <source>Create a Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz kolumnę</translation>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
@@ -4326,7 +4364,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Export PDUs to File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj PDU do pliku...</translation>
     </message>
     <message>
         <source>Conversations</source>
@@ -4343,6 +4381,282 @@ more about Wireshark</source>
     <message>
         <source>Invalid capture filter</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation>Powiększenie/pomniejszenie</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation>Format czasu</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation>Zamknij ten plik</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation>Zapisz</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation>Główny pasek</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation>Pasek filtrowania</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Endpoints</source>
+        <translation>Punkty krańcowe</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation>Koloruj listę pakietów</translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation>Wypisuj pakiety używając reguł kolorowania</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>Powiększ</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation>Powiększ</translation>
+    </message>
+    <message>
+        <source>Ctrl++</source>
+        <translation>Ctrl++</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Pomniejsz</translation>
+    </message>
+    <message>
+        <source>Ctrl+-</source>
+        <translation>Ctrl+-</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation>Normalny rozmiar</translation>
+    </message>
+    <message>
+        <source>Ctrl+0</source>
+        <translation>Ctrl+0</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation>Zmień rozmiar kolumn</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation>Dostosuj rozmiar kolumn do zawartości</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+R</source>
+        <translation>Ctrl+Shift+R</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta+Alt+6</source>
+        <translation>Meta+Alt+6</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>UTC (1970-01-01 01:02:03.123456) </translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation>Wyświetl czas w formacie UTC</translation>
+    </message>
+    <message>
+        <source>Meta+Alt+7</source>
+        <translation>Meta+Alt+7</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>UTC rok, dzień roku, i czas (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation>Wyświetlaj czas w formacie UTC rok dzień roku i czas</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation>Format UTC (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation>Wyświetlaj czas w formacie UTC</translation>
+    </message>
+    <message>
+        <source>Meta+Alt+8</source>
+        <translation>Meta+Alt+8</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation>Automatyczna (z pliku)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation>Używaj precyzji czas z pliku</translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation>Sekundy</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation>Dziesiętne sekundy</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation>Setne sekundy</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation>Milisekundy</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation>Mikrosekundy</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation>Nanosekundy</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation>Wyświetlaj sekundy z godzinami i minutami</translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation>Wyświetlaj sekundy z godzinami i minutami</translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation>Pasek sniffera WiFi</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation>Pokaż/ukryj pasek sniffera WiFi</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation>Pasek stanu</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation>Pokaż/ukryj pasek stanu</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation>Lista pakietów</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation>Pokaż/ukryj listę pakietów</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation>Detale pakietu</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation>Pokaż/ukryj detale pakietu</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation>Bajty pakietu</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation>Pokaż/ukryj bajty pakietu</translation>
     </message>
 </context>
 <context>
@@ -4377,15 +4691,15 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz aby zapisywać rozmiar, pozycję i stan okna głównego.</translation>
     </message>
     <message>
         <source>Open files in</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwieraj pliki w</translation>
     </message>
     <message>
         <source>This folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten folder:</translation>
     </message>
     <message>
         <source>Browse...</source>
@@ -4393,473 +4707,485 @@ more about Wireshark</source>
     </message>
     <message>
         <source>The most recently used folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostanio użyty folder</translation>
     </message>
     <message>
         <source>Show up to</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj aż do</translation>
     </message>
     <message>
         <source>filter entries</source>
-        <translation type="unfinished"></translation>
+        <translation>wpisów filtra</translation>
     </message>
     <message>
         <source>recent files</source>
-        <translation type="unfinished"></translation>
+        <translation>ostatnich plików</translation>
     </message>
     <message>
         <source>Confirm unsaved capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Potwierdź zamykanie niezapisanych plików zrzutu</translation>
     </message>
     <message>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli zaznaczono to detale pakietu będą automatycznie przewijane gdy są rozwijane.</translation>
     </message>
     <message>
         <source>Automatically scroll packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne przewijanie detali pakietu</translation>
     </message>
     <message>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Procentowy distans przesuwania od góry do detali pakietu.</translation>
     </message>
     <message>
         <source>Packet detail scroll percentage:</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent przewijania detali pakietu</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Główny pasek stylów:</translation>
     </message>
     <message>
         <source>Auto-Detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykryj język</translation>
     </message>
     <message>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>English</translation>
     </message>
     <message utf8="true">
         <source>Français</source>
-        <translation type="unfinished"></translation>
+        <translation>Français</translation>
     </message>
     <message>
         <source>Deutsch</source>
-        <translation type="unfinished"></translation>
+        <translation>Deutsch</translation>
     </message>
     <message>
         <source>Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinese</translation>
     </message>
     <message>
         <source>Polski</source>
-        <translation type="unfinished"></translation>
+        <translation>Polski</translation>
     </message>
     <message>
         <source>Open Files In</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwieraj pliki w</translation>
     </message>
     <message>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japanese</translation>
     </message>
     <message>
         <source>You need to restart Wireshark for this change to take effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Musisz zrestartować Wiresharka by ta zmiana odniosła efekt</translation>
+    </message>
+    <message>
+        <source>Italiano</source>
+        <translation>Italiano</translation>
     </message>
 </context>
 <context>
     <name>ManageInterfacesDialog</name>
     <message>
         <source>Manage Interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj interfejsami</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń rurę z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pipes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Rury</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj nową rurę używając domyślnych ustawień.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usuń wybraną rurę z listy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przełącz aby ukryć lub pokazać ukryty interfejs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Local Interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalny interfejs</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyjazna nazwa</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa interfejsu</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarz</translation>
     </message>
     <message>
         <source>Remote Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne interfejsy</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj zdalnego hosta i jego interfejsy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usuń wybranego hosta z listy&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne ustawienia</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>Default interface cannot be hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny interfejs nie może bć ukryty.</translation>
     </message>
     <message>
-        <source>No host selected. Select the host to be removed.</source>
-        <translation type="unfinished"></translation>
+        <source>Show</source>
+        <translation>Pokaż</translation>
+    </message>
+    <message>
+        <source>Host / Device URL</source>
+        <translation>Host / URL urządzenia</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark does not save pipe settings.</source>
+        <translation>Ta wersja Wiresharka nie obsługuje ustawień rur.</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark does not save remote settings.</source>
+        <translation>Ta wersja Wiresharka nie obsługuje zdalnych ustawień.</translation>
+    </message>
+    <message>
+        <source>This version of Wireshark does not support remote interfaces.</source>
+        <translation>Ta wersja Wiresharka nie obsługuje zdalnych interfejsów.</translation>
     </message>
 </context>
 <context>
     <name>ModulePreferencesScrollArea</name>
     <message>
         <source>ScrollArea</source>
-        <translation type="unfinished"></translation>
+        <translation>ObszarPrzeglądania</translation>
     </message>
     <message>
         <source>Wireshark: </source>
-        <translation type="unfinished">Wireshark: </translation>
+        <translation>Wireshark: </translation>
     </message>
 </context>
 <context>
     <name>NewFileDelegate</name>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Przeglądaj...</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Przeglądaj...</translation>
     </message>
 </context>
 <context>
     <name>PacketCommentDialog</name>
     <message>
         <source>Wireshark: Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Komentarz pakietu</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Element grupujący</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format pakietu</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Podsumowanie pakietów podobne do listy pakietów&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Linia podsumowania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Szczegóły pakietu podobne do drzewa protokołów&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szczegóły:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eksportuj tylko szczegóły pakietu najwyższego poziomu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystko zwinięte</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rozwiń lub zmiń szczegóły pakietu które są aktualnie wyświetlane.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako wyświetlane</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eksportuj wszystkie szczegóły pakietu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystko rozwinięte</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eksportuj dane pakietu w postaci heksadecymalnej&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bajtów</translation>
+        <translation>Bajty</translation>
     </message>
 </context>
 <context>
     <name>PacketList</name>
     <message>
         <source>Follow...</source>
-        <translation type="unfinished"></translation>
+        <translation>Podążaj...</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Zastosuj filtr</translation>
+        <translation>Zastosuj filtr</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation type="unfinished">Przygotuj filtr</translation>
+        <translation>Przygotuj filtr</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation type="unfinished">Koloruj filtr</translation>
+        <translation>Koloruj filtr</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
+        <translation>Kopiuj</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bajtów</translation>
+        <translation>Bajty</translation>
     </message>
     <message>
         <source>Frame %1: %2 
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ramka %1: %2 </translation>
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ Długość komentarza przekracza %1. Wstrzymano. ]</translation>
     </message>
     <message>
         <source>Change Time Display Format?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienić format wyświetlanego czasu?</translation>
     </message>
     <message>
         <source>Time References don&apos;t work well with the currently selected Time Display Format.
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Referencje czasu nie działają z aktualnie używanym formatem czasu.
+Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quot;?</translation>
     </message>
 </context>
 <context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakres pakietów</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Wyświetlaj</translation>
+        <translation>Wyświetlane</translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko zaznaczone pakiety</translation>
     </message>
     <message>
         <source>&amp;Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakres:</translation>
     </message>
     <message>
         <source>Remove &amp;ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń ignorowane pakiety</translation>
     </message>
     <message>
         <source>First &amp;to last marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Od pierwszego do ostatniego zaznaczonego</translation>
     </message>
     <message>
         <source>&amp;All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie pakiety</translation>
     </message>
     <message>
         <source>&amp;Selected packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko wybrane pakiety</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>Przechwyconych</translation>
+    </message>
+</context>
+<context>
+    <name>PathChooserDelegate</name>
+    <message>
+        <source>Browse...</source>
+        <translation>Przeglądaj...</translation>
+    </message>
+    <message>
+        <source>Open Pipe</source>
+        <translation>Otwórz rurę</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
         <source>Wireshark: Preferences</source>
-        <translation type="unfinished">Wireshark: Ustawienia</translation>
+        <translation>Wireshark: Preferencje</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished">Wygląd</translation>
+        <translation>Wygląd</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished">Układ</translation>
+        <translation>Układ</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished">Kolumny</translation>
+        <translation>Kolumny</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished">Czcionki i kolory</translation>
+        <translation>Czcionki i kolory</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Przechwytywanie</translation>
+        <translation>Przechwytywanie</translation>
     </message>
     <message>
         <source>Filter Bookmarks</source>
-        <translation type="unfinished">Zakładki filtrów</translation>
+        <translation>Zakładki filtrów</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Zaawansowane</translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Wireshark: </source>
-        <translation type="unfinished">Wireshark: </translation>
+        <translation>Wireshark: </translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj:</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznane</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślne</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienione</translation>
     </message>
 </context>
 <context>
     <name>PrintDialog</name>
     <message>
         <source>Wireshark: Print</source>
-        <translation type="unfinished">Wireshark: Drukowanie</translation>
+        <translation>Wireshark: Drukowanie</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format pakietu</translation>
     </message>
     <message>
         <source>Print each packet on a new page</source>
-        <translation type="unfinished"></translation>
+        <translation>Drukuj każdy pakiet na osobnej stronie</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Użyj klawiszy &amp;quot;+&amp;quot; i &amp;quot;-&amp;quot; by zmieniać rozmiar podglądu. Użyj klawisza &amp;quot;0&amp;quot; by wrócić domyślny rozmiar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ powiększ - pomniejsze, 0 domyślny rozmiar&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakres pakietów</translation>
     </message>
     <message>
         <source>&amp;Print...</source>
-        <translation type="unfinished"></translation>
+        <translation>Drukuj...</translation>
     </message>
     <message>
         <source>Page &amp;Setup...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia strony...</translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 wszystkich pakietów, %3 wyświetlanych</translation>
     </message>
     <message>
         <source>Print Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd drukowania</translation>
     </message>
     <message>
         <source>Unable to print to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można drukować do %1.</translation>
     </message>
 </context>
 <context>
@@ -4882,7 +5208,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Go to</source>
-        <translation>Przejdź do</translation>
+        <translation>Przejdź do </translation>
     </message>
     <message>
         <source>A profile already exists with that name.</source>
@@ -4917,7 +5243,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bajtów</translation>
+        <translation>Bajty</translation>
     </message>
     <message>
         <source>, 1 byte</source>
@@ -4932,284 +5258,304 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <name>QObject</name>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Edytuj...</translation>
+        <translation>Edytuj...</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Przeglądaj...</translation>
+        <translation>Przeglądaj...</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation type="unfinished">Czy to ustawienie zostało zmienione?</translation>
+        <translation>Czy to ustawienie zostało zmienione?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation type="unfinished">Domyślna wartość jest pusta</translation>
+        <translation>Domyślna wartość jest pusta</translation>
     </message>
     <message>
         <source>Avgerage Througput (bits/s)</source>
-        <translation type="unfinished">Średnia Przepustowość (bit/s)</translation>
+        <translation type="obsolete">Średnia Przepustowość (bit/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation type="unfinished">Czas podróży (ms)</translation>
+        <translation>Czas podróży (ms)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation type="unfinished">Długość Segmentu (B)</translation>
+        <translation>Długość Segmentu (B)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation type="unfinished">Numer Sekwencyjny (B)</translation>
+        <translation>Numer Sekwencyjny (B)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Czas (s)</translation>
+        <translation>Czas (s)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation type="unfinished">Rozmiar Okna (B)</translation>
+        <translation>Rozmiar okna (B)</translation>
     </message>
     <message>
         <source>Packets/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety/s</translation>
     </message>
     <message>
         <source>Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty/s</translation>
     </message>
     <message>
         <source>Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bity/s</translation>
     </message>
     <message>
         <source>SUM(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>SUMA(pole Y)</translation>
     </message>
     <message>
         <source>COUNT FRAMES(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>LICZ RAMKI(pole Y)</translation>
     </message>
     <message>
         <source>COUNT FIELDS(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>LICZ POLA(pole Y)</translation>
     </message>
     <message>
         <source>MAX(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>MAX(pole Y)</translation>
     </message>
     <message>
         <source>MIN(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>MIN(pole Y)</translation>
     </message>
     <message>
         <source>AVG(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>ŚREDNIA(pole Y)</translation>
     </message>
     <message>
         <source>LOAD(Y Field)</source>
-        <translation type="unfinished"></translation>
+        <translation>LOAD(pole Y)</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Linia</translation>
     </message>
     <message>
         <source>Impulse</source>
-        <translation type="unfinished"></translation>
+        <translation>Impuls</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasek</translation>
     </message>
     <message>
         <source>Stacked Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Ułożony pasek</translation>
     </message>
     <message>
         <source>Dot</source>
-        <translation type="unfinished"></translation>
+        <translation>Kropka</translation>
     </message>
     <message>
         <source>Square</source>
-        <translation type="unfinished"></translation>
+        <translation>Kwadrat</translation>
     </message>
     <message>
         <source>Diamond</source>
-        <translation type="unfinished"></translation>
+        <translation>Diament</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>%1 interval SMA</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 interwał SMA</translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Zastosuj filtr</translation>
+        <translation>Zastosuj filtr</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation type="unfinished">Przygotuj filtr</translation>
+        <translation>Przygotuj filtr</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź</translation>
     </message>
     <message>
         <source>Colorize</source>
-        <translation type="unfinished"></translation>
+        <translation>Koloruj</translation>
     </message>
     <message>
         <source>Look Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyszukaj</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
+        <translation>Kopiuj</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>NIEZNANY</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybrany</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrany</translation>
     </message>
     <message>
         <source>A </source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>B </source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>Any </source>
-        <translation type="unfinished"></translation>
+        <translation>Każdy</translation>
+    </message>
+    <message>
+        <source>Conversation</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Endpoint</source>
+        <translation>Punkt krańcowy</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again.</source>
+        <translation>Nie pokazuj więcej tego komunikatu.</translation>
+    </message>
+    <message>
+        <source>New Pipe</source>
+        <translation>Nowa rura</translation>
+    </message>
+    <message>
+        <source>Average Througput (bits/s)</source>
+        <translation>Średnia przepustowość (bit/s)</translation>
     </message>
 </context>
 <context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalny interfejs</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Host:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Uwierzytelnianie</translation>
     </message>
     <message>
         <source>Null authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak uwierzytelniania</translation>
     </message>
     <message>
         <source>Password authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Hasło uwierzytelnienia</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hasło:</translation>
     </message>
     <message>
         <source>Clear list</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść listę</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono zdalnych interfejsów.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>PCAP nie znaleziony</translation>
     </message>
 </context>
 <context>
     <name>RemoteSettingsDialog</name>
     <message>
         <source>Remote Capture Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia zdalnego przechwytywania</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje przechytywania</translation>
     </message>
     <message>
         <source>Do not capture own RPCAP traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie przechwytuj własnego ruchu RPCAP</translation>
     </message>
     <message>
         <source>Use UDP for data transfer</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj UDP do transferu danych</translation>
     </message>
     <message>
         <source>Sampling Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje próbkowania</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>1 of</source>
-        <translation type="unfinished"></translation>
+        <translation>1 z</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>pakietów</translation>
     </message>
     <message>
         <source>1 every </source>
-        <translation type="unfinished"></translation>
+        <translation>każdy jeden</translation>
     </message>
     <message>
         <source>milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>milisekundy</translation>
     </message>
 </context>
 <context>
     <name>SCTPAllAssocsDialog</name>
     <message>
         <source>Wireshark - SCTP Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark - Asocjacje SCTP</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Port 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Port 1</translation>
     </message>
     <message>
         <source>Port 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Port 2</translation>
     </message>
     <message>
         <source>Number of Packets</source>
@@ -5229,103 +5575,103 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizuj</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres do stanu początkowego.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Pomniejsz</translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Powiększ</translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>W górę</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>W lewo</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>W prawo</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w górę</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w lewo</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w dół</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Następny strumień</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
@@ -5333,11 +5679,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>PgUp</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedni strumień</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
@@ -5345,7 +5691,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>PgDown</translation>
     </message>
     <message>
         <source>Switch Direction</source>
@@ -5357,7 +5703,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -5369,19 +5715,19 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągnij / Powiększ/pomniejsz</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
@@ -5389,39 +5735,39 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Przałącz pomiędzy relatywnymi a absolutnymi numerami sekwencyjnymi</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas sesji / zrzutu</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz między czasem zrzutu a sesji</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaźniki</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz wskaźnik wykresu</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacja</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas podróży</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
@@ -5429,11 +5775,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepustowość</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
@@ -5441,11 +5787,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas / Sekwencja (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
@@ -5453,23 +5799,23 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished">Okno skalowania</translation>
+        <translation>Okno skalowania</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished">Przełącz do okna skalowania grafu</translation>
+        <translation type="unfinished">Przełącz do grafu Okna Skalowania</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished">Czas / Sekwencja (tcptrace)</translation>
+        <translation>Czas / Sekwencja (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
@@ -5477,7 +5823,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
 </context>
 <context>
@@ -5492,7 +5838,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished">Statystyki</translation>
+        <translation>Statystyki</translation>
     </message>
     <message>
         <source>Chunk Statistics</source>
@@ -5504,7 +5850,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Zamknij</translation>
+        <translation>Zamknij</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
@@ -5532,7 +5878,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy 1</translation>
     </message>
     <message>
         <source>Graph TSN</source>
@@ -5552,7 +5898,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Sent Verification Tag:</source>
@@ -5572,7 +5918,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy 2</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
@@ -5619,7 +5965,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <name>SCTPChunkStatisticsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Association</source>
@@ -5627,11 +5973,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy 1</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkt krańcowy 2</translation>
     </message>
     <message>
         <source>Save Chunk Type Order</source>
@@ -5753,7 +6099,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bajtów</translation>
+        <translation>Bajty</translation>
     </message>
     <message>
         <source>time [secs]</source>
@@ -5848,23 +6194,23 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF Format (*.pdf)</translation>
+        <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG Format (*.png)</translation>
+        <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows Format (*.bmp)</translation>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG Format (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished">Wireshark: Zapisz obraz jako...</translation>
+        <translation>Wireshark: Zapisz obraz jako...</translation>
     </message>
 </context>
 <context>
@@ -5895,19 +6241,19 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Narrow &amp; Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>Wąskie i szerokie</translation>
     </message>
     <message>
         <source>Narrow (UTF-8 / ASCII)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wąskie (UTF-8 / ASCII)</translation>
     </message>
     <message>
         <source>Wide (UTF-16)</source>
-        <translation type="unfinished"></translation>
+        <translation>Szerokie (UTF-16)</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozróżniaj wielkość znaków</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -5915,19 +6261,19 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr wyświetlania</translation>
     </message>
     <message>
         <source>Hex value</source>
-        <translation type="unfinished"></translation>
+        <translation>Hex</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>String</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -5939,19 +6285,19 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Invalid filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błądny filtr.</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten filtr nie sprawdza niczego.</translation>
     </message>
     <message>
         <source>That&apos;s not a valid hex string.</source>
-        <translation type="unfinished"></translation>
+        <translation>To niejest prawidłowy tekst w formacie heksadecymalnym.</translation>
     </message>
     <message>
         <source>You didn&apos;t specify any text for which to search.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wpisano tekstu do wyszukania.</translation>
     </message>
     <message>
         <source>No valid character set selected. Please report this to the development team.</source>
@@ -5986,7 +6332,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <name>SequenceDialog</name>
     <message>
         <source>Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepływ</translation>
     </message>
     <message utf8="true">
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -6013,151 +6359,151 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Podpowiedź&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Show:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż: </translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie pakiety</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlane pakiety</translation>
     </message>
     <message>
         <source>Flow type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ przepływu:</translation>
     </message>
     <message>
         <source>Addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresy:</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>Każdy</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Sieciowy</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj diagram</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj diagram do stanu początkowego.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>W górę</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>W lewo</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>W prawo</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w górę</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w lewo</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w dół</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie przepływy</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj przepływy dla wszystkich pakietów</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepływy TCP</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj tylko przepływy dla TCP</translation>
     </message>
     <message>
         <source>Save As...</source>
-        <translation type="unfinished">Zapisz jako...</translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
@@ -6173,472 +6519,479 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF Format (*.pdf)</translation>
+        <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG Format (*.png)</translation>
+        <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows Format (*.bmp)</translation>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG Format (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII (*.txt)</translation>
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished">Wireshark: Zapisz obraz jako...</translation>
+        <translation>Wireshark: Zapisz obraz jako...</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleDialog</name>
+    <message>
+        <source>Multiple problems found</source>
+        <translation>Wystąpiło wiele problemów</translation>
     </message>
 </context>
 <context>
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>Initializing dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjacja dekoderów</translation>
     </message>
     <message>
         <source>Initializing tap listeners</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Registering dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjacja kanałów komunikacyjnych</translation>
     </message>
     <message>
         <source>Registering plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Rejestracja wtyczek</translation>
     </message>
     <message>
         <source>Registering Python dissectors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Handing off dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>Rejestracja dekoderów w Pythonie</translation>
     </message>
     <message>
         <source>Handing off plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalizowanie wtyczek</translation>
     </message>
     <message>
         <source>Handing off Python dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalizowanie wtyczek Pythonowych</translation>
     </message>
     <message>
         <source>Loading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie wtyczek Lua</translation>
     </message>
     <message>
         <source>Loading module preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie preferencji modułów</translation>
     </message>
     <message>
         <source>Loading configuration files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ładowanie plików konfiguracyjnych</translation>
     </message>
     <message>
         <source>(Unknown action)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Nieznana akcja)</translation>
+    </message>
+    <message>
+        <source>Registering dissectors</source>
+        <translation>Rejestracja dekoderów</translation>
+    </message>
+    <message>
+        <source>Handing off dissectors</source>
+        <translation>Finalizowanie dekoderów</translation>
     </message>
 </context>
 <context>
     <name>StatsTreeDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj statystyki używając filtru</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
+        <translation>Kopiuj</translation>
     </message>
     <message>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj prezentację drzewa do schowka</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message>
         <source>Save the stats_tree data in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane statystyk w formatach</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <source>Configuration not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono konfiguracji</translation>
     </message>
     <message>
         <source>Unable to find configuration for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można znaleźć konfiguracji dla %1.</translation>
     </message>
     <message>
         <source> Stats Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki</translation>
     </message>
     <message>
         <source>%1 already open</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 jest już otwarty</translation>
     </message>
     <message>
         <source>Each type of tree can only be generated one at time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Każdy typ drzewa może być wygenerowany tylko raz.</translation>
     </message>
     <message>
         <source>%1 failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie można podłączyć do kanału komunikacyjnego</translation>
     </message>
     <message>
         <source>Wireshark: Save stats tree as ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Zapisz statystyki jako...</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik tekstowy (*.c);; Wartości rozdzielane przecinkami (*.csv);; Dokument XML (*.xml);;Dokument YAML (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik tekstowy (*.c)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas zapisywania pliku %1</translation>
     </message>
 </context>
 <context>
     <name>SummaryDialog</name>
     <message>
         <source>Wireshark - Summary</source>
-        <translation type="unfinished">Wireshark - Podsumowanie</translation>
+        <translation>Wireshark - Podsumowanie</translation>
     </message>
     <message>
         <source>File capture details</source>
-        <translation type="unfinished">Szczegóły pliku</translation>
+        <translation>Szczegóły pliku</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Plik</translation>
+        <translation>Plik</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>/</source>
-        <translation type="unfinished">/</translation>
+        <translation>/</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished">Rozmiar</translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished">Enkapsulacja</translation>
+        <translation>Enkapsulacja</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Czas</translation>
+        <translation>Czas</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished">Pierwszy pakiet</translation>
+        <translation>Pierwszy pakiet</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished">Ostatni pakiet</translation>
+        <translation>Ostatni pakiet</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Minęło:</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrzut</translation>
     </message>
     <message>
         <source>Capture file comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarze pliku zrzutu</translation>
     </message>
     <message>
         <source>OS</source>
-        <translation type="unfinished"></translation>
+        <translation>OS</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany</translation>
     </message>
     <message>
         <source>Capture app</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja przechwytująca</translation>
     </message>
     <message>
         <source>Capture statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki przechwytywania</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruch</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>Przechwycone</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Wyświetlaj</translation>
+        <translation>Wyświetlane</translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznaczone</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interface</translation>
     </message>
     <message>
         <source>Dropped packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Porzucone pakiety</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Link type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ łącza</translation>
     </message>
     <message>
         <source>Packet size limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Limit rozmiaru pakiety</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetlany filtr</translation>
     </message>
     <message>
         <source>Ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorowane pakiety</translation>
     </message>
     <message>
         <source>Comment summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarze</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Odśwież</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj do schowka</translation>
     </message>
     <message>
         <source>Summary created by Wireshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Podsumowanie stworzone w Wiresharku %1</translation>
     </message>
     <message>
         <source>File: 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Plik:</translation>
     </message>
     <message>
         <source>Name:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa:		%1</translation>
     </message>
     <message>
         <source>Length:		%1 bytes
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar:		%1 bajtów</translation>
     </message>
     <message>
         <source>Format:		%1%2
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Format:		%1%2</translation>
     </message>
     <message>
         <source> (gzip compressed)</source>
-        <translation type="unfinished"></translation>
+        <translation> (skompresowany gzip)</translation>
     </message>
     <message>
         <source>Encapsulation:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Enkapsulacja:		%1</translation>
     </message>
     <message>
         <source>Time:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Czas:</translation>
     </message>
     <message>
         <source>First packet:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Pierwszy pakiet:		%1</translation>
     </message>
     <message>
         <source>Last packet:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatni pakiet:		%1</translation>
     </message>
     <message>
         <source>Elapsed:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Minęło:		%1</translation>
     </message>
     <message>
         <source>Capture:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Zrzut:</translation>
     </message>
     <message>
         <source>OS:	%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>OS:	%1</translation>
     </message>
     <message>
         <source>Capture application:	%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja przechwytująca:	%1</translation>
     </message>
     <message>
         <source>Dropped packets:	%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Porzucone pakiety:	%1</translation>
     </message>
     <message>
         <source>Capture filter:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr przechwytywania:		%1</translation>
     </message>
     <message>
         <source>Link type:		%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Typ łącza:		%1</translation>
     </message>
     <message>
         <source>Packet size limit:	%1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Limit wielkości pakietu:	%1</translation>
     </message>
     <message>
         <source>Statistics:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki:</translation>
     </message>
     <message>
         <source>%1:	%2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:	%2</translation>
     </message>
     <message>
         <source>Capture File Comments:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarze pliku:</translation>
     </message>
     <message>
         <source>Not representable</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie reprezentatywne</translation>
     </message>
     <message>
         <source>%1 bytes (%2 Mbytes)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 bajtów (%2 Mbitów)</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>nieznany</translation>
     </message>
     <message>
         <source>none</source>
-        <translation type="unfinished"></translation>
+        <translation>brak</translation>
     </message>
     <message>
         <source>%u bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>%u bajtów</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety</translation>
     </message>
     <message>
         <source>Between first and last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomiędzy pierwszym a ostatnim pakietem</translation>
     </message>
     <message>
         <source>%.3f sec</source>
-        <translation type="unfinished"></translation>
+        <translation>%.3f sekund</translation>
     </message>
     <message>
         <source>Avg. packets/sec</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnia pakietów/s</translation>
     </message>
     <message>
         <source>Avg. packet size</source>
-        <translation type="unfinished"></translation>
+        <translation>Średni rozmiar pakietu</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bajtów</translation>
+        <translation>Bajtów</translation>
     </message>
     <message>
         <source>Avg. bytes/sec</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnia bajtów/s</translation>
     </message>
     <message>
         <source>Avg. MBit/sec</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnia Mbit/s</translation>
     </message>
 </context>
 <context>
     <name>TCPStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>0</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Pomniejsz</translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <source>Zoom in</source>
@@ -6647,11 +7000,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <source>+</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Powiększ</translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <source>Zoom out</source>
@@ -6660,151 +7013,151 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <source>-</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>D</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>G</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Z</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>S</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>T</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>1</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished">Okno skalowania</translation>
+        <translation>Okno skalowania</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished">Przełącz do okna skalowania grafu</translation>
+        <translation>Przełącz do wykresu okna skalowania</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished">Czas / Sekwencja (tcptrace)</translation>
+        <translation>Czas / Sekwencja (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished">Przełącz do stylu tcptrace graf Czas / Sekwencja</translation>
+        <translation>Przełącz do wykresu w stylu czasu/sekwencji programu tcptrace</translation>
     </message>
     <message>
         <source>4</source>
         <translatorcomment>?</translatorcomment>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>Save As...</source>
-        <translation type="unfinished">Zapisz jako...</translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message>
         <source>No Capture Data</source>
-        <translation type="unfinished">Brak przechwyconych danych</translation>
+        <translation>Brak przechwyconych danych</translation>
     </message>
     <message>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
-        <translation type="unfinished">%1 %2 pakietów, %3 %4 %5 punktów, %6 </translation>
+        <translation>%1 %2 pakietów, %3 %4 %5 punktów, %6 </translation>
     </message>
     <message>
         <source>Sequence Numbers (Stevens)</source>
-        <translation type="unfinished">Numery sekwencyjne (Stevens)</translation>
+        <translation>Numery sekwencyjne (Stevens)</translation>
     </message>
     <message>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation type="unfinished">Numery sekwencyjne (tcptrace)</translation>
+        <translation>Numery sekwencyjne (tcptrace)</translation>
     </message>
     <message>
         <source> (1s MA)</source>
-        <translation type="unfinished"> (1s MA)</translation>
+        <translation> (1s MA)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
-        <translation type="unfinished"> (%1 Segment MA)</translation>
+        <translation> (%1 Segment MA)</translation>
     </message>
     <message>
         <source> [not enough data]</source>
-        <translation type="unfinished"> [niewystarczające dane]</translation>
+        <translation> [niewystarczające dane]</translation>
     </message>
     <message>
         <source> for %1:%2 %3 %4:%5</source>
-        <translation type="unfinished"> dla %1:%2 %3 %4:%5</translation>
+        <translation> dla %1:%2 %3 %4:%5</translation>
     </message>
     <message>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
-        <translation type="unfinished">%1 %2 (%3s rozmiar %4 numer sekwencyjny %5 potwierdzone %6 wygrane %7)</translation>
+        <translation>%1 %2 (%3s rozmiar %4 numer sekwencyjny %5 potwierdzone %6 wygrane %7)</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished">Kliknij by wybrać pakiet</translation>
+        <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Pakiet</translation>
+        <translation>Pakiet</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">Powiększenie, x = %1 to %2, y = %3 to %4</translation>
+        <translation>Powiększenie, x = %1 do %2, y = %3 do %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished">Niemożna wybrać danego zakresu.</translation>
+        <translation>Niemożna wybrać danego zakresu.</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished">Kliknij by wybrać obszar grafu.</translation>
+        <translation>Kliknij by wybrać obszar wykresu.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF Format (*.pdf)</translation>
+        <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG Format (*.png)</translation>
+        <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmapa Windows Format (*.bmp)</translation>
+        <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG Format (*.jpeg *.jpg)</translation>
+        <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation type="unfinished">Wireshark: Zapisz obraz jako...</translation>
+        <translation>Wireshark: Zapisz obraz jako...</translation>
     </message>
     <message utf8="true">
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -6851,11 +7204,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -6863,27 +7216,27 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć kierunek</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Mysz</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągaj prz użyciu myszy.</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>przesuwanie</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybieranie przy pomocy myszy.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>zmiana rozmiaru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -6891,123 +7244,123 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wykres do stanu początkowego.</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>W górę</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>W lewo</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>W prawo</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w górę</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w lewo</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w prawo</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+w dół</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Następny strumień</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do następnego strumienia</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>PgUp</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedni strumień</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do poprzedniego strumienia</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>PgDown</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć kierunk (zamień punkty krańcowe TCP)</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeciągnij / Powiększ/pomniejsz</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
@@ -7015,31 +7368,31 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Przałącz pomiędzy relatywnymi a absolutnymi numerami sekwencyjnymi</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas sesji / zrzutu</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz między czasem zrzutu a sesji</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaźniki</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz wskaźnik wykresu</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Spacja</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas podróży</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
@@ -7047,7 +7400,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepustowość</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
@@ -7055,7 +7408,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas / Sekwencja (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
@@ -7111,6 +7464,61 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <source>Time shifting is not available capturing packets.</source>
         <translation>Przesunięcie czasu nie jest dostępne w czasie zgrywania.</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTableDialog</name>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name resolution</source>
+        <translation>Rozwiązywanie nazw</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: %1s</source>
+        <translation>Wireshark: %1s</translation>
+    </message>
+    <message>
+        <source>%1 Types</source>
+        <translation>%1 Typy</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiuj</translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation>jako CSV</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation>jako YAML</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Nieznany</translation>
     </message>
 </context>
 <context>
