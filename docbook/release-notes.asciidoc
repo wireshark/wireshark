@@ -22,6 +22,16 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.99.0:
+
+* Qt port:
+
+** You can now show and hide toolbars and major widgets using the View menu.
+** You can now set the time display format and precision.
+** The byte view widget is much faster, particularly when selecting large
+reassembled packets.
+
+The following features are new (or have been significantly updated)
 since version 1.12.0:
 
 * The I/O Graph in the Gtk+ UI now supports an unlimited number of data points

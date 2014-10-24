@@ -169,8 +169,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 // Appendix (trailer) bytes
                 byte_view_text->setFieldAppendixHighlight(fa_start, fa_end);
 
-                byte_view_text->renderBytes();
-
                 setCurrentIndex(i);
             }
             byte_view_text = qobject_cast<ByteViewText*>(widget(++i));

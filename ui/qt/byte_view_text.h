@@ -29,8 +29,8 @@
 #include <epan/tvbuff.h>
 
 #include "proto_tree.h"
-#include <QPrinter>
-#include <QTextEdit>
+
+#include <QAbstractScrollArea>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
@@ -40,38 +40,48 @@ typedef enum {
     BYTES_BITS
 } bytes_view_type;
 
-class ByteViewText : public QTextEdit
+class ByteViewText : public QAbstractScrollArea
 {
     Q_OBJECT
 public:
     explicit ByteViewText(QWidget *parent = 0, tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
-    bool hasDataSource(tvbuff_t *ds_tvb = NULL);
+    bool hasDataSource(const tvbuff_t *ds_tvb = NULL);
     void setEncoding(packet_char_enc encoding);
     void setFormat(bytes_view_type format);
-    void setHighlightStyle(bool bold);
+    void setHighlightStyle(bool bold) { bold_highlight_ = bold; }
     void setProtocolHighlight(int start, int end);
     void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
     void setFieldAppendixHighlight(int start, int end);
-    void renderBytes();
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);
+
+protected:
+    virtual void paintEvent(QPaintEvent *);
+    virtual void resizeEvent(QResizeEvent *);
+    void mousePressEvent (QMouseEvent * event);
+
 
 private:
     typedef enum {
         StateNormal,
         StateField,
-        StateProtocol
+        StateProtocol,
+        StateOffsetNormal,
+        StateOffsetField
     } highlight_state;
 
-    void lineCommon(const int org_off);
-    void setState(highlight_state state);
-    int flushBytes(QString &str);
+    void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
+    int flushOffsetFragment(QPainter &painter, int x, int y, highlight_state state, QString &text);
     void scrollToByte(int byte);
+    int offsetChars();
+    int offsetPixels();
+    int hexPixels();
+    int asciiPixels();
+    int totalPixels();
+    void updateScrollbars();
 
-    int byteFromRowCol(int row, int col);
-    void mousePressEvent (QMouseEvent * event);
-
+    static const int separator_interval_;
     tvbuff_t *tvb_;
     proto_tree *proto_tree_;
     QTreeWidget *tree_widget_;
@@ -81,17 +91,24 @@ private:
     gboolean bold_highlight_;
 
 /* data */
-    packet_char_enc encoding_;  /* ASCII or EBCDIC */
-    bytes_view_type format_;    /* bytes in hex or bytes as bits */
+    packet_char_enc encoding_;  // ASCII or EBCDIC
+    bytes_view_type format_;    // bytes in hex or bytes as bits
 
 /* data-highlight */
-    int p_start_, p_end_;       /* Protocol */
-    int f_start_, f_end_;       /* Field */
-    int fa_start_, fa_end_;     /* Field appendix */
+    guint p_start_, p_end_;     // Protocol
+    guint f_start_, f_end_;     // Field
+    guint fa_start_, fa_end_;   // Field appendix
 
-    int per_line_;              /* Number of bytes per line */
-    int offset_width_;          /* Byte offset field width */
+    bool show_offset_;          // Should we show the byte offset?
+    bool show_hex_;             // Should we show the hex display?
+    bool show_ascii_;           // Should we show the ASCII display?
+    guint row_width_;           // Number of bytes per line
+    int one_em_;                // Font character height
+    qreal font_width_;          // Font character width
+    int margin_;                // Text margin
 
+    // Data selection
+    QMap<int,int> x_pos_to_column_;
 signals:
 
 };
