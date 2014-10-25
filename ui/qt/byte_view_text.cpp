@@ -129,13 +129,14 @@ void ByteViewText::paintEvent(QPaintEvent *)
     painter.fillRect(viewport()->rect(), palette().base());
 
     // Offset background
-    offset_bg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.2));
-    offset_normal_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.5));
-    offset_field_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.8));
+    offset_bg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.05));
+    offset_bg_.setStyle(Qt::SolidPattern);
+    offset_normal_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.35));
+    offset_field_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.6));
     if (show_offset_) {
         QRect offset_rect = QRect(viewport()->rect());
         offset_rect.setWidth(offsetPixels());
-        painter.fillRect(offset_rect, palette().midlight());
+        painter.fillRect(offset_rect, offset_bg_);
     }
 
     if (!tvb_) {
