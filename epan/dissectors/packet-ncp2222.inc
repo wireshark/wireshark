@@ -2730,6 +2730,7 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
     char            temp_buffer[256]="\0";
     gboolean        in_struct=FALSE;
 
+    buffer[0] = '\0';
     tree_loc = ncp_tree->first_child;
     for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
     {
