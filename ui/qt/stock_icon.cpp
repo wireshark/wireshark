@@ -62,13 +62,17 @@ StockIcon::StockIcon(const char *icon_name) :
 {
     if (strcmp(icon_name, "document-open") == 0) {
         QIcon dir_icon = fromTheme(icon_name, wsApp->style()->standardIcon(QStyle::SP_DirIcon));
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         swap(dir_icon);
+#endif
         return;
     }
 
     if (hasThemeIcon(icon_name)) {
         QIcon theme_icon = fromTheme(icon_name);
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         swap(theme_icon);
+#endif
         return;
     } else {
         QStringList types = QStringList() << "16x16" << "24x24";
