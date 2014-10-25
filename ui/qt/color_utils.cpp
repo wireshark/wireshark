@@ -60,6 +60,26 @@ QColor ColorUtils::fromColorT(color_t color)
     return fromColorT(&color);
 }
 
+QRgb ColorUtils::alphaBlend(const QColor &color1, const QColor &color2, qreal alpha)
+{
+    alpha = qBound(0.0, alpha, 1.0);
+
+    int r1 = color1.red() * alpha;
+    int g1 = color1.green() * alpha;
+    int b1 = color1.blue() * alpha;
+    int r2 = color2.red() * (1 - alpha);
+    int g2 = color2.green() * (1 - alpha);
+    int b2 = color2.blue() * (1 - alpha);
+
+    QColor alpha_color(r1 + r2, g1 + g2, b1 + b2);
+    return alpha_color.rgb();
+}
+
+QRgb ColorUtils::alphaBlend(const QBrush &brush1, const QBrush &brush2, qreal alpha)
+{
+    return alphaBlend(brush1.color(), brush2.color(), alpha);
+}
+
 /*
  * Editor modelines
  *

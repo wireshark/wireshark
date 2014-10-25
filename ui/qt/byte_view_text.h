@@ -72,7 +72,7 @@ private:
     } highlight_state;
 
     void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
-    int flushOffsetFragment(QPainter &painter, int x, int y, highlight_state state, QString &text);
+    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, highlight_state state, QString &text);
     void scrollToByte(int byte);
     int offsetChars();
     int offsetPixels();
@@ -85,8 +85,13 @@ private:
     tvbuff_t *tvb_;
     proto_tree *proto_tree_;
     QTreeWidget *tree_widget_;
-    QFont mono_normal_font_;
-    QFont mono_bold_font_;
+
+    // Fonts and colors
+    QFont mono_font_;
+//    QFont mono_bold_font_;
+    QBrush offset_bg_;
+    QBrush offset_normal_fg_;
+    QBrush offset_field_fg_;
 
     gboolean bold_highlight_;
 
@@ -105,6 +110,7 @@ private:
     guint row_width_;           // Number of bytes per line
     int one_em_;                // Font character height
     qreal font_width_;          // Font character width
+    int line_spacing_;          // Font line spacing
     int margin_;                // Text margin
 
     // Data selection

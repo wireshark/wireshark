@@ -28,8 +28,9 @@
 
 #include "color.h"
 
-#include <QObject>
+#include <QBrush>
 #include <QColor>
+#include <QObject>
 
 class ColorUtils : public QObject
 {
@@ -39,6 +40,8 @@ public:
 
     static QColor fromColorT(color_t *color);
     static QColor fromColorT(color_t color);
+    static QRgb alphaBlend(const QColor &color1, const QColor &color2, qreal alpha);
+    static QRgb alphaBlend(const QBrush &brush1, const QBrush &brush2, qreal alpha);
 
 signals:
 

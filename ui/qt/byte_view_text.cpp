@@ -26,6 +26,7 @@
 
 #include <epan/charsets.h>
 
+#include "color_utils.h"
 #include "wireshark_application.h"
 
 #include <QMouseEvent>
@@ -34,7 +35,10 @@
 
 // To do:
 // - Bit view
-// - Fix sub-pixel text shifting in flushOffsetFragment.
+
+// We don't obey the gui.hex_dump_highlight_style preference. If you
+// would like to add support for this you'll probably have to call
+// QPainter::drawText for each individual character.
 
 ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *tree_widget, packet_char_enc encoding) :
     QAbstractScrollArea(parent),
@@ -60,7 +64,7 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
 void ByteViewText::setEncoding(packet_char_enc encoding)
 {
     encoding_ = encoding;
-    update();
+    viewport()->update();
 }
 
 bool ByteViewText::hasDataSource(const tvbuff_t *ds_tvb) {
@@ -94,19 +98,20 @@ void ByteViewText::setFieldAppendixHighlight(int start, int end)
 
 void ByteViewText::setMonospaceFont(const QFont &mono_font)
 {
-    mono_normal_font_ = mono_font;
-    mono_bold_font_ = QFont(mono_font);
-    mono_bold_font_.setBold(true);
+    mono_font_ = mono_font;
+//    mono_bold_font_ = QFont(mono_font);
+//    mono_bold_font_.setBold(true);
 
     const QFontMetricsF fm(mono_font);
     font_width_  = fm.width('M');
+    line_spacing_ = fm.lineSpacing() + 0.5;
     one_em_ = fm.height();
-    margin_ = one_em_ / 2;
+    margin_ = fm.height() / 2;
 
     setFont(mono_font);
 
     updateScrollbars();
-    update();
+    viewport()->update();
 }
 
 void ByteViewText::paintEvent(QPaintEvent *)
@@ -124,6 +129,9 @@ void ByteViewText::paintEvent(QPaintEvent *)
     painter.fillRect(viewport()->rect(), palette().base());
 
     // Offset background
+    offset_bg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.2));
+    offset_normal_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.5));
+    offset_field_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.8));
     if (show_offset_) {
         QRect offset_rect = QRect(viewport()->rect());
         offset_rect.setWidth(offsetPixels());
@@ -155,10 +163,10 @@ void ByteViewText::paintEvent(QPaintEvent *)
     // Data rows
     int widget_height = height();
     painter.save();
-    while(row_y + one_em_ < widget_height && offset < tvb_captured_length(tvb_)) {
+    while(row_y + line_spacing_ < widget_height && offset < tvb_captured_length(tvb_)) {
         drawOffsetLine(painter, offset, row_y);
         offset += row_width_;
-        row_y += one_em_;
+        row_y += line_spacing_;
     }
     painter.restore();
 }
@@ -174,7 +182,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
     }
 
     QPoint pt = event->pos();
-    int byte = (verticalScrollBar()->value() + (pt.y() / one_em_)) * row_width_;
+    int byte = (verticalScrollBar()->value() + (pt.y() / line_spacing_)) * row_width_;
     int x = (horizontalScrollBar()->value() * font_width_) + pt.x();
     int col = x_pos_to_column_.value(x, -1);
 
@@ -206,6 +214,10 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
 
 const int ByteViewText::separator_interval_ = 8; // Insert a space after this many bytes
 
+// Draw a line of byte view text for a given offset.
+// Text with different styles are split into fragments and passed to
+// flushOffsetFragment. Font character widths aren't necessarily whole
+// numbers so we track our X coordinate position using using floats.
 void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const int row_y)
 {
     if (!tvb_) {
@@ -221,14 +233,14 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
 
     QString text;
     highlight_state state = StateNormal, offset_state = StateOffsetNormal;
-    int hex_x = offsetPixels() + margin_;
-    int ascii_x = offsetPixels() + hexPixels() + margin_;
+    qreal hex_x = offsetPixels() + margin_;
+    qreal ascii_x = offsetPixels() + hexPixels() + margin_;
 
     // Hex
     if (show_hex_) {
         for (guint tvb_pos = offset; tvb_pos < max_pos; tvb_pos++) {
             highlight_state hex_state = StateNormal;
-            bool add_space = tvb_pos % row_width_ > 0;
+            bool add_space = tvb_pos != offset;
 
             if ((tvb_pos >= f_start_ && tvb_pos < f_end_) || (tvb_pos >= fa_start_ && tvb_pos < fa_end_)) {
                 hex_state = StateField;
@@ -238,7 +250,7 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
             }
 
             if (hex_state != state) {
-                if (state != StateField && add_space) {
+                if ((state == StateNormal || (state == StateProtocol && hex_state == StateField)) && add_space) {
                     add_space = false;
                     text += ' ';
                     /* insert a space every separator_interval_ bytes */
@@ -278,7 +290,7 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
     if (show_ascii_) {
         for (guint tvb_pos = offset; tvb_pos < max_pos; tvb_pos++) {
             highlight_state ascii_state = StateNormal;
-            bool add_space = tvb_pos % row_width_ > 0;
+            bool add_space = tvb_pos != offset;
 
             if ((tvb_pos >= f_start_ && tvb_pos < f_end_) || (tvb_pos >= fa_start_ && tvb_pos < fa_end_)) {
                 ascii_state = StateField;
@@ -288,7 +300,7 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
             }
 
             if (ascii_state != state) {
-                if (state != StateField && add_space) {
+                if ((state == StateNormal || (state == StateProtocol && ascii_state == StateField)) && add_space) {
                     add_space = false;
                     /* insert a space every separator_interval_ bytes */
                     if ((tvb_pos % separator_interval_) == 0)
@@ -326,17 +338,18 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
 // Draws a fragment of byte view text at the specifiec location using colors
 // for the specified state. Clears the text and returns the pixel width of the
 // drawn text.
-int ByteViewText::flushOffsetFragment(QPainter &painter, int x, int y, highlight_state state, QString &text)
+qreal ByteViewText::flushOffsetFragment(QPainter &painter, qreal x, int y, highlight_state state, QString &text)
 {
     if (text.length() < 1) {
         return 0;
     }
-    int width = text.length() * font_width_;
+    QFontMetricsF fm(mono_font_);
+    qreal width = fm.width(text);
     // Background
     if (state == StateField) {
-        painter.fillRect(x, y, width, one_em_, palette().highlight());
+        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().highlight());
     } else if (state == StateProtocol) {
-        painter.fillRect(x, y, width, one_em_, palette().button());
+        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().button());
     }
 
     // Text
@@ -353,15 +366,15 @@ int ByteViewText::flushOffsetFragment(QPainter &painter, int x, int y, highlight
         text_brush = palette().buttonText();
         break;
     case StateOffsetNormal:
-        text_brush = palette().dark();
+        text_brush = offset_normal_fg_;
         break;
     case StateOffsetField:
-        text_brush = palette().buttonText();
+        text_brush = offset_field_fg_;
         break;
     }
 
     painter.setPen(QPen(text_brush.color()));
-    painter.drawText(x, y, width, one_em_, Qt::AlignTop, text);
+    painter.drawText(QRectF(x, y, width, line_spacing_), Qt::AlignTop, text);
     text.clear();
     return width;
 }
@@ -417,7 +430,7 @@ void ByteViewText::updateScrollbars()
     if (tvb_) {
     }
 
-    qint64 maxval = length / row_width_ + ((length % row_width_) ? 1 : 0) - viewport()->height() / one_em_;
+    qint64 maxval = length / row_width_ + ((length % row_width_) ? 1 : 0) - viewport()->height() / line_spacing_;
 
     verticalScrollBar()->setRange(0, qMax((qint64)0, maxval));
     horizontalScrollBar()->setRange(0, qMax(0, static_cast<int>((totalPixels() - viewport()->width()) / font_width_)));
