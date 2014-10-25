@@ -45,6 +45,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
+#include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
@@ -2914,7 +2915,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 
             init_ndr_pointer_list(info);
 
-            length = tvb_length(decrypted_tvb);
+            length = tvb_captured_length(decrypted_tvb);
             reported_length = tvb_reported_length(decrypted_tvb);
 
             /*
@@ -4659,6 +4660,29 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
+static gboolean
+is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo)
+{
+    guint8 rpc_ver;
+    guint8 rpc_ver_minor;
+    guint8 ptype;
+
+    if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
+        return FALSE;   /* not enough information to check */
+
+    rpc_ver = tvb_get_guint8(tvb, offset++);
+    if (rpc_ver != 5)
+        return FALSE;
+    rpc_ver_minor = tvb_get_guint8(tvb, offset++);
+    if ((rpc_ver_minor != 0) && (rpc_ver_minor != 1))
+        return FALSE;
+    ptype = tvb_get_guint8(tvb, offset++);
+    if (ptype > PDU_RTS)
+        return FALSE;
+
+    return TRUE;
+}
+
 /*
  * DCERPC dissector for connection oriented calls.
  * We use transport type to later multiplex between what kind of
@@ -4702,19 +4726,13 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /*
      * Check if this looks like a C/O DCERPC call
      */
-    if (!tvb_bytes_exist(tvb, offset, sizeof (hdr))) {
-        return FALSE;   /* not enough information to check */
-    }
+    if (!is_dcerpc(tvb, offset, pinfo))
+        return FALSE;
+
     start_offset = offset;
     hdr.rpc_ver = tvb_get_guint8(tvb, offset++);
-    if (hdr.rpc_ver != 5)
-        return FALSE;
     hdr.rpc_ver_minor = tvb_get_guint8(tvb, offset++);
-    if ((hdr.rpc_ver_minor != 0) && (hdr.rpc_ver_minor != 1))
-        return FALSE;
     hdr.ptype = tvb_get_guint8(tvb, offset++);
-    if (hdr.ptype > PDU_RTS)
-        return FALSE;
 
     hdr.flags = tvb_get_guint8(tvb, offset++);
     tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
@@ -5059,6 +5077,44 @@ dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
+}
+
+static guint
+get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    guint8 drep[4];
+    guint16 frag_len;
+
+    tvb_memcpy(tvb, (guint8 *)drep, 4, sizeof(drep));
+    frag_len = dcerpc_tvb_get_ntohs(tvb, 8, drep);
+
+    return frag_len;
+}
+
+static int
+dissect_dcerpc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    int  pdu_len     = 0;
+    dissect_dcerpc_cn(tvb, 0, pinfo, tree,
+                                  /* Desegment is already handled by TCP, don't confuse it */
+                                  FALSE,
+                                  &pdu_len);
+    return pdu_len;
+}
+
+static gboolean
+dissect_dcerpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    dcerpc_decode_as_data* decode_data;
+
+    if (!is_dcerpc(tvb, 0, pinfo))
+        return 0;
+
+    decode_data = dcerpc_get_decode_data(pinfo);
+    decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
+
+    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, 10, get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
+    return TRUE;
 }
 
 static gboolean
@@ -6329,7 +6385,7 @@ proto_register_dcerpc(void)
 void
 proto_reg_handoff_dcerpc(void)
 {
-    heur_dissector_add("tcp", dissect_dcerpc_cn_bs, proto_dcerpc);
+    heur_dissector_add("tcp", dissect_dcerpc_tcp, proto_dcerpc);
     heur_dissector_add("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add("smb_transact", dissect_dcerpc_cn_smbpipe, proto_dcerpc);
