@@ -940,15 +940,27 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         offset += file->skip;
     file->seek_pending = FALSE;
 
+    /*
+     * Are we seeking backwards and, if so, do we have data in the buffer?
+     */
     if (offset < 0 && file->next) {
         /*
+         * Yes.
+         *
          * This is guaranteed to fit in an unsigned int.
          * To squelch compiler warnings, we cast the
          * result.
          */
         guint had = (unsigned)(file->next - file->out);
+
+        /*
+         * Do we have enough data before the current position in
+         * the buffer that we can seek backwards within the buffer?
+         */
         if (-offset <= had) {
             /*
+             * Yes.
+             *
              * Offset is negative, so -offset is
              * non-negative, and -offset is
              * <= an unsigned and thus fits in an
@@ -968,10 +980,21 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         }
     }
 
-    /* XXX, profile */
+    /*
+     * No.  Do we have "fast seek" data for the location to which we
+     * will be seeking?
+     *
+     * XXX, profile
+     */
     if ((here = fast_seek_find(file, file->pos + offset)) && (offset < 0 || offset > SPAN || here->compression == UNCOMPRESSED)) {
         gint64 off, off2;
 
+        /*
+         * Yes.  Use that data to do the seek.
+         * Note that this will be true only if file_set_random_access()
+         * has been called on this file, which should never be the case
+         * for a pipe.
+         */
 #ifdef HAVE_LIBZ
         if (here->compression == ZLIB) {
 #ifdef HAVE_INFLATEPRIME
@@ -1050,11 +1073,23 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         return file->pos + offset;
     }
 
-    /* if within raw area while reading, just go there */
+    /*
+     * Is this an uncompressed file, are we within the raw area,
+     * are we either seeking backwards or seeking past the end
+     * of the buffer, and are we set up for random access with
+     * file_set_random_access()?
+     *
+     * Again, note that this will never be true on a pipe, as
+     * file_set_random_access() should never be called if we're
+     * reading from a pipe.
+     */
     if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw
-        && (offset < 0 || offset >= file->have) /* seek only when we don't have that offset in buffer */
-        && (file->fast_seek) /* seek only when random access is supported */)
+        && (offset < 0 || offset >= file->have)
+        && (file->fast_seek))
     {
+        /*
+         * Yes.  Just seek there within the file.
+         */
         if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
             *err = errno;
             return -1;
@@ -1070,8 +1105,15 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         return file->pos;
     }
 
-    /* calculate skip amount, rewinding if needed for back seek when reading */
+    /*
+     * Are we seeking backwards?
+     */
     if (offset < 0) {
+        /*
+         * Yes.
+         *
+         * Calculate the amount to skip forward after rewinding.
+         */
         offset += file->pos;
         if (offset < 0) {                    /* before start of file! */
             *err = EINVAL;
@@ -1089,7 +1131,11 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
         gz_reset(file);
     }
 
-    /* skip what's in output buffer (one less gzgetc() check) */
+    /*
+     * No, we're skipping forwards.
+     *
+     * Skip what's in output buffer (one less gzgetc() check).
+     */
     n = (gint64)file->have > offset ? (unsigned)offset : file->have;
     file->have -= n;
     file->next += n;
