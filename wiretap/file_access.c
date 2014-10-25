@@ -749,13 +749,12 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		 * Opens of FIFOs are allowed only when not opening
 		 * for random access.
 		 *
-		 * XXX - currently, we do seeking when trying to find
-		 * out the file type, so we don't actually support
-		 * opening FIFOs.  However, we may eventually
-		 * do buffering that allows us to do at least some
-		 * file type determination even on pipes, so we
-		 * allow FIFO opens and let things fail later when
-		 * we try to seek.
+		 * Currently, we do seeking when trying to find out
+		 * the file type, but our I/O routines do some amount
+		 * of buffering, and do backward seeks within the buffer
+		 * if possible, so at least some file types can be
+		 * opened from pipes, so we don't completely disallow opens
+		 * of pipes. 
 		 */
 		if (do_random) {
 			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
