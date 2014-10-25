@@ -754,7 +754,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 		 * of buffering, and do backward seeks within the buffer
 		 * if possible, so at least some file types can be
 		 * opened from pipes, so we don't completely disallow opens
-		 * of pipes. 
+		 * of pipes.
 		 */
 		if (do_random) {
 			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
