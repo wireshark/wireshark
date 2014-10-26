@@ -1476,6 +1476,33 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
   return(initial_offset - cur_offset);
 }
 
+static int
+dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_len)
+{
+  int    mask;
+  int    i, initial_offset, rr_type;
+  guint8 bits;
+
+  initial_offset = cur_offset;
+  rr_type = 0;
+  while (rr_len != 0) {
+    bits = tvb_get_guint8(tvb, cur_offset);
+    mask = 1<<7;
+    for (i = 0; i < 8; i++) {
+      if (bits & mask) {
+          proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
+            "RR type in bit map: %s",
+            val_to_str_ext(rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
+        }
+      mask >>= 1;
+      rr_type++;
+      }
+    cur_offset += 1;
+    rr_len     -= 1;
+  }
+
+  return(initial_offset - cur_offset);
+}
 /*
  * SIG, KEY, and CERT RR algorithms.
  * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2012-04-13)
@@ -2370,7 +2397,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_string(rr_tree, hf_dns_nxt_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
       cur_offset += next_domain_name_len;
       rr_len     -= next_domain_name_len;
-      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+      dissect_type_bitmap_nxt(rr_tree, tvb, cur_offset, rr_len);
 
     }
     break;
