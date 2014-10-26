@@ -94,8 +94,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     QPalette pal = QApplication::palette();
     if (fi && fi->hfinfo) {
         if(fi->hfinfo->type == FT_PROTOCOL) {
-            item->setData(0, Qt::BackgroundRole, pal.button());
-            item->setData(0, Qt::ForegroundRole, pal.buttonText());
+            item->setData(0, Qt::BackgroundRole, pal.alternateBase());
         }
 
         if((fi->hfinfo->type == FT_FRAMENUM) ||

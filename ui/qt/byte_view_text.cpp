@@ -129,14 +129,12 @@ void ByteViewText::paintEvent(QPaintEvent *)
     painter.fillRect(viewport()->rect(), palette().base());
 
     // Offset background
-    offset_bg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.05));
-    offset_bg_.setStyle(Qt::SolidPattern);
-    offset_normal_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.35));
-    offset_field_fg_.setColor(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.6));
+    offset_normal_fg_.setColor(ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35));
+    offset_field_fg_.setColor(ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.65));
     if (show_offset_) {
         QRect offset_rect = QRect(viewport()->rect());
         offset_rect.setWidth(offsetPixels());
-        painter.fillRect(offset_rect, offset_bg_);
+        painter.fillRect(offset_rect, palette().window());
     }
 
     if (!tvb_) {
@@ -350,21 +348,19 @@ qreal ByteViewText::flushOffsetFragment(QPainter &painter, qreal x, int y, highl
     if (state == StateField) {
         painter.fillRect(QRectF(x, y, width, line_spacing_), palette().highlight());
     } else if (state == StateProtocol) {
-        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().button());
+        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().alternateBase());
     }
 
     // Text
     QBrush text_brush;
     switch (state) {
     case StateNormal:
+    case StateProtocol:
     default:
         text_brush = palette().text();
         break;
     case StateField:
         text_brush = palette().highlightedText();
-        break;
-    case StateProtocol:
-        text_brush = palette().buttonText();
         break;
     case StateOffsetNormal:
         text_brush = offset_normal_fg_;

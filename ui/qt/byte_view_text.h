@@ -89,7 +89,6 @@ private:
     // Fonts and colors
     QFont mono_font_;
 //    QFont mono_bold_font_;
-    QBrush offset_bg_;
     QBrush offset_normal_fg_;
     QBrush offset_field_fg_;
 
