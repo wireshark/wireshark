@@ -782,7 +782,8 @@ static const value_string ssl_31_ciphersuite[] = {
     /* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
     { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
-    /* 0x01-BF,* Unassigned */
+    /* From draft-bmoeller-tls-downgrade-scsv-02 */
+    { 0x5600, "TLS_FALLBACK_SCSV" },
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
