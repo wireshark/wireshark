@@ -683,7 +683,7 @@ static void dissect_hpai(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
     proto_tree_add_item(hpai_tree, hf_knxnetip_hpai_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset+=2;
 
-};
+}
 
 static gboolean dissect_dib(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree) {
 
@@ -811,7 +811,7 @@ static gboolean dissect_dib(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_t
     }
 
     return FALSE;
-};
+}
 
 static guint dissect_cri(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree) {
 
@@ -841,7 +841,7 @@ static guint dissect_cri(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree)
         offset+=(length-2);
     }
     return offset;
-};
+}
 
 static void dissect_crd(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree) {
 
@@ -870,7 +870,7 @@ static void dissect_crd(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree)
         proto_tree_add_item(crd_tree, hf_knxnetip_crd_protocol_data, tvb, *offset, (length-2), ENC_NA);
         *offset+=(length-2);
     }
-};
+}
 
 static guint dissect_connection_header(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree, gboolean have_status) {
 
@@ -889,7 +889,7 @@ static guint dissect_connection_header(tvbuff_t *tvb, guint32 offset, proto_tree
     }
 
     return offset;
-};
+}
 
 static guint dissect_selector(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree){
 
@@ -905,7 +905,7 @@ static guint dissect_selector(tvbuff_t *tvb, guint32 offset, proto_tree *insert_
         offset+=6;
     }
     return offset;
-};
+}
 
 static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree, gboolean tpdu){
 
@@ -953,7 +953,7 @@ static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
         *offset+=1;
     }
 
-};
+}
 
 
 static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree, packet_info *pinfo){
@@ -1253,7 +1253,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                 proto_tree_add_item(cemi_tree, hf_knxnetip_data, tvb, *offset, -1, ENC_NA);
         }
         return FALSE;
-};
+}
 
 
 
@@ -1444,7 +1444,7 @@ static void dissect_knxnetip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         default:
             proto_tree_add_item(body_tree, hf_knxnetip_unknown, tvb, offset, -1, ENC_NA);
     }
-};
+}
 
 static gboolean dissect_knxnetip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
@@ -1467,7 +1467,7 @@ static gboolean dissect_knxnetip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     dissect_knxnetip(tvb, pinfo, tree);
     return (TRUE);
-};
+}
 
 void proto_register_knxnetip (void) {
     expert_module_t*  expert_knxnetip;
@@ -1768,21 +1768,21 @@ void proto_register_knxnetip (void) {
 
     static ei_register_info ei[] = {
         { &ei_knxnetip_length, { "knxnetip.invalid.length", PI_PROTOCOL, PI_ERROR, "invalid length", EXPFILL }},
-  };
+    };
 
     proto_knxnetip = proto_register_protocol("KNXnet/IP", "knxnetip", "knx");
     proto_register_field_array(proto_knxnetip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_knxnetip = expert_register_protocol(proto_knxnetip);
     expert_register_field_array(expert_knxnetip, ei, array_length(ei));
-};
+}
 
 
 void proto_reg_handoff_knxnetip(void) {
     /* register as heuristic dissector for both TCP and UDP */
     heur_dissector_add("tcp", dissect_knxnetip_heur, proto_knxnetip);
     heur_dissector_add("udp", dissect_knxnetip_heur, proto_knxnetip);
-};
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
