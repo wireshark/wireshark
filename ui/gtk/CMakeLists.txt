@@ -75,7 +75,6 @@ set(WIRESHARK_GTK_SRC
 	main_toolbar.c
 	main_welcome.c
 	manual_addr_resolv.c
-	mcast_stream.c
 	packet_history.c
 	packet_list_store.c
 	packet_list.c

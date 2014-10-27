@@ -30,6 +30,12 @@
 #ifndef __MCAST_STREAM_H__
 #define __MCAST_STREAM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#include <epan/tap.h>
+
 #define MAX_SPEED 200000
 
 /* typedefs for sliding window and buffer size */
@@ -80,6 +86,7 @@ typedef struct _mcast_stream_info {
 /* structure that holds the information about all detected streams */
 /* struct holding all information of the tap */
 typedef struct _mcaststream_tapinfo {
+    tap_draw_cb tap_draw;                   /**< tap draw callback */
     int     nstreams;       /* number of streams in the list */
     GList*  strinfo_list;   /* list with all streams */
     guint32 npackets;       /* total number of mcast packets of all streams */
@@ -106,19 +113,13 @@ extern gint32  mcast_stream_cumulemptyspeed;
 * So whenever mcast_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the mcast_streams and mcast_analysis functions that need it.
 */
-void register_tap_listener_mcast_stream(void);
+void register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo);
 
 /*
 * Removes the mcast_streams tap listener (if not already done)
 * From that point on, the Mcast streams list won't be updated any more.
 */
-void remove_tap_listener_mcast_stream(void);
-
-/*
-* Retrieves a constant reference to the unique info structure of the mcast_streams tap listener.
-* The user should not modify the data pointed to.
-*/
-const mcaststream_tapinfo_t* mcaststream_get_info(void);
+void remove_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo);
 
 /*
 * Cleans up memory of mcast streams tap.
@@ -129,7 +130,11 @@ void mcaststream_reset(mcaststream_tapinfo_t *tapinfo);
 * Scans all packets for Mcast streams and updates the Mcast streams list.
 * (redissects all packets)
 */
-void mcaststream_scan(void);
+void mcaststream_scan(mcaststream_tapinfo_t *tapinfo, capture_file *cap_file);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __MCAST_STREAM_H__ */
 

@@ -30,6 +30,8 @@
 #ifndef __MCAST_STREAM_DLG_H__
 #define __MCAST_STREAM_DLG_H__
 
+#include "ui/mcast_stream.h"
+
 /** @file
  *  @ingroup dialog_group
  *  "Mcast Stream Analysis" dialog box.
@@ -43,10 +45,12 @@
 void mcaststream_dlg_show(GList *list);
 
 /**
- * Update the contents of the dialog box clist with that of list.
+ * Retrieves a constant reference to the unique info structure of the
+ * rtp_streams tap listener.
+ * The user should not modify the data pointed to.
  *
- * @param list pointer to list of mcast_stream_info_t*
+ * @return Pointer to an rtpstream_tapinfo_t
  */
-void mcaststream_dlg_update(GList *list);
+mcaststream_tapinfo_t *mcaststream_dlg_get_tapinfo(void);
 
 #endif /* __MCAST_STREAM_DLG_H__ */

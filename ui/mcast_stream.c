@@ -39,7 +39,7 @@
 #include <time.h>
 #include <string.h>
 
-#include <gtk/gtk.h>
+#include "file.h"
 
 #include <epan/epan.h>
 #include <epan/address.h>
@@ -48,12 +48,8 @@
 #include <epan/to_str.h>
 
 #include "ui/alert_box.h"
+#include "ui/mcast_stream.h"
 #include "ui/simple_dialog.h"
-
-#include "ui/gtk/mcast_stream.h"
-#include "ui/gtk/mcast_stream_dlg.h"
-#include "ui/gtk/main.h"
-#include "ui/gtk/stock_icons.h"
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -70,12 +66,6 @@ static gint32  buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;
 static guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl);
 static void    buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl);
 static void    slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo);
-
-
-/****************************************************************************/
-/* the one and only global mcaststream_tapinfo_t structure */
-static mcaststream_tapinfo_t the_tapinfo_struct =
-    {0, NULL, 0, NULL, 0, FALSE};
 
 
 /****************************************************************************/
@@ -142,12 +132,15 @@ mcaststream_reset_cb(void *arg)
 /****************************************************************************/
 /* redraw the output */
 static void
-mcaststream_draw(void *arg _U_)
+mcaststream_draw(void *ti_ptr)
 {
+    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)ti_ptr;
 /* XXX: see mcaststream_on_update in mcast_streams_dlg.c for comments
     g_signal_emit_by_name(top_level, "signal_mcaststream_update");
 */
-    mcaststream_dlg_update(the_tapinfo_struct.strinfo_list);
+    if (tapinfo && tapinfo->tap_draw) {
+        tapinfo->tap_draw(ti_ptr);
+    }
     return;
 }
 
@@ -295,26 +288,23 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 /****************************************************************************/
 /* scan for Mcast streams */
 void
-mcaststream_scan(void)
+mcaststream_scan(mcaststream_tapinfo_t *tapinfo, capture_file *cap_file)
 {
-    gboolean was_registered = the_tapinfo_struct.is_registered;
-    if (!the_tapinfo_struct.is_registered)
-        register_tap_listener_mcast_stream();
+    gboolean was_registered;
 
-    cf_retap_packets(&cfile);
+    if (!tapinfo || !cap_file) {
+        return;
+    }
+
+    was_registered = tapinfo->is_registered;
+    if (!tapinfo->is_registered)
+        register_tap_listener_mcast_stream(tapinfo);
+
+    cf_retap_packets(cap_file);
 
     if (!was_registered)
-        remove_tap_listener_mcast_stream();
+        remove_tap_listener_mcast_stream(tapinfo);
 }
-
-
-/****************************************************************************/
-const mcaststream_tapinfo_t *
-mcaststream_get_info(void)
-{
-    return &the_tapinfo_struct;
-}
-
 
 /****************************************************************************/
 /* TAP INTERFACE */
@@ -322,23 +312,27 @@ mcaststream_get_info(void)
 
 /****************************************************************************/
 void
-remove_tap_listener_mcast_stream(void)
+remove_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 {
-    if (the_tapinfo_struct.is_registered) {
-        remove_tap_listener(&the_tapinfo_struct);
-
-        the_tapinfo_struct.is_registered = FALSE;
+    if (tapinfo && tapinfo->is_registered) {
+        remove_tap_listener(tapinfo);
+        tapinfo->is_registered = FALSE;
     }
 }
 
 
 /****************************************************************************/
 void
-register_tap_listener_mcast_stream(void)
+register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 {
     GString *error_string;
-    if (!the_tapinfo_struct.is_registered) {
-        error_string = register_tap_listener("udp", &the_tapinfo_struct,
+
+    if (!tapinfo) {
+        return;
+    }
+
+    if (!tapinfo->is_registered) {
+        error_string = register_tap_listener("udp", tapinfo,
             NULL, 0, mcaststream_reset_cb, mcaststream_packet,
             mcaststream_draw);
 
@@ -349,7 +343,7 @@ register_tap_listener_mcast_stream(void)
             exit(1);
         }
 
-        the_tapinfo_struct.is_registered = TRUE;
+        tapinfo->is_registered = TRUE;
     }
 }
 

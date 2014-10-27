@@ -96,7 +96,6 @@ WIRESHARK_GTK_SRC = \
 	main_titlebar.c	\
 	main_toolbar.c	\
 	main_welcome.c		\
-	mcast_stream.c	\
 	packet_history.c	\
 	packet_list_store.c	\
 	packet_list.c	\
@@ -271,8 +270,7 @@ noinst_HEADERS = \
 	main_toolbar_private.h	\
 	main_welcome.h		\
 	manual_addr_resolv.h	\
-	mcast_stream.h  \
-	mcast_stream_dlg.h \
+	mcast_stream_dlg.h	\
 	mtp3_stat.h	\
 	network_icons.h	\
 	old-gtk-compat.h	\

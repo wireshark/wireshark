@@ -43,13 +43,20 @@
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/mcast_stream_dlg.h"
-#include "ui/gtk/mcast_stream.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/stock_icons.h"
 
+static void mcaststream_dlg_update(void *ti_ptr);
+
 void register_tap_listener_mcast_stream_dlg(void);
+
+/****************************************************************************/
+/* the one and only global mcaststream_tapinfo_t structure for tshark and wireshark.
+ */
+static mcaststream_tapinfo_t the_tapinfo_struct =
+    {mcaststream_dlg_update, 0, NULL, 0, NULL, 0, FALSE};
 
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"
@@ -103,14 +110,14 @@ static void
 mcaststream_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
     /* Remove the stream tap listener */
-    remove_tap_listener_mcast_stream();
+    remove_tap_listener_mcast_stream(&the_tapinfo_struct);
 
     /* Is there a params window open? */
     if (mcast_params_dlg != NULL)
         window_destroy(mcast_params_dlg);
 
     /* Clean up memory used by stream tap */
-    mcaststream_reset((mcaststream_tapinfo_t*)mcaststream_get_info());
+    mcaststream_reset(mcaststream_dlg_get_tapinfo());
 
     /* Note that we no longer have a "Mcast Streams" dialog box. */
     mcast_stream_dlg = NULL;
@@ -166,7 +173,7 @@ mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 
 #if 0
     main_filter_packets(&cfile, filter_string, FALSE);
-    mcaststream_dlg_update(mcaststream_get_info()->strinfo_list);
+    mcaststream_dlg_update(mcaststream_dlg_get_tapinfo()->strinfo_list);
 #endif
 }
 
@@ -269,7 +276,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     window_destroy(GTK_WIDGET(parent_w));
 
     /* Clean up memory used by stream tap */
-    mcaststream_reset((mcaststream_tapinfo_t*)mcaststream_get_info());
+    mcaststream_reset((mcaststream_tapinfo_t*)mcaststream_dlg_get_tapinfo());
     /* retap all packets */
     cf_retap_packets(&cfile);
 
@@ -431,9 +438,9 @@ add_to_list_store(mcast_stream_info_t* strinfo)
     g_snprintf(label_text, sizeof(label_text),
         "Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
         ++streams_nb,
-        mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw,
-        mcaststream_get_info()->allstreams->element.topburstsize, mcast_stream_burstint,
-        (float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
+        mcaststream_dlg_get_tapinfo()->allstreams->average_bw, mcaststream_dlg_get_tapinfo()->allstreams->element.maxbw,
+        mcaststream_dlg_get_tapinfo()->allstreams->element.topburstsize, mcast_stream_burstint,
+        (float)(mcaststream_dlg_get_tapinfo()->allstreams->element.topbuffusage)/1000);
     gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
     g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n",
@@ -743,8 +750,17 @@ mcaststream_dlg_create(void)
 /* update the contents of the dialog box clist */
 /* list: pointer to list of mcast_stream_info_t* */
 void
-mcaststream_dlg_update(GList *list)
+mcaststream_dlg_update(void *ti_ptr)
 {
+    GList *list;
+    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)ti_ptr;
+
+    if (!tapinfo) {
+        return;
+    }
+
+    list = tapinfo->strinfo_list;
+
     if (mcast_stream_dlg != NULL) {
         gtk_list_store_clear(list_store);
         streams_nb = 0;
@@ -762,6 +778,14 @@ mcaststream_dlg_update(GList *list)
     last_list = list;
 }
 
+#if 0
+static void
+mcaststream_dlg_mark_packet(mcaststream_tapinfo_t *tapinfo _U_, frame_data *fd) {
+    if (!fd) return;
+
+    cf_mark_frame(&cfile, fd);
+}
+#endif
 
 /****************************************************************************/
 /* update the contents of the dialog box clist */
@@ -791,13 +815,13 @@ void
 mcaststream_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
     /* Register the tap listener */
-    register_tap_listener_mcast_stream();
+    register_tap_listener_mcast_stream(&the_tapinfo_struct);
 
     /* Scan for Mcast streams (redissect all packets) */
-    mcaststream_scan();
+    mcaststream_scan(&the_tapinfo_struct, &cfile);
 
     /* Show the dialog box with the list of streams */
-    mcaststream_dlg_show(mcaststream_get_info()->strinfo_list);
+    mcaststream_dlg_show(the_tapinfo_struct.strinfo_list);
 
     /* Tap listener will be removed and cleaned up in mcaststream_on_destroy */
 }
@@ -806,6 +830,10 @@ mcaststream_launch(GtkAction *action _U_, gpointer user_data _U_)
 void
 register_tap_listener_mcast_stream_dlg(void)
 {
+}
+
+mcaststream_tapinfo_t *mcaststream_dlg_get_tapinfo(void) {
+   return &the_tapinfo_struct;
 }
 
 /*
