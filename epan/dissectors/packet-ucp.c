@@ -392,6 +392,7 @@ static const value_string vals_parm_PID[] = {
     {  339, "PC appl. over X.25 (X.121)" },
     {  439, "PC appl. over ISDN (E.164)" },
     {  539, "PC appl. over TCP/IP" },
+    {  639, "PC appl. via abbreviated number" },
     {  0, NULL },
 };
 
