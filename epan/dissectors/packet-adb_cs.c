@@ -166,7 +166,6 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (length == -1 && service) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
-            length = tvb_captured_length(tvb);
 
             /* Decode services */
             adb_service_data.service = service;
