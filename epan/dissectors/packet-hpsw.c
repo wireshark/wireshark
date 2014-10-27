@@ -183,10 +183,10 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
     case HPFOO_NEIGHBORS:
         if (!(length % 6))
         {   int i = length/6;
-            proto_item_set_text(ti, "Number of neighbor MAC Addresses: %u", i);
+            proto_item_set_text(proto_tree_get_parent(tree), "Number of neighbor MAC Addresses: %u", i);
             for ( ; i; i--)
             {
-                proto_tree_add_item(tree, hf_hpsw_neighbor_mac_addr, tvb, offset, length, ENC_NA);
+                proto_tree_add_item(tree, hf_hpsw_neighbor_mac_addr, tvb, offset, 6, ENC_NA);
                 offset += 6;
             }
         } else {
