@@ -39,6 +39,7 @@
 
 void proto_reg_handoff_mausb(void);
 void proto_register_mausb(void);
+void proto_register_wfa_oui(void);
 
 /* For SNAP Packets */
 static int hf_llc_mausb_pid = -1;
