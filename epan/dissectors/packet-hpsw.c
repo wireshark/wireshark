@@ -267,7 +267,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
 
         /* LENGTH (not inclusive of type and length bytes) */
-        proto_tree_add_uint(tlv_tree, hf_hpsw_tlvlength, tvb, offset, 1, length);
+        ti = proto_tree_add_uint(tlv_tree, hf_hpsw_tlvlength, tvb, offset, 1, length);
         offset += 1;
 
         dissect_hpsw_tlv(tvb, pinfo, offset, length, tlv_tree, ti, type);
