@@ -29,16 +29,21 @@
 #include "color_utils.h"
 #include "wireshark_application.h"
 
+#include <QActionGroup>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
 
 // To do:
-// - Bit view
+// - Add recent settings and context menu items to show/hide the offset,
+//   hex/bits, and ASCII/EBCDIC.
+// - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
 
 // We don't obey the gui.hex_dump_highlight_style preference. If you
 // would like to add support for this you'll probably have to call
 // QPainter::drawText for each individual character.
+
+Q_DECLARE_METATYPE(bytes_view_type)
 
 ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *tree_widget, packet_char_enc encoding) :
     QAbstractScrollArea(parent),
@@ -48,6 +53,7 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     bold_highlight_(false),
     encoding_(encoding),
     format_(BYTES_HEX),
+    format_actions_(new QActionGroup(this)),
     p_bound_(0, 0),
     f_bound_(0, 0),
     fa_bound_(0, 0),
@@ -56,6 +62,21 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     show_ascii_(true),
     row_width_(16)
 {
+    QAction *action;
+
+    action = format_actions_->addAction(tr("Show bytes as hexadecimal"));
+    action->setData(qVariantFromValue(BYTES_HEX));
+    action->setCheckable(true);
+    action->setChecked(true);
+    action = format_actions_->addAction(tr("Show bytes as bits"));
+    action->setData(qVariantFromValue(BYTES_BITS));
+    action->setCheckable(true);
+
+    ctx_menu_.addActions(format_actions_->actions());
+    ctx_menu_.addSeparator();
+
+    connect(format_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
+
     setMouseTracking(true);
 }
 
@@ -144,8 +165,10 @@ void ByteViewText::paintEvent(QPaintEvent *)
     for (guint i = 0; i < row_width_; i++) {
         int sep_width = (i / separator_interval_) * font_width_;
         if (show_hex_) {
-            int hex_x = offsetPixels() + margin_ + sep_width + (i * 3 * font_width_);
-            for (int j = 0; j <= font_width_ * 2; j++) {
+            // Hittable pixels extend 1/2 space on either side of the hex digits
+            int pixels_per_byte = (format_ == BYTES_HEX ? 3 : 9) * font_width_;
+            int hex_x = offsetPixels() + margin_ + sep_width + (i * pixels_per_byte) - (font_width_ / 2);
+            for (int j = 0; j <= pixels_per_byte; j++) {
                 x_pos_to_column_[hex_x + j] = i;
             }
         }
@@ -240,6 +263,11 @@ void ByteViewText::leaveEvent(QEvent *event)
     fa_bound_ = fa_bound_save_;
     viewport()->update();
     QAbstractScrollArea::leaveEvent(event);
+}
+
+void ByteViewText::contextMenuEvent(QContextMenuEvent *event)
+{
+    ctx_menu_.exec(event->globalPos());
 }
 
 // Private
@@ -436,7 +464,8 @@ int ByteViewText::offsetPixels()
 int ByteViewText::hexPixels()
 {
     if (show_hex_) {
-        return (((row_width_ * 3) + ((row_width_ - 1) / separator_interval_)) * font_width_) + one_em_;
+        int digits_per_byte = format_ == BYTES_HEX ? 3 : 9;
+        return (((row_width_ * digits_per_byte) + ((row_width_ - 1) / separator_interval_)) * font_width_) + one_em_;
     }
     return 0;
 }
@@ -482,6 +511,17 @@ field_info *ByteViewText::fieldAtPixel(QPoint &pos)
     }
 
     return proto_find_field_from_offset(proto_tree_, byte, tvb_);
+}
+
+void ByteViewText::setHexDisplayFormat(QAction *action)
+{
+    if (!action) {
+        return;
+    }
+
+    format_ = action->data().value<bytes_view_type>();
+    row_width_ = format_ == BYTES_HEX ? 16 : 8;
+    viewport()->update();
 }
 
 /*

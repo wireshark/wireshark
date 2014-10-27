@@ -31,6 +31,9 @@
 #include "proto_tree.h"
 
 #include <QAbstractScrollArea>
+#include <QMenu>
+
+class QActionGroup;
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
@@ -65,6 +68,7 @@ protected:
     virtual void mousePressEvent (QMouseEvent * event);
     virtual void mouseMoveEvent (QMouseEvent * event);
     virtual void leaveEvent(QEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private:
     typedef enum {
@@ -102,6 +106,8 @@ private:
     // Data
     packet_char_enc encoding_;  // ASCII or EBCDIC
     bytes_view_type format_;    // bytes in hex or bytes as bits
+    QActionGroup *format_actions_;
+    QMenu ctx_menu_;
 
     // Data highlight
     QPair<guint,guint> p_bound_;
@@ -122,8 +128,9 @@ private:
 
     // Data selection
     QMap<int,int> x_pos_to_column_;
-signals:
 
+private slots:
+    void setHexDisplayFormat(QAction *action);
 };
 
 #endif // BYTE_VIEW_TEXT_H
