@@ -818,7 +818,7 @@ advance_to_end_of_signature(guint8 **signature,
  * @param tvb is the incoming network data buffer.
  * @param tree is the tree to which the new item should be attached.
  */
-void add_padding_item(gint padding_start, gint padding_end, tvbuff_t *tvb, proto_tree *tree)
+static void add_padding_item(gint padding_start, gint padding_end, tvbuff_t *tvb, proto_tree *tree)
 {
     if(padding_end > padding_start && padding_end < (gint)tvb_reported_length(tvb)) {
         gint padding_length = padding_end - padding_start;
