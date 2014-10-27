@@ -5150,7 +5150,7 @@ skip_lrh:
                 offset += 4; /* IMMDT */
                 break;
             case DCCETH:
-                offset += 16; //* DCCETH */
+                offset += 16; /* DCCETH */
                 break;
             default:
                 break;
