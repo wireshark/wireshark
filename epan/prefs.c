@@ -1199,6 +1199,7 @@ prefs_set_preference_obsolete(pref_t *pref)
     return PREFS_SET_NO_SUCH_PREF;
 }
 
+#if 0
 /* Return the value assigned to the given uint preference. */
 guint
 prefs_get_uint_preference(pref_t *pref)
@@ -1207,6 +1208,7 @@ prefs_get_uint_preference(pref_t *pref)
         return *pref->varp.uint;
     return 0;
 }
+#endif
 
 /*
  * Call a callback function, with a specified argument, for each preference
