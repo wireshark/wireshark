@@ -53,14 +53,18 @@ public:
     void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
     void setFieldAppendixHighlight(int start, int end);
 
+signals:
+    void byteFieldHovered(QString &);
+
 public slots:
     void setMonospaceFont(const QFont &mono_font);
 
 protected:
     virtual void paintEvent(QPaintEvent *);
     virtual void resizeEvent(QResizeEvent *);
-    void mousePressEvent (QMouseEvent * event);
-
+    virtual void mousePressEvent (QMouseEvent * event);
+    virtual void mouseMoveEvent (QMouseEvent * event);
+    virtual void leaveEvent(QEvent *event);
 
 private:
     typedef enum {
@@ -80,6 +84,7 @@ private:
     int asciiPixels();
     int totalPixels();
     void updateScrollbars();
+    field_info *fieldAtPixel(QPoint &pos);
 
     static const int separator_interval_;
     tvbuff_t *tvb_;
@@ -94,14 +99,17 @@ private:
 
     gboolean bold_highlight_;
 
-/* data */
+    // Data
     packet_char_enc encoding_;  // ASCII or EBCDIC
     bytes_view_type format_;    // bytes in hex or bytes as bits
 
-/* data-highlight */
-    guint p_start_, p_end_;     // Protocol
-    guint f_start_, f_end_;     // Field
-    guint fa_start_, fa_end_;   // Field appendix
+    // Data highlight
+    QPair<guint,guint> p_bound_;
+    QPair<guint,guint> f_bound_;
+    QPair<guint,guint> fa_bound_;
+    QPair<guint,guint> p_bound_save_;
+    QPair<guint,guint> f_bound_save_;
+    QPair<guint,guint> fa_bound_save_;
 
     bool show_offset_;          // Should we show the byte offset?
     bool show_hex_;             // Should we show the hex display?

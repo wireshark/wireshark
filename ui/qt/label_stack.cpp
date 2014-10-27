@@ -48,7 +48,7 @@ void LabelStack::setTemporaryContext(const int ctx) {
 }
 
 void LabelStack::fillLabel() {
-    StackItem *si;
+    StackItem si;
     QString style_sheet;
 
     style_sheet =
@@ -62,7 +62,7 @@ void LabelStack::fillLabel() {
 
     si = labels_.first();
 
-    if (si->ctx == temporary_ctx_) {
+    if (si.ctx == temporary_ctx_) {
         style_sheet += QString(
                     "  border-radius: 0.25em;"
                     "  color: #%1;"
@@ -74,23 +74,23 @@ void LabelStack::fillLabel() {
 
     style_sheet += "}";
     setStyleSheet(style_sheet);
-    setText(si->text);
+    setText(si.text);
 }
 
 void LabelStack::pushText(QString &text, int ctx) {
-    StackItem *si = new StackItem;
+    popText(ctx);
 
     if (ctx == temporary_ctx_) {
         temporary_timer_.stop();
-        popText(temporary_ctx_);
 
         temporary_epoch_.start();
         temporary_timer_.start(temporary_flash_timeout_);
         emit toggleTemporaryFlash(true);
     }
 
-    si->text = text;
-    si->ctx = ctx;
+    StackItem si;
+    si.text = text;
+    si.ctx = ctx;
     labels_.prepend(si);
     fillLabel();
 }
@@ -122,10 +122,10 @@ void LabelStack::contextMenuEvent(QContextMenuEvent *event)
 }
 
 void LabelStack::popText(int ctx) {
-    QMutableListIterator<StackItem *> iter(labels_);
+    QMutableListIterator<StackItem> iter(labels_);
 
     while (iter.hasNext()) {
-        if (iter.next()->ctx == ctx) {
+        if (iter.next().ctx == ctx) {
             iter.remove();
             break;
         }

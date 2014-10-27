@@ -49,7 +49,7 @@ private:
     } StackItem;
 
     int temporary_ctx_;
-    QList<StackItem *> labels_;
+    QList<StackItem> labels_;
     QTime  temporary_epoch_;
     QTimer temporary_timer_;
 

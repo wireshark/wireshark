@@ -48,17 +48,15 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     bold_highlight_(false),
     encoding_(encoding),
     format_(BYTES_HEX),
-    p_start_(-1),
-    p_end_(-1),
-    f_start_(0),
-    f_end_(0),
-    fa_start_(-1),
-    fa_end_(-1),
+    p_bound_(0, 0),
+    f_bound_(0, 0),
+    fa_bound_(0, 0),
     show_offset_(true),
     show_hex_(true),
     show_ascii_(true),
     row_width_(16)
 {
+    setMouseTracking(true);
 }
 
 void ByteViewText::setEncoding(packet_char_enc encoding)
@@ -75,8 +73,8 @@ bool ByteViewText::hasDataSource(const tvbuff_t *ds_tvb) {
 
 void ByteViewText::setProtocolHighlight(int start, int end)
 {
-    p_start_ = qMax(0, start);
-    p_end_ = qMax(0, end);
+    p_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
+    p_bound_save_ = p_bound_;
     viewport()->update();
 }
 
@@ -84,15 +82,15 @@ void ByteViewText::setFieldHighlight(int start, int end, guint32 mask, int mask_
 {
     Q_UNUSED(mask);
     Q_UNUSED(mask_le);
-    f_start_ = qMax(0, start);
-    f_end_ = qMax(0, end);
+    f_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
+    f_bound_save_ = f_bound_;
     viewport()->update();
 }
 
 void ByteViewText::setFieldAppendixHighlight(int start, int end)
 {
-    fa_start_ = qMax(0, start);
-    fa_end_ = qMax(0, end);
+    fa_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
+    fa_bound_save_ = f_bound_;
     viewport()->update();
 }
 
@@ -176,25 +174,12 @@ void ByteViewText::resizeEvent(QResizeEvent *)
 }
 
 void ByteViewText::mousePressEvent (QMouseEvent *event) {
-    if (!tvb_ || event->button() != Qt::LeftButton ) {
+    if (!tvb_ || !event || event->button() != Qt::LeftButton ) {
         return;
     }
 
-    QPoint pt = event->pos();
-    int byte = (verticalScrollBar()->value() + (pt.y() / line_spacing_)) * row_width_;
-    int x = (horizontalScrollBar()->value() * font_width_) + pt.x();
-    int col = x_pos_to_column_.value(x, -1);
-
-    if (col < 0) {
-        return;
-    }
-
-    byte += col;
-    if ((guint) byte > tvb_captured_length(tvb_)) {
-        return;
-    }
-
-    field_info *fi = proto_find_field_from_offset(proto_tree_, byte, tvb_);
+    QPoint pos = event->pos();
+    field_info *fi = fieldAtPixel(pos);
 
     if (fi && tree_widget_) {
         // XXX - This should probably be a ProtoTree method.
@@ -207,6 +192,54 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
             iter++;
         }
     }
+}
+
+void ByteViewText::mouseMoveEvent(QMouseEvent *event)
+{
+    QString field_str;
+    if (!event) {
+        emit byteFieldHovered(field_str);
+        p_bound_ = p_bound_save_;
+        f_bound_ = f_bound_save_;
+        fa_bound_ = fa_bound_save_;
+        viewport()->update();
+        return;
+    }
+    QPoint pos = event->pos();
+    field_info *fi = fieldAtPixel(pos);
+    if (fi) {
+        if (fi->length < 2) {
+            field_str = QString(tr("Byte %1"))
+                    .arg(fi->start);
+        } else {
+            field_str = QString(tr("Bytes %1-%2"))
+                    .arg(fi->start)
+                    .arg(fi->start + fi->length - 1);
+        }
+        field_str += QString(": %1 (%2)")
+                .arg(fi->hfinfo->name)
+                .arg(fi->hfinfo->abbrev);
+        f_bound_ = QPair<guint, guint>(fi->start, fi->start + fi->length);
+        p_bound_ = QPair<guint, guint>(0, 0);
+        fa_bound_ = QPair<guint, guint>(0, 0);
+    } else {
+        p_bound_ = p_bound_save_;
+        f_bound_ = f_bound_save_;
+        fa_bound_ = fa_bound_save_;
+    }
+    emit byteFieldHovered(field_str);
+    viewport()->update();
+}
+
+void ByteViewText::leaveEvent(QEvent *event)
+{
+    QString empty;
+    emit byteFieldHovered(empty);
+    p_bound_ = p_bound_save_;
+    f_bound_ = f_bound_save_;
+    fa_bound_ = fa_bound_save_;
+    viewport()->update();
+    QAbstractScrollArea::leaveEvent(event);
 }
 
 // Private
@@ -241,10 +274,10 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
             highlight_state hex_state = StateNormal;
             bool add_space = tvb_pos != offset;
 
-            if ((tvb_pos >= f_start_ && tvb_pos < f_end_) || (tvb_pos >= fa_start_ && tvb_pos < fa_end_)) {
+            if ((tvb_pos >= f_bound_.first && tvb_pos < f_bound_.second) || (tvb_pos >= fa_bound_.first && tvb_pos < fa_bound_.second)) {
                 hex_state = StateField;
                 offset_state = StateOffsetField;
-            } else if (tvb_pos >= p_start_ && tvb_pos < p_end_) {
+            } else if (tvb_pos >= p_bound_.first && tvb_pos < p_bound_.second) {
                 hex_state = StateProtocol;
             }
 
@@ -291,10 +324,10 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
             highlight_state ascii_state = StateNormal;
             bool add_space = tvb_pos != offset;
 
-            if ((tvb_pos >= f_start_ && tvb_pos < f_end_) || (tvb_pos >= fa_start_ && tvb_pos < fa_end_)) {
+            if ((tvb_pos >= f_bound_.first && tvb_pos < f_bound_.second) || (tvb_pos >= fa_bound_.first && tvb_pos < fa_bound_.second)) {
                 ascii_state = StateField;
                 offset_state = StateOffsetField;
-            } else if (tvb_pos >= p_start_ && tvb_pos < p_end_) {
+            } else if (tvb_pos >= p_bound_.first && tvb_pos < p_bound_.second) {
                 ascii_state = StateProtocol;
             }
 
@@ -431,6 +464,24 @@ void ByteViewText::updateScrollbars()
 
     verticalScrollBar()->setRange(0, qMax((qint64)0, maxval));
     horizontalScrollBar()->setRange(0, qMax(0, static_cast<int>((totalPixels() - viewport()->width()) / font_width_)));
+}
+
+field_info *ByteViewText::fieldAtPixel(QPoint &pos)
+{
+    int byte = (verticalScrollBar()->value() + (pos.y() / line_spacing_)) * row_width_;
+    int x = (horizontalScrollBar()->value() * font_width_) + pos.x();
+    int col = x_pos_to_column_.value(x, -1);
+
+    if (col < 0) {
+        return NULL;
+    }
+
+    byte += col;
+    if ((guint) byte > tvb_captured_length(tvb_)) {
+        return NULL;
+    }
+
+    return proto_find_field_from_offset(proto_tree_, byte, tvb_);
 }
 
 /*

@@ -46,6 +46,7 @@ enum StatusContext {
     STATUS_CTX_MAIN,
     STATUS_CTX_FILE,
     STATUS_CTX_FIELD,
+    STATUS_CTX_BYTE,
     STATUS_CTX_FILTER,
     STATUS_CTX_TEMPORARY
 };
@@ -249,6 +250,20 @@ void MainStatusBar::pushFieldStatus(QString &message) {
 
 void MainStatusBar::popFieldStatus() {
     info_status_.popText(STATUS_CTX_FIELD);
+}
+
+void MainStatusBar::pushByteStatus(QString &message)
+{
+    if (message.isNull()) {
+        popByteStatus();
+    } else {
+        info_status_.pushText(message, STATUS_CTX_BYTE);
+    }
+}
+
+void MainStatusBar::popByteStatus()
+{
+    info_status_.popText(STATUS_CTX_BYTE);
 }
 
 void MainStatusBar::pushFilterStatus(QString &message) {

@@ -63,6 +63,8 @@ public slots:
     void popFileStatus();
     void pushFieldStatus(QString &message);
     void popFieldStatus();
+    void pushByteStatus(QString &message);
+    void popByteStatus();
     void pushFilterStatus(QString &message);
     void popFilterStatus();
     void pushProfileName();

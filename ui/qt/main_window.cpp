@@ -359,9 +359,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
-
     connect(proto_tree_, SIGNAL(protoItemSelected(field_info *)),
             this, SLOT(setMenusForSelectedTreeRow(field_info *)));
+
+    connect(byte_view_tab_, SIGNAL(byteFieldHovered(QString&)),
+            main_ui_->statusBar, SLOT(pushByteStatus(QString&)));
 
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
             this, SLOT(openCaptureFile(QString&)));
