@@ -215,6 +215,9 @@
  /* Data Types */
 #define DT_RAW_BYTES          0x00
 
+void proto_register_couchbase(void);
+void proto_reg_handoff_couchbase(void);
+
 static int proto_couchbase = -1;
 
 static int hf_magic = -1;
