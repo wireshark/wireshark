@@ -1,0 +1,17 @@
+# -*- text -*-
+#
+#       For TERENA VSA's
+#
+#	The reference for these values is:
+#       http://www.terena.org/activities/tf-emc2/oid.html
+#
+#       $Id: 9637e3debc73eff0332bc198837db24ea2935b5f $
+#
+VENDOR		TERENA				25178
+
+BEGIN-VENDOR	TERENA
+
+ATTRIBUTE	Eduroam-SP-Country			10	string
+ATTRIBUTE	Eduroam-Monitoring-Inflate		11	string
+
+END-VENDOR      TERENA

@@ -1,0 +1,34 @@
+# -*- text -*-
+# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#   D-Link Vendor Specific Attributes Dictionary
+#
+#   Created by Sylph Lin <sylph.lin@gmail.com>
+#
+#   Version $Id: 56b34b149c249c7298e74548ce25d7f9cc3fa26b $
+#
+##############################################################################
+
+VENDOR		Dlink				171
+
+BEGIN-VENDOR	Dlink
+
+ATTRIBUTE	Dlink-User-Level			1	integer
+ATTRIBUTE	Dlink-Ingress-Bandwidth-Assignment	2	integer
+ATTRIBUTE	Dlink-Egress-Bandwidth-Assignment	3	integer
+ATTRIBUTE	Dlink-1p-Priority			4	integer
+ATTRIBUTE	Dlink-VLAN-Name				10	string
+ATTRIBUTE	Dlink-VLAN-ID				11	string
+ATTRIBUTE	Dlink-ACL-Profile			12	string
+ATTRIBUTE	Dlink-ACL-Rule				13	string
+ATTRIBUTE	Dlink-ACL-Script			14	string
+
+VALUE	Dlink-User-Level		User-Legacy		1
+VALUE	Dlink-User-Level		User			3
+VALUE	Dlink-User-Level		Operator		4
+VALUE	Dlink-User-Level		Admin			5
+VALUE	Dlink-User-Level		Power-User		6
+VALUE	Dlink-User-Level		Admin-Legacy		15
+
+END-VENDOR      Dlink

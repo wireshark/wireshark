@@ -1,0 +1,16 @@
+# dictionary.zeus
+# Zeus Packet RADIUS Dictionary
+#
+# http://www.zeus.com
+#
+#
+
+VENDOR		Zeus				7146
+BEGIN-VENDOR	Zeus
+
+#
+# ZXTM Group Attributes
+#
+ATTRIBUTE	Zeus-ZXTM-Group				1	string
+
+END-VENDOR Zeus

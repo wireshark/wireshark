@@ -1,0 +1,23 @@
+# -*- text -*-
+# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+#
+#  dictionary.aerohive
+#
+#  Aerohive
+#
+#	$Id: 6e20a68cd1cff01ff39ae31166fe7d18ad8f55ed $
+#
+VENDOR		Aerohive			26928
+
+BEGIN-VENDOR	Aerohive
+
+# The following ATTRIBUTE and VALUE definitions are required.
+ATTRIBUTE	AH-HM-Admin-Group-Id			1	integer
+VALUE	AH-HM-Admin-Group-Id		Read-Only-Admin		0
+VALUE	AH-HM-Admin-Group-Id		Super-Admin		1
+VALUE	AH-HM-Admin-Group-Id		Read-Write-Admin	2
+
+# The following is an example of an admin group that you can define.
+#VALUE  AH-HM-Admin-Group-Id            Admin-Group100          100
+
+END-VENDOR      Aerohive

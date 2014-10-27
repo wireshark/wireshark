@@ -1,0 +1,27 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+#
+#	Ruckus Wireless, Inc. dictionary
+#
+#
+
+VENDOR		Ruckus				25053
+
+BEGIN-VENDOR	Ruckus
+
+ATTRIBUTE	Ruckus-User-Groups			1	string
+# Value Format: group_attr1,group_attr2,...
+
+ATTRIBUTE	Ruckus-Sta-RSSI				2	integer
+ATTRIBUTE	Ruckus-SSID				3	string
+ATTRIBUTE	Ruckus-WlanID				4	integer
+ATTRIBUTE	Ruckus-Location				5	string
+ATTRIBUTE	Ruckus-Grace-Period			6	integer
+# Sent to the server, range: 1 to 14400 [minutes]
+
+ATTRIBUTE	Ruckus-SCG-CBlade-IP			7	integer
+ATTRIBUTE	Ruckus-SCG-DBlade-IP			8	integer
+ATTRIBUTE	Ruckus-Session-Type			125	integer
+ATTRIBUTE	Ruckus-Acct-Status			126	integer
+
+END-VENDOR      Ruckus

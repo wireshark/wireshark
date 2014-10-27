@@ -1,0 +1,23 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Citrix VSAs
+#
+#	$Id: 3c4c34a773c179206e8f426b4cfd8a25c0b8dd44 $
+#
+##############################################################################
+
+VENDOR		Citrix				66
+
+BEGIN-VENDOR	Citrix
+
+ATTRIBUTE	Citrix-UID				10	integer
+ATTRIBUTE	Citrix-GID				11	integer
+ATTRIBUTE	Citrix-Home				12	string
+ATTRIBUTE	Citrix-Shell				13	string
+ATTRIBUTE	Citrix-Group-Names			14	string
+ATTRIBUTE	Citrix-Group-Ids			15	string
+ATTRIBUTE	Citrix-User-Groups			16	string
+
+END-VENDOR Citrix

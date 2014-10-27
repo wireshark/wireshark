@@ -1,0 +1,17 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Actelis dictionary
+#
+#	$Id: a42614017b19f0591b8afc08c88d68a9cf1613e8 $
+#
+##############################################################################
+
+VENDOR		Actelis				5468
+
+BEGIN-VENDOR	Actelis
+
+ATTRIBUTE	Actelis-Privilege			1	string
+
+END-VENDOR	Actelis

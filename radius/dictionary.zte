@@ -1,0 +1,71 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+#
+#       For ZTE.
+#
+#       $Id: b4eae0addea41dce5d9dbc2f968e9e29fd8abd45 $
+#
+# QoS attributes Mostly derived from:
+# http://wwwen.zte.com.cn/en/products/bearer/201308/P020130828522349526032.pdf
+#
+VENDOR		ZTE				3902
+BEGIN-VENDOR	ZTE
+
+ATTRIBUTE	ZTE-Client-DNS-Pri			1	integer
+ATTRIBUTE	ZTE-Client-DNS-Sec			2	integer
+ATTRIBUTE	ZTE-Context-Name			4	string
+ATTRIBUTE	ZTE-Tunnel-Max-Sessions			21	integer
+ATTRIBUTE	ZTE-Tunnel-Max-Tunnels			22	integer
+ATTRIBUTE	ZTE-Tunnel-Window			24	integer
+ATTRIBUTE	ZTE-Tunnel-Retransmit			25	integer
+ATTRIBUTE	ZTE-Tunnel-Cmd-Timeout			26	integer
+ATTRIBUTE	ZTE-PPPOE-URL				27	string
+ATTRIBUTE	ZTE-PPPOE-MOTM				28	string
+ATTRIBUTE	ZTE-Tunnel-Algorithm			31	integer
+ATTRIBUTE	ZTE-Tunnel-Deadtime			32	integer
+ATTRIBUTE	ZTE-Mcast-Send				33	integer
+ATTRIBUTE	ZTE-Mcast-Receive			34	integer
+ATTRIBUTE	ZTE-Mcast-MaxGroups			35	integer
+ATTRIBUTE	ZTE-Access-Type				74	integer
+
+ATTRIBUTE	ZTE-QoS-Type				81	integer
+ATTRIBUTE	ZTE-QoS-Profile-Down			82	string
+ATTRIBUTE	ZTE-Rate-Ctrl-SCR-Down			83	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Down		84	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-PCR			86	integer
+ATTRIBUTE	ZTE-TCP-Syn-Rate			88	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-SCR-Up			89	integer
+ATTRIBUTE	ZTE-Priority-Level			90	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Up			91	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Max-Down		92	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Max-Up		93	integer
+ATTRIBUTE	ZTE-QOS-Profile-Up			94	string
+
+ATTRIBUTE	ZTE-TCP-Limit-Num			95	integer
+ATTRIBUTE	ZTE-TCP-Limit-Mode			96	integer
+ATTRIBUTE	ZTE-IGMP-Service-Profile-Num		97	integer
+ATTRIBUTE	ZTE-PPP-Sservice-Type			101	integer
+ATTRIBUTE	ZTE-Access-Domain			151	string
+ATTRIBUTE	ZTE-VPN-ID				190	string
+
+# 0 (lowest) - 15 (highest) privilege level
+#ATTRIBUTE	ZTE-SW-Privilege			191	integer
+
+ATTRIBUTE	ZTE_Rate-Bust-DPIR			191	integer
+ATTRIBUTE	ZTE_Rate-Bust-UPIR			192	integer
+
+ATTRIBUTE	ZTE-Rate-Ctrl-PBS-Down			202	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-PBS-Up			203	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-SCR-Up-v6			228	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Up-v6		229	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Max-Up-v6		230	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-PBS-Up-v6			231	integer
+ATTRIBUTE	ZTE-QoS-Profile-Up-v6			232	string
+
+ATTRIBUTE	ZTE-Rate-Ctrl-SCR-Down-v6		233	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Down-v6		234	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-Burst-Max-Down-v6		235	integer
+ATTRIBUTE	ZTE-Rate-Ctrl-PBS-Down-v6		236	integer
+ATTRIBUTE	ZTE-QoS-Profile-Down-v6			237	string
+
+END-VENDOR      ZTE

@@ -1,0 +1,44 @@
+# -*- text -*-
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+#
+#	Mostly values which have been allocated by IANA under
+#	"expert review", but which don't have an RFC associated with them.
+#
+#	$Id: 28c782fd6bdeac0a9f86403021b188ed9f6aeb8d $
+#
+
+#	RFC 4005
+ATTRIBUTE	Originating-Line-Info			94	string
+
+#	draft-sterman-aaa-sip-00.txt
+#
+#	This is bad... at some point the IETF will allocate these.
+#
+ATTRIBUTE	Digest-Response				206	string
+ATTRIBUTE	Digest-Attributes			207	octets	# stupid format
+
+#
+#	Integer Translations
+#
+VALUE	Service-Type			Voice			12
+VALUE	Service-Type			Fax			13
+VALUE	Service-Type			Modem-Relay		14
+VALUE	Service-Type			IAPP-Register		15
+VALUE	Service-Type			IAPP-AP-Check		16
+
+VALUE	Framed-Protocol			GPRS-PDP-Context	7
+
+VALUE	NAS-Port-Type			Wireless-CDMA2000	22
+VALUE	NAS-Port-Type			Wireless-UMTS		23
+VALUE	NAS-Port-Type			Wireless-1X-EV		24
+VALUE	NAS-Port-Type			IAPP			25
+
+VALUE	NAS-Port-Type			FTTP			26
+VALUE	NAS-Port-Type			Wireless-802.16		27
+VALUE	NAS-Port-Type			Wireless-802.20		28
+VALUE	NAS-Port-Type			Wireless-802.22		29
+
+VALUE	NAS-Port-Type			xPON			35
+VALUE	NAS-Port-Type			Wireless-XGP		36
+
+VALUE	Framed-Protocol			PPTP			9

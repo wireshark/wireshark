@@ -1,0 +1,43 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+#
+#	Equallogic Dictionary
+#
+#	Equallogic was acquired by Dell in 2008.
+#
+
+VENDOR		Equallogic			12740
+
+BEGIN-VENDOR	Equallogic
+
+ATTRIBUTE	Equallogic-Admin-Full-Name		1	string	# Optional
+ATTRIBUTE	Equallogic-Admin-Email			2	string	# Optional
+ATTRIBUTE	Equallogic-Admin-Phone			3	string	# Optional
+ATTRIBUTE	Equallogic-Admin-Mobile			4	string	# Optional
+ATTRIBUTE	Equallogic-Poll-Interval		5	integer	# Up to 6 numerals, default is 30 (seconds)
+ATTRIBUTE	Equallogic-EQL-Admin-Privilege		6	integer
+
+VALUE	Equallogic-EQL-Admin-Privilege	group-administrator	0
+VALUE	Equallogic-EQL-Admin-Privilege	pool-administrator	1
+VALUE	Equallogic-EQL-Admin-Privilege	pool-administrator-ro-entire-group 2
+VALUE	Equallogic-EQL-Admin-Privilege	volume-administrator	3
+
+# For read-only admin privileges set
+# Equallogic-EQL-Admin-Privilege to 0 and
+# Equallogic-Admin-Account-Type to RO
+
+ATTRIBUTE	Equallogic-Admin-Pool-Access		7	string	# Comma-separated list of pools
+
+# 'Pool1 25gb' sets the quota for Pool1 to 25GB
+# 'Pool1 500mb' sets a quota of 500MB.
+# 'Pool1 unlimited sets an unlimited quota to pool1
+# If no unit is specified, the default capacity unit is MB.
+
+ATTRIBUTE	Equallogic-Admin-Repl-Site-Access	8	string	# Comma-separated list of sites
+
+# Required if Equallogic-EQL-Admin-Privilege is 3
+# Used only if Equallogic-EQL-Admin-Privilege is 3
+
+ATTRIBUTE	Equallogic-Admin-Account-Type		9	string	# RO or RW
+
+END-VENDOR      Equallogic

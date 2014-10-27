@@ -1,0 +1,23 @@
+# -*- text -*-
+# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Yubico VSA's
+#
+#	$Id: d52519361d0e4df613fa8463134f5a7876cfd054 $
+#
+##############################################################################
+
+VENDOR		Yubico				41482
+
+BEGIN-VENDOR	Yubico
+
+ATTRIBUTE	Yubikey-Key				1	octets
+ATTRIBUTE	Yubikey-Public-ID			2	string
+ATTRIBUTE	Yubikey-Private-ID			3	octets
+ATTRIBUTE	Yubikey-Counter				4	integer
+ATTRIBUTE	Yubikey-Timestamp			5	integer
+ATTRIBUTE	Yubikey-Random				6	integer
+ATTRIBUTE	Yubikey-OTP				7	string
+
+END-VENDOR	Yubico

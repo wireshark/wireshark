@@ -1,0 +1,29 @@
+# -*- text -*-
+# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Efficient IP VSA's
+#
+#	$Id: 828a09a0a2f52661efbed9b604e79d15fa4431db $
+#
+##############################################################################
+
+VENDOR		EfficientIP			2440
+
+BEGIN-VENDOR	EfficientIP
+
+ATTRIBUTE	EfficientIP-Version			1	integer
+ATTRIBUTE	EfficientIP-Service-Class		2	integer
+ATTRIBUTE	EfficientIP-Identity-Type		3	integer
+ATTRIBUTE	EfficientIP-First-Name			16	string
+ATTRIBUTE	EfficientIP-Last-Name			17	string
+ATTRIBUTE	EfficientIP-Pseudonym			18	string
+ATTRIBUTE	EfficientIP-IP-Host			19	string
+ATTRIBUTE	EfficientIP-Email			20	string
+ATTRIBUTE	EfficientIP-First-Login-Path		32	string
+ATTRIBUTE	EfficientIP-Maintainer-Group		33	string
+ATTRIBUTE	EfficientIP-Groups			34	string
+ATTRIBUTE	EfficientIP-Admin-Group			35	string
+ATTRIBUTE	EfficientIP-Extra-Blob			64	string
+
+END-VENDOR	EfficientIP

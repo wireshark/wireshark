@@ -1,0 +1,26 @@
+# -*- text -*-
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Siemens
+#
+#	$Id: d76de01938142cf0abd42e9ff37c097350e67deb $
+#
+##############################################################################
+
+VENDOR		Siemens				4329
+
+BEGIN-VENDOR	Siemens
+
+ATTRIBUTE	Siemens-URL-Redirection			1	string
+ATTRIBUTE	Siemens-AP-Name				2	string
+ATTRIBUTE	Siemens-AP-Serial			3	string
+ATTRIBUTE	Siemens-VNS-Name			4	string
+ATTRIBUTE	Siemens-SSID				5	string
+ATTRIBUTE	Siemens-BSS-MAC				6	string
+ATTRIBUTE	Siemens-Policy-Name			7	string
+ATTRIBUTE	Siemens-Topology-Name			8	string
+ATTRIBUTE	Siemens-Ingress-RC-Name			9	string
+ATTRIBUTE	Siemens-Egress-RC-Name			10	string
+
+END-VENDOR	Siemens

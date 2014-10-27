@@ -1,0 +1,19 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Riverbed VSAs
+#
+#	https://support.riverbed.com/bin/support/static/doc/steelhead/8.5.2/html/sh_8.5.2_dg/wwhelp/wwhimpl/common/html/wwhelp.htm#href=radius_tacacs.22.04.html&single=true
+#
+#	$Id: b121f264c6ea124f86b72c368c0c0a8f17f59073 $
+#
+##############################################################################
+
+VENDOR		Riverbed			17163
+
+BEGIN-VENDOR	Riverbed
+
+ATTRIBUTE	Riverbed-Local-User			1	string
+
+END-VENDOR    Riverbed

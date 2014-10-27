@@ -1,0 +1,367 @@
+# -*- text -*-
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	DHCP options carried inside of RADIUS VSAs.
+#
+#	DHCP options can carry up to 255 octets, and RADIUS VSAs can
+#	carry only 247 octets.  DHCP options can carry multiple things
+#	(e.g. IP addresses) in one option, and RADIUS can't.
+#
+#	Despite those issues, this dictionary is still useful.
+#
+#	$Id: 95e417fa9efd80f5c5a53b3dfc1660d429aee14f $
+#
+##############################################################################
+
+VENDOR		FreeDHCP			34673
+
+BEGIN-VENDOR	FreeDHCP
+
+##############################################################################
+#
+#	DHCP Options, with comments.  For now, many are "octets",
+#	as FreeRADIUS doesn't handle complex data structures.
+#
+##############################################################################
+
+#ATTRIBUTE	FreeDHCP-Pad				0	octets
+ATTRIBUTE	FreeDHCP-Subnet-Mask			1	ipaddr
+# Time Offset in twos-complement notation.
+ATTRIBUTE	FreeDHCP-Time-Offset			2	integer
+ATTRIBUTE	FreeDHCP-Router-Address			3	ipaddr array
+ATTRIBUTE	FreeDHCP-Time-Server			4	ipaddr array
+ATTRIBUTE	FreeDHCP-IEN-116-Name-Server		5	ipaddr array
+ATTRIBUTE	FreeDHCP-Domain-Name-Server		6	ipaddr array
+# Logging-Server addresses
+ATTRIBUTE	FreeDHCP-Log-Server			7	ipaddr array
+ATTRIBUTE	FreeDHCP-Quotes-Server			8	ipaddr array
+ATTRIBUTE	FreeDHCP-LPR-Server			9	ipaddr array
+ATTRIBUTE	FreeDHCP-Impress-Server			10	ipaddr array
+ATTRIBUTE	FreeDHCP-RLP-Server			11	ipaddr array
+# Hostname string
+ATTRIBUTE	FreeDHCP-Hostname			12	string
+# Size of boot file in 512 byte
+ATTRIBUTE	FreeDHCP-Boot-File-Size			13	short
+# Client to dump and name
+ATTRIBUTE	FreeDHCP-Merit-Dump-File		14	octets
+ATTRIBUTE	FreeDHCP-Domain-Name			15	string
+ATTRIBUTE	FreeDHCP-Swap-Server			16	ipaddr
+# Path name for root disk
+ATTRIBUTE	FreeDHCP-Root-Path			17	string
+ATTRIBUTE	FreeDHCP-Bootp-Extensions-Path		18	string
+ATTRIBUTE	FreeDHCP-IP-Forward-Enable		19	byte
+ATTRIBUTE	FreeDHCP-Source-Route-Enable		20	byte
+# Routing Policy Filters
+ATTRIBUTE	FreeDHCP-Policy-Filter			21	octets
+ATTRIBUTE	FreeDHCP-Max-Datagram-Reassembly-Sz	22	short
+ATTRIBUTE	FreeDHCP-Default-IP-TTL			23	octets
+ATTRIBUTE	FreeDHCP-Path-MTU-Aging-Timeout		24	integer
+ATTRIBUTE	FreeDHCP-Path-MTU-Plateau-Table		25	short array
+ATTRIBUTE	FreeDHCP-Interface-MTU-Size		26	short
+ATTRIBUTE	FreeDHCP-All-Subnets-Are-Local		27	byte
+ATTRIBUTE	FreeDHCP-Broadcast-Address		28	ipaddr
+ATTRIBUTE	FreeDHCP-Perform-Mask-Discovery		29	byte
+ATTRIBUTE	FreeDHCP-Provide-Mask-To-Others		30	byte
+ATTRIBUTE	FreeDHCP-Perform-Router-Discovery	31	byte
+ATTRIBUTE	FreeDHCP-Router-Solicitation-Address	32	ipaddr
+# first is destination address, second is router.
+ATTRIBUTE	FreeDHCP-Static-Routes			33	ipaddr array
+ATTRIBUTE	FreeDHCP-Trailer-Encapsulation		34	byte
+ATTRIBUTE	FreeDHCP-ARP-Cache-Timeout		35	integer
+ATTRIBUTE	FreeDHCP-Ethernet-Encapsulation		36	byte
+ATTRIBUTE	FreeDHCP-Default-TCP-TTL		37	byte
+ATTRIBUTE	FreeDHCP-Keep-Alive-Interval		38	integer
+ATTRIBUTE	FreeDHCP-Keep-Alive-Garbage		39	byte
+ATTRIBUTE	FreeDHCP-NIS-Domain-Name		40	string
+ATTRIBUTE	FreeDHCP-NIS-Servers			41	ipaddr array
+ATTRIBUTE	FreeDHCP-NTP-Servers			42	ipaddr array
+# N Vendor Specific Information
+ATTRIBUTE	FreeDHCP-Vendor				43	octets # tlv
+ATTRIBUTE	FreeDHCP-NETBIOS-Name-Servers		44	ipaddr array
+ATTRIBUTE	FreeDHCP-NETBIOS-Dgm-Dist-Servers	45	ipaddr array
+ATTRIBUTE	FreeDHCP-NETBIOS-Node-Type		46	byte
+# N NETBIOS Scope
+ATTRIBUTE	FreeDHCP-NETBIOS			47	octets
+ATTRIBUTE	FreeDHCP-X-Window-Font-Server		48	ipaddr array
+ATTRIBUTE	FreeDHCP-X-Window-Display-Mgr		49	ipaddr array
+ATTRIBUTE	FreeDHCP-Requested-IP-Address		50	ipaddr
+ATTRIBUTE	FreeDHCP-IP-Address-Lease-Time		51	integer
+# Overload "sname" or "file"
+ATTRIBUTE	FreeDHCP-Overload			52	byte
+ATTRIBUTE	FreeDHCP-Message-Type			53	byte
+ATTRIBUTE	FreeDHCP-FreeDHCP-Server-Identifier	54	ipaddr
+
+# Array of 1-byte numbers indicating which options the client
+# would like to see in the response.
+ATTRIBUTE	FreeDHCP-Parameter-Request-List		55	byte array
+ATTRIBUTE	FreeDHCP-FreeDHCP-Error-Message		56	octets
+ATTRIBUTE	FreeDHCP-FreeDHCP-Maximum-Msg-Size	57	short
+ATTRIBUTE	FreeDHCP-Renewal-Time			58	integer
+ATTRIBUTE	FreeDHCP-Rebinding-Time			59	integer
+ATTRIBUTE	FreeDHCP-Vendor-Class-Identifier	60	string
+
+# Client Identifier
+# First octets is FreeDHCP-Hardware-Type, rest are type-specific data,
+# e.g. MAC address.
+ATTRIBUTE	FreeDHCP-Client-Identifier		61	octets
+ATTRIBUTE	FreeDHCP-Netware-Domain-Name		62	octets
+ATTRIBUTE	FreeDHCP-Netware-Sub-Options		63	octets
+ATTRIBUTE	FreeDHCP-NIS-Client-Domain-Name		64	octets
+ATTRIBUTE	FreeDHCP-NIS-Server-Address		65	ipaddr
+ATTRIBUTE	FreeDHCP-TFTP-Server-Name		66	string
+ATTRIBUTE	FreeDHCP-Boot-File-Name			67	string
+# Home Agent Addresses
+ATTRIBUTE	FreeDHCP-Home-Agent-Address		68	octets
+ATTRIBUTE	FreeDHCP-SMTP-Server-Address		69	ipaddr array
+ATTRIBUTE	FreeDHCP-POP3-Server-Address		70	ipaddr array
+ATTRIBUTE	FreeDHCP-NNTP-Server-Address		71	ipaddr array
+ATTRIBUTE	FreeDHCP-WWW-Server-Address		72	ipaddr array
+ATTRIBUTE	FreeDHCP-Finger-Server-Address		73	ipaddr array
+ATTRIBUTE	FreeDHCP-IRC-Server-Address		74	ipaddr array
+ATTRIBUTE	FreeDHCP-StreetTalk-Server-Address	75	ipaddr array
+ATTRIBUTE	FreeDHCP-STDA-Server-Address		76	ipaddr array
+# User Class Information
+ATTRIBUTE	FreeDHCP-User-Class			77	octets
+# directory agent information
+ATTRIBUTE	FreeDHCP-Directory-Agent		78	octets
+# service location agent scope
+ATTRIBUTE	FreeDHCP-Service-Scope			79	octets
+# Rapid Commit
+ATTRIBUTE	FreeDHCP-Rapid-Commit			80	octets
+# Fully Qualified Domain Name
+ATTRIBUTE	FreeDHCP-Client-FQDN			81	string
+# Relay Agent Information
+ATTRIBUTE	FreeDHCP-Relay-Agent-Information	82	tlv
+
+ATTRIBUTE	FreeDHCP-Agent-Circuit-Id		82.1	octets
+ATTRIBUTE	FreeDHCP-Agent-Remote-Id		82.2	octets
+
+ATTRIBUTE	FreeDHCP-Relay-Circuit-Id		82.1	octets
+ATTRIBUTE	FreeDHCP-Relay-Remote-Id		82.2	octets
+
+# 3 is reserved and shouldn't be used for anything
+ATTRIBUTE	FreeDHCP-Docsis-Device-Class		82.4	integer
+ATTRIBUTE	FreeDHCP-Relay-Link-Selection		82.5	ipaddr
+ATTRIBUTE	FreeDHCP-Subscriber-Id			82.6	string
+
+# AGH!  RADIUS inside of DHCP!
+ATTRIBUTE	FreeDHCP-RADIUS-Attributes		82.7	octets
+
+# Horribly complicated
+ATTRIBUTE	FreeDHCP-Authentication-Information	82.8	octets
+ATTRIBUTE	FreeDHCP-Vendor-Specific-Information	82.9	octets
+ATTRIBUTE	FreeDHCP-Relay-Agent-Flags		82.10	byte
+ATTRIBUTE	FreeDHCP-Server-Identifier-Override	82.11	ipaddr
+
+# Internet Storage Name Service
+ATTRIBUTE	FreeDHCP-iSNS				83	octets
+# Novell Directory Services
+ATTRIBUTE	FreeDHCP-NDS-Servers			85	octets
+# Novell Directory Services
+ATTRIBUTE	FreeDHCP-NDS-Tree-Name			86	octets
+# Novell Directory Services
+ATTRIBUTE	FreeDHCP-NDS-Context			87	octets
+# Authentication
+ATTRIBUTE	FreeDHCP-Authentication			90	octets
+
+ATTRIBUTE	FreeDHCP-Client-Last-Txn-Time		91	octets
+
+ATTRIBUTE	FreeDHCP-associated-ip			92	octets
+# Client System Architecture
+ATTRIBUTE	FreeDHCP-Client-System			93	octets
+# Client Network Device Interface
+ATTRIBUTE	FreeDHCP-Client-NDI			94	octets
+# Lightweight Directory Access Protocol
+ATTRIBUTE	FreeDHCP-LDAP				95	octets
+# UUID/GUID-based Client Identifier
+ATTRIBUTE	FreeDHCP-UUID/GUID				97	octets
+# Open Group's User Authentication
+ATTRIBUTE	FreeDHCP-User-Auth			98	octets
+# NetInfo Parent-Server Address
+ATTRIBUTE	FreeDHCP-Netinfo-Address		112	octets
+# NetInfo Parent-Server Tag
+ATTRIBUTE	FreeDHCP-Netinfo-Tag			113	octets
+# URL
+ATTRIBUTE	FreeDHCP-URL				114	octets
+# DHCP Auto-Configuration
+ATTRIBUTE	FreeDHCP-Auto-Config			116	byte
+# Name Service Search
+ATTRIBUTE	FreeDHCP-Name-Service-Search		117	octets
+# Subnet Selection Option
+ATTRIBUTE	FreeDHCP-Subnet-Selection-Option	118	octets
+# DNS domain serach list
+ATTRIBUTE	FreeDHCP-Domain-Search			119	octets
+# SIP-Servers DHCP Option
+ATTRIBUTE	FreeDHCP-SIP-Servers-FreeDHCP-Option	120	octets
+# Classless Static Route Option
+ATTRIBUTE	FreeDHCP-Classless-Static-Route		121	octets
+# CableLabs Client Configuration
+ATTRIBUTE	FreeDHCP-CCC				122	octets
+# 16 GeoConf Option
+ATTRIBUTE	FreeDHCP-GeoConf-Option			123	octets
+
+# Vendor Class
+#
+# String name that defines the vendor space used for the TLV's
+# in option 125.
+#
+ATTRIBUTE	FreeDHCP-V-I-Vendor-Class		124	octets
+# Vendor-Specific
+ATTRIBUTE	FreeDHCP-V-I-Vendor-Specific		125	octets # tlv
+ATTRIBUTE	FreeDHCP-Etherboot			128	ether
+# (for IP Phone software load)
+ATTRIBUTE	FreeDHCP-TFTP-Server-IP-Address		128	octets
+
+ATTRIBUTE	FreeDHCP-Call-Server-IP-address		129	octets
+
+ATTRIBUTE	FreeDHCP-Ethernet-Interface		130	octets
+
+ATTRIBUTE	FreeDHCP-Vendor-Discrimination-Str	130	octets
+
+ATTRIBUTE	FreeDHCP-Remote-Stats-Svr-IP-Address	131	octets
+
+ATTRIBUTE	FreeDHCP-IEEE-802.1Q-L2-Priority		132	octets
+
+ATTRIBUTE	FreeDHCP-IEEE-802.1P-VLAN-ID		133	octets
+
+ATTRIBUTE	FreeDHCP-Diffserv-Code-Point		134	octets
+
+ATTRIBUTE	FreeDHCP-HTTP-Proxy			135	octets
+
+ATTRIBUTE	FreeDHCP-Cisco-TFTP-Server-IP-Addresses	150	ipaddr array
+
+ATTRIBUTE	FreeDHCP-End-Of-Options			255	byte
+
+VALUE	FreeDHCP-Opcode			Client-Message		1
+VALUE	FreeDHCP-Opcode			Server-Message		2
+
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Discover	1
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Offer		2
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Request	3
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Decline	4
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Ack		5
+VALUE	FreeDHCP-Message-Type		FreeDHCP-NAK		6
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Release	7
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Inform		8
+VALUE	FreeDHCP-Message-Type		FreeDHCP-Force-Renew	9
+
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Subnet-Mask	1
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Time-Offset	2
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Router-Address	3
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Time-Server	4
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IEN-116-Name-Server 5
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Domain-Name-Server 6
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Log-Server	7
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Quotes-Server	8
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-LPR-Server	9
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Impress-Server	10
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-RLP-Server	11
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Hostname	12
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Boot-File-Size	13
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Merit-Dump-File 14
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Domain-Name	15
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Swap-Server	16
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Root-Path	17
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Bootp-Extensions-Path 18
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IP-Forward-Enable 19
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Source-Route-Enable 20
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Policy-Filter	21
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Max-Datagram-Reassembly-Sz 22
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Default-IP-TTL	23
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Path-MTU-Aging-Timeout 24
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Path-MTU-Plateau-Table 25
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Interface-MTU-Size 26
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-All-Subnets-Are-Local 27
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Broadcast-Address 28
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Perform-Mask-Discovery 29
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Provide-Mask-To-Others 30
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Perform-Router-Discovery 31
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Router-Solicitation-Address 32
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Static-Routes	33
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Trailer-Encapsulation 34
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-ARP-Cache-Timeout 35
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Ethernet-Encapsulation 36
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Default-TCP-TTL 37
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Keep-Alive-Interval 38
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Keep-Alive-Garbage 39
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NIS-Domain-Name 40
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NIS-Servers	41
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NTP-Servers	42
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Vendor		43
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NETBIOS-Name-Servers 44
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NETBIOS-Dgm-Dist-Servers 45
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NETBIOS-Node-Type 46
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NETBIOS	47
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-X-Window-Font-Server 48
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-X-Window-Display-Mgr 49
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Requested-IP-Address 50
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IP-Address-Lease-Time 51
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Overload	52
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Message-Type	53
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-FreeDHCP-Server-Identifier 54
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Parameter-Request-List 55
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-FreeDHCP-Error-Message 56
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-FreeDHCP-Maximum-Msg-Size 57
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Renewal-Time	58
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Rebinding-Time	59
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Class-Identifier 60
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Client-Identifier 61
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Netware-Domain-Name 62
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Netware-Sub-Options 63
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NIS-Client-Domain-Name 64
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NIS-Server-Address 65
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-TFTP-Server-Name 66
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Boot-File-Name	67
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Home-Agent-Address 68
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-SMTP-Server-Address 69
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-POP3-Server-Address 70
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NNTP-Server-Address 71
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-WWW-Server-Address 72
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Finger-Server-Address 73
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IRC-Server-Address 74
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-StreetTalk-Server-Address 75
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-STDA-Server-Address 76
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-User-Class	77
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Directory-Agent 78
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Service-Scope	79
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Rapid-Commit	80
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Client-FQDN	81
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Relay-Agent-Information 82
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-iSNS		83
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NDS-Servers	85
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NDS-Tree-Name	86
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-NDS-Context	87
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Authentication	90
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Client-Last-Txn-Time 91
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-associated-ip	92
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Client-System	93
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Client-NDI	94
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-LDAP		95
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-UUID/GUID	97
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-User-Auth	98
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Netinfo-Address 112
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Netinfo-Tag	113
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-URL		114
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Auto-Config	116
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Name-Service-Search 117
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Subnet-Selection-Option 118
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Domain-Search	119
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-SIP-Servers-FreeDHCP-Option 120
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Classless-Static-Route 121
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-CCC		122
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-GeoConf-Option	123
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-V-I-Vendor-Class 124
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-V-I-Vendor-Specific 125
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Etherboot	128
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-TFTP-Server-IP-Address 128
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Call-Server-IP-address 129
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Ethernet-Interface 130
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Vendor-Discrimination-Str 130
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Remote-Stats-Svr-IP-Address 131
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IEEE-802.1P-VLAN-ID 132
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-IEEE-802.1Q-L2-Priority 133
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-Diffserv-Code-Point 134
+VALUE	FreeDHCP-Parameter-Request-List	FreeDHCP-HTTP-Proxy	135
+
+END-VENDOR	FreeDHCP

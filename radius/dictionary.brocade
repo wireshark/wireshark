@@ -1,0 +1,22 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+#
+VENDOR		Brocade				1588
+BEGIN-VENDOR	Brocade
+
+ATTRIBUTE	Brocade-Auth-Role			1	string
+# Valid attribute values:
+# Admin BasicSwitchAdmin FabricAdmin Operator
+# SecurityAdmin SwitchAdmin User ZoneAdmin
+
+ATTRIBUTE	Brocade-AVPairs1			2	string
+ATTRIBUTE	Brocade-AVPairs2			3	string
+ATTRIBUTE	Brocade-AVPairs3			4	string
+ATTRIBUTE	Brocade-AVPairs4			5	string
+# Brocade-AVPairs1/2/3/4:
+# Optional, specifies Admin Domain or Virtual Fabric List
+
+ATTRIBUTE	Brocade-Passwd-ExpiryDate		6	string # Format: MM/DD/YYYY
+ATTRIBUTE	Brocade-Passwd-WarnPeriod		7	string # Format: integer in days
+
+END-VENDOR      Brocade

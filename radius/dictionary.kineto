@@ -1,0 +1,119 @@
+#  Kineto Wireless Dictionary
+#  dictionary.kineto
+#
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+#
+# Version $Id: 7180355bdf4b96a56c1c10b03a0baacbb79821dc $
+#
+#  As posted to the list by Swaran Sethi <ssethi@kinetowireless.com>
+#
+#  For documentation on Kineto Wireless RADIUS attributes, see:
+#                               http://www.kinetowireless.com/
+#
+
+VENDOR		Kineto				16445   format=2,1
+
+BEGIN-VENDOR	Kineto
+
+#  Kineto Vendor Specific Attributes Based on UMA Information Elements
+#
+#   For documentation on UMA Information Elements, see:
+#       http://www.umatechnology.org/specifications/index.htm
+#       Unlicensed Mobile Access (UMA) Protocols (Stage 3), Release 1.0.4,
+#	May 2005
+#
+ATTRIBUTE	Kineto-UMA-Release-Indicator		2	octets
+ATTRIBUTE	Kineto-UMA-AP-Radio-Identity		3	octets
+ATTRIBUTE	Kineto-UMA-Cell-Identity		4	octets
+ATTRIBUTE	Kineto-UMA-Location-Area-Identification	5	octets
+ATTRIBUTE	Kineto-UMA-Coverage-Indicator		6	octets
+ATTRIBUTE	Kineto-UMA-Classmark			7	octets
+ATTRIBUTE	Kineto-UMA-Geographical-Location	8	octets
+ATTRIBUTE	Kineto-UMA-SGW-IP-Address		9	octets
+ATTRIBUTE	Kineto-UMA-SGW-FQDN			10	octets
+ATTRIBUTE	Kineto-UMA-Redirection-Counter		11	octets
+ATTRIBUTE	Kineto-UMA-Discovery-Reject-Cause	12	octets
+ATTRIBUTE	Kineto-UMA-RRC-State			17	octets
+ATTRIBUTE	Kineto-UMA-Register-Reject-Cause	21	octets
+ATTRIBUTE	Kineto-UMA-Routing-Area-Code		41	octets
+ATTRIBUTE	Kineto-UMA-AP-Location			42	octets
+ATTRIBUTE	Kineto-UMA-Location-Status		44	octets
+ATTRIBUTE	Kineto-UMA-Utran-Cell-Identity		49	octets
+ATTRIBUTE	Kineto-UMA-Location-Blacklist-Indicator	58	octets
+ATTRIBUTE	Kineto-UMA-AP-Service-Name		61	octets
+ATTRIBUTE	Kineto-UMA-Service-Zone-Information	62	octets
+ATTRIBUTE	Kineto-UMA-Serving-UNC-Table-Indicator	67	octets
+ATTRIBUTE	Kineto-UMA-Registration-Indicators	68	octets
+ATTRIBUTE	Kineto-UMA-UMA-PLMN-List		69	octets
+ATTRIBUTE	Kineto-UMA-Required-UMA-Services	71	octets
+ATTRIBUTE	Kineto-UMA-3G-Cell-Identity		73	octets
+ATTRIBUTE	Kineto-UMA-MS-Radio-Identity		96	octets
+ATTRIBUTE	Kineto-UMA-UNC-IP-Address		97	octets
+ATTRIBUTE	Kineto-UMA-UNC-FQDN			98	octets
+
+#  Kineto Vendor Specific Attributes
+#
+
+ATTRIBUTE	Kineto-URR-Transaction-Type		0xff01	octets
+ATTRIBUTE	Kineto-Location-Key			0xff02	octets
+ATTRIBUTE	Kineto-UP-Client-Remote-Address		0xff03	octets
+ATTRIBUTE	Kineto-Hand-In-Control-Flag		0xff04	octets
+ATTRIBUTE	Kineto-Hand-Out-Control-Flag		0xff05	octets
+ATTRIBUTE	Kineto-Billing-Rate-Indicator		0xff06	octets
+ATTRIBUTE	Kineto-Service-Area-Code		0xff09	octets
+ATTRIBUTE	KW-IUH-MESSAGE-TYPE			65408	string
+ATTRIBUTE	KW-HNB-REMOTE-ADDRESS			65409	ipaddr
+ATTRIBUTE	KW-HNB-IDENTITY				65410	string
+ATTRIBUTE	KW-HNB-LOC-INFO-MACRO-COVERAGE-IND	65411	integer
+ATTRIBUTE	KW-HNB-LOC-INFO-GERAN-CELL-ID		65412	string
+ATTRIBUTE	KW-HNB-LOC-INFO-UTRAN-CELL-ID		65413	string
+ATTRIBUTE	KW-HNB-LOC-INFO-GEO-COORDINATES		65414	integer
+ATTRIBUTE	KW-HNB-LOC-INFO-ALTITUDE-Direction	65415	integer
+ATTRIBUTE	KW-HNB-LOC-INFO-IP-ADDRESS		65416	string
+ATTRIBUTE	KW-HNB-PLMN-ID				65417	string
+ATTRIBUTE	KW-HNB-CELL-ID				65418	string
+ATTRIBUTE	KW-HNB-LAC				65419	string
+ATTRIBUTE	KW-HNB-RAC				65420	string
+ATTRIBUTE	KW-HNB-SAC				65421	string
+ATTRIBUTE	KW-HNB-CSG-ID				65422	string
+ATTRIBUTE	KW-UE-Capabilities			65423	integer
+ATTRIBUTE	KW-HNB-LOCATION-AREA-IND		0xff90	octets
+ATTRIBUTE	KW-IUH-BILLING-RATE-INDICATOR		0xff91	octets
+ATTRIBUTE	KW-REGISTRATION-REJECT-CAUSE		0xff92	octets
+ATTRIBUTE	KW-HNB-LOCATION-BLACKLIST-IND		0xff93	octets
+
+# (please refer Iuh-AAA-KS1 Rel 2.0.doc )
+ATTRIBUTE	KW-HNB-CELL-ACCESS-MODE			0xff94	octets
+ATTRIBUTE	KW-UE-MEMBERSHIP-STATUS			0xff95	octets
+
+# (please refer Iuh-AAA-S1.doc, 0xff93 are defined Blacklist & Reg-reject
+# in Iuh. by kbnao
+#ATTRIBUTE  KW-HNB-REGISTER-REJECT-CAUSE                 0xff94    octets
+
+#ATTRIBUTE KW-HNB-LOC-INFO-MACRO-COVERAGE-IND
+
+VALUE	KW-HNB-LOC-INFO-MACRO-COVERAGE-IND GERAN		0
+VALUE	KW-HNB-LOC-INFO-MACRO-COVERAGE-IND UTRAN		1
+VALUE	KW-HNB-LOC-INFO-MACRO-COVERAGE-IND NONE			2
+
+#ATTRIBUTE  KW-HNB-LOC-INFO-GEO-COORDINATES
+
+VALUE	KW-HNB-LOC-INFO-GEO-COORDINATES	North			0
+VALUE	KW-HNB-LOC-INFO-GEO-COORDINATES	South			1
+
+#ATTRIBUTE  KW-HNB-LOC-INFO-ALTITUDE-Direction
+
+VALUE	KW-HNB-LOC-INFO-ALTITUDE-Direction Height		0
+VALUE	KW-HNB-LOC-INFO-ALTITUDE-Direction Depth		1
+
+#ATTRIBUTE  KW-UE-Capabilities
+VALUE	KW-UE-Capabilities		R99			0
+VALUE	KW-UE-Capabilities		Rel-4			1
+VALUE	KW-UE-Capabilities		Rel-5			2
+VALUE	KW-UE-Capabilities		Rel-6			3
+VALUE	KW-UE-Capabilities		Rel-7			4
+VALUE	KW-UE-Capabilities		Rel-8			5
+VALUE	KW-UE-Capabilities		CSG-Capable		0
+VALUE	KW-UE-Capabilities		Not-CSG-Capable		1
+
+END-VENDOR      Kineto

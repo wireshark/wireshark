@@ -1,0 +1,21 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+#
+#	Compatible Systems Corporation dictionary
+#
+#	Compatible Systems was acquired by Cisco in 2000.
+#
+
+VENDOR		Compatible			255
+
+BEGIN-VENDOR	Compatible
+
+ATTRIBUTE	Compatible-Tunnel-Delay			0	integer
+ATTRIBUTE	Compatible-Tunnel-Throughput		1	integer
+ATTRIBUTE	Compatible-Tunnel-Server-Endpoint	3	ipaddr
+ATTRIBUTE	Compatible-Tunnel-Group-Info		4	string
+ATTRIBUTE	Compatible-Tunnel-Password		5	string
+ATTRIBUTE	Compatible-Echo				6	integer
+ATTRIBUTE	Compatible-Tunnel-IPX			7	integer
+
+END-VENDOR      Compatible

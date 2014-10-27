@@ -1,0 +1,53 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Symbol VSAs
+#
+#	Symbol Technologies has been acquired by Motorola in 2007.
+#	Some attributes remain in use by products after the acquisition.
+#
+#	$Id: bec517865943d8f50af7831d9023fba4772edd07 $
+#
+##############################################################################
+VENDOR		Symbol				388
+
+BEGIN-VENDOR	Symbol
+
+ATTRIBUTE	Symbol-Admin-Role			1	integer
+
+VALUE	Symbol-Admin-Role		Monitor			1
+VALUE	Symbol-Admin-Role		Helpdesk		2
+VALUE	Symbol-Admin-Role		NetworkAdmin		4
+VALUE	Symbol-Admin-Role		SysAdmin		8
+VALUE	Symbol-Admin-Role		WebAdmin		16
+VALUE	Symbol-Admin-Role		Security		32
+VALUE	Symbol-Admin-Role		SuperUser		32768
+
+ATTRIBUTE	Symbol-Current-ESSID			2	string
+ATTRIBUTE	Symbol-Allowed-ESSID			3	string
+ATTRIBUTE	Symbol-WLAN-Index			4	integer
+ATTRIBUTE	Symbol-QoS-Profile			5	integer
+
+VALUE	Symbol-QoS-Profile		BestEffort		1
+VALUE	Symbol-QoS-Profile		Background		2
+VALUE	Symbol-QoS-Profile		Video			3
+VALUE	Symbol-QoS-Profile		Voice			4
+
+ATTRIBUTE	Symbol-Allowed-Radio			6	string
+ATTRIBUTE	Symbol-Expiry-Date-Time			7	string	# Format: MM/DD/YYYY-HH:MM
+ATTRIBUTE	Symbol-Start-Date-Time			8	string	# Format: MM/DD/YYYY-HH:MM
+ATTRIBUTE	Symbol-Posture-Status			9	string
+ATTRIBUTE	Symbol-Downlink-Limit			10	string	# Format: 100-10000 (Kbps), 0 = Disabled
+ATTRIBUTE	Symbol-Uplink-Limit			11	string	# Format: 100-10000 (Kbps), 0 = Disabled
+ATTRIBUTE	Symbol-User-Group			12	string
+
+ATTRIBUTE	Symbol-Login-Source			100	integer
+
+VALUE	Symbol-Login-Source		HTTP			16
+VALUE	Symbol-Login-Source		SSH			32
+VALUE	Symbol-Login-Source		Telnet			64
+VALUE	Symbol-Login-Source		Console			128
+VALUE	Symbol-Login-Source		All			240
+
+END-VENDOR	Symbol

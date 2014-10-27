@@ -1,0 +1,19 @@
+# -*- text -*-
+#
+#       InfoBlox Inc. VSAs
+#
+VENDOR		Infoblox			7779
+
+BEGIN-VENDOR	Infoblox
+
+ATTRIBUTE	Infoblox-windows-group			1	string
+ATTRIBUTE	Infoblox-variable-1			2	string
+ATTRIBUTE	Infoblox-variable-2			3	string
+ATTRIBUTE	Infoblox-variable-3			4	string
+ATTRIBUTE	Infoblox-variable-4			5	string
+ATTRIBUTE	Infoblox-variable-5			6	string
+ATTRIBUTE	Infoblox-Version			7	string
+ATTRIBUTE	Infoblox-Product-Name			8	string
+ATTRIBUTE	Infoblox-Group-Info			9	string
+
+END-VENDOR	Infoblox

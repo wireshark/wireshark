@@ -1,0 +1,15 @@
+VENDOR		fdXtended			34536
+
+BEGIN-VENDOR	fdXtended
+ATTRIBUTE	fdXtended-Bandwidth-Up			1	integer
+ATTRIBUTE	fdXtended-Bandwidth-Down		2	integer
+ATTRIBUTE	fdXtended-PostAuthURL			3	string
+ATTRIBUTE	fdXtended-One2onenat-IP			4	string
+ATTRIBUTE	fdXtended-ContentFilter			5	integer
+ATTRIBUTE	fdXtended-NetworkPolicy			6	integer
+ATTRIBUTE	fdXtended-BytesDown			7	integer
+ATTRIBUTE	fdXtended-BytesUp			8	integer
+ATTRIBUTE	fdXtended-Expiration			9	string
+ATTRIBUTE	fdXtended-SessionTimeout		10	integer
+ATTRIBUTE	fdXtended-Wan-Interface			11	string
+END-VENDOR fdXtended

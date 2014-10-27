@@ -1,0 +1,93 @@
+# -*- text -*-
+# Copyright (C) 2012 The FreeRADIUS Server project and contributors
+#
+#	Dictionary for Proxim Wireless.
+#
+#  	$Id: 87bbfb02f2df6a9b840c5e41a6a46319877a477b $
+#
+
+VENDOR		Proxim				841
+
+BEGIN-VENDOR	Proxim
+
+# SU Management VLAN and Ethernet 1 VLAN parameters
+ATTRIBUTE	Proxim_E1_VLAN_MODE			4	integer
+ATTRIBUTE	Proxim_SU_VLAN_NAME			5	string
+
+ATTRIBUTE	Proxim_E1_Access_VLAN_ID		6	integer
+ATTRIBUTE	Proxim_E1_Access_VLAN_Pri		7	integer
+
+ATTRIBUTE	Proxim_Mgmt_VLAN_ID			8	integer
+ATTRIBUTE	Proxim_Mgmt_VLAN_Pri			9	integer
+
+ATTRIBUTE	Proxim_E1_TrunkID_01			10	integer
+ATTRIBUTE	Proxim_E1_TrunkID_02			11	integer
+ATTRIBUTE	Proxim_E1_TrunkID_03			12	integer
+ATTRIBUTE	Proxim_E1_TrunkID_04			13	integer
+ATTRIBUTE	Proxim_E1_TrunkID_05			14	integer
+ATTRIBUTE	Proxim_E1_TrunkID_06			15	integer
+ATTRIBUTE	Proxim_E1_TrunkID_07			16	integer
+ATTRIBUTE	Proxim_E1_TrunkID_08			17	integer
+ATTRIBUTE	Proxim_E1_TrunkID_09			18	integer
+ATTRIBUTE	Proxim_E1_TrunkID_10			19	integer
+ATTRIBUTE	Proxim_E1_TrunkID_11			20	integer
+ATTRIBUTE	Proxim_E1_TrunkID_12			21	integer
+ATTRIBUTE	Proxim_E1_TrunkID_13			22	integer
+ATTRIBUTE	Proxim_E1_TrunkID_14			23	integer
+ATTRIBUTE	Proxim_E1_TrunkID_15			24	integer
+ATTRIBUTE	Proxim_E1_TrunkID_16			25	integer
+
+ATTRIBUTE	Proxim_SU_VLAN_Table_Status		26	integer
+
+ATTRIBUTE	Proxim_Service_VLAN_ID			32	integer
+ATTRIBUTE	Proxim_Service_VLAN_Pri			33	integer
+
+# QoS Attributes
+ATTRIBUTE	Proxim_QoS_Class_Index			34	integer
+ATTRIBUTE	Proxim_QoS_Class_SU_Status		35	integer
+
+# The attributes listed above are applicable to Tsunami MP/QB 8XXX
+# series and MP.11/QB.11 series products. While, the attributes listed
+# below are applicable to Tsunami MP/QB 8XXX series products only.
+
+# SU  Ethernet 2 VLAN parameters
+ATTRIBUTE	Proxim_E2_VLAN_MODE			40	integer
+
+ATTRIBUTE	Proxim_E2_Access_VLAN_ID		41	integer
+ATTRIBUTE	Proxim_E2_Access_VLAN_Pri		42	integer
+
+ATTRIBUTE	Proxim_E2_TrunkID_01			43	integer
+ATTRIBUTE	Proxim_E2_TrunkID_02			44	integer
+ATTRIBUTE	Proxim_E2_TrunkID_03			45	integer
+ATTRIBUTE	Proxim_E2_TrunkID_04			46	integer
+ATTRIBUTE	Proxim_E2_TrunkID_05			47	integer
+ATTRIBUTE	Proxim_E2_TrunkID_06			48	integer
+ATTRIBUTE	Proxim_E2_TrunkID_07			49	integer
+ATTRIBUTE	Proxim_E2_TrunkID_08			50	integer
+ATTRIBUTE	Proxim_E2_TrunkID_09			51	integer
+ATTRIBUTE	Proxim_E2_TrunkID_10			52	integer
+ATTRIBUTE	Proxim_E2_TrunkID_11			53	integer
+ATTRIBUTE	Proxim_E2_TrunkID_12			54	integer
+ATTRIBUTE	Proxim_E2_TrunkID_13			55	integer
+ATTRIBUTE	Proxim_E2_TrunkID_14			56	integer
+ATTRIBUTE	Proxim_E2_TrunkID_15			57	integer
+ATTRIBUTE	Proxim_E2_TrunkID_16			58	integer
+
+# QinQ VLAN Attributes
+ATTRIBUTE	Proxim_QinQ_Status			59	integer
+ATTRIBUTE	Proxim_Service_VLAN_TPID		60	integer
+
+# Trunk mode Port VLAN ID
+ATTRIBUTE	Proxim_E1_Port_VLAN_ID			61	integer
+ATTRIBUTE	Proxim_E1_Port_VLAN_Pri			62	integer
+ATTRIBUTE	Proxim_E1_Allow_Untag			63	integer
+
+ATTRIBUTE	Proxim_E2_Port_VLAN_ID			64	integer
+ATTRIBUTE	Proxim_E2_Port_VLAN_Pri			65	integer
+ATTRIBUTE	Proxim_E2_Allow_Untag			66	integer
+
+# Access Mode Allow untagged traffic
+ATTRIBUTE	Proxim_E1_SU_Allow_Untag_Mgmt		68	integer
+ATTRIBUTE	Proxim_E2_SU_Allow_Untag_Mgmt		69	integer
+
+END-VENDOR 	Proxim

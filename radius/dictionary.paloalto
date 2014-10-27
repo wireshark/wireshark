@@ -1,0 +1,21 @@
+# -*- text -*-
+# Copyright (C) 2012 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Palo Alto Networks.
+#
+#	$Id: 3c51c348ae921be456be77beafc8608493899930 $
+#
+##############################################################################
+
+VENDOR		PaloAlto			25461
+
+BEGIN-VENDOR	PaloAlto
+
+ATTRIBUTE	PaloAlto-Admin-Role			1	string
+ATTRIBUTE	PaloAlto-Admin-Access-Domain		2	string
+ATTRIBUTE	PaloAlto-Panorama-Admin-Role		3	string
+ATTRIBUTE	PaloAlto-Panorama-Admin-Access-Domain	4	string
+ATTRIBUTE	PaloAlto-User-Group			5	string
+
+END-VENDOR	PaloAlto

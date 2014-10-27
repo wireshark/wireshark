@@ -2,6 +2,16 @@
 #
 # Version $Id$
 #
+# 2014-10-26 Updated based upon FreeRadius v3.0.4 dictionary file
+#	     - Added : actelis, aerohive, alvarion.wimax.v2_2, bluecoat, broadsoft, brocade, bskyb,
+#	       bt, camiant, cisco.asa, citrix, compatible, dante, dlink, dragonwave, efficientip,
+#	       equallogic, ericsson.packet.core.networks, f5, fdxtended, freedhcp, iana, infoblox,
+#	       kineto, meru, paloalto, proxim, purewave, riverbed, ruckus, sg, siemens, starent.vsa1,
+#	       surfnet, symbol, terena, wimax.alvarion, yubico, zeus, zte
+#	     - Added : rfc6677, rfc6911, rfc6929, rfc6930, rfc7055, rfc7155, rfc7268
+#	     - Renamed Redback to Ericsson-AB
+#	     - Renamed Alcatel-lucent.xylan to Xylan
+#
 # 2011-05-24 Updated based upon FreeRadius v2.1.10 dictionary file
 #            - Added: acme, alcatel.sr, iea, motorola.wimax, rfc4603, rfc 5580, rfc5607, rfc5904, wichorus
 #            - Added: additional Integer Translations
@@ -97,6 +107,19 @@ $INCLUDE dictionary.rfc5607
 $INCLUDE dictionary.rfc5904
 $INCLUDE dictionary.rfc6519
 $INCLUDE dictionary.rfc6572
+$INCLUDE dictionary.rfc6677
+$INCLUDE dictionary.rfc6911
+$INCLUDE dictionary.rfc6929
+$INCLUDE dictionary.rfc6930
+$INCLUDE dictionary.rfc7055
+$INCLUDE dictionary.rfc7155
+$INCLUDE dictionary.rfc7268
+
+#
+#	Mostly values which have been allocated by IANA under
+#	"expert review", but which don't have an RFC associated with them.
+#
+$INCLUDE dictionary.iana
 
 #
 #	Include vendor dictionaries after the standard ones.
@@ -106,11 +129,11 @@ $INCLUDE dictionary.3gpp
 $INCLUDE dictionary.3gpp2
 $INCLUDE dictionary.acc
 $INCLUDE dictionary.acme
+$INCLUDE dictionary.actelis
 $INCLUDE dictionary.airespace
 $INCLUDE dictionary.alcatel
 $INCLUDE dictionary.alcatel.sr
 $INCLUDE dictionary.alcatel-lucent.aaa
-$INCLUDE dictionary.alcatel-lucent.xylan
 $INCLUDE dictionary.alteon
 $INCLUDE dictionary.alvarion
 $INCLUDE dictionary.apc
@@ -119,10 +142,17 @@ $INCLUDE dictionary.azaire
 $INCLUDE dictionary.ascend
 $INCLUDE dictionary.bay
 $INCLUDE dictionary.bintec
+$INCLUDE dictionary.bluecoat
+$INCLUDE dictionary.broadsoft
+$INCLUDE dictionary.brocade
+$INCLUDE dictionary.bskyb
+$INCLUDE dictionary.bt
 $INCLUDE dictionary.cablelabs
 $INCLUDE dictionary.cabletron
+$INCLUDE dictionary.camiant
 $INCLUDE dictionary.chillispot
 $INCLUDE dictionary.cisco
+$INCLUDE dictionary.cisco.asa
 #
 #	 The Cisco VPN300 dictionary is the same as the altiga one.
 #	 You shouldn't use both at the same time.
@@ -130,16 +160,27 @@ $INCLUDE dictionary.cisco
 $INCLUDE dictionary.cisco.vpn3000
 $INCLUDE dictionary.cisco.vpn5000
 $INCLUDE dictionary.cisco.bbsm
+$INCLUDE dictionary.citrix
 $INCLUDE dictionary.clavister
 $INCLUDE dictionary.colubris
+$INCLUDE dictionary.compatible
 $INCLUDE dictionary.cosine
+$INCLUDE dictionary.dante
 #$INCLUDE dictionary.dhcp
+$INCLUDE dictionary.dlink
 $INCLUDE dictionary.digium
+$INCLUDE dictionary.dragonwave
+$INCLUDE dictionary.efficientip
 $INCLUDE dictionary.eltex
 $INCLUDE dictionary.epygi
 $INCLUDE dictionary.erx
+$INCLUDE dictionary.equallogic
 $INCLUDE dictionary.ericsson
+$INCLUDE dictionary.ericsson.ab
+$INCLUDE dictionary.ericsson.packet.core.networks
 $INCLUDE dictionary.extreme
+$INCLUDE dictionary.f5
+$INCLUDE dictionary.fdxtended
 $INCLUDE dictionary.freeradius
 $INCLUDE dictionary.freeswitch
 $INCLUDE dictionary.fortinet
@@ -157,14 +198,17 @@ $INCLUDE dictionary.ipunplugged
 $INCLUDE dictionary.juniper
 $INCLUDE dictionary.jradius
 $INCLUDE dictionary.karlnet
+$INCLUDE dictionary.kineto
 $INCLUDE dictionary.lancom
 $INCLUDE dictionary.livingston
 $INCLUDE dictionary.localweb
 $INCLUDE dictionary.lucent
 $INCLUDE dictionary.manzara
 $INCLUDE dictionary.merit
+$INCLUDE dictionary.meru
 $INCLUDE dictionary.microsoft
 $INCLUDE dictionary.mikrotik
+$INCLUDE dictionary.motorola
 $INCLUDE dictionary.motorola.wimax
 $INCLUDE dictionary.navini
 $INCLUDE dictionary.netscreen
@@ -183,25 +227,36 @@ $INCLUDE dictionary.nortel
 #
 #$INCLUDE dictionary.openser
 $INCLUDE dictionary.packeteer
+$INCLUDE dictionary.paloalto
 $INCLUDE dictionary.patton
 $INCLUDE dictionary.propel
 $INCLUDE dictionary.prosoft
+$INCLUDE dictionary.proxim
+$INCLUDE dictionary.purewave
 $INCLUDE dictionary.quiconnect
 $INCLUDE dictionary.quintum
-$INCLUDE dictionary.redback
 $INCLUDE dictionary.redcreek
+$INCLUDE dictionary.riverbed
 $INCLUDE dictionary.riverstone
 $INCLUDE dictionary.roaringpenguin
+$INCLUDE dictionary.ruckus
 $INCLUDE dictionary.shasta
+$INCLUDE dictionary.sg
 $INCLUDE dictionary.shiva
+$INCLUDE dictionary.siemens
 $INCLUDE dictionary.slipstream
 $INCLUDE dictionary.sonicwall
 $INCLUDE dictionary.springtide
 $INCLUDE dictionary.starent
+$INCLUDE dictionary.surfnet
+$INCLUDE dictionary.symbol
 $INCLUDE dictionary.telebit
+$INCLUDE dictionary.terena
 $INCLUDE dictionary.trapeze
 $INCLUDE dictionary.tropos
 $INCLUDE dictionary.t_systems_nova
+$INCLUDE dictionary.ukerna
+$INCLUDE dictionary.unix
 $INCLUDE dictionary.usr
 $INCLUDE dictionary.utstarcom
 $INCLUDE dictionary.valemount
@@ -213,6 +268,11 @@ $INCLUDE dictionary.wichorus
 $INCLUDE dictionary.wimax
 $INCLUDE dictionary.wispr
 $INCLUDE dictionary.xedia
+$INCLUDE dictionary.xylan
+$INCLUDE dictionary.yubico
+$INCLUDE dictionary.zeus
+$INCLUDE dictionary.zte
+$INCLUDE dictionary.zyxel
 $INCLUDE custom.includes
 
 #

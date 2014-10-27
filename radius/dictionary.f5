@@ -1,0 +1,49 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	F5 VSAs
+#
+#	$Id: 5e01f5625f36a2dd7a22bea15f83c5cfbb09533c $
+#
+##############################################################################
+
+VENDOR		F5				3375
+BEGIN-VENDOR	F5
+
+ATTRIBUTE	F5-LTM-User-Role			1	integer
+ATTRIBUTE	F5-LTM-User-Role-Universal		2	integer    # enable/disable
+ATTRIBUTE	F5-LTM-User-Partition			3	string
+ATTRIBUTE	F5-LTM-User-Console			4	integer    # enable/disable
+ATTRIBUTE	F5-LTM-User-Shell			5	string     # supported values are disable, tmsh, and bpsh
+ATTRIBUTE	F5-LTM-User-Context-1			10	integer
+ATTRIBUTE	F5-LTM-User-Context-2			11	integer
+ATTRIBUTE	F5-LTM-User-Info-1			12	string
+ATTRIBUTE	F5-LTM-User-Info-2			13	string
+ATTRIBUTE	F5-LTM-Audit-Msg			14	string
+
+VALUE	F5-LTM-User-Role		Administrator		0
+VALUE	F5-LTM-User-Role		Resource-Admin		20
+VALUE	F5-LTM-User-Role		User-Manager		40
+VALUE	F5-LTM-User-Role		Auditor			80
+VALUE	F5-LTM-User-Role		Manager			100
+VALUE	F5-LTM-User-Role		App-Editor		300
+VALUE	F5-LTM-User-Role		Advanced-Operator	350
+VALUE	F5-LTM-User-Role		Operator		400
+VALUE	F5-LTM-User-Role		Firewall-Manager	450
+VALUE	F5-LTM-User-Role		Fraud-Protection-Manager 480
+VALUE	F5-LTM-User-Role		Certificate-Manager	500
+VALUE	F5-LTM-User-Role		IRule-Manager		510
+VALUE	F5-LTM-User-Role		Guest			700
+VALUE	F5-LTM-User-Role		Web-Application-Security-Administrator 800
+VALUE	F5-LTM-User-Role		Web-Application-Security-Editor 810
+VALUE	F5-LTM-User-Role		Acceleration-Policy-Editor 850
+VALUE	F5-LTM-User-Role		No-Access		900
+
+VALUE	F5-LTM-User-Role-Universal	Disabled		0
+VALUE	F5-LTM-User-Role-Universal	Enabled			1
+
+VALUE	F5-LTM-User-Console		Disabled		0
+VALUE	F5-LTM-User-Console		Enabled			1
+
+END-VENDOR   F5

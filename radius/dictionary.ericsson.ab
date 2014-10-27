@@ -1,28 +1,29 @@
 # -*- text -*-
 #
-# Redback dictionary.
+# Ericsson-AB dictionary.
 #
 # Version:	1.00  14-Sep-2000  Chris Adams <cmadams@hiwaay.net>
+#		1.10  26-Oct-2014  Anish Bhatt <anish@chelsio.com>
 #		$Id$
 #
 
-VENDOR		Redback				2352
+VENDOR		Ericsson-AB				2352
 
 #
-#	Redback Vendor Specific Extensions
+#	Ericsson-AB Vendor Specific Extensions
 #
-#	The first set here uses '_' as the separator, as Redback has changed
+#	The first set here uses '_' as the separator, as Ericsson-AB has changed
 #	their documentation to use '-' vs. '_'.  The older '_' style entries
 #	are listed first so that they will still be accepted,
 #	yet not preferred.
 #
 #
-#	Redback Vendor Specific Extensions  ( older style syntax )
+#	Ericsson-AB Vendor Specific Extensions  ( older style syntax )
 #
 #	The names use underscores (_) instead of dashes (-), because
-#	that's what Redback used in their older documentation and examples.
+#	that's what Ericsson-AB used in their older documentation and examples.
 #
-BEGIN-VENDOR	Redback
+BEGIN-VENDOR	Ericsson-AB
 
 ATTRIBUTE	Client_DNS_Pri				1	ipaddr
 ATTRIBUTE	Client_DNS_Sec				2	ipaddr
@@ -606,7 +607,7 @@ VALUE	LAC-Real-Port-Type		NAS-PORT-TYPE-OC3-POS	58
 VALUE	LAC-Real-Port-Type		NAS-PORT-TYPE-OC12-POS	59
 VALUE	LAC-Real-Port-Type		NAS-PORT-TYPE-PPPOE	60
 
-# Although Redback uses - instead of _ in the Attributes, these values are listed
+# Although Ericsson-AB uses - instead of _ in the Attributes, these values are listed
 # with _ in the latest (6.1.4.4) documentation, so I have entered them as so
 # graeme
 
@@ -642,4 +643,4 @@ VALUE	Service-Action			DE-ACTIVATE		0
 VALUE	Service-Action			ACTIVATE-WITH-ACCT	1
 VALUE	Service-Action			ACTIVATE-WITHOUT-ACCT	2
 
-END-VENDOR	Redback
+END-VENDOR	Ericsson-AB

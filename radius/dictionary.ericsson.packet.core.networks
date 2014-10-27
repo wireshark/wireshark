@@ -1,0 +1,15 @@
+#
+# dictionary.ericsson.packet.core.networks
+#
+
+VENDOR		Ericsson-Packet-Core-Networks	10923
+
+#
+# Ericsson specific
+
+BEGIN-VENDOR	Ericsson-Packet-Core-Networks
+
+ATTRIBUTE	Suggested-Rule-Space			30	string
+ATTRIBUTE	Suggested-Secondary-Rule-Space		31	string
+
+END-VENDOR      Ericsson-Packet-Core-Networks

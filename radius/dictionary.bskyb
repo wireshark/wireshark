@@ -1,0 +1,22 @@
+# -*- text -*-
+# Copyright (C) 2012 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	British Sky Broadcasting Group plc VSA's
+#
+#	$Id: 2d14dc185e878870e056e35cb058a6a1b921cc4c $
+#
+##############################################################################
+
+VENDOR		BSkyB				16924
+
+BEGIN-VENDOR	BSkyB
+
+ATTRIBUTE	Sky-Wifi-AP-ID				1	integer
+ATTRIBUTE	Sky-Wifi-Service-ID			2	integer
+ATTRIBUTE	Sky-Wifi-Filter-Profile			3	string
+ATTRIBUTE	Sky-Wifi-Billing-Class			4	octets
+ATTRIBUTE	Sky-Wifi-Provider-ID			5	integer
+ATTRIBUTE	Sky-Wifi-Credentials			6	string
+
+END-VENDOR	BSkyB

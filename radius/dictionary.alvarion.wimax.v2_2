@@ -1,0 +1,34 @@
+# -*- text -*-
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#       Alvarion VSAs for use with Alvarion WiMAX ASN-GW
+#
+#	This does conflict with the default Alvarion dictionary file included
+# 	with FreeRADIUS and may break existing functionality if the current
+# 	dictionaries are used to support an existing Alvarion Breezecom or
+#	Breezenet installation.
+#
+#       $Id: 8103fec4b9464f7d04f9b6d54683ca7634fab0c9 $
+#
+##############################################################################
+
+VENDOR		Alvarion			12394
+
+BEGIN-VENDOR	Alvarion
+
+ATTRIBUTE	Alvarion-R3-IF-Descriptor		1	tlv
+ATTRIBUTE	Alvarion-R3-IF-Name			1.1	string
+ATTRIBUTE	Alvarion-R3-IF-ID			1.2	integer
+ATTRIBUTE	Alvarion-PDFID				1.3	short
+ATTRIBUTE	Alvarion-IPv4-Address			1.4	ipaddr
+# IPv4 subnet mask plus bit-width mask
+ATTRIBUTE	Alvarion-IPv4-Netmask			1.5	octets
+ATTRIBUTE	Alvarion-DGW-IPv4-Address		1.6	ipaddr
+
+# Container for DHCP options delivery in DHCP Proxy mode.
+ATTRIBUTE	Alvarion-DHCP-Option			2	tlv
+ATTRIBUTE	Alvarion-Ref-R3-IF-Name			2.1	string
+ATTRIBUTE	Alvarion-DHCP-Option-Container		2.2	string
+
+END-VENDOR 	Alvarion

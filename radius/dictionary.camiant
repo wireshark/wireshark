@@ -1,0 +1,21 @@
+# -*- text -*-
+##############################################################################
+#
+#	Tekelec (Formerly Camiant) MSR dictionary
+#	http://www.tekelec.com/products/policy-management.asp
+#
+##############################################################################
+
+VENDOR		Camiant				21274
+
+BEGIN-VENDOR	Camiant
+
+ATTRIBUTE	Camiant-MI-role				1	string
+ATTRIBUTE	Camiant-SUI-role			2	integer
+ATTRIBUTE	Camiant-MI-scope			3	string
+
+VALUE	Camiant-SUI-role		camiantView		101
+VALUE	Camiant-SUI-role		camiantUser		102
+VALUE	Camiant-SUI-role		camiantService		104
+
+END-VENDOR	Camiant

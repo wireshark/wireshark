@@ -127,14 +127,16 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.acc  \
 	radius/dictionary.acme \
 	radius/dictionary.airespace \
+	radius/dictionary.actelis  \
+	radius/dictionary.aerohive \
 	radius/dictionary.alcatel  \
 	radius/dictionary.alcatel.esam \
 	radius/dictionary.alcatel.sr \
 	radius/dictionary.alcatel-lucent.aaa \
-	radius/dictionary.alcatel-lucent.xylan \
 	radius/dictionary.alteon  \
 	radius/dictionary.altiga  \
 	radius/dictionary.alvarion \
+	radius/dictionary.alvarion.wimax.v2_2  \
 	radius/dictionary.apc \
 	radius/dictionary.aptis  \
 	radius/dictionary.aruba  \
@@ -144,29 +146,48 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.avaya \
 	radius/dictionary.azaire \
 	radius/dictionary.bay  \
+	radius/dictionary.bluecoat \
 	radius/dictionary.bintec  \
+	radius/dictionary.broadsoft  \
+	radius/dictionary.brocade  \
+	radius/dictionary.bskyb  \
 	radius/dictionary.bristol  \
+	radius/dictionary.bt  \
+	radius/dictionary.camiant  \
 	radius/dictionary.cablelabs  \
 	radius/dictionary.cabletron  \
 	radius/dictionary.chillispot \
 	radius/dictionary.cisco  \
+	radius/dictionary.cisco.asa  \
 	radius/dictionary.cisco.bbsm  \
 	radius/dictionary.cisco.vpn3000  \
 	radius/dictionary.cisco.vpn5000  \
+	radius/dictionary.citrix  \
 	radius/dictionary.clavister \
 	radius/dictionary.colubris  \
 	radius/dictionary.columbia_university  \
+	radius/dictionary.compatible  \
 	radius/dictionary.compat  \
 	radius/dictionary.cosine  \
+	radius/dictionary.dante  \
 	radius/dictionary.dhcp \
+	radius/dictionary.dlink  \
 	radius/dictionary.digium \
+	radius/dictionary.dragonwave  \
+	radius/dictionary.efficientip  \
 	radius/dictionary.eltex \
 	radius/dictionary.epygi \
+	radius/dictionary.equallogic  \
 	radius/dictionary.ericsson  \
+	radius/dictionary.ericsson.ab  \
+	radius/dictionary.ericsson.packet.core.networks  \
 	radius/dictionary.erx  \
 	radius/dictionary.extreme  \
+	radius/dictionary.f5  \
+	radius/dictionary.fdxtended  \
 	radius/dictionary.fortinet \
 	radius/dictionary.foundry  \
+	radius/dictionary.freedhcp  \
 	radius/dictionary.freeradius  \
 	radius/dictionary.freeradius.internal  \
 	radius/dictionary.freeswitch \
@@ -176,13 +197,16 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.h3c \
 	radius/dictionary.hp \
 	radius/dictionary.huawei \
+	radius/dictionary.iana  \
 	radius/dictionary.iea \
+	radius/dictionary.infoblox  \
 	radius/dictionary.infonet \
 	radius/dictionary.ipunplugged \
 	radius/dictionary.issanni \
 	radius/dictionary.itk  \
 	radius/dictionary.jradius \
 	radius/dictionary.juniper  \
+	radius/dictionary.kineto  \
 	radius/dictionary.karlnet  \
 	radius/dictionary.lancom \
 	radius/dictionary.livingston  \
@@ -190,6 +214,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.lucent \
 	radius/dictionary.manzara \
 	radius/dictionary.merit  \
+	radius/dictionary.meru  \
 	radius/dictionary.microsoft  \
 	radius/dictionary.mikrotik  \
 	radius/dictionary.motorola \
@@ -205,12 +230,14 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.ntua \
 	radius/dictionary.openser \
 	radius/dictionary.packeteer \
+	radius/dictionary.paloalto  \
 	radius/dictionary.patton \
 	radius/dictionary.propel  \
 	radius/dictionary.prosoft \
+	radius/dictionary.proxim  \
+	radius/dictionary.purewave  \
 	radius/dictionary.quiconnect \
 	radius/dictionary.quintum  \
-	radius/dictionary.redback  \
 	radius/dictionary.redcreek  \
 	radius/dictionary.rfc2865 \
 	radius/dictionary.rfc2866 \
@@ -235,18 +262,33 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.rfc5904 \
 	radius/dictionary.rfc6519 \
 	radius/dictionary.rfc6572 \
+	radius/dictionary.rfc6677 \
+	radius/dictionary.rfc6911 \
+	radius/dictionary.rfc6929 \
+	radius/dictionary.rfc6930 \
+	radius/dictionary.rfc7055 \
+	radius/dictionary.rfc7155 \
+	radius/dictionary.rfc7268 \
+	radius/dictionary.riverbed  \
 	radius/dictionary.riverstone \
+	radius/dictionary.ruckus  \
 	radius/dictionary.roaringpenguin \
+	radius/dictionary.sg  \
 	radius/dictionary.shasta  \
 	radius/dictionary.shiva  \
+	radius/dictionary.siemens  \
 	radius/dictionary.slipstream \
 	radius/dictionary.sofaware \
 	radius/dictionary.sonicwall  \
 	radius/dictionary.springtide  \
 	radius/dictionary.starent  \
+	radius/dictionary.starent.vsa1  \
+	radius/dictionary.surfnet  \
+	radius/dictionary.symbol  \
 	radius/dictionary.t_systems_nova  \
 	radius/dictionary.telebit  \
 	radius/dictionary.telkom \
+	radius/dictionary.terena  \
 	radius/dictionary.trapeze  \
 	radius/dictionary.tropos \
 	radius/dictionary.ukerna  \
@@ -260,9 +302,14 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.waverider \
 	radius/dictionary.wichorus \
 	radius/dictionary.wimax  \
+	radius/dictionary.wimax.alvarion  \
 	radius/dictionary.wimax.wichorus \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia \
+	radius/dictionary.xylan  \
+	radius/dictionary.yubico  \
+	radius/dictionary.zeus  \
+	radius/dictionary.zte  \
 	radius/dictionary.zyxel
 
 #

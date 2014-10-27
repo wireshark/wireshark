@@ -1,0 +1,29 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Dragonwave
+#	http://www.dragonwaveinc.comw
+#
+#	$Id: 7a79414c8fcfefb1e7de7fb985603ae34c1c6ff8 $
+#
+##############################################################################
+
+VENDOR		DragonWave			7262
+
+BEGIN-VENDOR	DragonWave
+
+# Used to determine the user login privilege level.
+ATTRIBUTE	DragonWave-Privilege-Level		1	integer
+
+#        Read-only access.
+
+VALUE	DragonWave-Privilege-Level	DragonWave-Admin-User	1
+
+#         Limited read-write access.
+VALUE	DragonWave-Privilege-Level	DragonWave-NOC-User	2
+
+#         Unlimited read-write access.
+VALUE	DragonWave-Privilege-Level	DragonWave-Super-User	3
+
+END-VENDOR    DragonWave

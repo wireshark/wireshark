@@ -1,0 +1,52 @@
+# -*- text -*-
+# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+#
+#	Purewave Networks Base Station
+#
+#	$Id: f5798a1ff359a5eceff019b6150698313a611cde $
+#
+VENDOR		Purewave			21074
+
+BEGIN-VENDOR	Purewave
+
+ATTRIBUTE	Purewave-Client-Profile			1	integer
+
+ATTRIBUTE	Purewave-CS-Type			2	integer
+ATTRIBUTE	Purewave-Max-Downlink-Rate		3	integer
+ATTRIBUTE	Purewave-Max-Uplink-Rate		4	integer
+
+# the following two attributes are needed when cs-Type is IPV4_CS
+#
+ATTRIBUTE	Purewave-IP-Address			5	ipaddr
+ATTRIBUTE	Purewave-IP-Netmask			6	ipaddr
+
+#
+# Attribute 	Purewave-Service-Enable (optional parameter)
+# Purpose	Enable or Disable service
+# Range		0-1
+# Default value	1
+#
+ATTRIBUTE	Purewave-Service-Enable			7	integer
+
+VALUE	Purewave-CS-Type		ETHERNET_CS		1
+VALUE	Purewave-CS-Type		IPV4_CS			0
+
+VALUE	Purewave-Max-Downlink-Rate	QPSK_1/2		3
+VALUE	Purewave-Max-Downlink-Rate	QPSK_3/4		4
+VALUE	Purewave-Max-Downlink-Rate	QAM16_1/2		5
+VALUE	Purewave-Max-Downlink-Rate	QAM16_3/4		6
+VALUE	Purewave-Max-Downlink-Rate	QAM64_1/2		7
+VALUE	Purewave-Max-Downlink-Rate	QAM64_2/3		8
+VALUE	Purewave-Max-Downlink-Rate	QAM64_3/4		9
+VALUE	Purewave-Max-Downlink-Rate	QAM64_5/6		10
+
+VALUE	Purewave-Max-Uplink-Rate	QPSK_1/2		3
+VALUE	Purewave-Max-Uplink-Rate	QPSK_3/4		4
+VALUE	Purewave-Max-Uplink-Rate	QAM16_1/2		5
+VALUE	Purewave-Max-Uplink-Rate	QAM16_3/4		6
+VALUE	Purewave-Max-Uplink-Rate	QAM64_1/2		7
+VALUE	Purewave-Max-Uplink-Rate	QAM64_2/3		8
+VALUE	Purewave-Max-Uplink-Rate	QAM64_3/4		9
+VALUE	Purewave-Max-Uplink-Rate	QAM64_5/6		10
+
+END-VENDOR	Purewave
