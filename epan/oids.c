@@ -27,7 +27,6 @@
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <wsutil/report_err.h>
 
@@ -274,7 +273,7 @@ static char* alnumerize(const char* name) {
 	char c;
 
 	for (;(c = *r); r++) {
-		if (isalnum(c) || c == '_' || c == '-' || c == '.') {
+		if (g_ascii_isalnum(c) || c == '_' || c == '-' || c == '.') {
 			*(w++) = c;
 		} else if (c == ':' && r[1] == ':') {
 			*(w++) = '.';
