@@ -93,15 +93,15 @@ typedef struct peektagged_section_header {
 #define TAG_PEEKTAGGED_LENGTH			0x0000
 #define TAG_PEEKTAGGED_TIMESTAMP_LOWER		0x0001
 #define TAG_PEEKTAGGED_TIMESTAMP_UPPER		0x0002
-#define TAG_PEEKTAGGED_FLAGS_AND_STATUS		0x0003
+#define TAG_PEEKTAGGED_FLAGS_AND_STATUS		0x0003	/* upper 24 bits unused? */
 #define TAG_PEEKTAGGED_CHANNEL			0x0004
-#define TAG_PEEKTAGGED_RATE			0x0005
+#define TAG_PEEKTAGGED_RATE			0x0005	/* or MCS index for 802.11n */
 #define TAG_PEEKTAGGED_SIGNAL_PERC		0x0006
 #define TAG_PEEKTAGGED_SIGNAL_DBM		0x0007
 #define TAG_PEEKTAGGED_NOISE_PERC		0x0008
 #define TAG_PEEKTAGGED_NOISE_DBM		0x0009
 #define TAG_PEEKTAGGED_UNKNOWN_0x000A		0x000A
-#define TAG_PEEKTAGGED_UNKNOWN_0x000D		0x000D	/* frequency? */
+#define TAG_PEEKTAGGED_CENTER_FREQUENCY		0x000D	/* Frequency */
 #define TAG_PEEKTAGGED_UNKNOWN_0x000E		0x000E
 #define TAG_PEEKTAGGED_UNKNOWN_0x000F		0x000F	/* 000F-0013 - dBm values? */
 #define TAG_PEEKTAGGED_UNKNOWN_0x0010		0x0010
@@ -109,9 +109,47 @@ typedef struct peektagged_section_header {
 #define TAG_PEEKTAGGED_UNKNOWN_0x0012		0x0012
 #define TAG_PEEKTAGGED_UNKNOWN_0x0013		0x0013
 #define TAG_PEEKTAGGED_UNKNOWN_0x0014		0x0014
-#define TAG_PEEKTAGGED_UNKNOWN_0x0015		0x0015
+#define TAG_PEEKTAGGED_EXT_FLAGS		0x0015	/* Extended flags for 802.11n and beyond */
 
 #define TAG_PEEKTAGGED_SLICE_LENGTH		0xffff
+
+/*
+ * Flags.
+ *
+ * We're assuming here that the "remote Peek" flags from bug 9586 are
+ * the same as the "Peek tagged" flags.
+ */
+#define FLAGS_CONTROL_FRAME	0x01	/* Frame is a control frame */
+#define FLAGS_HAS_CRC_ERROR	0x02	/* Frame has a CRC error */
+#define FLAGS_HAS_FRAME_ERROR	0x04	/* Frame has a frame error */
+
+/*
+ * Status.
+ *
+ * Is this in the next 8 bits of the "flags and status" field?
+ */
+#define STATUS_PROTECTED	0x0400	/* Frame is protected (encrypted) */
+#define STATUS_DECRYPT_ERROR	0x0800	/* Error decrypting protected frame */
+#define STATUS_SHORT_PREAMBLE	0x4000	/* Short preamble */
+
+/*
+ * Extended flags.
+ *
+ * Some determined from bug 10637, some determined from bug 9586,
+ * and the ones present in both agree, so we're assuming that
+ * the "remote Peek" protocol and the "Peek tagged" file format
+ * use the same bits (which wouldn't be too surprising, as they
+ * both come from Wildpackets).
+ */
+#define EXT_FLAG_20_MHZ_LOWER			0x00000001
+#define EXT_FLAG_20_MHZ_UPPER			0x00000002
+#define EXT_FLAG_40_MHZ				0x00000004
+#define EXT_FLAG_HALF_GI			0x00000008
+#define EXT_FLAG_FULL_GI			0x00000010
+#define EXT_FLAG_AMPDU				0x00000020
+#define EXT_FLAG_AMSDU				0x00000040
+#define EXT_FLAG_802_11ac			0x00000080
+#define EXT_FLAG_MCS_INDEX_USED			0x00000100
 
 /* 64-bit time in nanoseconds from the (Windows FILETIME) epoch */
 typedef struct peektagged_utime {
@@ -490,9 +528,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    /* XXX - seen in an OmniPeek 802.11n capture; value unknown */
 	    break;
 
-	case TAG_PEEKTAGGED_UNKNOWN_0x000D:
-	    /* XXX - seen in an EtherPeek capture; value unknown */
-	    /* XXX - seen in an AiroPeek/OmniPeek capture; frequency? */
+	case TAG_PEEKTAGGED_CENTER_FREQUENCY:
+	    /* XXX - also seen in an EtherPeek capture; value unknown */
 	    break;
 
 	case TAG_PEEKTAGGED_UNKNOWN_0x000E:
@@ -523,8 +560,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    /* XXX - seen in an AiroPeek/OmniPeek capture; value unknown */
 	    break;
 
-	case TAG_PEEKTAGGED_UNKNOWN_0x0015:
-	    /* XXX - seen in an AiroPeek/OmniPeek capture; value unknown */
+	case TAG_PEEKTAGGED_EXT_FLAGS:
 	    break;
 
 	case TAG_PEEKTAGGED_SLICE_LENGTH:
