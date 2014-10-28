@@ -1,55 +1,63 @@
-                     Wireshark 1.99.0 Release Notes
+                         Wireshark 1.99.1 Release Notes
 
-   This is an experimental release intended to test new features
-   for Wireshark 2.0.
-     __________________________________________________________
+   This is an experimental release intended to test new features for
+   Wireshark 2.0.
+     __________________________________________________________________
 
 What is Wireshark?
 
-   Wireshark is the world's most popular network protocol
-   analyzer. It is used for troubleshooting, analysis, development
-   and education.
-     __________________________________________________________
+   Wireshark is the world's most popular network protocol analyzer. It is
+   used for troubleshooting, analysis, development and education.
+     __________________________________________________________________
 
 What's New
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 1.12.0:
-     * The I/O Graph in the Gtk+ UI now supports an unlimited
-       number of data points (up from 100k).
-     * TShark now resets its state when changing files in
-       ring-buffer mode.
-     * Expert Info severities can now be configured.
-     * Wireshark now supports external capture interfaces.
-       External capture interfaces can be anything from a
-       tcpdump-over-ssh pipe to a program that captures from
-       proprietary or non-standard hardware. This functionality is
-       not available in the Qt UI yet.
+   The following features are new (or have been significantly updated)
+   since version 1.99.0:
      * Qt port:
-          + The Qt UI is now the default (program name is
-            wireshark).
+          + You can now show and hide toolbars and major widgets using the
+            View menu.
+          + You can now set the time display format and precision.
+          + The byte view widget is much faster, particularly when
+            selecting large reassembled packets.
+          + Hovering over a byte-view field causes the field to be
+            highlighted and a description to be shown in the status bar.
+          + An Italian translation has been added.
+
+   The following features are new (or have been significantly updated)
+   since version 1.12.0:
+     * The I/O Graph in the Gtk+ UI now supports an unlimited number of
+       data points (up from 100k).
+     * TShark now resets its state when changing files in ring-buffer
+       mode.
+     * Expert Info severities can now be configured.
+     * Wireshark now supports external capture interfaces. External
+       capture interfaces can be anything from a tcpdump-over-ssh pipe to
+       a program that captures from proprietary or non-standard hardware.
+       This functionality is not available in the Qt UI yet.
+     * Qt port:
+          + The Qt UI is now the default (program name is wireshark).
           + A Polish translation has been added.
           + The Interfaces dialog has been added.
-          + The interface list is now updated when interfaces
-            appear or disappear.
-          + The Conversations and Endpoints dialogs have been
-            added.
+          + The interface list is now updated when interfaces appear or
+            disappear.
+          + The Conversations and Endpoints dialogs have been added.
           + A Japanese translation has been added.
-          + It is now possible to manage remote capture
-            interfaces.
+          + It is now possible to manage remote capture interfaces.
           + Windows: taskbar progress support has been added.
           + Most toolbar actions are in place and work.
           + More command line options are now supported
 
   New Protocol Support
 
-   ceph, corosync/totemnet, corosync/totemsrp, CP "Cooper" 2179,
-   Dynamic Source Routing (RFC 4728), Generic Network
-   Virtualization Encapsulation (Geneve), IPMI Trace, iSER,
-   KNXnetIP, OptoMMP, S7 Communication, and Stateless Transport
-   Tunneling
+   (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
+   ADB, Android Logcat text, ceph, corosync/totemnet, corosync/totemsrp,
+   Couchbase, CP "Cooper" 2179, Dynamic Source Routing (RFC 4728), Generic
+   Network Virtualization Encapsulation (Geneve), GVSP, IPMI Trace, iSER,
+   KNXnetIP, MCPE (Minecraft Pocket Edition), OptoMMP, RakNet games
+   library, S7 Communication, and Stateless Transport Tunneling
 
   Updated Protocol Support
 
@@ -57,92 +65,86 @@ What's New
 
   New and Updated Capture File Support
 
-   Android logcat text files, and Wireshark now supports
-   nanosecond timestamp resolution in PCAP-NG files.
+   Android Logcat text files, Colasoft Capsa files, and Wireshark now
+   supports nanosecond timestamp resolution in PCAP-NG files.
 
   Major API Changes
 
    The libwireshark API has undergone some major changes:
-     * Many of the ep_ and se_ memory allocation routines have
-       been removed.
-     * The (long-since-broken) Python bindings support has been
-       removed. If you want to write dissectors in something other
-       than C, use Lua.
-     __________________________________________________________
+     * Many of the ep_ and se_ memory allocation routines have been
+       removed.
+     * The (long-since-broken) Python bindings support has been removed.
+       If you want to write dissectors in something other than C, use Lua.
+     __________________________________________________________________
 
 Getting Wireshark
 
-   Wireshark source code and installation packages are available
-   from [1]https://www.wireshark.org/download.html.
+   Wireshark source code and installation packages are available from
+   [1]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
-   Most Linux and Unix vendors supply their own Wireshark
-   packages. You can usually install or upgrade Wireshark using
-   the package management system specific to that platform. A list
-   of third-party packages can be found on the [2]download page on
-   the Wireshark web site.
-     __________________________________________________________
+   Most Linux and Unix vendors supply their own Wireshark packages. You
+   can usually install or upgrade Wireshark using the package management
+   system specific to that platform. A list of third-party packages can be
+   found on the [2]download page on the Wireshark web site.
+     __________________________________________________________________
 
 File Locations
 
-   Wireshark and TShark look in several different locations for
-   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
-   These locations vary from platform to platform. You can use
-   About->Folders to find the default locations on your system.
-     __________________________________________________________
+   Wireshark and TShark look in several different locations for preference
+   files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations
+   vary from platform to platform. You can use About->Folders to find the
+   default locations on your system.
+     __________________________________________________________________
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug
-   1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug 1419)
 
    The BER dissector might infinitely loop. ([4]Bug 1516)
 
-   Capture filters aren't applied when capturing from named pipes.
-   ([5]Bug 1814)
+   Capture filters aren't applied when capturing from named pipes. ([5]Bug
+   1814)
 
-   Filtering tshark captures with read filters (-R) no longer
-   works. ([6]Bug 2234)
+   Filtering tshark captures with read filters (-R) no longer works.
+   ([6]Bug 2234)
 
-   The 64-bit Windows installer does not support Kerberos
-   decryption. ([7]Win64 development page)
+   The 64-bit Windows installer does not support Kerberos decryption.
+   ([7]Win64 development page)
 
-   Resolving ([8]Bug 9044) reopens ([9]Bug 3528) so that Wireshark
-   no longer automatically decodes gzip data when following a TCP
-   stream.
+   Resolving ([8]Bug 9044) reopens ([9]Bug 3528) so that Wireshark no
+   longer automatically decodes gzip data when following a TCP stream.
 
-   Application crash when changing real-time option. ([10]Bug
-   4035)
+   Application crash when changing real-time option. ([10]Bug 4035)
 
    Hex pane display issue after startup. ([11]Bug 4056)
 
    Packet list rows are oversized. ([12]Bug 4357)
 
-   Wireshark and TShark will display incorrect delta times in some
-   cases. ([13]Bug 4985)
+   Wireshark and TShark will display incorrect delta times in some cases.
+   ([13]Bug 4985)
 
-   The 64-bit version of Wireshark will leak memory on Windows
-   when the display depth is set to 16 bits ([14]Bug 9914)
-     __________________________________________________________
+   The 64-bit version of Wireshark will leak memory on Windows when the
+   display depth is set to 16 bits ([14]Bug 9914)
+     __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [15]Wireshark's Q&A site and
-   on the wireshark-users mailing list. Subscription information
-   and archives for all of Wireshark's mailing lists can be found
-   on [16]the web site.
+   Community support is available on [15]Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and archives for
+   all of Wireshark's mailing lists can be found on [16]the web site.
 
-   Official Wireshark training and certification are available
-   from [17]Wireshark University.
-     __________________________________________________________
+   Official Wireshark training and certification are available from
+   [17]Wireshark University.
+     __________________________________________________________________
 
 Frequently Asked Questions
 
    A complete FAQ is available on the [18]Wireshark web site.
-     __________________________________________________________
+     __________________________________________________________________
 
-   Last updated 2014-10-07 16:09:20 UTC
+   Last updated 2014-10-28 15:13:30 UTC
 
 References
 

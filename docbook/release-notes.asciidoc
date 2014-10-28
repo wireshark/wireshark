@@ -30,6 +30,9 @@ since version 1.99.0:
 ** You can now set the time display format and precision.
 ** The byte view widget is much faster, particularly when selecting large
 reassembled packets.
+** Hovering over a byte-view field causes the field to be highlighted and a
+description to be shown in the status bar.
+** An Italian translation has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.12.0:
@@ -81,6 +84,7 @@ RakNet games library
 Android ADB
 Android Logcat text
 Couchbase
+AllJoyn Reliable Datagram Protocol
 --sort-and-group--
 
 === Updated Protocol Support
@@ -92,6 +96,7 @@ Too many protocols have been updated to list here.
 --sort-and-group--
 Android Logcat text files
 Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
+Colasoft Capsa files
 --sort-and-group--
 
 === Major API Changes
