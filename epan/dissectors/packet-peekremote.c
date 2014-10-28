@@ -63,7 +63,16 @@ void proto_reg_handoff_peekremote(void);
 
 static int proto_peekremote;
 
-static const value_string peekremote_data_rate_vals[] = {
+/*
+ * XXX - we don't have all the MCS index values here.
+ * We should probably just show the MCS index as a number (those
+ * numbers are used in 802.11), and have separate items for the
+ * number of spatial streams, the modulation type, and the coding rate.
+ * Note that some modes with more than one spatial stream use *different*
+ * modulation types for the different streams.  See section 20.6
+ * "Parameters for HT MCSs" in 802.11-2012.
+ */
+static const value_string peekremote_mcs_index_vals[] = {
   { 0, "Spatial streams: 1, Modulation type: BPSK, Codingrate: 1/2" },
   { 1, "Spatial streams: 1, Modulation type: QPSK, Codingrate: 1/2" },
   { 2, "Spatial streams: 1, Modulation type: QPSK, Codingrate: 3/4" },
@@ -99,7 +108,7 @@ static const value_string peekremote_data_rate_vals[] = {
   { 0, NULL }
 };
 
-static value_string_ext peekremote_data_rate_vals_ext = VALUE_STRING_EXT_INIT(peekremote_data_rate_vals);
+static value_string_ext peekremote_mcs_index_vals_ext = VALUE_STRING_EXT_INIT(peekremote_mcs_index_vals);
 
 static const value_string peekremote_type_vals[] = {
   { 6, "kMediaSpecificHdrType_Wireless3" },
@@ -175,8 +184,8 @@ static header_field_info hfi_peekremote_timestamp THIS_HF_INIT =
       { "TSF timestamp",       "peekremote.timestamp", FT_UINT64, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
-static header_field_info hfi_peekremote_data_rate THIS_HF_INIT =
-      { "Data rate",         "peekremote.data_rate", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_data_rate_vals_ext,
+static header_field_info hfi_peekremote_mcs_index THIS_HF_INIT =
+      { "MCS index",         "peekremote.mcs_index", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_mcs_index_vals_ext,
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
@@ -397,7 +406,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     } else {
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_data_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
@@ -520,7 +529,7 @@ proto_register_peekremote(void)
     &hfi_peekremote_header_version,
     &hfi_peekremote_header_size,
     &hfi_peekremote_type,
-    &hfi_peekremote_data_rate,
+    &hfi_peekremote_mcs_index,
     &hfi_peekremote_signal_percent,
     &hfi_peekremote_noise_percent,
     &hfi_peekremote_frequency,
