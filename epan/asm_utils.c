@@ -47,7 +47,7 @@ wrs_str_equal(gconstpointer a, gconstpointer b)
 }
 
 guchar
-wrs_check_charset(const guchar table[256], const char *str)
+wrs_check_charset(const guint8 table[256], const char *str)
 {
     const char *p = str;
     guchar c;

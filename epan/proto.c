@@ -5287,7 +5287,7 @@ proto_unregister_field (const int parent, gint hf_id)
 
 /* chars allowed in field abbrev */
 static
-const guchar fld_abbrev_chars[256] = {
+const guint8 fld_abbrev_chars[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
@@ -5645,7 +5645,10 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		 * it must contain only alphanumerics, '-', "_", and ".". */
 		c = wrs_check_charset(fld_abbrev_chars, hfinfo->abbrev);
 		if (c) {
-			fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
+			if (g_ascii_isprint(c))
+				fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
+			else
+				fprintf(stderr, "Invalid byte \\%03o in filter name '%s'\n", c, hfinfo->abbrev);
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 
