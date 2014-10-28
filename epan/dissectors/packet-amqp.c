@@ -58,7 +58,6 @@ static int amqp_port = 5672;
     offset += (addend);\
     THROW_ON((offset > bound), ReportedBoundsError);  \
 }
-#else /* --> (temporary until in-progress code review completed; See Bug #10582) */
 #define AMQP_INCREMENT(offset, addend, bound) {\
         THROW_ON( \
             (((unsigned)(offset) + (unsigned)(addend)) < (unsigned)(offset)) || \
@@ -66,6 +65,12 @@ static int amqp_port = 5672;
             , ReportedBoundsError);  \
     offset += (addend); \
 }
+#else /* --> (temporary until in-progress code review completed; See Bug #10582) */
+#define AMQP_INCREMENT(offset, addend, bound) { \
+    THROW_ON( (unsigned)(addend) > (G_MAXUINT - (unsigned)(offset)), ReportedBoundsError);  \
+    offset = (unsigned)(offset) + (unsigned)(addend); \
+    THROW_ON( (unsigned)(offset) > (unsigned)(bound), ReportedBoundsError); \
+    }
 #endif
 
 /*
