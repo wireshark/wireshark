@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-save.svg">
+   sodipodi:docname="x-capture-file-close.svg"
+   inkscape:export-filename="x-capture-file-close.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -33,21 +36,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.893359"
-     inkscape:cx="9.6749014"
-     inkscape:cy="13.379973"
+     inkscape:zoom="12.925293"
+     inkscape:cx="13.757393"
+     inkscape:cy="11.816252"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="931"
-     inkscape:window-height="683"
-     inkscape:window-x="297"
-     inkscape:window-y="441"
+     inkscape:window-width="1055"
+     inkscape:window-height="786"
+     inkscape:window-x="264"
+     inkscape:window-y="261"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
-       id="grid3173"
-       empspacing="2"
+       id="grid3064"
+       empspacing="5"
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true" />
@@ -70,18 +73,14 @@
      id="layer1"
      transform="translate(0,-1028.3622)">
     <image
+       sodipodi:absref="/Users/gcombs/Development/wireshark/image/toolbar/24x24/x-capture-file-save.png"
+       xlink:href="x-capture-file-save.png"
        y="1028.3622"
        x="0"
-       id="image3237"
-       xlink:href="../../WiresharkDoc-24.png"
+       id="image3836"
        height="24"
-       width="24" />
-    <path
-       style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-       d="m 2.5000001,1028.8622 c 0,23 0,23 0,23 l 19.0000009,0 0,-17.7728 L 16.5,1028.8622 z"
-       id="path3240"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccc" />
+       width="24"
+       style="fill:#2e3436;stroke:#2e3436" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
