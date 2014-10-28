@@ -36,16 +36,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32.125"
-     inkscape:cx="8.6038579"
-     inkscape:cy="8"
+     inkscape:zoom="34.727236"
+     inkscape:cx="8"
+     inkscape:cy="7.7500087"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1200"
      inkscape:window-height="742"
-     inkscape:window-x="484"
-     inkscape:window-y="196"
+     inkscape:window-x="226"
+     inkscape:window-y="316"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -73,24 +73,30 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <image
-       sodipodi:absref="/Users/gerald/Development/wireshark/image/toolbar/16x16/x-capture-file-save.png"
-       xlink:href="x-capture-file-save.png"
        y="1036.3622"
        x="0"
-       id="image3882"
+       id="image3135"
+       xlink:href="../../WiresharkDoc-16.png"
        height="16"
        width="16" />
-    <path
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="m 3,1049.3622 10,-10"
-       id="path3769"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path3771"
        d="m 13,1049.3622 -10,-10"
        style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1.5,0.5 0,15 13,0 0,-11 -4,-4 z"
+       id="path3140"
+       inkscape:connector-curvature="0"
+       transform="translate(0,1036.3622)"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 3,1049.3622 10,-10"
+       id="path3769"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>

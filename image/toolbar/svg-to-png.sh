@@ -24,25 +24,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 COMMON_ARGS="--export-area-page"
-ONE_X_ARGS="--export-width=24 --export-height=24"
-TWO_X_ARGS="--export-width=48 --export-height=48"
 
-set_source_svg() {
+set_source_svgs() {
     local out_icon=$1
     case $out_icon in
     x-capture-options)
-        SOURCE_SVG=x-capture-options-gear.svg
+        out_icon=x-capture-options-gear
         ;;
     x-capture-restart)
-        SOURCE_SVG=x-capture-restart-fin.svg
+        out_icon=x-capture-restart-fin
         ;;
     x-capture-stop)
-        SOURCE_SVG=x-capture-stop-red.svg
-        ;;
-    *)
-        SOURCE_SVG=$out_icon.svg
+        out_icon=x-capture-stop-red
         ;;
     esac
+    ONE_X_SVG=${out_icon}.svg
+    TWO_X_SVG=${out_icon}@2x.svg
+    if [ ! -f ${TWO_X_SVG} ] ; then
+        TWO_X_SVG=$ONE_X_SVG
+    fi
+    if [ ! -f ${ONE_X_SVG} ] ; then
+        >&2 echo "Can't find ${ONE_X_SVG}"
+        exit 1
+    fi
 }
 
 ICONS="
@@ -52,6 +56,8 @@ ICONS="
     go-last
     go-next
     go-previous
+    x-capture-file-close
+    x-capture-file-save
     x-capture-file-reload
     x-capture-options
     x-capture-restart
@@ -66,44 +72,54 @@ ICONS="
     zoom-out
     "
 
+QRC_FILES=""
+
 # XXX Add support for 16 pixel icons.
-for SIZE in 24 ; do
+for SIZE in 16 24 ; do
     SIZE_DIR=${SIZE}x${SIZE}
+
+    TWO_X_SIZE=`expr $SIZE \* 2`
+    ONE_X_ARGS="--export-width=${SIZE} --export-height=${SIZE}"
+    TWO_X_ARGS="--export-width=${TWO_X_SIZE} --export-height=${TWO_X_SIZE}"
+
     cd $SIZE_DIR
 
-    QRC_FILES=""
     for ICON in $ICONS ; do
-        set_source_svg $ICON
+        set_source_svgs $ICON
+
         ONE_X_PNG=${ICON}.png
         TWO_X_PNG=${ICON}@2x.png
 
-        inkscape $COMMON_ARGS $ONE_X_ARGS \
-            --file=$SOURCE_SVG --export-png=$ONE_X_PNG || exit 1
+        if [ $ONE_X_SVG -nt $ONE_X_PNG ] ; then
+            inkscape $COMMON_ARGS $ONE_X_ARGS \
+                --file=$ONE_X_SVG --export-png=$ONE_X_PNG || exit 1
+        fi
 
-        inkscape $COMMON_ARGS $TWO_X_ARGS \
-            --file=$SOURCE_SVG --export-png=$TWO_X_PNG || exit 1
+        if [ $TWO_X_SVG -nt $TWO_X_PNG ] ; then
+            inkscape $COMMON_ARGS $TWO_X_ARGS \
+                --file=$TWO_X_SVG --export-png=$TWO_X_PNG || exit 1
+        fi
 
         QRC_FILES="${QRC_FILES} ${ONE_X_PNG} ${TWO_X_PNG}"
     done
 
-    # Save & close have to be done individually.
-
-    for ICON in x-capture-file-close x-capture-file-save ; do
-        ONE_X_PNG=${ICON}.png
-        TWO_X_PNG=${ICON}@2x.png
-        ONE_X_SVG=${ICON}.svg
-        TWO_X_SVG=${ICON}@2x.svg
-
-        inkscape $COMMON_ARGS $ONE_X_ARGS \
-            --file=$ONE_X_SVG --export-png=$ONE_X_PNG || exit 1
-
-        inkscape $COMMON_ARGS $TWO_X_ARGS \
-            --file=$TWO_X_SVG --export-png=$TWO_X_PNG || exit 1
-
-        QRC_FILES="${QRC_FILES} ${ONE_X_PNG} ${TWO_X_PNG}"
-    done
-
-    for QRC_FILE in $QRC_FILES ; do
-        echo "        <file>toolbar/${SIZE_DIR}/${QRC_FILE}</file>"
-    done
+    cd ..
+    
 done
+
+for QRC_FILE in $QRC_FILES ; do
+    echo "        <file>toolbar/${SIZE_DIR}/${QRC_FILE}</file>"
+done
+
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 tabstop=8 expandtab:
+# :indentSize=4:tabSize=8:noTabs=true:
+#

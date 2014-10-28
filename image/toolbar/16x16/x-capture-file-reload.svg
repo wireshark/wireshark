@@ -87,8 +87,7 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <image
-       sodipodi:absref="/Users/gcombs/Development/wireshark/image/toolbar/16x16/x-capture-file-save.png"
-       xlink:href="x-capture-file-save.png"
+       xlink:href="../../WiresharkDoc-16.png"
        y="1036.3622"
        x="0"
        id="image3882"

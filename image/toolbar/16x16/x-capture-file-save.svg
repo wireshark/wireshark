@@ -10,12 +10,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="24"
-   height="24"
+   width="16"
+   height="16"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-close.svg"
+   sodipodi:docname="x-capture-file-open.svg"
    inkscape:export-filename="x-capture-file-close.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -36,16 +36,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="12.925293"
-     inkscape:cx="13.757393"
-     inkscape:cy="11.816252"
+     inkscape:zoom="34.727236"
+     inkscape:cx="8"
+     inkscape:cy="7.7500087"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1055"
-     inkscape:window-height="786"
-     inkscape:window-x="264"
-     inkscape:window-y="261"
+     inkscape:window-width="1200"
+     inkscape:window-height="742"
+     inkscape:window-x="226"
+     inkscape:window-y="316"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -71,27 +71,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1028.3622)">
+     transform="translate(0,-1036.3622)">
     <image
-       sodipodi:absref="/Users/gcombs/Development/wireshark/image/toolbar/24x24/x-capture-file-save.png"
-       xlink:href="x-capture-file-save.png"
-       y="1028.3622"
+       y="1036.3622"
        x="0"
-       id="image3836"
-       height="24"
-       width="24"
-       style="fill:#2e3436;stroke:#2e3436" />
+       id="image3135"
+       xlink:href="file:///Users/gcombs/Development/wireshark/image/WiresharkDoc-16.png"
+       height="16"
+       width="16" />
     <path
-       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1.5,0.5 0,15 13,0 0,-11 -4,-4 z"
+       id="path3140"
        inkscape:connector-curvature="0"
-       id="path3771"
-       d="m 18,1046.3622 -12,-12"
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    <path
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 6,1046.3622 12,-12"
-       id="path3791"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       transform="translate(0,1036.3622)"
+       sodipodi:nodetypes="cccccc" />
   </g>
 </svg>
