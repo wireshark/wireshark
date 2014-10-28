@@ -151,6 +151,61 @@ typedef struct peektagged_section_header {
 #define EXT_FLAG_802_11ac			0x00000080
 #define EXT_FLAG_MCS_INDEX_USED			0x00000100
 
+/*
+ * XXX - mapping to radiotap, for fields that don't just map to wiretap
+ * fields:
+ *
+ * FLAGS_CONTROL_FRAME: no equivalent - is it useful?  Can just look at FC?
+ *
+ * FLAGS_HAS_CRC_ERROR: flags.{frame failed FCS check}
+ *
+ * FLAGS_HAS_FRAME_ERROR: no equivalent
+ *
+ * STATUS_PROTECTED: flags.{sent/received with WEP encryption}?
+ *
+ * STATUS_DECRYPT_ERROR: no equivalent
+ *
+ * STATUS_SHORT_PREAMBLE: flags.{sent/received with short preamble}
+ *
+ * TAG_PEEKTAGGED_CHANNEL: no equivalent, but could be mapped to Channel
+ *
+ * TAG_PEEKTAGGED_RATE: Rate if it's a data rate, MCS.mcs if it's an MCS
+ *   Does EXT_FLAG_MCS_INDEX_USED map to the "MCS known" bit ?
+ *
+ * TAG_PEEKTAGGED_SIGNAL_PERC: no equivalent
+ *
+ * TAG_PEEKTAGGED_SIGNAL_DBM: Antenna signal
+ *
+ * TAG_PEEKTAGGED_NOISE_PERC: no equivalent
+ *
+ * TAG_PEEKTAGGED_NOISE_DBM: Antenna noise
+ *
+ * TAG_PEEKTAGGED_CENTER_FREQUENCY: XChannel.freq
+ *
+ * TAG_PEEKTAGGED_UNKNOWN_0x000F - TAG_PEEKTAGGED_UNKNOWN_0x0013: no equivalent
+ *
+ * EXT_FLAG_20_MHZ_LOWER
+ * EXT_FLAG_20_MHZ_UPPER
+ * EXT_FLAG_40_MHZ:
+ *    mcs.bandwidth = 0: none of them set
+ *    mcs.bandwidth = 1: EXT_FLAG_40_MHZ set
+ *    mcs.bandwidth = 2: EXT_FLAG_20_MHZ_LOWER set
+ *    mcs.bandwidth = 3: EXT_FLAG_20_MHZ_UPPER set
+ *    anything else: ???
+ *
+ * EXT_FLAG_HALF_GI: mcs.{guard interval} = 1 (short GI)
+ *
+ * EXT_FLAG_FULL_GI: mcs.{guard interval} = 0 (long GI)
+ *
+ * EXT_FLAG_AMPDU: A-MPDU status present?  What about its value?
+ *
+ * EXT_FLAG_AMSDU: ???
+ *
+ * EXT_FLAG_802_11ac: nothing currently
+ *
+ * EXT_FLAG_MCS_INDEX_USED: see above?
+ */
+
 /* 64-bit time in nanoseconds from the (Windows FILETIME) epoch */
 typedef struct peektagged_utime {
 	guint32 upper;
