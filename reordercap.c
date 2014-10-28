@@ -46,7 +46,6 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#include <wsutil/strnatcmp.h>
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/copyright_info.h>
