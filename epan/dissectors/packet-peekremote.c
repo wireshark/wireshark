@@ -226,44 +226,48 @@ static header_field_info hfi_peekremote_band THIS_HF_INIT =
       { "Band",     "peekremote.band", FT_UINT32, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn THIS_HF_INIT =
-      { "FlagsN",     "peekremote.flagsn", FT_UINT32, BASE_HEX, NULL,
+static header_field_info hfi_peekremote_extflags THIS_HF_INIT =
+      { "Extended flags",     "peekremote.extflags", FT_UINT32, BASE_HEX, NULL,
         0x0, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_20mhz_lower THIS_HF_INIT =
-      { "802.11n 20 MHz Lower",     "peekremote.flagsn.20mhz_lower", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_20mhz_lower THIS_HF_INIT =
+      { "20 MHz Lower",     "peekremote.extflags.20mhz_lower", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000001, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_20mhz_upper THIS_HF_INIT =
-      { "802.11n 20 MHz Upper",     "peekremote.flagsn.20mhz_upper", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_20mhz_upper THIS_HF_INIT =
+      { "20 MHz Upper",     "peekremote.extflags.20mhz_upper", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000002, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_40mhz THIS_HF_INIT =
-      { "802.11n 40 MHz",     "peekremote.flagsn.40mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_40mhz THIS_HF_INIT =
+      { "40 MHz",     "peekremote.extflags.40mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000004, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_half_gi THIS_HF_INIT =
-      { "802.11n Half Guard Interval",     "peekremote.flagsn.half_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_half_gi THIS_HF_INIT =
+      { "Half Guard Interval",     "peekremote.extflags.half_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000008, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_full_gi THIS_HF_INIT =
-      { "802.11n Full Guard Interval",     "peekremote.flagsn.full_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_full_gi THIS_HF_INIT =
+      { "Full Guard Interval",     "peekremote.extflags.full_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000010, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_ampdu THIS_HF_INIT =
-      { "802.11n AMPDU",     "peekremote.flagsn.ampdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_ampdu THIS_HF_INIT =
+      { "AMPDU",     "peekremote.extflags.ampdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000020, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_amsdu THIS_HF_INIT =
-      { "802.11n AMSDU",     "peekremote.flagsn.amsdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_amsdu THIS_HF_INIT =
+      { "AMSDU",     "peekremote.extflags.amsdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000040, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_future_use THIS_HF_INIT =
-      { "802.11n future use",     "peekremote.flagsn.future_use", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+static header_field_info hfi_peekremote_extflags_11ac THIS_HF_INIT =
+      { "802.11ac",     "peekremote.extflags.11ac", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+        0x00000080, NULL, HFILL };
+
+static header_field_info hfi_peekremote_extflags_future_use THIS_HF_INIT =
+      { "MCS index used",     "peekremote.extflags.future_use", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
         0x00000100, NULL, HFILL };
 
-static header_field_info hfi_peekremote_flagsn_reserved THIS_HF_INIT =
-      { "Reserved",     "peekremote.flagsn.reserved", FT_UINT32, BASE_HEX, NULL,
+static header_field_info hfi_peekremote_extflags_reserved THIS_HF_INIT =
+      { "Reserved",     "peekremote.extflags.reserved", FT_UINT32, BASE_HEX, NULL,
         0xFFFFFE80, "Must be zero", HFILL };
 
 /* XXX - are the numbers antenna numbers? */
@@ -305,27 +309,28 @@ static expert_field ei_peekremote_invalid_header_size = EI_INIT;
 static gint ett_peekremote = -1;
 static gint ett_peekremote_flags = -1;
 static gint ett_peekremote_status = -1;
-static gint ett_peekremote_flagsn = -1;
+static gint ett_peekremote_extflags = -1;
 
 static dissector_handle_t ieee80211_handle;
 
 static int
-dissect_peekremote_flagsn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-  proto_tree *flagsn_tree;
-  proto_item *ti_flagsn;
+  proto_tree *extflags_tree;
+  proto_item *ti_extflags;
 
-  ti_flagsn = proto_tree_add_item(tree, &hfi_peekremote_flagsn, tvb, offset, 4, ENC_BIG_ENDIAN);
-  flagsn_tree = proto_item_add_subtree(ti_flagsn, ett_peekremote_flagsn);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_20mhz_lower, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_20mhz_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_40mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_ampdu, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_future_use, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flagsn_tree, &hfi_peekremote_flagsn_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+  ti_extflags = proto_tree_add_item(tree, &hfi_peekremote_extflags, tvb, offset, 4, ENC_BIG_ENDIAN);
+  extflags_tree = proto_item_add_subtree(ti_extflags, ett_peekremote_extflags);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_20mhz_lower, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_20mhz_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_40mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_ampdu, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_11ac, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_future_use, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
 }
@@ -414,7 +419,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
-      offset += dissect_peekremote_flagsn(tvb, pinfo, peekremote_tree, offset);
+      offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
@@ -534,16 +539,17 @@ proto_register_peekremote(void)
     &hfi_peekremote_noise_percent,
     &hfi_peekremote_frequency,
     &hfi_peekremote_band,
-    &hfi_peekremote_flagsn,
-    &hfi_peekremote_flagsn_20mhz_lower,
-    &hfi_peekremote_flagsn_20mhz_upper,
-    &hfi_peekremote_flagsn_40mhz,
-    &hfi_peekremote_flagsn_half_gi,
-    &hfi_peekremote_flagsn_full_gi,
-    &hfi_peekremote_flagsn_ampdu,
-    &hfi_peekremote_flagsn_amsdu,
-    &hfi_peekremote_flagsn_future_use,
-    &hfi_peekremote_flagsn_reserved,
+    &hfi_peekremote_extflags,
+    &hfi_peekremote_extflags_20mhz_lower,
+    &hfi_peekremote_extflags_20mhz_upper,
+    &hfi_peekremote_extflags_40mhz,
+    &hfi_peekremote_extflags_half_gi,
+    &hfi_peekremote_extflags_full_gi,
+    &hfi_peekremote_extflags_ampdu,
+    &hfi_peekremote_extflags_amsdu,
+    &hfi_peekremote_extflags_11ac,
+    &hfi_peekremote_extflags_future_use,
+    &hfi_peekremote_extflags_reserved,
     &hfi_peekremote_signal_1_dbm,
     &hfi_peekremote_signal_2_dbm,
     &hfi_peekremote_signal_3_dbm,
@@ -558,7 +564,7 @@ proto_register_peekremote(void)
     &ett_peekremote,
     &ett_peekremote_flags,
     &ett_peekremote_status,
-    &ett_peekremote_flagsn
+    &ett_peekremote_extflags
   };
   static ei_register_info ei[] = {
      { &ei_peekremote_unknown_header_version, { "peekremote.unknown_header_version", PI_UNDECODED, PI_ERROR, "Unknown header version", EXPFILL }},
