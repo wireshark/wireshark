@@ -409,7 +409,7 @@ qreal ByteViewText::flushOffsetFragment(QPainter &painter, qreal x, int y, highl
     if (state == StateField) {
         painter.fillRect(QRectF(x, y, width, line_spacing_), palette().highlight());
     } else if (state == StateProtocol) {
-        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().alternateBase());
+        painter.fillRect(QRectF(x, y, width, line_spacing_), palette().window());
     }
 
     // Text
@@ -418,7 +418,7 @@ qreal ByteViewText::flushOffsetFragment(QPainter &painter, qreal x, int y, highl
     case StateNormal:
     case StateProtocol:
     default:
-        text_brush = palette().text();
+        text_brush = palette().windowText();
         break;
     case StateField:
         text_brush = palette().highlightedText();
