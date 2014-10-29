@@ -2655,7 +2655,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 						for (; sub_value_offset < value_len; sub_value_offset++)
 						{
-							if (isalpha((guchar)value[sub_value_offset]))
+							if (g_ascii_isalpha((guchar)value[sub_value_offset]))
 							{
 								/* Have reached start of method name */
 								break;
@@ -2750,7 +2750,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						/* Get to start of CSeq method name */
 						for ( ; sub_value_offset < value_len; sub_value_offset++)
 						{
-							if (isalpha((guchar)value[sub_value_offset]))
+							if (g_ascii_isalpha((guchar)value[sub_value_offset]))
 							{
 								/* Have reached start of method name */
 								break;

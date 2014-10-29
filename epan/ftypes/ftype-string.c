@@ -72,7 +72,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 				}
 				/* Values that can't nicely be represented
 				 * in ASCII need to be escaped. */
-				else if (!isprint((unsigned char)c)) {
+				else if (!g_ascii_isprint((unsigned char)c)) {
 					/* c --> \xNN */
 					repr_len += 4;
 				}
@@ -106,7 +106,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 			}
 			/* Values that can't nicely be represented
 			 * in ASCII need to be escaped. */
-			else if (!isprint((unsigned char)c)) {
+			else if (!g_ascii_isprint((unsigned char)c)) {
 				/* c --> \xNN */
 				g_snprintf(hex, sizeof(hex), "%02x", (unsigned char) c);
 				*bufp++ = '\\';
