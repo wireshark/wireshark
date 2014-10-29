@@ -92,5 +92,8 @@ WS_DLL_PUBLIC const true_false_string tfs_registered_not_registered;
 WS_DLL_PUBLIC const true_false_string tfs_provisioned_not_provisioned;
 WS_DLL_PUBLIC const true_false_string tfs_included_not_included;
 WS_DLL_PUBLIC const true_false_string tfs_allocated_by_receiver_sender;
+WS_DLL_PUBLIC const true_false_string tfs_asynchronous_synchronous;
+WS_DLL_PUBLIC const true_false_string tfs_protocol_sensative_bit_transparent;
+WS_DLL_PUBLIC const true_false_string tfs_full_half;
 
 #endif

@@ -1481,18 +1481,15 @@ static const value_string gsm_a_dtap_user_info_layer2_vals[] = {
 static const true_false_string tfs_bearer_cap_coding_standard = { "reserved", "GSM standardized coding" };
 static const true_false_string tfs_bearer_cap_transfer_mode = { "packet", "circuit" };
 static const true_false_string tfs_bearer_cap_coding = { "octet used for other extension of octet 3", "octet used for extension of information transfer capability" };
-static const true_false_string tfs_duplex_mode = { "Full", "Half" };
 static const true_false_string tfs_bearer_cap_configuration = { "Reserved", "Point-to-point" };
 static const true_false_string tfs_nirr = { "Data up to and including 4.8 kb/s, full rate, non-transparent, 6 kb/s radio interface rate is requested",
                         "No meaning is associated with this value" };
 static const true_false_string tfs_bearer_cap_establishment = { "Reserved", "Demand" };
 static const true_false_string tfs_frame_est_supported_not_supported = { "Supported", "Not supported, only UI frames allowed" };
-static const true_false_string tfs_mode_of_operation = { "Protocol sensitive", "Bit transparent" };
 static const true_false_string tfs_log_link_neg = { "Full protocol negotiation", "Default, LLI=256 only" };
 static const true_false_string tfs_assignor_assignee = { "Message originator is assignor only", "Message originator is default assignee" };
 static const true_false_string tfs_in_out_band = { "Negotiation is done with USER INFORMATION messages on a temporary signalling connection",
                            "Negotiation is done in-band using logical link zero" };
-static const true_false_string tfs_asynchronous_synchronous = { "Asynchronous", "Synchronous" };
 static const true_false_string tfs_stop_bits = { "2", "1" };
 static const true_false_string tfs_negotiation = { "Reserved", "In-band negotiation not possible" };
 static const true_false_string tfs_parity_bits = { "8", "7" };
@@ -6702,7 +6699,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_duplex_mode,
           { "Duplex mode", "gsm_a.dtap.duplex_mode",
-            FT_BOOLEAN, 8, TFS(&tfs_duplex_mode), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_full_half), 0x08,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_configuration,
@@ -6757,7 +6754,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_mode_of_operation,
           { "Mode of operation", "gsm_a.dtap.mode_of_operation",
-            FT_BOOLEAN, 8, TFS(&tfs_mode_of_operation), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_protocol_sensative_bit_transparent), 0x10,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_logical_link_identifier_negotiation,

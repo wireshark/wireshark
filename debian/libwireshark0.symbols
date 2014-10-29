@@ -1209,6 +1209,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_active_inactive@Base 1.9.1
  tfs_allow_block@Base 1.9.1
  tfs_allowed_not_allowed@Base 1.9.1
+ tfs_asynchronous_synchronous@Base 1.99.1
  tfs_available_not_available@Base 1.9.1
  tfs_capable_not_capable@Base 1.9.1
  tfs_command_response@Base 1.9.1
@@ -1223,6 +1224,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_error_ok@Base 1.9.1
  tfs_fail_success@Base 1.9.1
  tfs_found_not_found@Base 1.9.1
+ tfs_full_half@Base 1.99.1
  tfs_group_unique_name@Base 1.9.1
  tfs_high_low@Base 1.9.1
  tfs_implemented_not_implemented@Base 1.9.1
@@ -1239,6 +1241,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_present_absent@Base 1.9.1
  tfs_present_not_present@Base 1.9.1
  tfs_pressed_not_pressed@Base 1.9.1
+ tfs_protocol_sensative_bit_transparent@Base 1.99.1
  tfs_provisioned_not_provisioned@Base 1.99.0
  tfs_registered_not_registered@Base 1.99.0
  tfs_reliable_not_reliable@Base 1.9.1

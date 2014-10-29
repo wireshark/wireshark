@@ -273,8 +273,6 @@ static const value_string type_nrgyz_vals[] = {
     { 0, NULL }
 };
 
-static const true_false_string tfs_full_half                          = { "Full", "Half" };
-
 static void
 dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

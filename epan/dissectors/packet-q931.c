@@ -848,11 +848,8 @@ static const range_string q931_l1_modem_type_rvals[] = {
     { 0, 0,       NULL }
 };
 
-static const true_false_string tfs_asynchronous_synchronous           = { "Asynchronous", "Synchronous" };
-static const true_false_string tfs_protocol_sensative_bit_transparent = { "Protocol sensitive", "Bit transparent" };
 static const true_false_string tfs_assignor_default                   = { "Assignor only", "Default assignee" };
 static const true_false_string tfs_in_out_band                        = { "in-band", "out-of-band" };
-static const true_false_string tfs_full_half                          = { "Full", "Half" };
 
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
