@@ -149,8 +149,8 @@ string_compare(gconstpointer a, gconstpointer b)
 static gint
 string_nat_compare(gconstpointer a, gconstpointer b)
 {
-  return strnatcmp(((const struct string_elem *)a)->sstr,
-                   ((const struct string_elem *)b)->sstr);
+  return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
+                            ((const struct string_elem *)b)->sstr);
 }
 
 static void

@@ -37,8 +37,8 @@ extern "C" {
  * functions in strnatcmp.c */
 typedef char nat_char;
 
-WS_DLL_PUBLIC int strnatcmp(nat_char const *a, nat_char const *b);
-WS_DLL_PUBLIC int strnatcasecmp(nat_char const *a, nat_char const *b);
+WS_DLL_PUBLIC int ws_ascii_strnatcmp(nat_char const *a, nat_char const *b);
+WS_DLL_PUBLIC int ws_ascii_strnatcasecmp(nat_char const *a, nat_char const *b);
 
 #ifdef __cplusplus
 }
