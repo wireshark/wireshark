@@ -30,7 +30,6 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"
-#include <ctype.h>
 #include "packet-mtp3.h"
 
 #define PNAME  "H.248 MEGACO"

@@ -338,7 +338,7 @@ AuditReplyV1/auditResult	audit_result
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
 	if (new_tvb) {
-		curr_info.term->len = tvb_length(new_tvb);
+		curr_info.term->len = tvb_reported_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
 
 		if (h248_term_handle) {
@@ -396,13 +396,13 @@ AuditReplyV1/auditResult	audit_result
 
 #.FN_BODY ValueV1
 /* check tvb to verify all values ascii or not.  If so, output string, else hex */
-	len=tvb_length_remaining(tvb, offset);
+	len=tvb_reported_length_remaining(tvb, offset);
 	if ( curr_info.par && curr_info.par->dissector) {
 		curr_info.par->dissector(tree, /*next_*/tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	} else {
 		/* if no registered dissector create output */
 		for( i=0;i<len;i++) {
-			if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
+			if(!g_ascii_isprint(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
 				/* not ascii or NULL character so do string as hex string */
 				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 					(proto_registrar_get_nth(hf_index))->name,

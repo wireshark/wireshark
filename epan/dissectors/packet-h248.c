@@ -38,7 +38,6 @@
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"
-#include <ctype.h>
 #include "packet-mtp3.h"
 
 #define PNAME  "H.248 MEGACO"
@@ -398,7 +397,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 75 "../../asn1/h248/packet-h248-template.c"
+#line 74 "../../asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -563,7 +562,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 92 "../../asn1/h248/packet-h248-template.c"
+#line 91 "../../asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -2235,7 +2234,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
 	if (new_tvb) {
-		curr_info.term->len = tvb_length(new_tvb);
+		curr_info.term->len = tvb_reported_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
 
 		if (h248_term_handle) {
@@ -5357,13 +5356,13 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 #line 398 "../../asn1/h248/h248.cnf"
 /* check tvb to verify all values ascii or not.  If so, output string, else hex */
-	len=tvb_length_remaining(tvb, offset);
+	len=tvb_reported_length_remaining(tvb, offset);
 	if ( curr_info.par && curr_info.par->dissector) {
 		curr_info.par->dissector(tree, /*next_*/tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	} else {
 		/* if no registered dissector create output */
 		for( i=0;i<len;i++) {
-			if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
+			if(!g_ascii_isprint(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
 				/* not ascii or NULL character so do string as hex string */
 				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 					(proto_registrar_get_nth(hf_index))->name,
@@ -5385,7 +5384,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1416 "../../asn1/h248/packet-h248-template.c"
+#line 1415 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6807,7 +6806,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1581 "../../asn1/h248/packet-h248-template.c"
+#line 1580 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6973,7 +6972,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1599 "../../asn1/h248/packet-h248-template.c"
+#line 1598 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
