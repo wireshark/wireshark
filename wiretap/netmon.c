@@ -424,6 +424,7 @@ netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
 		 * I'm not sure about control frames.  An
 		 * "FCS length" of -2 means "NetMon weirdness".
 		 */
+		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* radio data is in the packet data */
 		phdr->pseudo_header.ieee_802_11.fcs_len = -2;
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		break;

@@ -60,8 +60,8 @@ typedef struct commview_header {
 	guint8		channel;
 	guint8		direction;	/* Or for WiFi, high order byte of
 					 * packet rate. */
-	guint8		signal_level_dbm;
-	guint8		noise_level;	/* In dBm (WiFi only) */
+	gint8		signal_level_dbm;
+	gint8		noise_level;	/* In dBm (WiFi only) */
 } commview_header_t;
 
 #define COMMVIEW_HEADER_SIZE 24
@@ -147,11 +147,36 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 	case MEDIUM_WIFI :
 		phdr->pkt_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
+		phdr->pseudo_header.ieee_802_11.presence_flags =
+		    PHDR_802_11_HAS_CHANNEL |
+		    PHDR_802_11_HAS_DATA_RATE |
+		    PHDR_802_11_HAS_SIGNAL_PERCENT;
 		phdr->pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
 		phdr->pseudo_header.ieee_802_11.channel = cv_hdr.channel;
 		phdr->pseudo_header.ieee_802_11.data_rate =
 		    cv_hdr.rate | (cv_hdr.direction << 8);
-		phdr->pseudo_header.ieee_802_11.signal_level = cv_hdr.signal_level_percent;
+		phdr->pseudo_header.ieee_802_11.signal_percent = cv_hdr.signal_level_percent;
+
+		/*
+		 * XXX - these are positive in captures I've seen; does
+		 * that mean that they are the negative of the actual
+		 * dBm value?  (80 dBm is a bit more power than most
+		 * countries' regulatory agencies are likely to allow
+		 * any individual to have in their home. :-))
+		 *
+		 * XXX - sometimes these are 0; assume that means that no
+		 * value is provided.
+		 */
+		if (cv_hdr.signal_level_dbm != 0) {
+			phdr->pseudo_header.ieee_802_11.signal_dbm = -cv_hdr.signal_level_dbm;
+			phdr->pseudo_header.ieee_802_11.presence_flags |=
+			    PHDR_802_11_HAS_SIGNAL_DBM;
+		}
+		if (cv_hdr.noise_level != 0) {
+			phdr->pseudo_header.ieee_802_11.noise_dbm = -cv_hdr.noise_level;
+			phdr->pseudo_header.ieee_802_11.presence_flags |=
+			    PHDR_802_11_HAS_NOISE_DBM;
+		}
 		break;
 
 	case MEDIUM_TOKEN_RING :
@@ -336,10 +361,30 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO :
 		cv_hdr.flags |=  MEDIUM_WIFI;
 
-		cv_hdr.channel = phdr->pseudo_header.ieee_802_11.channel;
-		cv_hdr.rate = (guint8)(phdr->pseudo_header.ieee_802_11.data_rate & 0xFF);
-		cv_hdr.direction = (guint8)((phdr->pseudo_header.ieee_802_11.data_rate >> 8) & 0xFF);
-		cv_hdr.signal_level_percent = phdr->pseudo_header.ieee_802_11.signal_level;
+		cv_hdr.channel =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) ?
+		     phdr->pseudo_header.ieee_802_11.channel :
+		     0;
+		cv_hdr.rate =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_DATA_RATE) ?
+		     (guint8)(phdr->pseudo_header.ieee_802_11.data_rate & 0xFF) :
+		     0;
+		cv_hdr.direction =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_DATA_RATE) ?
+		     (guint8)((phdr->pseudo_header.ieee_802_11.data_rate >> 8) & 0xFF) :
+		     0;
+		cv_hdr.signal_level_percent =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) ?
+		     phdr->pseudo_header.ieee_802_11.signal_percent :
+		     0;
+		cv_hdr.signal_level_dbm =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) ?
+		     -phdr->pseudo_header.ieee_802_11.signal_dbm :
+		     0;
+		cv_hdr.noise_level =
+		    (phdr->pseudo_header.ieee_802_11.presence_flags & PHDR_802_11_HAS_NOISE_DBM) ?
+		     -phdr->pseudo_header.ieee_802_11.noise_dbm :
+		     0;
 		break;
 
 	case WTAP_ENCAP_TOKEN_RING :

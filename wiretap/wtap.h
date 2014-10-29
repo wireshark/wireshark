@@ -561,7 +561,10 @@ struct p2p_phdr {
 
 /*
  * Packet "pseudo-header" information for 802.11.
- * Radio information is only present for WTAP_ENCAP_IEEE_802_11_WITH_RADIO.
+ * Radio information is only present in this form for
+ * WTAP_ENCAP_IEEE_802_11_WITH_RADIO.  This is used for file formats in
+ * which the radio information isn't provided as a pseudo-header in the
+ * packet data.
  *
  * Signal strength, etc. information:
  *
@@ -578,12 +581,29 @@ struct p2p_phdr {
  * times the ratio of the RSSI and the maximum RSSI.
  */
 struct ieee_802_11_phdr {
-    gint     fcs_len;       /* Number of bytes of FCS - -1 means "unknown" */
-    gboolean decrypted;     /* TRUE if frame is decrypted even if "protected" bit is set */
-    guint8   channel;       /* Channel number */
-    guint16  data_rate;     /* in .5 Mb/s units */
-    guint8   signal_level;  /* percentage */
+    guint32  presence_flags; /* flags indicating presence of certain fields */
+    gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
+    gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
+    guint16  channel;        /* Channel number */
+    guint16  data_rate;      /* Data rate, in .5 Mb/s units */
+    guint16  mcs;            /* MCS index */
+    guint32  frequency;      /* Channel center frequency */
+    guint8   signal_percent; /* Signal level, as a percentage */
+    guint8   noise_percent;  /* Noise level, as a percentage */
+    gint8    signal_dbm;     /* Signal level, in dBm */
+    gint8    noise_dbm;      /* Noise level, in dBm */
+    guint64  tsf_timestamp;
 };
+
+#define PHDR_802_11_HAS_CHANNEL        0x00000001 /* channel */
+#define PHDR_802_11_HAS_DATA_RATE      0x00000002 /* data_rate */
+#define PHDR_802_11_HAS_MCS            0x00000004 /* mcs_index */
+#define PHDR_802_11_HAS_FREQUENCY      0x00000008 /* frequency */
+#define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000010 /* signal_percent */
+#define PHDR_802_11_HAS_NOISE_PERCENT  0x00000020 /* noise_percent */
+#define PHDR_802_11_HAS_SIGNAL_DBM     0x00000040 /* signal_dbm */
+#define PHDR_802_11_HAS_NOISE_DBM      0x00000080 /* noise_dbm */
+#define PHDR_802_11_HAS_TSF_TIMESTAMP  0x00000100 /* tsf_timestamp */
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

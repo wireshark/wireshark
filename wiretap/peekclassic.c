@@ -448,6 +448,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
+		phdr->pseudo_header.ieee_802_11.presence_flags = 0;	/* not present */
 		phdr->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 

@@ -1576,15 +1576,16 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 	case WTAP_ENCAP_IEEE_802_11_RADIOTAP:
 	case WTAP_ENCAP_IEEE_802_11_AVS:
 		/*
-		 * We don't know whether there's an FCS in this frame or not.
-		 * XXX - are there any OSes where the capture mechanism
-		 * supplies an FCS?
+		 * We don't know whether there's an FCS in this frame or not,
+		 * at least in pcap files.  For radiotap, that's indicated in
+		 * the radiotap header.
+		 *
+		 * XXX - in pcap-ng, there *could* be a packet option
+		 * indicating the FCS length.
 		 */
+		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* absent or supplied in the packet data */
 		phdr->pseudo_header.ieee_802_11.fcs_len = -1;
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
-		phdr->pseudo_header.ieee_802_11.channel = 0;
-		phdr->pseudo_header.ieee_802_11.data_rate = 0;
-		phdr->pseudo_header.ieee_802_11.signal_level = 0;
 		break;
 
 	case WTAP_ENCAP_IRDA:

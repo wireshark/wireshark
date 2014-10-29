@@ -739,10 +739,14 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	if (file_seek(fh, rsize, SEEK_CUR, err) == -1)
 		return FALSE;
 
+	pseudo_header->ieee_802_11.presence_flags =
+	    PHDR_802_11_HAS_CHANNEL |
+	    PHDR_802_11_HAS_DATA_RATE |
+	    PHDR_802_11_HAS_SIGNAL_PERCENT;
 	pseudo_header->ieee_802_11.fcs_len = 4;
 	pseudo_header->ieee_802_11.channel = whdr.channel;
 	pseudo_header->ieee_802_11.data_rate = whdr.rate;
-	pseudo_header->ieee_802_11.signal_level = whdr.signal;
+	pseudo_header->ieee_802_11.signal_percent = whdr.signal;
 
 	/* add back the header and don't forget the pad as well */
 	*header_size = rsize + 8 + 4;

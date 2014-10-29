@@ -41,7 +41,11 @@ static int proto_radio = -1;
 /* ************************************************************************* */
 static int hf_data_rate = -1;
 static int hf_channel = -1;
-static int hf_signal_strength = -1;
+static int hf_frequency = -1;
+static int hf_signal_percent = -1;
+static int hf_signal_dbm = -1;
+static int hf_noise_percent = -1;
+static int hf_noise_dbm = -1;
 
 static gint ett_radio = -1;
 
@@ -59,42 +63,82 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Add the radio information to the column information */
-  col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
-        pinfo->pseudo_header->ieee_802_11.data_rate / 2,
-        pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
-  /*
-   * For tagged Peek files, this is presumably signal strength as a
-   * percentage of the maximum, as it is for classic Peek files,
-   * i.e. (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100, or, at least, that's
-   * what I infer it is, given what the WildPackets note "Converting
-   * Signal Strength Percentage to dBm Values" says.
-   *
-   * It also says that the conversion the percentage to a dBm value is
-   * an adapter-dependent process, so, as we don't know what type of
-   * adapter was used to do the capture, we can't do the conversion.
-   *
-   * It's *probably* something similar for other capture file formats.
-   */
-  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
-        pinfo->pseudo_header->ieee_802_11.signal_level);
+
+  if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_DATA_RATE) {
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+            pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+            pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+  }
+
+  if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+    /*
+     * For tagged Peek files, this is presumably signal strength as a
+     * percentage of the maximum, as it is for classic Peek files,
+     * i.e. (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100, or, at least, that's
+     * what I infer it is, given what the WildPackets note "Converting
+     * Signal Strength Percentage to dBm Values" says.
+     *
+     * It also says that the conversion the percentage to a dBm value is
+     * an adapter-dependent process, so, as we don't know what type of
+     * adapter was used to do the capture, we can't do the conversion.
+     *
+     * It's *probably* something similar for other capture file formats.
+     */
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
+          pinfo->pseudo_header->ieee_802_11.signal_percent);
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, ENC_NA);
     radio_tree = proto_item_add_subtree (ti, ett_radio);
 
-    proto_tree_add_uint64_format_value(radio_tree, hf_data_rate, tvb, 0, 0,
-             (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
-             "%u.%u Mb/s",
-             pinfo->pseudo_header->ieee_802_11.data_rate / 2,
-             pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_DATA_RATE) {
+      proto_tree_add_uint64_format_value(radio_tree, hf_data_rate, tvb, 0, 0,
+               (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
+               "%u.%u Mb/s",
+               pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+               pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+    }
 
-    proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
-            pinfo->pseudo_header->ieee_802_11.channel);
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) {
+      proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.channel);
+    }
 
-    proto_tree_add_uint_format_value(radio_tree, hf_signal_strength, tvb, 0, 0,
-            pinfo->pseudo_header->ieee_802_11.signal_level,
-            "%u%%",
-            pinfo->pseudo_header->ieee_802_11.signal_level);
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_FREQUENCY) {
+      proto_tree_add_uint_format_value(radio_tree, hf_frequency, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.frequency,
+              "%u MHz",
+              pinfo->pseudo_header->ieee_802_11.frequency);
+    }
+
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
+      proto_tree_add_uint_format_value(radio_tree, hf_signal_percent, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.signal_percent,
+              "%u%%",
+              pinfo->pseudo_header->ieee_802_11.signal_percent);
+    }
+
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
+      proto_tree_add_int_format_value(radio_tree, hf_signal_dbm, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.signal_dbm,
+              "%d dBm",
+              pinfo->pseudo_header->ieee_802_11.signal_dbm);
+    }
+
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_NOISE_PERCENT) {
+      proto_tree_add_uint_format_value(radio_tree, hf_noise_percent, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.noise_percent,
+              "%u%%",
+              pinfo->pseudo_header->ieee_802_11.noise_percent);
+    }
+
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_NOISE_DBM) {
+      proto_tree_add_int_format_value(radio_tree, hf_noise_dbm, tvb, 0, 0,
+              pinfo->pseudo_header->ieee_802_11.noise_dbm,
+              "%d dBm",
+              pinfo->pseudo_header->ieee_802_11.noise_dbm);
+    }
   }
 
   /* dissect the 802.11 header next */
@@ -111,9 +155,25 @@ static hf_register_info hf_radio[] = {
      {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
-    {&hf_signal_strength,
-     {"Signal Strength", "wlan.signal_strength", FT_UINT8, BASE_DEC, NULL, 0,
-      "Signal strength (Percentage)", HFILL }}
+    {&hf_frequency,
+     {"Frequency", "wlan.frequency", FT_UINT16, BASE_DEC, NULL, 0,
+      "Center frequency of the 802.11 channel that this frame was sent/received on", HFILL }},
+
+    {&hf_signal_percent,
+     {"Signal Strength (Percentage)", "wlan.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
+      "Signal strength (Percentage)", HFILL }},
+
+    {&hf_signal_dbm,
+     {"Signal Strength (dBm)", "wlan.signal_dbm", FT_INT8, BASE_DEC, NULL, 0,
+      "Signal strength (dBm)", HFILL }},
+
+    {&hf_noise_percent,
+     {"Noise Level (Percentage)", "wlan.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
+      "Noise Level (Percentage)", HFILL }},
+
+    {&hf_noise_dbm,
+     {"Noise Level (dBm)", "wlan.noise_dbm", FT_INT8, BASE_DEC, NULL, 0,
+      "Noise Level (dBm)", HFILL }},
 };
 
 static gint *tree_array[] = {

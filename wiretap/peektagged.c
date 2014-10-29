@@ -556,27 +556,34 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    break;
 
 	case TAG_PEEKTAGGED_CHANNEL:
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_CHANNEL;
 	    hdr_info.ieee_802_11.channel = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_RATE:
+	    /* XXX - what if it's the MCS? */
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
 	    hdr_info.ieee_802_11.data_rate = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_PERC:
-	    hdr_info.ieee_802_11.signal_level = pletoh32(&tag_value[2]);
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_SIGNAL_PERCENT;
+	    hdr_info.ieee_802_11.signal_percent = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_DBM:
-	    /* XXX - not used yet */
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+	    hdr_info.ieee_802_11.signal_dbm = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_NOISE_PERC:
-	    /* XXX - not used yet */
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_NOISE_PERCENT;
+	    hdr_info.ieee_802_11.noise_percent = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_NOISE_DBM:
-	    /* XXX - not used yet */
+	    hdr_info.ieee_802_11.presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+	    hdr_info.ieee_802_11.noise_dbm = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_UNKNOWN_0x000A:

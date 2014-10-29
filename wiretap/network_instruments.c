@@ -390,12 +390,16 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
                                  err, err_info))
                 return -1;
             /* update the pseudo header */
+            pseudo_header->ieee_802_11.presence_flags =
+                PHDR_802_11_HAS_CHANNEL |
+                PHDR_802_11_HAS_DATA_RATE |
+                PHDR_802_11_HAS_SIGNAL_PERCENT;
             pseudo_header->ieee_802_11.fcs_len = 0;
             /* set decryption status */
             pseudo_header->ieee_802_11.decrypted = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) != 0;
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
-            pseudo_header->ieee_802_11.signal_level = wireless_header.strengthPercent;
+            pseudo_header->ieee_802_11.signal_percent = wireless_header.strengthPercent;
             offset += (int)sizeof wireless_header;
             break;
         default:
