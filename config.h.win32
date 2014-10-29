@@ -217,10 +217,6 @@
 /* Define to have ntddndis.h */
 @HAVE_NTDDNDIS_H@
 
-/* Define to 1 if you have the strncasecmp function. */
-/* Actually, we don't, but we have strnicmp, and #define strncasecmp to strnicmp below */
-#define HAVE_STRNCASECMP 1
-
 /* Define if you have the strptime function. */
 /* #undef HAVE_STRPTIME 1 */
 
@@ -242,7 +238,6 @@
 #define _WIN32_WINNT _WIN32_WINNT_WINXP
 #endif
 
-#define strncasecmp		strnicmp
 #define popen			_popen
 #define pclose			_pclose
 

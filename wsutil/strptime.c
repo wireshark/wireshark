@@ -30,10 +30,7 @@
 #include <limits.h>
 #include <string.h>
 #include <time.h>
-
-#ifndef HAVE_STRNCASECMP
-#include "wsutil/strncasecmp.h"
-#endif
+#include <glib.h>
 
 #ifdef _LIBC
 # include "../locale/localeinfo.h"
@@ -75,13 +72,13 @@ localtime_r (t, tp)
 #if defined __GNUC__ && __GNUC__ >= 2
 # define match_string(cs1, s2) \
   ({ size_t len = strlen (cs1);                                               \
-     int result = strncasecmp ((cs1), (s2), len) == 0;                        \
+     int result = g_ascii_strncasecmp ((cs1), (s2), len) == 0;                \
      if (result) (s2) += len;                                                 \
      result; })
 #else
 /* Oh come on.  Get a reasonable compiler.  */
 # define match_string(cs1, s2) \
-  (strncasecmp ((cs1), (s2), strlen (cs1)) ? 0 : ((s2) += strlen (cs1), 1))
+  (g_ascii_strncasecmp ((cs1), (s2), strlen (cs1)) ? 0 : ((s2) += strlen (cs1), 1))
 #endif
 /* We intentionally do not use isdigit() for testing because this will
    lead to problems with the wide character version.  */
@@ -117,7 +114,7 @@ localtime_r (t, tp)
           while (*alts != '\0')                                               \
             {                                                                 \
               size_t len = strlen (alts);                                     \
-              if (strncasecmp (alts, rp, len) == 0)                           \
+              if (g_ascii_strncasecmp (alts, rp, len) == 0)                   \
                 break;                                                        \
               alts += len + 1;                                                \
               ++val;                                                          \

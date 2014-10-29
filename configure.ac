@@ -2568,19 +2568,6 @@ AC_CHECK_FUNC(getopt,
   GETOPT_LO="wsgetopt.lo")
 AC_SUBST(GETOPT_LO)
 
-AC_CHECK_FUNC(strncasecmp,
-  [
-    STRNCASECMP_INCLUDES=""
-    STRNCASECMP_LO=""
-    AC_DEFINE(HAVE_STRNCASECMP, 1, [Define to 1 if you have the strncasecmp function.])
-  ],
-  [
-    STRNCASECMP_INCLUDES="strncasecmp.h"
-    STRNCASECMP_LO="strncasecmp.lo"
-  ])
-AC_SUBST(STRNCASECMP_INCLUDES)
-AC_SUBST(STRNCASECMP_LO)
-
 AC_CHECK_FUNCS(mkstemp mkdtemp)
 
 AC_SEARCH_LIBS(inet_aton, [socket nsl],

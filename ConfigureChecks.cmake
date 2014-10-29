@@ -91,17 +91,6 @@ check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
 check_function_exists("setresgid"        HAVE_SETRESGID)
 check_function_exists("setresuid"        HAVE_SETRESUID)
-
-#
-# Windows doesn't have strncasecmp, but does have stricmp, which has
-# the same signature and behavior.  We #define strncasecmp to stricmp
-# on Windows.
-#
-if(WIN32)
-    check_function_exists("stricmp"          HAVE_STRNCASECMP)
-else()
-    check_function_exists("strncasecmp"      HAVE_STRNCASECMP)
-endif()
 check_function_exists("strptime"         HAVE_STRPTIME)
 check_function_exists("sysconf"          HAVE_SYSCONF)
 

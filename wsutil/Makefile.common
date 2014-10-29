@@ -133,8 +133,7 @@ libwsutil_nonrepl_INCLUDES = \
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
-	$(libwsutil_nonrepl_INCLUDES)	\
-	strncasecmp.h
+	$(libwsutil_nonrepl_INCLUDES)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

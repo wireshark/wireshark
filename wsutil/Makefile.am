@@ -21,8 +21,7 @@
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 # Optional headers for ABI checking
-wsutil_optional_abi_includes =	\
-	@STRNCASECMP_INCLUDES@
+wsutil_optional_abi_includes =
 
 # Header files for functions in libwsutil's ABI on this platform.
 libwsutil_abi_INCLUDES = 	\
@@ -36,7 +35,6 @@ wsutil_optional_objects = \
 	@INET_ATON_LO@		\
 	@INET_NTOP_LO@		\
 	@INET_PTON_LO@		\
-	@STRNCASECMP_LO@	\
 	@STRPTIME_LO@
 
 if SSE42_SUPPORTED
@@ -78,8 +76,6 @@ EXTRA_libwsutil_la_SOURCES=	\
 	inet_ntop.c		\
 	inet_pton.c		\
 	inet_v6defs.h		\
-	strncasecmp.c		\
-	strncasecmp.h		\
 	strptime.c		\
 	strptime.h		\
 	wsgetopt.c		\
