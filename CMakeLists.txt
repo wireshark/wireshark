@@ -922,6 +922,7 @@ set( IN_FILES
 	plugins/irda/plugin.rc.in
 	plugins/docsis/plugin.rc.in
 	plugins/easy_codec/plugin.rc.in
+	${CUSTOM_PLUGIN_IN_FILES}
 	ui/doxygen.cfg.in
 	ui/gtk/doxygen.cfg.in
 	ui/qt/doxygen.cfg.in
