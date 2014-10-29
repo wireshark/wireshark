@@ -123,7 +123,11 @@
 #define NFS4_OP_WANT_DELEGATION             56
 #define NFS4_OP_DESTROY_CLIENTID            57
 #define NFS4_OP_RECLAIM_COMPLETE            58
-
+/* Minor version 2 */
+#define NFS4_OP_ALLOCATE                    59
+#define NFS4_OP_DEALLOCATE                  62
+#define NFS4_OP_SEEK                        69
+#define NFS4_LAST_OP                        69
 #define NFS4_OP_ILLEGAL                  10044
 
 /*

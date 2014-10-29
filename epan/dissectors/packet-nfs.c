@@ -543,6 +543,7 @@ static int hf_nfs4_sequence_status_flags_devid_deleted = -1;
 static int hf_nfs4_secinfo_style = -1;
 static int hf_nfs4_test_stateid_arg = -1;
 static int hf_nfs4_test_stateid_res = -1;
+static int hf_nfs4_seek_data_content = -1;
 /* static int hf_nfs4_impl_id_len = -1; */
 
 
@@ -722,6 +723,9 @@ static gint ett_nfs4_layoutseg_fh = -1;
 static gint ett_nfs4_test_stateid = -1;
 static gint ett_nfs4_destroy_clientid = -1;
 static gint ett_nfs4_reclaim_complete = -1;
+static gint ett_nfs4_allocate = -1;
+static gint ett_nfs4_deallocate = -1;
+static gint ett_nfs4_seek = -1;
 static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
 
@@ -5078,7 +5082,6 @@ dissect_stable_how(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 	return offset;
 }
 
-
 /* NFSv3 RFC 1813, Page 49..54 */
 static int
 dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -7626,6 +7629,11 @@ dissect_nfs4_stable_how(tvbuff_t *tvb, int offset, proto_tree *tree, const char 
 	return offset;
 }
 
+static const value_string names_data_content[] = {
+	{	0,	"DATA"  },
+	{	1,	"HOLE"  },
+	{	0, NULL }
+};
 
 /* NFSv4 Operations  */
 static const value_string names_nfs4_operation[] = {
@@ -7685,6 +7693,9 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_WANT_DELEGATION,       "WANT_DELEG"  },
 	{	NFS4_OP_DESTROY_CLIENTID,      "DESTROY_CLIENTID"  },
 	{	NFS4_OP_RECLAIM_COMPLETE,      "RECLAIM_COMPLETE"  },
+	{	NFS4_OP_ALLOCATE,              "ALLOCATE"  },
+	{	NFS4_OP_DEALLOCATE,            "DEALLOCATE"  },
+	{       NFS4_OP_SEEK,                  "SEEK"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
 	{	0, NULL  }
 };
@@ -7750,7 +7761,18 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_test_stateid,
 	 NULL, /* want delegation */
 	 &ett_nfs4_destroy_clientid,
-	 &ett_nfs4_reclaim_complete
+	 &ett_nfs4_reclaim_complete,
+	 &ett_nfs4_allocate,
+	 NULL,
+	 NULL,
+	 &ett_nfs4_deallocate,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 &ett_nfs4_seek,
 };
 
 
@@ -8749,7 +8771,11 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 55, NFS4_OP_TEST_STATEID */,
 		 1 /* 56, NFS4_OP_WANT_DELEGATION  */,
 		 1 /* 57, NFS4_OP_DESTROY_CLIENTID  */,
-		 1 /* 58, NFS4_OP_RECLAIM_COMPLETE */
+		 1 /* 58, NFS4_OP_RECLAIM_COMPLETE */,
+			/* Minor version 2 */
+		 1 /* 59, NFS4_OP_ALLOCATE */,
+		 1 /* 62, NFS4_OP_DEALLOCATE */,
+		 1 /* 69, NFS4_OP_SEEK */,
 };
 
 #define NFS4_OPERATION_TIER(op) \
@@ -8778,7 +8804,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	guint32	    last_fh_hash    = 0;
 	guint32	    saved_fh_hash   = 0;
 	guint32	    length;
-	guint64	    lock_length;
+	guint64	    length64;
 	guint64	    file_offset;
 	proto_item *fitem;
 	proto_tree *ftree;
@@ -8817,7 +8843,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		fitem = proto_tree_add_uint(ftree, hf_nfs4_op, tvb, offset, 4, opcode);
 
 		/* the opcodes are not contiguous */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE)
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_LAST_OP)
 		&&  opcode != NFS4_OP_ILLEGAL)
 			break;
 
@@ -8937,17 +8963,17 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_lock_reclaim, offset);
 			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
-			lock_length = tvb_get_ntoh64(tvb, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
 			offset = dissect_nfs4_locker(tvb, offset, newftree);
-			if (lock_length == G_GUINT64_CONSTANT(0xffffffffffffffff))
+			if (length64 == G_GUINT64_CONSTANT(0xffffffffffffffff))
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>",
 					last_fh_hash, file_offset);
 			else
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ",
-					last_fh_hash, file_offset, lock_length);
+					last_fh_hash, file_offset, length64);
 			break;
 
 		case NFS4_OP_LOCKT:
@@ -8963,16 +8989,16 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
 			file_offset = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
-			lock_length = tvb_get_ntoh64(tvb, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
-			if (lock_length == G_GUINT64_CONSTANT(0xffffffffffffffff))
+			if (length64 == G_GUINT64_CONSTANT(0xffffffffffffffff))
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>",
 					last_fh_hash, file_offset);
 			else
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ",
-					last_fh_hash, file_offset, lock_length);
+					last_fh_hash, file_offset, length64);
 			break;
 
 		case NFS4_OP_LOOKUP:
@@ -9287,6 +9313,47 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_cachethis, offset);
 			break;
 
+		case NFS4_OP_ALLOCATE:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x"
+					" Offset: %" G_GINT64_MODIFIER "u"
+					" Len: %" G_GINT64_MODIFIER "u",
+					sid_hash, file_offset, length64);
+			break;
+
+		case NFS4_OP_DEALLOCATE:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			length64 = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
+					" StateID: 0x%04x"
+					" Offset: %" G_GINT64_MODIFIER "u"
+					" Len: %" G_GINT64_MODIFIER "u",
+					sid_hash, file_offset, length64);
+			break;
+
+		case NFS4_OP_SEEK:
+			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
+			file_offset = tvb_get_ntoh64(tvb, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
+			proto_tree_add_item(newftree, hf_nfs4_seek_data_content, tvb,
+						offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			if (sid_hash != 0)
+				wmem_strbuf_append_printf(op_summary[ops_counter].optext,
+					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u",
+					sid_hash, file_offset);
+			break;
+
 		/* In theory, it's possible to get this opcode */
 		case NFS4_OP_ILLEGAL:
 			break;
@@ -9431,7 +9498,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		op_summary[ops_counter].opcode = opcode;
 
 		/* sanity check for bogus packets */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE) &&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_LAST_OP) &&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
@@ -9717,6 +9784,17 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			}
+			break;
+
+		case NFS4_OP_ALLOCATE:
+			break;
+
+		case NFS4_OP_DEALLOCATE:
+			break;
+
+		case NFS4_OP_SEEK:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_offset, offset);
 			break;
 
 		default:
@@ -12309,6 +12387,11 @@ proto_register_nfs(void)
 			"Stateid Result List", "nfs.test_stateid.results",
 			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
 
+		{ &hf_nfs4_seek_data_content, {
+			"data content", "nfs.data_content", FT_UINT32, BASE_DEC,
+			VALS(names_data_content), 0, NULL, HFILL }},
+
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
@@ -12430,6 +12513,9 @@ proto_register_nfs(void)
 		&ett_nfs4_layoutreturn,
 		&ett_nfs4_getdevinfo,
 		&ett_nfs4_getdevlist,
+		&ett_nfs4_seek,
+		&ett_nfs4_allocate,
+		&ett_nfs4_deallocate,
 		&ett_nfs4_illegal,
 		&ett_nfs4_verifier,
 		&ett_nfs4_dirlist,
