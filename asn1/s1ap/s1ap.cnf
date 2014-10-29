@@ -231,7 +231,7 @@ obj_id = NULL;
 
   is_ascii = TRUE;
   for (p_offset=0; p_offset < length; p_offset++){
-	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
+	 if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, p_offset ))){
 		is_ascii = FALSE;
 		break;
 	 }
