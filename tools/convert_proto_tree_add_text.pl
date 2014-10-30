@@ -730,9 +730,9 @@ sub find_all {
 
 			printf "%s: Found %d proto_tree_add_text calls eligible for conversion, %d contain a \"tvb get\" call (%.2f%%).\n",
 				$fileName, $found, $tvb_found, $tvb_percent;
+		} else {
+			print "$fileName: Found $found proto_tree_add_text calls eligible for conversion, 0 \"tvb get\" calls.\n";
 		}
-
-		print "$fileName: Found $found proto_tree_add_text calls eligible for conversion, 0 \"tvb get\" calls.\n";
 	}
 	return $found;
 }
