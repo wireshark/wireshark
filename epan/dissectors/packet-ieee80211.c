@@ -3376,8 +3376,10 @@ static int hf_ieee80211_ff_request_mode_bss_term_included = -1;
 static int hf_ieee80211_ff_request_mode_ess_disassoc_imminent = -1;
 static int hf_ieee80211_ff_disassoc_timer = -1;
 static int hf_ieee80211_ff_validity_interval = -1;
+static int hf_ieee80211_ff_bss_termination_duration = -1;
 static int hf_ieee80211_ff_url_len = -1;
 static int hf_ieee80211_ff_url = -1;
+static int hf_ieee80211_ff_bss_transition_candidate_list_entries = -1;
 
 static int hf_ieee80211_ff_sa_query_action_code = -1;
 static int hf_ieee80211_ff_transaction_id = -1;
@@ -3585,6 +3587,9 @@ static int hf_ieee80211_ff_psmp_sta_info_reserved_large = -1;
 static int hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id = -1;
 
 static int hf_ieee80211_ff_mimo_csi_snr = -1;
+static int hf_ieee80211_ff_mimo_csi_matrices = -1;
+static int hf_ieee80211_ff_mimo_csi_bf_matrices = -1;
+static int hf_ieee80211_ff_mimo_csi_cbf_matrices = -1;
 
 /*** Begin: 802.11s additions ***/
 static int hf_ieee80211_mesh_control_field = -1;
@@ -3691,6 +3696,7 @@ static int hf_ieee80211_tag_length = -1;
 static int hf_ieee80211_tag_interpretation = -1;
 static int hf_ieee80211_tag_data = -1;
 static int hf_ieee80211_tag_oui = -1;
+static int hf_ieee80211_tag_oui_wfa_subtype = -1;
 static int hf_ieee80211_tag_ssid = -1;
 static int hf_ieee80211_tag_supp_rates = -1;
 static int hf_ieee80211_tag_fh_dwell_time = -1;
@@ -4371,6 +4377,7 @@ static int hf_ieee80211_tag_qos_map_set_high = -1;
 static int hf_ieee80211_tag_adv_proto_resp_len_limit = -1;
 static int hf_ieee80211_tag_adv_proto_pame_bi = -1;
 static int hf_ieee80211_tag_adv_proto_id = -1;
+static int hf_ieee80211_tag_adv_proto_vs_info = -1;
 
 /* IEEE Std 802.11u-2011 7.3.2.96 */
 static int hf_ieee80211_tag_roaming_consortium_num_anqp_oi = -1;
@@ -4997,6 +5004,8 @@ static int hf_ieee80211_tag_switching_stream_new_direction = -1;
 static int hf_ieee80211_tag_switching_stream_new_valid_id = -1;
 static int hf_ieee80211_tag_switching_stream_llt_type = -1;
 
+static int hf_ieee80211_mysterious_olpc_stuff = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -5188,6 +5197,7 @@ static expert_field ei_ieee80211_fc_retry = EI_INIT;
 static expert_field ei_ieee80211_tag_wnm_sleep_mode_no_key_data = EI_INIT;
 static expert_field ei_ieee80211_dmg_subtype = EI_INIT;
 static expert_field ei_ieee80211_vht_action = EI_INIT;
+static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -5671,7 +5681,7 @@ add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(3+(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size));
   csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
-  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "CSI Matrices");
+  proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
 }
@@ -5699,7 +5709,7 @@ add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offse
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size);
   csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
-  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "Beamforming Feedback Matrices");
+  proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_bf_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
 }
@@ -5729,7 +5739,7 @@ add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb
   ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
   csi_matrix_size = ns*(na*((mimo_cntrl.codebook_info+1)*2 + 2)/2);
   csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
-  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "Compressed Beamforming Feedback Matrices");
+  proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_cbf_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
 }
@@ -6079,8 +6089,8 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
                                "Vendor specific info length error");
         return 2 + tag_len;
       }
-      proto_tree_add_text(adv_tuple_tree, tvb, offset, len,
-                          "Vendor Specific Advertisement Protocol info");
+      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_adv_proto_vs_info, tvb,
+                        offset, len, ENC_NA);
       offset += len;
       left   -= len;
     }
@@ -7860,7 +7870,7 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     switch (oui) {
     case OUI_WFA:
       subtype = tvb_get_guint8(tvb, offset);
-      proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
+      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
       offset += 1;
       if (subtype == WFA_SUBTYPE_P2P) {
         offset = dissect_wifi_p2p_public_action(pinfo, tree, tvb, offset);
@@ -8140,7 +8150,8 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   offset += 1;
 
   if (mode & 0x08) {
-    proto_tree_add_text(tree, tvb, offset, 8, "BSS Termination Duration");
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_termination_duration,
+                        tvb, offset, 8, ENC_NA);
     offset += 8;
   }
 
@@ -8157,8 +8168,8 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
   left = tvb_reported_length_remaining(tvb, offset);
   if (left > 0) {
-    proto_tree_add_text(tree, tvb, offset, left,
-                        "BSS Transition Candidate List Entries");
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
+                        tvb, offset, left, ENC_NA);
     offset += left;
   }
 
@@ -8379,7 +8390,7 @@ add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
     break;
   case OUI_WFA:
     subtype = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
+      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
     offset += 1;
     if (subtype == WFA_SUBTYPE_P2P) {
       offset = dissect_wifi_p2p_action(tree, tvb, offset);
@@ -11973,10 +11984,8 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
   }
 
   if (offset < end) {
-    proto_tree_add_text(tree, tvb, offset, end - offset,
-                        "Unexpected extra data");
-    expert_add_info_format(pinfo, tree, &ei_ieee80211_extra_data,
-                           "Extra data after TFS Subelements");
+    proto_tree_add_expert_format(tree, pinfo, &ei_ieee80211_extra_data,
+                           tvb, offset, end - offset, "Extra data after TFS Subelements");
   }
 
   return end;
@@ -12043,10 +12052,8 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
   }
 
   if (offset < end) {
-    proto_tree_add_text(tree, tvb, offset, end - offset,
-                        "Unexpected extra data");
-    expert_add_info_format(pinfo, tree, &ei_ieee80211_extra_data,
-                           "Extra data after TFS Status subelements");
+    proto_tree_add_expert_format(tree, pinfo, &ei_ieee80211_extra_data,
+                           tvb, offset, end - offset, "Extra data after TFS Subelements");
   }
 
   return end;
@@ -14963,7 +14970,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
           /* unexpected values */
           default:
-            proto_tree_add_text (tree, tvb, offset, tag_len, "Unexpected Self-protected action");
+            proto_tree_add_expert(tree, pinfo, &ei_ieee80211_mesh_peering_unexpected , tvb, offset, tag_len);
             offset += tag_len;
             break;
           }
@@ -17892,7 +17899,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           else if ((octet1 == 0xff) && (octet2 == 0xff))
             encap_type = ENCAP_IPX;
           else if ((octet1 == 0x00) && (octet2 == 0x00)) {
-            proto_tree_add_text(tree, next_tvb, 0, 2, "Mysterious OLPC stuff");
+            proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining (next_tvb, 2);
           }
         }
@@ -19146,6 +19153,11 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_bss_termination_duration,
+     {"BSS Termination Duration", "wlan_mgt.fixed.bss_termination_duration",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_url_len,
      {"Session Information URL Length",
       "wlan_mgt.fixed.session_information.url_length",
@@ -19155,6 +19167,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_url,
      {"Session Information URL", "wlan_mgt.fixed.session_information.url",
       FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_bss_transition_candidate_list_entries,
+     {"BSS Transition Candidate List Entries", "wlan_mgt.fixed.bss_transition_candidate_list_entries",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
 /* 802.11ad */
@@ -21016,6 +21033,20 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_mimo_csi_matrices,
+     {"CSI Matrices", "wlan_mgt.mimo.csimatrices",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mimo_csi_bf_matrices,
+     {"Beamforming Feedback Matrices", "wlan_mgt.mimo.csimatrices.bf",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mimo_csi_cbf_matrices,
+     {"Compressed Beamforming Feedback Matrices", "wlan_mgt.mimo.csimatrices.cbf",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
     {&hf_ieee80211_ff_public_action,
      {"Public Action", "wlan_mgt.fixed.publicact",
       FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ff_pa_action_codes_ext, 0,
@@ -21992,7 +22023,13 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_oui,
      {"OUI", "wlan_mgt.tag.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0, "OUI of vendor specific IE", HFILL }},
+      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      "OUI of vendor specific IE", HFILL }},
+
+    {&hf_ieee80211_tag_oui_wfa_subtype,
+     {"WFA Subtype", "wlan_mgt.tag.oui.wfa_subtype",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_ds_param_channel,
      {"Current Channel", "wlan_mgt.ds.current_channel",
@@ -26056,6 +26093,11 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_adv_proto_vs_info,
+     {"Advertisement Protocol Vendor Specific info", "wlan_mgt.adv_proto.vs_info",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     /* Roaming Consortium */
     {&hf_ieee80211_tag_roaming_consortium_num_anqp_oi,
      {"Number of ANQP OIs", "wlan_mgt.roaming_consortium.num_anqp_oi",
@@ -26181,7 +26223,13 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_pu_buffer_status_ac_vo,
      {"AC_VO traffic available", "wlan_mgt.pu_buffer_status.ac_vo",
       FT_UINT8, BASE_DEC, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mysterious_olpc_stuff,
+     {"Mysterious OLPC stuff", "wlan_mgt.mysterious_olpc_stuff",
+      FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }}
+
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -26420,6 +26468,7 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_tag_data, { "wlan_mgt.tag.data.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for 802.11 IE Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
     { &ei_ieee80211_dmg_subtype, { "wlan.dmg_subtype.bad", PI_MALFORMED, PI_ERROR, "Bad DMG type/subtype", EXPFILL }},
     { &ei_ieee80211_vht_action, { "wlan_mgt.vht.action.undecoded", PI_UNDECODED, PI_NOTE, "All subtype of VHT Action is not yet supported by Wireshark", EXPFILL }},
+    { &ei_ieee80211_mesh_peering_unexpected, { "wlan.peering.unexpected", PI_MALFORMED, PI_ERROR, "Unexpected Self-protected action", EXPFILL }},
 
   };
 
