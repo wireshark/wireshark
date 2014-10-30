@@ -687,7 +687,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     switch (wth->file_encap) {
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-	if (data_rate_or_mcs_index) {
+	if (saw_data_rate_or_mcs_index) {
 	    if (ext_flags & EXT_FLAG_MCS_INDEX_USED) {
 		/* It's an MCS index. */
 		ieee_802_11.presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
