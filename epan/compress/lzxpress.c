@@ -76,7 +76,7 @@ gssize lzxpress_decompress(const guint8 *input,
 	do {
 		if (indicator_bit == 0) {
 			indicator = PULL_LE_UINT32(input, input_index);
-			input_index += sizeof(guint32);
+			input_index += (guint32)sizeof(guint32);
 			indicator_bit = 32;
 		}
 		indicator_bit--;
@@ -88,11 +88,11 @@ gssize lzxpress_decompress(const guint8 *input,
 		 */
 		if (((indicator >> indicator_bit) & 1) == 0) {
 			output[output_index] = input[input_index];
-			input_index += sizeof(guint8);
-			output_index += sizeof(guint8);
+			input_index += (guint32)sizeof(guint8);
+			output_index += (guint32)sizeof(guint8);
 		} else {
 			length = PULL_LE_UINT16(input, input_index);
-			input_index += sizeof(guint16);
+			input_index += (guint32)sizeof(guint16);
 			offset = length / 8;
 			length = length % 8;
 
@@ -100,7 +100,7 @@ gssize lzxpress_decompress(const guint8 *input,
 				if (nibble_index == 0) {
 					nibble_index = input_index;
 					length = input[input_index] % 16;
-					input_index += sizeof(guint8);
+					input_index += (guint32)sizeof(guint8);
 				} else {
 					length = input[nibble_index] / 16;
 					nibble_index = 0;
@@ -108,10 +108,10 @@ gssize lzxpress_decompress(const guint8 *input,
 
 				if (length == 15) {
 					length = input[input_index];
-					input_index += sizeof(guint8);
+					input_index += (guint32)sizeof(guint8);
 					if (length == 255) {
 						length = PULL_LE_UINT16(input, input_index);
-						input_index += sizeof(guint16);
+						input_index += (guint32)sizeof(guint16);
 						length -= (15 + 7);
 					}
 					length += 15;
@@ -126,8 +126,8 @@ gssize lzxpress_decompress(const guint8 *input,
 
 				output[output_index] = output[output_index - offset - 1];
 
-				output_index += sizeof(guint8);
-				length -= sizeof(guint8);
+				output_index += (guint32)sizeof(guint8);
+				length -= (guint32)sizeof(guint8);
 			} while (length != 0);
 		}
 	} while ((output_index < max_output_size) && (input_index < (input_size)));
