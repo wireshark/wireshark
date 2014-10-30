@@ -581,12 +581,20 @@ struct p2p_phdr {
  * times the ratio of the RSSI and the maximum RSSI.
  */
 struct ieee_802_11_phdr {
-    guint32  presence_flags; /* flags indicating presence of certain fields */
+    guint32  presence_flags; /* Flags indicating presence of certain fields */
+    guint32  flags_11n;      /* Various flags for 802.11n traffic */
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
     guint16  channel;        /* Channel number */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
     guint16  mcs_index;      /* MCS index */
+    guint    bandwidth:2;    /* Bandwidth = 20 MHz, 40 MHz, 20+20L, 20+20U */
+    guint    short_gi:1;     /* True for short guard interval */
+    guint    greenfield:1;   /* True for greenfield, short for mixed */
+    guint    ldpc:1;         /* Tue for LDPC FEC */
+    guint    stbc_streams:2; /* Number of STBC streams */
+    guint    ness:1;         /* Number of extension spatial streams */
+    guint16  mcs_info;       /* 11n flags and bandwidth */
     guint32  frequency;      /* Channel center frequency */
     guint8   signal_percent; /* Signal level, as a percentage */
     guint8   noise_percent;  /* Noise level, as a percentage */
@@ -597,13 +605,24 @@ struct ieee_802_11_phdr {
 
 #define PHDR_802_11_HAS_CHANNEL        0x00000001 /* channel */
 #define PHDR_802_11_HAS_DATA_RATE      0x00000002 /* data_rate */
-#define PHDR_802_11_HAS_MCS_INDEX      0x00000004 /* mcs_index */
-#define PHDR_802_11_HAS_FREQUENCY      0x00000008 /* frequency */
-#define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000010 /* signal_percent */
-#define PHDR_802_11_HAS_NOISE_PERCENT  0x00000020 /* noise_percent */
-#define PHDR_802_11_HAS_SIGNAL_DBM     0x00000040 /* signal_dbm */
-#define PHDR_802_11_HAS_NOISE_DBM      0x00000080 /* noise_dbm */
-#define PHDR_802_11_HAS_TSF_TIMESTAMP  0x00000100 /* tsf_timestamp */
+#define PHDR_802_11_HAS_MCS_INDEX      0x00000004 /* mcs */
+#define PHDR_802_11_HAS_BANDWIDTH      0x00000008 /* bandwidth */
+#define PHDR_802_11_HAS_SHORT_GI       0x00000010 /* short_gi */
+#define PHDR_802_11_HAS_GREENFIELD     0x00000020 /* greenfield */
+#define PHDR_802_11_HAS_LDPC           0x00000040 /* ldpc */
+#define PHDR_802_11_HAS_STBC_STREAMS   0x00000080 /* stbc_streams */
+#define PHDR_802_11_HAS_NESS           0x00000100 /* ness */
+#define PHDR_802_11_HAS_FREQUENCY      0x00000200 /* frequency */
+#define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000400 /* signal_percent */
+#define PHDR_802_11_HAS_NOISE_PERCENT  0x00000800 /* noise_percent */
+#define PHDR_802_11_HAS_SIGNAL_DBM     0x00001000 /* signal_dbm */
+#define PHDR_802_11_HAS_NOISE_DBM      0x00002000 /* noise_dbm */
+#define PHDR_802_11_HAS_TSF_TIMESTAMP  0x00004000 /* tsf_timestamp */
+
+#define PHDR_802_11_BANDWIDTH_20_MHZ   0 /* 20 MHz */
+#define PHDR_802_11_BANDWIDTH_40_MHZ   1 /* 40 MHz */
+#define PHDR_802_11_BANDWIDTH_20_20L   2 /* 20 + 20L */
+#define PHDR_802_11_BANDWIDTH_20_20U   3 /* 20 + 20U */
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

@@ -144,8 +144,10 @@ typedef struct peektagged_section_header {
 #define EXT_FLAG_20_MHZ_LOWER			0x00000001
 #define EXT_FLAG_20_MHZ_UPPER			0x00000002
 #define EXT_FLAG_40_MHZ				0x00000004
+#define EXT_FLAGS_BANDWIDTH			0x00000007
 #define EXT_FLAG_HALF_GI			0x00000008
 #define EXT_FLAG_FULL_GI			0x00000010
+#define EXT_FLAGS_GI				0x00000018
 #define EXT_FLAG_AMPDU				0x00000020
 #define EXT_FLAG_AMSDU				0x00000040
 #define EXT_FLAG_802_11ac			0x00000080
@@ -688,6 +690,53 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		/* It's an MCS index. */
 		ieee_802_11.presence_flags |= PHDR_802_11_HAS_MCS_INDEX;
 		ieee_802_11.mcs_index = data_rate_or_mcs_index;
+
+		/*
+		 * Fill in other 802.11n information.
+		 */
+		switch (ext_flags & EXT_FLAGS_BANDWIDTH) {
+
+		case 0:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
+		    ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
+		    break;
+
+		case EXT_FLAG_20_MHZ_LOWER:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
+		    ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_20L;
+		    break;
+
+		case EXT_FLAG_20_MHZ_UPPER:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
+		    ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_20_20U;
+		    break;
+
+		case EXT_FLAG_40_MHZ:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_BANDWIDTH;
+		    ieee_802_11.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+		    break;
+
+		default:
+		    /* Mutually exclusive flags set */
+		    break;
+		}
+
+		switch (ext_flags & EXT_FLAGS_GI) {
+
+		case EXT_FLAG_HALF_GI:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+		    ieee_802_11.short_gi = 1;
+		    break;
+
+		case EXT_FLAG_FULL_GI:
+		    ieee_802_11.presence_flags |= PHDR_802_11_HAS_SHORT_GI;
+		    ieee_802_11.short_gi = 0;
+		    break;
+
+		default:
+		    /* Mutually exclusive flags set */
+		    break;
+		}
 	    } else {
 		/* It's a data rate */
 		ieee_802_11.presence_flags |= PHDR_802_11_HAS_DATA_RATE;

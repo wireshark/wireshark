@@ -41,12 +41,22 @@ static int proto_radio = -1;
 /* ************************************************************************* */
 static int hf_data_rate = -1;
 static int hf_mcs_index = -1;
+static int hf_bandwidth = -1;
+static int hf_short_gi = -1;
 static int hf_channel = -1;
 static int hf_frequency = -1;
 static int hf_signal_percent = -1;
 static int hf_signal_dbm = -1;
 static int hf_noise_percent = -1;
 static int hf_noise_dbm = -1;
+
+static const value_string bandwidth_vals[] = {
+    { PHDR_802_11_BANDWIDTH_20_MHZ, "20 MHz" },
+    { PHDR_802_11_BANDWIDTH_40_MHZ, "40 MHz" },
+    { PHDR_802_11_BANDWIDTH_20_20L, "20 MHz + 20 MHz lower" },
+    { PHDR_802_11_BANDWIDTH_20_20U, "20 MHz + 20 MHz upper" },
+    { 0, NULL }
+};
 
 static gint ett_radio = -1;
 
@@ -106,6 +116,16 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                pinfo->pseudo_header->ieee_802_11.mcs_index);
     }
 
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_BANDWIDTH) {
+      proto_tree_add_uint(radio_tree, hf_bandwidth, tvb, 0, 0,
+               pinfo->pseudo_header->ieee_802_11.bandwidth);
+    }
+
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_SHORT_GI) {
+      proto_tree_add_boolean(radio_tree, hf_short_gi, tvb, 0, 0,
+               pinfo->pseudo_header->ieee_802_11.short_gi);
+    }
+
     if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) {
       proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
               pinfo->pseudo_header->ieee_802_11.channel);
@@ -154,12 +174,20 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 static hf_register_info hf_radio[] = {
     {&hf_data_rate,
-     {"Data Rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
-      "Data rate (b/s)", HFILL }},
+     {"Data rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
+      "Data rate (bits/s)", HFILL }},
 
     {&hf_mcs_index,
-     {"MCS Index", "wlan.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
-      "MCS index", HFILL }},
+     {"MCS index", "wlan.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_bandwidth,
+     {"Bandwidth", "wlan.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_short_gi,
+     {"Short GI", "wlan.short_gi", FT_BOOLEAN, 0, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_channel,
      {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
@@ -170,20 +198,20 @@ static hf_register_info hf_radio[] = {
       "Center frequency of the 802.11 channel that this frame was sent/received on", HFILL }},
 
     {&hf_signal_percent,
-     {"Signal Strength (Percentage)", "wlan.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
-      "Signal strength (Percentage)", HFILL }},
+     {"Signal strength (percentage)", "wlan.signal_dbm", FT_UINT8, BASE_DEC, NULL, 0,
+      "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_signal_dbm,
-     {"Signal Strength (dBm)", "wlan.signal_dbm", FT_INT8, BASE_DEC, NULL, 0,
-      "Signal strength (dBm)", HFILL }},
+     {"Signal strength (dBm)", "wlan.signal_dbm", FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_noise_percent,
-     {"Noise Level (Percentage)", "wlan.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
-      "Noise Level (Percentage)", HFILL }},
+     {"Noise level (percentage)", "wlan.noise_percentage", FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_noise_dbm,
-     {"Noise Level (dBm)", "wlan.noise_dbm", FT_INT8, BASE_DEC, NULL, 0,
-      "Noise Level (dBm)", HFILL }},
+     {"Noise level (dBm)", "wlan.noise_dbm", FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 };
 
 static gint *tree_array[] = {
