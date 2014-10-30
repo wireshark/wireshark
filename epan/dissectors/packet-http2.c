@@ -26,8 +26,9 @@
 
 /*
  * The information used comes from:
- * Hypertext Transfer Protocol version 2 draft-ietf-httpbis-http2-14
+ * Hypertext Transfer Protocol version 2 draft-ietf-httpbis-http2-15
  * HTTP Header Compression draft-ietf-httpbis-header-compression-09
+ * HTTP Alternative Services draft-ietf-httpbis-alt-svc-04
  *
  * TODO
 * Enhance display of Data
@@ -313,19 +314,21 @@ static    guint8 kMagicHello[] = {
 };
 
 /* Error Codes */
-#define EC_NO_ERROR             0
-#define EC_PROTOCOL_ERROR       1
-#define EC_INTERNAL_ERROR       2
-#define EC_FLOW_CONTROL_ERROR   3
-#define EC_SETTINGS_TIMEOUT     4
-#define EC_STREAM_CLOSED        5
-#define EC_FRAME_SIZE_ERROR     6
-#define EC_REFUSED_STREAM       7
-#define EC_CANCEL               8
-#define EC_COMPRESSION_ERROR    9
-#define EC_CONNECT_ERROR        10
-#define EC_ENHANCE_YOUR_CALM    11
-#define EC_INADEQUATE_SECURITY  12
+#define EC_NO_ERROR             0x0
+#define EC_PROTOCOL_ERROR       0x1
+#define EC_INTERNAL_ERROR       0x2
+#define EC_FLOW_CONTROL_ERROR   0x3
+#define EC_SETTINGS_TIMEOUT     0x4
+#define EC_STREAM_CLOSED        0x5
+#define EC_FRAME_SIZE_ERROR     0x6
+#define EC_REFUSED_STREAM       0x7
+#define EC_CANCEL               0x8
+#define EC_COMPRESSION_ERROR    0x9
+#define EC_CONNECT_ERROR        0xa
+#define EC_ENHANCE_YOUR_CALM    0xb
+#define EC_INADEQUATE_SECURITY  0xc
+#define EC_HTTP_1_1_REQUIRED    0xd
+
 
 static const value_string http2_error_codes_vals[] = {
     { EC_NO_ERROR,              "NO_ERROR" },
@@ -341,6 +344,7 @@ static const value_string http2_error_codes_vals[] = {
     { EC_CONNECT_ERROR,         "CONNECT_ERROR" },
     { EC_ENHANCE_YOUR_CALM,     "ENHANCE_YOUR_CALM" },
     { EC_INADEQUATE_SECURITY,   "INADEQUATE_SECURITY" },
+    { EC_HTTP_1_1_REQUIRED,     "HTTP_1_1_REQUIRED" },
     { 0, NULL }
 };
 
@@ -1385,7 +1389,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
-    proto_item_append_text(ti, " (draft-14)");
+    proto_item_append_text(ti, " (draft-15)");
 
     http2_tree = proto_item_add_subtree(ti, ett_http2);
 
