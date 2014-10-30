@@ -52,6 +52,14 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 #define MAX_SSID_LEN    32
 #define MAX_PROTECT_LEN 10
 
+/*
+ * Table of data rates, indexed by MCS index, bandwidth (0 for 20, 1 for 40),
+ * amd guard interval (0 for long, 1 for short).
+ */
+#define MAX_MCS_INDEX	76
+
+WS_DLL_PUBLIC const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2];
+
 struct _wlan_stats {
   guint8 channel;
   guint8 ssid_len;
