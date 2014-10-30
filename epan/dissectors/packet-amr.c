@@ -22,6 +22,7 @@
  *
  * References:
  * RFC 3267  http://www.ietf.org/rfc/rfc3267.txt?number=3267
+ * RFC 4867  http://www.rfc-editor.org/rfc/rfc4867.txt
  * 3GPP TS 26.101 for AMR-NB, 3GPP TS 26.201 for AMR-WB
  */
 
@@ -615,7 +616,7 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* 
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void
