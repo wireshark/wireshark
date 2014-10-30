@@ -6864,15 +6864,14 @@ static value_string_ext fattr4_names_ext = VALUE_STRING_EXT_INIT(fattr4_names);
 #define FATTR4_BITMAP_ONLY 0
 #define FATTR4_DISSECT_VALUES 1
 
-/* As of NFSv4.1 (RFC 5661) The maximum number of attribute bitmaps is 3 in that NFSv4.1 introduced
-*  attribute numbers in excess of 63 (e.g., FATTR4_FS_CHARSET_CAP = 76):
- *
- *                      1          2          3
- *  +-------------+----------+----------+----------+
- *  | num_bitmaps | 31 .. 0  | 63 .. 32 | 95 .. 64 |
- *  +-------------+----------+----------+----------+
+/*
+ * Bitmaps are currently used for attributes and state_protect bits.
+ * Currently we don't expect more than 4 words, but future protocol
+ * revisions might add more bits, and in theory an implementation
+ * might legally zero-pad a bitmask out to something longer.  We keep
+ * a generous maximum here just as a sanity check:
  */
-#define MAX_BITMAPS 3
+#define MAX_BITMAPS 100
 
 /* Display each attrmask bitmap and optionally dissect the value.
 */
