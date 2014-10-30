@@ -857,10 +857,10 @@ static const value_string evt_le_meta_subevent[] = {
 };
 
 static const value_string evt_le_advertising_evt_types[] = {
-    { 0x00, "Connectable Unidirected Advertising" },
+    { 0x00, "Connectable Undirected Advertising" },
     { 0x01, "Connectable Directed Advertising" },
-    { 0x02, "Scannable Unidirected Advertising" },
-    { 0x03, "Non-Connectable Unidirected Advertising" },
+    { 0x02, "Scannable Undirected Advertising" },
+    { 0x03, "Non-Connectable Undirected Advertising" },
     { 0x04, "Scan Response" },
     { 0, NULL }
 };
