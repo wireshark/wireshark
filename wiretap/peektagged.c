@@ -593,6 +593,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 	case TAG_PEEKTAGGED_CENTER_FREQUENCY:
 	    /* XXX - also seen in an EtherPeek capture; value unknown */
+	    ieee_802_11.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+	    ieee_802_11.frequency = pletoh32(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_UNKNOWN_0x000E:
