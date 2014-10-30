@@ -244,7 +244,6 @@ while (my $fileName = $ARGV[0]) {
 	if ($action eq "find-all") {
 		# Find all proto_tree_add_text() statements eligible for conversion
 		$found_total += find_all(\$fileContents, $fileName);
-		print "Found $found_total proto_tree_add_text calls eligible for conversion.\n";
 	}
 
 } # while
@@ -680,7 +679,9 @@ sub find_all {
 	my( $fileContentsRef, $fileName) = @_;
 
 	my $found = 0;
+	my $tvb_found = 0;
 	my $pat;
+	my $tvb_percent;
 
 	if ($expert ne "") {
 		$pat = qr /
@@ -704,12 +705,34 @@ sub find_all {
 
 	while ($$fileContentsRef =~ / $pat /xgso) {
 		my $str = "${1}\n";
+		my @args = split(/,/, ${1});
+
+		#cleanup whitespace to show proto_tree_add_text in single line (easier for seeing grep results)
 		$str =~ tr/\t\n\r/ /d;
 		$str =~ s/ \s+ / /xg;
 		#print "$fileName: $str\n";
 
+		#find all instances where proto_tree_add_text has a tvb_get (or similar) call, because
+		#convert_proto_tree_add_text.pl has an easier time determining hf_ field values with it
+		if (scalar @args > 5) {
+			my $tvb = trim($args[5]);
+			if ($tvb =~ /^tvb_/) {
+				$tvb_found += 1;
+			}
+		}
+
 		$found += 1;
 	}
 
+	if ($found > 0) {
+		if ($tvb_found > 0) {
+			$tvb_percent = 100*$tvb_found/$found;
+
+			printf "%s: Found %d proto_tree_add_text calls eligible for conversion, %d contain a \"tvb get\" call (%.2f%%).\n",
+				$fileName, $found, $tvb_found, $tvb_percent;
+		}
+
+		print "$fileName: Found $found proto_tree_add_text calls eligible for conversion, 0 \"tvb get\" calls.\n";
+	}
 	return $found;
 }
