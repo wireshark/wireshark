@@ -586,7 +586,7 @@ struct ieee_802_11_phdr {
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
     guint16  channel;        /* Channel number */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
-    guint16  mcs;            /* MCS index */
+    guint16  mcs_index;      /* MCS index */
     guint32  frequency;      /* Channel center frequency */
     guint8   signal_percent; /* Signal level, as a percentage */
     guint8   noise_percent;  /* Noise level, as a percentage */
@@ -597,7 +597,7 @@ struct ieee_802_11_phdr {
 
 #define PHDR_802_11_HAS_CHANNEL        0x00000001 /* channel */
 #define PHDR_802_11_HAS_DATA_RATE      0x00000002 /* data_rate */
-#define PHDR_802_11_HAS_MCS            0x00000004 /* mcs_index */
+#define PHDR_802_11_HAS_MCS_INDEX      0x00000004 /* mcs_index */
 #define PHDR_802_11_HAS_FREQUENCY      0x00000008 /* frequency */
 #define PHDR_802_11_HAS_SIGNAL_PERCENT 0x00000010 /* signal_percent */
 #define PHDR_802_11_HAS_NOISE_PERCENT  0x00000020 /* noise_percent */

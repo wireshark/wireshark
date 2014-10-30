@@ -40,6 +40,7 @@ static int proto_radio = -1;
 /*                Header field info values for radio information             */
 /* ************************************************************************* */
 static int hf_data_rate = -1;
+static int hf_mcs_index = -1;
 static int hf_channel = -1;
 static int hf_frequency = -1;
 static int hf_signal_percent = -1;
@@ -100,6 +101,11 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
     }
 
+    if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_MCS_INDEX) {
+      proto_tree_add_uint(radio_tree, hf_mcs_index, tvb, 0, 0,
+               pinfo->pseudo_header->ieee_802_11.mcs_index);
+    }
+
     if (pinfo->pseudo_header->ieee_802_11.presence_flags & PHDR_802_11_HAS_CHANNEL) {
       proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
               pinfo->pseudo_header->ieee_802_11.channel);
@@ -150,6 +156,10 @@ static hf_register_info hf_radio[] = {
     {&hf_data_rate,
      {"Data Rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
       "Data rate (b/s)", HFILL }},
+
+    {&hf_mcs_index,
+     {"MCS Index", "wlan.mcs_index", FT_UINT32, BASE_DEC, NULL, 0,
+      "MCS index", HFILL }},
 
     {&hf_channel,
      {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
