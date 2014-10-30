@@ -993,7 +993,7 @@ hex(unsigned char *p, int len) {
 
     while (len) {
         g_warning("%u: 0x%x (%u) '%c'", i, *p, *p,
-            isprint(*p) ? *p : '.');
+            g_ascii_isprint(*p) ? *p : '.');
 
         i++;
         p++;
