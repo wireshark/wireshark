@@ -83,6 +83,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  call_dissector_only@Base 1.9.1
  call_dissector_with_data@Base 1.9.1
  call_heur_dissector_direct@Base 1.12.0~rc1
+ call_per_oid_callback@Base 1.99.1
  camelSRTtype_naming@Base 1.9.1
  camel_opr_code_strings@Base 1.9.1
  capture_ap1394@Base 1.9.1
@@ -319,6 +320,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_ndr_uuid_t@Base 1.9.1
  dissect_nt_64bit_time@Base 1.9.1
  dissect_nt_64bit_time_ex@Base 1.99.0
+ dissect_nt_64bit_time_opt@Base 1.99.1
  dissect_nt_sid@Base 1.9.1
  dissect_per_BMPString@Base 1.9.1
  dissect_per_GeneralString@Base 1.9.1
@@ -762,6 +764,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  new_register_ber_oid_dissector@Base 1.99.1
  new_register_ber_syntax_dissector@Base 1.99.1
  new_register_dissector@Base 1.9.1
+ new_register_per_oid_dissector@Base 1.99.1
  next_tvb_add_handle@Base 1.9.1
  next_tvb_add_string@Base 1.9.1
  next_tvb_add_uint@Base 1.9.1
@@ -1207,6 +1210,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_accepted_not_accepted@Base 1.9.1
  tfs_ack_nack@Base 1.9.1
  tfs_active_inactive@Base 1.9.1
+ tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
  tfs_allowed_not_allowed@Base 1.9.1
  tfs_asynchronous_synchronous@Base 1.99.1
