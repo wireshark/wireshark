@@ -96,6 +96,19 @@ my %APIs = (
                 # "I" isn't always the upper-case form of "i", and "i" isn't
                 # always the lower-case form of "I").  Use the g_ascii_* version
                 # instead.
+                'isalnum',
+                'isascii',
+                'isalpha',
+                'iscntrl',
+                'isdigit',
+                'islower',
+                'isgraph',
+                'isprint',
+                'ispunct',
+                'isspace',
+                'isupper',
+                'isxdigit',
+                'tolower',
                 'strtod',
                 'strcasecmp',
                 'strncasecmp',
@@ -193,7 +206,13 @@ my %APIs = (
                 'ep_strbuf_append_c',
                 'ep_strbuf_append_unichar',
                 'ep_strbuf_truncate',
-                'emem_print_tree'
+                'emem_print_tree',
+                # Locale-unsafe APIs
+                # These may have unexpected behaviors in some locales (e.g.,
+                # "I" isn't always the upper-case form of "i", and "i" isn't
+                # always the lower-case form of "I").  Use the g_ascii_* version
+                # instead.
+                'toupper'
             ] },
 
         # APIs that SHOULD NOT be used in Wireshark (any more)
@@ -1851,14 +1870,14 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
                 }
-		if ($convert =~ m/^VALS\(&.*\)/) {
+                if ($convert =~ m/^VALS\(&.*\)/) {
                         print STDERR "Error: $hf is passing the address of a pointer to VALS in $filename\n";
                         $errorCount++;
-		}
-		if ($convert =~ m/^RVALS\(&.*\)/) {
+                }
+                if ($convert =~ m/^RVALS\(&.*\)/) {
                         print STDERR "Error: $hf is passing the address of a pointer to RVALS in $filename\n";
                         $errorCount++;
-		}
+                }
                 if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|RVALS|TFS|&)/ && $display !~ /BASE_CUSTOM/) {
                         print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|RVALS|TFS|&' in $filename ?\n";
                         $errorCount++;
@@ -2078,8 +2097,8 @@ while ($_ = $ARGV[0])
         my $line;
 
         if ($source_dir and ! -e $filename) {
-		$filename = $source_dir . '/' . $filename;
-	}
+                $filename = $source_dir . '/' . $filename;
+        }
         if (! -e $filename) {
                 warn "No such file: \"$filename\"";
                 next;
