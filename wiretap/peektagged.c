@@ -486,18 +486,18 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                        Buffer *buf, int *err, gchar **err_info)
 {
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
-    int header_len = 0;
+    gboolean read_a_tag = FALSE;
     guint8 tag_value[6];
     guint16 tag;
     gboolean saw_length = FALSE;
-    guint32 length;
-    guint32 sliceLength;
+    guint32 length = 0;
+    guint32 sliceLength = 0;
     gboolean saw_timestamp_lower = FALSE;
     gboolean saw_timestamp_upper = FALSE;
     peektagged_utime timestamp;
     guint32 ext_flags = 0;
     gboolean saw_data_rate_or_mcs_index = FALSE;
-    guint32 data_rate_or_mcs_index;
+    guint32 data_rate_or_mcs_index = 0;
     struct ieee_802_11_phdr ieee_802_11;
     int skip_len = 0;
     double  t;
@@ -514,12 +514,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		 * Short read if we've read something already;
 		 * just an EOF if we haven't.
 		 */
-		if (header_len != 0)
+		if (read_a_tag)
 		    *err = WTAP_ERR_SHORT_READ;
 	    }
 	    return -1;
 	}
-	header_len += (int) sizeof(tag_value);
+	read_a_tag = TRUE;
 	tag = pletoh16(&tag_value[0]);
 	switch (tag) {
 
