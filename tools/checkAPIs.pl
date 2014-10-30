@@ -2120,13 +2120,14 @@ while ($_ = $ARGV[0])
         }
         if ($fileContents =~ m{ __func__ }xo)
         {
-                print STDERR "Error: __func__ is not portable, use G_STRFUNC\n";
+                print STDERR "Error: Found __func__ (which is not portable, use G_STRFUNC) in " .$filename."\n";
                 $errorCount++;
         }
         if (($fileContents =~ m{ \$Id .* \$ }xo))
         {
-                print STDERR "Warning: ".$filename." does have an SVN Id tag. Please remove !\n";
+                print STDERR "Warning: ".$filename." has an SVN Id tag. Please remove it!\n";
         }
+
         # Remove all the C-comments
         $fileContents =~ s{ $CComment } []xog;
 
