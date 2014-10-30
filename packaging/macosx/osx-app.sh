@@ -295,7 +295,9 @@ create_bundle() {
 
 	# Copy the plugins from the "make install" location for them
 	# to the plugin directory, removing the version number
-	find "$binary_path/../lib/wireshark/plugins" -type f \
+	find "$binary_path/../lib/wireshark/plugins"
+		-type f \
+		\( -name "*.so" -o -name "*.dylib" \) \
 		-exec cp -fv "{}" "$pkgplugin/" \;
 
 	cp "$plist" "$bundle/Contents/Info.plist"
