@@ -502,6 +502,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     int skip_len = 0;
     double  t;
 
+    timestamp.upper = 0;
+    timestamp.lower = 0;
     memset(&ieee_802_11, 0, sizeof ieee_802_11);
 
     /* Extract the fields from the packet header */
