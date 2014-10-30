@@ -1728,10 +1728,10 @@ static const value_string  cmd_flow_ctrl_mode[] = {
 };
 
 static const value_string cmd_le_advertising_types[] = {
-    { 0x00, "Connectable Unidirected Advertising" },
+    { 0x00, "Connectable Undirected Advertising" },
     { 0x01, "Connectable Directed Advertising" },
-    { 0x02, "Scannable Unidirected Advertising" },
-    { 0x03, "Non-Connectable Unidirected Advertising" },
+    { 0x02, "Scannable Undirected Advertising" },
+    { 0x03, "Non-Connectable Undirected Advertising" },
     { 0, NULL }
 };
 
