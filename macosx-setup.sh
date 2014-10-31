@@ -71,7 +71,7 @@ PKG_CONFIG_VERSION=0.28
 #
 # If you don't want to build with GTK+ at all, comment out both lines.
 # 
-QT_VERSION=5.2.1
+#QT_VERSION=5.2.1
 GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
@@ -443,6 +443,11 @@ do
     if [ -d "$i" ]
     then
         min_osx_target=`sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/'`
+
+        #
+        # That's also the OS whose SDK we'd be using.
+        #
+        sdk_target=$min_osx_target
         break
     fi
 done
@@ -509,31 +514,79 @@ if [ -z "$MAKE_BUILD_OPTS" ] ; then
 fi
 
 #
-# If we have a target release, look for its SDK, and build libraries
-# against it rather than against the headers and, more importantly,
-# libraries that come with the OS, so that we don't end up with
-# support libraries that only work on the OS version on which
-# we built them, not earlier versions of the same release, or
-# earlier releases if the minimum is earlier.
+# If we have a target release, look for the oldest SDK that's for an
+# OS equal to or later than that one, and build libraries against it
+# rather than against the headers and, more importantly, libraries
+# that come with the OS, so that we don't end up with support libraries
+# that only work on the OS version on which we built them, not earlier
+# versions of the same release, or earlier releases if the minimum is
+# earlier.
 #
 if [ ! -z "$min_osx_target" ]
 then
-    for i in /Developer/SDKs \
+    #
+    # Get the real version - strip off the "10.".
+    # We'll worry about that if, as, and when there's ever
+    # an OS XI.
+    #
+    deploy_real_version=`echo "$min_osx_target" | sed -n 's/10\.\(.*\)/\1/p'`
+
+    #
+    # Search each directory that might contain SDKs.
+    #
+    sdkpath=""
+    for sdksdir in /Developer/SDKs \
         /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
         /Library/Developer/CommandLineTools/SDKs
     do
-        if [ -d "$i"/"MacOSX$min_osx_target.sdk" ]
+        #
+        # Get a list of all the SDKs.
+        #
+        if ! test -d "$sdksdir"
         then
-            SDKPATH="$i"/"MacOSX$min_osx_target.sdk"
-            break
+            #
+            # There is no directory with that name.
+            # Move on to the next one in the list, if any.
+            #
+            continue
         fi
+
+        #
+        # Get a list of all the SDKs in that directory, if any.
+        #
+        sdklist=`(cd "$sdksdir"; ls -d MacOSX10.[0-9]*.sdk 2>/dev/null)`
+
+        for sdk in $sdklist
+        do
+            #
+            # Get the real version for this SDK.
+            #
+            sdk_real_version=`echo "$sdk" | sed -n 's/MacOSX10\.\(.*\)\.sdk/\1/p'`
+
+            #
+            # Is it for the deployment target or some later release?
+            #
+            if test "$sdk_real_version" -ge "$deploy_real_version"
+            then
+                #
+                # Yes, use it.
+                #
+                sdkpath="$sdksdir/$sdk"
+                qt_sdk_arg="-sdk $sdk"
+                break 2
+            fi
+        done
     done
 
-    if [ -z "$SDKPATH" ]
+    if [ -z "$sdkpath" ]
     then
-        echo "macosx-setup.sh: Couldn't find the SDK for OS X $min_osx_target" 1>&2
+        echo "macosx-setup.sh: Couldn't find an SDK for OS X $min_osx_target or later" 1>&2
         exit 1
     fi
+
+    SDKPATH="$sdkpath"
+    sdk_target=10.$sdk_real_version
+    echo "Using the 10.$sdk_real_version SDK"
 
     #
     # Make sure there are links to /usr/local/include and /usr/local/lib
@@ -938,7 +991,7 @@ if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
     # Qt 5.x fails to build on OS X with -no-opengl due to bug
     # QTBUG-31151.
     #
-    ./configure -v -sdk macosx$min_osx_target -platform $TARGET_PLATFORM \
+    ./configure -v $qt_sdk_arg -platform $TARGET_PLATFORM \
         -opensource -confirm-license -no-c++11 -no-dbus \
         -no-sql-sqlite -no-xcb -nomake examples \
         -skip qtdoc -skip qtquickcontrols -skip qtwebkit \
@@ -1111,16 +1164,16 @@ if [ "$GTK_VERSION" ]; then
         xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
         cd gdk-pixbuf-$GDK_PIXBUF_VERSION
         #
-        # If we're building for 10.6, use libpng12; if you have 10.7.5, including
-        # X11, and Xcode 4.3.3, the system has libpng15, complete with pkg-config
-        # files, as part of X11, but 10.6's X11 has only libpng12, and the 10.6
-        # SDK in Xcode 4.3.3 also has only libpng12, and has no pkg-config files
-        # of its own, so we have to explicitly set LIBPNG to override the
-        # configure script, and also force the CFLAGS to look for the header
-        # files for libpng12 (note that -isysroot doesn't affect the arguments
-        # to -I, so we need to include the SDK path explicitly).
+        # If we're building using the 10.6 SDK, force the use of libpng12.
         #
-        if [[ "$min_osx_target" = 10.6 ]]
+        # The OS's X11, and corresponding SDK, didn't introduce libpng15,
+        # or pkg-config files, until 10.7, so, for 10.6 have to explicitly
+        # set LIBPNG to override the configure script, and also force the
+        # CFLAGS to look for the header files for libpng12 (note that
+        # -isysroot doesn't affect the arguments to -I, so we need to
+        # include the SDK path explicitly).
+        #
+        if [[ "$sdk_target" = 10.6 ]]
         then
             LIBPNG="-L/usr/X11/lib -lpng12" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I$SDKPATH/usr/X11/include/libpng12" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
         else
