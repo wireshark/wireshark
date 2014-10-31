@@ -146,8 +146,12 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
         hint = QString(tr("Packet %1. ")).arg(pkt);
     }
 
-    hint += tr("%Ln client pkt(s), ", "", client_packet_count_)
-            + tr("%Ln server pkt(s), ", "", server_packet_count_)
+    hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
+            .arg(ColorUtils::fromColorT(prefs.st_client_fg).name())
+            .arg(ColorUtils::fromColorT(prefs.st_client_bg).name())
+            + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
+            .arg(ColorUtils::fromColorT(prefs.st_server_fg).name())
+            .arg(ColorUtils::fromColorT(prefs.st_server_bg).name())
             + tr("%Ln turn(s).", "", turns_);
 
     if (pkt > 0) {
