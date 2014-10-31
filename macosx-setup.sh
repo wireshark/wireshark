@@ -1055,7 +1055,7 @@ if [ "$GTK_VERSION" ]; then
             gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
             cd pixman-$PIXMAN_VERSION
             CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-            make V=1 $MAKE_BUILD_OPTS || exit 1
+            make $MAKE_BUILD_OPTS || exit 1
             $DO_MAKE_INSTALL || exit 1
             cd ..
             touch pixman-$PIXMAN_VERSION-done
