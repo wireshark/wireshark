@@ -1065,12 +1065,11 @@ static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
-    guint8      en_len, oct, i;
+    guint8      en_len;
     guint8      count;
-    guint8     *poctets;
     proto_tree *subtree;
     proto_item *item;
-    gboolean    malformed_number;
+    const char *digit_str;
 
     curr_offset = offset;
 
@@ -1101,33 +1100,17 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         curr_offset++;
         en_len--;
 
-        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, en_len);
+        digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, en_len, NULL, FALSE);
+        item = proto_tree_add_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, digit_str);
 
-        my_dgt_tbcd_unpack(a_bigbuf, poctets, en_len, &Dgt_mbcd);
-
-        item = proto_tree_add_string_format(subtree, hf_gsm_a_dtap_emergency_bcd_num,
-            tvb, curr_offset, en_len,
-            a_bigbuf,
-            "BCD Digits: %s",
-            a_bigbuf);
-
-        malformed_number = FALSE;
-        for(i = 0; i < en_len - 1; i++)
-        {
-            oct = poctets[i];
-            if (((oct & 0xf0) == 0xf0) || ((oct & 0x0f) == 0x0f))
-            {
-                malformed_number = TRUE;
-                break;
-            }
-        }
-
-        oct = poctets[en_len - 1];
-        if ((oct & 0x0f) == 0x0f)
-            malformed_number = TRUE;
-
-        if (malformed_number)
+        /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
+		 *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
+		 * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+         *
+         */
+        if(strchr(digit_str,'?')){
             expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
+        }
 
         curr_offset = curr_offset + en_len;
         count++;
@@ -2151,10 +2134,10 @@ static guint16
 de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gboolean *address_extracted)
 {
     guint8     *poctets;
-    guint8      extension, oct;
-    guint32     curr_offset, i, num_string_len;
+    guint8      extension;
+    guint32     curr_offset, num_string_len;
     proto_item *item;
-    gboolean    malformed_number;
+    const char *digit_str;
 
     *address_extracted = FALSE;
     curr_offset = offset;
@@ -2183,29 +2166,22 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, num_string_len,
         &Dgt_mbcd);
 
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, NULL, FALSE);
+    item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
     item = proto_tree_add_string_format(tree, header_field,
         tvb, curr_offset, num_string_len,
         a_bigbuf,
         "BCD Digits: %s",
         a_bigbuf);
 
-    malformed_number = FALSE;
-    for(i = 0; i < num_string_len - 1; i++)
-    {
-        oct = poctets[i];
-        if (((oct & 0xf0) == 0xf0) || ((oct & 0x0f) == 0x0f))
-        {
-            malformed_number = TRUE;
-            break;
-        }
-    }
-
-    oct = poctets[num_string_len - 1];
-    if ((oct & 0x0f) == 0x0f)
-        malformed_number = TRUE;
-
-    if (malformed_number)
+    /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
+		*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
+		* '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+        *
+        */
+    if(strchr(digit_str,'?')){
         expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
+    }
 
     return (len);
 }
