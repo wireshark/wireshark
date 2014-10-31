@@ -51,6 +51,8 @@
 
 #include "ui/follow.h"
 
+#include "wireshark_application.h"
+
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QPrintDialog>
@@ -61,7 +63,9 @@
 // To do:
 // - Instead of calling QMessageBox, display the error message in the text
 //   box and disable the appropriate controls.
-//   add stream number for UDP.
+// - Add stream number for UDP.
+// - Draw text by hand similar to ByteViewText. This would let us add
+//   extra information, e.g. a timestamp column.
 
 FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capture_file *cf) :
     QDialog(parent),
@@ -158,6 +162,9 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
 void FollowStreamDialog::goToPacketForTextPos(int text_pos)
 {
     int pkt = -1;
+    if (!cap_file_) {
+        return;
+    }
 
     if (text_pos >= 0) {
         QMap<int, guint32>::iterator it = text_pos_to_packet_.upperBound(text_pos);
@@ -169,6 +176,22 @@ void FollowStreamDialog::goToPacketForTextPos(int text_pos)
     if (pkt > 0) {
         emit goToPacket(pkt);
     }
+}
+
+void FollowStreamDialog::updateWidgets(bool enable)
+{
+    if (!cap_file_) {
+        enable = false;
+        ui->streamNumberSpinBox->setToolTip(QString());
+        ui->streamNumberLabel->setToolTip(QString());
+    }
+    ui->teStreamContent->setEnabled(enable);
+    ui->cbDirections->setEnabled(enable);
+    ui->cbCharset->setEnabled(enable);
+    ui->streamNumberSpinBox->setEnabled(enable);
+    ui->leFind->setEnabled(enable);
+    ui->bFind->setEnabled(enable);
+    b_filter_out_->setEnabled(enable);
 }
 
 void FollowStreamDialog::findText(bool go_back)
@@ -259,8 +282,10 @@ void FollowStreamDialog::on_leFind_returnPressed()
 void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 {
     if (stream_num >= 0) {
+        updateWidgets(false);
         follow_tcp_index(stream_num);
         follow(QString(), true);
+        updateWidgets();
     }
 }
 
@@ -550,10 +575,8 @@ void FollowStreamDialog::setCaptureFile(capture_file *cf)
 {
     if (!cf) { // We only want to know when the file closes.
         cap_file_ = NULL;
-        ui->streamNumberSpinBox->setEnabled(false);
-        ui->streamNumberSpinBox->setToolTip(QString());
-        ui->streamNumberLabel->setToolTip(QString());
     }
+    updateWidgets();
 }
 
 // The following keyboard shortcuts should work (although

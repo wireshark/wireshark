@@ -102,6 +102,7 @@ signals:
 private:
     void removeStreamControls();
     void resetStream(void);
+    void updateWidgets(bool enable = true);
     frs_return_t
     follow_show(char *buffer, size_t nchars, gboolean is_from_server,
                 guint32 packet_num, guint32 *global_pos);
