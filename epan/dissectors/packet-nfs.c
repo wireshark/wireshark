@@ -350,6 +350,10 @@ static int hf_nfs4_fattr_owner = -1;
 static int hf_nfs4_fattr_owner_group = -1;
 static int hf_nfs4_fattr_size = -1;
 static int hf_nfs4_fattr_aclsupport = -1;
+static int hf_nfs4_aclsupport_allow_acl = -1;
+static int hf_nfs4_aclsupport_deny_acl = -1;
+static int hf_nfs4_aclsupport_audit_acl = -1;
+static int hf_nfs4_aclsupport_alarm_acl = -1;
 static int hf_nfs4_fattr_lease_time = -1;
 static int hf_nfs4_fattr_fileid = -1;
 static int hf_nfs4_fattr_files_avail = -1;
@@ -665,6 +669,7 @@ static gint ett_nfs4_open_result_flags = -1;
 static gint ett_nfs4_secinfo_flavor_info = -1;
 static gint ett_nfs4_stateid = -1;
 static gint ett_nfs4_fattr_fh_expire_type = -1;
+static gint ett_nfs4_fattr_aclsupport = -1;
 static gint ett_nfs4_ace = -1;
 static gint ett_nfs4_clientaddr = -1;
 static gint ett_nfs4_aceflag = -1;
@@ -6563,6 +6568,29 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 	return offset;
 }
 
+#define ACL4_SUPPORT_ALLOW_ACL	0x00000001
+#define ACL4_SUPPORT_DENY_ACL	0x00000002
+#define ACL4_SUPPORT_AUDIT_ACL	0x00000004
+#define ACL4_SUPPORT_ALARM_ACL	0x00000008
+
+static const int *aclsupport_fields[] = {
+	&hf_nfs4_aclsupport_allow_acl,
+	&hf_nfs4_aclsupport_deny_acl,
+	&hf_nfs4_aclsupport_audit_acl,
+	&hf_nfs4_aclsupport_alarm_acl,
+	NULL
+};
+
+static int
+dissect_nfs4_fattr_aclsupport(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_fattr_aclsupport,
+		ett_nfs4_fattr_aclsupport, aclsupport_fields, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
 static int
 dissect_nfs4_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, const char *name, guint32 *hash, rpc_call_info_value *civ)
@@ -7062,7 +7090,7 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						break;
 
 					case FATTR4_ACLSUPPORT:
-						offset = dissect_rpc_uint32(tvb, attr_tree, hf_nfs4_fattr_aclsupport, offset);
+						offset = dissect_nfs4_fattr_aclsupport(tvb, offset, attr_tree);
 						break;
 
 					case FATTR4_ARCHIVE:
@@ -11268,6 +11296,22 @@ proto_register_nfs(void)
 			"aclsupport", "nfs.fattr4.aclsupport", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_aclsupport_allow_acl, {
+			"ALLOW", "nfs.fattr4.aclsupport.allow_acl", FT_BOOLEAN, 32,
+			NULL, ACL4_SUPPORT_ALLOW_ACL, NULL, HFILL }},
+
+		{ &hf_nfs4_aclsupport_deny_acl, {
+			"DENY", "nfs.fattr4.aclsupport.deny_acl", FT_BOOLEAN, 32,
+			NULL, ACL4_SUPPORT_DENY_ACL, NULL, HFILL }},
+
+		{ &hf_nfs4_aclsupport_audit_acl, {
+			"AUDIT", "nfs.fattr4.aclsupport.audit_acl", FT_BOOLEAN, 32,
+			NULL, ACL4_SUPPORT_AUDIT_ACL, NULL, HFILL }},
+
+		{ &hf_nfs4_aclsupport_alarm_acl, {
+			"ALARM", "nfs.fattr4.aclsupport.alarm_acl", FT_BOOLEAN, 32,
+			NULL, ACL4_SUPPORT_ALARM_ACL, NULL, HFILL }},
+
 		{ &hf_nfs4_fattr_fileid, {
 			"fileid", "nfs.fattr4.fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -12413,6 +12457,7 @@ proto_register_nfs(void)
 		&ett_nfs4_secinfo_flavor_info,
 		&ett_nfs4_stateid,
 		&ett_nfs4_fattr_fh_expire_type,
+		&ett_nfs4_fattr_aclsupport,
 		&ett_nfs4_ace,
 		&ett_nfs4_clientaddr,
 		&ett_nfs4_aceflag,
