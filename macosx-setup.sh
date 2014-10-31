@@ -154,14 +154,14 @@ uninstall() {
         # old configurations.
         #
 
-        installed_cares_version=`ls cares-*-done 2>/dev/null | sed 's/cares-\(.*\)-done/\1/'`
+        installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
         if [ ! -z "$installed_cares_version" ] ; then
             echo "Uninstalling C-Ares API:"
-            cd cares-$installed_cares_version
+            cd c-ares-$installed_cares_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm cares-$installed_cares_version-done
+            rm c-ares-$installed_cares_version-done
         fi
 
         installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
@@ -1360,7 +1360,7 @@ then
     touch geoip-$GEOIP_VERSION-done
 fi
 
-if [ "$CARES_VERSION" -a ! -f cares-$CARES_VERSION-done ]
+if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ]
 then
     echo "Downloading, building, and installing C-Ares API:"
     [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
@@ -1370,7 +1370,7 @@ then
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
     cd ..
-    touch cares-$CARES_VERSION-done
+    touch c-ares-$CARES_VERSION-done
 fi
 
 echo ""
