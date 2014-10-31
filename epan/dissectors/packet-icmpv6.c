@@ -3283,9 +3283,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (1) { /* There's an expert info in here so always execute */
         length = tvb_captured_length(tvb);
         reported_length = tvb_reported_length(tvb);
-        if (!pinfo->fragmented && length >= reported_length) {
-            /* The packet isn't part of a fragmented datagram and isn't
-               truncated, so we can checksum it. */
+        if (!pinfo->fragmented && length >= reported_length && !pinfo->flags.in_error_pkt) {
+            /* The packet isn't part of a fragmented datagram, isn't truncated,
+             * and we aren't in an ICMP error packet, so we can checksum it.
+             */
 
             /* Set up the fields of the pseudo-header. */
             SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
@@ -3307,6 +3308,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 expert_add_info_format(pinfo, checksum_item, &ei_icmpv6_checksum,
                                        "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
             }
+        } else {
+                proto_item_append_text(checksum_item, " [%s]",
+                    pinfo->flags.in_error_pkt ? "in ICMP error packet" : "fragmented datagram");
         }
     }
     offset += 2;
