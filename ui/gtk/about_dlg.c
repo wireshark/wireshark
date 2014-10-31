@@ -217,17 +217,11 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       case RA_PLUGIN_REGISTER:
 	action_msg = "Registering plugins ...";
 	break;
-      case RA_PYTHON_REGISTER:
-	action_msg = "Registering Python dissectors ...";
-	break;
       case RA_HANDOFF:
 	action_msg = "Handing off dissector ...";
 	break;
       case RA_PLUGIN_HANDOFF:
 	action_msg = "Handing off plugins ...";
-	break;
-      case RA_PYTHON_HANDOFF:
-	action_msg = "Handing off Python dissectors ...";
 	break;
       case RA_LUA_PLUGINS:
 	action_msg = "Loading Lua plugins ...";

@@ -139,17 +139,11 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     case RA_PLUGIN_REGISTER:
         action_msg = tr("Registering plugins");
         break;
-    case RA_PYTHON_REGISTER:
-        action_msg = tr("Registering Python dissectors");
-        break;
     case RA_HANDOFF:
         action_msg = tr("Handing off dissectors");
         break;
     case RA_PLUGIN_HANDOFF:
         action_msg = tr("Handing off plugins");
-        break;
-    case RA_PYTHON_HANDOFF:
-        action_msg = tr("Handing off Python dissectors");
         break;
     case RA_LUA_PLUGINS:
         action_msg = tr("Loading Lua plugins");
