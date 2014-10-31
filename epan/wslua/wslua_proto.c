@@ -1537,6 +1537,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     hiname = g_ascii_strup(name, -1);
 
     proto->name = hiname;
+    proto->loname = loname;
     proto->desc = g_strdup(desc);
     proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
     proto->ett = -1;
@@ -1600,7 +1601,7 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 
     if(!proto->is_postdissector) {
         if (! proto->handle) {
-            proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
+            proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
         }
 
         register_postdissector(proto->handle);
@@ -1723,17 +1724,13 @@ static int Proto_set_dissector(lua_State* L) {
 
     if (lua_isfunction(L,2)) {
         /* insert the dissector into the dissectors table */
-        gchar* loname = g_ascii_strdown(proto->name, -1);
-
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_insert(L, 2); /* function is now at 3 */
         lua_settable(L,1);
 
-        proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
-
-        new_register_dissector(loname, dissect_lua, proto->hfid);
+        proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
     } else {
         luaL_argerror(L,2,"The dissector of a protocol must be a function");
     }

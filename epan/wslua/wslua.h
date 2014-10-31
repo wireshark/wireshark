@@ -178,6 +178,7 @@ typedef struct _wslua_pref_t {
 
 typedef struct _wslua_proto_t {
     gchar* name;
+    gchar* loname;
     gchar* desc;
     int hfid;
     int ett;
