@@ -341,6 +341,11 @@ static int hf_nfs4_fattr_cansettime = -1;
 static int hf_nfs4_fattr_case_insensitive = -1;
 static int hf_nfs4_fattr_case_preserving = -1;
 static int hf_nfs4_fattr_chown_restricted = -1;
+static int hf_nfs4_fattr_fh_expire_type = -1;
+static int hf_nfs4_fattr_fh_expiry_noexpire_with_open = -1;
+static int hf_nfs4_fattr_fh_expiry_volatile_any = -1;
+static int hf_nfs4_fattr_fh_expiry_vol_migration = -1;
+static int hf_nfs4_fattr_fh_expiry_vol_rename = -1;
 static int hf_nfs4_fattr_hidden = -1;
 static int hf_nfs4_fattr_homogeneous = -1;
 static int hf_nfs4_fattr_mimetype = -1;
@@ -6648,72 +6653,38 @@ dissect_nfs4_mode(tvbuff_t *tvb, int offset,
 	return dissect_nfs2_mode(tvb, offset, tree, name);
 }
 
+#define FH4_PERSISTENT 0x00000000
+#define FH4_NOEXPIRE_WITH_OPEN 0x00000001
+#define FH4_VOLATILE_ANY 0x00000002
+#define FH4_VOL_MIGRATION 0x00000004
+#define FH4_VOL_RENAME 0x00000008
 
 static const value_string nfs4_fattr4_fh_expire_type_names[] = {
-#define FH4_PERSISTENT 0x00000000
-	{	FH4_PERSISTENT,	"FH4_PERSISTENT"	},
-#define FH4_NOEXPIRE_WITH_OPEN 0x00000001
-	{	FH4_NOEXPIRE_WITH_OPEN,	"FH4_NOEXPIRE_WITH_OPEN"	},
-#define FH4_VOLATILE_ANY 0x00000002
-	{	FH4_VOLATILE_ANY,	"FH4_VOLATILE_ANY"	},
-#define FH4_VOL_MIGRATION 0x00000004
-	{	FH4_VOL_MIGRATION,	"FH4_VOL_MIGRATION"	},
-#define FH4_VOL_RENAME 0x00000008
-	{	FH4_VOL_RENAME,	"FH4_VOL_RENAME"	},
-	{	0,	NULL	}
+	{ FH4_PERSISTENT, "FH4_PERSISTENT" },
+	{ 0, NULL }
 };
 
+static const int *nfs4_fattr_fh_expire_type_fields[] = {
+	&hf_nfs4_fattr_fh_expiry_noexpire_with_open,
+	&hf_nfs4_fattr_fh_expiry_volatile_any,
+	&hf_nfs4_fattr_fh_expiry_vol_migration,
+	&hf_nfs4_fattr_fh_expiry_vol_rename,
+	NULL
+};
 
 static int
 dissect_nfs4_fattr_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint32	    expire_type;
-	proto_tree *expire_type_tree;
-	proto_item *expire_type_item;
+	guint32     expire_type;
 
 	expire_type = tvb_get_ntohl(tvb, offset + 0);
 
-	expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"fattr4_fh_expire_type: 0x%08x", expire_type);
-
-	expire_type_tree = proto_item_add_subtree(expire_type_item,
-				ett_nfs4_fattr_fh_expire_type);
-
-	if (expire_type_tree)
-	{
-		if (expire_type == FH4_PERSISTENT)
-		{
-			char *p, *buf;
-
-			/* TODO: this should be replaced with a named field and
-			 * proto_tree_add_item */
-			buf = (char *)wmem_alloc(wmem_packet_scope(), 1025);
-			p = decode_bitfield_value(buf, expire_type, 0xFFFFFFFF, 32);
-			g_snprintf(p, (gulong) (1024-(p-buf)), "%s",
-				val_to_str_const(expire_type,
-					nfs4_fattr4_fh_expire_type_names,
-					"Unknown"));
-			proto_tree_add_text(expire_type_tree, tvb, offset, 4, "%s", buf);
-		}
-		else
-		{
-			if (expire_type & FH4_NOEXPIRE_WITH_OPEN)
-				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
-						"FH4_NOEXPIRE_WITH_OPEN (0x%08x)", FH4_NOEXPIRE_WITH_OPEN);
-
-			if (expire_type & FH4_VOLATILE_ANY)
-				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
-						"FH4_VOLATILE_ANY (0x%08x)", FH4_VOLATILE_ANY);
-
-			if (expire_type & FH4_VOL_MIGRATION)
-				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
-						"FH4_VOL_MIGRATION (0x%08x)", FH4_VOL_MIGRATION);
-
-			if (expire_type & FH4_VOL_RENAME)
-				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
-						"FH4_VOL_RENAME (0x%08x)", FH4_VOL_RENAME);
-		}
-	}
+	if (expire_type == FH4_PERSISTENT)
+		proto_tree_add_item(tree, hf_nfs4_fattr_fh_expire_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+	else
+		proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_fattr_fh_expire_type,
+			ett_nfs4_fattr_fh_expire_type, nfs4_fattr_fh_expire_type_fields,
+			ENC_BIG_ENDIAN);
 
 	offset += 4;
 
@@ -11211,6 +11182,27 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fattr_chown_restricted, {
 			"fattr4_chown_restricted", "nfs.fattr4_chown_restricted", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_fh_expire_type, {
+			"fattr4_fh_expire_type", "nfs.fattr4_fh_expire_type", FT_UINT32, BASE_HEX,
+			VALS(nfs4_fattr4_fh_expire_type_names), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_fh_expiry_noexpire_with_open, {
+			"noexpire_with_open", "nfs.fattr4_fh_expire_type.noexpire_with_open",
+			FT_BOOLEAN, 32,
+			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+		{ &hf_nfs4_fattr_fh_expiry_volatile_any, {
+			"volatile_any", "nfs.fattr4_fh_expire_type.volatile_any",
+			FT_BOOLEAN, 32,
+			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+		{ &hf_nfs4_fattr_fh_expiry_vol_migration, {
+			"vol_migration", "nfs.fattr4_fh_expire_type.vol_migration",
+			FT_BOOLEAN, 32,
+			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+		{ &hf_nfs4_fattr_fh_expiry_vol_rename, {
+			"vol_rename", "nfs.fattr4_fh_expire_type.vol_rename",
+			FT_BOOLEAN, 32,
+			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_hidden, {
 			"fattr4_hidden", "nfs.fattr4_hidden", FT_BOOLEAN, BASE_NONE,
