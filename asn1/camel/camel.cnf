@@ -296,7 +296,7 @@ proto_tree *subtree;
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_cause);
 
- dissect_q931_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value, isup_parameter_type_value);
+ dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value, isup_parameter_type_value);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ proto_tree *subtree;
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_RPcause);
 
- dissect_RP_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_RP_Cause, &Cause_value);
+ dissect_RP_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_camel_RP_Cause, &Cause_value);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -421,7 +421,7 @@ proto_tree *subtree;
  if (!parameter_tvb)
 	return offset;
 
- dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+ dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ proto_tree *subtree;
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_camel_AccessPointName);
-  de_sm_apn(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+  de_sm_apn(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -522,10 +522,10 @@ proto_tree *subtree;
  case 1: /* IETF */
 	switch(PDPTypeNumber){
 	case 0x21: /* IPv4 */
-		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_BIG_ENDIAN);
 		break;
 	case 0x57: /* IPv6 */
-		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), ENC_NA);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_NA);
 		break;
 	default:
 		break;
@@ -629,7 +629,7 @@ proto_tree *subtree;
 
 # V3 and V4 incompatibillity bug #1719
 #.FN_BODY CAMEL-AChBillingChargingCharacteristics/timeDurationCharging/audibleIndicator
-  if (tvb_length_remaining(tvb,offset) < 2)
+  if (tvb_reported_length_remaining(tvb,offset) < 2)
 	offset = dissect_camel_BOOLEAN(TRUE, tvb, offset, actx , tree, hf_camel_audibleIndicatorTone);
   else
 %(DEFAULT_BODY)s
@@ -658,7 +658,7 @@ proto_tree *subtree;
  if (!parameter_tvb)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_calledpartybcdnumber);
- de_cld_party_bcd_num(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+ de_cld_party_bcd_num(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
 
 #.END
 
