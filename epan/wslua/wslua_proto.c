@@ -1604,6 +1604,7 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
         }
 
         register_postdissector(proto->handle);
+        proto->is_postdissector = TRUE;
     } else {
         luaL_argerror(L,1,"this protocol is already registered as postdissector");
     }
