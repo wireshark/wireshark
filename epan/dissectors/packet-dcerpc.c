@@ -4661,7 +4661,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static gboolean
-is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo)
+is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
 {
     guint8 rpc_ver;
     guint8 rpc_ver_minor;
@@ -5080,7 +5080,7 @@ dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static guint
-get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
     guint8 drep[4];
     guint16 frag_len;
