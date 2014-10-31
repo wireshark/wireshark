@@ -1349,7 +1349,7 @@ then
     touch geoip-$GEOIP_VERSION-done
 fi
 
-if [ "$CARES_VERSION" -a ! -f geoip-$CARES_VERSION-done ]
+if [ "$CARES_VERSION" -a ! -f cares-$CARES_VERSION-done ]
 then
     echo "Downloading, building, and installing C-Ares API:"
     [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
@@ -1359,7 +1359,7 @@ then
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
     cd ..
-    touch geoip-$CARES_VERSION-done
+    touch cares-$CARES_VERSION-done
 fi
 
 echo ""
