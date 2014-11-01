@@ -345,8 +345,10 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             fprintf(pdata->fh, "\" pos=\"%d", fi->start);
         }
 
-        fputs("\" value=\"", pdata->fh);
-        write_pdml_field_hex_value(pdata, fi);
+        if (fi->length > 0) {
+            fputs("\" value=\"", pdata->fh);
+            write_pdml_field_hex_value(pdata, fi);
+        }
 
         if (node->first_child != NULL) {
             fputs("\">\n", pdata->fh);
