@@ -951,6 +951,8 @@ static gint ett_mq_charv = -1;
 static gint ett_mq_reaasemb = -1;
 static gint ett_mq_notif = -1;
 
+static gint ett_mq_structid = -1;
+
 static dissector_handle_t mq_tcp_handle;
 static dissector_handle_t mq_spx_handle;
 static dissector_handle_t data_handle;
@@ -1473,6 +1475,7 @@ DEF_VALSB(opcode)
     DEF_VALS2(TST_XA_RECOVER_REPLY , "XA_RECOVER_REPLY"),
     DEF_VALS2(TST_XA_COMPLETE_REPLY, "XA_COMPLETE_REPLY"),
 DEF_VALSE;
+DEF_VALS_EXTB(opcode);
 
 DEF_VALSB(spi_verbs)
     DEF_VALS2(SPI_QUERY   , "QUERY"),
@@ -1522,6 +1525,7 @@ DEF_VALSB(status)
     DEF_VALS2(STATUS_ERR_FAP_LEVEL             , "FAP_LEVEL"),
     DEF_VALS2(STATUS_ERR_NEGOTIATION_FAILED    , "NEGOTIATION_FAILED"),
 DEF_VALSE;
+DEF_VALS_EXTB(status);
 
 DEF_VALSB(xaer)
     DEF_VALS2(XA_RBROLLBACK , "XA_RBROLLBACK"),
@@ -1631,6 +1635,7 @@ DEF_VALSB(StructID)
     DEF_VALS2(STRUCTID_FOPA_EBCDIC, MQ_TEXT_FOPA),
     DEF_VALS2(STRUCTID_FCNO_EBCDIC, MQ_TEXT_FCNO),
 DEF_VALSE;
+DEF_VALS_EXTB(StructID);
 
 DEF_VALSB(byteorder)
     DEF_VALS2(LITTLE_ENDIAN, "Little endian"),
@@ -1746,7 +1751,7 @@ static gint dissect_mq_MQMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gin
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hf_mq_gmo_matchoptions, tvb, offset, 4, p_mq_parm->mq_int_enc); /* ENC_BIG_ENDIAN); */
         mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_MQMO_NONE);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_subtree, NULL, MQ_TEXT_MQMO_NONE);
     }
     else
     {
@@ -1766,7 +1771,7 @@ static gint dissect_mq_LPOO_LPIOPTS(tvbuff_t *tvb, proto_tree *mq_tree, gint off
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hf_mq_lpoo_lpiopts, tvb, offset, 4, p_mq_parm->mq_int_enc);
         mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_LPOOOPT_NONE);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_subtree, NULL, MQ_TEXT_LPOOOPT_NONE);
     }
     else
     {
@@ -1786,7 +1791,7 @@ static gint dissect_mq_MQGMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gi
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hf_mq_gmo_options, tvb, offset, 4, p_mq_parm->mq_int_enc); /* ENC_BIG_ENDIAN); */
         mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_MQGMO_NONE);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_subtree, NULL, MQ_TEXT_MQGMO_NONE);
     }
     else
     {
@@ -1807,7 +1812,7 @@ static gint dissect_mq_MQPMO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gi
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hf_mq_pmo_options, tvb, offset, 4, p_mq_parm->mq_int_enc); /* ENC_BIG_ENDIAN); */
         mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_MQPMO_NONE);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_subtree, NULL, MQ_TEXT_MQPMO_NONE);
     }
     else
     {
@@ -1828,7 +1833,7 @@ static gint dissect_mq_MQOO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, gin
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hfindex, tvb, offset, 4, p_mq_parm->mq_int_enc);
         mq_tree_sub = proto_item_add_subtree(ti, ett_subtree);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_BIND_READAHEAD_AS_Q_DEF);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_subtree, NULL, MQ_TEXT_BIND_READAHEAD_AS_Q_DEF);
     }
     else
     {
@@ -1848,7 +1853,7 @@ static gint dissect_mq_MQCO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, mq_
         proto_tree  *mq_tree_sub;
         ti = proto_tree_add_item(mq_tree, hf_mq_close_options, tvb, offset, 4, p_mq_parm->mq_int_enc);
         mq_tree_sub = proto_item_add_subtree(ti, ett_mq_close_option);
-        proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_IMMEDIATE_NONE);
+        proto_tree_add_subtree_format(mq_tree_sub, tvb, offset, 4, ett_mq_close_option, NULL, MQ_TEXT_IMMEDIATE_NONE);
     }
     else
     {
@@ -2163,7 +2168,7 @@ static gint dissect_mq_od(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
             uTyp = tvb_get_guint32_endian(tvb, offset + 8, p_mq_parm->mq_int_enc);
             sObj = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str(uTyp, GET_VALSV(objtype)));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, GET_VALS_EXTP(objtype)));
             if (strip_trailing_blanks(sObj, 48) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sObj);
@@ -2563,7 +2568,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!mq_in_reassembly)
             {
                 col_clear(pinfo->cinfo, COL_INFO);
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%-17s", val_to_str(p_mq_parm->mq_opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%-17s", val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
             }
 
@@ -2572,7 +2577,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (p_mq_parm->mq_opcode!=MQ_TST_ASYNC_MESSAGE)
                 {
                     ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, ENC_NA);
-                    proto_item_append_text(ti, " (%s)", val_to_str(p_mq_parm->mq_opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+                    proto_item_append_text(ti, " (%s)", val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                     if (bEBCDIC == TRUE)
                         proto_item_append_text(ti, " (EBCDIC)");
                     mqroot_tree = proto_item_add_subtree(ti, ett_mq);
@@ -2723,7 +2728,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (tvb_reported_length_remaining(tvb, offset) >= iStatusLength)
                         {
                             if (iStatus != 0)
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " Code=%s", val_to_str(iStatus, GET_VALSV(status), "Unknown (0x%08x)"));
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " Code=%s", val_to_str_ext(iStatus, GET_VALS_EXTP(status), "Unknown (0x%08x)"));
 
                             if (tree)
                             {
@@ -3220,7 +3225,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (tree)
                         {
                             mq_tree = proto_tree_add_subtree_format(mqroot_tree, tvb, offset, 16, ett_mq_xa, NULL,
-                                "%s (%s)", MQ_TEXT_XA, val_to_str(p_mq_parm->mq_opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+                                "%s (%s)", MQ_TEXT_XA, val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
 
                             proto_tree_add_item(mq_tree, hf_mq_xa_length,      tvb, offset,     4, ENC_BIG_ENDIAN);
                             proto_tree_add_item(mq_tree, hf_mq_xa_returnvalue, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
@@ -3524,7 +3529,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         if (tree)
                                         {
                                             mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeHeader, ett_mq_head, NULL,
-                                                                val_to_str(p_mq_parm->mq_strucID, mq_StructID_vals, "Unknown (0x%08x)"));
+                                                                val_to_str_ext(p_mq_parm->mq_strucID, GET_VALS_EXTP(StructID), "Unknown (0x%08x)"));
 
                                             proto_tree_add_item(mq_tree, hf_mq_head_StructID, tvb, offset,      4, p_mq_parm->mq_str_enc);
                                             proto_tree_add_item(mq_tree, hf_mq_head_version , tvb, offset +  4, 4, p_mq_parm->mq_int_enc);
@@ -3726,7 +3731,11 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         p_mq_parm->mq_strucID = tvb_get_ntohl(tvb, offset);
                         if (tree)
                         {
-                            proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", val_to_str(p_mq_parm->mq_strucID, mq_StructID_vals, "Unknown (0x%08x)"));
+                            /*
+                            proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", val_to_str_ext(p_mq_parm->mq_strucID, GET_VALS_EXTP(StructID), "Unknown (0x%08x)"));
+                            */
+                            proto_tree_add_subtree_format(mqroot_tree, tvb, offset, -1, ett_mq_structid, NULL,
+                                "%s", val_to_str_ext(p_mq_parm->mq_strucID, GET_VALS_EXTP(StructID), "Unknown (0x%08x)"));
                         }
                     }
                 }
@@ -3893,7 +3902,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     if (bMore)
                     {
                         proto_item_append_text(ti, " [%s of a Reassembled MQ Segment]",
-                            val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"));
+                            val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                         dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                         proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                             iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
@@ -3901,7 +3910,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     else
                     {
                         proto_item_append_text(ti, " %s",
-                            val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"));
+                            val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                         dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                         proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                             iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
@@ -3938,7 +3947,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     /* Reassembly in progress */
                     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
                     col_add_fstr(pinfo->cinfo, COL_INFO, "[%s of a Reassembled MQ Segment]",
-                        val_to_str(iOpcd, mq_opcode_vals, "Unknown (0x%02x)"));
+                        val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                     dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                     col_add_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                         iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
@@ -4025,6 +4034,24 @@ static gboolean    dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto
 {
     return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP, NULL);
 }
+/*
+function used to compare value_string when sorting the arry
+*/
+static int _mq_vals_fncomp(const void *e1, const void *e2)
+{
+    return (((value_string *)e1)->value < ((value_string *)e2)->value) ? -1 : (((value_string *)e1)->value > ((value_string *)e2)->value) ? 1 : 0;
+}
+/*
+if the value_string_ext is not yet initialized, try first to
+sort the array to improve the use of the bsearch type
+*/
+static void _try_mq_vals_sort(value_string_ext *pExt)
+{
+    if (pExt->_vs_match2 == _try_val_to_str_ext_init)
+    {
+        qsort((void *)pExt->_vs_p, pExt->_vs_num_entries, sizeof(value_string), _mq_vals_fncomp);
+    }
+}
 
 static void mq_init(void)
 {
@@ -4041,7 +4068,7 @@ void proto_register_mq(void)
         { &hf_mq_tsh_convid   , {"Convers ID", "mq.tsh.convid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Conversation ID", HFILL }},
         { &hf_mq_tsh_requestid, {"Request ID", "mq.tsh.requestid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Request ID", HFILL }},
         { &hf_mq_tsh_byteorder, {"Byte order", "mq.tsh.byteorder", FT_UINT8, BASE_HEX, VALS(GET_VALSV(byteorder)), 0x0, "TSH Byte order", HFILL }},
-        { &hf_mq_tsh_opcode   , {"SegmType..", "mq.tsh.type", FT_UINT8, BASE_HEX, VALS(GET_VALSV(opcode)), 0x0, "TSH MQ segment type", HFILL }},
+        { &hf_mq_tsh_opcode   , {"SegmType..", "mq.tsh.type", FT_UINT8, BASE_HEX | BASE_EXT_STRING, GET_VALS_EXTP(opcode), 0x0, "TSH MQ segment type", HFILL }},
         { &hf_mq_tsh_ctlflgs1 , {"Ctl Flag 1", "mq.tsh.cflags1", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 1", HFILL }},
         { &hf_mq_tsh_ctlflgs2 , {"Ctl Flag 2", "mq.tsh.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 2", HFILL }},
         { &hf_mq_tsh_luwid    , {"LUW Ident.", "mq.tsh.luwid", FT_BYTES, BASE_NONE, NULL, 0x0, "TSH logical unit of work identifier", HFILL }},
@@ -4065,7 +4092,7 @@ void proto_register_mq(void)
 
         { &hf_mq_api_replylen , {"Reply len..", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
         { &hf_mq_api_compcode , {"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqcc)), 0x0, "API Completion code", HFILL }},
-        { &hf_mq_api_reascode , {"Reason Code", "mq.api.reasoncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqrc)), 0x0, "API Reason code", HFILL }},
+        { &hf_mq_api_reascode , {"Reason Code", "mq.api.reasoncode", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(mqrc), 0x0, "API Reason code", HFILL }},
         { &hf_mq_api_objecthdl, {"Object Hdl.", "mq.api.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
 
         { &hf_mq_socket_conversid, {"ConversId", "mq.socket.conversid", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket Conversation Id", HFILL }},
@@ -4074,8 +4101,8 @@ void proto_register_mq(void)
         { &hf_mq_socket_parm1    , {"Parm1....", "mq.socket.parm1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket Parameter 1", HFILL }},
         { &hf_mq_socket_parm2    , {"Parm2....", "mq.socket.parm2", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket Parameter 2", HFILL }},
 
-        { &hf_mq_caut_StructID , {"StructID." , "mq.caut.structid" , FT_STRINGZ, BASE_NONE   , NULL, 0x0, NULL, HFILL }},
-        { &hf_mq_caut_AuthType , {"AuthType." , "mq.caut.authtype" , FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "CAUT Authority Type", HFILL }},
+        { &hf_mq_caut_StructID , {"StructID.", "mq.caut.structid" , FT_STRINGZ, BASE_NONE   , NULL, 0x0, NULL, HFILL }},
+        { &hf_mq_caut_AuthType , {"AuthType.", "mq.caut.authtype" , FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "CAUT Authority Type", HFILL }},
         { &hf_mq_caut_UsrMaxLen, {"UsrMaxLen", "mq.caut.usrmaxlen", FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "CAUT userid Maximum length", HFILL }},
         { &hf_mq_caut_PwdMaxLen, {"PwdMaxLen", "mq.caut.pwdmaxlen", FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "CAUT password Maximum length", HFILL }},
         { &hf_mq_caut_UsrLength, {"UsrLength", "mq.caut.usrlength", FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "CAUT userid length", HFILL }},
@@ -4172,7 +4199,7 @@ void proto_register_mq(void)
 
         { &hf_mq_conn_QMgr     , {"QMgr....", "mq.conn.qm", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN queue manager", HFILL }},
         { &hf_mq_conn_appname  , {"ApplName", "mq.conn.appname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN application name", HFILL }},
-        { &hf_mq_conn_apptype  , {"ApplType", "mq.conn.apptype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "CONN application type", HFILL }},
+        { &hf_mq_conn_apptype  , {"ApplType", "mq.conn.apptype", FT_INT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(mqat), 0x0, "CONN application type", HFILL }},
         { &hf_mq_conn_acttoken , {"AccntTok", "mq.conn.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN accounting token", HFILL }},
         { &hf_mq_conn_version  , {"Version.", "mq.conn.version", FT_UINT32, BASE_DEC, VALS(mq_conn_version_vals), 0x0, "CONN version", HFILL }},
         { &hf_mq_conn_options  , {"Options.", "mq.conn.options", FT_UINT32, BASE_HEX, NULL, 0x0, "CONN options", HFILL }},
@@ -4312,12 +4339,12 @@ void proto_register_mq(void)
         { &hf_mq_reset_seqnum   , {"SeqNum", "mq.reset.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET sequence number", HFILL }},
 
         { &hf_mq_status_length  , {"Length", "mq.status.length", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS length", HFILL }},
-        { &hf_mq_status_code    , {"Code..", "mq.status.code"  , FT_UINT32, BASE_DEC, VALS(GET_VALSV(status)), 0x0, "STATUS code", HFILL }},
+        { &hf_mq_status_code    , {"Code..", "mq.status.code"  , FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(status), 0x0, "STATUS code", HFILL }},
         { &hf_mq_status_value   , {"Value.", "mq.status.value" , FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS value", HFILL }},
 
         { &hf_mq_od_StructID    , {"StructID.........", "mq.od.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mq_od_version     , {"version..........", "mq.od.version", FT_UINT32, BASE_DEC, NULL, 0x0, "OD version", HFILL }},
-        { &hf_mq_od_objecttype  , {"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(objtype)), 0x0, "OD object type", HFILL }},
+        { &hf_mq_od_objecttype  , {"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(objtype), 0x0, "OD object type", HFILL }},
         { &hf_mq_od_objectname  , {"ObjName..........", "mq.od.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object name", HFILL }},
         { &hf_mq_od_objqmgrname , {"ObjQMgr..........", "mq.od.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object queue manager name", HFILL }},
         { &hf_mq_od_dynqname    , {"DynQName.........", "mq.od.dynqname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD dynamic queue name", HFILL }},
@@ -4333,7 +4360,7 @@ void proto_register_mq(void)
         { &hf_mq_od_altsecurid  , {"Alt security id..", "mq.od.altsecid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD alternate security id", HFILL }},
         { &hf_mq_od_resolvqname , {"Resolved Q Name..", "mq.od.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue name", HFILL }},
         { &hf_mq_od_resolvqmgrnm, {"Resolved QMgrName", "mq.od.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue manager name", HFILL }},
-        { &hf_mq_od_resolvobjtyp, {"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(objtype)), 0x0, "OD resolved object type", HFILL }},
+        { &hf_mq_od_resolvobjtyp, {"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(objtype), 0x0, "OD resolved object type", HFILL }},
 
         { &hf_mq_or_objname     , {"Object name...", "mq.or.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object name", HFILL }},
         { &hf_mq_or_objqmgrname , {"Object QMgr Nm", "mq.or.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL }},
@@ -4366,7 +4393,7 @@ void proto_register_mq(void)
         { &hf_mq_md_userid      , {"UserId...", "mq.md.userid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD UserId", HFILL }},
         { &hf_mq_md_acttoken    , {"AccntTok.", "mq.md.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "MD accounting token", HFILL }},
         { &hf_mq_md_appliddata  , {"AppIdData", "mq.md.appldata", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put applicationId data", HFILL }},
-        { &hf_mq_md_putappltype , {"PutAppTyp", "mq.md.appltype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "MD Put application type", HFILL }},
+        { &hf_mq_md_putappltype , {"PutAppTyp", "mq.md.appltype", FT_INT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(mqat), 0x0, "MD Put application type", HFILL }},
         { &hf_mq_md_putapplname , {"PutAppNme", "mq.md.applname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put application name", HFILL }},
         { &hf_mq_md_putdate     , {"PutDatGMT", "mq.md.date", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put date", HFILL }},
         { &hf_mq_md_puttime     , {"PutTimGMT", "mq.md.time", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put time", HFILL }},
@@ -4385,7 +4412,7 @@ void proto_register_mq(void)
         { &hf_mq_dlh_encoding   , {"Encoding.", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL }},
         { &hf_mq_dlh_ccsid      , {"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(&GET_VALRV(ccsid)), 0x0, "DLH character set", HFILL }},
         { &hf_mq_dlh_format     , {"Format...", "mq.dlh.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH format", HFILL }},
-        { &hf_mq_dlh_putappltype, {"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "DLH put application type", HFILL }},
+        { &hf_mq_dlh_putappltype, {"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(mqat), 0x0, "DLH put application type", HFILL }},
         { &hf_mq_dlh_putapplname, {"PutAppNme", "mq.dlh.putapplname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put application name", HFILL }},
         { &hf_mq_dlh_putdate    , {"PutDatGMT", "mq.dlh.putdate", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put date", HFILL }},
         { &hf_mq_dlh_puttime    , {"PutTimGMT", "mq.dlh.puttime", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put time", HFILL }},
@@ -4683,7 +4710,8 @@ void proto_register_mq(void)
         &ett_mq_xa_info,
         &ett_mq_charv,
         &ett_mq_rfh_ValueName,
-        &ett_mq_reaasemb
+        &ett_mq_reaasemb,
+        &ett_mq_structid
     };
 
     module_t *mq_module;
@@ -4723,6 +4751,19 @@ void proto_reg_handoff_mq(void)
     dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
     data_handle  = find_dissector("data");
     mqpcf_handle = find_dissector("mqpcf");
+
+    /*
+    Sort the value_string_ext to improve the use of bsearch
+    in case the string_value is not sorted by value when created
+    */
+    _try_mq_vals_sort(GET_VALS_EXTP(mqrc));
+    _try_mq_vals_sort(GET_VALS_EXTP(mqcmd));
+    _try_mq_vals_sort(GET_VALS_EXTP(PrmId));
+    _try_mq_vals_sort(GET_VALS_EXTP(selector));
+    _try_mq_vals_sort(GET_VALS_EXTP(MQCFINT_Parse));
+    _try_mq_vals_sort(GET_VALS_EXTP(mqat));
+    _try_mq_vals_sort(GET_VALS_EXTP(PrmTyp));
+    _try_mq_vals_sort(GET_VALS_EXTP(objtype));
 }
 
 /*

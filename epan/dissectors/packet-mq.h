@@ -27,7 +27,8 @@
 #define __PACKET_MQ_H__
 
 #define GET_VALSV(A) mq_##A##_vals
-#define DEF_VALSX(A) extern const value_string GET_VALSV(A)[]
+#define GET_VALSV2(A) GET_VALSV(A)
+#define DEF_VALSX(A) extern value_string GET_VALSV(A)[]
 /* XXX WTF: this is broken it's used to cast value_string array to char
 *  This Macro is used to cast a value_string to a const gchar *
 *  Used in value_string MQCFINT_Parse, because this value_string
@@ -37,13 +38,20 @@
 #define GET_VALSP(F) (const gchar *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
-#define DEF_VALSBX(A) const value_string GET_VALSV(A)[] = \
+#define DEF_VALSBX(A) value_string GET_VALSV(A)[] = \
 {
 #define DEF_VALS1(A)    { (guint32)MQ_##A, #A }
 #define DEF_VALS2(A, B) { (guint32)MQ_##A, B }
 #define DEF_VALSE \
 { 0, NULL } \
 }
+
+/* VALS_EXT_STRING */
+#define GET_VALS_EXTV(A) mq_##A##_xvals
+#define GET_VALS_EXTP(A) (value_string_ext *)&GET_VALS_EXTV(A)
+#define DEF_VALS_EXTB(A) static value_string_ext GET_VALS_EXTV(A) = VALUE_STRING_EXT_INIT(mq_##A##_vals)
+#define DEF_VALS_EXTBX(A) value_string_ext GET_VALS_EXTV(A) = VALUE_STRING_EXT_INIT(mq_##A##_vals)
+#define DEF_VALS_EXTX(A)  extern value_string_ext GET_VALS_EXTV(A)
 
 /* | BASE_RANGE_STRING, GET_VALRV(RVALS(aaa)) */
 #define GET_VALRV(A) mq_##A##_rvals
@@ -2767,7 +2775,6 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_CFIL_DUPLICATE_VALUE    3026
 #define MQ_MQRCCF_CFIL_COUNT_ERROR        3027
 #define MQ_MQRCCF_CFIL_LENGTH_ERROR       3028
-#define MQ_MQRCCF_QUIESCE_VALUE_ERROR     3029
 #define MQ_MQRCCF_MODE_VALUE_ERROR        3029
 #define MQ_MQRCCF_MSG_SEQ_NUMBER_ERROR    3030
 #define MQ_MQRCCF_PING_DATA_COUNT_ERROR   3031
@@ -4838,22 +4845,40 @@ extern guint64 tvb_get_guint64_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_re
 extern gint32  strip_trailing_blanks(guint8 *a_str, guint32 a_size);
 
 DEF_VALSX(mqcc);
+
 DEF_VALSX(mqrc);
+DEF_VALS_EXTX(mqrc);
+
 DEF_VALSX(mqcmd);
-DEF_VALSX(mqcft);
-DEF_VALSX(mqat);
-DEF_VALSX(selector);
-DEF_VALSX(objtype);
-DEF_VALSX(PrmTyp);
+DEF_VALS_EXTX(mqcmd);
+
 DEF_VALSX(PrmId);
+DEF_VALS_EXTX(PrmId);
+
+DEF_VALSX(selector);
+DEF_VALS_EXTX(selector);
+
+DEF_VALSX(MQCFINT_Parse);
+DEF_VALS_EXTX(MQCFINT_Parse);
+
+DEF_VALSX(mqat);
+DEF_VALS_EXTX(mqat);
+
+DEF_VALSX(PrmTyp);
+DEF_VALS_EXTX(PrmTyp);
+
+DEF_VALSX(objtype);
+DEF_VALS_EXTX(objtype);
+
+DEF_VALSX(CtlOpt);
+DEF_VALSX(mqcft);
+
 DEF_VALSX(FilterOP);
 DEF_VALSX(UOWControls);
 DEF_VALSX(LinkType);
 DEF_VALSX(ADSDescr);
 DEF_VALSX(ConvTaskOpt);
 DEF_VALSX(TaskEndStatus);
-
-DEF_VALSX(MQCFINT_Parse);
 
 DEF_VALRX(ccsid);
 DEF_VALRX(WaitIntv);
