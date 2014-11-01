@@ -770,7 +770,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       }else{
         item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
                                           padding_length+trailer_length, 4, sent_fcs,
-                                          "0x%08x [validiation disabled]", sent_fcs);
+                                          "0x%08x [validation disabled]", sent_fcs);
         checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
         item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
                                       padding_length+trailer_length, 4, FALSE);
