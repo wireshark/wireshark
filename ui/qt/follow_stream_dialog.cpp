@@ -65,13 +65,15 @@
 //   box and disable the appropriate controls.
 // - Add stream number for UDP.
 // - Draw text by hand similar to ByteViewText. This would let us add
-//   extra information, e.g. a timestamp column.
+//   extra information, e.g. a timestamp column and get rid of the data
+//   limit.
 
 FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capture_file *cf) :
     QDialog(parent),
     ui(new Ui::FollowStreamDialog),
     cap_file_(cf),
     follow_type_(type),
+    truncated_(false),
     save_as_(false)
 {
     ui->setupUi(this);
@@ -221,7 +223,7 @@ void FollowStreamDialog::saveAs()
 
     save_as_ = true;
 
-    follow_read_stream();
+    readStream();
 
     if (follow_info_.show_type != SHOW_RAW)
     {
@@ -263,14 +265,14 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int index)
         return;
     }
 
-    follow_read_stream();
+    readStream();
 }
 
 void FollowStreamDialog::on_cbCharset_currentIndexChanged(int index)
 {
     if (index < 0) return;
     follow_info_.show_type = static_cast<show_type_t>(ui->cbCharset->itemData(index).toInt());
-    follow_read_stream();
+    readStream();
 }
 
 void FollowStreamDialog::on_bFind_clicked()
@@ -327,9 +329,10 @@ void FollowStreamDialog::resetStream()
 }
 
 frs_return_t
-FollowStreamDialog::follow_read_stream()
+FollowStreamDialog::readStream()
 {
     ui->teStreamContent->clear();
+    truncated_ = false;
     frs_return_t ret;
 
     client_buffer_count_ = 0;
@@ -342,15 +345,15 @@ FollowStreamDialog::follow_read_stream()
     switch(follow_type_) {
 
     case FOLLOW_TCP :
-        ret = follow_read_tcp_stream();
+        ret = readTcpStream();
         break;
 
     case FOLLOW_UDP :
-        ret = follow_read_udp_stream();
+        ret = readUdpStream();
         break;
 
     case FOLLOW_SSL :
-        ret = follow_read_ssl_stream();
+        ret = readSslStream();
         break;
 
     default :
@@ -479,7 +482,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, co
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-FollowStreamDialog::follow_read_ssl_stream()
+FollowStreamDialog::readSslStream()
 {
     guint32      global_client_pos = 0, global_server_pos = 0;
     guint32 *    global_pos;
@@ -504,7 +507,7 @@ FollowStreamDialog::follow_read_ssl_stream()
             size_t nchars = rec->data.data_len;
             gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
 
-            frs_return = follow_show(buffer, nchars,
+            frs_return = showBuffer(buffer, nchars,
                                      rec->is_from_server, rec->packet_num, global_pos);
             g_free(buffer);
             if (frs_return == FRS_PRINT_ERROR)
@@ -516,7 +519,7 @@ FollowStreamDialog::follow_read_ssl_stream()
 }
 
 void
-FollowStreamDialog::follow_stream()
+FollowStreamDialog::followStream()
 {
     follow_stats_t stats;
 
@@ -528,13 +531,13 @@ FollowStreamDialog::follow_stream()
 
     follow_info_.is_ipv6 = stats.is_ipv6;
 
-    follow_read_stream();
+    readStream();
 }
 
 
 
-
-void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32 packet_num)
+const int FollowStreamDialog::max_document_length_ = 2 * 1000 * 1000; // Just a guess
+void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num)
 {
     if (save_as_ == true)
     {
@@ -550,6 +553,16 @@ void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32
 #endif
         }
         return;
+    }
+
+    if (truncated_) {
+        return;
+    }
+
+    int char_count = ui->teStreamContent->document()->characterCount();
+    if (char_count + text.length() > max_document_length_) {
+        text.truncate(max_document_length_ - char_count);
+        truncated_ = true;
     }
 
     QColor tagserver_fg = ColorUtils::fromColorT(prefs.st_server_fg);
@@ -573,6 +586,13 @@ void FollowStreamDialog::add_text(QString text, gboolean is_from_server, guint32
     ui->teStreamContent->insertPlainText(text);
     ui->teStreamContent->moveCursor(QTextCursor::End);
     text_pos_to_packet_[ui->teStreamContent->textCursor().anchor()] = packet_num;
+
+    if (truncated_) {
+        ui->teStreamContent->setTextBackgroundColor(ui->teStreamContent->palette().window().color());
+        ui->teStreamContent->setTextColor(ui->teStreamContent->palette().windowText().color());
+        ui->teStreamContent->insertPlainText(tr("\n[Stream output truncated]"));
+        ui->teStreamContent->moveCursor(QTextCursor::End);
+    }
 }
 
 void FollowStreamDialog::setCaptureFile(capture_file *cf)
@@ -644,7 +664,7 @@ static inline void sanitize_buffer(char *buffer, size_t nchars) {
 }
 
 frs_return_t
-FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
+FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
                                 guint32 *global_pos)
 {
     gchar initbuf[256];
@@ -659,7 +679,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
         EBCDIC_to_ASCII((guint8*)buffer, (guint) nchars);
         sanitize_buffer(buffer, nchars);
         QByteArray ba = QByteArray(buffer, (int)nchars);
-        add_text(ba, is_from_server, packet_num);
+        addText(ba, is_from_server, packet_num);
         break;
     }
 
@@ -671,7 +691,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
         sanitize_buffer(buffer, nchars);
         sanitize_buffer(buffer, nchars);
         QByteArray ba = QByteArray(buffer, (int)nchars);
-        add_text(ba, is_from_server, packet_num);
+        addText(ba, is_from_server, packet_num);
         break;
     }
 
@@ -681,7 +701,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
         // replacement characters or removed. It would be nice if we could
         // explicitly choose one or the other.
         QString utf8 = QString::fromUtf8(buffer, (int)nchars);
-        add_text(utf8, is_from_server, packet_num);
+        addText(utf8, is_from_server, packet_num);
         break;
     }
 
@@ -729,7 +749,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             *cur++ = '\n';
             *cur = 0;
 
-            add_text(hexbuf, is_from_server, packet_num);
+            addText(hexbuf, is_from_server, packet_num);
         }
         break;
 
@@ -739,7 +759,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
                    is_from_server ? 1 : 0,
                    is_from_server ? server_buffer_count_++ : client_buffer_count_++,
                    packet_num);
-        add_text(initbuf, is_from_server, packet_num);
+        addText(initbuf, is_from_server, packet_num);
 
         while (current_pos < nchars) {
             gchar hexbuf[256];
@@ -772,7 +792,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             (*global_pos) += i;
             hexbuf[cur++] = '\n';
             hexbuf[cur] = 0;
-            add_text(hexbuf, is_from_server, packet_num);
+            addText(hexbuf, is_from_server, packet_num);
         }
         break;
 
@@ -798,7 +818,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             current_pos += len;
             (*global_pos) += len;
         }
-        add_text(yaml_text, is_from_server, packet_num);
+        addText(yaml_text, is_from_server, packet_num);
         break;
     }
     }
@@ -1205,7 +1225,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     this->ui->cbDirections->addItem(client_to_server_string);
     this->ui->cbDirections->addItem(server_to_client_string);
 
-    follow_stream();
+    followStream();
     fillHintLabel(-1);
 
     data_out_file = NULL;
@@ -1233,7 +1253,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-FollowStreamDialog::follow_read_tcp_stream()
+FollowStreamDialog::readTcpStream()
 {
     FILE *data_out_fp;
     tcp_stream_chunk    sc;
@@ -1302,7 +1322,7 @@ FollowStreamDialog::follow_read_tcp_stream()
 
             if (!skip)
             {
-                frs_return = follow_show(buffer,
+                frs_return = showBuffer(buffer,
                                          nchars, is_server, sc.packet_num, global_pos);
                 if(frs_return == FRS_PRINT_ERROR) {
                     fclose(data_out_fp);
@@ -1345,7 +1365,7 @@ FollowStreamDialog::follow_read_tcp_stream()
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-FollowStreamDialog::follow_read_udp_stream()
+FollowStreamDialog::readUdpStream()
 {
     guint32 global_client_pos = 0, global_server_pos = 0;
     guint32 *global_pos;
@@ -1374,7 +1394,7 @@ FollowStreamDialog::follow_read_udp_stream()
             buffer = (char *)g_memdup(follow_record->data->data,
                                       follow_record->data->len);
 
-            frs_return = follow_show(
+            frs_return = showBuffer(
                         buffer,
                         follow_record->data->len,
                         follow_record->is_server,

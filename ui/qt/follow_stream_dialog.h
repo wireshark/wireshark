@@ -104,17 +104,16 @@ private:
     void resetStream(void);
     void updateWidgets(bool enable = true);
     frs_return_t
-    follow_show(char *buffer, size_t nchars, gboolean is_from_server,
+    showBuffer(char *buffer, size_t nchars, gboolean is_from_server,
                 guint32 packet_num, guint32 *global_pos);
 
-    frs_return_t follow_read_stream();
-    frs_return_t follow_read_tcp_stream();
-    frs_return_t follow_read_udp_stream();
-    frs_return_t follow_read_ssl_stream();
+    frs_return_t readStream();
+    frs_return_t readTcpStream();
+    frs_return_t readUdpStream();
+    frs_return_t readSslStream();
 
-    void follow_stream();
-
-    void add_text(QString text, gboolean is_from_server, guint32 packet_num);
+    void followStream();
+    void addText(QString text, gboolean is_from_server, guint32 packet_num);
 
     Ui::FollowStreamDialog  *ui;
 
@@ -127,6 +126,8 @@ private:
     follow_type_t           follow_type_;
     follow_info_t           follow_info_;
     QString                 data_out_filename_;
+    static const int        max_document_length_;
+    bool                    truncated_;
     QString                 filter_out_filter_;
     int                     client_buffer_count_;
     int                     server_buffer_count_;
