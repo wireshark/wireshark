@@ -2158,6 +2158,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len > 1)   /* ISDN SA is optional */ {
         proto_tree_add_item(rr_tree, hf_dns_isdn_sa_length, tvb, cur_offset, 1, ENC_NA);
         isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
+        cur_offset += 1;
 
         proto_tree_add_item(rr_tree, hf_dns_isdn_sa, tvb, cur_offset, isdn_sa_len, ENC_ASCII|ENC_NA);
       }
