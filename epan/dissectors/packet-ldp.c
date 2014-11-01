@@ -307,6 +307,11 @@ static int hf_ldp_tlv_must_be_zero = -1;
 static int hf_ldp_tlv_tunnel_id = -1;
 static int hf_ldp_tlv_ext_tunnel_id = -1;
 static int hf_ldp_tlv_inv_length = -1;
+static int hf_ldp_returned_pdu_data = -1;
+static int hf_ldp_returned_message_parameters = -1;
+static int hf_ldp_data = -1;
+static int hf_ldp_unknown_data = -1;
+
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
@@ -1536,7 +1541,7 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
 
     if ( rem > 0 ) {
         /*XXX - dissect returned pdu data*/
-        proto_tree_add_text(val_tree, tvb, offset, rem, "Returned PDU Data");
+        proto_tree_add_item(val_tree, hf_ldp_returned_pdu_data, tvb, offset, rem, ENC_NA);
     }
 }
 
@@ -1584,7 +1589,7 @@ dissect_tlv_returned_message(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
 
     if ( rem > 0 ) {
         /*XXX - dissect returned msg parameters*/
-        proto_tree_add_text(val_tree, tvb, offset, rem, "Returned Message Parameters");
+        proto_tree_add_item(val_tree, hf_ldp_returned_message_parameters, tvb, offset, rem, ENC_NA);
     }
 }
 
@@ -2584,7 +2589,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             else {
                 proto_tree_add_item(tlv_tree, hf_ldp_tlv_vendor_id, tvb,offset + 4, 4, ENC_BIG_ENDIAN);
                 if( length > 4 )  /*have data*/
-                    proto_tree_add_text(tlv_tree, tvb, offset + 8, length-4,"Data");
+                    proto_tree_add_item(tlv_tree, hf_ldp_data, tvb, offset + 8, length-4, ENC_NA);
             }
             break;
 
@@ -2596,7 +2601,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             else {
                 proto_tree_add_item(tlv_tree, hf_ldp_tlv_experiment_id, tvb,offset + 4, 4, ENC_BIG_ENDIAN);
                 if( length > 4 )  /*have data*/
-                    proto_tree_add_text(tlv_tree, tvb, offset + 8, length-4,"Data");
+                    proto_tree_add_item(tlv_tree, hf_ldp_data, tvb, offset + 8, length-4, ENC_NA);
             }
             break;
 
@@ -3065,7 +3070,7 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
         break;
     default: /* unknown */
         proto_item_append_text(ti," unknown");
-        proto_tree_add_text(vcintparam_tree,tvb, offset+2, (intparam_len -2), "Unknown data");
+        proto_tree_add_item(vcintparam_tree, hf_ldp_unknown_data, tvb, offset+2, (intparam_len -2), ENC_NA);
 
         break;
     }
@@ -4222,6 +4227,22 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_inv_length,
           { "Invalid length", "ldp.msg.tlv.invalid.length", FT_UINT16, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_returned_pdu_data,
+          { "Returned PDU Data", "ldp.returned_pdu_data", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_returned_message_parameters,
+          { "Returned Message Parameters", "ldp.returned_message_parameters", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_data,
+          { "Data", "ldp.data", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_unknown_data,
+          { "Unknown Data", "ldp.unknown_data", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
     };
 

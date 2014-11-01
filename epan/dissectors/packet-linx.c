@@ -43,15 +43,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 
 void proto_register_linx(void);
 void proto_reg_handoff_linx(void);
 void proto_register_linx_tcp(void);
 void proto_reg_handoff_linx_tcp(void);
-
-/* forward reference */
-static void dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_linx     = -1;
 static int proto_linx_tcp = -1;
@@ -82,6 +80,7 @@ static int hf_linx_udata_dstaddr16 = -1;
 static int hf_linx_udata_dstaddr32 = -1;
 static int hf_linx_udata_srcaddr16 = -1;
 static int hf_linx_udata_srcaddr32 = -1;
+static int hf_linx_udata_payload   = -1;
 
 /* ACK */
 static int hf_linx_ack_reserved    = -1;
@@ -139,6 +138,7 @@ static int hf_linx_tcp_rlnh_name          = -1;
 static int hf_linx_tcp_rlnh_peer_linkaddr = -1;
 static int hf_linx_tcp_rlnh_feat_neg_str  = -1;
 static int hf_linx_tcp_rlnh_msg_reserved  = -1;
+static int hf_linx_tcp_payload            = -1;
 
 
 static int rlnh_version = 0;
@@ -150,6 +150,15 @@ static gint ett_linx_error     = -1;
 static gint ett_linx_udata     = -1;
 static gint ett_linx_ack       = -1;
 static gint ett_linx_tcp       = -1;
+
+static expert_field ei_linx_version = EI_INIT;
+static expert_field ei_linx_rlnh_msg = EI_INIT;
+static expert_field ei_linx_header = EI_INIT;
+
+static expert_field ei_linx_tcp_version = EI_INIT;
+static expert_field ei_linx_tcp_rlnh_msg = EI_INIT;
+
+
 
 /* Definition and Names */
 
@@ -293,7 +302,6 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *nack_header_tree;
 	proto_tree *frag_header_tree;
 	proto_tree *rlnh_header_tree;
-	tvbuff_t *linx_tvb;
 
 	/* Show name in protocol column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LINX");
@@ -303,6 +311,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{ /* Work out the details */
 		proto_item *ti        = NULL;
 		proto_tree *linx_tree = NULL;
+		proto_item *ver_item, *msg_item;
 
 		ti = proto_tree_add_item(tree, proto_linx, tvb, 0, -1, ENC_NA);
 		linx_tree = proto_item_add_subtree(ti, ett_linx);
@@ -337,18 +346,10 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		version = (dword >> 25) & 0x7;
 		nexthdr = (dword >> 28) & 0xf;
 		pkgsize = dword & 0x3fff;
-		linx_tvb = tvb_new_subset_length(tvb, 0, pkgsize);
-		tvb_set_reported_length(tvb, pkgsize);
-
-		/* Supports version 2 and 3 so far */
-		if (version < 2 || version > 3) {
-			proto_tree_add_text(linx_tree, linx_tvb, offset, 0, "Version %u in not yet supported and might be dissected incorrectly!", version);
-		}
-
-		/* main header */
-		main_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Main Header");
 
 		/* Main header */
+		main_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 4, ett_linx_main, NULL, "Main Header");
+
 		/*
 		0                   1                   2                   3
 		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -357,17 +358,22 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		*/
 
-		proto_tree_add_item(main_header_tree, hf_linx_nexthdr        , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_version   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_reserved  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_connection, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_nexthdr        , tvb, offset, 4, ENC_BIG_ENDIAN);
+		ver_item = proto_tree_add_item(main_header_tree, hf_linx_main_version   , tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_reserved  , tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_connection, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+
+		/* Supports version 2 and 3 so far */
+		if (version < 2 || version > 3) {
+			expert_add_info(pinfo, ver_item, &ei_linx_version);
+		}
 
 		while (nexthdr != ETHCM_NONE) {
 
-			dword    = tvb_get_ntohl(linx_tvb, offset);
+			dword    = tvb_get_ntohl(tvb, offset);
 			thishdr  = nexthdr;
 			nexthdr  = (dword >>28) & 0xf;
 			conntype = (dword >>24) & 0xf;
@@ -399,26 +405,26 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					*/
 
 					size = (dword >>21) & 0x7;
-					conn_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, (4+2*size), ett_linx_main, NULL, "Connection Header");
-					proto_tree_add_item(conn_header_tree, hf_linx_nexthdr      , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_cmd     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_size    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_winsize , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_publcid , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					conn_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, (4+2*size), ett_linx_main, NULL, "Connection Header");
+					proto_tree_add_item(conn_header_tree, hf_linx_nexthdr      , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_cmd     , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_size    , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_winsize , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_publcid , tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					/* MEDIA ADDRESS */
 					if (size == 6) {
 						/* Most likely ETHERNET */
-						proto_tree_add_item(conn_header_tree, hf_linx_conn_dstmac, linx_tvb, offset, 6, ENC_NA);
-						proto_tree_add_item(conn_header_tree, hf_linx_conn_srcmac, linx_tvb, offset + 6, 6, ENC_NA);
+						proto_tree_add_item(conn_header_tree, hf_linx_conn_dstmac, tvb, offset, 6, ENC_NA);
+						proto_tree_add_item(conn_header_tree, hf_linx_conn_srcmac, tvb, offset + 6, 6, ENC_NA);
 					}
 
 					offset += (2*size);
 					/* Feature Negotiation String */
 					if(version > 2) {
-					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
-						offset += tvb_strnlen(linx_tvb, offset, -1);
+					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+						offset += tvb_strnlen(tvb, offset, -1);
 					}
 					break;
 
@@ -438,12 +444,12 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* guess there will be padding if the Seqno doesn't reach */
 					/* a 32bit boundary */
 
-					nack_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "NACK Header");
-					proto_tree_add_item(nack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv1, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_count  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv2, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_seqno  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					nack_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 4, ett_linx_main, NULL, "NACK Header");
+					proto_tree_add_item(nack_header_tree, hf_linx_nexthdr     , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv1, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_count  , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv2, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_seqno  , tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 
@@ -482,25 +488,25 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					*/
 
 
-					udata_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 12, ett_linx_main, NULL, "Udata Header");
-					proto_tree_add_item(udata_header_tree, hf_linx_nexthdr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_fragno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					udata_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 12, ett_linx_main, NULL, "Udata Header");
+					proto_tree_add_item(udata_header_tree, hf_linx_nexthdr, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_reserved , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_morefrags, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_fragno   , tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					/* signo removed in version 3 and linkaddresses extended to 32 bits */
 					if(version == 2) {
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_signo    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_signo    , tvb, offset, 4, ENC_BIG_ENDIAN);
 					     offset += 4;
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr16, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr16, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					     dword = tvb_get_ntohl(linx_tvb, offset);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr16, tvb, offset, 4, ENC_BIG_ENDIAN);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr16, tvb, offset, 4, ENC_BIG_ENDIAN);
+					     dword = tvb_get_ntohl(tvb, offset);
 					} else {
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					     dword = tvb_get_ntohl(linx_tvb, offset);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr32, tvb, offset, 4, ENC_BIG_ENDIAN);
+					     dword = tvb_get_ntohl(tvb, offset);
 					     offset += 4;
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					     if(dword == 0 && tvb_get_ntohl(linx_tvb, offset) == 0) {
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr32, tvb, offset, 4, ENC_BIG_ENDIAN);
+					     if(dword == 0 && tvb_get_ntohl(tvb, offset) == 0) {
 						     dword = 0;
 					     } else {
 						     dword = 1;
@@ -510,21 +516,21 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (dword == 0) {
 						/* (dstaddr == srcaddr == 0) -> RLNH Protocol Message */
 
-					        dword = tvb_get_ntohl(linx_tvb, offset);
+					        dword = tvb_get_ntohl(tvb, offset);
 
 						/* Write to info column */
 						col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 						/* create new paragraph for RLNH */
-						rlnh_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "RLNH");
+						rlnh_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 4, ett_linx_main, NULL, "RLNH");
 
 						if(version == 1) {
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+							msg_item = proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type32, tvb, offset, 4, ENC_BIG_ENDIAN);
 							offset += 4;
 						} else {
 							/* in version 2 of the rlnh protocol the length of the message type is restricted to 8 bits */
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type8, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+							msg_item = proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type8, tvb, offset, 4, ENC_BIG_ENDIAN);
 							offset += 4;
 						}
 
@@ -533,49 +539,48 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  /* XXX what is this? */
 								break;
 							case RLNH_QUERY_NAME:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
-									offset += tvb_strnlen(linx_tvb, offset, -1);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+									offset += tvb_strnlen(tvb, offset, -1);
 								break;
 							case RLNH_PUBLISH:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
-									offset += tvb_strnlen(linx_tvb, offset, -1);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+									offset += tvb_strnlen(tvb, offset, -1);
 								break;
 							case RLNH_UNPUBLISH:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 								break;
 							case RLNH_UNPUBLISH_ACK:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 								break;
 							case RLNH_INIT:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_version, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 									/* This is not working if nodes are at different versions. Only the latest value will be saved in rlnh_version */
-									rlnh_version = tvb_get_ntohl(linx_tvb, offset);
+									rlnh_version = tvb_get_ntohl(tvb, offset);
 									offset += 4;
 								break;
 							case RLNH_INIT_REPLY:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_status, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 									if(rlnh_version > 1) {
-									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
-										offset += tvb_strnlen(linx_tvb, offset, -1);
+									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+										offset += tvb_strnlen(tvb, offset, -1);
 									}
 								break;
 							case RLNH_PUBLISH_PEER:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_peer_linkaddr, linx_tvb, offset, -1, ENC_BIG_ENDIAN);
-									offset += tvb_strnlen(linx_tvb, offset, -1);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_peer_linkaddr, tvb, offset, -1, ENC_BIG_ENDIAN);
+									offset += tvb_strnlen(tvb, offset, -1);
 								break;
 							default:
 									/* no known Message type... */
-									/* this could be done better */
-									proto_tree_add_text(rlnh_header_tree, linx_tvb, offset, 0,"ERROR: Header \"%u\" not recognized", dword);
+									expert_add_info(pinfo, msg_item, &ei_linx_rlnh_msg);
 								break;
 						}
 					} else {
@@ -583,7 +588,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* anything better to do with that? */
 						payloadsize = pkgsize-offset;
 						if (payloadsize) {
-							proto_tree_add_text(linx_tree, linx_tvb, offset, payloadsize,"%u bytes data", payloadsize);
+							proto_tree_add_item(linx_tree, hf_linx_udata_payload, tvb, offset, payloadsize, ENC_NA);
 						}
 					}
 					break;
@@ -597,12 +602,12 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  | Next  |R| Res.|         Ackno         |         Seqno         |
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					*/
-					ack_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Ack Header");
-					proto_tree_add_item(ack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_request , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_ackno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_seqno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					ack_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 4, ett_linx_main, NULL, "Ack Header");
+					proto_tree_add_item(ack_header_tree, hf_linx_nexthdr     , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_request , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_ackno   , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_seqno   , tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 
@@ -617,16 +622,16 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					 */
 
-					frag_header_tree = proto_tree_add_subtree(linx_tree, linx_tvb, offset, 4, ett_linx_main, NULL, "Fragmentation Header");
-					proto_tree_add_item(frag_header_tree, hf_linx_nexthdr       , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_fragno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					frag_header_tree = proto_tree_add_subtree(linx_tree, tvb, offset, 4, ett_linx_main, NULL, "Fragmentation Header");
+					proto_tree_add_item(frag_header_tree, hf_linx_nexthdr       , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_reserved , tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_morefrags, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_fragno   , tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 
 				default:
-					proto_tree_add_text(linx_tree, linx_tvb, offset, 4,"ERROR: Header \"%u\" not recognized", thishdr);
+					proto_tree_add_expert_format(linx_tree, pinfo, &ei_linx_header, tvb, offset, 4, "ERROR: Header \"%u\" not recognized", thishdr);
 					nexthdr = ETHCM_NONE; /* avoid endless loop with faulty packages */
 					break;
 			}
@@ -697,6 +702,9 @@ proto_register_linx(void)
 		},
 		{ &hf_linx_udata_srcaddr32, /* in ETHCM_UDATA - protocol version 3 */
 			{ "Sender Address", "linx.srcaddr32", FT_UINT32, BASE_DEC, NULL, 0xffffffff, NULL, HFILL },
+		},
+		{ &hf_linx_udata_payload, /* in ETHCM_UDATA */
+			{ "Payload", "linx.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_linx_ack_request, /* in ETHCM_ACK */
 			{ "ACK-request", "linx.ackreq", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x08000000, NULL, HFILL },
@@ -801,6 +809,14 @@ proto_register_linx(void)
 		&ett_linx_ack
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_linx_version, { "linx.version.unknown", PI_PROTOCOL, PI_WARN, "Version not yet supported and might be dissected incorrectly!", EXPFILL }},
+		{ &ei_linx_rlnh_msg, { "linx.rlnh_msg.unknown", PI_PROTOCOL, PI_WARN, "Message type not recognized", EXPFILL }},
+		{ &ei_linx_header, { "linx.header_not_recognized", PI_PROTOCOL, PI_WARN, "Header not recognized", EXPFILL }},
+	};
+
+	expert_module_t* expert_linx;
+
 	proto_linx = proto_register_protocol (
 		"ENEA LINX",	/* name */
 		"LINX",		/* short name */
@@ -810,6 +826,8 @@ proto_register_linx(void)
 	/* Protocol Registering data structures. */
 	proto_register_field_array(proto_linx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_linx = expert_register_protocol(proto_linx);
+	expert_register_field_array(expert_linx, ei, array_length(ei));
 }
 
 
@@ -831,9 +849,8 @@ static void
 dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 dword;
-	tvbuff_t *linx_tcp_tvb;
 	int offset = 0;
-	proto_item *ti;
+	proto_item *ti, *ver_item, *msg_item;
 	proto_tree *linx_tcp_tree;
 	proto_tree *tcp_header_tree;
 	proto_tree *rlnh_header_tree;
@@ -862,49 +879,46 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "tcpcm:%s ", val_to_str_const(type, linx_short_tcp_names, "unknown"));
 
-	tvb_set_reported_length(tvb, size);
-	linx_tcp_tvb = tvb_new_subset_length(tvb, 0, size);
-
-	ti = proto_tree_add_item(tree, proto_linx_tcp, linx_tcp_tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_linx_tcp, tvb, 0, -1, ENC_NA);
 	linx_tcp_tree = proto_item_add_subtree(ti, ett_linx_tcp);
 
+	tcp_header_tree = proto_tree_add_subtree(linx_tcp_tree, tvb, 0, 16, ett_linx_tcp, NULL, "TCP CM Header");
+
+	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_type, tvb, 0, 4, ENC_BIG_ENDIAN);
+	ver_item = proto_tree_add_item(tcp_header_tree, hf_linx_tcp_version, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_oob, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_src, tvb, 4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_dst, tvb, 8, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_size, tvb, 12, 4, 	ENC_BIG_ENDIAN);
+
 	if (version != 3) {
-		proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, 0, 0, "Version %u not yet supported and might be dissected incorrectly!", version);
+		expert_add_info(pinfo, ver_item, &ei_linx_tcp_version);
 	}
-
-	tcp_header_tree = proto_tree_add_subtree(linx_tcp_tree, linx_tcp_tvb, 0, 16, ett_linx_tcp, NULL, "TCP CM Header");
-
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_type, linx_tcp_tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_version, linx_tcp_tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_oob, linx_tcp_tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_src, linx_tcp_tvb, 4, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_dst, linx_tcp_tvb, 8, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_size, linx_tcp_tvb, 12, 4, 	ENC_BIG_ENDIAN);
 
 	offset += 16;
 
 	if (type == 0x55) { /* UDATA */
-		dword = tvb_get_ntohl(linx_tcp_tvb, 8);
+		dword = tvb_get_ntohl(tvb, 8);
 		if (dword == 0) { /* RLNH Message*/
 
-			dword = tvb_get_ntohl(linx_tcp_tvb, offset);
+			dword = tvb_get_ntohl(tvb, offset);
 
 			/* Write to info column */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 			/* create new paragraph for RLNH */
-			rlnh_header_tree = proto_tree_add_subtree(linx_tcp_tree, linx_tcp_tvb, offset, 4, ett_linx_tcp, NULL, "RLNH");
+			rlnh_header_tree = proto_tree_add_subtree(linx_tcp_tree, tvb, offset, 4, ett_linx_tcp, NULL, "RLNH");
 
 			if(version == 1) {
-				proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_type32, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+				msg_item = proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_type32, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			} else {
 				/*
 				 * In version 2 of the rlnh protocol the length of the message type is
 				 * restricted to 8 bits.
 				 */
-				proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_reserved, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_type8, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+				msg_item = proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_msg_type8, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 
@@ -912,54 +926,54 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case RLNH_LINK_ADDR:
 					break;
 				case RLNH_QUERY_NAME:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+					/*offset += tvb_strnlen(tvb, offset, -1);*/
 					break;
 				case RLNH_PUBLISH:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+					/*offset += tvb_strnlen(tvb, offset, -1);*/
 					break;
 				case RLNH_UNPUBLISH:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					/*offset += 4;*/
 					break;
 				case RLNH_UNPUBLISH_ACK:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					/*offset += 4;*/
 					break;
 				case RLNH_INIT:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_version, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
-					rlnh_version = tvb_get_ntohl(linx_tcp_tvb, offset);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+					rlnh_version = tvb_get_ntohl(tvb, offset);
 					/*offset += 4;*/
 					break;
 				case RLNH_INIT_REPLY:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_status, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					if(rlnh_version > 1) {
-						proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_feat_neg_str, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-						/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
+						proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+						/*offset += tvb_strnlen(tvb, offset, -1);*/
 					}
 					break;
 				case RLNH_PUBLISH_PEER:
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_peer_linkaddr, linx_tcp_tvb, offset, -1, ENC_BIG_ENDIAN);
-					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_peer_linkaddr, tvb, offset, -1, ENC_BIG_ENDIAN);
+					/*offset += tvb_strnlen(tvb, offset, -1);*/
 					break;
 				default:
 					/* No known Message type */
-					proto_tree_add_text(rlnh_header_tree, linx_tcp_tvb, offset, 0, "ERROR: Header \"%u\" not recognized", dword);
+					expert_add_info(pinfo, msg_item, &ei_linx_tcp_rlnh_msg);
 					break;
 			}
 		} else {
 			/* User payload */
 			payloadsize = size-offset;
 			if (payloadsize) {
-				proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, offset, payloadsize, "%u bytes data", payloadsize);
+				proto_tree_add_item(linx_tcp_tree, hf_linx_tcp_payload, tvb, offset, payloadsize, ENC_NA);
 			}
 		}
 	}
@@ -1026,15 +1040,28 @@ proto_register_linx_tcp(void)
 		},
 		{ &hf_linx_tcp_rlnh_feat_neg_str,
 			{ "RLNH Feature Negotiation String", "linxtcp.rlnh_feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_linx_tcp_payload,
+			{ "Payload", "linxtcp.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		}
 	};
 
 	static gint *ett[] = {
 		&ett_linx_tcp,
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_linx_tcp_version, { "linxtcp.version.unknown", PI_PROTOCOL, PI_WARN, "Version not yet supported and might be dissected incorrectly!", EXPFILL }},
+		{ &ei_linx_tcp_rlnh_msg, { "linxtcp.rlnh_msg.unknown", PI_PROTOCOL, PI_WARN, "Message type not recognized", EXPFILL }},
+	};
+
+	expert_module_t* expert_linx_tcp;
+
 	proto_linx_tcp = proto_register_protocol("ENEA LINX over TCP", "LINX/TCP", "linxtcp");
 	proto_register_field_array(proto_linx_tcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_linx_tcp = expert_register_protocol(proto_linx_tcp);
+	expert_register_field_array(expert_linx_tcp, ei, array_length(ei));
 }
 
 void

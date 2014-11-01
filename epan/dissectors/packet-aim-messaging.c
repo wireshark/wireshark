@@ -62,7 +62,6 @@ static const aim_tlv aim_messaging_incoming_ch1_tlvs[] = {
 };
 
 static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo);
-static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 
 #define ICBM_CHANNEL_IM		0x0001
 #define ICBM_CHANNEL_RENDEZVOUS	0x0002
@@ -529,15 +528,13 @@ is_uuid_null(e_uuid_t uuid)
 }
 
 static int
-dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_aim_tlv_value_extended_data(proto_tree *entry, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	guint16 length/*, protocol_version*/;
 	int start_offset;
-	proto_tree *entry;
 	e_uuid_t plugin_uuid;
 
-	entry = proto_item_add_subtree(ti, ett_aim_extended_data);
 	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
 	start_offset = offset;
@@ -616,8 +613,8 @@ dissect_aim_msg_client_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tr
 		default:
 		    {
 			tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
-			proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
-			dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);
+			proto_tree *extended_tree = proto_tree_add_subtree(msg_tree, tvb, offset, -1, ett_aim_extended_data, NULL, "Extended Data");
+			dissect_aim_tlv_value_extended_data(extended_tree, 0, subtvb, pinfo);
 			break;
 		    }
 		}

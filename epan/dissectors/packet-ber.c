@@ -129,6 +129,17 @@ static gint hf_ber_single_ASN1_type = -1;         /* T_single_ASN1_type */
 static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
 static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_ber_seq_of_eoc = -1;
+static int hf_ber_choice_eoc = -1;
+static int hf_ber_seq_field_eoc = -1;
+static int hf_ber_seq_eoc = -1;
+static int hf_ber_set_field_eoc = -1;
+static int hf_ber_set_eoc = -1;
+static int hf_ber_null_tag = -1;
+static int hf_ber_unknown_octetstring = -1;
+static int hf_ber_unknown_data = -1;
+
 static int hf_ber_fragments = -1;
 static int hf_ber_fragment = -1;
 static int hf_ber_fragment_overlap = -1;
@@ -181,6 +192,7 @@ static expert_field ei_ber_bits_set_padded = EI_INIT;
 static expert_field ei_ber_illegal_padding = EI_INIT;
 static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
 static expert_field ei_ber_invalid_format_utctime = EI_INIT;
+static expert_field ei_hf_field_not_integer_type = EI_INIT;
 
 static dissector_handle_t ber_handle;
 
@@ -962,7 +974,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                 offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_UTCTime, NULL);
                 break;
             case BER_UNI_TAG_NULL:
-                proto_tree_add_text(tree, tvb, offset, len, "NULL tag");
+                proto_tree_add_item(tree, hf_ber_null_tag, tvb, offset, len, ENC_NA);
                 break;
             case BER_UNI_TAG_UTF8String:
                 offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_UTF8String, NULL);
@@ -1142,9 +1154,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
                  */
                 dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
             } else {
-                proto_tree_add_text(next_tree, next_tvb, 0, length_remaining,
-                                    "Unknown Data (%d byte%s)", length_remaining,
-                                    plurality(length_remaining, "", "s"));
+                proto_tree_add_item(next_tree, hf_ber_unknown_data, next_tvb, 0, length_remaining, ENC_NA);
             }
         }
         len = length_remaining;
@@ -1400,7 +1410,7 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 
     if (show_internal_ber_fields) {
         if (tmp_ind) {
-            proto_tree_add_text(tree, tvb, old_offset, 1, "Length: Indefinite length %d", tmp_length);
+            proto_tree_add_uint_format_value(tree, hf_ber_length, tvb, old_offset, 1, tmp_length, "Indefinite length %d", tmp_length);
         } else {
             proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
         }
@@ -1535,7 +1545,6 @@ dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, pr
     int         hoffset;
     int         end_offset;
     proto_item *it, *cause;
-    guint32     i;
     guint32     len_remain;
 
 #ifdef DEBUG_BER
@@ -1757,15 +1766,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
             actx->created_item = it;
             ber_check_length(length_remaining, min_len, max_len, actx, it, FALSE);
         } else {
-            proto_item *pi;
 
-            pi = proto_tree_add_text(tree, tvb, offset, len, "Unknown OctetString: Length: 0x%02x, Value: 0x", len);
-            if (pi) {
-                for (i=0; i<len; i++) {
-                    proto_item_append_text(pi, "%02x", tvb_get_guint8(tvb, offset));
-                    offset++;
-                }
-            }
+            proto_tree_add_item(tree, hf_ber_unknown_octetstring, tvb, offset, len, ENC_NA);
         }
 
         if (out_tvb) {
@@ -2203,7 +2205,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n", name);
                 return end_offset;
                 /*
                 if (show_internal_ber_fields) {
-                    proto_tree_add_text(tree, tvb, s_offset, offset+2, "ERROR WRONG SEQ EOC");
+                    proto_tree_add_expert(tree, pinfo, &ei_ber_error_seq_eoc, tvb, s_offset, offset+2, "ERROR WRONG SEQ EOC");
                 }
                 return end_offset;
                 */
@@ -2431,7 +2433,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
             {
                 /* skip over EOC */
                 if (show_internal_ber_fields) {
-                    proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
+                    proto_tree_add_item(tree, hf_ber_seq_field_eoc, tvb, offset, count, ENC_NA);
                 }
             }
         }
@@ -2453,7 +2455,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
         end_offset = tvb_reported_length(tvb);*/
         end_offset += 2;
         if (show_internal_ber_fields) {
-            proto_tree_add_text(tree, tvb, end_offset-2, 2 , "SEQ EOC");
+            proto_tree_add_item(tree, hf_ber_seq_eoc, tvb, end_offset-2, 2, ENC_NA);
         }
     }
     return end_offset;
@@ -2570,7 +2572,7 @@ printf("SET dissect_ber_set(%s) entered\n", name);
 
             if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
                 if (show_internal_ber_fields) {
-                    proto_tree_add_text(tree, tvb, s_offset, offset+2, "SEQ EOC");
+                    proto_tree_add_item(tree, hf_ber_seq_eoc, tvb, s_offset, offset+2, ENC_NA);
                 }
                 return end_offset;
             }
@@ -2664,7 +2666,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
                         if (ind_field == 1) {
                             /* skip over EOC */
                             if (show_internal_ber_fields) {
-                                proto_tree_add_text(tree, tvb, offset, count, "SET FIELD EOC");
+                                proto_tree_add_item(tree, hf_ber_set_field_eoc, tvb, offset, count, ENC_NA);
                             }
                         }
                     }
@@ -2726,7 +2728,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
           end_offset = tvb_reported_length(tvb);*/
         end_offset += 2;
         if (show_internal_ber_fields) {
-            proto_tree_add_text(tree, tvb, end_offset-2, 2 , "SET EOC");
+            proto_tree_add_item(tree, hf_ber_set_eoc, tvb, end_offset-2, 2, ENC_NA);
         }
     }
 
@@ -2803,8 +2805,8 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_reported_leng
         case FT_UINT32:
             break;
         default:
-            proto_tree_add_text(
-                tree, tvb, offset, len,
+            proto_tree_add_expert_format(
+                tree, actx->pinfo, &ei_hf_field_not_integer_type, tvb, offset, len,
                 "dissect_ber_choice(): Was passed a HF field that was not integer type : %s",
                 hfinfo->abbrev);
             g_warning("dissect_ber_choice(): frame:%u offset:%d Was passed a HF field that was not integer type : %s",
@@ -2935,7 +2937,7 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n", name);
                 /* we are traversing a indfinite length choice where we did not pass the tag length */
                 /* we need to eat the EOC */
                     if (show_internal_ber_fields) {
-                        proto_tree_add_text(tree, tvb, start_offset, count+2, "CHOICE EOC");
+                        proto_tree_add_item(tree, hf_ber_choice_eoc, tvb, start_offset, count+2, ENC_NA);
                     }
                 }
             }
@@ -3420,7 +3422,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
           but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
             if ((tvb_get_guint8(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+1) == 0)) {
                 if (show_internal_ber_fields) {
-                    proto_tree_add_text(tree, tvb, hoffset, end_offset-hoffset, "SEQ OF EOC");
+                    proto_tree_add_item(tree, hf_ber_seq_of_eoc, tvb, hoffset, end_offset-hoffset, ENC_NA);
                 }
                 return offset+2;
             }
@@ -4360,7 +4362,18 @@ proto_register_ber(void)
             NULL, 0x00, NULL, HFILL } },
         { &hf_ber_reassembled_length,
           { "Reassembled OCTET STRING length", "ber.octet_string.reassembled.length", FT_UINT32, BASE_DEC,
-            NULL, 0x00, NULL, HFILL } }
+            NULL, 0x00, NULL, HFILL } },
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_ber_null_tag, { "NULL tag", "ber.null_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_unknown_data, { "Unknown Data", "ber.unknown_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_unknown_octetstring, { "Unknown OctetString", "ber.unknown_octetstring", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_seq_field_eoc, { "SEQ FIELD EOC", "ber.seq_field_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_seq_eoc, { "SEQ EOC", "ber.seq_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_set_field_eoc, { "SET FIELD EOC", "ber.set_field_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_set_eoc, { "SET EOC", "ber.set_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_choice_eoc, { "CHOICE EOC", "ber.choice_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ber_seq_of_eoc, { "SEQ OF EOC", "ber.seq_of_eoc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
 
@@ -4407,6 +4420,7 @@ proto_register_ber(void)
         { &ei_ber_illegal_padding, { "ber.error.illegal_padding", PI_UNDECODED, PI_WARN, "Illegal padding", EXPFILL }},
         { &ei_ber_invalid_format_generalized_time, { "ber.error.invalid_format.generalized_time", PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format", EXPFILL }},
         { &ei_ber_invalid_format_utctime, { "ber.error.invalid_format.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+        { &ei_hf_field_not_integer_type, { "ber.error.hf_field_not_integer_type", PI_PROTOCOL, PI_ERROR, "Was passed a HF field that was not integer type", EXPFILL }},
     };
 
     /* Decode As handling */

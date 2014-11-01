@@ -95,6 +95,8 @@ void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);
 
 static int proto_ah = -1;
+static int hf_ah_next_header = -1;
+static int hf_ah_length = -1;
 static int hf_ah_spi = -1;
 static int hf_ah_iv = -1;
 static int hf_ah_sequence = -1;
@@ -104,12 +106,15 @@ static int hf_esp_iv = -1;
 static int hf_esp_icv_good = -1;
 static int hf_esp_icv_bad = -1;
 static int hf_esp_sequence = -1;
+static int hf_esp_pad = -1;
 static int hf_esp_pad_len = -1;
 static int hf_esp_protocol = -1;
+static int hf_esp_authentication_data = -1;
 static int hf_esp_sequence_analysis_expected_sn = -1;
 static int hf_esp_sequence_analysis_previous_frame = -1;
 
 static int proto_ipcomp = -1;
+static int hf_ipcomp_next_header = -1;
 static int hf_ipcomp_flags = -1;
 static int hf_ipcomp_cpi = -1;
 
@@ -1142,13 +1147,13 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, ENC_NA);
     ah_tree = proto_item_add_subtree(ti, ett_ah);
 
-    proto_tree_add_text(ah_tree, tvb,
+    proto_tree_add_uint_format_value(ah_tree, hf_ah_next_header, tvb,
                         offsetof(struct newah, ah_nxt), 1,
-                        "Next Header: %s (0x%02x)",
+                        ah.ah_nxt, "%s (0x%02x)",
                         ipprotostr(ah.ah_nxt), ah.ah_nxt);
-    proto_tree_add_text(ah_tree, tvb,
+    proto_tree_add_uint(ah_tree, hf_ah_length, tvb,
                         offsetof(struct newah, ah_len), 1,
-                        "Length: %u", (ah.ah_len + 2) << 2);
+                        (ah.ah_len + 2) << 2);
     proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
                         offsetof(struct newah, ah_spi), 4,
                         (guint32)g_ntohl(ah.ah_spi));
@@ -2077,7 +2082,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
       }
       else
-        proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");
+      {
+          proto_tree_add_bytes_format(esp_tree, hf_esp_iv, tvb, 8, -1, NULL, "IV (truncated)");
+      }
 
       /* Make sure the packet is not truncated before the fields
        * we need to read to determine the encapsulated protocol */
@@ -2109,11 +2116,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if(esp_tree)
         {
           if(esp_pad_len !=0)
-            proto_tree_add_text(esp_tree,
+            proto_tree_add_item(esp_tree, hf_esp_pad,
                                 tvb_decrypted,
                                 decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len,
-                                esp_pad_len,
-                                "Pad");
+                                esp_pad_len, ENC_NA);
 
           proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
                               decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
@@ -2212,13 +2218,13 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Make sure we have the auth trailer data */
         if(tvb_bytes_exist(tvb, len - 12, 12))
         {
-          proto_tree_add_text(esp_tree, tvb, len - 12, 12, "Authentication Data");
+          proto_tree_add_item(esp_tree, hf_esp_authentication_data, tvb, len - 12, 12, ENC_NA);
         }
         else
         {
           /* Truncated so just display what we have */
-          proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_length(tvb)),
-                              "Authentication Data (truncated)");
+          proto_tree_add_bytes_format(esp_tree, hf_esp_authentication_data, tvb, len - 12, 12 - (len - tvb_length(tvb)),
+                              NULL, "Authentication Data (truncated)");
         }
       }
     }
@@ -2264,9 +2270,9 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, ENC_NA);
     ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
-    proto_tree_add_text(ipcomp_tree, tvb,
+    proto_tree_add_uint_format_value(ipcomp_tree, hf_ipcomp_next_header, tvb,
                         offsetof(struct ipcomp, comp_nxt), 1,
-                        "Next Header: %s (0x%02x)",
+                        ipcomp.comp_nxt, "%s (0x%02x)",
                         ipprotostr(ipcomp.comp_nxt), ipcomp.comp_nxt);
     proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, tvb,
                         offsetof(struct ipcomp, comp_flags), 1,
@@ -2336,6 +2342,12 @@ void
 proto_register_ipsec(void)
 {
   static hf_register_info hf_ah[] = {
+    { &hf_ah_next_header,
+      { "Next header", "ah.next_header", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_ah_length,
+      { "Length", "ah.length", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_ah_spi,
       { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
         "IP Authentication Header Security Parameters Index", HFILL }},
@@ -2354,12 +2366,18 @@ proto_register_ipsec(void)
     { &hf_esp_sequence,
       { "ESP Sequence", "esp.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
         "IP Encapsulating Security Payload Sequence Number", HFILL }},
+    { &hf_esp_pad,
+      { "Pad", "esp.pad", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_esp_pad_len,
       { "ESP Pad Length", "esp.pad_len", FT_UINT8, BASE_DEC, NULL, 0x0,
         "IP Encapsulating Security Payload Pad Length", HFILL }},
     { &hf_esp_protocol,
       { "ESP Next Header", "esp.protocol", FT_UINT8, BASE_HEX, NULL, 0x0,
         "IP Encapsulating Security Payload Next Header", HFILL }},
+    { &hf_esp_authentication_data,
+      { "Authentication Data", "esp.authentication_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_esp_iv,
       { "ESP IV", "esp.iv", FT_BYTES, BASE_NONE, NULL, 0x0,
         "IP Encapsulating Security Payload", HFILL }},
@@ -2379,6 +2397,9 @@ proto_register_ipsec(void)
   };
 
   static hf_register_info hf_ipcomp[] = {
+    { &hf_ipcomp_next_header,
+      { "Next Header", "ipcomp.next_header", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_ipcomp_flags,
       { "IPComp Flags", "ipcomp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
         "IP Payload Compression Protocol Flags", HFILL }},

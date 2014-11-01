@@ -377,6 +377,8 @@ static expert_field ei_isakmp_enc_iv = EI_INIT;
 static expert_field ei_isakmp_ikev2_integrity_checksum = EI_INIT;
 static expert_field ei_isakmp_enc_data_length_mult_block_size = EI_INIT;
 static expert_field ei_isakmp_enc_pad_length_big = EI_INIT;
+static expert_field ei_isakmp_attribute_value_empty = EI_INIT;
+static expert_field ei_isakmp_payload_bad_length = EI_INIT;
 
 static dissector_handle_t eap_handle = NULL;
 
@@ -1908,12 +1910,12 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
 
 #endif /* HAVE_LIBGCRYPT */
 
-static proto_tree *dissect_payload_header(tvbuff_t *, int, int, int, guint8,
+static proto_tree *dissect_payload_header(tvbuff_t *, packet_info *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
 static void dissect_sa(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
-static void dissect_proposal(tvbuff_t *, int, int, proto_tree *, int, void*);
-static void dissect_transform(tvbuff_t *, int, int, proto_tree *, int, int, void*);
+static void dissect_proposal(tvbuff_t *, packet_info *, int, int, proto_tree *, int, void*);
+static void dissect_transform(tvbuff_t *, packet_info *, int, int, proto_tree *, int, int, void*);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_info *, void*);
 static void dissect_id(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
 static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
@@ -1922,10 +1924,10 @@ static void dissect_auth(tvbuff_t *, int, int, proto_tree *);
 static void dissect_hash(tvbuff_t *, int, int, proto_tree *);
 static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
 static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
-static void dissect_notif(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_notif(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
 static int dissect_vid(tvbuff_t *, int, int, proto_tree *);
-static void dissect_config(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
 static void dissect_ts(tvbuff_t *, int, int, proto_tree *);
@@ -2629,7 +2631,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
       break;
     }
 
-    ntree = dissect_payload_header(tvb, offset, length, isakmp_version, payload, &next_payload, &payload_length, tree);
+    ntree = dissect_payload_header(tvb, pinfo, offset, length, isakmp_version, payload, &next_payload, &payload_length, tree);
     if (ntree == NULL)
       break;
     if (payload_length >= 4) {  /* XXX = > 4? */
@@ -2640,7 +2642,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
            dissect_sa(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, pinfo, decr_data);
            break;
            case PLOAD_IKE_P:
-           dissect_proposal(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
+           dissect_proposal(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, decr_data );
            break;
            case PLOAD_IKE_KE:
            case PLOAD_IKE2_KE:
@@ -2671,7 +2673,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
            break;
            case PLOAD_IKE_N:
            case PLOAD_IKE2_N:
-           dissect_notif(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
+           dissect_notif(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version);
            break;
            case PLOAD_IKE_D:
            case PLOAD_IKE2_D:
@@ -2683,7 +2685,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
            break;
            case PLOAD_IKE_A:
            case PLOAD_IKE2_CP:
-           dissect_config(tvb, offset + 4, payload_length - 4, ntree, isakmp_version);
+           dissect_config(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version);
            break;
            case PLOAD_IKE2_AUTH:
            dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
@@ -2722,13 +2724,13 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 
     }
     else if (payload_length > length) {
-        proto_tree_add_text(ntree, tvb, 0, 0,
+        proto_tree_add_expert_format(ntree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
                             "Payload (bogus, length is %u, greater than remaining length %d",
                             payload_length, length);
         return;
     }
     else {
-        proto_tree_add_text(ntree, tvb, 0, 0,
+        proto_tree_add_expert_format(ntree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
                             "Payload (bogus, length is %u, must be at least 4)",
                             payload_length);
         payload_length = 4;
@@ -2966,7 +2968,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 static proto_tree *
-dissect_payload_header(tvbuff_t *tvb, int offset, int length,
+dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
     int isakmp_version, guint8 payload _U_, guint8 *next_payload_p,
     guint16 *payload_length_p, proto_tree *tree)
 {
@@ -2976,7 +2978,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
   proto_tree *          ntree;
 
   if (length < 4) {
-    proto_tree_add_text(tree, tvb, offset, length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset, length,
                         "Not enough room in payload for all transforms");
     return NULL;
   }
@@ -3046,7 +3048,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, void* decr_data)
+dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, void* decr_data)
 {
   guint8                protocol_id;
   guint8                spi_size;
@@ -3094,16 +3096,16 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
   }
 
   while (num_transforms > 0) {
-    ntree = dissect_payload_header(tvb, offset, length, isakmp_version,
+    ntree = dissect_payload_header(tvb, pinfo, offset, length, isakmp_version,
                                    PLOAD_IKE_T, &next_payload, &payload_length, tree);
     if (ntree == NULL)
       break;
     if (length < payload_length) {
-      proto_tree_add_text(tree, tvb, offset + 4, length,
+      proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, offset + 4, length,
                           "Not enough room in payload for all transforms");
       break;
     }
- dissect_transform(tvb, offset + 4, payload_length - 4, ntree, isakmp_version, protocol_id, decr_data);
+    dissect_transform(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, protocol_id, decr_data);
 
     offset += payload_length;
     length -= payload_length;
@@ -3114,7 +3116,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
+dissect_rohc_supported(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rohc_tree, int offset )
 {
         guint optlen, rohc, len = 0;
         proto_item *rohc_item;
@@ -3146,7 +3148,7 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
         }
         if (optlen == 0)
         {
-                proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribute value is empty");
+                expert_add_info(pinfo, rohc_item, &ei_isakmp_attribute_value_empty);
                 return 2+len;
         }
         proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, ENC_NA);
@@ -3259,7 +3261,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
+dissect_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset )
 {
         guint optlen, transform_attr_type, len = 0;
         proto_item *transform_attr_type_item;
@@ -3291,7 +3293,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
         }
         if (optlen == 0)
         {
-           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribute value is empty");
+           expert_add_info(pinfo, transform_attr_type_item, &ei_isakmp_attribute_value_empty);
            return 2+len;
         }
         proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, ENC_NA);
@@ -3363,7 +3365,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset
+dissect_transform_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset
                                                                                                 #ifdef HAVE_LIBGCRYPT
                                                                                                 , decrypt_data_t *decr
                                                                                                 #endif
@@ -3399,7 +3401,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
         }
         if (optlen == 0)
         {
-           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           expert_add_info(pinfo, transform_attr_type_item, &ei_isakmp_attribute_value_empty);
            return 2+len;
         }
         proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_value, tvb, offset, optlen, ENC_NA);
@@ -3481,7 +3483,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
 }
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
+dissect_transform_ike2_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *transform_attr_type_tree, int offset )
 {
         guint optlen, transform_attr_type, len = 0;
         proto_item *transform_attr_type_item;
@@ -3513,7 +3515,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
         }
         if (optlen == 0)
         {
-           proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           expert_add_info(pinfo, transform_attr_type_item, &ei_isakmp_attribute_value_empty);
            return 2+len;
         }
         proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_value, tvb, offset, optlen, ENC_NA);
@@ -3530,7 +3532,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
         return 2+len+optlen;
 }
 static void
-dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data
+dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data
 #ifndef HAVE_LIBGCRYPT
  _U_
 #endif
@@ -3582,7 +3584,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
 
     if (protocol_id == 1 && transform_id == 1) {
        while (offset < offset_end) {
-         offset += dissect_transform_ike_attribute(tvb, tree, offset
+         offset += dissect_transform_ike_attribute(tvb, pinfo, tree, offset
 #ifdef HAVE_LIBGCRYPT
                                                    , decr
 #endif
@@ -3591,7 +3593,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
     }
     else {
        while (offset < offset_end) {
-         offset += dissect_transform_attribute(tvb, tree, offset);
+         offset += dissect_transform_attribute(tvb, pinfo, tree, offset);
        }
     }
   }
@@ -3630,7 +3632,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int i
     offset += 2;
 
     while (offset < offset_end) {
-      offset += dissect_transform_ike2_attribute(tvb, tree, offset);
+      offset += dissect_transform_ike2_attribute(tvb, pinfo, tree, offset);
     }
   }
 }
@@ -3912,7 +3914,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
 }
 static void
-dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
 {
 
   guint8                spi_size;
@@ -4038,7 +4040,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           break;
           case 16416: /* ROHC_SUPPORTED */
                while (offset < offset_end) {
-                      offset += dissect_rohc_supported(tvb, tree, offset);
+                      offset += dissect_rohc_supported(tvb, pinfo, tree, offset);
                }
           break;
           case 16419: /* QUICK_CRASH_DETECTION */
@@ -4168,7 +4170,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version)
+dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version)
 {
         guint optlen, cfg_attr_type, len = 0;
         int offset_end = 0;
@@ -4205,7 +4207,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
         }
         if (optlen == 0)
         {
-           proto_tree_add_text(sub_cfg_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+           expert_add_info(pinfo, cfg_attr_type_item, &ei_isakmp_attribute_value_empty);
            return 2+len;
         }
         proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
@@ -4447,7 +4449,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
         return 2+len+optlen;
 }
 static void
-dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version)
 {
   int offset_end = 0;
   offset_end = offset + length;
@@ -4467,8 +4469,8 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
   }
 
   while (offset < offset_end) {
-    offset += dissect_config_attribute(tvb, tree, offset, isakmp_version);
-}
+    offset += dissect_config_attribute(tvb, pinfo, tree, offset, isakmp_version);
+  }
 }
 
 static void
@@ -6182,6 +6184,8 @@ proto_register_isakmp(void)
      { &ei_isakmp_ikev2_integrity_checksum, { "isakmp.ikev2.integrity_checksum", PI_CHECKSUM, PI_WARN, "IKEv2 Integrity Checksum Data is incorrect", EXPFILL }},
      { &ei_isakmp_enc_data_length_mult_block_size, { "isakmp.enc_data_length_mult_block_size", PI_MALFORMED, PI_WARN, "Encrypted data length isn't a multiple of block size", EXPFILL }},
      { &ei_isakmp_enc_pad_length_big, { "isakmp.enc.pad_length.big", PI_MALFORMED, PI_WARN, "Pad length is too big", EXPFILL }},
+     { &ei_isakmp_attribute_value_empty, { "isakmp.attribute_value_empty", PI_PROTOCOL, PI_NOTE, "Attribute value is empty", EXPFILL }},
+     { &ei_isakmp_payload_bad_length, { "isakmp.payloadlength.invalid", PI_MALFORMED, PI_ERROR, "Invalid payload length", EXPFILL }},
   };
 
   expert_module_t* expert_isakmp;

@@ -469,6 +469,14 @@ static int hf_gvcp_resendcmd_extended_last_packet_id_v2_0 = -1;
 static int hf_gvcp_actioncmd_time_v2_0 = -1;
 static int hf_gvcp_eventcmd_block_id_64bit_v2_0 = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_gvcp_custom_register_value = -1;
+static int hf_gvcp_custom_read_register_addr = -1;
+static int hf_gvcp_readmemcmd_data_read = -1;
+static int hf_gvcp_custom_read_register_value = -1;
+static int hf_gvcp_manifest_table = -1;
+static int hf_gvcp_reserved_bit = -1;
+
 /*Define the tree for gvcp*/
 static int ett_gvcp = -1;
 static int ett_gvcp_cmd = -1;
@@ -845,23 +853,23 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		break;
 
 	case GVCP_MANUFACTURER_NAME:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_MODEL_NAME:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_DEVICE_VERSION:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_MANUFACTURER_INFO:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_SERIAL_NUMBER:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_USER_DEFINED_NAME:
@@ -869,11 +877,11 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		break;
 
 	case GVCP_FIRST_URL:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_SECOND_URL:
-		proto_tree_add_text(branch, tvb, 0, length, "Reserved Bit"); /*? */
+		proto_tree_add_item(branch, hf_gvcp_reserved_bit, tvb, 0, length, ENC_NA); /*? */
 		break;
 
 	case GVCP_NUMBER_OF_NETWORK_INTERFACES:
@@ -1183,7 +1191,7 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		break;
 
 	case GVCP_MANIFEST_TABLE:
-		proto_tree_add_text(branch, tvb, 0, length, "Manifest Table");
+		proto_tree_add_item(branch, hf_gvcp_manifest_table, tvb, 0, length, ENC_NA);
 		break;
 
 	case GVCP_ACTION_GROUP_KEY(0):
@@ -1557,7 +1565,7 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 				offset += 4;
 				temp_tree = proto_item_add_subtree(item, ett_gvcp_payload_cmd_subtree);
-				proto_tree_add_text(temp_tree,tvb, offset, 4, "Value=0x%08X", value);
+				proto_tree_add_item(temp_tree, hf_gvcp_custom_register_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 			}
 			offset += 4;
 		}
@@ -1977,13 +1985,13 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 				}
 				else
 				{
-					proto_tree_add_text(gvcp_telegram_tree, tvb, offset, 4, "Custom Register Address: %s (0x%08X)", address_string, curr_register);
-					proto_tree_add_text(gvcp_telegram_tree, tvb, offset, 4, "Custom Register Value: 0x%08X", tvb_get_ntohl(tvb, offset));
+					proto_tree_add_uint_format_value(gvcp_telegram_tree, hf_gvcp_custom_read_register_addr, tvb, offset, 4, curr_register, "%s (0x%08X)", address_string, curr_register);
+					proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_read_register_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 				}
 			}
 			else
 			{
-				proto_tree_add_text(gvcp_telegram_tree,tvb, offset, 4, "Value=0x%08X", tvb_get_ntohl(tvb, offset));
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 			}
 
 			offset += 4;
@@ -2068,7 +2076,7 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		else
 		{
 			/* Generic, unknown value */
-			proto_tree_add_text(gvcp_telegram_tree, tvb, offset, byte_count, "%d bytes of data read.", byte_count);
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_data_read, tvb, offset, byte_count, ENC_NA);
 		}
 	}
 }
@@ -3775,7 +3783,15 @@ void proto_register_gvcp(void)
 		{ "Request In", "gvcp.response_to",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"This is a response to the GVCP request in this frame", HFILL
-		}}
+		}},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_gvcp_reserved_bit, { "Reserved Bit", "gvcp.reserved_bit", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gvcp_manifest_table, { "Manifest Table", "gvcp.manifest_table", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gvcp_custom_register_value, { "Value", "gvcp.bootstrap.custom.register.value", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_gvcp_custom_read_register_addr, { "Custom Register Address", "gvcp.bootstrap.custom.register.read", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_gvcp_custom_read_register_value, { "Custom Register Value", "gvcp.bootstrap.custom.register.read_value", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_gvcp_readmemcmd_data_read, { "Data read", "gvcp.cmd.readmem.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

@@ -1,4 +1,4 @@
-/* packet-dcerpc-sysact.c
+/* packet-dcom-sysact.c
  * Routines for the ISystemActivator interface
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2012, Litao Gao <ltgao@juniper.net>
@@ -127,6 +127,7 @@ static int hf_sysact_scmri_rmtunknid = -1;
 static int hf_sysact_scmri_authhint = -1;
 static int hf_sysact_scmri_binding = -1;
 static int hf_sysact_scmri_oxid = -1;
+static int hf_sysact_unused_buffer = -1;
 
 static gint ett_typeszcommhdr = -1;
 static gint ett_typeszprivhdr = -1;
@@ -527,8 +528,7 @@ dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pi
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -602,8 +602,7 @@ dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -673,8 +672,7 @@ dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinf
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -757,8 +755,7 @@ dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -802,8 +799,7 @@ dissect_dcom_LocationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -890,8 +886,7 @@ dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -1002,8 +997,7 @@ dissect_dcom_PropsOutInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -1108,8 +1102,7 @@ dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         size = len;
     }
     else if (size > len) {
-        proto_tree_add_text(sub_tree, tvb, offset, size - len,
-                "UnusedBuffer: %d bytes", size - len);
+        proto_tree_add_item(sub_tree, hf_sysact_unused_buffer, tvb, offset, size - len, ENC_NA);
     }
 
     offset = old_offset + size;
@@ -1337,6 +1330,8 @@ proto_register_ISystemActivator (void)
         { "Bindings", "isystemactivator.properties.scmresp.binding", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sysact_scmri_oxid,
         { "OXID", "isystemactivator.properties.scmresp.oxid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_sysact_unused_buffer,
+        { "Unused buffer", "isystemactivator.unused_buffer", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static hf_register_info hf_tshdr[] = {

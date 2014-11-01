@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/crc16-tvb.h>
 #include <epan/reedsolomon.h>
@@ -97,6 +98,9 @@ static gint ett_pft = -1;
 static gint ett_tpl = -1;
 static gint ett_edcp_fragment = -1;
 static gint ett_edcp_fragments = -1;
+
+static expert_field ei_edcp_reassembly = EI_INIT;
+static expert_field ei_edcp_reassembly_info = EI_INIT;
 
 static reassembly_table dcp_reassembly_table;
 
@@ -266,7 +270,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   tvbuff_t *new_tvb=NULL;
 
   if (fcount > MAX_FRAGMENTS) {
-    proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
+    proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
     return NULL;
   }
 
@@ -284,10 +288,8 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     fragment_item *fd;
     fragment_head *fd_head;
 
-    if(tree)
-      proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
-                           fcount, fragments, rx_min
-        );
+    proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, -1, "want %d, got %d need %d",
+                           fcount, fragments, rx_min);
     got = (guint32 *)wmem_alloc(wmem_packet_scope(), fcount*sizeof(guint32));
 
     /* make a list of the findex (offset) numbers of the fragments we have */
@@ -304,20 +306,18 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       guint8 *dummy_data = (guint8*) wmem_alloc0 (wmem_packet_scope(), plen);
       tvbuff_t *dummytvb = tvb_new_real_data(dummy_data, plen, plen);
       /* try and decode with missing fragments */
-      if(tree)
-          proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
-                               fcount, fragments, rx_min
-            );
+      proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly_info, tvb, 0, -1, "want %d, got %d need %d",
+                               fcount, fragments, rx_min);
       /* fill the fragment table with empty fragments */
       current_findex = 0;
       for(i=0; i<fragments; i++) {
         guint next_fragment_we_have = got[i];
         if (next_fragment_we_have > MAX_FRAGMENTS) {
-          proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
           return NULL;
         }
         if (next_fragment_we_have-current_findex > MAX_FRAG_GAP) {
-          proto_tree_add_text(tree, tvb , 0, -1,
+          proto_tree_add_expert_format(tree, pinfo, &ei_edcp_reassembly, tvb, 0, -1,
               "[Missing %d consecutive packets. Don't attempt reassembly]",
               next_fragment_we_have-current_findex);
           return NULL;
@@ -865,6 +865,13 @@ proto_register_dcp_etsi (void)
     &ett_edcp_fragments
   };
 
+  static ei_register_info ei[] = {
+     { &ei_edcp_reassembly, { "dcp-etsi.reassembly_failed", PI_REASSEMBLE, PI_ERROR, "Reassembly failed", EXPFILL }},
+     { &ei_edcp_reassembly_info, { "dcp-etsi.reassembly_info", PI_REASSEMBLE, PI_CHAT, "Reassembly information", EXPFILL }},
+  };
+
+  expert_module_t* expert_dcp_etsi;
+
   proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",     /* name */
                                             "DCP (ETSI)",       /* short name */
                                             "dcp-etsi"  /* abbrev */
@@ -878,6 +885,8 @@ proto_register_dcp_etsi (void)
   proto_register_field_array (proto_pft, hf_pft, array_length (hf_pft));
   proto_register_field_array (proto_tpl, hf_tpl, array_length (hf_tpl));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_dcp_etsi = expert_register_protocol(proto_dcp_etsi);
+  expert_register_field_array(expert_dcp_etsi, ei, array_length(ei));
 
   /* subdissector code */
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",

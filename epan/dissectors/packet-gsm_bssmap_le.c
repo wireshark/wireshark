@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 
@@ -217,9 +218,14 @@ static int hf_gsm_bssmap_le_horizontal_accuracy = -1;
 static int hf_gsm_bssmap_le_vertical_accuracy_indicator = -1;
 static int hf_gsm_bssmap_le_vertical_accuracy = -1;
 static int hf_gsm_bssmap_le_response_time_category = -1;
+static int hf_gsm_bssmap_le_apdu = -1;
+static int hf_gsm_bssmap_le_message_elements = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_le_msg = -1;
+
+static expert_field ei_gsm_a_bssmap_le_not_decoded_yet = EI_INIT;
 
 static dissector_handle_t gsm_bsslap_handle = NULL;
 
@@ -241,7 +247,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "APDU");
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_apdu, tvb, curr_offset, len, ENC_NA);
 
 	/*
 	 * dissect the embedded APDU message
@@ -375,7 +381,7 @@ de_bmaple_req_gps_ass_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_offset++;
 
 	/* Octet 5 to Octet 8+2n Satellite related data */
-	proto_tree_add_text(tree, tvb, curr_offset, len-2, "Satellite related data Not decoded yet");
+	proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, curr_offset, len-2, "Satellite related data Not decoded yet");
 	return(len);
 }
 /*
@@ -593,10 +599,10 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
  */
 /* Dissector for the LCS Capability element */
 static guint16
-be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the LCS Capability element and add to protocol tree */
-	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
 	return len;
 }
 
@@ -611,10 +617,10 @@ be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 /* Dissector for the Packet Measurement Report element */
 static guint16
-be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the Packet Measurement Report element and add to protocol tree */
-	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
 
 	return len;
 }
@@ -626,10 +632,10 @@ be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  */
 /* Dissector for the Measured Cell Identity List element */
 static guint16
-be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the Measured Cell Identity List element and add to protocol tree */
-	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
 
 	return len;
 }
@@ -997,9 +1003,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (bssmap_le_msg_fcn[idx] == NULL)
 	{
-		proto_tree_add_text(bssmap_le_tree,
-			tvb, offset, len - offset,
-			"Message Elements");
+		proto_tree_add_item(bssmap_le_tree, hf_gsm_bssmap_le_message_elements, tvb, offset, len - offset, ENC_NA);
 	}
 	else
 	{
@@ -1161,8 +1165,24 @@ proto_register_gsm_bssmap_le(void)
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_response_time_definitions_vals), 0x0,
 		    NULL, HFILL}
 		},
-
+		{ &hf_gsm_bssmap_le_apdu,
+		  { "APDU", "gsm_bssmap_le.apdu",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_gsm_bssmap_le_message_elements,
+		  { "Message Elements", "gsm_bssmap_le.message_elements",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
 	};
+
+    expert_module_t* expert_gsm_a_bssmap_le;
+
+    static ei_register_info ei[] = {
+        { &ei_gsm_a_bssmap_le_not_decoded_yet, { "gsm_bssmap_le.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
+    };
+
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
 	gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_LE_MSG +
@@ -1190,8 +1210,9 @@ proto_register_gsm_bssmap_le(void)
 		proto_register_protocol("Lb-I/F BSSMAP LE", "GSM BSSMAP LE", "gsm_bssmap_le");
 
 	proto_register_field_array(proto_bssmap_le, hf, array_length(hf));
-
 	proto_register_subtree_array(ett, array_length(ett));
+    expert_gsm_a_bssmap_le = expert_register_protocol(proto_bssmap_le);
+    expert_register_field_array(expert_gsm_a_bssmap_le, ei, array_length(ei));
 
 	register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
 }

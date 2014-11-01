@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_dpnss(void);
 
@@ -62,6 +63,12 @@ static int hf_dpnss_rejection_cause           = -1;
 static int hf_dpnss_man_code                  = -1;
 static int hf_dpnss_subcode                   = -1;
 static int hf_dpnss_maintenance_action        = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_dpnss_indication_field          = -1;
+static int hf_dpnss_user_information          = -1;
+static int hf_dpnss_selection_field           = -1;
+static int hf_dpnss_sup_str                   = -1;
+static int hf_dpnss_parameter                 = -1;
 
 /* parameters */
 static int hf_dpnss_a_b_party_addr            = -1;
@@ -91,6 +98,10 @@ static int ett_dpnss_sel_field  = -1;
 static int ett_dpnss_sic_field  = -1;
 static int ett_dpnss_ind_field  = -1;
 static int ett_dpnss_sup_str    = -1;
+
+static expert_field ei_dpnss_not_supported_yet = EI_INIT;
+static expert_field ei_dpnss_msg_grp_id = EI_INIT;
+
 
 static const value_string dpnss_msg_grp_id_vals[] = {
     {0,     "Call Control Message Group"},
@@ -901,6 +912,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
 {
 
     int     par_len;
+    gchar * par_data;
 
     par_len = par_end_offset - par_start_offset;
     if (par_len==0) {
@@ -908,7 +920,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     }
     switch (par_type_num) {
     case DPNSS_NONE:
-        proto_tree_add_text(tree, tvb, par_start_offset, par_len,"Par: None");
+        proto_tree_add_string(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, "None");
         break;
 
 /* TODO: Use individual dissection of parameters if hf fields needed or in the case where
@@ -1023,11 +1035,10 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_CAUSE:
 */
     default:
+        par_data = tvb_format_text(tvb,par_start_offset, par_len);
         /* Used to print all pars without any special handling */
-        proto_tree_add_text(tree, tvb, par_start_offset, par_len,"Parameter %s: %s",
-            val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ),
-            tvb_format_text(tvb,par_start_offset, par_len)
-            );
+        proto_tree_add_string_format(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, par_data, "Parameter %s: %s",
+            val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
         break;
     }
 
@@ -1105,8 +1116,8 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             sup_inf_str_len = sup_inf_str_end_offset - offset;
             sup_str_num = atoi(tvb_format_text(tvb, offset, sup_inf_str_len));
             if ((sup_str_num != 0) && (sup_str_num < array_length(dpnns_sup_serv_set))) {
-                proto_tree_add_text(sup_str_tree, tvb,offset,sup_inf_str_len,
-                                    "Sup str:%s ", dpnns_sup_serv_set[sup_str_num].compact_name);
+                proto_tree_add_string(sup_str_tree, hf_dpnss_sup_str, tvb, offset, sup_inf_str_len,
+                                    dpnns_sup_serv_set[sup_str_num].compact_name);
                 offset = sup_inf_str_end_offset+1;
                 /* Find parameter(s) */
                 while (has_par) {
@@ -1178,9 +1189,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_LbL_MSG_LLM_I:
             /* 2.3.2 LINK-by-LINK Message (INCOMPLETE) - LLM(I) */
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1190,9 +1199,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
-                ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1206,9 +1213,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             sic_field_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dpnss_sic_field, NULL, "Service Indicator Code");
             offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1223,9 +1228,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(tree, hf_dpnss_maintenance_action, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1234,14 +1237,12 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
+            proto_tree_add_expert(tree, pinfo, &ei_dpnss_not_supported_yet, tvb, offset, -1);
             break;
         }
     }
@@ -1272,9 +1273,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_E2E_MSG_EEM_I:
             /* Fall trough */
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1287,9 +1286,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset++;
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
-                ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1310,9 +1307,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * to a call set-up or Supplementary Service Request, and is
              * structured as shown in Subsection 3.
              */
-            sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            sel_field_item = proto_tree_add_item(tree, hf_dpnss_selection_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1335,10 +1330,10 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             /* User Information oct 2 + n
              */
-            proto_tree_add_text(tree, tvb, offset, -1, "User Information");
+            proto_tree_add_item(tree, hf_dpnss_user_information, tvb, offset, -1, ENC_NA);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
+            proto_tree_add_expert(tree, pinfo, &ei_dpnss_not_supported_yet, tvb, offset, -1);
             break;
         }
     }
@@ -1386,9 +1381,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * to a call set-up or Supplementary Service Request, and is
              * structured as shown in Subsection 3.
              */
-            sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            sel_field_item = proto_tree_add_item(tree, hf_dpnss_selection_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1396,9 +1389,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* 2.1.5 CALL CONNECTED Message - CCM */
             if (tvb_end_offset>offset) {
                 /* Indication Field (Optional) */
-                ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1409,9 +1400,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_CC_MSG_NAM:
             /* 2.1.9 NUMBER ACKNOWLEDGE Message - NAM */
             /* Indication Field */
-            ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Indication Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             break;
@@ -1423,9 +1412,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset++;
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
-                ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1436,9 +1423,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
-                ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Indication Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
             }
@@ -1446,9 +1431,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_CC_MSG_SSRM_I:
             /* 2.1.11 SUBSEQUENT SERVICE REQUEST Message (INCOMPLETE) - SSRM(I) */
             /* Selection Field */
-            sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                 "Selection Field: %s",
-                                                 tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+            sel_field_item = proto_tree_add_item(tree, hf_dpnss_selection_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
             sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
             offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             break;
@@ -1456,9 +1439,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* 2.1.12 SUBSEQUENT SERVICE REQUEST Message (COMPLETE) - SSRM(C) */
             /* Selection Field (Optional) */
             if (tvb_end_offset>offset) {
-                sel_field_item = proto_tree_add_text(tree, tvb, offset, -1,
-                                                     "Selection Field: %s",
-                                                     tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+                sel_field_item = proto_tree_add_item(tree, hf_dpnss_selection_field, tvb, offset, -1, ENC_NA|ENC_ASCII);
                 sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
                 offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
             }
@@ -1467,7 +1448,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_CC_MSG_CA:
             /* DASS2 ?*/
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Unknown or Dissection of this message not supported yet");
+            proto_tree_add_expert_format(tree, pinfo, &ei_dpnss_not_supported_yet, tvb, offset, -1, "Unknown or Dissection of this message not supported yet");
             break;
         }
     }
@@ -1478,7 +1459,7 @@ static void
 dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int         offset = 0;
-    proto_item *item;
+    proto_item *item, *group_item;
     proto_tree *dpnss_tree;
     guint8      octet;
 
@@ -1487,7 +1468,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     item = proto_tree_add_item(tree, proto_dpnss, tvb, 0, -1, ENC_NA);
     dpnss_tree = proto_item_add_subtree(item, ett_dpnss);
-    proto_tree_add_item(dpnss_tree, hf_dpnss_msg_grp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    group_item = proto_tree_add_item(dpnss_tree, hf_dpnss_msg_grp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)>>4;
     switch (octet) {
     case DPNNS_MESSAGE_GROUP_CC:
@@ -1503,7 +1484,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_dpnss_LbL_msg(tvb, pinfo, dpnss_tree);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Unknown Message Group");
+        expert_add_info(pinfo, group_item, &ei_dpnss_msg_grp_id);
         break;
     }
 }
@@ -1638,6 +1619,14 @@ proto_register_dpnss(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_dpnss_indication_field, { "Indication Field", "dpnss.indication_field", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dpnss_selection_field, { "Selection Field", "dpnss.selection_field", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dpnss_user_information, { "User Information", "dpnss.user_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dpnss_sup_str, { "Sup str", "dpnss.sup_str", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dpnss_parameter, { "Paramter", "dpnss.parameter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     };
 
 /* Setup protocol subtree array */
@@ -1649,6 +1638,13 @@ proto_register_dpnss(void)
         &ett_dpnss_sup_str,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dpnss_not_supported_yet, { "dpnss.not_supported_yet", PI_UNDECODED, PI_WARN, "Dissection of this message not supported yet", EXPFILL }},
+        { &ei_dpnss_msg_grp_id, { "dpnss.msg_grp_id.unknown", PI_PROTOCOL, PI_WARN, "Unknown Message Group", EXPFILL }},
+    };
+
+    expert_module_t* expert_dpnss;
+
 /* Register the protocol name and description */
     proto_dpnss = proto_register_protocol("Digital Private Signalling System No 1","DPNSS", "dpnss");
     register_dissector("dpnss", dissect_dpnss, proto_dpnss);
@@ -1656,6 +1652,8 @@ proto_register_dpnss(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_dpnss, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dpnss = expert_register_protocol(proto_dpnss);
+    expert_register_field_array(expert_dpnss, ei, array_length(ei));
 
 }
 
