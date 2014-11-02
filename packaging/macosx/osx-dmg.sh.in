@@ -45,16 +45,27 @@ auto_open_opt=
 ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 readme_name="Read_me_first_qt.rtf"
 
-if [ -d /Applications/Xcode.app/Developer ]
+if [ -x /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
 then
-	developer_path=/Applications/Xcode.app/Developer
-elif [ -d /Developer ]
+	#
+	# Xcode 4 and later, with the "Auxiliary Tools for Xcode"
+	# download from developer.apple.com.  (There are no such
+	# downloads for Mavericks or later, but PackageMaker from
+	# the Late July 2012 download for Mountain Lion appears to
+	# work on Yosemite.)
+	#
+	packagemaker=/Applications/Xcode.app//Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+elif [ -x /Applications/Xcode.app/Developer/Tools/packagemaker ]
+	packagemaker=/Applications/Xcode.app/Developer/Tools/packagemaker
 then
-	developer_path=/Developer
+elif [ -x /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
+	packagemaker=/Applications/Xcode.app/Developer/usr/bin/packagemaker
+then
+elif [ -x /Developer/Tools/packagemaker
+	packagemaker=/Developer/Tools/packagemaker
 fi
-if [ ! -z $developer_path ]
-then
-	PATH=$PATH:$developer_path/Tools:$developer_path/usr/bin
+elif [ -x /Developer/usr/bin/packagemaker
+	packagemaker=/Developer/usr/bin/packagemaker
 fi
 
 # Help message
@@ -147,7 +158,7 @@ echo -e "\nCREATE WIRESHARK PACKAGE\n"
 pkg_title="$volume_name $version $architecture"
 pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
-packagemaker --doc "Wireshark_package.pmdoc" \
+$packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
     --id "org.wireshark.pkg.Wireshark" \
     --version "$version" \
