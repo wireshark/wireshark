@@ -1611,7 +1611,7 @@ guint64 rtps_util_add_seq_number(proto_tree *tree,
 /* Vendor specific: RTI
  * Insert in the protocol tree the next 8 bytes interpreted as TransportInfo
  */
-void rtps_util_add_transport_info(proto_tree *tree,
+static void rtps_util_add_transport_info(proto_tree *tree,
   tvbuff_t * tvb,
   gint       offset,
   int        little_endian,
@@ -1649,7 +1649,7 @@ void rtps_util_add_ntp_time(proto_tree *tree,
 /* ------------------------------------------------------------------------- */
 /* Insert in the protocol tree the next 8 bytes interpreted as NtpTime
 */
-void rtps_util_add_ntp_time_sec_and_fraction(proto_tree *tree,
+static void rtps_util_add_ntp_time_sec_and_fraction(proto_tree *tree,
   tvbuff_t * tvb,
   gint       offset,
   gboolean   little_endian,
@@ -1772,7 +1772,7 @@ void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t * tvb, gint offset,
 /* Insert in the protocol tree the next bytes interpreted as Liveliness
  * QoS Policy structure.
  */
-void rtps_util_add_product_version(proto_tree *tree, tvbuff_t * tvb, gint offset) {
+static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t * tvb, gint offset) {
 
   proto_tree *subtree;
   guint8 major, minor, release, revision;
