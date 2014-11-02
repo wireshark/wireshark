@@ -40,7 +40,7 @@ set(WSUG_FILES
 	WSUG_chapter_advanced.xml
 	WSUG_chapter_build_install.xml
 	WSUG_chapter_capture.xml
-	wsug_src/WSUG_chapter_customize.xml
+	WSUG_chapter_customize.xml
 	WSUG_chapter_introduction.xml
 	WSUG_chapter_io.xml
 	WSUG_chapter_statistics.xml
@@ -58,6 +58,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_advanced.asciidoc
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_capture.asciidoc
+	wsug_src/WSUG_chapter_customize.asciidoc
 	wsug_src/WSUG_chapter_introduction.asciidoc
 	wsug_src/WSUG_chapter_io.asciidoc
 	wsug_src/WSUG_chapter_statistics.asciidoc

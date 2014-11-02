@@ -9,7 +9,7 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_advanced.asciidoc		\
 	wsug_src/WSUG_chapter_build_install.asciidoc	\
 	wsug_src/WSUG_chapter_capture.asciidoc		\
-	wsug_src/WSUG_chapter_customize.xml	\
+	wsug_src/WSUG_chapter_customize.asciidoc	\
 	wsug_src/WSUG_chapter_introduction.asciidoc	\
 	wsug_src/WSUG_chapter_io.asciidoc		\
 	wsug_src/WSUG_chapter_statistics.asciidoc	\
@@ -26,6 +26,7 @@ WSUG_GENERATED_SOURCE = \
 	wsug_src/WSUG_chapter_advanced.xml	\
 	wsug_src/WSUG_chapter_build_install.xml	\
 	wsug_src/WSUG_chapter_capture.xml	\
+	wsug_src/WSUG_chapter_customize.xml	\
 	wsug_src/WSUG_chapter_introduction.xml	\
 	wsug_src/WSUG_chapter_io.xml		\
 	wsug_src/WSUG_chapter_telephony.xml	\
