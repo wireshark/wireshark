@@ -911,7 +911,7 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
-
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunused-const-variable)
 #
 # The following are C only, not C++
 #

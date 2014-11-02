@@ -249,6 +249,7 @@ else()
 		-Wwrite-strings
 		-Wno-long-long
 		-Wheader-guard
+		-Wunused-const-variable
 	)
 
 	set(WIRESHARK_C_ONLY_FLAGS
