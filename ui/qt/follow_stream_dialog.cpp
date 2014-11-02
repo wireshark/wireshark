@@ -1228,7 +1228,10 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     followStream();
     fillHintLabel(-1);
 
-    data_out_file = NULL;
+    if (data_out_file) {
+        fclose(data_out_file);
+        data_out_file = NULL;
+    }
 
     return true;
 }
