@@ -532,7 +532,7 @@ void MainWindow::loadWindowGeometry()
 
     if (// prefs.gui_geometry_save_size &&
             recent.gui_geometry_main_width > min_sensible_dimension &&
-            recent.gui_geometry_main_width > min_sensible_dimension) {
+            recent.gui_geometry_main_height > min_sensible_dimension) {
         shadow_main.resize(recent.gui_geometry_main_width, recent.gui_geometry_main_height);
     }
 
