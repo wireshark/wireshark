@@ -2167,7 +2167,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
         &Dgt_mbcd);
 
     digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, NULL, FALSE);
-    item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
+    proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
     item = proto_tree_add_string_format(tree, header_field,
         tvb, curr_offset, num_string_len,
         a_bigbuf,
