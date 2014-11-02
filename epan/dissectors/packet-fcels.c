@@ -1876,7 +1876,6 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             cap = tvb_get_ntohs (tvb, offset);
             dissect_speed_flags (rpsc_tree, tvb, offset, cap, i);
 
-            cap = tvb_get_ntohs (tvb, offset+2);
             proto_tree_add_item(rpsc_tree, hf_fcels_rpsc_port_oper_speed, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         }
     }
