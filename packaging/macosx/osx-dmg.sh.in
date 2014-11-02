@@ -67,7 +67,6 @@ then
 elif [ -f /Developer/usr/bin/packagemaker ]
 then
 	packagemaker=/Developer/usr/bin/packagemaker
-fi
 elif [ -f /usr/bin/packagemaker ]
 then
 	packagemaker=/usr/bin/packagemaker
