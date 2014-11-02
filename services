@@ -10132,6 +10132,7 @@ http-wmap        8990/tcp # webmail HTTP service [Fred_Batty] [Fred_Batty] 2007-
 http-wmap        8990/udp # webmail HTTP service [Fred_Batty] [Fred_Batty] 2007-12-03
 https-wmap       8991/tcp # webmail HTTPS service [Fred_Batty] [Fred_Batty] 2007-12-03
 https-wmap       8991/udp # webmail HTTPS service [Fred_Batty] [Fred_Batty] 2007-12-03
+oracle-ms-ens    8997/tcp # Oracle Messaging Server Event Notification Service [Oracle_6] [Hubert_Vijay_Arokiasamy] 2014-10-28
 canto-roboflow   8998/tcp # Canto RoboFlow Control [Canto] [Thomas_Schleu_2] 2014-02-26
 bctp             8999/tcp # Brodos Crypto Trade Protocol [Alexander_Sahler] [Alexander_Sahler] 2002-02
 bctp             8999/udp # Brodos Crypto Trade Protocol [Alexander_Sahler] [Alexander_Sahler] 2002-02
