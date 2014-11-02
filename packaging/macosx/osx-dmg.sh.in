@@ -45,7 +45,7 @@ auto_open_opt=
 ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 readme_name="Read_me_first_qt.rtf"
 
-if [ -x /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
+if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
 then
 	#
 	# Xcode 4 and later, with the "Auxiliary Tools for Xcode"
@@ -55,17 +55,23 @@ then
 	# work on Yosemite.)
 	#
 	packagemaker=/Applications/Xcode.app//Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-elif [ -x /Applications/Xcode.app/Developer/Tools/packagemaker ]
+elif [ -f /Applications/Xcode.app/Developer/Tools/packagemaker ]
+then
 	packagemaker=/Applications/Xcode.app/Developer/Tools/packagemaker
+elif [ -f /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
 then
-elif [ -x /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
 	packagemaker=/Applications/Xcode.app/Developer/usr/bin/packagemaker
+elif [ -f /Developer/Tools/packagemaker ]
 then
-elif [ -x /Developer/Tools/packagemaker
 	packagemaker=/Developer/Tools/packagemaker
-fi
-elif [ -x /Developer/usr/bin/packagemaker
+elif [ -f /Developer/usr/bin/packagemaker ]
+then
 	packagemaker=/Developer/usr/bin/packagemaker
+fi
+if [ -z "$packagemaker" ]
+then
+	echo "$0: couldn't find PackageMaker" 1>&2
+	exit 1
 fi
 
 # Help message
