@@ -222,7 +222,7 @@ Description: network packet capture library -- shared library
   * HP-UX nettl
   * Toshiba ISDN Router
   * ISDN4BSD "i4btrace" utility
-  * Cisco Secure Intrustion Detection System iplogging facility
+  * Cisco Secure Intrusion Detection System iplogging facility
   * pppd logs (pppdump-format files)
   * VMS TCPTRACE
   * DBS Etherwatch (text format)
@@ -254,7 +254,7 @@ Description: network packet capture library -- development files
   * HP-UX nettl
   * Toshiba ISDN Router
   * ISDN4BSD "i4btrace" utility
-  * Cisco Secure Intrustion Detection System iplogging facility
+  * Cisco Secure Intrusion Detection System iplogging facility
   * pppd logs (pppdump-format files)
   * VMS TCPTRACE
   * DBS Etherwatch (text format)
