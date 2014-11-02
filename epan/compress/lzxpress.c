@@ -69,8 +69,6 @@ gssize lzxpress_decompress(const guint8 *input,
 	input_index = 0;
 	indicator = 0;
 	indicator_bit = 0;
-	length = 0;
-	offset = 0;
 	nibble_index = 0;
 
 	do {
