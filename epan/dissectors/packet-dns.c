@@ -1140,6 +1140,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
       case 0x80:
         THROW(ReportedBoundsError);
+        break;
 
       case 0xc0:
         /* Pointer. */
@@ -3145,6 +3146,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_openpgpkey, tvb, cur_offset, data_len, ENC_ASCII|ENC_NA);
 
     }
+    break;
 
     case T_SPF: /* Sender Policy Framework (99) */
     {
