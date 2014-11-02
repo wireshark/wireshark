@@ -49,8 +49,8 @@ TreeItem* push_TreeItem(lua_State*L, TreeItem t) {
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
-/* `TreeItem`s represent information in the packet-details pane.
-   A root `TreeItem` is passed to dissectors as the third argument. */
+/* ++TreeItem++s represent information in the packet-details pane.
+   A root +TreeItem+ is passed to dissectors as the third argument. */
 
 /* the following is used by TreeItem_add_packet_field() - this can THROW errors */
 static proto_item *

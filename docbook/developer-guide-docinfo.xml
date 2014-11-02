@@ -21,6 +21,13 @@
 <revhistory>
 
 <revision>
+  <revnumber>1.0</revnumber>
+  <date>2 Nov 2014</date>
+  <authorinitials>gcc</authorinitials>
+  <revremark>Moved Lua reference from User's Guide to Developer's Guide.</revremark>
+</revision>
+
+<revision>
   <revnumber>0.9</revnumber>
   <date>9 Feb 2014</date>
   <authorinitials>gcc</authorinitials>

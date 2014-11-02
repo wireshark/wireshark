@@ -96,10 +96,10 @@ endif
 wsug: $(WSUG_TARGETS)
 
 # validate the content
-wsug.validated: $(WSUG_SOURCE) wsluarm
+wsug.validated: $(WSUG_SOURCE)
 if HAVE_XMLLINT
 	@ echo --- WSUG - VALIDATING XML ---
-	$(XMLLINT) --path .:wsluarm_src:$(srcdir) --valid --noout $<
+	$(XMLLINT) --path .:$(srcdir) --valid --noout $<
 	touch $@
 else
 	@ echo --- WSUG - SKIP VALIDATION ---
@@ -116,7 +116,6 @@ wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 	cp $(srcdir)/wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/ws.css wsug_html
 	$(XSLTPROC) --stringparam base.dir wsug_html/ $(COMMON_XSLTPROC_ARGS) \
-		--path .:wsluarm_src \
 		$(WSUG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsug_html
 
@@ -131,7 +130,6 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 	cp $(srcdir)/wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar
 	cp $(srcdir)/ws.css wsug_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
-		    --path .:wsluarm_src \
 		    $(WSUG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsug_html_chunked
 
@@ -140,16 +138,14 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
-		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet custom_layer_pdf.xsl $< > $@
+		--nonet custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
 user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
-		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet custom_layer_pdf.xsl $< > $@
+		--nonet custom_layer_pdf.xsl $< > $@
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 	mkdir -p wsluarm_src
@@ -182,14 +178,14 @@ developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 wsdg.validated: $(WSDG_SOURCE)
 if HAVE_XMLLINT
 	@ echo --- WSDG - VALIDATING XML ---
-	$(XMLLINT) --path .:$(srcdir) --valid --noout $<
+	$(XMLLINT) --path .:wsluarm_src:$(srcdir) --valid --noout $<
 	touch $@
 else
 	@ echo --- WSDG - SKIP VALIDATION ---
 endif
 
 # create html single page file
-wsdg_html: wsdg_html/index.html
+wsdg_html: wsdg_html/index.html wsluarm
 
 wsdg_html/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
@@ -199,6 +195,7 @@ wsdg_html/index.html: $(WSDG_SOURCE)
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ $(COMMON_XSLTPROC_ARGS) \
+		--path .:wsluarm_src \
 		$(WSDG_XSLTPROC_ARGS) $(SINGLE_XSLTPROC_ARGS) $< > $@
 	-chmod -R og+rX wsdg_html
 
@@ -213,6 +210,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	cp $(srcdir)/wsdg_graphics/toolbar/* wsdg_html_chunked/wsdg_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ $(COMMON_XSLTPROC_ARGS) \
+		--path .:wsluarm_src \
 		$(WSDG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsdg_html_chunked
 
@@ -221,7 +219,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
-		    --path .:$(srcdir) \
+		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
@@ -229,7 +227,7 @@ developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
-		    --path .:$(srcdir) \
+		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet custom_layer_pdf.xsl $< > $@
 
 

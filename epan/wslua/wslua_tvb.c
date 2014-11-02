@@ -382,7 +382,7 @@ WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"),NOP);
    To create a `TvbRange` the `Tvb` must be called with offset and length as optional arguments;
    the offset defaults to 0 and the length to `tvb:len()`.
 
-   @warning `Tvb`s are usable only by the current listener or dissector call and are destroyed
+   @warning Tvbs are usable only by the current listener or dissector call and are destroyed
    as soon as the listener/dissector returns, so references to them are unusable once the function
    has returned.
 */

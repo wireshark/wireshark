@@ -329,25 +329,6 @@ FILE SECTION
   <!ENTITY AppHowItWorks SYSTEM "wsug_src/WSUG_app_howitworks.xml">
   <!ENTITY AppTools SYSTEM "wsug_src/WSUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM "GPL_appendix.xml">
-
-<!--
-WSLua Reference Manual
--->
-  <!ENTITY WsLuaRm SYSTEM "wsluarm.xml">
-  <!ENTITY WsLuaDumper SYSTEM "wsluarm_src/wslua_dumper.xml">
-  <!ENTITY WsLuaField SYSTEM "wsluarm_src/wslua_field.xml">
-  <!ENTITY WsLuaGui SYSTEM "wsluarm_src/wslua_gui.xml">
-  <!ENTITY WsLuaListener SYSTEM "wsluarm_src/wslua_listener.xml">
-  <!ENTITY WsLuaPinfo SYSTEM "wsluarm_src/wslua_pinfo.xml">
-  <!ENTITY WsLuaProto SYSTEM "wsluarm_src/wslua_proto.xml">
-  <!ENTITY WsLuaTree SYSTEM "wsluarm_src/wslua_tree.xml">
-  <!ENTITY WsLuaTvb SYSTEM "wsluarm_src/wslua_tvb.xml">
-  <!ENTITY WsLuaFile SYSTEM "wsluarm_src/wslua_file.xml">
-  <!ENTITY WsLuaDir SYSTEM "wsluarm_src/wslua_dir.xml">
-  <!ENTITY WsLuaUtility SYSTEM "wsluarm_src/wslua_util.xml">
-  <!ENTITY WsLuaInt64 SYSTEM "wsluarm_src/wslua_int64.xml">
-  <!ENTITY WsLuaStruct SYSTEM "wsluarm_src/wslua_struct.xml">
-
 ]>
 
 <book>
@@ -365,8 +346,6 @@ WSLua Reference Manual
   &ChapterStatistics;
   &ChapterTelephony;
   &ChapterCustomize;
-
-  &WsLuaRm;
 
   &AppFiles;
   &AppProtocols;

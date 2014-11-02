@@ -19,7 +19,6 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_work.asciidoc		\
 	wsug_src/WSUG_meta_info.xml		\
 	wsug_src/WSUG_preface.asciidoc			\
-	wsluarm.xml				\
 	ws.css
 
 WSUG_GENERATED_SOURCE = \
@@ -184,6 +183,7 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_userinterface.asciidoc	\
 	wsdg_src/WSDG_chapter_works.asciidoc		\
 	wsdg_src/WSDG_preface.asciidoc			\
+	wsluarm.asciidoc				\
 	ws.css
 
 WSDG_GENERATED_SOURCE = \

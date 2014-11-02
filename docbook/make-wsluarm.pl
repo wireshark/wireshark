@@ -49,6 +49,10 @@
 #    * a line starting with "@code" and ending with "@endcode" becomes an
 #      XML programlisting block, with no indenting/parsing within the block
 #    The above '@' commands are based on Doxygen commands
+#
+# Changed by Gerald Combs to generate AsciiDoc.
+#  - We might want to convert the epan/wslua/*.c markup to AsciiDoc
+#  - ...or we might want to generate Doxygen output instead.
 
 use strict;
 #use V2P;
@@ -66,27 +70,19 @@ sub gorolla {
 	# remove trailing newlines and spaces at end
 	$s =~ s/([\n]|\s)*$//s;
 	# escape HTML entities everywhere
-	$s =~ s/&/&amp;/msg; # do this one first so we don't clobber later ones
-	$s =~ s/\</&lt;/msg;
-	$s =~ s/\>/&gt;/msg;
 
 	# bold and italics - but don't change a star followed by space (it's a list item)
-	$s =~ s/(\*\*)([^*]+?)(\*\*)/<command>$2<\/command>/g; # bold=command??
-	$s =~ s/(\*)([^\s][^*]*?)(\*)/<emphasis>$2<\/emphasis>/g; # italics
+	$s =~ s/(\*\*)([^*]+?)(\*\*)/`$2`/g; # bold=command??
 
 	# one backtick is quote/command
-	$s =~ s/([^`]|^)(`)([^`]+?)(`)/$1<command>$3<\/command>/g; # quote=command??
-	# two backticks are one
-	$s =~ s/(``)([^`]+?)(``)/`$2`/g; # quote=command??
+	#$s =~ s/([^`]|^)(`)([^`]+?)(`)/$1<command>$3<\/command>/g; # quote=command??
+	# two backticks are one (...and don't appear anywhere?)
+	#$s =~ s/(``)([^`]+?)(``)/`$2`/g; # quote=command??
 
-	# handle '[[url]]'
-	$s =~ s/(\[\[)([^\]\|]+?)(\]\])/<ulink url="$2">$2<\/ulink>/g;
+	# Convert wiki-style '[[url]]'
+	$s =~ s/(\[\[)([^\]\|]+?)(\]\])/link:\$\$$2\$\$:[$2]/g;
 	# handle '[[url|pretty]]'
-	$s =~ s/(\[\[)(([^\]\|]+?)\|\s*([^\]]+?))(\]\])/<ulink url="$3">$4<\/ulink>/g;
-	# unescape gorolla'd ampersands in url
-	while ($s =~ /<ulink url="[^"]*&amp;/) {
-		$s =~ s/(<ulink url="[^"]*)(&amp;)/$1\&/;
-	}
+	$s =~ s/(\[\[)(([^\]\|]+?)\|\s*([^\]]+?))(\]\])/link:\$\$$3\$\$:[$4]/g;
 
 	$s;
 }
@@ -113,7 +109,6 @@ sub parse_desc_common {
 		# capitalize the first letter of the first line
 		$lines[0] = ucfirst($lines[0]);
 		# for each double newline, break into separate para's
-		$r[++$#r] = "<para>\n";
 		for (my $idx=0; $idx <= $#lines; $idx++) {
 
 			$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
@@ -123,137 +118,95 @@ sub parse_desc_common {
 			# if we find @code then treat it as a blob
 			if ($lines[$idx] =~ /^\@code\b/) {
 				my $line = $lines[$idx];
-				$line =~ s/\@code/<programlisting language="lua">/;
+				$line =~ s/\@code/[source,lua]\n----\n/;
 				# if this line didn't have ending token, keep eating paragraphs
 				while (!($line =~ /\@endcode\b/) && $idx <= $#lines) {
 					# also insert back the line separator we ate in earlier split()
 					$line .= $lines[++$idx] . "\n";
 				}
 				# fix ending token, and also remove trailing whitespace before it
-				$line =~ s/[\s\n]*\@endcode/<\/programlisting>/;
+				$line =~ s/[\s\n]*\@endcode/\n----/;
 				$r[++$#r] = $line . "\n";
 			} elsif ($lines[$idx] =~ /^\s*$/) {
 				# line is either empty or just whitespace, and we're not in a @code block
 				# so it's the end of a previous paragraph, beginning of new one
-				$r[++$#r] = "</para>\n";
-				$r[++$#r] = "<para>\n";
+				$r[++$#r] = "\n\n";
 			} else {
-				# we have a regular line, not in a @code block
-				# XML-ify it
+				# We have a regular line, not in a @code block.
+				# Add it as-is.
 				my $line = $lines[$idx];
 
-				# if line starts with "Note:" or "@note", make it an XML <note>
+				# If line starts with "Note:" or "@note", make it an admonition
 				if ($line =~ /^[nN]ote:|^\@note /) {
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<note>\n";
-					$r[++$#r] = "\t<para>\n";
+					$r[++$#r] = "[NOTE]\n";
+					$r[++$#r] = "====\n";
 					$line =~ s/^([nN]ote:\s*|\@note\s*)//;
-					$r[++$#r] = "\t\t" . $line . "\n";
+					$r[++$#r] = "" . $line . "\n";
 					# keep eating until we find a blank line or end
 					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
 						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
-						$r[++$#r] = "\t\t" . $lines[$idx]. "\n";
+						$r[++$#r] = "" . $lines[$idx]. "\n";
 					}
-					$r[++$#r] = "\t</para>\n";
-					$r[++$#r] = "</note>\n";
-					$r[++$#r] = "<para>\n";
+					$r[++$#r] = "====\n\n";
 
-				# if line starts with "Warning:"" or @warning", make it an XML <warning>
+				# If line starts with "Warning:"" or @warning", make it an admonition
 				} elsif ($line =~ /^[wW]arning:|^\@warning /) {
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<warning>\n";
-					$r[++$#r] = "\t<para>\n";
+					$r[++$#r] = "[WARNING]\n";
+					$r[++$#r] = "====\n";
 					$line =~ s/^(wW]arning:\s*|\@warning\s*)//;
 					# keep eating until we find a blank line or end
-					$r[++$#r] = "\t\t" . $line . "\n";
+					$r[++$#r] = "" . $line . "\n";
 					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
 						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
-						$r[++$#r] = "\t\t" . $lines[$idx] . "\n";
+						$r[++$#r] = "" . $lines[$idx] . "\n";
 					}
-					$r[++$#r] = "\t</para>\n";
-					$r[++$#r] = "</warning>\n";
-					$r[++$#r] = "<para>\n";
+					$r[++$#r] = "====\n";
 
 				# if line starts with "@version" or "@since", make it a "Since:"
 				} elsif ($line =~ /^\@version |^\@since /) {
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<para>\n";
 					$line =~ s/^\@version\s+|^\@since\s+/Since: /;
-					$r[++$#r] = "\t" . $line . "\n";
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<para>\n";
+					$r[++$#r] = "\n" . $line . "\n\n";
 
-				# if line starts with single "*" and space, make it an XML <itemizedlist>
+				# if line starts with single "*" and space, leave it mostly intact.
 				} elsif ($line =~ /^\*\s/) {
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<itemizedlist>\n";
-					$r[++$#r] = "\t<listitem>\n";
-					$r[++$#r] = "\t\t<para>\n";
-					$line =~ s/^\*\s*//; # remove the star and whitespace
-					$r[++$#r] = "\t\t\t" . $line . "\n";
+					$r[++$#r] = "\n";
+					$r[++$#r] = "" . $line . "\n";
 					# keep eating until we find a blank line or end
 					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
 						$lines[$idx] =~ s/^(\s*)//; # count and remove leading whitespace
 						# if this is less indented than before, break out
 						last if length($1) < $indent;
-						if ($lines[$idx] =~ /^\*\s/) {
-							# another star, new list item
-							$r[++$#r] = "\t\t</para>\n";
-							$r[++$#r] = "\t</listitem>\n";
-							$r[++$#r] = "\t<listitem>\n";
-							$r[++$#r] = "\t\t<para>\n";
-							$lines[$idx] =~ s/^\*\s*//; # remove star and whitespace
-						}
-						$r[++$#r] = "\t\t\t" . $lines[$idx] . "\n";
+						$r[++$#r] = "" . $lines[$idx] . "\n";
 					}
-					$r[++$#r] = "\t\t</para>\n";
-					$r[++$#r] = "\t</listitem>\n";
-					$r[++$#r] = "</itemizedlist>\n";
-					$r[++$#r] = "<para>\n";
+					$r[++$#r] = "\n\n";
 
-				# if line starts with "1." and space, make it an XML <orderedlist>
+				# if line starts with "1." and space, leave it mostly intact.
 				} elsif ($line =~ /^1\.\s/) {
-					$r[++$#r] = "</para>\n";
-					$r[++$#r] = "<orderedlist>\n";
-					$r[++$#r] = "\t<listitem>\n";
-					$r[++$#r] = "\t\t<para>\n";
-					$line =~ s/^1\.\s*//; # remove the 1. and whitespace
-					$r[++$#r] = "\t\t\t" . $line . "\n";
+					$r[++$#r] = "\n";
+					$r[++$#r] = "" . $line . "\n";
 					# keep eating until we find a blank line or end
 					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
 						$lines[$idx] =~ s/^(\s*)//; # count and remove leading whitespace
 						# if this is less indented than before, break out
 						last if length($1) < $indent;
-						if ($lines[$idx] =~ /^[0-9]+\.\s/) {
-							# another number, new list item
-							$r[++$#r] = "\t\t</para>\n";
-							$r[++$#r] = "\t</listitem>\n";
-							$r[++$#r] = "\t<listitem>\n";
-							$r[++$#r] = "\t\t<para>\n";
-							$lines[$idx] =~ s/^[0-9]+\.\s*//; # remove star and whitespace
-						}
-						$r[++$#r] = "\t\t\t" . $lines[$idx] . "\n";
+						$r[++$#r] = "" . $lines[$idx] . "\n";
 					}
-					$r[++$#r] = "\t\t</para>\n";
-					$r[++$#r] = "\t</listitem>\n";
-					$r[++$#r] = "</orderedlist>\n";
-					$r[++$#r] = "<para>\n";
+					$r[++$#r] = "\n\n";
 
 				# just a normal line, add it to array
 				} else {
-					$r[++$#r] = "\t" . $line . "\n";
+					# Nested Lua arrays
+					$line =~ s/\[\[(.*)\]\]/\$\$$1\$\$/g;
+					$r[++$#r] = "" . $line . "\n";
 				}
 			}
 		}
-		$r[++$#r] = "</para>\n";
+		$r[++$#r] = "\n\n";
 
-		# now go through @r, and copy into @ret but skip empty
-		# paragraphs (ie, <para> followed by </para>)
-		# I could have used splice(), but I think this is easier (and faster?)
-		# this isn't strictly necessary since the XML tool seems
-		# to ignore empty paragraphs, but in case it ever changes...
+		# Now go through @r, and copy into @ret but skip empty lines.
+		# This isn't strictly necessary but makes the AsciiDoc output prettier.
 		for (my $idx=0; $idx <= $#r; $idx++) {
-			if ($r[$idx] =~ /^<para>\n$/ && $r[$idx+1] =~ /^<\/para>\n$/) {
+			if ($r[$idx] =~ /^\s*$/ && $r[$idx+1] =~ /^\s*$/ && $r[$idx+2] =~ /^\s*$/) {
 				$idx++; # for-loop will increment $idx and skip the other one
 			} else {
 				$ret[++$#ret] = $r[$idx];
@@ -286,7 +239,7 @@ sub parse_module_desc {
 	my @lines = split(/\n/, $s);
 	my $line  = shift @lines;
 
-	$r[++$#r] = "<title>$line</title>\n";
+	$r[++$#r] = "=== $line\n\n";
 
 	return parse_desc_common(\@r, \@lines);
 }
@@ -295,12 +248,12 @@ sub parse_module_desc {
 sub parse_function_arg_desc {
 	my $s = gorolla(shift);
 	# break description into separate sections
-	my @r = ( "<listitem>\n" ); # the array we return
+	my @r = ( "\n" ); # the array we return
 
 	my @lines = split(/\n/, $s);
 	@r = @{ parse_desc_common(\@r, \@lines) };
 
-	$r[++$#r] = "</listitem>\n";
+	#$r[++$#r] = "</listitem>\n";
 
 	return \@r;
 }
@@ -316,7 +269,7 @@ sub parse_attrib_desc {
 		$mode =~ s/RO/ Retrieve only./;
 		$mode =~ s/WO/ Assign only./;
 		$mode =~ s/RW|WR/ Retrieve or assign./;
-		$r[++$#r] = "<para>Mode: $mode</para>\n";
+		$r[++$#r] = "Mode: $mode\n\n";
 	} else {
 		die "Attribute does not have a RO/WO/RW mode: '$s'\n";
 	}
@@ -336,10 +289,10 @@ sub print_desc {
 	if (!$indent) {
 		$indent = 2;
 	}
-	my $tabs = "\t" x $indent;
+	#my $tabs = "\t" x $indent;
 
 	for my $line ( @{ $desc_ref } ) {
-		printf D "%s%s", $tabs, $line;
+		printf D "%s", $line;
 	}
 }
 
@@ -350,51 +303,44 @@ my %classes;
 my $function;
 my @functions;
 
-my $docbook_template = {
-	module_header =>               "<section id='lua_module_%s'>\n",
+my $asciidoc_template = {
+	module_header =>               "[[lua_module_%s]]\n\n",
 	# module_desc =>                 "\t<title>%s</title>\n",
-	class_header =>                "\t<section id='lua_class_%s'>\n" .
-								   "\t\t<title>%s</title>\n",
+	class_header =>                "[[lua_class_%s]]\n\n" .
+								"==== %s\n\n",
 	#class_desc =>                  "\t\t<para>%s</para>\n",
-	class_attr_header =>           "\t\t<section id='lua_class_attrib_%s'>\n" .
-								   "\t\t\t<title>%s</title>\n",
+	class_attr_header =>           "[[lua_class_attrib_%s]]\n\n" .
+								"==== %s\n\n",
 	#class_attr_descr =>            "\t\t\t<para>%s%s</para>\n",
-	class_attr_footer =>           "\t\t</section> <!-- class_attr_footer: %s -->\n",
-	function_header =>             "\t\t<section id='lua_fn_%s'>\n" .
-								   "\t\t\t<title>%s</title>\n",
+	class_attr_footer =>           "// End %s\n\n",
+	function_header =>             "[[lua_fn_%s]]\n\n" .
+								"===== %s\n\n",
 	#function_descr =>              "\t\t\t<para>%s</para>\n",
-	function_args_header =>        "\t\t\t<section>\n" .
-								   "\t\t\t\t<title>Arguments</title>\n" .
-								   "\t\t\t\t<variablelist>\n",
-	function_arg_header =>         "\t\t\t\t\t<varlistentry>\n" .
-								   "\t\t\t\t\t\t<term>%s</term>\n",
+	function_args_header =>        "[float]\n" .
+								"===== Arguments\n\n",
+	function_arg_header =>         "%s::\n",
 	#function_arg_descr =>          "\t\t\t\t\t\t<listitem>\n" .
 	#                               "\t\t\t\t\t\t\t<para>%s</para>\n" .
 	#                               "\t\t\t\t\t\t</listitem>\n",
-	function_arg_footer =>         "\t\t\t\t\t</varlistentry> <!-- function_arg_footer: %s -->\n",
-	function_args_footer =>        "\t\t\t\t</variablelist>\n" .
-								   "\t\t\t</section> <!-- end of function_args -->\n",
+	function_arg_footer =>         "// function_arg_footer: %s\n\n",
+	function_args_footer =>        "// end of function_args\n\n",
 	function_argerror_header =>    "", #"\t\t\t\t\t<section><title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
 	function_argerror =>           "", #"\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
 	function_argerror_footer =>    "", #"\t\t\t\t\t\t</itemizedlist></section> <!-- function_argerror_footer: %s -->\n",
-	function_returns_header =>     "\t\t\t<section>\n" .
-								   "\t\t\t\t<title>Returns</title>\n",
-	function_returns =>            "\t\t\t\t<para>%s</para>\n",
-	function_returns_footer =>     "\t\t\t</section> <!-- function_returns_footer: %s -->\n",
-	function_errors_header =>      "\t\t\t<section>\n" .
-								   "\t\t\t\t<title>Errors</title>\n" .
-								   "\t\t\t\t<itemizedlist>\n",
-	function_errors =>             "\t\t\t\t\t<listitem>\n" .
-								   "\t\t\t\t\t\t<para>%s</para>\n" .
-								   "\t\t\t\t\t</listitem>\n",
-	function_errors_footer =>      "\t\t\t\t</itemizedlist>\n" .
-								   "\t\t\t</section> <!-- function_errors_footer: %s -->\n",
-	function_footer =>             "\t\t</section> <!-- function_footer: %s -->\n",
-	class_footer =>                "\t</section> <!-- class_footer: %s -->\n",
-	global_functions_header =>     "\t<section id='global_functions_%s'>\n" .
-								   "\t\t<title>Global Functions</title>\n",
-	global_functions_footer =>     "\t</section> <!-- Global function -->\n",
-	module_footer =>               "</section> <!-- end of module -->\n",
+	function_returns_header =>     "[float]\n" .
+								"===== Returns\n\n",
+	function_returns =>            "%s\n\n",
+	function_returns_footer =>     "// function_returns_footer: %s\n",
+	function_errors_header =>      "[float]\n" .
+								"===== Errors\n\n",
+	function_errors =>             "* %s\n",
+	function_errors_footer =>      "// function_errors_footer: %s\n",
+	function_footer =>             "// function_footer: %s\n\n",
+	class_footer =>                "// class_footer: %s\n",
+	global_functions_header =>     "[[global_functions_%s]]\n\n" .
+								   "==== Global Functions\n\n",
+	global_functions_footer =>     "// Global function\n",
+	module_footer =>               "// end of module\n",
 };
 
 #	class_constructors_header =>   "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
@@ -403,8 +349,8 @@ my $docbook_template = {
 #	class_methods_footer =>        "\t\t</section> <!-- class_methods_footer: %s -->\n",
 
 
-my $template_ref = $docbook_template;
-my $out_extension = "xml";
+my $template_ref = $asciidoc_template;
+my $out_extension = "asciidoc";
 
 # It's said that only perl can parse perl... my editor isn't perl...
 # if unencoded this causes my editor's autoindent to bail out so I encoded in octal

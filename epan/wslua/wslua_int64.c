@@ -607,7 +607,7 @@ LUALIB_API int Int64_register(lua_State* L) {
 WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,NOP,0);
 /* `UInt64` represents a 64 bit unsigned integer, similar to `Int64`.
 
-   For details, see: http://wiki.wireshark.org/LuaAPI/`Int64`.
+   For details, see: [[http://wiki.wireshark.org/LuaAPI/Int64]].
 */
 
 /* A checkUInt64 but that also auto-converts numbers, strings, and `Int64` to a guint64. */

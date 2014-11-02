@@ -3,7 +3,7 @@
 ++++++++++++++++++++++++++++++++++++++
 
 [[AppGPL]]
-=== This Document's License (GPL)
+== This Document's License (GPL)
 
 As with the original license and documentation distributed
 with Wireshark, this document is covered by the GNU General Public

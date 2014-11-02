@@ -45,6 +45,8 @@ include::wsdg_src/WSDG_chapter_capture.asciidoc[]
 
 include::wsdg_src/WSDG_chapter_dissection.asciidoc[]
 
+include::wsluarm.asciidoc[]
+
 include::wsdg_src/WSDG_chapter_userinterface.asciidoc[]
 
 include::GPL_appendix.asciidoc[]

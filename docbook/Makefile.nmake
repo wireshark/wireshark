@@ -92,7 +92,7 @@ git_version.xml: git_version_check
 wsug_x: wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
-wsug.validated: $(WSUG_SOURCE) wsluarm
+wsug.validated: $(WSUG_SOURCE)
 	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout user-guide.xml
 	touch $@
@@ -100,7 +100,7 @@ wsug.validated: $(WSUG_SOURCE) wsluarm
 # create html single page file
 wsug_html: wsug_html\index.html
 
-wsug_html\index.html: $(WSUG_SOURCE) wsluarm
+wsug_html\index.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	if not exist wsug_html\wsug_graphics\toolbar md wsug_html\wsug_graphics\toolbar
 	cp wsug_graphics/*.* wsug_html/wsug_graphics
@@ -113,7 +113,7 @@ wsug_html\index.html: $(WSUG_SOURCE) wsluarm
 # create html chunked page files
 wsug_html_chunked: wsug_html_chunked\index.html
 
-wsug_html_chunked\index.html: $(WSUG_SOURCE) wsluarm
+wsug_html_chunked\index.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
 	if not exist wsug_html_chunked\wsug_graphics\toolbar md wsug_html_chunked\wsug_graphics\toolbar
 	cp wsug_graphics/*.* wsug_html_chunked/wsug_graphics
@@ -125,7 +125,7 @@ wsug_html_chunked\index.html: $(WSUG_SOURCE) wsluarm
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
+user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl user-guide.xml > $@
@@ -133,14 +133,14 @@ user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
+user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > $@
 !endif
 
 # create MS html help file (through html chunked pages)
-user-guide.chm: $(WSUG_SOURCE) wsluarm
+user-guide.chm: $(WSUG_SOURCE)
 !ifdef HHC_EXE
 	@ echo --- WSUG - MICROSOFT HTML HELP ---
 	if not exist wsug_chm\wsug_graphics\toolbar md wsug_chm\wsug_graphics\toolbar
@@ -178,7 +178,7 @@ developer-guide.xml: developer-guide.asciidoc  $(WSDG_FILES)
 <<
 
 # validate the content
-wsdg.validated: $(WSDG_SOURCE)
+wsdg.validated: $(WSDG_SOURCE) wsluarm
 	@ echo --- WSDG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout developer-guide.xml
 	touch $@
@@ -186,7 +186,7 @@ wsdg.validated: $(WSDG_SOURCE)
 # create html single page file
 wsdg_html: wsdg_html\index.html
 
-wsdg_html\index.html: $(WSDG_SOURCE)
+wsdg_html\index.html: $(WSDG_SOURCE) wsluarm
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	if not exist wsdg_html\wsdg_graphics md wsdg_html\wsdg_graphics
 	if not exist wsdg_html\wsdg_graphics\toolbar md wsdg_html\wsdg_graphics\toolbar
@@ -200,7 +200,7 @@ wsdg_html\index.html: $(WSDG_SOURCE)
 # create html chunked page files
 wsdg_html_chunked: wsdg_html_chunked\index.html
 
-wsdg_html_chunked\index.html: $(WSDG_SOURCE)
+wsdg_html_chunked\index.html: $(WSDG_SOURCE) wsluarm
 	@ echo --- WSDG - HTML CHUNKED ---
 	if not exist wsdg_html_chunked\wsdg_graphics md wsdg_html_chunked\wsdg_graphics
 	if not exist wsdg_html_chunked\wsdg_graphics\toolbar md wsdg_html_chunked\wsdg_graphics\toolbar
@@ -213,7 +213,7 @@ wsdg_html_chunked\index.html: $(WSDG_SOURCE)
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
+developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl wsluarm
 !ifdef FOP
 	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl developer-guide.xml > $@
@@ -221,14 +221,14 @@ developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
+developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl wsluarm
 !ifdef FOP
 	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > $@
 !endif
 
 # create MS html help file (through html chunked pages)
-developer-guide.chm: $(WSDG_SOURCE)
+developer-guide.chm: $(WSDG_SOURCE) wsluarm
 !ifdef HHC_EXE
 	@ echo --- WSDG - MICROSOFT HTML HELP ---
 	if not exist wsdg_chm\wsdg_graphics md wsdg_chm\wsdg_graphics

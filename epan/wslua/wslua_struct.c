@@ -118,36 +118,36 @@
 
   The supported elements in the format string are as follows:
 
-    * "` `" (empty space) ignored.
-    * "`!`n" flag to set the current alignment requirement to 'n' (necessarily a power of 2);
+    * `$$ $$' (empty space) ignored.
+    * `++!++__n__' flag to set the current alignment requirement to 'n' (necessarily a power of 2);
       an absent 'n' means the machine's native alignment.
-    * "`>`" flag to set mode to big endian (i.e., network-order).
-    * "`<`" flag to set mode to little endian.
-    * "`x`" a padding zero byte with no corresponding Lua value.
-    * "`b`" a signed char.
-    * "`B`" an unsigned char.
-    * "`h`" a signed short (native size).
-    * "`H`" an unsigned short (native size).
-    * "`l`" a signed long (native size).
-    * "`L`" an unsigned long (native size).
-    * "`T`" a size_t (native size).
-    * "`i`n" a signed integer with 'n' bytes. An absent 'n' means the native size of an int.
-    * "`I`n" like "`i`n" but unsigned.
-    * "`e`" signed 8-byte Integer (64-bits, long long), to/from a `Int64` object.
-    * "`E`" unsigned 8-byte Integer (64-bits, long long), to/from a `UInt64` object.
-    * "`f`" a float (native size).
-    * "`d`" a double (native size).
-    * "`s`" a zero-terminated string.
-    * "`c`n" a sequence of exactly 'n' chars corresponding to a single Lua string. An absent 'n'
+    * `++>++' flag to set mode to big endian (i.e., network-order).
+    * `++<++' flag to set mode to little endian.
+    * `++x++' a padding zero byte with no corresponding Lua value.
+    * `++b++' a signed char.
+    * `++B++' an unsigned char.
+    * `++h++' a signed short (native size).
+    * `++H++' an unsigned short (native size).
+    * `++l++' a signed long (native size).
+    * `++L++' an unsigned long (native size).
+    * `++T++' a size_t (native size).
+    * `++i++__n__' a signed integer with 'n' bytes. An absent 'n' means the native size of an int.
+    * `++I++__n__' like `++i++__n__' but unsigned.
+    * `++e++' signed 8-byte Integer (64-bits, long long), to/from a +Int64+ object.
+    * `++E++' unsigned 8-byte Integer (64-bits, long long), to/from a +UInt64+ object.
+    * `++f++' a float (native size).
+    * `++d++' a double (native size).
+    * `++s++' a zero-terminated string.
+    * `++c++__n__' a sequence of exactly 'n' chars corresponding to a single Lua string. An absent 'n'
       means 1. When packing, the given string must have at least 'n' characters (extra
       characters are discarded).
-    * "`c0`" this is like "`c`n", except that the 'n' is given by other means: When packing, 'n' is
+    * `++c0++' this is like `++c++__n__', except that the 'n' is given by other means: When packing, 'n' is
       the length of the given string; when unpacking, 'n' is the value of the previous unpacked
       value (which must be a number). In that case, this previous value is not returned.
-    * "`x`n" pad to 'n' number of bytes, default 1.
-    * "`X`n" pad to 'n' alignment, default MAXALIGN.
-    * "`(`" to stop assigning items, and "`)`" start assigning (padding when packing).
-    * "`=`" to return the current position / offset.
+    * `++x++__n__' pad to 'n' number of bytes, default 1.
+    * `++X++__n__' pad to 'n' alignment, default MAXALIGN.
+    * `++(++' to stop assigning items, and `++)++' start assigning (padding when packing).
+    * `++=++' to return the current position / offset.
 
   @note Using `i`, `I`, `h`, `H`, `l`, `L`, `f`, and `T` is strongly discouraged, as those sizes
     are system-dependent. Use the explicitly sized variants instead, such as `i4` or `E`.

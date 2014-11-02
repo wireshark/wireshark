@@ -50,7 +50,6 @@ set(WSUG_FILES
 	WSUG_chapter_work.xml
 	wsug_src/WSUG_meta_info.xml
 	WSUG_preface.xml
-	wsluarm.xml
 	ws.css
 )
 
@@ -66,6 +65,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
+	wsluarm.asciidoc
 )
 
 set(WSUG_GRAPHICS
@@ -253,6 +253,7 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${A2X_EXECUTABLE}
 			--verbose
+			--attribute=build_dir=${CMAKE_CURRENT_BINARY_DIR}
 			--attribute=docinfo
 			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
 			--asciidoc-opts=${_conf_opts}
@@ -299,6 +300,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conf_files )
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${A2X_EXECUTABLE}
 			--verbose
+			--attribute=build_dir=${CMAKE_CURRENT_BINARY_DIR}
 			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
 			--asciidoc-opts=${_conf_opts}
 			--no-xmllint
@@ -366,7 +368,6 @@ ADD_CUSTOM_COMMAND(
 add_custom_target(
 	user_guides ALL
 	DEPENDS
-		wsluarm
 		wsug_html_chunked/index.html
 		wsug_html/index.html
 		user-guide-a4.pdf

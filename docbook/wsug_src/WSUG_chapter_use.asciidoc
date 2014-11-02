@@ -512,7 +512,7 @@ image::wsug_graphics/ws-tools-menu.png[]
 
 It is assumed that the rules will be applied to an outside interface.
 
-|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark, see <<wsluarm_intro>>.
+|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the ``Lua Support in Wireshark'' in the Wireshark Developer's Guide.
 |===============
 
 [[ChUseInternalsMenuSection]]
