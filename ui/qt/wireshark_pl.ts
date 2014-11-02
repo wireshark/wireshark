@@ -40,6 +40,25 @@
     </message>
 </context>
 <context>
+    <name>ByteViewText</name>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation>Pokaż szesnastkowo</translation>
+    </message>
+    <message>
+        <source>Show bytes as bits</source>
+        <translation>Pokaż bity</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation>Bajt %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation>Bajty %1-%2</translation>
+    </message>
+</context>
+<context>
     <name>CaptureFileDialog</name>
     <message>
         <source>This capture file contains comments.</source>
@@ -240,11 +259,11 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prawdopodobnie chcesz to włączyć. Zwykle karta sieciowa może przechwytywać tylko ruch wysyłany na jej adres sieciowy. Jeśli chcesz przechwytywać cały ruch sieciowy zaznacz tą opcję. Zobacz FAQ by uzyskać więcej informacji na temat przechwytywania pakietów w sieci przełączalnej.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture Filter for selected Interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr przechwytywania dla wybranych interfejsów:</translation>
     </message>
     <message>
         <source>Manage Interfaces...</source>
@@ -252,7 +271,7 @@
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompiluj BPF</translation>
     </message>
     <message>
         <source>Output</source>
@@ -264,11 +283,11 @@
     </message>
     <message>
         <source>pcap-ng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap-ng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap</translation>
     </message>
     <message>
         <source>Browse...</source>
@@ -280,7 +299,7 @@
     </message>
     <message>
         <source>Create a new file automatically after...</source>
-        <translation type="unfinished"></translation>
+        <translation>Stwórz nowy plik automatycznie gdy...</translation>
     </message>
     <message>
         <source>Megabytes</source>
@@ -304,11 +323,11 @@
     </message>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>godzin</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>pakietach</translation>
     </message>
     <message>
         <source>Options</source>
@@ -316,11 +335,11 @@
     </message>
     <message>
         <source>Display Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcje wyświetlania</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj listę pakietów czasie rzeczywistym</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
@@ -328,7 +347,7 @@
     </message>
     <message>
         <source>Show extra capture information dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -356,11 +375,11 @@
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>włączony</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>wyłączony</translation>
     </message>
     <message>
         <source>n/a</source>
@@ -376,11 +395,11 @@
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb mieszany</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wielkość zrzutu ramki (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
@@ -392,20 +411,21 @@
     </message>
     <message>
         <source>Capture in promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Przechwytuj w trybie mieszanym dla wszystkich interfejsów</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zamiast używać pojedyńczego pliku przechwytywania, wiele plików będzie tworzonych.&lt;/p&gt;&lt;p&gt;Użyte nazwy plików będą zawierać zwiększający się liczbę i czas rozpoczęcia przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jeśli wybrany rozmiar pliku zostanie przekroczony to przechwytywanie będzie kontynuowane do nowego pliku.&lt;/p&gt;&lt;p&gt;UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeśli wybrany rozmiar pliku zostanie przekroczony to  przechwytywanie będzie kontynuuowane do nowego pliku.
+UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Gigabytes</source>
@@ -414,67 +434,68 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selecteds.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Jeśli wybrany rozmiar pliku zostanie przekroczony to  przechwytywanie będzie kontynuuowane do nowego pliku.
+UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kiedy przechwytywanie jest przekierowywane do nowego pliku i liczba plików zostanie przekroczona to skasuj najstarszy plik zostanie skasowany.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj bufora cyklicznego z </translation>
     </message>
     <message>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>pliki</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wybierając tą opcję przechwytywane pakiety będą bezpośrednio wyświetlane na ekranie. Uwaga: to może spowalniać przechwytywanie co może skutkować zwiększoną możliwością wystąpienia porzucenia pakietów.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta opcja będzie powodowała automatyczne przewijanie &amp;quot;Listy Pakietów&amp;quot;, gdy opcja &amp;quot;Aktualizowania Listy Pakietów w czasie rzeczywistym&amp;quot; jest używana.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązuj nazwy MAC podczas przechwytywania.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rozwiązuj nazwy sieciowe podczas przechwytywanie.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiązuj nazwy transportu podczas przechwytywania.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj przechwytywanie po upływie ustalonego czasu.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik zrzutu</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -490,87 +511,89 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>brak adresu</translation>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>domyślny</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Is there still 2 GiB on 64bits OS? Probably no. (int_max_32os = 2GiB, int_max_64 &gt; 2 GiB)</translatorcomment>
+        <translation>Wiele plików: Żądane wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Nie wprowadzono nazwy pliku! Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Nie ustalono limitu! Musisz ustalić limit wielkości pliku lub czas przechwytywania 
+po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż lub ukryj interfejsy, dodaj komentarze i zarządzaj rurami oraz dalnymi interfejsami.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wprowadź nazwę pliku do którego przechycone dane będą zapisane. Domyślnie będzie użyty plik tymczasowy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation type="unfinished"></translation>
+        <translation>Przechwytuj do pliku</translation>
     </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Default interface</source>
-        <translation type="unfinished">Domyślny interfejs</translation>
+        <translation>Domyślny interfejs</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prawdopodobnie chcesz włączyć to. Zwykle karta sieciowa może przechwytywać tylko ruch wysyłany na jej adres sieciowy. Jeśli chcesz przechwytywać cały ruch sieciowy zaznacz tą opcję. Zobacz FAQ by uzyskać więcej informacji na temat przechwytywania pakietów w sieci przełączalnej.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrzucaj pakiety w trybie mieszanym</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zapisuj pakiety w formacie pcap-ng&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in pcap-ng format</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisuj pakiety w formacie pcap-ng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aktualizuj listę pakietów czasie przechwytywania. To może skutkować gubieniem pakietów na sieciach wysokich prędkości.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real time</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj listę pakietów w czasie rzeczywistym</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przewijaj na sam dół listy pakietów w czasie przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatic scrolling in live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne przewijanie podczas przechwytywania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż okno podsumowania w czasie przechwytywania&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show the capture summary dialog while capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż okno podsumowania w czasie przechwytywania</translation>
     </message>
 </context>
 <context>
@@ -945,147 +968,160 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>FollowStreamDialog</name>
     <message>
         <source>Follow Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Podążaj za strumieniem</translation>
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podpowiedź.</translation>
     </message>
     <message>
         <source>Show data as</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj dane jako</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź:</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Znajdź &amp;następny</translation>
     </message>
     <message>
         <source>Hide this stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj ten strumień</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Drukuj</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln prób.</numerusform>
+            <numerusform>%Ln prób.</numerusform>
+            <numerusform>%Ln prób.</numerusform>
         </translation>
     </message>
     <message>
         <source>No capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pliku zrzutu.</translation>
     </message>
     <message>
         <source>Please make sure you have a capture file opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę sprawdzić czy masz otwarty plik zrzutu.</translation>
     </message>
     <message>
         <source>Error following stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd śledzenia strumienia.</translation>
     </message>
     <message>
         <source>Capture file invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy plik zrzuty.</translation>
     </message>
     <message>
         <source>Please make sure you have a TCP packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę sprawdzić czy zaznaczono pakiet TCP.</translation>
     </message>
     <message>
         <source>Please make sure you have a UDP packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę sprawdzić czy zaznaczono pakiet UDP.</translation>
     </message>
     <message>
         <source>Please make sure you have an SSL packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę sprawdzić czy zaznaczono pakiet SSL.</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd tworzenia filtru dla tego strumienia.</translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Potrzebna jest warta trasportowa lub sieciowa nagłówka.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln wszystkich strumieni.</numerusform>
+            <numerusform>%Ln wszystkich strumieni.</numerusform>
+            <numerusform>%Ln wszystkich strumieni.</numerusform>
         </translation>
     </message>
     <message>
         <source>Could not read from temporary file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odczytać pliku tymczasowego %1: %2</translation>
     </message>
     <message>
         <source>Short read from temporary file %1: expected %2, got %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Odczytano za mało danych z tymczasowego pliku %1: oczekiwano %2, jest %3</translation>
     </message>
     <message>
         <source>Error reading temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd odczytu pliku tymczasowego</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>C Arrays</source>
-        <translation type="unfinished"></translation>
+        <translation>Tablica w języku C</translation>
     </message>
     <message>
         <source>EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>EBCDIC</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Szesnastkowo</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML</translation>
     </message>
     <message>
         <source>Packet %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiet %1. </translation>
     </message>
     <message>
         <source> Click to select.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliknij by wybrać.</translation>
     </message>
     <message>
         <source>Wireshark: Save stream content as</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Zapisz zawartość strumiania jako</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
+        <translation>
+            <numerusform>%Ln  pkt(ów) &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
+        <translation>
+            <numerusform>%Ln pkt(ów) &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;, </numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>
+[Stream output truncated]</source>
+        <translation>Obcięto dane strumiania</translation>
     </message>
 </context>
 <context>
@@ -1539,207 +1575,207 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>ImportTextDialog</name>
     <message>
         <source>Wireshark: Import from Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: importowanie z postaci szesnastkowej</translation>
     </message>
     <message>
         <source>Import From</source>
-        <translation type="unfinished"></translation>
+        <translation>Importuj z</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik:</translation>
     </message>
     <message>
         <source>Set name of text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj nazwę tekstowego pliku do zaimportowania</translation>
     </message>
     <message>
         <source>Browse for text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeglądaj pliki tekstowe do zaimportowania</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Przeglądaj...</translation>
+        <translation>Przeglądaj...</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesunięcia w pliku tekstowym w notacji ósemkowej</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ósemkowo</translation>
     </message>
     <message>
         <source>Offsets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesunięcia:</translation>
     </message>
     <message>
         <source>Offsets in the text file are in hexadecimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesunięcia w pliku tekstowym w notacji szesnastkowej</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Szesnastkowo</translation>
     </message>
     <message>
         <source>Offsets in the text file are in decimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesunięcia w pliku tekstowym w notacji dziesiętnej</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziesiętnie</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format w którym będą rozpoznawane czasy pakietów zawarte w pliku (np. %H:%M:%S.). Formaty bazują na funkcji strptime(3)</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format czasu:</translation>
     </message>
     <message>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy plik zawiera informacje wskazujące kierunek przepływu pakietu (przychodzący lub wychodzący).</translation>
     </message>
     <message>
         <source>Direction indication:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaźnik kierunku:</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maksymalny rozmiar ramki:</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maksymalny rozmiar ramki do zapisu w importowanym pliku (max 64000)</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished">Enkapsulacja</translation>
+        <translation>Enkapsulacja</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ enkapsulacji:</translation>
     </message>
     <message>
         <source>Encapsulation type of the frames in the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ enkapsulacji ramek w importowanym pliku</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Port źródłowy UDP, TCP lub SCTP dla każdej ramce</translation>
     </message>
     <message>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfiktor protokołu SCTP (dane) dla każdej ramce</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Port docelowy UDP, TCP lub SCTP dla każdej ramce</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkiem Ethernet</translation>
     </message>
     <message>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkami Ethernet, IPv4 i SCTP</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>PPI:</source>
-        <translation type="unfinished"></translation>
+        <translation>PPI:</translation>
     </message>
     <message>
         <source>Protocol (dec):</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokół (dec):</translation>
     </message>
     <message>
         <source>Leave frames unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozostaw ramki niezmienione</translation>
     </message>
     <message>
         <source>No dummy header</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pustego nagłówka</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag:</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkami Ethernet, IPv4 i UDP</translation>
     </message>
     <message>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <source>Source port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port źródłowy:</translation>
     </message>
     <message>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethertype w każdej ramkce</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkami Ethernet, IPv4 i TCP</translation>
     </message>
     <message>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <source>The SCTP verification tag for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag weryfikacyjny SCTP w każdej ramce</translation>
     </message>
     <message>
         <source>Destination port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port docelowy:</translation>
     </message>
     <message>
         <source>Ethertype (hex):</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethertype (hex):</translation>
     </message>
     <message>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 w każdej ramkce</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkami Ethernet, IPv4 i SCTP (dane)</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP (dane)</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedź każdą ramkę nagłówkami Ethernet i IPv4</translation>
     </message>
     <message>
         <source>IPv4</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4</translation>
     </message>
     <message>
         <source>Wireshark: Import text file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Importuj plik tekstowy</translation>
     </message>
     <message>
         <source>Example: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Przykład: %1</translation>
     </message>
     <message>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(Żaden format nie będzie zastosowany)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -1750,11 +1786,15 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     </message>
     <message>
         <source>Waiting for startup</source>
-        <translation>Wczytywanie</translation>
+        <translation type="obsolete">Wczytywanie</translation>
     </message>
     <message>
         <source>Interface information not available</source>
         <translation>Interfejsy niedostępne</translation>
+    </message>
+    <message>
+        <source>Waiting for startup%1</source>
+        <translation>Wczytywanie%1</translation>
     </message>
 </context>
 <context>
@@ -1772,746 +1812,750 @@ PLEASE NOTE: One option MUST be selecteds.</source>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBTRM Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki tranportu LBTRM</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Źródła</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres/Transport</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki danych</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty danych</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty danych</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer danych</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki danych RX</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty danych RX</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty danych RX</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer danych RX</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki NCF</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpień NCF</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty NCF</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty NCF</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/wystąpienia NCF</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer NCF</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki SM</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty SM</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty SM</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer SM</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Merged with &quot;sequence numbers for transport&quot;</translatorcomment>
+        <translation>Pokaż numery sekwencyjne dla transportu</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane</translation>
     </message>
     <message>
         <source>RX Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane RX</translation>
     </message>
     <message>
         <source>NCF</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
-        <translation type="unfinished"></translation>
+        <translation>SM</translation>
     </message>
     <message>
         <source>sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Translation moved to &quot;Show&quot;</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpień</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/Powód</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>Odbiorcy</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki NAK</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpienia NAK</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty NAK</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer NAK</translation>
     </message>
     <message>
         <source>NAK sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Numery sekwencyjne NAK dla transportu</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj statystyki używając filtru</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako YAML</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty danych</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty danych</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki RX</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty danych RX</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Ramki/bajty danych RX</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki NCF</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia NCF</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer danych</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer danych RX</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/wystąpiania NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer NCF</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki SM</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty SM</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/bajty SM</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer SM</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie dopasuj szerokość kolumn do zawartości</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>Dopasuj szerokość kolumn do zawartości</translation>
     </message>
     <message>
         <source>LBT-RM Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie mogą podłączyć statystyk LBT-RM do kanału komunikacyjnego</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBTRU Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki tranportu LBTRU</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Źródła</translation>
     </message>
     <message>
         <source>Address/Transport/Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres/Transport/Klient</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki danych</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty danych</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty danych</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer danych</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki danych RX</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty danych RX</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty danych RX</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer danych RX</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki NCF</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpień NCF</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty NCF</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/wystąpienia NCF</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty NCF</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer NCF</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki SM</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty SM</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty SM</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer SM</translation>
     </message>
     <message>
         <source>RST frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki RST</translation>
     </message>
     <message>
         <source>RST bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty RST</translation>
     </message>
     <message>
         <source>RST frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty RST</translation>
     </message>
     <message>
         <source>RST rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer RST</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Merged with translation from &quot;details for transport&quot;</translatorcomment>
+        <translation>Pokaż szczegóły dla transportu</translation>
     </message>
     <message>
         <source>Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane SQN</translation>
     </message>
     <message>
         <source>RX Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane RX SQN</translation>
     </message>
     <message>
         <source>NCF SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF SQN</translation>
     </message>
     <message>
         <source>SM SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SM SQN</translation>
     </message>
     <message>
         <source>RST reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Powód RST</translation>
     </message>
     <message>
         <source>details for transport</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Translation move to &quot;Show&quot;</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpień</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Powód</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/Powód</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>Odbiorcy</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres/Transport</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki NAK</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpienia NAK</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty NAK</translation>
     </message>
     <message>
         <source>NAK frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/wystąpienia NAK</translation>
     </message>
     <message>
         <source>NAK count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpienia/bajty NAK</translation>
     </message>
     <message>
         <source>NAK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty NAK</translation>
     </message>
     <message>
         <source>NAK frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/Wystąpienia/Bajty NAK</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer NAK</translation>
     </message>
     <message>
         <source>ACK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki ACK</translation>
     </message>
     <message>
         <source>ACK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty ACK</translation>
     </message>
     <message>
         <source>ACK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty ACK</translation>
     </message>
     <message>
         <source>ACK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer ACK</translation>
     </message>
     <message>
         <source>CREQ frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki CREQ</translation>
     </message>
     <message>
         <source>CREQ bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajty CREQ</translation>
     </message>
     <message>
         <source>CREQ frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramki/bajty CREQ</translation>
     </message>
     <message>
         <source>CREQ rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Transfer CREQ</translation>
     </message>
     <message>
         <source>NAK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK SQN</translation>
     </message>
     <message>
         <source>ACK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK SQN</translation>
     </message>
     <message>
         <source>CREQ request</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądanie CREQ</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygeneruj statystyki używając filtru</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj jako YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj drzewo jako YAML</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty danych</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty danych</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer danych</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki RX</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty danych RX</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Ramki/bajty danych RX</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer danych RX</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki NCF</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia NCF</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia/bajty NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/wystąpiania NCF</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki SM</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty SM</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/bajty SM</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer SM</translation>
     </message>
     <message>
         <source>Show the RST frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki RST</translation>
     </message>
     <message>
         <source>Show the RST bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Bajty RST</translation>
     </message>
     <message>
         <source>Show the RST frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty RST</translation>
     </message>
     <message>
         <source>Show the RST rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer RST</translation>
     </message>
     <message>
         <source>Show the NAK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki NAK</translation>
     </message>
     <message>
         <source>Show the NAK count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia NAK</translation>
     </message>
     <message>
         <source>Show the NAK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę  Bajty NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/wystąpiania NAK</translation>
     </message>
     <message>
         <source>Show the NAK count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Wystąpienia/bajty NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Bajty NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/wystąpienia/bajty NAK</translation>
     </message>
     <message>
         <source>Show the NAK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer NAK</translation>
     </message>
     <message>
         <source>Show the ACK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki ACK</translation>
     </message>
     <message>
         <source>Show the ACK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty ACK</translation>
     </message>
     <message>
         <source>Show the ACK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/bajty ACK</translation>
     </message>
     <message>
         <source>Show the ACK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer ACK</translation>
     </message>
     <message>
         <source>Show the CREQ frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Bajty CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/bajty CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer CREQ</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie dopasuj szerokość kolumn do zawartości</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>Dopasuj szerokość kolumn do zawartości</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Transfer NCF</translation>
     </message>
     <message>
         <source>LBT-RU Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie mogą podłączyć statystyk LBT-RU do kanału komunikacyjnego</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kolumnę Ramki/Wystąpienia/Bajty NCF</translation>
     </message>
 </context>
 <context>
@@ -3132,7 +3176,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation>Brak wybranego interfejsu</translation>
+        <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -3944,35 +3988,35 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Time Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekwencje czasu (Stevens)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres sekwencji czasu Stevensa</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepustowość</translation>
     </message>
     <message>
         <source>TCP througput</source>
-        <translation type="unfinished"></translation>
+        <translation>Przepustowość TCP</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas podróży</translation>
     </message>
     <message>
         <source>TCP round trip time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas podróży TCP</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished">Okno skalowania</translation>
+        <translation>Okno skalowania</translation>
     </message>
     <message>
         <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno skalowania TCP</translation>
     </message>
     <message>
         <source>Follow TCP Stream</source>
@@ -3988,11 +4032,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekwencja czasu (tcptrace)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres sekwencji czasu (tcptrace)</translation>
     </message>
     <message>
         <source>Analyse this Association</source>
@@ -4000,15 +4044,15 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Show All Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wszystkie asocjacje</translation>
     </message>
     <message>
         <source>Flow Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf przepływu</translation>
     </message>
     <message>
         <source>Flow sequence diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagram sekwencji przepływu</translation>
     </message>
     <message>
         <source>ANCP</source>
@@ -4020,51 +4064,51 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Packets sorted by Instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj pakiety po ID instancji</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj statystyki BACapp po ID instancji</translation>
     </message>
     <message>
         <source>Packets sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj pakiety po IP</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj statystyki BACapp po IP</translation>
     </message>
     <message>
         <source>Packets sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortuj pakiety po typie obiektu</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki BACapp posortowane po typie obiektu</translation>
     </message>
     <message>
         <source>Packets sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety posortowane po serwisie</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki BACapp posortowane po serwisie</translation>
     </message>
     <message>
         <source>Collectd</source>
-        <translation type="unfinished"></translation>
+        <translation>Collectd</translation>
     </message>
     <message>
         <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki Collectd</translation>
     </message>
     <message>
         <source>HART-IP</source>
-        <translation type="unfinished"></translation>
+        <translation>HART-IP</translation>
     </message>
     <message>
         <source>HART-IP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki HART-IP</translation>
     </message>
     <message>
         <source>Packet Counter</source>
@@ -4076,7 +4120,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Żądania</translation>
     </message>
     <message>
         <source>HTTP requests</source>
@@ -4084,11 +4128,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Load Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozkład obciążenia</translation>
     </message>
     <message>
         <source>HTTP load distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozkład obciążenia HTPP</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
@@ -4096,15 +4140,15 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki długości pakietów</translation>
     </message>
     <message>
         <source>Sametime</source>
-        <translation type="unfinished"></translation>
+        <translation>Sametime</translation>
     </message>
     <message>
         <source>Sametime statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki Sametime</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -4112,11 +4156,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>ISUP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki wiadomości ISUP</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba pakietów RTSP</translation>
     </message>
     <message>
         <source>SM&amp;PP Operations</source>
@@ -4124,7 +4168,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>SMPP operation statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki operacji SMPP</translation>
     </message>
     <message>
         <source>&amp;UCP Messages</source>
@@ -4132,7 +4176,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>UCP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki wiadomości UCP</translation>
     </message>
     <message>
         <source>Decode &amp;As...</source>
@@ -4140,63 +4184,63 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmień sposób w jaki pakiety są dekodowane</translation>
     </message>
     <message>
         <source>Advertisements by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogłoszenia według tematu</translation>
     </message>
     <message>
         <source>Advertisements by Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogłoszenia według źródła</translation>
     </message>
     <message>
         <source>Advertisements by Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogłoszenia według transportu</translation>
     </message>
     <message>
         <source>Queries by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapytania według tematu</translation>
     </message>
     <message>
         <source>Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapytania według Odbiorcy</translation>
     </message>
     <message>
         <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Wieloznaczne zapytania według wzorca</translation>
     </message>
     <message>
         <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Wieloznaczne zapytania według odbiorcy</translation>
     </message>
     <message>
         <source>Advertisements by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogłoszenia według kolejki</translation>
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapytania według kolejki</translation>
     </message>
     <message>
         <source>Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumienie</translation>
     </message>
     <message>
         <source>Stream Flow Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf przepływu strumieni</translation>
     </message>
     <message>
         <source>LBT-RM</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RM</translation>
     </message>
     <message>
         <source>LBT-RU</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RU</translation>
     </message>
     <message>
         <source>Filter this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyfiltruj tą asocjacje</translation>
     </message>
     <message>
         <source>&amp;I/O Graph</source>
@@ -4204,31 +4248,31 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Stwórz wykres bazując na aktualnym filtrze</translation>
     </message>
     <message>
         <source>&amp;TFTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;TFTP</translation>
     </message>
     <message>
         <source>Check for Updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź aktualizacje...</translation>
     </message>
     <message>
         <source>splitterMaster</source>
-        <translation type="unfinished"></translation>
+        <translation>głównyRodzielacz</translation>
     </message>
     <message>
         <source>splitterExtra</source>
-        <translation type="unfinished"></translation>
+        <translation>ektraRodzielacz</translation>
     </message>
     <message>
         <source>emptyPane</source>
-        <translation type="unfinished"></translation>
+        <translation>pusteOkienko</translation>
     </message>
     <message>
         <source>Save packets before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
         <source>A temporary capture file can&apos;t be merged.</source>
@@ -4236,31 +4280,31 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny filtr</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Postać filtru %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
         <source> before importing a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>przed zaimportowaniem nowego zrzutu</translation>
     </message>
     <message>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>You cannot export packets to the current capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
         <source>.</source>
@@ -4268,19 +4312,19 @@ more about Wireshark</source>
     </message>
     <message>
         <source>You have unsaved packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Masz niezapisane pakiety</translation>
     </message>
     <message>
         <source>They will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Będą utracone jeśli ich nie zapiszesz.</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety</translation>
     </message>
     <message>
         <source>Do you want to save the captured packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zapisać przechwycone pakiety</translation>
     </message>
     <message>
         <source>?</source>
@@ -4288,23 +4332,23 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku zrzutu  &quot;%1&quot;%2?</translation>
     </message>
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
         <source>Stop and Continue without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj i Kontynuuj bez zapisywania</translation>
     </message>
     <message>
         <source>Continue &amp;without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontynuuj bez zapisywania</translation>
     </message>
     <message>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
@@ -4312,43 +4356,43 @@ more about Wireshark</source>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizator Wireshark</translation>
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść Menu</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing . . .</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę czekać. Trwa inicjowanie Wiresharka . . .</translation>
     </message>
     <message>
         <source>Wireshark: Export Selected Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Eksportuj wybrane bajty pakietu</translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (*.*)</translation>
     </message>
     <message>
         <source>No Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak kluczy</translation>
     </message>
     <message>
         <source>There are no SSL Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (*.*)</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
         <source>900000000</source>
@@ -4360,7 +4404,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stwórz kolumnę na liście pakietów z wybranego pola.</translation>
     </message>
     <message>
         <source>Export PDUs to File...</source>
@@ -4368,19 +4412,19 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwersacje</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Konwersacje na różnych poziomach protokołów</translation>
     </message>
     <message>
         <source>No interface selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
         <source>&amp;Zoom</source>
@@ -4400,7 +4444,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Reload this file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wczytaj ponownie plik</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
@@ -4408,7 +4452,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Show or hide the main toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż lub ukryj główny pasek narzędziowy</translation>
     </message>
     <message>
         <source>&amp;Filter Toolbar</source>
@@ -4416,7 +4460,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Show or hide the display filter toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż lub ukryj pasek filtrowania</translation>
     </message>
     <message>
         <source>Endpoints</source>
@@ -4424,7 +4468,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Punkty krańcowe są na różnych warstwach</translation>
     </message>
     <message>
         <source>Colorize Packet List</source>
@@ -4476,71 +4520,71 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Data i czas  (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the date and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako czas pakietów pokazuj datę i czas.</translation>
     </message>
     <message>
         <source>Meta+Alt+1</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+1</translation>
     </message>
     <message>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rok, dzień roku, i czas (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako czas pakietów pokazuj rok dzień roku i czas.</translation>
     </message>
     <message>
         <source>Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas dnia (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Meta+Alt+2</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+2</translation>
     </message>
     <message>
         <source>Seconds Since 1970-01-01</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundy od  1970-01-01</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako czas pakietów pokazuj sekundy od ery UNIX/POSIX (1970-01-01).</translation>
     </message>
     <message>
         <source>Meta+Alt+3</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+3</translation>
     </message>
     <message>
         <source>Seconds Since Beginning of Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundy od początku przechwytywania</translation>
     </message>
     <message>
         <source>Meta+Alt+4</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+4</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundy od poprzedniego przechwyconego pakietu</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako czas pakietów pokazuj sekundy od poprzedniego przechwyconego pakietu.</translation>
     </message>
     <message>
         <source>Meta+Alt+5</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Alt+5</translation>
     </message>
     <message>
         <source>Seconds Since Previous Displayed Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundy od poprzedniego wyświetlanego pakiety</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako czas pakietów pokazuj sekundy od poprzedniego wyświetlonego pakietu.</translation>
     </message>
     <message>
         <source>Meta+Alt+6</source>
@@ -4658,6 +4702,18 @@ more about Wireshark</source>
         <source>Show or hide the packet bytes</source>
         <translation>Pokaż/ukryj bajty pakietu</translation>
     </message>
+    <message>
+        <source>900000000; </source>
+        <translation type="obsolete">900000000; </translation>
+    </message>
+    <message>
+        <source>Follow...</source>
+        <translation>Podążaj...</translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation>Bajty</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -4747,27 +4803,27 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Use system setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj ustawień systemowych</translation>
     </message>
     <message>
         <source>English</source>
-        <translation>English</translation>
+        <translation type="obsolete">English</translation>
     </message>
     <message utf8="true">
         <source>Français</source>
-        <translation>Français</translation>
+        <translation type="obsolete">Français</translation>
     </message>
     <message>
         <source>Deutsch</source>
-        <translation>Deutsch</translation>
+        <translation type="obsolete">Deutsch</translation>
     </message>
     <message>
         <source>Chinese</source>
-        <translation>Chinese</translation>
+        <translation type="obsolete">Chinese</translation>
     </message>
     <message>
         <source>Polski</source>
-        <translation>Polski</translation>
+        <translation type="obsolete">Polski</translation>
     </message>
     <message>
         <source>Open Files In</source>
@@ -4775,15 +4831,19 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Japanese</source>
-        <translation>Japanese</translation>
+        <translation type="obsolete">Japanese</translation>
     </message>
     <message>
         <source>You need to restart Wireshark for this change to take effect</source>
-        <translation>Musisz zrestartować Wiresharka by ta zmiana odniosła efekt</translation>
+        <translation type="obsolete">Musisz zrestartować Wiresharka by ta zmiana odniosła efekt</translation>
     </message>
     <message>
         <source>Italiano</source>
-        <translation>Italiano</translation>
+        <translation type="obsolete">Italiano</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation type="obsolete">Auto</translation>
     </message>
 </context>
 <context>
@@ -4810,7 +4870,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przełącz aby ukryć lub pokazać ukryty interfejs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zaznacz pole wyboru aby ukryć lub pokazać ukryty interfejs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Local Interfaces</source>
@@ -4954,7 +5014,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eksportuj dane pakietu w postaci heksadecymalnej&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eksportuj dane pakietu w postaci szesnastkowej&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -4965,31 +5025,31 @@ more about Wireshark</source>
     <name>PacketList</name>
     <message>
         <source>Follow...</source>
-        <translation>Podążaj...</translation>
+        <translation type="obsolete">Podążaj...</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation>SCTP</translation>
+        <translation type="obsolete">SCTP</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation>Zastosuj filtr</translation>
+        <translation type="obsolete">Zastosuj filtr</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation>Przygotuj filtr</translation>
+        <translation type="obsolete">Przygotuj filtr</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation>Koloruj filtr</translation>
+        <translation type="obsolete">Koloruj filtr</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopiuj</translation>
+        <translation type="obsolete">Kopiuj</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bajty</translation>
+        <translation type="obsolete">Bajty</translation>
     </message>
     <message>
         <source>Frame %1: %2 
@@ -5227,23 +5287,23 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation>Zastosuj filtr</translation>
+        <translation type="obsolete">Zastosuj filtr</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation>Przygotuj filtr</translation>
+        <translation type="obsolete">Przygotuj filtr</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation>Koloruj filtr</translation>
+        <translation type="obsolete">Koloruj filtr</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopiuj</translation>
+        <translation type="obsolete">Kopiuj</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bajty</translation>
+        <translation type="obsolete">Bajty</translation>
     </message>
     <message>
         <source>, 1 byte</source>
@@ -5559,19 +5619,19 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Number of Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba pakietów</translation>
     </message>
     <message>
         <source>Number of DATA Chunks</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba kawałków danych</translation>
     </message>
     <message>
         <source>Number of Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba bajtów</translation>
     </message>
     <message>
         <source>Filter Selected Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Asocjacja wybranego filtru</translation>
     </message>
     <message>
         <source>Analyze</source>
@@ -5675,7 +5735,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do następnego strumienia</translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -5687,7 +5747,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do poprzedniego strumienia</translation>
     </message>
     <message>
         <source>PgDown</source>
@@ -5695,11 +5755,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć kierunek</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć kierunk (zamień punkty krańcowe TCP)</translation>
     </message>
     <message>
         <source>D</source>
@@ -5707,11 +5767,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
         <source>G</source>
@@ -5731,7 +5791,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Relatywne/Absolutne numery sekwencyjne</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
@@ -5771,7 +5831,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz do wykresu czasu podróży</translation>
     </message>
     <message>
         <source>1</source>
@@ -5783,7 +5843,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz do wykres przepustowości</translation>
     </message>
     <message>
         <source>2</source>
@@ -5795,7 +5855,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz do wykres czasu/sekwencji Stevensa</translation>
     </message>
     <message>
         <source>3</source>
@@ -5807,7 +5867,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished">Przełącz do grafu Okna Skalowania</translation>
+        <translation>Przełącz do wykresu okna skalowania</translation>
     </message>
     <message>
         <source>5</source>
@@ -5819,7 +5879,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished">Przełącz do stylu tcptrace graf Czas / Sekwencja</translation>
+        <translation>Przełącz do wykresu w stylu czasu/sekwencji programu tcptrace</translation>
     </message>
     <message>
         <source>4</source>
@@ -5830,11 +5890,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <name>SCTPAssocAnalyseDialog</name>
     <message>
         <source>Wireshark - Analyse Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Analiza asocjacji</translation>
     </message>
     <message>
         <source>TabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>TabWidżet</translation>
     </message>
     <message>
         <source>Statistics</source>
@@ -5842,11 +5902,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Chunk Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statystyki kawałków</translation>
     </message>
     <message>
         <source>Filter Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr asocjacji</translation>
     </message>
     <message>
         <source>Close</source>
@@ -5854,27 +5914,27 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba kawałków danych od PK2 do PK1: </translation>
     </message>
     <message>
         <source>Checksum Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ sumy kontrolnej:</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP1 to EP2: </source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba kawałków danych od PK1 do PK2: </translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP1 to EP2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba bajtów danych od PK1 do PK2: </translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba bajtów danych od PK2 do PK1: </translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TekstEtykiety</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -5882,19 +5942,19 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Graph TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres TSN</translation>
     </message>
     <message>
         <source>Graph Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres bajtów</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba żądanych strumieni przychodzących:</translation>
     </message>
     <message>
         <source>Port:</source>
@@ -5902,19 +5962,19 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Sent Verification Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wysłany tag weryfikacyjny:</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna liczba strumieni przychodzących:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimalna liczba strumieni wychodzących:</translation>
     </message>
     <message>
         <source>Graph Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres Arwnd</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
@@ -5922,43 +5982,43 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba dostarczonych strumieni wychodzących:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT-ACK</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Analiza asocjacji SCTP: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Association found for this packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak asocjacji dla tego pakietu.</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletna lista adresów IP dostarczonych w kawałku INITACK</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba używanych adresów IP</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ilość używanych strumieni przychodzących:</translation>
     </message>
     <message>
         <source>Used Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ilość używanych strumieni wychodzących:</translation>
     </message>
 </context>
 <context>
@@ -5969,7 +6029,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Asocjacja</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
@@ -5981,121 +6041,121 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Save Chunk Type Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz kolejność typu kawałków</translation>
     </message>
     <message>
         <source>Hide Chunk Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukryj typ kawałku</translation>
     </message>
     <message>
         <source>Remove the chunk type from the table</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń typ kawałku z tablicy</translation>
     </message>
     <message>
         <source>Chunk Type Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferencje typu kawałku</translation>
     </message>
     <message>
         <source>Go to the chunk type preferences dialog to show or hide other chunk types</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do okna preferencji typu kawałku by pokazać lub ukryć typy kawałków</translation>
     </message>
     <message>
         <source>Show All Registered Chunk Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wszystkie zarejestrowane typy kawałĸów</translation>
     </message>
     <message>
         <source>Show all chunk types with defined names</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wszystkie typy kawałów ze zdefiniowaną nazwą</translation>
     </message>
     <message>
         <source>SCTP Chunk Statistics: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP  Statystyki Kawałków: %1 Port1 %2 Port2 %3</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphArwndDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres SCTP</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj do pełnego rozmiaru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz wykres</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>IdźDoPakietu</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane SCTP i Okna Ogłoszeń Odbiornika. w czasie: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wysłanych kawałów danych</translation>
     </message>
     <message>
         <source>Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Arwnd</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>czas [s]</translation>
     </message>
     <message>
         <source>Advertised Receiver Window [Bytes]</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno Ogłoszeń Odbiornika [bajty]</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: a_rwnd=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Wykres %1: a_rwnd=%2 Czas=%3 s &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphByteDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres SCTP</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj do pełnego rozmiaru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz wykres</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>IdźDoPakietu</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Dane SCTP i Okna Ogłoszeń Odbiornika. w czasie: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wysłanych kawałów danych</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -6103,94 +6163,94 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>czas [s]</translation>
     </message>
     <message>
         <source>Received Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Odebrane bajty</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: Received bytes=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Wykres %1: Odebrane bajty=%2 Czas=%3 s&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres SCTP</translation>
     </message>
     <message>
         <source>Only SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko SACKy</translation>
     </message>
     <message>
         <source>Only TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko TSNy</translation>
     </message>
     <message>
         <source>Show both</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż obie</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj do pełnego rozmiaru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz wykres</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>IdźDoPakietu</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do pakietu</translation>
     </message>
     <message>
         <source>SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP TSNy i SACKy w czasie: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wysłanych kawałów danych</translation>
     </message>
     <message>
         <source>CumTSNAck</source>
-        <translation type="unfinished"></translation>
+        <translation>Potierdzenie CumTS</translation>
     </message>
     <message>
         <source>Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Potwierdzenie luki</translation>
     </message>
     <message>
         <source>NR Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Potwierdzenie luki NR</translation>
     </message>
     <message>
         <source>Duplicate Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Podwójne potwierdzenie</translation>
     </message>
     <message>
         <source>TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>czas [s]</translation>
     </message>
     <message>
         <source>TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSNy</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;%1: %2 Time: %3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;%1: %2 Czas: %3 s &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -6221,7 +6281,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przeszukuj kolumnę Info (lista pakietów), zdekodowane pola (szczegóły pakietu) lub ACII/surowe dane pakietu (bajty pakietu).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet list</source>
@@ -6237,7 +6297,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Szukaj ciągu znaków w kodowanie wąskim (UTF-8 i ASCII) lub szerokim (UTF-16).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Narrow &amp; Wide</source>
@@ -6257,7 +6317,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Szukaj używając składni filtru (np. ip.addr==10.1.1.1), szesnastkowo (np. fffffda5) lub ciągu znaków (np. &quot;My String&quot;).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display filter</source>
@@ -6281,7 +6341,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>No valid search type selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano poprawnego typu wyszukiwania. Proszę to zgłosić programistom Wiresharka.</translation>
     </message>
     <message>
         <source>Invalid filter.</source>
@@ -6293,7 +6353,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>That&apos;s not a valid hex string.</source>
-        <translation>To niejest prawidłowy tekst w formacie heksadecymalnym.</translation>
+        <translation>To niejest prawidłowy tekst w formacie szesnastkowym.</translation>
     </message>
     <message>
         <source>You didn&apos;t specify any text for which to search.</source>
@@ -6301,31 +6361,31 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>No valid character set selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano poprawnego kodowania znaków. Proszę to zgłosić programistom Wiresharka.</translation>
     </message>
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano poprawnego obszaru wyszukiwania. Proszę to zgłosić programistom Wiresharka.</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden pakiet nie zwiera tych bajów.</translation>
     </message>
     <message>
         <source>No packet contained that string in its Info column.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden pakiet nie zawiera tego ciągu znaków w kolumnie Info.</translation>
     </message>
     <message>
         <source>No packet contained that string in its dissected display.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden pakiet nie zawiera tego ciągu znaków w zdekodowanych polach.</translation>
     </message>
     <message>
         <source>No packet contained that string in its converted data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden pakiet nie zawierająca tego ciągu znaków w swoich danych.</translation>
     </message>
     <message>
         <source>No packet matched that filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden pakiet nie spełnia wymogów tego filtru.</translation>
     </message>
 </context>
 <context>
@@ -6355,7 +6415,26 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Przydatne skróty klawiaturowe&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Resetuj wykres do stanu początkowego&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 1 piksel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Idź do pakietu pod kursorem&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
@@ -6507,14 +6586,18 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln węzeł</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln obiekt</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
         </translation>
     </message>
     <message>
@@ -6569,7 +6652,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Registering Python dissectors</source>
-        <translation>Rejestracja dekoderów w Pythonie</translation>
+        <translation type="obsolete">Rejestracja dekoderów w Pythonie</translation>
     </message>
     <message>
         <source>Handing off plugins</source>
@@ -6577,7 +6660,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Handing off Python dissectors</source>
-        <translation>Finalizowanie wtyczek Pythonowych</translation>
+        <translation type="obsolete">Finalizowanie wtyczek Pythonowych</translation>
     </message>
     <message>
         <source>Loading Lua plugins</source>
@@ -7196,11 +7279,46 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Przydatne skróty klawiaturowe&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Powiększ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Pomniejsz&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Resetuj wykres do ustawień początkowych&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 10 pikseli&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 1 piksel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 1 piksel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Następny strumień&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Poprzedni strumień&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Zmień kierunek (zamień miejscami punkty krańcowe)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Idź do pakietu pod kursorem&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Przełącz mysz pomiędzy przeciąganiem a pomniejszaniem/powiększaniem&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Przełącz pomiędzy relatywnymi a absolutnymi numerami sekwencyjnymi&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Przełącz pomiędzy czasem zrzutu a sesji&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Przełącz wskaźnik&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Wykres czasu podróży&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Wykres przepustowości&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;3&lt;/th&gt;&lt;td&gt;Wykres czasu/sekwencji Stevensa&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;4&lt;/th&gt;&lt;td&gt;Wykres czasu/sekwencji w stylu tcptrace&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;5&lt;/th&gt;&lt;td&gt;Wykres okna skalowania&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Przesuń mysz nad element by zobaczyć skrót&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Type</source>
@@ -7212,7 +7330,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zmień kierunek przepływu w połączeniu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
@@ -7240,7 +7358,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resetuj wykres do ustawień początkowych&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -7364,7 +7482,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Relatywne/Absolutne numery sekwencyjne</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
@@ -7396,7 +7514,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz na wykres czasu podróży</translation>
     </message>
     <message>
         <source>Throughput</source>
@@ -7404,7 +7522,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz na wykres przepustowości</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
@@ -7412,7 +7530,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz na wykres czasu/sekwencji Stevensa</translation>
     </message>
 </context>
 <context>
@@ -7470,7 +7588,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rozwiązuj nazwy adresu i portu. Ustawienie rozwiązywania nazw musi być włączone.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name resolution</source>
@@ -7478,15 +7596,15 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj tylko konwersacje pasujące do filtru&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogranicz do filtru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń typ konwersacji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Wireshark: %1s</source>
@@ -7506,7 +7624,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj wszystkie wartości z tej strony w CSV do schowka.</translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -7514,7 +7632,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj wszystkie wartości z tej strony w formacie serializacji YAML do schowka.</translation>
     </message>
     <message>
         <source>Unknown</source>
