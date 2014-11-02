@@ -1984,34 +1984,9 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     len = optlen - FMIP6_LLA_LLA_OFF;
 
     if (len > 0) {
-        /*
-         * I'm not sure what "The format of the option when the LLA is 6
-         * bytes is shown in Figure 15.  When the LLA size is different,
-         * the option MUST be aligned appropriately.  See Section 6.2 in
-         * [3]." in RFC 4068 says should be done with an LLA size other
-         * than 6 bytes; section 6.2 in RFC 3775 (reference 3 in RFC 4068)
-         * says "Mobility options may have alignment requirements.  Following
-         * the convention in IPv6, these options are aligned in a packet so
-         * that multi-octet values within the Option Data field of each
-         * option fall on natural boundaries (i.e., fields of width n octets
-         * are placed at an integer multiple of n octets from the start of
-         * the header, for n = 1, 2, 4, or 8) [11]."
-         *
-         * Reference 11 in RFC 3775 is RFC 2460, the IPv6 spec; nothing
-         * in there seems to talk about inserting padding *inside* the
-         * data value of an option, so I'm not sure what the extra pad0
-         * is doing there, unless the idea is to arrange that the LLA is
-         * at least aligned on a 2-byte boundary, in which case presumably
-         * it's always present.  We'll assume that.
-         */
-        if (len > 1) {
-            /* Skip padding. */
-            p   += 1;
-            len -= 1;
-            proto_tree_add_text(field_tree, tvb,
-                    p, len, "Link-layer address: %s",
-                    tvb_bytes_to_ep_str_punct(tvb, p, len, ':'));
-        }
+        proto_tree_add_text(field_tree, tvb,
+                p, len, "Link-layer address: %s",
+                tvb_bytes_to_ep_str_punct(tvb, p, len, ':'));
     }
 }
 
