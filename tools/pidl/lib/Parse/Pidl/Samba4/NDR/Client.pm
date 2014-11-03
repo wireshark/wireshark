@@ -259,7 +259,7 @@ sub HeaderProperties($$)
 	my($props,$ignores) = @_;
 	my $ret = "";
 
-	foreach my $d (keys %{$props}) {
+	foreach my $d (sort(keys %{$props})) {
 		next if (grep(/^$d$/, @$ignores));
 		if($props->{$d} ne "1") {
 			$ret.= "$d($props->{$d}),";

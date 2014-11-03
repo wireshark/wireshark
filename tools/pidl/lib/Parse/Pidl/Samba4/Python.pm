@@ -22,9 +22,11 @@ $VERSION = '0.01';
 
 sub new($) {
 	my ($class) = @_;
-	my $self = { res => "", res_hdr => "", tabs => "", constants => {},
+	my $self = { res => "", res_hdr => "", tabs => "",
+				 constants => [], constants_uniq => {},
 	             module_methods => [], module_objects => [], ready_types => [],
-				 module_imports => {}, type_imports => {},
+				 module_imports => [], module_imports_uniq => {},
+				 type_imports => [], type_imports_uniq => {},
 				 patch_type_calls => [], prereadycode => [],
 			 	 postreadycode => []};
 	bless($self, $class);
@@ -94,7 +96,11 @@ sub register_constant($$$$)
 {
 	my ($self, $name, $type, $value) = @_;
 
-	$self->{constants}->{$name} = [$type, $value];
+	unless (defined $self->{constants_uniq}->{$name}) {
+		my $h = {"key" => $name, "val" => [$type, $value]};
+		push @{$self->{constants}}, $h;
+		$self->{constants_uniq}->{$name} = $h;
+	}
 }
 
 sub EnumAndBitmapConsts($$$)
@@ -844,8 +850,11 @@ sub register_module_import($$)
 	$var_name =~ s/\./_/g;
 	$var_name = "dep_$var_name";
 
-	$self->{module_imports}->{$var_name} = $module_path;
-
+	unless (defined $self->{module_imports_uniq}->{$var_name}) {
+		my $h = { "key" => $var_name, "val" => $module_path};
+		push @{$self->{module_imports}}, $h;
+		$self->{module_imports_uniq}->{$var_name} = $h;
+	}
 	return $var_name;
 }
 
@@ -854,8 +863,10 @@ sub import_type_variable($$$)
 	my ($self, $module, $name) = @_;
 
 	$self->register_module_import($module);
-	unless (defined($self->{type_imports}->{$name})) {
-		$self->{type_imports}->{$name} = $module;
+	unless (defined $self->{type_imports_uniq}->{$name}) {
+		my $h = { "key" => $name, "val" => $module};
+		push @{$self->{type_imports}}, $h;
+		$self->{type_imports_uniq}->{$name} = $h;
 	}
 	return "$name\_Type";
 }
@@ -1405,25 +1416,25 @@ sub Parse($$$$$)
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("PyObject *m;");
-	foreach (keys %{$self->{module_imports}}) {
-		$self->pidl("PyObject *$_;");
+	foreach my $h (@{$self->{module_imports}}) {
+		$self->pidl("PyObject *$h->{'key'};");
 	}
 	$self->pidl("");
 
-	foreach (keys %{$self->{module_imports}}) {
-		my $var_name = $_;
-		my $module_path = $self->{module_imports}->{$var_name};
+	foreach my $h (@{$self->{module_imports}}) {
+		my $var_name = $h->{'key'};
+		my $module_path = $h->{'val'};
 		$self->pidl("$var_name = PyImport_ImportModule(\"$module_path\");");
 		$self->pidl("if ($var_name == NULL)");
 		$self->pidl("\treturn;");
 		$self->pidl("");
 	}
 
-	foreach (keys %{$self->{type_imports}}) {
-		my $type_var = "$_\_Type";
-		my $module_path = $self->{type_imports}->{$_};
+	foreach my $h (@{$self->{type_imports}}) {
+		my $type_var = "$h->{'key'}\_Type";
+		my $module_path = $h->{'val'};
 		$self->pidl_hdr("static PyTypeObject *$type_var;\n");
-		my $pretty_name = PrettifyTypeName($_, $module_path);
+		my $pretty_name = PrettifyTypeName($h->{'key'}, $module_path);
 		my $module_var = "dep_$module_path";
 		$module_var =~ s/\./_/g;
 		$self->pidl("$type_var = (PyTypeObject *)PyObject_GetAttrString($module_var, \"$pretty_name\");");
@@ -1454,9 +1465,10 @@ sub Parse($$$$$)
 	$self->pidl("if (m == NULL)");
 	$self->pidl("\treturn;");
 	$self->pidl("");
-	foreach my $name (keys %{$self->{constants}}) {
+	foreach my $h (@{$self->{constants}}) {
+		my $name = $h->{'key'};
 		my $py_obj;
-		my ($ctype, $cvar) = @{$self->{constants}->{$name}};
+		my ($ctype, $cvar) = @{$h->{'val'}};
 		if ($cvar =~ /^[0-9]+$/ or $cvar =~ /^0x[0-9a-fA-F]+$/) {
 			$py_obj = "PyInt_FromLong($cvar)";
 		} elsif ($cvar =~ /^".*"$/) {

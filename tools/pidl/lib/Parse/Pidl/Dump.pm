@@ -39,7 +39,7 @@ sub DumpProperties($)
     my $res = "";
 
     foreach my $d ($props) {
-	foreach my $k (keys %{$d}) {
+	foreach my $k (sort(keys %{$d})) {
 	    if ($k eq "in") {
 		$res .= "[in] ";
 		next;
@@ -244,7 +244,7 @@ sub DumpInterfaceProperties($)
     my($res);
 
     $res .= "[\n";
-    foreach my $k (keys %{$data}) {
+    foreach my $k (sort(keys %{$data})) {
 	    $first || ($res .= ",\n"); $first = 0;
 	    $res .= "$k($data->{$k})";
     }
