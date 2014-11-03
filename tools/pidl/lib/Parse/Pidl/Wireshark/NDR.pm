@@ -189,6 +189,13 @@ sub Enum($$$$)
 	$self->register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, di, drep, \@HF\@, \@PARAM\@);", "FT_UINT$enum_size", "BASE_DEC", "0", "VALS($valsstring)", $enum_size / 8);
 }
 
+sub Pipe($$$$)
+{
+	my ($self,$e,$name,$ifname) = @_;
+	error($e->{ORIGINAL}, "Pipe not yet supported");
+	return;
+}
+
 sub Bitmap($$$$)
 {
 	my ($self,$e,$name,$ifname) = @_;
@@ -398,6 +405,8 @@ sub ElementLevel($$$$$$$$)
 		$self->pidl_code("di->call_data->flags = saved_flags;");
 		$self->deindent;
 		$self->pidl_code("}");
+	} elsif ($_->{TYPE} eq "PIPE") {
+		error($e->{ORIGINAL}, "Type PIPE not yet supported");
 	} else {
 		die("Unknown type `$_->{TYPE}'");
 	}
@@ -812,13 +821,13 @@ sub Type($$$$)
 	my ($self, $e, $name, $ifname) = @_;
 
 	$self->PrintIdl(DumpType($e->{ORIGINAL}));
-
 	{
 		ENUM => \&Enum,
 		STRUCT => \&Struct,
 		UNION => \&Union,
 		BITMAP => \&Bitmap,
-		TYPEDEF => \&Typedef
+		TYPEDEF => \&Typedef,
+		PIPE    => \&Pipe
 	}->{$e->{TYPE}}->($self, $e, $name, $ifname);
 }
 
