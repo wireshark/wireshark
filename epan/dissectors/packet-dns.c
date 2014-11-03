@@ -372,11 +372,12 @@ typedef struct _dns_transaction_t {
   guint32 req_frame;
   guint32 rep_frame;
   nstime_t req_time;
+  guint id;
 } dns_transaction_t;
 
 /* Structure containing conversation specific information */
 typedef struct _dns_conv_info_t {
-  wmem_map_t *pdus;
+  wmem_tree_t *pdus;
 } dns_conv_info_t;
 
 /* DNS structs and definitions */
@@ -3544,6 +3545,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   conversation_t    *conversation;
   dns_conv_info_t   *dns_info;
   dns_transaction_t *dns_trans;
+  wmem_tree_key_t    key[3];
 
   dns_data_offset = offset;
 
@@ -3598,9 +3600,17 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * it to the list of information structures.
      */
     dns_info = wmem_new(wmem_file_scope(), dns_conv_info_t);
-    dns_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    dns_info->pdus=wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_dns, dns_info);
   }
+
+  key[0].length = 1;
+  key[0].key = &id;
+  key[1].length = 1;
+  key[1].key = &pinfo->fd->num;
+  key[2].length = 0;
+  key[2].key = NULL;
+
   if (!pinfo->fd->flags.visited) {
     if (!(flags&F_RESPONSE)) {
       /* This is a request */
@@ -3608,15 +3618,23 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dns_trans->req_frame=pinfo->fd->num;
       dns_trans->rep_frame=0;
       dns_trans->req_time=pinfo->fd->abs_ts;
-      wmem_map_insert(dns_info->pdus, GUINT_TO_POINTER(id), (void *)dns_trans);
+      dns_trans->id = id;
+      wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
     } else {
-      dns_trans=(dns_transaction_t *)wmem_map_lookup(dns_info->pdus, GUINT_TO_POINTER(id));
+      dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
       if (dns_trans) {
-        dns_trans->rep_frame=pinfo->fd->num;
+        if (dns_trans->id != id) {
+          dns_trans = NULL;
+        } else {
+          dns_trans->rep_frame=pinfo->fd->num;
+        }
       }
     }
   } else {
-    dns_trans=(dns_transaction_t *)wmem_map_lookup(dns_info->pdus, GUINT_TO_POINTER(id));
+    dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
+    if (dns_trans && dns_trans->id != id) {
+      dns_trans = NULL;
+    }
   }
   if (!dns_trans) {
     /* create a "fake" pana_trans structure */
