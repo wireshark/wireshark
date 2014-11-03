@@ -348,7 +348,14 @@ sub ElementLevel($$$$$$$$)
 				$call= $self->{conformance}->{types}->{$l->{DATA_TYPE}}->{DISSECTOR_NAME};
 				$self->{conformance}->{types}->{$l->{DATA_TYPE}}->{USED} = 1;
 			} else {
-				$self->pidl_code("offset = $ifname\_dissect_struct_" . $l->{DATA_TYPE} . "(tvb,offset,pinfo,tree,di,drep,$hf,$param);");
+				my $t;
+				if (ref($l->{DATA_TYPE}) eq "HASH" ) {
+					$t = "$l->{DATA_TYPE}->{TYPE}_$l->{DATA_TYPE}->{NAME}";
+				} else {
+					$t = $l->{DATA_TYPE};
+				}
+
+				$self->pidl_code("offset = $ifname\_dissect_struct_" . $t . "(tvb,offset,pinfo,tree,di,drep,$hf,$param);");
 
 				return;
 			}
