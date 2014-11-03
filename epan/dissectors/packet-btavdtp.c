@@ -88,6 +88,7 @@
 #define CODEC_MPEG12_AUDIO    0x01
 #define CODEC_MPEG24_AAC      0x02
 #define CODEC_ATRAC           0x04
+#define CODEC_APT_X           0xFF01
 
 #define CODEC_H263_BASELINE   0x01
 #define CODEC_MPEG4_VSP       0x02
@@ -317,6 +318,7 @@ static const enum_val_t pref_a2dp_codec[] = {
     { "mp2t",        "MPEG12 AUDIO", CODEC_MPEG12_AUDIO },
     { "mpeg-audio",  "MPEG24 AAC",   CODEC_MPEG24_AAC },
 /* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
+    { "aptx",        "APT-X",        CODEC_APT_X },
     { NULL, NULL, 0 }
 };
 
@@ -2655,7 +2657,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item_append_text(pitem, " ms");
     PROTO_ITEM_SET_GENERATED(pitem);
 
-    if (info) {
+    if (info && info->previous_media_packet_info && info->current_media_packet_info) {
         nstime_t  delta;
 
         nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
@@ -2839,6 +2841,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case CODEC_ATRAC:
             codec_dissector = atrac_handle;
+        case CODEC_APT_X:
+            codec_dissector = aptx_handle;
             break;
     }
 
