@@ -356,7 +356,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
 static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint rfci_id _U_, int offset) {
     iuup_circuit_t* iuup_circuit;
     iuup_rfci_t *rfci;
-    int last_offset = tvb_length(tvb) - 1;
+    int last_offset = tvb_reported_length(tvb) - 1;
     guint bit_offset = 0;
     proto_item* pi;
 
@@ -593,7 +593,7 @@ update_crc10_by_bytes_iuup(tvbuff_t *tvb, int offset, int length)
 static void add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
 {
     proto_item *crc_item;
-    int length = tvb_length(tvb);
+    int length = tvb_reported_length(tvb);
     guint16 crccheck = update_crc10_by_bytes_iuup(tvb, 2, length - 4);
 
     crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
@@ -625,7 +625,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IuUP");
 
     if (two_byte_pseudoheader) {
-        int len = tvb_length(tvb_in) - 2;
+        int len = tvb_reported_length(tvb_in) - 2;
 
         phdr = tvb_get_ntohs(tvb,0);
 
@@ -793,7 +793,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
 
 static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    int len = tvb_length(tvb);
+    int len = tvb_captured_length(tvb);
 
     guint8 first_octet =  tvb_get_guint8(tvb,0);
     guint8 second_octet =  tvb_get_guint8(tvb,1);
@@ -825,7 +825,7 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    int len = tvb_length(tvb);
+    int len = tvb_captured_length(tvb);
     int offset = 0;
 
     while (len > 3) {

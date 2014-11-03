@@ -574,7 +574,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
   parameter_tree   = proto_tree_add_subtree_format(iua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1, ett_iua_parameter, &parameter_item,
@@ -652,7 +652,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
+  while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
     if (remaining_length >= length)

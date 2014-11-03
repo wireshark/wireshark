@@ -2768,7 +2768,7 @@ bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     g_tree = tree;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
     g_tree = NULL;
@@ -3191,7 +3191,7 @@ bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     g_tree = tree;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
     g_tree = NULL;
@@ -7082,7 +7082,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     g_tree = tree;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     /*
      * add BSSMAP message name

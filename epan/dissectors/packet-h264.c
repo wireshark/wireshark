@@ -832,13 +832,13 @@ more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint
 
     /* Set offset to the byte we are treating */
     offset = bit_offset>>3;
-    remaining_length = tvb_length_remaining(tvb, offset);
+    remaining_length = tvb_reported_length_remaining(tvb, offset);
     /* If there is more then 2 bytes left there *should* be more data */
     if (remaining_length>2) {
         return TRUE;
     }
     /* Start from last bit */
-    last_one_bit = (tvb_length(tvb) << 3);
+    last_one_bit = (tvb_reported_length(tvb) << 3);
 
     for (b = 0; !b; ) {
         last_one_bit--;
@@ -1225,7 +1225,7 @@ static tvbuff_t *
 dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     tvbuff_t *tvb_rbsp;
-    int       length         = tvb_length_remaining(tvb, offset);
+    int       length         = tvb_reported_length_remaining(tvb, offset);
     int       NumBytesInRBSP = 0;
     int       i;
     gchar    *buff;
@@ -2357,7 +2357,7 @@ startover:
     case H264_SEQ_PAR_SET:  /* 7 Sequence parameter set*/
         offset = dissect_h264_seq_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
         /* A bit ugly */
-        if ((offset != -1) && (tvb_length_remaining(tvb, offset) > 0)) {
+        if ((offset != -1) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
             /* In this case length = offset as we start from zero */
             proto_item_set_len(item, offset/*Length */);
             item = proto_tree_add_item(tree, hf_h264_nal_unit, tvb, offset, -1, ENC_NA);
@@ -2644,7 +2644,7 @@ dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pin
 
     dissect_h264_nal_unit(tvb, pinfo, tree);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 typedef struct _h264_capability_t {
@@ -2708,7 +2708,7 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void*
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
