@@ -1,6 +1,12 @@
 # -*- text -*-
 #
 # Version $Id$
+# 2014-11-03 Comment out
+# dictionary.rfc6929
+# dictionary.rfc6930
+# dictionary.rfc7155
+# dictionary.rfc7268
+# As they give errors in the test, something may have changed in the free rasdius syntax
 #
 # 2014-10-26 Updated based upon FreeRadius v3.0.4 dictionary file
 #	     - Added : actelis, aerohive, alvarion.wimax.v2_2, bluecoat, broadsoft, brocade, bskyb,
@@ -109,11 +115,11 @@ $INCLUDE dictionary.rfc6519
 $INCLUDE dictionary.rfc6572
 $INCLUDE dictionary.rfc6677
 $INCLUDE dictionary.rfc6911
-$INCLUDE dictionary.rfc6929
-$INCLUDE dictionary.rfc6930
+#$INCLUDE dictionary.rfc6929
+#$INCLUDE dictionary.rfc6930
 $INCLUDE dictionary.rfc7055
-$INCLUDE dictionary.rfc7155
-$INCLUDE dictionary.rfc7268
+#$INCLUDE dictionary.rfc7155
+#$INCLUDE dictionary.rfc7268
 
 #
 #	Mostly values which have been allocated by IANA under
