@@ -671,6 +671,13 @@ sub Struct($$$$)
 		$res.="\t".$self->Element($_, $name, $ifname, $switch_info, %switch_hash)."\n\n";
 	}
 
+	my $doalign = undef;
+	if ($e->{ALIGN} > 1 and not property_matches($e, "flag", ".*LIBNDR_FLAG_NOALIGN.*")) {
+		$doalign = 1;
+	} elsif (property_matches($e, "flag", ".*LIBNDR_FLAG_NOALIGN.*")) {
+		$doalign = 0;
+	}
+
 	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);");
 
 	$self->pidl_fn_start($dissectorname);
@@ -683,6 +690,9 @@ sub Struct($$$$)
 	if($res) {
 		$self->pidl_code("proto_tree *tree = NULL;");
 	}
+	if (defined($doalign) and $doalign == 0) {
+		$self->pidl_code("gboolean oldalign = di->no_align;");
+	}
 	$self->pidl_code("int old_offset;");
 	$self->pidl_code("");
 
@@ -690,6 +700,16 @@ sub Struct($$$$)
 		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
 	}
 	$self->pidl_code("");
+
+	if (defined($doalign)) {
+		if ($doalign == 1) {
+			$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
+		}
+		if ($doalign == 0) {
+			$self->pidl_code("di->no_align = TRUE;");
+		}
+		$self->pidl_code("");
+	}
 
 	$self->pidl_code("old_offset = offset;");
 	$self->pidl_code("");
@@ -705,13 +725,17 @@ sub Struct($$$$)
 	$self->pidl_code("\n$res");
 
 	$self->pidl_code("proto_item_set_len(item, offset-old_offset);\n");
-	if ($e->{ALIGN} > 1) {
+	if (defined($doalign) and $doalign == 1) {
 		$self->pidl_code("");
 		$self->pidl_code("if (di->call_data->flags & DCERPC_IS_NDR64) {");
 		$self->indent;
 		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
 		$self->deindent;
 		$self->pidl_code("}");
+	}
+	if (defined($doalign) and $doalign == 0) {
+		$self->pidl_code("");
+		$self->pidl_code("di->no_align = oldalign;");
 	}
 	$self->pidl_code("");
 	$self->pidl_code("return offset;");
