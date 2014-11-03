@@ -1183,6 +1183,23 @@ sub register_hf_field($$$$$$$$$)
 	return $index;
 }
 
+sub change_hf_field_type($$$$)
+{
+	my ($self,$index,$ft_type,$base_type) = @_;
+	if (defined ($self->{conformance}->{hf_renames}->{$index})) {
+		print "Field $index has been renamed to ".$self->{conformance}->{hf_renames}->{$index}->{NEWNAME}." you can't change it's type";
+		return 0;
+	}
+
+	if (!defined ($self->{conformance}->{header_fields}->{$index})) {
+		print "Field $index doesn't exists";
+		return 0;
+	}
+	$self->{conformance}->{header_fields}->{$index}->{FT_TYPE} = $ft_type;
+	$self->{conformance}->{header_fields}->{$index}->{BASE_TYPE} = $base_type;
+	return 1;
+}
+
 sub DumpHfDeclaration($)
 {
 	my ($self) = @_;
