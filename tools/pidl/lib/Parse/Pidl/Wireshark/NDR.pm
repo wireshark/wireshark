@@ -646,7 +646,7 @@ sub Struct($$$$)
 		my $switch_info = undef;
 
 		my $v = $_->{NAME};
-		if (scalar(grep {/$v/} keys(%$varswitchs)) == 1) {
+		if (scalar(grep {/^$v$/} keys(%$varswitchs)) == 1) {
 			# This element is one of the switch attribute
 			my $switch_dt =  getType($_->{TYPE});
 			my $switch_type;
