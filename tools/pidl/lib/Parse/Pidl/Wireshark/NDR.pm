@@ -479,6 +479,12 @@ sub Element($$$$$$)
 			BASE_TYPE => "BASE_NONE"
 		};
 	}
+	if (property_matches($e, "flag", ".*LIBNDR_FLAG_ALIGN.*")) {
+		my $align_flag = $e->{PROPERTIES}->{flag};
+		if ($align_flag =~ m/LIBNDR_FLAG_ALIGN(\d+)/) {
+			$call_code = "ALIGN_TO_$1_BYTES; ".$call_code;
+		}
+	}
 
 	my $hf = $self->register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", $type->{FT_TYPE}, $type->{BASE_TYPE}, $type->{VALSSTRING}, $type->{MASK}, "");
 	$self->{hf_used}->{$hf} = 1;
