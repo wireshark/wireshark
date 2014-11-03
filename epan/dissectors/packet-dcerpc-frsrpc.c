@@ -40,182 +40,182 @@ static gint ett_frsrpc_frsrpc_FrsSendCommPktReq = -1;
 
 
 /* Header field declarations */
-static gint hf_frsrpc_frsrpc_CommPktChunkData_to = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_data = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_major = -1;
+static gint hf_CommPktChunk = -1;
+static gint hf_frsrpc_CommPktChangeOrderCommand_file_name = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_ack_version = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_change_order_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_connection_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_content_cmd = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_event_time = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_extension = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_attributes = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name_length = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_offset = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_usn = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_version_number = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_flags = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_frs_vsn = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_iflags = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_first_usn = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_usn = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_location_cmd = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_parent_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_replica_num = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_not_used = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_old_parent_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_original_replica_num = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_originator_guid = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_not_used = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding1 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding2 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding3 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding4 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_partern_ack_sequence_number = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_sequence_number = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p1 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p2 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1wcs = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2bin = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2guid_p1 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2ul1 = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2wcs = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare3guid_p2 = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_last = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_status = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_parent_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p1 = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid_ = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_original_replica_num = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_first_usn = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_sequence_number = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_first_try_time = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_attributes = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunk_data = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid_ = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPkt_req = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_data_checksum = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding4 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding2 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_ack_version = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_file_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name_length = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_guid_ = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_pkt_len = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_join_guid_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_major = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_type = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_iflags = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_command = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid = -1;
-static gint hf_frsrpc_CommPktChangeOrderCommand_file_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_major = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_last = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset1 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_vvector = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_size = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_from = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_change_order_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_compression_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_old_parent_guid = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account = -1;
-static gint hf_frsrpc_frsrpc_CommPktGSVN_vsn = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_field_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_partern_ack_sequence_number = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_extension = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_offset = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p2 = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_upk_len = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_blob = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_version_number = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_type = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_usn = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunk_data_ = -1;
-static gint hf_frsrpc_werror = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_join_guid = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent___ndr_guid_size = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_data_handle = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_content_cmd = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_cs_id = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_data_checksum = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_name_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_remote_co = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_extension2 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2guid_p1 = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent___ndr_guid_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_gvsn_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_block_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_not_used = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_vvector_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_bop = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_file_offset = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset0 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding1 = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_bopend = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_count = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_last_join_time = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunk_type = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_connection_guid = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_data_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_gvsn = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_replica = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_count = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_usn = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding3 = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_partner_auth_level = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_block = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_remote_co_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_location_cmd = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_not_used = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2ul1 = -1;
-static gint hf_frsrpc_opnum = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_join_time_ = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2bin = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_field_size = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_frs_vsn = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr = -1;
-static gint hf_frsrpc_frsrpc_CommPktChunkData_connection = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_count = -1;
 static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_data_retry_timeout = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_event_time = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_memory_len = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_minor = -1;
-static gint hf_CommPktChunk = -1;
-static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD = -1;
-static gint hf_frsrpc_frsrpc_CommPktGSVN_guid = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION = -1;
-static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_size = -1;
-static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr_ = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_auth_level = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_flags = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_field_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_major = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_not_used = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset0 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset1 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_count = -1;
+static gint hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_last = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_blob = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_block = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_block_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_bop = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_bopend = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_extension2 = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_guid_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_command = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_compression_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_connection = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_file_offset = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_file_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_from = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_gvsn = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_gvsn_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_join_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_join_guid_ = -1;
 static gint hf_frsrpc_frsrpc_CommPktChunkData_join_time = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1wcs = -1;
-static gint hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_replica_num = -1;
-static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password = -1;
-static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_join_time_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_last_join_time = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_remote_co = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_remote_co_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_replica = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_to = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_vvector = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkData_vvector_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_guid_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_name = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunkGuidName_name_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunk_data = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunk_data_ = -1;
+static gint hf_frsrpc_frsrpc_CommPktChunk_type = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C = -1;
 static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_VV_UPDATE = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_data_checksum = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_field_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_major = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_count = -1;
+static gint hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_last = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_data = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_type = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_count = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_first_try_time = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_not_used = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_size = -1;
+static gint hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_type = -1;
+static gint hf_frsrpc_frsrpc_CommPktGSVN_guid = -1;
+static gint hf_frsrpc_frsrpc_CommPktGSVN_vsn = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_cs_id = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr_ = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_data_handle = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_data_name = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_major = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_memory_len = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_minor = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_pkt_len = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPktReq_upk_len = -1;
+static gint hf_frsrpc_frsrpc_FrsSendCommPkt_req = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent___ndr_guid_size = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid_ = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid_ = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_auth_level = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid_ = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name = -1;
+static gint hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent___ndr_guid_size = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_partner_auth_level = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name = -1;
+static gint hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type = -1;
+static gint hf_frsrpc_opnum = -1;
+static gint hf_frsrpc_werror = -1;
 
 static gint proto_dcerpc_frsrpc = -1;
 /* Version information */
@@ -725,7 +725,7 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 
 /* IDL: struct { */
 /* IDL: 	[subcontext(4)] GUID guid; */
-/* IDL: 	[subcontext(4)] [flag(LIBNDR_FLAG_STR_NULLTERM)] string name; */
+/* IDL: 	[flag(LIBNDR_FLAG_STR_NULLTERM)] [subcontext(4)] string name; */
 /* IDL: } */
 
 static int
@@ -838,6 +838,8 @@ frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
+
+	ALIGN_TO_8_BYTES;
 
 	ALIGN_TO_8_BYTES;
 
@@ -1144,12 +1146,12 @@ int
 frsrpc_dissect_enum_CommPktCoCmdStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -1335,12 +1337,12 @@ int
 frsrpc_dissect_enum_CommPktCoCmdLocationCmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -1719,6 +1721,8 @@ frsrpc_dissect_struct_CommPktChangeOrderCommand(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_8_BYTES;
 
+	ALIGN_TO_8_BYTES;
+
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -1830,12 +1834,12 @@ int
 frsrpc_dissect_enum_CommPktDataExtensionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -1887,6 +1891,8 @@ frsrpc_dissect_struct_CommPktDataExtensionChecksum(tvbuff_t *tvb _U_, int offset
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
+
+	ALIGN_TO_4_BYTES;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1972,6 +1978,8 @@ frsrpc_dissect_struct_CommPktDataExtensionRetryTimeout(tvbuff_t *tvb _U_, int of
 
 	ALIGN_TO_4_BYTES;
 
+	ALIGN_TO_4_BYTES;
+
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -2010,12 +2018,12 @@ int
 frsrpc_dissect_enum_CommPktCoRecordExtensionMajor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
 {
 	guint1632 parameter=0;
-	if(param){
-		parameter=(guint1632)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -2084,6 +2092,8 @@ frsrpc_dissect_struct_CommPktCoRecordExtensionWin2k(tvbuff_t *tvb _U_, int offse
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
+
+	ALIGN_TO_4_BYTES;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2211,6 +2221,8 @@ frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int o
 
 	ALIGN_TO_4_BYTES;
 
+	ALIGN_TO_4_BYTES;
+
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -2294,12 +2306,12 @@ int
 frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
 {
 	guint1632 parameter=0;
-	if(param){
-		parameter=(guint1632)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -2307,29 +2319,29 @@ frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 /* IDL: [nodiscriminant(1)] union { */
 /* IDL: [default] ; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BOP)] [value(0)] [case(FRSRPC_COMM_PKT_CHUNK_BOP)] uint32 bop; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BOP)] [case(FRSRPC_COMM_PKT_CHUNK_BOP)] [value(0)] uint32 bop; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_COMMAND)] [case(FRSRPC_COMM_PKT_CHUNK_COMMAND)] frsrpc_CommPktCommand command; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_TO)] [case(FRSRPC_COMM_PKT_CHUNK_TO)] frsrpc_CommPktChunkGuidName to; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FROM)] [case(FRSRPC_COMM_PKT_CHUNK_FROM)] frsrpc_CommPktChunkGuidName from; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REPLICA)] [case(FRSRPC_COMM_PKT_CHUNK_REPLICA)] frsrpc_CommPktChunkGuidName replica; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CONNECTION)] [case(FRSRPC_COMM_PKT_CHUNK_CONNECTION)] frsrpc_CommPktChunkGuidName connection; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_JOIN_GUID)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_JOIN_GUID)] GUID join_guid; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_JOIN_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_JOIN_GUID)] [subcontext(4)] GUID join_guid; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_LAST_JOIN_TIME)] [case(FRSRPC_COMM_PKT_CHUNK_LAST_JOIN_TIME)] NTTIME last_join_time; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_VVECTOR)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_VVECTOR)] frsrpc_CommPktGSVN vvector; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] NTTIME join_time; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] GUID replica_version_guid; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_VVECTOR)] [case(FRSRPC_COMM_PKT_CHUNK_VVECTOR)] [subcontext(4)] frsrpc_CommPktGSVN vvector; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] [subcontext(4)] NTTIME join_time; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] [subcontext(4)] GUID replica_version_guid; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)] GUID compression_guid; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] [flag(LIBNDR_FLAG_REMAINING)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] DATA_BLOB block; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] [flag(LIBNDR_FLAG_REMAINING)] DATA_BLOB block; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)] hyper block_size; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)] [case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)] hyper file_size; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] hyper file_offset; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] frsrpc_CommPktGSVN gvsn; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] GUID co_guid; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] [case(FRSRPC_COMM_PKT_CHUNK_GVSN)] [subcontext(4)] frsrpc_CommPktGSVN gvsn; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)] [subcontext(4)] GUID co_guid; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] [case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)] uint32 co_sequnence_number; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] frsrpc_CommPktChangeOrderCommand remote_co; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] frsrpc_CommPktCoRecordExtensionWin2k co_ext_win2k; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] [case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)] [subcontext(4)] frsrpc_CommPktChangeOrderCommand remote_co; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)] [subcontext(4)] frsrpc_CommPktCoRecordExtensionWin2k co_ext_win2k; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)] [case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)] frsrpc_CommPktChangeOrderRecordExtension co_extension2; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_EOP)] [value(0xFFFFFFFF)] [case(FRSRPC_COMM_PKT_CHUNK_EOP)] uint32 bopend; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_EOP)] [case(FRSRPC_COMM_PKT_CHUNK_EOP)] [value(0xFFFFFFFF)] uint32 bopend; */
 /* IDL: } */
 
 static int
@@ -2856,12 +2868,12 @@ int
 frsrpc_dissect_enum_CommPktMajor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -2884,12 +2896,12 @@ int
 frsrpc_dissect_enum_CommPktMinor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -2900,9 +2912,9 @@ frsrpc_dissect_enum_CommPktMinor(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: 	frsrpc_CommPktMinor minor; */
 /* IDL: 	[value(1)] uint32 cs_id; */
 /* IDL: 	[value(pkt_len+12)] uint32 memory_len; */
-/* IDL: 	[value(ndr_size_frsrpc_CommPktChunkCtr(r->ctr,ndr->flags))] [range(0,262144)] uint32 pkt_len; */
+/* IDL: 	[range(0,262144)] [value(ndr_size_frsrpc_CommPktChunkCtr(r->ctr,ndr->flags))] uint32 pkt_len; */
 /* IDL: 	[value(0)] uint32 upk_len; */
-/* IDL: 	[unique(1)] [subcontext_size(pkt_len)] [subcontext(4)] frsrpc_CommPktChunkCtr *ctr; */
+/* IDL: 	[subcontext(4)] [subcontext_size(pkt_len)] [unique(1)] frsrpc_CommPktChunkCtr *ctr; */
 /* IDL: 	[value(0)] uint3264 data_name; */
 /* IDL: 	[value(0)] uint3264 data_handle; */
 /* IDL: } */
@@ -3016,6 +3028,8 @@ frsrpc_dissect_struct_FrsSendCommPktReq(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
+	ALIGN_TO_5_BYTES;
+
 	old_offset = offset;
 
 	if (parent_tree) {
@@ -3062,12 +3076,12 @@ int
 frsrpc_dissect_enum_PartnerAuthLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -3200,10 +3214,10 @@ frsrpc_dissect_element_FrsVerifyPromotionParent___ndr_guid_size(tvbuff_t *tvb _U
 }
 
 /* IDL: WERROR frsrpc_FrsVerifyPromotionParent( */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *parent_account, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *parent_password, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *replica_set_name, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *replica_set_type, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *parent_account, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *parent_password, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *replica_set_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *replica_set_type, */
 /* IDL: [in] frsrpc_PartnerAuthLevel partner_auth_level, */
 /* IDL: [in] uint32 __ndr_guid_size */
 /* IDL: ); */
@@ -3499,18 +3513,18 @@ frsrpc_dissect_element_FrsStartPromotionParent_parent_guid__(tvbuff_t *tvb _U_, 
 }
 
 /* IDL: WERROR frsrpc_FrsStartPromotionParent( */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *parent_account, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *parent_password, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *replica_set_name, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *replica_set_type, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *connection_name, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *partner_name, */
-/* IDL: [unique(1)] [in] [charset(UTF16)] uint16 *partner_princ_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *parent_account, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *parent_password, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *replica_set_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *replica_set_type, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *connection_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *partner_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *partner_princ_name, */
 /* IDL: [in] frsrpc_PartnerAuthLevel partner_auth_level, */
-/* IDL: [value(16)] [in] [range(16,16)] uint32 __ndr_guid_size, */
-/* IDL: [unique(1)] [subcontext_size(16)] [subcontext(4)] [in] GUID *connection_guid, */
-/* IDL: [unique(1)] [subcontext_size(16)] [subcontext(4)] [in] GUID *partner_guid, */
-/* IDL: [out] [unique(1)] [subcontext_size(16)] [subcontext(4)] [in] GUID *parent_guid */
+/* IDL: [in] [range(16,16)] [value(16)] uint32 __ndr_guid_size, */
+/* IDL: [in] [subcontext(4)] [subcontext_size(16)] [unique(1)] GUID *connection_guid, */
+/* IDL: [in] [subcontext(4)] [subcontext_size(16)] [unique(1)] GUID *partner_guid, */
+/* IDL: [in] [out] [subcontext(4)] [subcontext_size(16)] [unique(1)] GUID *parent_guid */
 /* IDL: ); */
 
 static int
@@ -3742,358 +3756,358 @@ static dcerpc_sub_dissector frsrpc_dissectors[] = {
 void proto_register_dcerpc_frsrpc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_to,
-		{ "To", "frsrpc.frsrpc_CommPktChunkData.to", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_data,
-		{ "Data", "frsrpc.frsrpc_CommPktDataExtensionChecksum.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD,
-		{ "Frsrpc Co Flag Morph Gen Head", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_MORPH_GEN_HEAD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD_tfs), ( 0x00400000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_major,
-		{ "Major", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.major", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoRecordExtensionMajor_vals), 0, NULL, HFILL }},
+	{ &hf_CommPktChunk,
+		{ "Chunk", "frsrpc.chunk.ctr.chunk", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_CommPktChangeOrderCommand_file_name,
+		{ "File Name", "frsrpc.CommPktChangeOrderCommand.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_ack_version,
+		{ "Ack Version", "frsrpc.frsrpc_CommPktChangeOrderCommand.ack_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_change_order_guid,
+		{ "Change Order Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.change_order_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_connection_guid,
+		{ "Connection Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_content_cmd,
+		{ "Content Cmd", "frsrpc.frsrpc_CommPktChangeOrderCommand.content_cmd", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_event_time,
+		{ "Event Time", "frsrpc.frsrpc_CommPktChangeOrderCommand.event_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_extension,
+		{ "Extension", "frsrpc.frsrpc_CommPktChangeOrderCommand.extension", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_attributes,
+		{ "File Attributes", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_guid,
+		{ "File Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name,
+		{ "File Name", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name_length,
+		{ "File Name Length", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_name_length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_offset,
+		{ "File Offset", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_size,
+		{ "File Size", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_usn,
+		{ "File Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_version_number,
+		{ "File Version Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_version_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_flags,
+		{ "Flags", "frsrpc.frsrpc_CommPktChangeOrderCommand.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_frs_vsn,
+		{ "Frs Vsn", "frsrpc.frsrpc_CommPktChangeOrderCommand.frs_vsn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_iflags,
+		{ "Iflags", "frsrpc.frsrpc_CommPktChangeOrderCommand.iflags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_first_usn,
+		{ "Jrnl First Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.jrnl_first_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_usn,
+		{ "Jrnl Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.jrnl_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_location_cmd,
+		{ "Location Cmd", "frsrpc.frsrpc_CommPktChangeOrderCommand.location_cmd", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoCmdLocationCmd_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_parent_guid,
+		{ "New Parent Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.new_parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_replica_num,
+		{ "New Replica Num", "frsrpc.frsrpc_CommPktChangeOrderCommand.new_replica_num", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_not_used,
+		{ "Not Used", "frsrpc.frsrpc_CommPktChangeOrderCommand.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_old_parent_guid,
+		{ "Old Parent Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.old_parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_original_replica_num,
+		{ "Original Replica Num", "frsrpc.frsrpc_CommPktChangeOrderCommand.original_replica_num", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_originator_guid,
 		{ "Originator Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.originator_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name,
-		{ "Replica Set Name", "frsrpc.frsrpc_FrsVerifyPromotionParent.replica_set_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_not_used,
-		{ "Not Used", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding1,
+		{ "Padding1", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding1", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding2,
+		{ "Padding2", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding2", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding3,
+		{ "Padding3", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding3", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding4,
+		{ "Padding4", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding4", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_partern_ack_sequence_number,
+		{ "Partern Ack Sequence Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.partern_ack_sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_sequence_number,
+		{ "Sequence Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p1,
+		{ "Spare1guid P1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1guid_p1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p2,
+		{ "Spare1guid P2", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1guid_p2", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1wcs,
+		{ "Spare1wcs", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1wcs", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2bin,
+		{ "Spare2bin", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2bin", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2guid_p1,
+		{ "Spare2guid P1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2guid_p1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2ul1,
+		{ "Spare2ul1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2ul1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2wcs,
 		{ "Spare2wcs", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2wcs", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare3guid_p2,
 		{ "Spare3guid P2", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare3guid_p2", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid,
-		{ "Connection Guid", "frsrpc.frsrpc_FrsStartPromotionParent.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_last,
-		{ "Offset Last", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset_last", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_status,
 		{ "Status", "frsrpc.frsrpc_CommPktChangeOrderCommand.status", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoCmdStatus_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type,
-		{ "Replica Set Type", "frsrpc.frsrpc_FrsVerifyPromotionParent.replica_set_type", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_parent_guid,
-		{ "New Parent Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.new_parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_guid,
-		{ "File Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT,
-		{ "Frsrpc Co Iflag Co Abort", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_CO_ABORT", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p1,
-		{ "Spare1guid P1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1guid_p1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid,
-		{ "Parent Guid", "frsrpc.frsrpc_FrsStartPromotionParent.parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE,
-		{ "Frsrpc Content Reason File Create", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_FILE_CREATE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE_tfs), ( 0x00000100 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND,
-		{ "Frsrpc Content Reason Data Extend", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_EXTEND", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_original_replica_num,
-		{ "Original Replica Num", "frsrpc.frsrpc_CommPktChangeOrderCommand.original_replica_num", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_first_usn,
-		{ "Jrnl First Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.jrnl_first_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password,
-		{ "Parent Password", "frsrpc.frsrpc_FrsVerifyPromotionParent.parent_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_sequence_number,
-		{ "Sequence Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME,
-		{ "Frsrpc Content Reason Old Name", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_OLD_NAME", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME_tfs), ( 0x00001000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO,
-		{ "Frsrpc Co Flag Directed Co", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_DIRECTED_CO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG,
-		{ "Frsrpc Co Flag Vvjoin To Orig", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_VVJOIN_TO_ORIG", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG_tfs), ( 0x00040000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN,
-		{ "Frsrpc Co Flag Movein Gen", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_MOVEIN_GEN", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN_tfs), ( 0x00200000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_first_try_time,
-		{ "First Try Time", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.first_try_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO,
-		{ "Frsrpc Co Flag Localco", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_LOCALCO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_attributes,
-		{ "File Attributes", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_attributes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunk_data,
-		{ "Data", "frsrpc.frsrpc_CommPktChunk.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY,
-		{ "Frsrpc Co Flag Retry", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_RETRY", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY_tfs), ( 0x00000040 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL,
-		{ "Frsrpc Co Flag Control", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_CONTROL", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL_tfs), ( 0x00001000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPkt_req,
-		{ "Req", "frsrpc.frsrpc_FrsSendCommPkt.req", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_data_checksum,
-		{ "Data Checksum", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.data_checksum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding4,
-		{ "Padding4", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding4", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding2,
-		{ "Padding2", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding2", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_ack_version,
-		{ "Ack Version", "frsrpc.frsrpc_CommPktChangeOrderCommand.ack_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION,
-		{ "Frsrpc Content Reason Data Truncation", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_TRUNCATION", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE,
-		{ "Frsrpc Co Flag Compressed Stage", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_COMPRESSED_STAGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE_tfs), ( 0x01000000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k,
-		{ "Co Ext Win2k", "frsrpc.frsrpc_CommPktChunkData.co_ext_win2k", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_file_size,
-		{ "File Size", "frsrpc.frsrpc_CommPktChunkData.file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name_length,
-		{ "File Name Length", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_name_length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkGuidName.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_pkt_len,
-		{ "Pkt Len", "frsrpc.frsrpc_FrsSendCommPktReq.pkt_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_major,
-		{ "Major", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.major", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoRecordExtensionMajor_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset,
-		{ "Offset", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO,
-		{ "Frsrpc Co Flag Abort Co", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_ABORT_CO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_type,
-		{ "Prefix Type", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.prefix_type", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktDataExtensionType_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_iflags,
-		{ "Iflags", "frsrpc.frsrpc_CommPktChangeOrderCommand.iflags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_command,
-		{ "Command", "frsrpc.frsrpc_CommPktChunkData.command", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCommand_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_guid,
-		{ "Co Guid", "frsrpc.frsrpc_CommPktChunkData.co_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_CommPktChangeOrderCommand_file_name,
-		{ "File Name", "frsrpc.CommPktChangeOrderCommand.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE,
-		{ "Frsrpc Content Reason File Delete", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_FILE_DELETE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_major,
-		{ "Major", "frsrpc.frsrpc_FrsSendCommPktReq.major", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktMajor_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_last,
-		{ "Offset Last", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset_last", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset1,
-		{ "Offset1", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_vvector,
-		{ "Vvector", "frsrpc.frsrpc_CommPktChunkData.vvector", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_size,
-		{ "File Size", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name,
-		{ "Connection Name", "frsrpc.frsrpc_FrsStartPromotionParent.connection_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number,
-		{ "Co Sequnence Number", "frsrpc.frsrpc_CommPktChunkData.co_sequnence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_from,
-		{ "From", "frsrpc.frsrpc_CommPktChunkData.from", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C,
-		{ "Frsrpc Co Flag Skip Orig Rec C", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_SKIP_ORIG_REC_C", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C_tfs), ( 0x00100000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_change_order_guid,
-		{ "Change Order Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.change_order_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_compression_guid,
-		{ "Compression Guid", "frsrpc.frsrpc_CommPktChunkData.compression_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_old_parent_guid,
-		{ "Old Parent Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.old_parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account,
-		{ "Parent Account", "frsrpc.frsrpc_FrsStartPromotionParent.parent_account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktGSVN_vsn,
-		{ "Vsn", "frsrpc.frsrpc_CommPktGSVN.vsn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_field_size,
-		{ "Field Size", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.field_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_partern_ack_sequence_number,
-		{ "Partern Ack Sequence Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.partern_ack_sequence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER,
-		{ "Frsrpc Co Flag Out Of Order", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_OUT_OF_ORDER", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER_tfs), ( 0x00000200 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_name,
-		{ "File Name", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_name", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_extension,
-		{ "Extension", "frsrpc.frsrpc_CommPktChangeOrderCommand.extension", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME,
-		{ "Frsrpc Content Reason New Name", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NEW_NAME", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_offset,
-		{ "File Offset", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1guid_p2,
-		{ "Spare1guid P2", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1guid_p2", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_upk_len,
-		{ "Upk Len", "frsrpc.frsrpc_FrsSendCommPktReq.upk_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_blob,
-		{ "Blob", "frsrpc.frsrpc_CommPktChunkData.blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE,
-		{ "Frsrpc Content Reason Security Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_SECURITY_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE_tfs), ( 0x00000800 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_version_number,
-		{ "File Version Number", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_version_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_size,
-		{ "Prefix Size", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.prefix_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_type,
-		{ "Prefix Type", "frsrpc.frsrpc_CommPktDataExtensionChecksum.prefix_type", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktDataExtensionType_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_file_usn,
-		{ "File Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.file_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE,
-		{ "Frsrpc Content Reason Basic Info Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE_tfs), ( 0x00004000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunk_data_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunk.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_werror,
-		{ "Windows Error", "frsrpc.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_guid,
-		{ "Join Guid", "frsrpc.frsrpc_CommPktChunkData.join_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent___ndr_guid_size,
-		{ "Ndr Guid Size", "frsrpc.frsrpc_FrsVerifyPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_data_handle,
-		{ "Data Handle", "frsrpc.frsrpc_FrsSendCommPktReq.data_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_content_cmd,
-		{ "Content Cmd", "frsrpc.frsrpc_CommPktChangeOrderCommand.content_cmd", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name,
-		{ "Partner Name", "frsrpc.frsrpc_FrsStartPromotionParent.partner_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_cs_id,
-		{ "Cs Id", "frsrpc.frsrpc_FrsSendCommPktReq.cs_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_data_checksum,
 		{ "Data Checksum", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.data_checksum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_name_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkGuidName.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_remote_co,
-		{ "Remote Co", "frsrpc.frsrpc_CommPktChunkData.remote_co", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_extension2,
-		{ "Co Extension2", "frsrpc.frsrpc_CommPktChunkData.co_extension2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2guid_p1,
-		{ "Spare2guid P1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2guid_p1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent___ndr_guid_size,
-		{ "Ndr Guid Size", "frsrpc.frsrpc_FrsStartPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_gvsn_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid,
-		{ "Replica Version Guid", "frsrpc.frsrpc_CommPktChunkData.replica_version_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_block_size,
-		{ "Block Size", "frsrpc.frsrpc_CommPktChunkData.block_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_name,
-		{ "Name", "frsrpc.frsrpc_CommPktChunkGuidName.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_not_used,
-		{ "Not Used", "frsrpc.frsrpc_CommPktChangeOrderCommand.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_vvector_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_bop,
-		{ "Bop", "frsrpc.frsrpc_CommPktChunkData.bop", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_file_offset,
-		{ "File Offset", "frsrpc.frsrpc_CommPktChunkData.file_offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset0,
-		{ "Offset0", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset0", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding1,
-		{ "Padding1", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding1", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_bopend,
-		{ "Bopend", "frsrpc.frsrpc_CommPktChunkData.bopend", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD,
-		{ "Frsrpc Co Flag Location Cmd", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_LOCATION_CMD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD_tfs), ( 0x00000008 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND,
-		{ "Frsrpc Content Reason Named Data Extend", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND_tfs), ( 0x00000020 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_count,
-		{ "Count", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_guid,
-		{ "Guid", "frsrpc.frsrpc_CommPktChunkGuidName.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_last_join_time,
-		{ "Last Join Time", "frsrpc.frsrpc_CommPktChunkData.last_join_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_guid_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunk_type,
-		{ "Type", "frsrpc.frsrpc_CommPktChunk.type", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktChunkType_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_connection_guid,
-		{ "Connection Guid", "frsrpc.frsrpc_CommPktChangeOrderCommand.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_data_name,
-		{ "Data Name", "frsrpc.frsrpc_FrsSendCommPktReq.data_name", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_gvsn,
-		{ "Gvsn", "frsrpc.frsrpc_CommPktChunkData.gvsn", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica,
-		{ "Replica", "frsrpc.frsrpc_CommPktChunkData.replica", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_count,
-		{ "Offset Count", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_jrnl_usn,
-		{ "Jrnl Usn", "frsrpc.frsrpc_CommPktChangeOrderCommand.jrnl_usn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_padding3,
-		{ "Padding3", "frsrpc.frsrpc_CommPktChangeOrderCommand.padding3", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name,
-		{ "Partner Princ Name", "frsrpc.frsrpc_FrsStartPromotionParent.partner_princ_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_partner_auth_level,
-		{ "Partner Auth Level", "frsrpc.frsrpc_FrsVerifyPromotionParent.partner_auth_level", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_PartnerAuthLevel_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET,
-		{ "Frsrpc Co Flag Just Oid Reset", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_JUST_OID_RESET", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET_tfs), ( 0x00800000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE,
-		{ "Frsrpc Content Reason Ea Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_EA_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE_tfs), ( 0x00000400 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_block,
-		{ "Block", "frsrpc.frsrpc_CommPktChunkData.block", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC,
-		{ "Frsrpc Co Iflag Vvretire Exec", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_VVRETIRE_EXEC", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_remote_co_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_location_cmd,
-		{ "Location Cmd", "frsrpc.frsrpc_CommPktChangeOrderCommand.location_cmd", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoCmdLocationCmd_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING,
-		{ "Frsrpc Co Iflag Dir Enum Pending", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_DIR_ENUM_PENDING", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_not_used,
-		{ "Not Used", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2ul1,
-		{ "Spare2ul1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2ul1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_opnum,
-		{ "Operation", "frsrpc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE,
-		{ "Frsrpc Content Reason Named Data Overwrite", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_time_,
-		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE,
-		{ "Frsrpc Co Flag New File", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_NEW_FILE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE_tfs), ( 0x00000400 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2bin,
-		{ "Spare2bin", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2bin", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_field_size,
-		{ "Field Size", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.field_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_frs_vsn,
-		{ "Frs Vsn", "frsrpc.frsrpc_CommPktChangeOrderCommand.frs_vsn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr,
-		{ "Ctr", "frsrpc.frsrpc_FrsSendCommPktReq.ctr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChunkData_connection,
-		{ "Connection", "frsrpc.frsrpc_CommPktChunkData.connection", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_count,
-		{ "Offset Count", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_data_retry_timeout,
 		{ "Data Retry Timeout", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.data_retry_timeout", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name,
-		{ "Replica Set Name", "frsrpc.frsrpc_FrsStartPromotionParent.replica_set_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_event_time,
-		{ "Event Time", "frsrpc.frsrpc_CommPktChangeOrderCommand.event_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_memory_len,
-		{ "Memory Len", "frsrpc.frsrpc_FrsSendCommPktReq.memory_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE,
-		{ "Frsrpc Content Reason Data Overwrite", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_OVERWRITE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE_tfs), ( 0x00000001 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_minor,
-		{ "Minor", "frsrpc.frsrpc_FrsSendCommPktReq.minor", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktMinor_vals), 0, NULL, HFILL }},
-	{ &hf_CommPktChunk,
-		{ "Chunk", "frsrpc.chunk.ctr.chunk", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account,
-		{ "Parent Account", "frsrpc.frsrpc_FrsVerifyPromotionParent.parent_account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD,
-		{ "Frsrpc Co Flag Content Cmd", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_CONTENT_CMD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD_tfs), ( 0x00000004 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktGSVN_guid,
-		{ "Guid", "frsrpc.frsrpc_CommPktGSVN.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION,
-		{ "Frsrpc Content Reason Named Data Truncation", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION_tfs), ( 0x00000040 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_size,
-		{ "Prefix Size", "frsrpc.frsrpc_CommPktDataExtensionChecksum.prefix_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr_,
-		{ "Subcontext length", "frsrpc.frsrpc_FrsSendCommPktReq.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_auth_level,
-		{ "Partner Auth Level", "frsrpc.frsrpc_FrsStartPromotionParent.partner_auth_level", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_PartnerAuthLevel_vals), 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST,
-		{ "Frsrpc Co Flag Onlist", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_ONLIST", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST_tfs), ( 0x00000010 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE,
-		{ "Frsrpc Content Reason Compression Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE_tfs), ( 0x00020000 ), NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid,
-		{ "Partner Guid", "frsrpc.frsrpc_FrsStartPromotionParent.partner_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type,
-		{ "Replica Set Type", "frsrpc.frsrpc_FrsStartPromotionParent.replica_set_type", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_flags,
-		{ "Flags", "frsrpc.frsrpc_CommPktChangeOrderCommand.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_field_size,
+		{ "Field Size", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.field_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_major,
+		{ "Major", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.major", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoRecordExtensionMajor_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_not_used,
+		{ "Not Used", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset0,
+		{ "Offset0", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset0", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset1,
+		{ "Offset1", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_count,
+		{ "Offset Count", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChangeOrderRecordExtension_offset_last,
+		{ "Offset Last", "frsrpc.frsrpc_CommPktChangeOrderRecordExtension.offset_last", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_blob,
+		{ "Blob", "frsrpc.frsrpc_CommPktChunkData.blob", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_block,
+		{ "Block", "frsrpc.frsrpc_CommPktChunkData.block", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_block_size,
+		{ "Block Size", "frsrpc.frsrpc_CommPktChunkData.block_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_bop,
+		{ "Bop", "frsrpc.frsrpc_CommPktChunkData.bop", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_bopend,
+		{ "Bopend", "frsrpc.frsrpc_CommPktChunkData.bopend", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k,
+		{ "Co Ext Win2k", "frsrpc.frsrpc_CommPktChunkData.co_ext_win2k", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_extension2,
+		{ "Co Extension2", "frsrpc.frsrpc_CommPktChunkData.co_extension2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_guid,
+		{ "Co Guid", "frsrpc.frsrpc_CommPktChunkData.co_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_co_sequnence_number,
+		{ "Co Sequnence Number", "frsrpc.frsrpc_CommPktChunkData.co_sequnence_number", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_command,
+		{ "Command", "frsrpc.frsrpc_CommPktChunkData.command", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCommand_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_compression_guid,
+		{ "Compression Guid", "frsrpc.frsrpc_CommPktChunkData.compression_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_connection,
+		{ "Connection", "frsrpc.frsrpc_CommPktChunkData.connection", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_file_offset,
+		{ "File Offset", "frsrpc.frsrpc_CommPktChunkData.file_offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_file_size,
+		{ "File Size", "frsrpc.frsrpc_CommPktChunkData.file_size", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_from,
+		{ "From", "frsrpc.frsrpc_CommPktChunkData.from", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_gvsn,
+		{ "Gvsn", "frsrpc.frsrpc_CommPktChunkData.gvsn", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_gvsn_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_guid,
+		{ "Join Guid", "frsrpc.frsrpc_CommPktChunkData.join_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_time,
 		{ "Join Time", "frsrpc.frsrpc_CommPktChunkData.join_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare1wcs,
-		{ "Spare1wcs", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare1wcs", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_new_replica_num,
-		{ "New Replica Num", "frsrpc.frsrpc_CommPktChangeOrderCommand.new_replica_num", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password,
-		{ "Parent Password", "frsrpc.frsrpc_FrsStartPromotionParent.parent_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED,
-		{ "Frsrpc Co Flag Vv Activated", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_VV_ACTIVATED", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_time_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_last_join_time,
+		{ "Last Join Time", "frsrpc.frsrpc_CommPktChunkData.last_join_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_remote_co,
+		{ "Remote Co", "frsrpc.frsrpc_CommPktChunkData.remote_co", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_remote_co_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica,
+		{ "Replica", "frsrpc.frsrpc_CommPktChunkData.replica", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid,
+		{ "Replica Version Guid", "frsrpc.frsrpc_CommPktChunkData.replica_version_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_to,
+		{ "To", "frsrpc.frsrpc_CommPktChunkData.to", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_vvector,
+		{ "Vvector", "frsrpc.frsrpc_CommPktChunkData.vvector", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkData_vvector_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_guid,
+		{ "Guid", "frsrpc.frsrpc_CommPktChunkGuidName.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkGuidName.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_name,
+		{ "Name", "frsrpc.frsrpc_CommPktChunkGuidName.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunkGuidName_name_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunkGuidName.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunk_data,
+		{ "Data", "frsrpc.frsrpc_CommPktChunk.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunk_data_,
+		{ "Subcontext length", "frsrpc.frsrpc_CommPktChunk.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktChunk_type,
+		{ "Type", "frsrpc.frsrpc_CommPktChunk.type", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktChunkType_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE,
+		{ "Frsrpc Content Reason Basic Info Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE_tfs), ( 0x00004000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE,
+		{ "Frsrpc Content Reason Compression Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE_tfs), ( 0x00020000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND,
+		{ "Frsrpc Content Reason Data Extend", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_EXTEND", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_EXTEND_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE,
+		{ "Frsrpc Content Reason Data Overwrite", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_OVERWRITE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_OVERWRITE_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION,
+		{ "Frsrpc Content Reason Data Truncation", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_DATA_TRUNCATION", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_DATA_TRUNCATION_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE,
+		{ "Frsrpc Content Reason Ea Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_EA_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_EA_CHANGE_tfs), ( 0x00000400 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE,
+		{ "Frsrpc Content Reason File Create", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_FILE_CREATE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_CREATE_tfs), ( 0x00000100 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE,
+		{ "Frsrpc Content Reason File Delete", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_FILE_DELETE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_FILE_DELETE_tfs), ( 0x00000200 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND,
+		{ "Frsrpc Content Reason Named Data Extend", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND_tfs), ( 0x00000020 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE,
+		{ "Frsrpc Content Reason Named Data Overwrite", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION,
+		{ "Frsrpc Content Reason Named Data Truncation", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION_tfs), ( 0x00000040 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME,
+		{ "Frsrpc Content Reason New Name", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_NEW_NAME", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_NEW_NAME_tfs), ( 0x00002000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME,
+		{ "Frsrpc Content Reason Old Name", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_OLD_NAME", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_OLD_NAME_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE,
+		{ "Frsrpc Content Reason Security Change", "frsrpc.frsrpc_CommPktCoCmdContentCmd.FRSRPC_CONTENT_REASON_SECURITY_CHANGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdContentCmd_FRSRPC_CONTENT_REASON_SECURITY_CHANGE_tfs), ( 0x00000800 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO,
+		{ "Frsrpc Co Flag Abort Co", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_ABORT_CO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ABORT_CO_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE,
+		{ "Frsrpc Co Flag Compressed Stage", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_COMPRESSED_STAGE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_COMPRESSED_STAGE_tfs), ( 0x01000000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD,
+		{ "Frsrpc Co Flag Content Cmd", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_CONTENT_CMD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTENT_CMD_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL,
+		{ "Frsrpc Co Flag Control", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_CONTROL", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_CONTROL_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO,
+		{ "Frsrpc Co Flag Directed Co", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_DIRECTED_CO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_DIRECTED_CO_tfs), ( 0x00002000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET,
+		{ "Frsrpc Co Flag Just Oid Reset", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_JUST_OID_RESET", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_JUST_OID_RESET_tfs), ( 0x00800000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO,
+		{ "Frsrpc Co Flag Localco", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_LOCALCO", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCALCO_tfs), ( 0x00000020 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD,
+		{ "Frsrpc Co Flag Location Cmd", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_LOCATION_CMD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_LOCATION_CMD_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD,
+		{ "Frsrpc Co Flag Morph Gen Head", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_MORPH_GEN_HEAD", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MORPH_GEN_HEAD_tfs), ( 0x00400000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN,
+		{ "Frsrpc Co Flag Movein Gen", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_MOVEIN_GEN", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_MOVEIN_GEN_tfs), ( 0x00200000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE,
+		{ "Frsrpc Co Flag New File", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_NEW_FILE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_NEW_FILE_tfs), ( 0x00000400 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST,
+		{ "Frsrpc Co Flag Onlist", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_ONLIST", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_ONLIST_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER,
+		{ "Frsrpc Co Flag Out Of Order", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_OUT_OF_ORDER", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_OUT_OF_ORDER_tfs), ( 0x00000200 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY,
+		{ "Frsrpc Co Flag Retry", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_RETRY", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_RETRY_tfs), ( 0x00000040 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C,
+		{ "Frsrpc Co Flag Skip Orig Rec C", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_SKIP_ORIG_REC_C", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_ORIG_REC_C_tfs), ( 0x00100000 ), NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_VV_UPDATE,
 		{ "Frsrpc Co Flag Skip Vv Update", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_SKIP_VV_UPDATE", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_SKIP_VV_UPDATE_tfs), ( 0x02000000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG,
+		{ "Frsrpc Co Flag Vvjoin To Orig", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_VVJOIN_TO_ORIG", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VVJOIN_TO_ORIG_tfs), ( 0x00040000 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED,
+		{ "Frsrpc Co Flag Vv Activated", "frsrpc.frsrpc_CommPktCoCmdFlags.FRSRPC_CO_FLAG_VV_ACTIVATED", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdFlags_FRSRPC_CO_FLAG_VV_ACTIVATED_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT,
+		{ "Frsrpc Co Iflag Co Abort", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_CO_ABORT", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_CO_ABORT_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING,
+		{ "Frsrpc Co Iflag Dir Enum Pending", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_DIR_ENUM_PENDING", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_DIR_ENUM_PENDING_tfs), ( 0x00000004 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC,
+		{ "Frsrpc Co Iflag Vvretire Exec", "frsrpc.frsrpc_CommPktCoCmdIFlags.FRSRPC_CO_IFLAG_VVRETIRE_EXEC", FT_BOOLEAN, 32, TFS(&frsrpc_CommPktCoCmdIFlags_FRSRPC_CO_IFLAG_VVRETIRE_EXEC_tfs), ( 0x00000001 ), NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_data_checksum,
+		{ "Data Checksum", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.data_checksum", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_field_size,
+		{ "Field Size", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.field_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_major,
+		{ "Major", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.major", FT_UINT1632, BASE_DEC, VALS(frsrpc_frsrpc_CommPktCoRecordExtensionMajor_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset,
+		{ "Offset", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_count,
+		{ "Offset Count", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k_offset_last,
+		{ "Offset Last", "frsrpc.frsrpc_CommPktCoRecordExtensionWin2k.offset_last", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_data,
+		{ "Data", "frsrpc.frsrpc_CommPktDataExtensionChecksum.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_size,
+		{ "Prefix Size", "frsrpc.frsrpc_CommPktDataExtensionChecksum.prefix_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionChecksum_prefix_type,
+		{ "Prefix Type", "frsrpc.frsrpc_CommPktDataExtensionChecksum.prefix_type", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktDataExtensionType_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_count,
+		{ "Count", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_first_try_time,
+		{ "First Try Time", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.first_try_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_not_used,
+		{ "Not Used", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.not_used", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_size,
+		{ "Prefix Size", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.prefix_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout_prefix_type,
+		{ "Prefix Type", "frsrpc.frsrpc_CommPktDataExtensionRetryTimeout.prefix_type", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktDataExtensionType_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktGSVN_guid,
+		{ "Guid", "frsrpc.frsrpc_CommPktGSVN.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_CommPktGSVN_vsn,
+		{ "Vsn", "frsrpc.frsrpc_CommPktGSVN.vsn", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_cs_id,
+		{ "Cs Id", "frsrpc.frsrpc_FrsSendCommPktReq.cs_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr,
+		{ "Ctr", "frsrpc.frsrpc_FrsSendCommPktReq.ctr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr_,
+		{ "Subcontext length", "frsrpc.frsrpc_FrsSendCommPktReq.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_data_handle,
+		{ "Data Handle", "frsrpc.frsrpc_FrsSendCommPktReq.data_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_data_name,
+		{ "Data Name", "frsrpc.frsrpc_FrsSendCommPktReq.data_name", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_major,
+		{ "Major", "frsrpc.frsrpc_FrsSendCommPktReq.major", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktMajor_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_memory_len,
+		{ "Memory Len", "frsrpc.frsrpc_FrsSendCommPktReq.memory_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_minor,
+		{ "Minor", "frsrpc.frsrpc_FrsSendCommPktReq.minor", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_CommPktMinor_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_pkt_len,
+		{ "Pkt Len", "frsrpc.frsrpc_FrsSendCommPktReq.pkt_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_upk_len,
+		{ "Upk Len", "frsrpc.frsrpc_FrsSendCommPktReq.upk_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsSendCommPkt_req,
+		{ "Req", "frsrpc.frsrpc_FrsSendCommPkt.req", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent___ndr_guid_size,
+		{ "Ndr Guid Size", "frsrpc.frsrpc_FrsStartPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid,
+		{ "Connection Guid", "frsrpc.frsrpc_FrsStartPromotionParent.connection_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_name,
+		{ "Connection Name", "frsrpc.frsrpc_FrsStartPromotionParent.connection_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_account,
+		{ "Parent Account", "frsrpc.frsrpc_FrsStartPromotionParent.parent_account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid,
+		{ "Parent Guid", "frsrpc.frsrpc_FrsStartPromotionParent.parent_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_password,
+		{ "Parent Password", "frsrpc.frsrpc_FrsStartPromotionParent.parent_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_auth_level,
+		{ "Partner Auth Level", "frsrpc.frsrpc_FrsStartPromotionParent.partner_auth_level", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_PartnerAuthLevel_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid,
+		{ "Partner Guid", "frsrpc.frsrpc_FrsStartPromotionParent.partner_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid_,
+		{ "Subcontext length", "frsrpc.frsrpc_FrsStartPromotionParent.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_name,
+		{ "Partner Name", "frsrpc.frsrpc_FrsStartPromotionParent.partner_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_princ_name,
+		{ "Partner Princ Name", "frsrpc.frsrpc_FrsStartPromotionParent.partner_princ_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_name,
+		{ "Replica Set Name", "frsrpc.frsrpc_FrsStartPromotionParent.replica_set_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent_replica_set_type,
+		{ "Replica Set Type", "frsrpc.frsrpc_FrsStartPromotionParent.replica_set_type", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent___ndr_guid_size,
+		{ "Ndr Guid Size", "frsrpc.frsrpc_FrsVerifyPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_account,
+		{ "Parent Account", "frsrpc.frsrpc_FrsVerifyPromotionParent.parent_account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_parent_password,
+		{ "Parent Password", "frsrpc.frsrpc_FrsVerifyPromotionParent.parent_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_partner_auth_level,
+		{ "Partner Auth Level", "frsrpc.frsrpc_FrsVerifyPromotionParent.partner_auth_level", FT_UINT32, BASE_DEC, VALS(frsrpc_frsrpc_PartnerAuthLevel_vals), 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_name,
+		{ "Replica Set Name", "frsrpc.frsrpc_FrsVerifyPromotionParent.replica_set_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent_replica_set_type,
+		{ "Replica Set Type", "frsrpc.frsrpc_FrsVerifyPromotionParent.replica_set_type", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_opnum,
+		{ "Operation", "frsrpc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_frsrpc_werror,
+		{ "Windows Error", "frsrpc.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
 	};
 
 
