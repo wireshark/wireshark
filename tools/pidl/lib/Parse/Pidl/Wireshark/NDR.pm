@@ -1085,6 +1085,11 @@ sub Initialize($$)
 	$self->register_type("NTTIME_hyper", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, \@HF\@);","FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", 0, "NULL", 4);
 	$self->register_type("time_t", "offset = dissect_ndr_time_t(tvb, offset, pinfo,tree, di, drep, \@HF\@, NULL);","FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", 0, "NULL", 4);
 	$self->register_type("NTTIME_1sec", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, \@HF\@);", "FT_ABSOLUTE_TIME", "ABSOLUTE_TIME_LOCAL", 0, "NULL", 4);
+	$self->register_type("dom_sid28", "
+		di->hf_index = \@HF\@;
+
+		offset = dissect_ndr_nt_SID28(tvb, offset, pinfo, tree, di, drep);
+	", "FT_STRING", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("SID", "
 		di->hf_index = \@HF\@;
 
