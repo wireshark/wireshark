@@ -1730,7 +1730,9 @@ static int Proto_set_dissector(lua_State* L) {
         lua_insert(L, 2); /* function is now at 3 */
         lua_settable(L,1);
 
-        proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+        if (! proto->handle) {
+            proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+        }
     } else {
         luaL_argerror(L,2,"The dissector of a protocol must be a function");
     }
