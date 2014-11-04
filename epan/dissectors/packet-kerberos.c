@@ -729,8 +729,8 @@ read_keytab_file(const char *filename)
 					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
-			new_key->keylength=key.keyblock.keyvalue.length;
-			new_key->keyvalue=g_memdup(key.keyblock.keyvalue.data, key.keyblock.keyvalue.length);
+			new_key->keylength=(int)key.keyblock.keyvalue.length;
+			new_key->keyvalue=g_memdup(key.keyblock.keyvalue.data, (guint)key.keyblock.keyvalue.length);
 			enc_key_list=new_key;
 		}
 	}while(ret==0);
@@ -745,7 +745,7 @@ USES_APPLE_RST
 
 
 guint8 *
-decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
+decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int usage,
 					tvbuff_t *cryptotvb,
 					int keytype,
@@ -808,9 +808,9 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_memdup(data.data, data.length);
+			user_data=g_memdup(data.data, (guint)data.length);
 			if (datalen) {
-				*datalen = data.length;
+				*datalen = (int)data.length;
 			}
 			return user_data;
 		}
