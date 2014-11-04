@@ -46,7 +46,7 @@
    Copyright (C) 2010 Free Software Foundation, Inc.
  */
 
-static const int8_t ___m128i_shift_right[31] =
+static const gint8 ___m128i_shift_right[31] =
   {
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
