@@ -1175,7 +1175,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_certificate,                                        \
       { "Certificate", prefix ".handshake.certificate",                 \
-        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                  \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_certificate_len,                                    \

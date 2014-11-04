@@ -3952,7 +3952,7 @@ proto_register_ssl(void)
         },
         { &hf_pct_handshake_server_cert,
           { "Server Cert", "pct.handshake.server_cert",
-            FT_NONE, BASE_NONE, NULL , 0x0,
+            FT_BYTES, BASE_NONE, NULL , 0x0,
             "PCT Server Certificate", HFILL }
         },
         { &hf_ssl_segment_overlap,
