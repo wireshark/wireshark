@@ -918,6 +918,13 @@ EXTRA_DIST = \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
 	image/hi48-app-wireshark.png	\
+	image/languages/de.svg		\
+	image/languages/en.svg		\
+	image/languages/fr.svg		\
+	image/languages/it.svg		\
+	image/languages/ja_JP.svg	\
+	image/languages/pl.svg		\
+	image/languages/zh_CN.svg	\
 	image/layout_1.png		\
 	image/layout_2.png		\
 	image/layout_3.png		\
