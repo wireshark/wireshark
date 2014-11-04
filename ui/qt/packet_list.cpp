@@ -266,8 +266,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
 
-    filter_actions_ << submenu->actions();
-
     action = window()->findChild<QAction *>("actionSCTP");
     submenu = new QMenu();
     action->setMenu(submenu);
@@ -276,7 +274,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
-    filter_actions_ << submenu->actions();
 
     ctx_menu_.addSeparator();
 
@@ -293,7 +290,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
-    filter_actions_ << submenu->actions();
 
     action = window()->findChild<QAction *>("actionPrepare_a_Filter");
     submenu = new QMenu();
@@ -305,7 +301,6 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
-    filter_actions_ << submenu->actions();
 
 //    action = window()->findChild<QAction *>("actionColorize_with_Filter");
 //    submenu = new QMenu();
@@ -393,7 +388,6 @@ PacketList::PacketList(QWidget *parent) :
     //    "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
     //    "        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
-    filter_actions_ << window()->findChild<QAction *>("actionEditCopyAsFilter");
     submenu->addSeparator();
 
     action = window()->findChild<QAction *>("actionBytes");
@@ -496,65 +490,39 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
-    bool fa_enabled = filter_actions_[0]->isEnabled();
-    QAction *act;
+    QAction *action;
     gboolean is_tcp = FALSE, is_udp = FALSE;
 
     /* walk the list of a available protocols in the packet to see what we have */
-    if ((cap_file_ != NULL) && (cap_file_->edt != NULL))
-    {
+    if (cap_file_ != NULL && cap_file_->edt != NULL)
         proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
-    }
 
-    foreach (act, filter_actions_)
-    {
-        act->setEnabled(true);
+    action = window()->findChild<QAction *>("actionSCTP");
+    if (cap_file_ != NULL && cap_file_->edt != NULL &&
+            cap_file_->edt->pi.ipproto == IP_PROTO_SCTP)
+        action->setEnabled(TRUE);
+    else
+        action->setEnabled(FALSE);
 
-        // check SCTP
-        if (act->objectName().contains("SCTP"))
-        {
-            if ((cap_file_ != NULL) && (cap_file_->edt != NULL) && (cap_file_->edt->pi.ipproto == IP_PROTO_SCTP))
-            {
-                act->setEnabled(true);
-            }
-            else
-            {
-                act->setEnabled(false);
-            }
-        }
+    action = window()->findChild<QAction *>("actionAnalyzeFollowTCPStream");
+    action->setEnabled(is_tcp);
 
-        // check follow stream
-        if (act->text().contains("TCP"))
-        {
-            act->setEnabled(is_tcp);
-        }
+    action = window()->findChild<QAction *>("actionAnalyzeFollowUDPStream");
+    action->setEnabled(is_udp);
 
+    action = window()->findChild<QAction *>("actionAnalyzeFollowSSLStream");
 
-        if (act->text().contains("UDP"))
-        {
-            act->setEnabled(is_udp);
-        }
+    if (cap_file_ != NULL && cap_file_->edt != NULL &&
+            epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
+        action->setEnabled(TRUE);
+    else
+        action->setEnabled(FALSE);
 
-        if ((cap_file_ != NULL) && act->text().contains("SSL"))
-        {
-            if (epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
-            {
-                act->setEnabled(true);
-            }
-            else
-            {
-                act->setEnabled(false);
-            }
-        }
-    }
     decode_as_->setData(qVariantFromValue(true));
     ctx_column_ = columnAt(event->x());
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
     decode_as_->setData(QVariant());
-    foreach (act, filter_actions_) {
-        act->setEnabled(fa_enabled);
-    }
 }
 
 void PacketList::markFramesReady()
