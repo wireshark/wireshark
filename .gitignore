@@ -204,6 +204,7 @@ ui/qt/config.pri
 .DS_Store
 cscope.*
 tags
+TAGS
 macosx-support-libs
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
