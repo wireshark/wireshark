@@ -6,6 +6,12 @@
  * July 2005
  * Modified by: Brian Bogora <brian_bogora@mitel.com>
  *
+ * October 2014
+ * Modified by:
+ * Hans-Christian Goeckeritz <hans.christian.goeckeritz@gmx.de>
+ * Gregor Miernik <gregor.miernik@hytec.de>
+ * Expansion of dissector for Hytec-OUI
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -320,6 +326,33 @@ static int hf_cisco_four_wire_power_poe = -1;
 static int hf_cisco_four_wire_power_spare_pair_arch = -1;
 static int hf_cisco_four_wire_power_req_spare_pair_poe = -1;
 static int hf_cisco_four_wire_power_pse_spare_pair_poe = -1;
+static int hf_hytec_tlv_subtype = -1;
+static int hf_hytec_group = -1;
+static int hf_hytec_identifier = -1;
+static int hf_hytec_transceiver_vendor_product_revision = -1;
+static int hf_hytec_single_mode = -1;
+static int hf_hytec_multi_mode_50 = -1;
+static int hf_hytec_multi_mode_62_5 = -1;
+static int hf_hytec_tx_current_output_power = -1;
+static int hf_hytec_rx_current_input_power = -1;
+static int hf_hytec_rx_input_snr = -1;
+static int hf_hytec_lineloss = -1;
+static int hf_hytec_mac_trace_request = -1;
+static int hf_hytec_trace_mac_address = -1;
+static int hf_hytec_request_mac_address = -1;
+static int hf_hytec_maximum_depth = -1;
+static int hf_hytec_mac_trace_reply = -1;
+static int hf_hytec_answering_mac_address = -1;
+static int hf_hytec_actual_depth = -1;
+static int hf_hytec_name_of_replying_device = -1;
+static int hf_hytec_outgoing_port_name = -1;
+static int hf_hytec_ipv4_address_of_replying_device = -1;
+static int hf_hytec_end_of_trace = -1;
+static int hf_hytec_ipv6_address_of_replying_device = -1;
+static int hf_hytec_incoming_port_name = -1;
+static int hf_hytec_trace_identifier = -1;
+static int hf_hytec_invalid_object_data = -1;
+static int hf_hytec_unknown_identifier_content = -1;
 static int hf_unknown_subtype = -1;
 static int hf_unknown_subtype_content = -1;
 
@@ -390,6 +423,10 @@ static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
+static gint ett_org_spc_hytec_subtype_transceiver = -1;
+static gint ett_org_spc_hytec_subtype_trace = -1;
+static gint ett_org_spc_hytec_trace_request = -1;
+static gint ett_org_spc_hytec_trace_reply = -1;
 
 static expert_field ei_lldp_bad_length = EI_INIT;
 static expert_field ei_lldp_bad_length_excess = EI_INIT;
@@ -740,6 +777,127 @@ static const value_string operational_mau_type_values[] = {
 	{ 40,	"10GigBaseSW - W fiber over 850 nm optics" },
 	{ 0, NULL }
 };
+
+/* Hytec Masks */
+#define HYTEC_GROUP_MASK				0xE0
+#define HYTEC_GROUP_MASK_OFFSET			0
+#define HYTEC_GROUP_MASK_SIZE			3
+#define HYTEC_IDENTIFIER_MASK			0x1F
+#define HYTEC_IDENTIFIER_MASK_OFFSET	HYTEC_GROUP_MASK_SIZE
+#define HYTEC_IDENTIFIER_MASK_SIZE		5
+
+/* Hytec Subtypes */
+#define HYTEC_SUBTYPE__TRANSCEIVER	1
+#define HYTEC_SUBTYPE__TRACE		2
+
+/* Hytec Transceiver Groups */
+#define HYTEC_TRANSG__TRANCEIVER_IDENTIFIER				1
+#define HYTEC_TRANSG__TRANSCEIVER_BRIDGEABLE_DISTANCE	2
+#define HYTEC_TRANSG__MEASUREMENT_DATA					3
+
+/* Hytec Trace Groups */
+#define HYTEC_TRACEG__MAC_TRACE 1
+
+/* Hytec Transceiver Identifiers */
+#define HYTEC_TID__VENDOR_PRODUCT_REVISION 1
+
+#define HYTEC_TID__VENDOR_PRODUCT_REVISION_STR	"Transceiver vendor, product and revision"
+
+/* Hytec Transceiver Bridgeable Distance Values */
+#define HYTEC_TBD__SINGLE_MODE		1
+#define HYTEC_TBD__MULTI_MODE_50	2
+#define HYTEC_TBD__MULTI_MODE_62_5	3
+
+#define HYTEC_TBD__SINGLE_MODE_STR		"Single mode (9/125 um)"
+#define HYTEC_TBD__MULTI_MODE_50_STR	"Multi mode (50/125 um)"
+#define HYTEC_TBD__MULTI_MODE_62_5_STR	"Multi mode (62.5/125 um)"
+
+
+/* Hytec Measurement Data Values */
+#define HYTEC_MD__TX_CURRENT_OUTPUT_POWER	1
+#define HYTEC_MD__RX_CURRENT_INPUT_POWER	2
+#define HYTEC_MD__RX_INPUT_SNR				3
+#define HYTEC_MD__LINELOSS					4
+
+#define HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR	"Tx current output power"
+#define HYTEC_MD__RX_CURRENT_INPUT_POWER_STR	"Rx current intput power"
+#define HYTEC_MD__RX_INPUT_SNR_STR				"Rx input SNR"
+#define HYTEC_MD__LINELOSS_STR					"Lineloss"
+
+
+/* Hytec MAC Trace Values */
+#define HYTEC_MC__MAC_TRACE_REQUEST					1
+#define HYTEC_MC__MAC_TRACE_REPLY					2
+#define HYTEC_MC__NAME_OF_REPLYING_DEVICE			3
+#define HYTEC_MC__OUTGOING_PORT_NAME				4
+#define HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE	5
+#define HYTEC_MC__END_OF_TRACE						6
+#define HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE	7
+#define HYTEC_MC__INCOMING_PORT_NAME				8
+#define HYTEC_MC__TRACE_IDENTIFIER					9
+
+#define HYTEC_MC__MAC_TRACE_REQUEST_STR					"MAC Trace Request"
+#define HYTEC_MC__MAC_TRACE_REPLY_STR					"MAC Trace Reply"
+#define HYTEC_MC__NAME_OF_REPLYING_DEVICE_STR			"Name of replying device"
+#define HYTEC_MC__OUTGOING_PORT_NAME_STR				"Outgoing port name"
+#define HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE_STR	"IPv4 address of replying device"
+#define HYTEC_MC__END_OF_TRACE_STR						"End of Trace"
+#define HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE_STR	"IPv6 address of replying device"
+#define HYTEC_MC__INCOMING_PORT_NAME_STR				"Incoming port name"
+#define HYTEC_MC__TRACE_IDENTIFIER_STR					"Trace identifier"
+
+
+static const value_string hytec_subtypes[] = {
+	{HYTEC_SUBTYPE__TRANSCEIVER, "Transceiver"},
+	{HYTEC_SUBTYPE__TRACE, "Trace"},
+	{0, NULL}
+};
+
+static const value_string hytec_transceiver_groups[] = {
+	{HYTEC_TRANSG__TRANCEIVER_IDENTIFIER, "Transceiver identifier"},
+	{HYTEC_TRANSG__TRANSCEIVER_BRIDGEABLE_DISTANCE, "Transceiver bridgeable distance"},
+	{HYTEC_TRANSG__MEASUREMENT_DATA, "Measurement data"},
+	{0, NULL}
+};
+
+static const value_string hytec_trace_groups[] = {
+	{HYTEC_TRACEG__MAC_TRACE, "MAC Trace"},
+	{0, NULL}
+};
+
+static const value_string hytec_tid[] = {
+	{HYTEC_TID__VENDOR_PRODUCT_REVISION, HYTEC_TID__VENDOR_PRODUCT_REVISION_STR},
+	{0, NULL}
+};
+
+static const value_string hytec_tbd[] = {
+	{HYTEC_TBD__SINGLE_MODE, HYTEC_TBD__SINGLE_MODE_STR},
+	{HYTEC_TBD__MULTI_MODE_50, HYTEC_TBD__MULTI_MODE_50_STR},
+	{HYTEC_TBD__MULTI_MODE_62_5, HYTEC_TBD__MULTI_MODE_62_5_STR},
+	{0, NULL}
+};
+
+static const value_string hytec_md[] = {
+	{HYTEC_MD__TX_CURRENT_OUTPUT_POWER, HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR},
+	{HYTEC_MD__RX_CURRENT_INPUT_POWER, HYTEC_MD__RX_CURRENT_INPUT_POWER_STR},
+	{HYTEC_MD__RX_INPUT_SNR, HYTEC_MD__RX_INPUT_SNR_STR},
+	{HYTEC_MD__LINELOSS, HYTEC_MD__LINELOSS_STR},
+	{0, NULL}
+};
+
+static const value_string hytec_mc[] = {
+	{HYTEC_MC__MAC_TRACE_REQUEST, HYTEC_MC__MAC_TRACE_REQUEST_STR},
+	{HYTEC_MC__MAC_TRACE_REPLY, HYTEC_MC__MAC_TRACE_REPLY_STR},
+	{HYTEC_MC__NAME_OF_REPLYING_DEVICE, HYTEC_MC__NAME_OF_REPLYING_DEVICE_STR},
+	{HYTEC_MC__OUTGOING_PORT_NAME, HYTEC_MC__OUTGOING_PORT_NAME_STR},
+	{HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE, HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE_STR},
+	{HYTEC_MC__END_OF_TRACE, HYTEC_MC__END_OF_TRACE_STR},
+	{HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE, HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE_STR},
+	{HYTEC_MC__INCOMING_PORT_NAME, HYTEC_MC__INCOMING_PORT_NAME_STR},
+	{HYTEC_MC__TRACE_IDENTIFIER, HYTEC_MC__TRACE_IDENTIFIER_STR},
+	{0, NULL}
+};
+
 
 /* System Capabilities */
 #define SYSTEM_CAPABILITY_OTHER		0x0001
@@ -2911,6 +3069,309 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	}
 }
 
+/* Dissect OUI HytecGer-TLV's */
+static void
+dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subtype, group, identifier;
+	gint32 bit_offset, msg_len, expected_data_length, maximum_data_length, temp_gint32;
+	proto_tree *hytec_data = NULL;
+	proto_item *tf = NULL;
+	proto_item *tlm, *group_proto_item, *identifier_proto_item;
+	float float_value = 0.0;
+
+	subtype = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_hytec_tlv_subtype, tvb, offset, 1, subtype);
+	offset++;
+
+	/* get the group and identifier of the chosen subtype */
+	bit_offset = (gint32)(offset *8);
+	group = tvb_get_bits8(tvb, bit_offset + HYTEC_GROUP_MASK_OFFSET, HYTEC_GROUP_MASK_SIZE);
+	identifier = tvb_get_bits8(tvb, bit_offset + HYTEC_IDENTIFIER_MASK_OFFSET, HYTEC_IDENTIFIER_MASK_SIZE);
+
+	group_proto_item = proto_tree_add_item(tree, hf_hytec_group, tvb, offset, 1, ENC_BIG_ENDIAN);
+	identifier_proto_item = proto_tree_add_item(tree, hf_hytec_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_item_append_text(identifier_proto_item, " ("); /* a group dependent identifier description will be appended */
+
+	offset++;
+	msg_len = tvb_reported_length_remaining(tvb, offset);
+
+	switch (subtype)
+	{
+	case HYTEC_SUBTYPE__TRANSCEIVER: /* Transceiver-Subtype */
+		proto_item_append_text(group_proto_item, " (%s)", val_to_str_const(group, hytec_transceiver_groups, "Unknown" ));
+
+		switch (group)
+		{
+		case HYTEC_TRANSG__TRANCEIVER_IDENTIFIER:
+			proto_item_append_text(identifier_proto_item, "%s", val_to_str_const(identifier, hytec_tid, "Unknown"));
+
+			switch (identifier)
+			{
+			case HYTEC_TID__VENDOR_PRODUCT_REVISION:
+				maximum_data_length = 64;
+				if(0 < msg_len && msg_len <= maximum_data_length)
+					proto_tree_add_item(tree, hf_hytec_transceiver_vendor_product_revision, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) is beyond valid range (1-%d)", val_to_str_const(identifier, hytec_tid, ""), msg_len, maximum_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			default: proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA); /* unknown identifier */
+			} /* switch (identifier) */
+
+			break;
+		case HYTEC_TRANSG__TRANSCEIVER_BRIDGEABLE_DISTANCE:
+			expected_data_length = 4;
+			proto_item_append_text(identifier_proto_item, "%s", val_to_str_const(identifier, hytec_tbd, "Unknown"));
+
+			switch (identifier)
+			{
+			case HYTEC_TBD__SINGLE_MODE:
+				if(msg_len == expected_data_length)
+				{
+					tlm = proto_tree_add_item(tree, hf_hytec_single_mode, tvb, offset, msg_len, ENC_NA);
+					proto_item_append_text(tlm, " m");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_tbd, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_TBD__MULTI_MODE_50:
+				if(msg_len == expected_data_length)
+				{
+					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_50, tvb, offset, msg_len, ENC_NA);
+					proto_item_append_text(tlm, " m");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_tbd, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_TBD__MULTI_MODE_62_5:
+				if(msg_len == expected_data_length)
+				{
+					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_62_5, tvb, offset, msg_len, ENC_NA);
+					proto_item_append_text(tlm, " m");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_tbd, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			default: proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA); /* unknown identifier */
+			} /* switch (identifier) */
+			break;
+		case HYTEC_TRANSG__MEASUREMENT_DATA:
+			expected_data_length = 4;
+			proto_item_append_text(identifier_proto_item, "%s", val_to_str_const(identifier, hytec_md, "Unknown"));
+
+			switch (identifier)
+			{
+			case HYTEC_MD__TX_CURRENT_OUTPUT_POWER:
+				if(msg_len == expected_data_length)
+				{
+					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					float_value = (float) 0.1 * (float) temp_gint32;
+					tlm = proto_tree_add_float(tree, hf_hytec_tx_current_output_power, tvb, offset, msg_len, float_value);
+					proto_item_append_text(tlm, " uW");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_md, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MD__RX_CURRENT_INPUT_POWER:
+				if(msg_len == expected_data_length)
+				{
+					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					float_value = (float) 0.1 * (float) temp_gint32;
+					tlm = proto_tree_add_float(tree, hf_hytec_rx_current_input_power, tvb, offset, msg_len, float_value);
+					proto_item_append_text(tlm, " uW");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_md, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MD__RX_INPUT_SNR:
+				if(msg_len == expected_data_length)
+				{
+					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
+					else float_value = (float) (temp_gint32 >> 8);
+					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.00390625 == 0.5 ^ 8 */
+					tlm = proto_tree_add_float(tree, hf_hytec_rx_input_snr, tvb, offset, msg_len, float_value);
+					proto_item_append_text(tlm, " dB");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_md, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MD__LINELOSS:
+				if(msg_len == expected_data_length)
+				{
+					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
+					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
+					else float_value = (float) (temp_gint32 >> 8);
+					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.5 ^ 8 */
+					tlm = proto_tree_add_float(tree, hf_hytec_lineloss, tvb, offset, msg_len, float_value);
+					proto_item_append_text(tlm, " dB");
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_md, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			default: proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA); /* unknown identifier */
+			} /* switch (identifier) */
+			break;
+		default: /* unknown group */
+			/* indentifier considered also unknown */
+			proto_item_append_text(identifier_proto_item, "Unknown");
+			proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA);
+		} /* switch (group) */
+		break;
+	case HYTEC_SUBTYPE__TRACE: /* Trace-Subtype */
+		proto_item_append_text(group_proto_item, " (%s)", val_to_str_const(group, hytec_trace_groups, "Unknown"));
+
+		switch (group)
+		{
+		case HYTEC_TRACEG__MAC_TRACE:
+			proto_item_append_text(identifier_proto_item, "%s", val_to_str_const(identifier, hytec_mc, "Unknown"));
+
+			switch (identifier)
+			{
+			case HYTEC_MC__MAC_TRACE_REQUEST:
+				expected_data_length = 13;
+				if(msg_len == expected_data_length)
+				{
+					tf = proto_tree_add_item(tree, hf_hytec_mac_trace_request, tvb, offset, -1, ENC_NA);
+					hytec_data = proto_item_add_subtree(tf, ett_org_spc_hytec_trace_request);
+					proto_tree_add_item(hytec_data, hf_hytec_trace_mac_address, tvb, offset, 6, ENC_NA);
+					offset += 6;
+					proto_tree_add_item(hytec_data, hf_hytec_request_mac_address, tvb, offset, 6, ENC_NA);
+					offset += 6;
+					proto_tree_add_item(hytec_data, hf_hytec_maximum_depth, tvb, offset, 1, ENC_NA);
+					offset += 1;
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__MAC_TRACE_REPLY:
+				expected_data_length = 13;
+				if(msg_len == expected_data_length)
+				{
+					tf = proto_tree_add_item(tree, hf_hytec_mac_trace_reply, tvb, offset, -1, ENC_NA);
+					hytec_data = proto_item_add_subtree(tf, ett_org_spc_hytec_trace_reply);
+					proto_tree_add_item(hytec_data, hf_hytec_trace_mac_address, tvb, offset, 6, ENC_NA);
+					offset += 6;
+					proto_tree_add_item(hytec_data, hf_hytec_answering_mac_address, tvb, offset, 6, ENC_NA);
+					offset += 6;
+					proto_tree_add_item(hytec_data, hf_hytec_actual_depth, tvb, offset, 1, ENC_NA);
+					offset += 1;
+				}
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__NAME_OF_REPLYING_DEVICE:
+				maximum_data_length = 64;
+				if(0 < msg_len && msg_len <= maximum_data_length) proto_tree_add_item(tree, hf_hytec_name_of_replying_device, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) is beyond valid range (1-%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, maximum_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__OUTGOING_PORT_NAME:
+				maximum_data_length = 64;
+				if(0 < msg_len && msg_len <= maximum_data_length) proto_tree_add_item(tree, hf_hytec_outgoing_port_name, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) is beyond valid range (1-%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, maximum_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE:
+				expected_data_length = 4;
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_ipv4_address_of_replying_device, tvb, offset, msg_len, ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__END_OF_TRACE:
+				expected_data_length = 1;
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_end_of_trace, tvb, offset, msg_len, ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE:
+				expected_data_length = 16;
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_ipv6_address_of_replying_device, tvb, offset, msg_len, ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__INCOMING_PORT_NAME:
+				maximum_data_length = 64;
+				if(0 < msg_len && msg_len <= maximum_data_length) proto_tree_add_item(tree, hf_hytec_incoming_port_name, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) is beyond valid range (1-%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, maximum_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			case HYTEC_MC__TRACE_IDENTIFIER:
+				expected_data_length = 4;
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_trace_identifier, tvb, offset, msg_len, ENC_NA);
+				else
+				{ /* unexpected length */
+					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
+					if(msg_len) proto_tree_add_item(tree, hf_hytec_invalid_object_data, tvb, offset, msg_len, ENC_STR_HEX);
+				}
+				break;
+			default: proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA); /* unknown identifier */
+			} /* switch (identifier) */
+			break;
+		default: /* unknown group */
+			/* indentifier considered also unknown */
+			proto_item_append_text(identifier_proto_item, "Unknown");
+			proto_tree_add_item(tree, hf_hytec_unknown_identifier_content, tvb, offset, -1, ENC_NA);
+		} /* switch (group) */
+		break;
+	default: /* unknown subtype */
+		proto_item_append_text(group_proto_item, " (Unknown)");
+		proto_item_append_text(identifier_proto_item, "Unknown");
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
+		break;
+	} /* switch (subtype) */
+
+	proto_item_append_text(identifier_proto_item, ")");
+}
+
 /* Dissect Organizational Specific TLV */
 static gint32
 dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
@@ -3049,6 +3510,16 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_IEEE_802_1QBG:
 		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
+	case OUI_HYTEC_GER:
+		subTypeStr = val_to_str(subType, hytec_subtypes, "Unknown subtype (0x%x)");
+		switch(subType)
+		{
+			case HYTEC_SUBTYPE__TRANSCEIVER: tempTree = ett_org_spc_hytec_subtype_transceiver;
+			break;
+			case HYTEC_SUBTYPE__TRACE: tempTree = ett_org_spc_hytec_subtype_trace;
+			break;
+		}
+		break;
 	default:
 		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
 		break;
@@ -3090,6 +3561,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_IEEE_802_1QBG:
 		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		break;
+	case OUI_HYTEC_GER:
+		dissect_hytec_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	default:
 		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
@@ -4355,6 +4829,114 @@ proto_register_lldp(void)
 			{ "PSE Spare Pair PoE", "lldp.cisco.four_wire_power.pse_spare_pair_poe", FT_BOOLEAN, 8,
 			TFS(&tfs_on_off), 0x08, NULL, HFILL }
 		},
+		{ &hf_hytec_tlv_subtype,
+			{ "Hytec Subtype",	"lldp.hytec.tlv_subtype", FT_UINT8, BASE_DEC,
+			VALS(hytec_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_hytec_group,
+			{ "Group", "lldp.hytec.group", FT_UINT8, BASE_DEC,
+			NULL, HYTEC_GROUP_MASK, NULL, HFILL }
+		},
+		{ &hf_hytec_identifier,
+			{ "Identifier", "lldp.hytec.identifier", FT_UINT8, BASE_DEC,
+			NULL, HYTEC_IDENTIFIER_MASK, NULL, HFILL }
+		},
+		{ &hf_hytec_transceiver_vendor_product_revision,
+			{ HYTEC_TID__VENDOR_PRODUCT_REVISION_STR, "lldp.hytec.transceiver_vendor_product_revision", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_hytec_single_mode,
+			{ HYTEC_TBD__SINGLE_MODE_STR, "lldp.hytec.single_mode", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_multi_mode_50,
+			{ HYTEC_TBD__MULTI_MODE_50_STR, "lldp.hytec.multi_mode_50", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_multi_mode_62_5,
+			{ HYTEC_TBD__MULTI_MODE_62_5_STR, "lldp.hytec.multi_mode_62_5", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_tx_current_output_power,
+			{ HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR, "lldp.hytec.tx_current_output_power", FT_FLOAT, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_rx_current_input_power,
+			{ HYTEC_MD__RX_CURRENT_INPUT_POWER_STR, "lldp.hytec.rx_current_input_power", FT_FLOAT, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_rx_input_snr,
+			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_lineloss,
+			{ HYTEC_MD__LINELOSS_STR, "lldp.hytec.lineloss", FT_FLOAT, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_mac_trace_request,
+			{ HYTEC_MC__MAC_TRACE_REQUEST_STR, "lldp.hytec.mac_trace_request", FT_NONE, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_trace_mac_address,
+			{ "Trace MAC address", "lldp.hytec.trace_mac_address", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_request_mac_address,
+			{ "Requester's MAC address", "lldp.hytec.requesters_mac_address", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_maximum_depth,
+			{ "Maximum depth", "lldp.hytec.maximum_depth", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_mac_trace_reply,
+			{ HYTEC_MC__MAC_TRACE_REPLY_STR, "lldp.hytec.mac_trace_reply", FT_NONE, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_answering_mac_address,
+			{ "Answering MAC address", "lldp.hytec.answering_mac_address", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_actual_depth,
+			{ "Actual depth", "lldp.hytec.actual_depth", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_name_of_replying_device,
+			{ HYTEC_MC__NAME_OF_REPLYING_DEVICE_STR, "lldp.hytec.name_of_replying_device", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_outgoing_port_name,
+			{ HYTEC_MC__OUTGOING_PORT_NAME_STR, "lldp.hytec.outgoing_port_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_ipv4_address_of_replying_device,
+			{ HYTEC_MC__IPV4_ADDRESS_OF_REPLYING_DEVICE_STR, "lldp.hytec.ipv4_address_of_replying_device", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_end_of_trace,
+			{ HYTEC_MC__END_OF_TRACE_STR, "lldp.hytec.end_of_trace", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_ipv6_address_of_replying_device,
+			{ HYTEC_MC__IPV6_ADDRESS_OF_REPLYING_DEVICE_STR, "lldp.hytec.ipv6_address_of_replying_device", FT_IPv6, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_incoming_port_name,
+			{ HYTEC_MC__INCOMING_PORT_NAME_STR, "lldp.hytec.incoming_port_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_trace_identifier,
+			{ HYTEC_MC__TRACE_IDENTIFIER_STR, "lldp.hytec.trace_identifier", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL}
+		},
+		{ &hf_hytec_invalid_object_data,
+			{ "Invalid object data", "lldp.hytec.invalid_object_data", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_hytec_unknown_identifier_content,
+			{ "Unknown Identifier Content","lldp.hytec.unknown_identifier_content", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype","lldp.unknown_subtype", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
@@ -4429,7 +5011,11 @@ proto_register_lldp(void)
 		&ett_802_1qbg_capabilities_flags,
 		&ett_media_capabilities,
 		&ett_profinet_period,
-		&ett_cisco_fourwire_tlv
+		&ett_cisco_fourwire_tlv,
+		&ett_org_spc_hytec_subtype_transceiver,
+		&ett_org_spc_hytec_subtype_trace,
+		&ett_org_spc_hytec_trace_request,
+		&ett_org_spc_hytec_trace_reply
 	};
 
 	static ei_register_info ei[] = {
