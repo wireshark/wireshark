@@ -27,7 +27,6 @@
 
 #ifdef WIN32
   #include <tmmintrin.h>
-  #include <stdint.h>
 #endif
 
 #include <nmmintrin.h>
