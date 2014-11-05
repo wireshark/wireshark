@@ -234,6 +234,11 @@ else()
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
+		-fsanitize=undefined # compile and runtime checks
+		# -fsanitize=float-divide-by-zero
+		# -fsanitize=float-cast-overflow
+		# -fsanitize=address
+		# -fno-sanitize-recover # Abort during runtime
 		-Wvla
 		-Waddress
 		-Wattributes
