@@ -1715,6 +1715,32 @@ then
 	fi
 fi
 AC_SUBST(MOC)
+AC_PATH_PROG(RCC, rcc)
+if test "x$RCC" = x
+then
+	AC_PATH_PROG(RCC, rcc)
+	if test "x$RCC" = x
+	then
+		if test "x$with_qt" = "xyes"; then
+			#
+			# If you want to build with Qt, you'd better
+			# have moc.
+			#
+			AC_MSG_ERROR(I couldn't find rcc; make sure it's installed and in your path)
+		else
+			#
+			# We shouldn't fail here, as the user's not
+			# building with Qt, and we shouldn't force them
+			# to have Qt installed if they're not doing so.
+			# "make dist" will fail if they do that, but
+			# we don't know whether they'll be doing that,
+			# so this is the best we can do.
+			#
+			RCC=rcc
+		fi
+	fi
+fi
+AC_SUBST(RCC)
 
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)

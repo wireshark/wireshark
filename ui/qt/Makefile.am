@@ -111,7 +111,7 @@ SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
 .qrc.rcc.cpp:
 	$(MKDIR_P) $(@D)
-	$(AM_V_RCC)rcc -name `basename $< .qrc` -o $@ $<
+	$(AM_V_RCC)$(RCC) -name `basename $< .qrc` -o $@ $<
 
 ui_%.h: %.ui
 	$(AM_V_UIC)$(UIC) $< -o $@
