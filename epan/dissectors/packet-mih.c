@@ -1980,7 +1980,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 opcode = 0;
         guint8 service = 0;
         guint16 action = 0;
-        gint16 payload_length = 0;
+        gint32 payload_length = 0;
         guint64 len = 0;
         guint8 len_of_len = 0;
         guint8 type = 0;
@@ -1996,28 +1996,29 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         mih_tree = proto_item_add_subtree(ti, ett_mih);
         if(mih_tree)
         {
-            item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+                item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            ver_flags_tree = proto_item_add_subtree(item, ett_ver_flags);
-            proto_tree_add_item(ver_flags_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ver_flags_tree, hf_mih_ack_req, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ver_flags_tree, hf_mih_ack_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            fragment = tvb_get_guint8(tvb, offset);
-            fragment = fragment << 7;
+                ver_flags_tree = proto_item_add_subtree(item, ett_ver_flags);
+                proto_tree_add_item(ver_flags_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ver_flags_tree, hf_mih_ack_req, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ver_flags_tree, hf_mih_ack_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
+        fragment = tvb_get_guint8(tvb, offset);
+        fragment = fragment << 7;
+
         offset += 1;
 
         if(mih_tree)
         {
                 /*flags and version tree is done.....*/
                 proto_tree_add_item(mih_tree, hf_mih_frag_no, tvb, offset, 1, ENC_BIG_ENDIAN);
-                fragment = fragment + (tvb_get_guint8(tvb, offset)>>1);
 
                 /*for MIH message ID*/
                 item = proto_tree_add_item(mih_tree, hf_mih_mid, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         }
+        fragment = fragment + (tvb_get_guint8(tvb, offset)>>1);
         offset += 1;
         mid_tree = proto_item_add_subtree(item, ett_mid);
         serviceid = tvb_get_guint8(tvb, offset);
@@ -2168,10 +2169,10 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         /*For Value fields*/
                         /*TODO: this assumes the maximum value length is 2^32. Dissecting bigger data fields would require breaking the data into chunks*/
-                        if(len<(2^32)){
+                        if(len < (G_GUINT64_CONSTANT(1) << 32)){  /* XXX: always true ? see above */
                                 dissect_mih_tlv(tvb, offset, tlv_tree, type, (guint32)len);
                                 offset += (guint32)len;
-                                payload_length -= (1 + len_of_len + (guint16)len);
+                                payload_length -= (1 + len_of_len + (guint32)len);
                         }else{
                             return;
                         }
