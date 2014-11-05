@@ -366,7 +366,6 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 	 * and if we find the pointer, call it.
 	 */
 	static gboolean initialized = FALSE;
-	static void *libpcap_handle;
 	static int (*p_pcap_set_tstamp_precision)(pcap_t *, int);
 
 	if (!initialized) {
