@@ -61,9 +61,14 @@ FIN
         exit 0
 fi
 
-source test-backend.sh
-
-source config.sh
+MYDIR=$(dirname $0)
+THISBINDIR=$(cd run && pwd)
+if [ -e $THISBINDIR/tshark -o -e $THISBINDIR/dumpcap -o -e $THISBINDIR/rawshark ]; then
+	WS_BIN_PATH=${WS_BIN_PATH:-$THISBINDIR}
+	WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$THISBINDIR}
+fi
+source $MYDIR/test-backend.sh
+source $MYDIR/config.sh
 
 # needed by some tests
 TEST_OUTDIR=$(mktemp -d)
