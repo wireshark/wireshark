@@ -483,9 +483,14 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         if (error) {
             report_failure("while registering lua_fake_tap:\n%s",error->str);
             g_string_free(error,TRUE);
-        }
-        else if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter)) {
-            report_failure("while compiling dfilter for wslua: '%s'", fake_tap_filter->str);
+        } else {
+            if (wslua_dfilter) {
+                dfilter_free(wslua_dfilter);
+                wslua_dfilter = NULL;
+            }
+            if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter)) {
+                report_failure("while compiling dfilter for wslua: '%s'", fake_tap_filter->str);
+            }
         }
     }
 
