@@ -632,7 +632,7 @@ void proto_reg_handoff_opensafety(void);
 /* This is defined by the specification. The Address field is 10 bits long, and the node with the number
  *  1 is always the SCM, therefore ( 2 ^ 10 ) - 1 nodes can be addressed. We use 2 ^ 10 here, because the
  *  SCM can talk to himself (Assign SADR for instance ) */
-#define MAX_NUMBER_OF_SAFETY_NODES      ( 2 ^ 10 )
+/* #define MAX_NUMBER_OF_SAFETY_NODES      ( 1 << 10 ) */
 
 /* Tracks the information that the packet pinfo has been received by receiver, and adds that information to the tree, using pos, as
  * byte position in the PDU */
