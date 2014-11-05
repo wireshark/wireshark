@@ -1624,7 +1624,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                 proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII|ENC_NA);
                         else
                         {
-                                if(mihf_id_len<tvb_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
+                                if(mihf_id_len<tvb_reported_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
                                 {
                                         tvb_mihf_id = tvb_new_composite();
                                         for(i=0; i < mihf_id_len/2; i++)
@@ -2210,7 +2210,7 @@ void proto_register_mih(void)
                                 "MIH ACK-Req",
                                 "mih.acq_req",
                                 FT_BOOLEAN,
-                                1,
+                                8,
                                 NULL,
                                 ACKREQ_MASK,
                                 NULL, HFILL
@@ -2222,7 +2222,7 @@ void proto_register_mih(void)
                                 "MIH ACK-Resp",
                                 "mih.acq_resp",
                                 FT_BOOLEAN,
-                                1,
+                                8,
                                 NULL,
                                 ACKRESP_MASK,
                                 NULL, HFILL
@@ -2234,7 +2234,7 @@ void proto_register_mih(void)
                                 "MIH Unauthenticated info request",
                                 "mih.uir",
                                 FT_BOOLEAN,
-                                1,
+                                8,
                                 NULL,
                                 UIR_MASK,
                                 NULL, HFILL
@@ -2246,7 +2246,7 @@ void proto_register_mih(void)
                                 "MIH more fragment",
                                 "mih.more_frag",
                                 FT_BOOLEAN,
-                                1,
+                                8,
                                 NULL,
                                 MORE_FRAG_MASK,
                                 NULL, HFILL
