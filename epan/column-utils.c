@@ -42,6 +42,7 @@
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/epan.h>
+#include <epan/dfilter/dfilter.h>
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -77,6 +78,17 @@ col_setup(column_info *cinfo, const gint num_cols)
 void
 col_cleanup(column_info *cinfo)
 {
+  int i;
+
+  for (i = 0; i < cinfo->num_cols; i++) {
+    g_free(cinfo->fmt_matx[i]);
+    g_free(cinfo->col_title[i]);
+    g_free(cinfo->col_custom_field[i]);
+    dfilter_free(cinfo->col_custom_dfilter[i]);
+    g_free(cinfo->col_buf[i]);
+    g_free(cinfo->col_expr.col_expr_val[i]);
+  }
+
   g_free(cinfo->col_fmt);
   g_free(cinfo->fmt_matx);
   g_free(cinfo->col_first);

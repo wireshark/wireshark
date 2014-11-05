@@ -824,7 +824,7 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     if(reset_fences)
       cinfo->col_fence[i] = 0;
 
-    cinfo->col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    cinfo->col_expr.col_expr[i] = "";
     cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
