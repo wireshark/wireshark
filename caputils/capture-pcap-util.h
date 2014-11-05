@@ -56,6 +56,13 @@ int linktype_name_to_val(const char *linktype);
  * and append them to a GString.
  */
 void request_high_resolution_timestamp(pcap_t *pcap_h);
+
+/*
+ * Return TRUE if the pcap_t in question is set up for high-precision
+ * time stamps, FALSE otherwise.
+ */
+gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
+
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 #endif /* HAVE_LIBPCAP */

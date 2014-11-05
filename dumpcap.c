@@ -2661,7 +2661,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
 #ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
             /* Find out if we're getting nanosecond-precision time stamps */
-            pcap_opts->ts_nsec = pcap_get_tstamp_precision(pcap_opts->pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
+            pcap_opts->ts_nsec = have_high_resolution_timestamp(pcap_opts->pcap_h);
 #endif
 
 #ifdef _WIN32

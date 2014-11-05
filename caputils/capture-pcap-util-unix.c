@@ -385,6 +385,41 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 	pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
 #endif /* __APPLE__ */
 }
+
+/*
+ * Return TRUE if the pcap_t in question is set up for high-precision
+ * time stamps, FALSE otherwise.
+ */
+gboolean
+have_high_resolution_timestamp(pcap_t *pcap_h)
+{
+#ifdef __APPLE__
+	/*
+	 * See above.
+	 */
+	static gboolean initialized = FALSE;
+	static int (*p_pcap_get_tstamp_precision)(pcap_t *);
+
+	if (!initialized) {
+		p_pcap_get_tstamp_precision =
+		    (int (*)(pcap_t *))
+		      dlsym(RTLD_NEXT, "pcap_get_tstamp_precision");
+		initialized = TRUE;
+	}
+	if (p_pcap_get_tstamp_precision != NULL)
+		return (*p_pcap_get_tstamp_precision)(pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
+	else
+		return FALSE;	/* Can't get implies couldn't set */
+#else /* __APPLE__ */
+	/*
+	 * On other UN*Xes we require that we be run on an OS version
+	 * with a libpcap equal to or later than the version with which
+	 * we were built.
+	 */
+	return pcap_get_tstamp_precision(pcap_h) == PCAP_TSTAMP_PRECISION_NANO;
+#endif /* __APPLE__ */
+}
+
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
