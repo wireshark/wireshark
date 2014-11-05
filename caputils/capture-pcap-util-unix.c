@@ -26,11 +26,13 @@
 
 #ifdef HAVE_LIBPCAP
 
-#ifdef HAVE_PCAP_FINDALLDEVS
-
 #include <pcap.h>
 
-#else /* HAVE_PCAP_FINDALLDEVS */
+#ifdef __APPLE__
+#include <dlfcn.h>
+#endif
+
+#ifndef HAVE_PCAP_FINDALLDEVS
 
 #include <stdlib.h>
 #include <string.h>
@@ -59,8 +61,6 @@ struct rtentry;
 #ifdef HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
 #endif
-
-#include "caputils/capture-pcap-util.h"
 
 #endif  /* HAVE_PCAP_FINDALLDEVS */
 
@@ -333,6 +333,60 @@ cant_get_if_list_error_message(const char *err_str)
 {
 	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
+
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
+/*
+ * Request high-resolution time stamps.
+ *
+ * We don't check for errors - if this fails, we just live with boring old
+ * microsecond-resolution time stamps. The only errors pcap_set_tstamp_precision()
+ * is documenting as returning are PCAP_ERROR_TSTAMP_PRECISION_NOTSUP, which just
+ * means we can't do nanosecond precision on this adapter, in which case we
+ * just live with whatever resolution we get by default, and
+ * PCAP_ERROR_ACTIVATED, which shouldn't happen as we shouldn't call this
+ * after we've activated the pcap_t.
+ */
+void
+request_high_resolution_timestamp(pcap_t *pcap_h)
+{
+#ifdef __APPLE__
+	/*
+	 * On OS X, if you build with a newer SDK, pcap_set_tstamp_precision()
+	 * is available, so the code will be built with it.
+	 *
+	 * However, if you then try to run on an older release that
+	 * doesn't have pcap_set_tstamp_precision(), the dynamic linker
+	 * will fail, as it won't find pcap_set_tstamp_precision().
+	 *
+	 * libpcap doesn't use OS X "weak linking" for new routines,
+	 * so we can't just check whether a pointer to
+	 * pcap_set_tstamp_precision() is null and, if it is, not
+	 * call it.  We have to, instead, use dlopen() to load
+	 * libpcap, and dlsym() to find a pointer to pcap_set_tstamp_precision(),
+	 * and if we find the pointer, call it.
+	 */
+	static gboolean initialized = FALSE;
+	static void *libpcap_handle;
+	static int (*p_pcap_set_tstamp_precision)(pcap_t *, int);
+
+	if (!initialized) {
+		p_pcap_set_tstamp_precision =
+		    (int (*)(pcap_t *, int))
+		      dlsym(RTLD_NEXT, "pcap_set_tstamp_precision");
+		initialized = TRUE;
+	}
+	if (p_pcap_set_tstamp_precision != NULL)
+		(*p_pcap_set_tstamp_precision)(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
+#else /* __APPLE__ */
+	/*
+	 * On other UN*Xes we require that we be run on an OS version
+	 * with a libpcap equal to or later than the version with which
+	 * we were built.
+	 */
+	pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
+#endif /* __APPLE__ */
+}
+#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
  * Get the versions of libpcap, libpcap, and libnl with which we were

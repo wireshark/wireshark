@@ -50,12 +50,16 @@ GList *get_remote_interface_list(const char *hostname, const char *port,
 const char *linktype_val_to_name(int dlt);
 int linktype_name_to_val(const char *linktype);
 
-#endif /* HAVE_LIBPCAP */
-
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
 /*
  * Get the versions of capture libraries with which we were compiled,
  * and append them to a GString.
  */
+void request_high_resolution_timestamp(pcap_t *pcap_h);
+#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
+
+#endif /* HAVE_LIBPCAP */
+
 extern void get_compiled_caplibs_version(GString *str);
 
 /*

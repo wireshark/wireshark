@@ -730,18 +730,9 @@ open_capture_device(capture_options *capture_opts
              * that reads pcap files recognizes the nanosecond-
              * resolution pcap file magic number.
              */
-            if (capture_opts->use_pcapng) {
-                /*
-                 * The only errors this is documenting as returning
-                 * are PCAP_ERROR_TSTAMP_PRECISION_NOTSUP, which just
-                 * means we can't do nanosecond precision on this adapter,
-                 * in which case we just live with whatever resolution
-                 * we get by default, and PCAP_ERROR_ACTIVATED, which
-                 * can't happen as we haven't activated the pcap_t yet.
-                 */
-                pcap_set_tstamp_precision(pcap_h, PCAP_TSTAMP_PRECISION_NANO);
-            }
-#endif
+            if (capture_opts->use_pcapng)
+                request_high_resolution_timestamp(pcap_h);
+#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
                   "buffersize %d.", interface_opts->buffer_size);
