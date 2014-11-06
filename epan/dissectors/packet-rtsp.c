@@ -248,7 +248,7 @@ static gboolean rtsp_desegment_body = TRUE;
 #define RTSP_TCP_PORT_RANGE           "554,8554,7236"
 
 static range_t *global_rtsp_tcp_port_range = NULL;
-static range_t *rtsp_tcp_port_range        = NULL;
+
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
  * string, as an argument, and returns the length of the string -
@@ -1444,7 +1444,6 @@ proto_register_rtsp(void)
     prefs_register_obsolete_preference(rtsp_module, "tcp.port");
 
     range_convert_str(&global_rtsp_tcp_port_range, RTSP_TCP_PORT_RANGE, 65535);
-    rtsp_tcp_port_range = range_empty();
     prefs_register_range_preference(rtsp_module, "tcp.port_range", "RTSP TCP Ports",
                                     "RTSP TCP Ports range",
                                     &global_rtsp_tcp_port_range, 65535);
@@ -1473,6 +1472,7 @@ proto_reg_handoff_rtsp(void)
 {
     static dissector_handle_t rtsp_handle;
     static gboolean rtsp_prefs_initialized = FALSE;
+    static range_t *rtsp_tcp_port_range = NULL;
 
     if (!rtsp_prefs_initialized) {
         rtsp_handle = find_dissector("rtsp");
