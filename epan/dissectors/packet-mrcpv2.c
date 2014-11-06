@@ -384,7 +384,6 @@ static int hf_mrcpv2_Weight = -1;
 /* Global MRCPv2 port pref */
 #define TCP_DEFAULT_RANGE "6075, 30000-30200"
 static range_t *global_mrcpv2_tcp_range = NULL;
-static range_t *mrcpv2_tcp_range = NULL;
 
 /* Initialize the subtree pointers */
 static gint ett_mrcpv2 = -1;
@@ -1503,7 +1502,6 @@ proto_register_mrcpv2(void)
     };
 
     range_convert_str(&global_mrcpv2_tcp_range, TCP_DEFAULT_RANGE, 65535);
-    mrcpv2_tcp_range = range_empty();
 
     proto_mrcpv2 = proto_register_protocol(
         "Media Resource Control Protocol Version 2 (MRCPv2)",
@@ -1526,6 +1524,7 @@ proto_reg_handoff_mrcpv2(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t mrcpv2_handle;
+    static range_t *mrcpv2_tcp_range = NULL;
 
     if (!initialized) {
         mrcpv2_handle = new_create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
