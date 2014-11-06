@@ -496,14 +496,10 @@ attribute_types_initialize_cb(void)
     /* Unregister all fields */
     for (i = 0; i < hf_size; i++) {
       proto_unregister_field (proto_ldap, *(hf[i].p_id));
-
       g_free (hf[i].p_id);
-      g_free ((char *) hf[i].hfinfo.name);
-      g_free ((char *) hf[i].hfinfo.abbrev);
-      g_free ((char *) hf[i].hfinfo.blurb);
     }
     g_hash_table_destroy (attribute_types_hash);
-    g_free (hf);
+    proto_add_deregistered_data (hf);
     attribute_types_hash = NULL;
   }
 

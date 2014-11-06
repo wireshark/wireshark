@@ -1919,19 +1919,24 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 
 /** Unregister an already registered field.
  @param parent the protocol handle from proto_register_protocol()
- @param hf_id the field to unregister */
+ @param hf_id the field to deregister */
 WS_DLL_PUBLIC void
 proto_unregister_field (const int parent, gint hf_id);
+
+/** Add data to be freed when deregistered fields are freed.
+ @param data a pointer to data to free */
+WS_DLL_PUBLIC void
+proto_add_deregistered_data (void *data);
+
+/** Free fields deregistered in proto_unregister_field(). */
+WS_DLL_PUBLIC void
+proto_free_deregistered_fields (void);
 
 /** Register a protocol subtree (ett) array.
  @param indices array of ett indices
  @param num_indices the number of records in indices */
 WS_DLL_PUBLIC void
 proto_register_subtree_array(gint *const *indices, const int num_indices);
-
-/** Returns number of items (protocols or header fields) registered.
- @return the number of items */
-WS_DLL_PUBLIC int proto_registrar_n(void);
 
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)

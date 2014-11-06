@@ -70,7 +70,8 @@ public:
         FilterExpressionsChanged,
         PacketDissectionChanged,
         PreferencesChanged,
-        StaticRecentFilesRead
+        StaticRecentFilesRead,
+        FieldsChanged
     };
 
     void registerUpdate(register_action_e action, const char *message);
@@ -127,6 +128,7 @@ signals:
     void packetDissectionChanged();
     void preferencesChanged();
     void addressResolutionChanged();
+    void fieldsChanged();
 
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
     void captureCapturePrepared(capture_session *cap_session);

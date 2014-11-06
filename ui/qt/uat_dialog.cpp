@@ -471,7 +471,7 @@ void UatDialog::applyChanges()
 
     if (uat_->flags & UAT_AFFECTS_FIELDS) {
         /* Recreate list with new fields and redissect packets */
-        wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
+        wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
     }
     if (uat_->flags & UAT_AFFECTS_DISSECTION) {
         /* Just redissect packets if we have any */

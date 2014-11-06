@@ -69,6 +69,7 @@
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
 #include <epan/epan.h>
+#include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
@@ -3821,6 +3822,38 @@ void change_configuration_profile (const gchar *profile_name)
 
     /* Reload pane geometry, must be done after recreating the list */
     main_pane_load_window_geometry();
+}
+
+void
+main_fields_changed (void)
+{
+    /* Reload color filters */
+    color_filters_reload();
+
+    /* Syntax check filter */
+    filter_te_syntax_check_cb(main_display_filter_widget, NULL);
+    if (cfile.dfilter) {
+        /* Check if filter is still valid */
+        dfilter_t *dfp = NULL;
+        if (!dfilter_compile(cfile.dfilter, &dfp)) {
+            /* Not valid.  Enable 'Apply' button and remove dfilter. */
+            g_signal_emit_by_name(G_OBJECT(main_display_filter_widget), "changed");
+            g_free(cfile.dfilter);
+            cfile.dfilter = NULL;
+        }
+        dfilter_free(dfp);
+    }
+
+    if (have_custom_cols(&cfile.cinfo)) {
+        /* Recreate packet list according to new/changed/deleted fields */
+        packet_list_recreate();
+    } else if (cfile.state != FILE_CLOSED) {
+        /* Redissect packets if we have any */
+        redissect_packets();
+    }
+    destroy_packet_wins(); /* TODO: close windows until we can recreate */
+
+    proto_free_deregistered_fields();
 }
 
 /** redissect packets and update UI */

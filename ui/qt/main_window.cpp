@@ -308,6 +308,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(filterExpressionsChanged()));
     connect(wsApp, SIGNAL(filterExpressionsChanged()),
             this, SLOT(filterExpressionsChanged()));
+    connect(wsApp, SIGNAL(fieldsChanged()),
+            this, SLOT(fieldsChanged()));
 
     connect(main_welcome_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));

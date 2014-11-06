@@ -867,6 +867,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  process_reassembled_data@Base 1.9.1
  process_stat_cmd_arg@Base 1.9.1
  proto_all_finfos@Base 1.9.1
+ proto_add_deregistered_data@Base 1.12.0~rc1
  proto_can_match_selected@Base 1.9.1
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
@@ -878,6 +879,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
  proto_frame@Base 1.9.1
+ proto_free_deregistered_fields@Base 1.12.0~rc1
  proto_get_data_protocol@Base 1.9.1
  proto_get_finfo_ptr_array@Base 1.9.1
  proto_get_first_protocol@Base 1.9.1
@@ -924,7 +926,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_registrar_get_nth@Base 1.9.1
  proto_registrar_get_parent@Base 1.9.1
  proto_registrar_is_protocol@Base 1.9.1
- proto_registrar_n@Base 1.9.1
  proto_report_dissector_bug@Base 1.12.0~rc1
  proto_set_cant_toggle@Base 1.9.1
  proto_set_decoding@Base 1.9.1

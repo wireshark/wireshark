@@ -224,6 +224,7 @@ private slots:
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
     void recreatePacketList();
+    void fieldsChanged();
 
     void startInterfaceCapture(bool valid);
 
