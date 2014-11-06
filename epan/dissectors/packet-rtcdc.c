@@ -206,30 +206,30 @@ static const value_string new_channel_type_values[] = {
 static void
 dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item)
 {
-    if (rtcdc_tree) {
-        guint8  channel_type;
-        guint32 reliability;
-        guint16 label_length;
-        guint16 protocol_length;
+    guint8  channel_type;
+    guint32 reliability;
+    guint16 label_length;
+    guint16 protocol_length;
 
+    channel_type = tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
+    if ((channel_type & 0x7f) > 0x02) {
+        expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_channel_type);
+    }
+    reliability = tvb_get_ntohl(tvb, NEW_RELIABILITY_OFFSET);
+    if ((reliability > 0) && ((channel_type & 0x7f) == 0x00)) {
+        expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_reliability_non_zero);
+    }
+    label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
+    protocol_length = tvb_get_ntohs(tvb, NEW_PROTOCOL_LENGTH_OFFSET);
+    if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_length(tvb)) {
+        expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_inconsistent_label_and_parameter_length);
+    }
+    if (rtcdc_tree) {
         proto_tree_add_item(rtcdc_tree, hf_new_channel_type, tvb, NEW_CHANNEL_TYPE_OFFSET, NEW_CHANNEL_TYPE_LENGTH, ENC_BIG_ENDIAN);
-        channel_type = tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
-        if ((channel_type & 0x7f) > 0x02) {
-            expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_channel_type);
-        }
         proto_tree_add_item(rtcdc_tree, hf_new_priority, tvb, NEW_PRIORITY_OFFSET, NEW_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_new_reliability, tvb, NEW_RELIABILITY_OFFSET, NEW_RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
-        reliability = tvb_get_ntohl(tvb, NEW_RELIABILITY_OFFSET);
-        if ((reliability > 0) && ((channel_type & 0x7f) == 0x00)) {
-            expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_reliability_non_zero);
-        }
         proto_tree_add_item(rtcdc_tree, hf_new_label_length, tvb, NEW_LABEL_LENGTH_OFFSET, NEW_LABEL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_new_protocol_length, tvb, NEW_PROTOCOL_LENGTH_OFFSET, NEW_PROTOCOL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
-        label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
-        protocol_length = tvb_get_ntohs(tvb, NEW_PROTOCOL_LENGTH_OFFSET);
-        if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_length(tvb)) {
-            expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_inconsistent_label_and_parameter_length);
-        }
         proto_tree_add_item(rtcdc_tree, hf_new_label, tvb, NEW_LABEL_OFFSET, label_length, ENC_ASCII|ENC_NA);
         proto_tree_add_item(rtcdc_tree, hf_new_protocol, tvb, NEW_LABEL_OFFSET + label_length, protocol_length, ENC_ASCII|ENC_NA);
     }
