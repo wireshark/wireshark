@@ -2334,7 +2334,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->flavor = flavor;
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
-			rpc_call->proc_info = (rpc_proc_info_value*)wmem_memdup(wmem_file_scope(), value, sizeof(*value));
+			rpc_call->proc_info = value ? (rpc_proc_info_value*)wmem_memdup(wmem_file_scope(), value, sizeof(*value)) : NULL;
 			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
