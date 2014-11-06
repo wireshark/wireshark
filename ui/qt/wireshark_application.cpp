@@ -616,6 +616,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case StaticRecentFilesRead:
         emit recentFilesRead();
         break;
+    case FieldsChanged:
+        emit fieldsChanged();
+        break;
     default:
         break;
     }

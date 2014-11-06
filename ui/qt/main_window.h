@@ -204,6 +204,7 @@ private slots:
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
     void recreatePacketList();
+    void fieldsChanged();
 
     void setFeaturesEnabled(bool enabled = true);
 

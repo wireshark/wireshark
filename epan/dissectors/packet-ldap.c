@@ -705,14 +705,10 @@ attribute_types_initialize_cb(void)
     /* Unregister all fields */
     for (i = 0; i < hf_size; i++) {
       proto_unregister_field (proto_ldap, *(hf[i].p_id));
-
       g_free (hf[i].p_id);
-      g_free ((char *) hf[i].hfinfo.name);
-      g_free ((char *) hf[i].hfinfo.abbrev);
-      g_free ((char *) hf[i].hfinfo.blurb);
     }
     g_hash_table_destroy (attribute_types_hash);
-    g_free (hf);
+    proto_add_deregistered_data (hf);
     attribute_types_hash = NULL;
   }
 
@@ -5742,7 +5738,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2253 "../../asn1/ldap/packet-ldap-template.c"
+#line 2233 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5816,7 +5812,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2267 "../../asn1/ldap/packet-ldap-template.c"
+#line 2247 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5982,7 +5978,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2416 "../../asn1/ldap/packet-ldap-template.c"
+#line 2396 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
