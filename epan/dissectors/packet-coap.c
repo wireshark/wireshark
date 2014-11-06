@@ -791,6 +791,9 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	coap_ctype_str = "";
 	coap_ctype_value = DEFAULT_COAP_CTYPE_VALUE;
 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CoAP");
+	col_clear(pinfo->cinfo, COL_INFO);
+
 	coap_root = proto_tree_add_item(parent_tree, proto_coap, tvb, offset, -1, ENC_NA);
 	coap_tree = proto_item_add_subtree(coap_root, ett_coap);
 
@@ -809,10 +812,15 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	proto_tree_add_item(coap_tree, hf_coap_mid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	mid = tvb_get_ntohs(tvb, offset);
-	offset += 2;
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(ttype, vals_ttype_short, "Unknown %d"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", MID:%u", mid);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(code, vals_code, "Unknown %d"));
 
 	/* append the header information */
 	proto_item_append_text(coap_tree, ", %s, %s, MID:%u", val_to_str(ttype, vals_ttype, "Unkown %d"), val_to_str(code, vals_code, "Unknown %d"), mid);
+
+	offset += 2;
 
 	/* initialize the external value */
 	coap_block_number = DEFAULT_COAP_BLOCK_NUMBER;
@@ -835,10 +843,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return;
 
 	/* add informations to the packet list */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CoAP");
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(ttype, vals_ttype_short, "Unknown %d"));
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", MID:%u", mid);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(code, vals_code, "Unknown %d"));
 	if (coap_token_str[0] != '\0')
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
 	if (coap_block_number != DEFAULT_COAP_BLOCK_NUMBER)
