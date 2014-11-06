@@ -179,6 +179,7 @@ private slots:
     void interfaceSelectionChanged();
     void redissectPackets();
     void recreatePacketList();
+    void fieldsChanged();
 
     void addDisplayFilterButton(QString df_text);
     void displayFilterButtonClicked();

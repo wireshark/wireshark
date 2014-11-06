@@ -358,6 +358,9 @@ extern void reset_tap_update_timer(void);
 /** Change configuration profile */
 extern void change_configuration_profile(const gchar *profile_name);
 
+/** Update GUI for changes in fields */
+extern void main_fields_changed (void);
+
 /** redissect packets and update UI */
 extern void redissect_packets(void);
 

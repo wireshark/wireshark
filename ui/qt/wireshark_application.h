@@ -66,7 +66,8 @@ public:
         ColumnsChanged,
         FilterExpressionsChanged,
         PacketDissectionChanged,
-        PreferencesChanged
+        PreferencesChanged,
+        FieldsChanged
     };
 
     void registerUpdate(register_action_e action, const char *message);
@@ -112,6 +113,7 @@ signals:
     void filterExpressionsChanged();
     void packetDissectionChanged();
     void preferencesChanged();
+    void fieldsChanged();
 
 #ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.

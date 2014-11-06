@@ -612,6 +612,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
+    case FieldsChanged:
+        emit fieldsChanged();
+        break;
     default:
         break;
     }
