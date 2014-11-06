@@ -64,6 +64,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <wsutil/filesystem.h>
@@ -132,11 +133,18 @@ static int hf_radius_cosine_vpi = -1;
 static int hf_radius_cosine_vci = -1;
 
 static int hf_radius_ascend_data_filter = -1;
+static int hf_radius_vsa_fragment = -1;
+static int hf_radius_eap_fragment = -1;
+static int hf_radius_avp = -1;
+static int hf_radius_3gpp_ms_tmime_zone = -1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_eap = -1;
 static gint ett_chap = -1;
+
+static expert_field ei_radius_invalid_length = EI_INIT;
+
 /*
  * Define the tap for radius
  */
@@ -528,12 +536,12 @@ dissect_radius_3gpp_ms_tmime_zone(proto_tree* tree, tvbuff_t* tvb, packet_info* 
 	oct = tvb_get_guint8(tvb, offset);
 	sign = (oct & 0x08) ? '-' : '+';
 	oct = (oct >> 4) + (oct & 0x07) * 10;
+	daylight_saving_time = tvb_get_guint8(tvb, offset+1) & 0x3;
 
-	proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c%d hours %d minutes", sign, oct / 4, oct % 4 * 15);
-	offset++;
-
-	daylight_saving_time = tvb_get_guint8(tvb, offset) & 0x3;
-	proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
+	proto_tree_add_bytes_format_value(tree, hf_radius_3gpp_ms_tmime_zone, tvb, offset, 2, NULL,
+						"GMT %c%d hours %d minutes %s", sign, oct / 4, oct % 4 * 15,
+						val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
+	offset += 2;
 
 	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ",
 				  sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
@@ -853,7 +861,6 @@ static void add_tlv_to_tree(proto_tree* tlv_tree, proto_item* tlv_item, packet_i
 }
 
 void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	proto_item* item;
 	gint tlv_num = 0;
 
 	while (len > 0) {
@@ -866,25 +873,22 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
 		proto_tree* tlv_tree;
 
 		if (len < 2) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "Not enough room in packet for TLV header");
-			PROTO_ITEM_SET_GENERATED(item);
 			return;
 		}
 		tlv_type = tvb_get_guint8(tvb,offset);
 		tlv_length = tvb_get_guint8(tvb,offset+1);
 
 		if (tlv_length < 2) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "TLV too short: length %u < 2", tlv_length);
-			PROTO_ITEM_SET_GENERATED(item);
 			return;
 		}
 
 		if (len < (gint)tlv_length) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "Not enough room in packet for TLV");
-			PROTO_ITEM_SET_GENERATED(item);
 			return;
 		}
 
@@ -920,15 +924,13 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
 }
 
 static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_info* pinfo, tvbuff_t* tvb, radius_attr_info_t* dictionary_entry, guint32 avp_length, guint32 offset) {
-	proto_item* pi;
 
 	if (dictionary_entry->tagged) {
 		guint tag;
 
 		if (avp_length == 0) {
-			pi = proto_tree_add_text(avp_tree, tvb, offset,
+			proto_tree_add_expert_format(avp_tree, pinfo, &ei_radius_invalid_length, tvb, offset,
 						 0, "AVP too short for tag");
-			PROTO_ITEM_SET_GENERATED(pi);
 			return;
 		}
 
@@ -979,7 +981,6 @@ static void vsa_buffer_table_destroy(void *table) {
 
 
 void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
-	proto_item* item;
 	gboolean last_eap = FALSE;
 	guint8* eap_buffer = NULL;
 	guint eap_seg_num = 0;
@@ -1012,25 +1013,22 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 		proto_tree* avp_tree;
 
 		if (length < 2) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "Not enough room in packet for AVP header");
-			PROTO_ITEM_SET_GENERATED(item);
 			break;  /* exit outer loop, then cleanup & return */
 		}
 		avp_type = tvb_get_guint8(tvb,offset);
 		avp_length = tvb_get_guint8(tvb,offset+1);
 
 		if (avp_length < 2) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "AVP too short: length %u < 2", avp_length);
-			PROTO_ITEM_SET_GENERATED(item);
 			break;  /* exit outer loop, then cleanup & return */
 		}
 
 		if (length < avp_length) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
+			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
 						   "Not enough room in packet for AVP");
-			PROTO_ITEM_SET_GENERATED(item);
 			break;  /* exit outer loop, then cleanup & return */
 		}
 
@@ -1042,8 +1040,8 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 			dictionary_entry = &no_dictionary_entry;
 		}
 
-		avp_item = proto_tree_add_text(tree, tvb, offset, avp_length,
-					       "AVP: l=%u t=%s(%u)", avp_length,
+		avp_item = proto_tree_add_bytes_format_value(tree, hf_radius_avp, tvb, offset, avp_length,
+					       NULL, "l=%u t=%s(%u)", avp_length,
 					       dictionary_entry->name, avp_type);
 
 		avp_length -= 2;
@@ -1058,7 +1056,7 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 			/* XXX TODO: handle 2 byte codes for USR */
 
 			if (avp_length < 4) {
-				proto_item_append_text(avp_item, " [AVP too short; no room for vendor ID]");
+				expert_add_info_format(pinfo, avp_item, &ei_radius_invalid_length, "AVP too short; no room for vendor ID");
 				offset += avp_length;
 				continue; /* while (length > 0) */
 			}
@@ -1119,8 +1117,8 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 				}
 
 				if (avp_vsa_len < avp_vsa_header_len) {
-					proto_tree_add_text(tree, tvb, offset+1, 1,
-							    "[VSA too short]");
+					proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset+1, 1,
+							    "VSA too short");
 					break; /* exit while (offset < max_offset) loop */
 				}
 
@@ -1133,16 +1131,14 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 				}
 
 				if (vendor->has_flags){
-					avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
-								       "VSA: l=%u t=%s(%u) C=0x%02x",
+					avp_tree = proto_tree_add_subtree_format(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
+								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u) C=0x%02x",
 								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type, avp_vsa_flags);
 				} else {
-					avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
-								       "VSA: l=%u t=%s(%u)",
+					avp_tree = proto_tree_add_subtree_format(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
+								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u)",
 								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
 				}
-
-				avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
 
 				if (show_length) {
 					avp_len_item = proto_tree_add_uint(avp_tree,
@@ -1180,12 +1176,12 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 							tvb_memcpy(tvb, vsa_buffer->data, offset, avp_vsa_len);
 							g_hash_table_insert(vsa_buffer_table, &(vsa_buffer->key), vsa_buffer);
 						}
-						proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
+						proto_tree_add_item(avp_tree, hf_radius_vsa_fragment, tvb, offset, avp_vsa_len, ENC_NA);
 						proto_item_append_text(avp_item, ": VSA fragment[%u]", vsa_buffer->seg_num);
 					} else {
 						if (vsa_buffer) {
 							tvbuff_t* vsa_tvb = NULL;
-							proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
+							proto_tree_add_item(avp_tree, hf_radius_vsa_fragment, tvb, offset, avp_vsa_len, ENC_NA);
 							proto_item_append_text(avp_item, ": Last VSA fragment[%u]", vsa_buffer->seg_num);
 							vsa_tvb = tvb_new_child_real_data(tvb, vsa_buffer->data, vsa_buffer->len, vsa_buffer->len);
 							tvb_set_free_cb(vsa_tvb, g_free);
@@ -1225,9 +1221,7 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 			eap_seg_num++;
 
 			/* Show this as an EAP fragment. */
-			if (tree)
-				proto_tree_add_text(avp_tree, tvb, offset, tvb_len,
-						    "EAP fragment");
+			proto_tree_add_item(avp_tree, hf_radius_eap_fragment, tvb, offset, tvb_len, ENC_NA);
 
 			if (eap_tvb != NULL) {
 				/*
@@ -2014,7 +2008,19 @@ static void register_radius_fields(const char* unused _U_) {
 			 NULL, HFILL }},
 		 { &hf_radius_ascend_data_filter,
 		 { "Ascend Data Filter", "radius.ascenddatafilter", FT_BYTES, BASE_NONE, NULL, 0x0,
-			 NULL, HFILL }}
+			 NULL, HFILL }},
+		 { &hf_radius_vsa_fragment,
+		 { "VSA fragment", "radius.vsa_fragment", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_eap_fragment,
+		 { "EAP fragment", "radius.eap_fragment", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_avp,
+		 { "AVP", "radius.avp", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_3gpp_ms_tmime_zone,
+		 { "Timezone", "radius.3gpp_ms_tmime_zone", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
 	 };
 
 	 gint *base_ett[] = {
@@ -2026,6 +2032,12 @@ static void register_radius_fields(const char* unused _U_) {
 		 &(no_vendor.ett),
 	 };
 
+	 static ei_register_info ei[] = {
+     {
+		 &ei_radius_invalid_length, { "radius.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+	 };
+
+	 expert_module_t* expert_radius;
 	 hfett_t ri;
 	 char* dir = NULL;
 	 gchar* dict_err_str = NULL;
@@ -2067,6 +2079,8 @@ static void register_radius_fields(const char* unused _U_) {
 
 	proto_register_field_array(proto_radius,(hf_register_info*)wmem_array_get_raw(ri.hf),wmem_array_get_count(ri.hf));
 	proto_register_subtree_array((gint**)wmem_array_get_raw(ri.ett), wmem_array_get_count(ri.ett));
+	expert_radius = expert_register_protocol(proto_radius);
+	expert_register_field_array(expert_radius, ei, array_length(ei));
 
 	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 

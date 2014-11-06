@@ -118,6 +118,9 @@ static int hf_rohc_ipv6_tc = -1;
 static int hf_rohc_ipv6_hop_limit = -1;
 static int hf_rohc_ir_pkt_frame = -1;
 static int hf_rohc_ir_previous_frame = -1;
+static int hf_rohc_ir_profile = -1;
+static int hf_rohc_ir_ip_version = -1;
+static int hf_rohc_ir_mode = -1;
 static int hf_rohc_comp_sn = -1;
 static int hf_rohc_r_0_crc = -1;
 static int hf_rohc_x = -1;
@@ -141,6 +144,11 @@ static int hf_rohc_compressed_list_rem_bit_mask = -1;
 static int hf_rohc_spare_bits = -1;
 static int hf_rohc_ip_id = -1;
 static int hf_rohc_udp_checksum = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_rohc_no_configuration_info = -1;
+static int hf_rohc_unknown_option_data = -1;
+static int hf_rohc_error_packet = -1;
+static int hf_rohc_configured_by_ir_packet = -1;
 
 static int ett_rohc = -1;
 static int ett_rohc_conf = -1;
@@ -163,6 +171,11 @@ static expert_field ei_rohc_profile_spec_octet = EI_INIT;
 static expert_field ei_rohc_rohc_opt_clock = EI_INIT;
 static expert_field ei_rohc_opt_jitter = EI_INIT;
 static expert_field ei_rohc_feedback_type_2_is_not_applicable_for_uncompressed_profile = EI_INIT;
+static expert_field ei_rohc_not_dissected_yet = EI_INIT;
+static expert_field ei_rohc_profile_specific = EI_INIT;
+static expert_field ei_rohc_profile_not_supported = EI_INIT;
+static expert_field ei_rohc_ip_version = EI_INIT;
+static expert_field ei_rohc_desegmentation_not_implemented = EI_INIT;
 
 static dissector_handle_t rohc_handle;
 
@@ -416,7 +429,7 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 /* 5.7.5. Extension formats */
 static int
-dissect_rohc_ext_format(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 t, rohc_cid_context_t *rohc_cid_context)
+dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 t, rohc_cid_context_t *rohc_cid_context)
 {
     guint8 ext_type = tvb_get_guint8(tvb, offset) & 0xc0;
 
@@ -491,7 +504,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 t, r
         }
         offset++;
     } else {
-        proto_tree_add_text(tree, tvb, offset, -1, "extension 3[Not dissected yet]");
+        proto_tree_add_expert_format(tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1, "extension 3 [Not dissected yet]");
         if (tvb_length_remaining(tvb, offset) > 0)
             offset += tvb_length_remaining(tvb, offset);
     }
@@ -595,7 +608,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset++;
     }
     if (x) {
-        offset = dissect_rohc_ext_format(tvb, pkt_tree, offset, t, rohc_cid_context);
+        offset = dissect_rohc_ext_format(tvb, pinfo, pkt_tree, offset, t, rohc_cid_context);
     }
     proto_item_set_len(ti, offset-start_offset);
 
@@ -699,7 +712,7 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset++;
     }
     if (x) {
-        offset = dissect_rohc_ext_format(tvb, pkt_tree, offset, t, rohc_cid_context);
+        offset = dissect_rohc_ext_format(tvb, pinfo, pkt_tree, offset, t, rohc_cid_context);
     }
     proto_item_set_len(ti, offset-start_offset);
 
@@ -819,7 +832,7 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         offset++;
     }
     if (x) {
-        offset = dissect_rohc_ext_format(tvb, pkt_tree, offset, t, rohc_cid_context);
+        offset = dissect_rohc_ext_format(tvb, pinfo, pkt_tree, offset, t, rohc_cid_context);
     }
     proto_item_set_len(ti, offset-start_offset);
 
@@ -862,7 +875,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
         } else {
             /* No context info, not much we can do */
             proto_item_append_text(p_rohc_info->last_created_item, " (type %d)", (feedback_data_len==1) ? 1 : 2);
-            proto_tree_add_text(tree, tvb, offset, feedback_data_len, "profile-specific information[Profile not known]");
+            proto_tree_add_expert_format(tree, pinfo, &ei_rohc_profile_not_supported, tvb, offset, feedback_data_len, "profile-specific information [Profile not known]");
             return;
         }
     }
@@ -892,7 +905,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", oct);
                 break;
             default:
-                proto_tree_add_text(tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
+                proto_tree_add_expert(tree, pinfo, &ei_rohc_profile_specific, tvb, offset, feedback_data_len);
                 break;
         }
         return;
@@ -976,7 +989,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                         col_append_fstr(pinfo->cinfo, COL_INFO, "Loss=%u ", oct);
                         break;
                     default:
-                        proto_tree_add_text(rohc_feedback_tree, tvb, offset, opt_len, "Unknown Option data");
+                        proto_tree_add_item(rohc_feedback_tree, hf_rohc_unknown_option_data, tvb, offset, opt_len, ENC_NA);
                         break;
                 }
                 feedback_data_len = feedback_data_len - opt_len;
@@ -1358,7 +1371,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             break;
 
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
+            proto_tree_add_expert(tree, pinfo, &ei_rohc_profile_not_supported, tvb, offset, 0);
             return -1;
     }
 
@@ -1430,7 +1443,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_item(sub_tree, hf_rohc_ipv6_hop_limit, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 /* XXX TODO: use the IPv6 dissector to dissect Generic extension header list ?*/
-                proto_tree_add_text(sub_tree, tvb, offset, -1, "Not dissected yet");
+                proto_tree_add_expert(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1);
                 return -1;
             default:
                 break;
@@ -1574,7 +1587,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int
 dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gboolean d, guint8 profile, rohc_cid_context_t *rohc_cid_context){
 
-    proto_item *item, *ipv4_item, *udp_item, *rtp_item;
+    proto_item *item, *ipv4_item, *udp_item, *rtp_item, *ver_item;
     proto_tree *sub_tree = NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
     guint8      version, protocol;
     int         start_offset, tree_start_offset;
@@ -1599,7 +1612,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
             break;
 
         default:
-            proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
+            proto_tree_add_expert(tree, pinfo, &ei_rohc_profile_not_supported, tvb, offset, 0);
             return -1;
     }
 
@@ -1607,7 +1620,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
     /* for all profiles except uncompressed */
     if (profile != ROHC_PROFILE_UNCOMPRESSED) {
         version = tvb_get_guint8(tvb,offset)>>4;
-        proto_tree_add_item(sub_tree, hf_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ver_item = proto_tree_add_item(sub_tree, hf_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         rohc_cid_context->rohc_ip_version = version;
 
         switch(version) {
@@ -1683,7 +1696,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
                 break;
             }
             default:
-                proto_tree_add_text(sub_tree, tvb, offset, -1, "Error unknown version, only 4 or 6 allowed");
+                expert_add_info(pinfo, ver_item, &ei_rohc_ip_version);
                 return -1;
         }
     } else {
@@ -1752,7 +1765,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
         }
         return offset;
     } else {
-            proto_tree_add_text(sub_tree, tvb, offset, -1, "[Not dissected yet]");
+            proto_tree_add_expert(sub_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1);
     }
     return offset;
 }
@@ -1911,7 +1924,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset = dissect_rohc_ir_rtp_udp_ip_profile_static(tvb, ir_tree, pinfo, offset, d, profile, rohc_cid_context);
             break;
         default:
-            proto_tree_add_text(ir_tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
+            proto_tree_add_expert(ir_tree, pinfo, &ei_rohc_profile_specific, tvb, offset, feedback_data_len);
             offset = -1;
             break;
     }
@@ -2016,7 +2029,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
             break;
         default:
-            proto_tree_add_text(ir_tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
+            proto_tree_add_expert(ir_tree, pinfo, &ei_rohc_profile_specific, tvb, offset, feedback_data_len);
             break;
     }
 
@@ -2081,7 +2094,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if(rohc_cid_context){
         /* Do we have info from an IR frame? */
         if(rohc_cid_context->ir_frame_number>0){
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Configured by IR packet");
+            conf_item = proto_tree_add_item(conf_tree, hf_rohc_configured_by_ir_packet, tvb, offset, 0, ENC_NA);
             PROTO_ITEM_SET_GENERATED(conf_item);
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_pkt_frame, tvb, 0, 0, rohc_cid_context->ir_frame_number);
             PROTO_ITEM_SET_GENERATED(conf_item);
@@ -2089,20 +2102,20 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_previous_frame, tvb, 0, 0, rohc_cid_context->prev_ir_frame_number);
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Profile:(%s)", val_to_str_const(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
+            conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_profile, tvb, offset, 0, rohc_cid_context->profile);
             PROTO_ITEM_SET_GENERATED(conf_item);
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "IP version:(%s)", val_to_str_const(rohc_cid_context->rohc_ip_version, rohc_ip_version_vals, "Unknown"));
+            conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_ip_version, tvb, offset, 0, rohc_cid_context->rohc_ip_version);
             PROTO_ITEM_SET_GENERATED(conf_item);
             if(rohc_cid_context->mode == 0){
-                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode not known");
+                conf_item = proto_tree_add_uint_format_value(conf_tree, hf_rohc_ir_mode, tvb, offset, 0, 0, "not known");
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }else{
-                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode:(%s)", val_to_str_const(rohc_cid_context->mode, rohc_mode_vals, "Unknown"));
+                conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_mode, tvb, offset, 0, rohc_cid_context->mode);
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }
 
         }else{
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "No configuration info");
+            conf_item = proto_tree_add_item(conf_tree, hf_rohc_no_configuration_info, tvb, offset, 0, ENC_NA);
             PROTO_ITEM_SET_GENERATED(conf_item);
         }
     }
@@ -2143,7 +2156,7 @@ start_over:
         if(is_add_cid){
             p_rohc_info->last_created_item = proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
-            proto_tree_add_text(rohc_tree, tvb, offset, -1, "Error packet");
+            proto_tree_add_item(rohc_tree, hf_rohc_error_packet, tvb, offset, -1, ENC_NA);
             return tvb_length(tvb);
         }else{
             col_append_str(pinfo->cinfo, COL_INFO, "Feedback ");
@@ -2209,7 +2222,7 @@ start_over:
             item = proto_tree_add_uint(rohc_tree, hf_rohc_small_cid, tvb, 0, 0, cid);
             PROTO_ITEM_SET_GENERATED(item);
         }
-        proto_tree_add_text(rohc_tree, tvb, offset, -1, "Segment [Desegmentation not implemented yet]");
+        proto_tree_add_expert(rohc_tree, pinfo, &ei_rohc_desegmentation_not_implemented, tvb, offset, -1);
         return tvb_length(tvb);
     }
     /* 6) Here, it is known that the rest is forward information (unless the
@@ -2222,7 +2235,7 @@ start_over:
             /* Could not parse header */
             return tvb_length(tvb);
         }
-        /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
+
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
         return tvb_length(tvb);
@@ -2234,7 +2247,7 @@ start_over:
             /* Could not parse header */
             return tvb_length(tvb);
         }
-        /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
+
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
         return tvb_length(tvb);
@@ -2762,6 +2775,26 @@ proto_register_rohc(void)
             { &hf_rohc_ir_previous_frame,
               { "Previous IR frame","rohc.ir.prev.frame_num",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL , HFILL,
+              }
+            },
+            { &hf_rohc_ir_profile,
+              { "Mode","rohc.ir_profile",
+                FT_UINT16, BASE_DEC, VALS(rohc_profile_vals), 0x0,
+                NULL , HFILL
+              }
+            },
+
+            { &hf_rohc_ir_ip_version,
+              { "Mode","rohc.ir_ip_version",
+                FT_UINT16, BASE_DEC, VALS(rohc_ip_version_vals), 0x0,
+                NULL , HFILL
+              }
+            },
+
+            { &hf_rohc_ir_mode,
+              { "Mode","rohc.ir_mode",
+                FT_UINT32, BASE_DEC, VALS(rohc_mode_vals), 0x0,
                 NULL , HFILL
               }
             },
@@ -2903,7 +2936,11 @@ proto_register_rohc(void)
                 NULL, HFILL
               }
             },
-
+          /* Generated from convert_proto_tree_add_text.pl */
+          { &hf_rohc_unknown_option_data, { "Unknown Option data", "rohc.unknown_option_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rohc_configured_by_ir_packet, { "Configured by IR packet", "rohc.configured_by_ir_packet", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rohc_no_configuration_info, { "No configuration info", "rohc.no_configuration_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rohc_error_packet, { "Error packet", "rohc.error_packet", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         };
 
     /* Setup protocol subtree array */
@@ -2931,6 +2968,11 @@ proto_register_rohc(void)
         { &ei_rohc_feedback_type_2_is_not_applicable_for_uncompressed_profile, { "rohc.feedback.type_2_is_not_applicable_for_uncompressed_profile", PI_PROTOCOL, PI_WARN, "Feedback type 2 is not applicable for uncompressed profile", EXPFILL }},
         { &ei_rohc_rohc_opt_clock, { "rohc.opt.clock.udp", PI_MALFORMED, PI_ERROR, "CLOCK option should not be used for UDP", EXPFILL }},
         { &ei_rohc_opt_jitter, { "rohc.opt.jitter.udp", PI_MALFORMED, PI_ERROR, "JITTER option should not be used for UDP", EXPFILL }},
+        { &ei_rohc_not_dissected_yet, { "rohc.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
+        { &ei_rohc_profile_specific, { "rohc.profile_specific", PI_UNDECODED, PI_WARN, "profile-specific information [Not dissected yet]", EXPFILL }},
+        { &ei_rohc_profile_not_supported, { "rohc.profile_not_supported", PI_PROTOCOL, PI_WARN, "Profile not supported", EXPFILL }},
+        { &ei_rohc_ip_version, { "rohc.ip.version.unknown", PI_PROTOCOL, PI_WARN, "Error unknown version, only 4 or 6 allowed", EXPFILL }},
+        { &ei_rohc_desegmentation_not_implemented, { "rohc.desegmentation_not_implemented", PI_UNDECODED, PI_WARN, "Segment [Desegmentation not implemented yet]", EXPFILL }},
     };
 
     expert_module_t* expert_rohc;

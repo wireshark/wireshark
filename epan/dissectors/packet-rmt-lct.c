@@ -90,6 +90,12 @@ static int hf_send_rate = -1;
 static int hf_cenc = -1;
 static int hf_flute_version = -1;
 static int hf_fdt_instance_id = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_cc_rate = -1;
+static int hf_cc_rtt = -1;
+static int hf_cc_flags = -1;
+static int hf_cc_loss = -1;
+static int hf_cc_sequence = -1;
 
 static int ett_main = -1;
 static int ett_fsize = -1;
@@ -210,16 +216,11 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
                 break;
 
             case 3: /* EXT_CC RATE */
-                proto_tree_add_text(ext_tree, tvb, offset+2, 2,
-                                    "CC Sequence: %u", tvb_get_ntohs(tvb, offset+2));
-                proto_tree_add_text(ext_tree, tvb, offset+4, 1,
-                                    "CC Flags: 0x%x", tvb_get_guint8(tvb, offset+4));
-                proto_tree_add_text(ext_tree, tvb, offset+5, 1,
-                                    "CC RTT: %u", tvb_get_guint8(tvb, offset+5));
-                proto_tree_add_text(ext_tree, tvb, offset+6, 2,
-                                    "CC Loss: %g", tvb_get_ntohs(tvb, offset+6)/65535.0);
-                proto_tree_add_text(ext_tree, tvb, offset+8, 2,
-                                    "CC Rate: %u", tvb_get_ntohs(tvb, offset+8));
+                proto_tree_add_item(ext_tree, hf_cc_sequence, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_cc_flags, tvb, offset+4, 1, ENC_NA);
+                proto_tree_add_item(ext_tree, hf_cc_rtt, tvb, offset+5, 1, ENC_NA);
+                proto_tree_add_item(ext_tree, hf_cc_loss, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_cc_rate, tvb, offset+8, 2, ENC_BIG_ENDIAN);
                 break;
 
             case 64: /* EXT_FTI */
@@ -658,6 +659,12 @@ proto_register_rmt_lct(void)
             FT_UINT32, BASE_DEC, NULL, 0x000FFFFF,
             NULL, HFILL }
         },
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_cc_sequence, { "CC Sequence", "rmt-lct.cc_sequence", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_cc_flags, { "CC Flags", "rmt-lct.cc_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_cc_rtt, { "CC RTT", "rmt-lct.cc_rtt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_cc_loss, { "CC Loss", "rmt-lct.cc_loss", FT_UINT16, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_cc_rate, { "CC Rate", "rmt-lct.cc_rate", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */

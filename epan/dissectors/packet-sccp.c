@@ -689,6 +689,11 @@ static int hf_sccp_xudt_msg_reassembled_in = -1;
 static int hf_sccp_xudt_msg_reassembled_length = -1;
 static int hf_sccp_assoc_msg = -1;
 static int hf_sccp_assoc_id = -1;
+static int hf_sccp_segmented_data = -1;
+static int hf_sccp_linked_dissector = -1;
+static int hf_sccp_end_optional_param = -1;
+static int hf_sccp_unknown_message = -1;
+static int hf_sccp_unknown_parameter = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sccp = -1;
@@ -1572,16 +1577,16 @@ dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
 
   message_length = tvb_length(message_tvb);
 
-  proto_tree_add_text(sccp_tree, message_tvb, 0, message_length,
-                      "Unknown message (%u byte%s)",
+  proto_tree_add_bytes_format(sccp_tree, hf_sccp_unknown_message, message_tvb, 0, message_length,
+                      NULL, "Unknown message (%u byte%s)",
                       message_length, plurality(message_length, "", "s"));
 }
 
 static void
 dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint length)
 {
-  proto_tree_add_text(tree, tvb, 0, length, "Unknown parameter 0x%x (%u byte%s)",
-                      type, length, plurality(length, "", "s"));
+  proto_tree_add_bytes_format(tree, hf_sccp_unknown_parameter, tvb, 0, length, NULL,
+                        "Unknown parameter 0x%x (%u byte%s)", type, length, plurality(length, "", "s"));
 }
 
 static void
@@ -1981,8 +1986,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
 
         if (ssn_dissector_short_name) {
-          item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH,
-                                     "Linked to %s", ssn_dissector_short_name);
+          item = proto_tree_add_string_format(call_tree, hf_sccp_linked_dissector, tvb, offset - 1, ADDRESS_SSN_LENGTH,
+                                     ssn_dissector_short_name, "Linked to %s", ssn_dissector_short_name);
           PROTO_ITEM_SET_GENERATED(item);
 
           if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
@@ -2514,8 +2519,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   switch (parameter_type) {
 
   case PARAMETER_END_OF_OPTIONAL_PARAMETERS:
-    proto_tree_add_text(sccp_tree, tvb, offset, parameter_length,
-                        "End of Optional");
+    proto_tree_add_item(sccp_tree, hf_sccp_end_optional_param, tvb, offset, parameter_length, ENC_NA);
     break;
 
   case PARAMETER_DESTINATION_LOCAL_REFERENCE:
@@ -2892,9 +2896,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     /* Reassemble */
     if (!sccp_reassemble) {
-      proto_tree_add_text(sccp_tree, tvb, variable_pointer1,
-                          tvb_get_guint8(tvb, variable_pointer1)+1,
-                          "Segmented Data");
+      proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer1,
+                          tvb_get_guint8(tvb, variable_pointer1)+1, ENC_NA);
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
                                       PARAMETER_DATA, variable_pointer1);
 
@@ -3118,7 +3121,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
       if (!sccp_reassemble) {
-        proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
+        proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
       } else {
         guint8 octet;
         gboolean more_frag = TRUE;
@@ -3205,7 +3208,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
       if (!sccp_reassemble) {
-        proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
+        proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
 
       } else {
         guint8 octet;
@@ -4013,6 +4016,31 @@ proto_register_sccp(void)
     {&hf_sccp_assoc_msg,
      { "Message in frame", "sccp.assoc.msg",
        FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+       NULL, HFILL }
+    },
+    {&hf_sccp_segmented_data,
+     { "Segmented Data", "sccp.segmented_data",
+       FT_BYTES, BASE_NONE, NULL, 0x00,
+       NULL, HFILL }
+    },
+    {&hf_sccp_linked_dissector,
+     { "Linked dissector", "sccp.linked_dissector",
+       FT_STRING, BASE_NONE, NULL, 0x00,
+       NULL, HFILL }
+    },
+    {&hf_sccp_end_optional_param,
+     { "End of Optional", "sccp.end_optional_param",
+       FT_NONE, BASE_NONE, NULL, 0x00,
+       NULL, HFILL }
+    },
+    {&hf_sccp_unknown_message,
+     { "Unknown message", "sccp.unknown_message",
+       FT_BYTES, BASE_NONE, NULL, 0x00,
+       NULL, HFILL }
+    },
+    {&hf_sccp_unknown_parameter,
+     { "Unknown parameter", "sccp.unknown_parameter",
+       FT_BYTES, BASE_NONE, NULL, 0x00,
        NULL, HFILL }
     },
   };

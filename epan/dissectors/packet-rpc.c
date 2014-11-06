@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <epan/conversation.h>
@@ -252,6 +253,15 @@ static int hf_rpc_fragment_error = -1;
 static int hf_rpc_fragment_count = -1;
 static int hf_rpc_reassembled_length = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_rpc_opaque_data = -1;
+static int hf_rpc_no_values = -1;
+static int hf_rpc_continuation_data = -1;
+static int hf_rpc_fill_bytes = -1;
+static int hf_rpc_argument_length = -1;
+static int hf_rpc_fragment_data = -1;
+static int hf_rpc_opaque_length = -1;
+
 static gint ett_rpc = -1;
 static gint ett_rpc_unknown_program = -1;
 static gint ett_rpc_fragments = -1;
@@ -267,6 +277,8 @@ static gint ett_rpc_array = -1;
 static gint ett_rpc_authgssapi_msg = -1;
 static gint ett_gss_context = -1;
 static gint ett_gss_wrap = -1;
+
+static expert_field ei_rpc_cannot_dissect = EI_INIT;
 
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
@@ -686,8 +698,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		    string_buffer_print);
 	}
 	if (!fixed_length) {
-		proto_tree_add_text(string_tree, tvb,offset,4,
-				"length: %u", string_length);
+		proto_tree_add_uint(string_tree, hf_rpc_opaque_length, tvb,offset, 4, string_length);
 		offset += 4;
 	}
 
@@ -710,14 +721,12 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (fill_length) {
 		if (string_tree) {
 			if (fill_truncated) {
-				proto_tree_add_text(string_tree, tvb,
-				offset,fill_length_copy,
-				"fill bytes: opaque data<TRUNCATED>");
+				proto_tree_add_bytes_format_value(string_tree, hf_rpc_fill_bytes, tvb,
+				offset, fill_length_copy, NULL, "opaque data<TRUNCATED>");
 			}
 			else {
-				proto_tree_add_text(string_tree, tvb,
-				offset,fill_length_copy,
-				"fill bytes: opaque data");
+				proto_tree_add_bytes_format_value(string_tree, hf_rpc_fill_bytes, tvb,
+				offset, fill_length_copy, NULL, "opaque data");
 			}
 		}
 		offset += fill_length_copy;
@@ -809,7 +818,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array);
 
 	if(num == 0) {
-		proto_tree_add_text(lock_tree, tvb, offset, 4, "no values");
+		proto_tree_add_item(lock_tree, hf_rpc_no_values, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		proto_item_set_end(lock_item, tvb, offset);
@@ -1021,17 +1030,7 @@ static int
 dissect_rpc_authdes_desblock(tvbuff_t *tvb, proto_tree *tree,
 			     int hfindex, int offset)
 {
-	guint32 value_low;
-	guint32 value_high;
-
-	value_high = tvb_get_ntohl(tvb, offset);
-	value_low  = tvb_get_ntohl(tvb, offset + 4);
-
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 8,
-			"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high,
-			value_low);
-	}
+	proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
 
 	return offset + 8;
 }
@@ -1182,8 +1181,7 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 		default:
 			if (length)
-				proto_tree_add_text(ctree, tvb, offset+8,
-						    length,"opaque data");
+				proto_tree_add_item(ctree, hf_rpc_opaque_data, tvb, offset+8, length, ENC_NA);
 		break;
 		}
 	}
@@ -1296,8 +1294,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
 			proto_tree_add_uint(vtree, hf_rpc_auth_length, tvb,
 					    offset+4, 4, length);
 			if (length)
-				proto_tree_add_text(vtree, tvb, offset+8,
-						    length, "opaque data");
+				proto_tree_add_item(vtree, hf_rpc_opaque_data, tvb, offset+8, length, ENC_NA);
 			break;
 		}
 	}
@@ -1642,9 +1639,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if ( tree )
 	{
-		proto_tree_add_text(tree, tvb, offset, 4,
-			"Argument length: %u",
-			tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(tree, hf_rpc_argument_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
@@ -1780,8 +1775,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Put the length of the reply value into the tree. */
-	proto_tree_add_text(tree, tvb, offset, 4, "Argument length: %u",
-			    tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_rpc_argument_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* Dissect the return value */
@@ -1805,7 +1799,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1, ENC_NA);
 		rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
-		proto_tree_add_text(rpc_tree, tvb, 0, -1, "Continuation data");
+		proto_tree_add_item(rpc_tree, hf_rpc_continuation_data, tvb, 0, -1, ENC_NA);
 	}
 }
 
@@ -2709,7 +2703,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * We don't know the authentication flavor, so we can't
 		 * dissect the payload.
 		 */
-		proto_tree_add_text(ptree, tvb, offset, -1,
+		proto_tree_add_expert_format(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset, -1,
 		    "Unknown authentication flavor - cannot dissect");
 		return TRUE;
 
@@ -2728,7 +2722,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * procedure and service information, so we can't dissect
 		 * the payload.
 		 */
-		proto_tree_add_text(ptree, tvb, offset, -1,
+		proto_tree_add_expert_format(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset, -1,
 		    "GSS-API authentication, but procedure and service unknown - cannot dissect");
 		return TRUE;
 
@@ -2952,7 +2946,7 @@ show_rpc_fragment(tvbuff_t *tvb, proto_tree *tree, guint32 rpc_rm)
 		 * Show the fragment header and the data for the fragment.
 		 */
 		show_rpc_fragheader(tvb, tree, rpc_rm);
-		proto_tree_add_text(tree, tvb, 4, -1, "Fragment Data");
+		proto_tree_add_item(tree, hf_rpc_fragment_data, tvb, 4, -1, ENC_NA);
 	}
 }
 
@@ -3888,7 +3882,7 @@ proto_register_rpc(void)
 			"Netname", "rpc.authdes.netname", FT_STRING,
 			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_convkey, {
-			"Conversation Key (encrypted)", "rpc.authdes.convkey", FT_UINT32,
+			"Conversation Key (encrypted)", "rpc.authdes.convkey", FT_UINT64,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_window, {
 			"Window (encrypted)", "rpc.authdes.window", FT_UINT32,
@@ -3897,13 +3891,13 @@ proto_register_rpc(void)
 			"Nickname", "rpc.authdes.nickname", FT_UINT32,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_timestamp, {
-			"Timestamp (encrypted)", "rpc.authdes.timestamp", FT_UINT32,
+			"Timestamp (encrypted)", "rpc.authdes.timestamp", FT_UINT64,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_windowverf, {
 			"Window verifier (encrypted)", "rpc.authdes.windowverf", FT_UINT32,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_timeverf, {
-			"Timestamp verifier (encrypted)", "rpc.authdes.timeverf", FT_UINT32,
+			"Timestamp verifier (encrypted)", "rpc.authdes.timeverf", FT_UINT64,
 			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_machinename, {
 			"Machine Name", "rpc.auth.machinename", FT_STRING,
@@ -3923,6 +3917,15 @@ proto_register_rpc(void)
 		{ &hf_rpc_array_len, {
 			"num", "rpc.array.len", FT_UINT32, BASE_DEC,
 			NULL, 0, "Length of RPC array", HFILL }},
+
+          /* Generated from convert_proto_tree_add_text.pl */
+          { &hf_rpc_opaque_length, { "length", "rpc.opaque_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_fill_bytes, { "fill bytes", "rpc.fill_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_no_values, { "no values", "rpc.array_no_values", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_opaque_data, { "opaque data", "rpc.opaque_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_argument_length, { "Argument length", "rpc.argument_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_continuation_data, { "Continuation data", "rpc.continuation_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_rpc_fragment_data, { "Fragment Data", "rpc.fragment_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_rpc_time, {
 			"Time from request", "rpc.time", FT_RELATIVE_TIME, BASE_NONE,
@@ -3982,13 +3985,20 @@ proto_register_rpc(void)
 		&ett_gss_context,
 		&ett_gss_wrap,
 	};
-	module_t *rpc_module;
+	static ei_register_info ei[] = {
+		{ &ei_rpc_cannot_dissect, { "rpc.cannot_dissect", PI_UNDECODED, PI_WARN, "Cannot dissect", EXPFILL }},
+	};
 
-	proto_rpc = proto_register_protocol("Remote Procedure Call",
-	    "RPC", "rpc");
+	module_t *rpc_module;
+	expert_module_t* expert_rpc;
+
+	proto_rpc = proto_register_protocol("Remote Procedure Call", "RPC", "rpc");
+
 	/* this is a dummy dissector for all those unknown rpc programs */
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_rpc = expert_register_protocol(proto_rpc);
+	expert_register_field_array(expert_rpc, ei, array_length(ei));
 	register_init_routine(&rpc_init_protocol);
 
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);

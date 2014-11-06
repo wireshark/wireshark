@@ -91,6 +91,16 @@ static int hf_msproxy_server_int_port = -1;
 static int hf_msproxy_server_ext_addr = -1;
 static int hf_msproxy_server_ext_port = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_msproxy_host_name = -1;
+static int hf_msproxy_address_offset = -1;
+static int hf_msproxy_client_computer_name = -1;
+static int hf_msproxy_nt_domain = -1;
+static int hf_msproxy_req_resolve_length = -1;
+static int hf_msproxy_application_name = -1;
+static int hf_msproxy_user_name = -1;
+static int hf_msproxy_application = -1;
+
 static expert_field ei_msproxy_unknown = EI_INIT;
 static expert_field ei_msproxy_unhandled = EI_INIT;
 
@@ -186,8 +196,6 @@ typedef struct {
 
 /************** negotiated conversation hash stuff ***************/
 
-
-static guint32 last_row= 0;	/* used to see if packet is new */
 
 static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree) {
@@ -311,8 +319,7 @@ static int display_application_name(tvbuff_t *tvb, int offset,
 	int length;
 
 	length = tvb_strnlen( tvb, offset, 255);
-	proto_tree_add_text( tree, tvb, offset, length, "Application: %.*s",
-		length, tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
+	proto_tree_add_item(tree, hf_msproxy_application, tvb, offset, length, ENC_ASCII|ENC_NA);
 
 	return length;
 }
@@ -373,25 +380,19 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_text( tree, tvb, offset, length + 1,
-			"User name: %.*s", length,
-			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
+		proto_tree_add_item(tree, hf_msproxy_user_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
 		offset += length + 2;
 
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_text( tree, tvb, offset, length + 1,
-			"Application name: %.*s", length,
-			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
+		proto_tree_add_item(tree, hf_msproxy_application_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
 		offset += length + 1;
 
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_text( tree, tvb, offset, length + 1,
-			"Client computer name: %.*s", length,
-			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
+		proto_tree_add_item(tree, hf_msproxy_client_computer_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -581,14 +582,12 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 			ett_msproxy_name, NULL, "Host Name: %.*s", length,
 			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset + 18, length, ENC_ASCII));
 
-		proto_tree_add_text( name_tree, tvb, offset, 1, "Length: %d",
-			length);
+		proto_tree_add_item(name_tree, hf_msproxy_req_resolve_length, tvb, offset, 1, ENC_NA);
 
 		++offset;
 		offset += 17;
 
-		proto_tree_add_text( name_tree, tvb, offset, length, "String: %s",
-				     tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, length, ENC_ASCII));
+		proto_tree_add_item(name_tree, hf_msproxy_host_name, tvb, offset, length, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -650,38 +649,34 @@ static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 }
 
 
-static void dissect_msproxy_request(tvbuff_t *tvb,
+static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 	int offset = 0;
 	int cmd;
+    proto_item* cmd_item;
 
-	if ( tree) {
-		proto_tree_add_item( tree, hf_msproxy_client_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
+	proto_tree_add_item( tree, hf_msproxy_client_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
-		proto_tree_add_item( tree, hf_msproxy_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
+	proto_tree_add_item( tree, hf_msproxy_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
-		proto_tree_add_item( tree, hf_msproxy_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
+	proto_tree_add_item( tree, hf_msproxy_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
-		proto_tree_add_item( tree, hf_msproxy_server_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 4;
+	proto_tree_add_item( tree, hf_msproxy_server_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
-		proto_tree_add_item( tree, hf_msproxy_seq_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 8;
+	proto_tree_add_item( tree, hf_msproxy_seq_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
-		proto_tree_add_item( tree, hf_msproxy_rwsp_signature, tvb, offset, 4, ENC_NA|ENC_ASCII);
-		offset += 12;
-	}
-	else 			/* no tree */
-		offset += 36;
+	proto_tree_add_item( tree, hf_msproxy_rwsp_signature, tvb, offset, 4, ENC_NA|ENC_ASCII);
+	offset += 12;
 
 	cmd = tvb_get_ntohs( tvb, offset);
 
-	if ( tree)
-		proto_tree_add_uint_format_value( tree, hf_msproxy_cmd, tvb, offset, 2,
+	cmd_item = proto_tree_add_uint_format_value( tree, hf_msproxy_cmd, tvb, offset, 2,
 			cmd, "%s (0x%02x)",
 			get_msproxy_cmd_name( cmd, FROM_CLIENT),
 			cmd);
@@ -729,8 +724,7 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 			dissect_udp_assoc( tvb, offset, tree, conv_info);
 			break;
 		default:
-			if ( tree)
-				proto_tree_add_text( tree, tvb, offset, 0,
+			expert_add_info_format(pinfo, cmd_item, &ei_msproxy_unhandled,
 					"Unhandled request command (report this, please)");
 	}
 }
@@ -743,15 +737,9 @@ static int dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 	offset += 60;
 
-	if ( tree) {
-		proto_tree_add_item( tree, hf_msproxy_serverport, tvb, offset, 2,
-			 ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_item( tree, hf_msproxy_serverport, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	if ( tree) {
-		proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4,
-			ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -807,8 +795,7 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 		offset += 48;
 
 		/* XXX - always 255? */
-		proto_tree_add_text( tree, tvb, offset, 255, "NT domain: %.255s",
-			tvb_get_string_enc( wmem_packet_scope(),  tvb, offset, 255, ENC_ASCII));
+		proto_tree_add_item(tree, hf_msproxy_nt_domain, tvb, offset, 255, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -954,8 +941,7 @@ static void dissect_resolve(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 		addr_offset = tvb_get_guint8( tvb, offset);
 
-		proto_tree_add_text( tree, tvb, offset, 1, "Address offset: %d",
-			addr_offset);
+		proto_tree_add_item(tree, hf_msproxy_address_offset, tvb, offset, 1, ENC_NA);
 
 		++offset;
 
@@ -1104,19 +1090,8 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( pinfo->srcport == UDP_PORT_MSPROXY)
 		dissect_msproxy_response( tvb, pinfo, msproxy_tree, hash_info);
 	else
-		dissect_msproxy_request( tvb, msproxy_tree, hash_info);
+		dissect_msproxy_request( tvb, pinfo, msproxy_tree, hash_info);
 }
-
-
-
-static void msproxy_reinit( void){
-
-/* Do the cleanup work when a new pass through the packet list is	*/
-/* performed. Reset the highest row seen counter			*/
-
-	last_row = 0;
-}
-
 
 
 void
@@ -1257,6 +1232,16 @@ proto_register_msproxy( void){
 		    0x0, NULL, HFILL
 		  }
 		},
+
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_msproxy_application, { "Application", "msproxy.application", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_user_name, { "User name", "msproxy.user_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_application_name, { "Application name", "msproxy.application_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_client_computer_name, { "Client computer name", "msproxy.client_computer_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_req_resolve_length, { "Length", "msproxy.req_resolve.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_host_name, { "Host Name", "msproxy.host_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_nt_domain, { "NT domain", "msproxy.nt_domain", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_msproxy_address_offset, { "Address offset", "msproxy.address_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static ei_register_info ei[] = {
@@ -1274,8 +1259,6 @@ proto_register_msproxy( void){
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_msproxy = expert_register_protocol(proto_msproxy);
 	expert_register_field_array(expert_msproxy, ei, array_length(ei));
-
-	register_init_routine( &msproxy_reinit);	/* register re-init routine */
 
 	msproxy_sub_handle = create_dissector_handle(msproxy_sub_dissector,
 		proto_msproxy);

@@ -70,6 +70,12 @@ static int hf_omapi_obj_value_len = -1;
 static int hf_omapi_obj_value = -1;
 static int hf_omapi_signature = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_omapi_empty_string = -1;
+static int hf_omapi_object_end_tag = -1;
+static int hf_omapi_message_end_tag = -1;
+static int hf_omapi_no_value = -1;
+
 static gint ett_omapi = -1;
 
 #define OMAPI_PORT 7911
@@ -169,11 +175,11 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (msglength == 0)
     {
-      proto_tree_add_text(omapi_tree, tvb, 0, 0, "Empty string");
+      proto_tree_add_item(omapi_tree, hf_omapi_empty_string, tvb, 0, 0, ENC_NA);
     }
     else if (msglength == (guint32)~0)
     {
-      proto_tree_add_text(omapi_tree, tvb, 0, 0, "No value");
+      proto_tree_add_item(omapi_tree, hf_omapi_no_value, tvb, 0, 0, ENC_NA);
     }
     else
     {
@@ -183,8 +189,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msglength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
   }
 
-  proto_tree_add_text(omapi_tree, tvb, ptvcursor_current_offset(cursor), 2, "Message end tag");
-  ptvcursor_advance(cursor, 2);
+  ptvcursor_add(cursor, hf_omapi_message_end_tag, 2, ENC_NA);
 
   objlength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
   while (objlength)
@@ -196,11 +201,11 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (objlength == 0)
     {
-      proto_tree_add_text(omapi_tree, tvb, 0, 0, "Empty string");
+      proto_tree_add_item(omapi_tree, hf_omapi_empty_string, tvb, 0, 0, ENC_NA);
     }
     else if (objlength == (guint32)~0)
     {
-      proto_tree_add_text(omapi_tree, tvb, 0, 0, "No value");
+      proto_tree_add_item(omapi_tree, hf_omapi_no_value, tvb, 0, 0, ENC_NA);
     }
     else
     {
@@ -210,8 +215,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     objlength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
   }
 
-  proto_tree_add_text(omapi_tree, tvb, ptvcursor_current_offset(cursor), 2, "Object end tag");
-  ptvcursor_advance(cursor, 2);
+  ptvcursor_add(cursor, hf_omapi_object_end_tag, 2, ENC_NA);
 
   if (authlength > 0) {
     ptvcursor_add(cursor, hf_omapi_signature, authlength, ENC_NA);
@@ -291,7 +295,14 @@ proto_register_omapi(void)
     { &hf_omapi_signature,
       { "Signature", "omapi.signature",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_omapi_empty_string, { "Empty string", "omapi.empty_string", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_omapi_no_value, { "No value", "omapi.no_value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_omapi_message_end_tag, { "Message end tag", "omapi.message_end_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_omapi_object_end_tag, { "Object end tag", "omapi.object_end_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
   };
 
   static gint *ett[] = {

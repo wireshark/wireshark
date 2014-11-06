@@ -35,6 +35,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -163,6 +164,8 @@ static gint    ett_rdt_tirq_flags               = -1;
 static gint    ett_rdt_tirp_flags               = -1;
 static gint    ett_rdt_tirp_buffer_info         = -1;
 static gint    ett_rdt_bw_probing_flags         = -1;
+
+static expert_field ei_rdt_packet_length = EI_INIT;
 
 /* Port preference settings */
 static gboolean global_rdt_register_udp_port = FALSE;
@@ -529,7 +532,7 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -610,7 +613,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -675,7 +678,7 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -740,7 +743,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -934,7 +937,7 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -997,7 +1000,7 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -1196,7 +1199,7 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
     {
-        proto_tree_add_text(tree, tvb, 0, 0, "Packet length invalid");
+        proto_tree_add_expert(tree, pinfo, &ei_rdt_packet_length, tvb, 0, 0);
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
@@ -2151,12 +2154,19 @@ void proto_register_rdt(void)
         &ett_rdt_bw_probing_flags
     };
 
+    static ei_register_info ei[] = {
+        { &ei_rdt_packet_length, { "rdt.invalid_packet_length", PI_MALFORMED, PI_ERROR, "Packet length invalid", EXPFILL }},
+    };
+
     module_t *rdt_module;
+    expert_module_t* expert_rdt;
 
     /* Register protocol and fields */
     proto_rdt = proto_register_protocol("Real Data Transport", "RDT", "rdt");
     proto_register_field_array(proto_rdt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rdt = expert_register_protocol(proto_rdt);
+    expert_register_field_array(expert_rdt, ei, array_length(ei));
     register_dissector("rdt", dissect_rdt, proto_rdt);
 
     /* Preference settings */

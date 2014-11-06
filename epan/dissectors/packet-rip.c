@@ -31,6 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
@@ -140,9 +141,31 @@ static header_field_info hfi_rip_zero_padding RIP_HFI_INIT = {
     "Zero adding", "rip.zero_padding", FT_STRING, BASE_NONE,
     NULL, 0, "Authentication password", HFILL };
 
+static header_field_info hfi_rip_digest_offset RIP_HFI_INIT = {
+    "Digest Offset", "rip.digest_offset", FT_UINT16, BASE_DEC,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_rip_key_id RIP_HFI_INIT = {
+    "Key ID", "rip.key_id", FT_UINT8, BASE_DEC,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_rip_auth_data_len RIP_HFI_INIT = {
+    "Auth Data Len", "rip.auth_data_len", FT_UINT8, BASE_DEC,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_rip_auth_seq_num RIP_HFI_INIT = {
+    "Seq num", "rip.seq_num", FT_UINT32, BASE_DEC,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_rip_authentication_data RIP_HFI_INIT = {
+    "Authentication Data", "rip.authentication_data", FT_BYTES, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
 static gint ett_auth_vec = -1;
+
+static expert_field ei_rip_unknown_address_family = EI_INIT;
 
 static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);
@@ -211,9 +234,8 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
                 /* Intentional fall through: auth Entry MUST be the first! */
             default:
-                proto_tree_add_text(rip_tree, tvb, offset,
-                                RIP_ENTRY_LENGTH, "Unknown address family %u",
-                                family);
+                proto_tree_add_expert_format(rip_tree, pinfo, &ei_rip_unknown_address_family, tvb, offset,
+                                RIP_ENTRY_LENGTH, "Unknown address family %u", family);
                 break;
             }
 
@@ -282,7 +304,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_tree *rip_authentication_tree;
     guint16     authtype;
-    guint32     val, digest_off, auth_data_len;
+    guint32     digest_off, auth_data_len;
 
     auth_data_len = 0;
     authtype = tvb_get_ntohs(tvb, offset + 2);
@@ -302,24 +324,16 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     case AUTH_KEYED_MSG_DIGEST: /* Keyed MD5 rfc 2082 */
         digest_off = tvb_get_ntohs( tvb, offset+4 );
-        proto_tree_add_text( rip_authentication_tree, tvb, offset+4, 2,
-                        "Digest Offset: %u" , digest_off );
-        val = tvb_get_guint8( tvb, offset+6 );
-        proto_tree_add_text( rip_authentication_tree, tvb, offset+6, 1,
-                        "Key ID: %u" , val );
+        proto_tree_add_item( rip_authentication_tree, &hfi_rip_digest_offset, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item( rip_authentication_tree, &hfi_rip_key_id, tvb, offset+6, 1, ENC_NA);
         auth_data_len = tvb_get_guint8( tvb, offset+7 );
-        proto_tree_add_text( rip_authentication_tree, tvb, offset+7, 1,
-                        "Auth Data Len: %u" , auth_data_len );
-        val = tvb_get_ntohl( tvb, offset+8 );
-        proto_tree_add_text( rip_authentication_tree, tvb, offset+8, 4,
-                        "Seq num: %u" , val );
+        proto_tree_add_item( rip_authentication_tree, &hfi_rip_auth_data_len, tvb, offset+7, 1, ENC_NA);
+        proto_tree_add_item( rip_authentication_tree, &hfi_rip_auth_seq_num, tvb, offset+8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item( rip_authentication_tree, &hfi_rip_zero_padding, tvb, offset+12, 8, ENC_NA);
         rip_authentication_tree = proto_tree_add_subtree( rip_authentication_tree, tvb, offset-4+digest_off,
                         MD5_AUTH_DATA_LEN+4, ett_auth_vec, NULL, "Authentication Data Trailer" );
-        proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
-                        MD5_AUTH_DATA_LEN, "Authentication Data: %s",
-                        tvb_bytes_to_ep_str_punct(tvb, offset-4+digest_off+4,
-                                               MD5_AUTH_DATA_LEN, ' '));
+        proto_tree_add_item( rip_authentication_tree, &hfi_rip_authentication_data, tvb, offset-4+digest_off+4,
+                        MD5_AUTH_DATA_LEN, ENC_NA);
         break;
     }
     return auth_data_len;
@@ -351,15 +365,21 @@ proto_register_rip(void)
         &ett_auth_vec,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_rip_unknown_address_family, { "rip.unknown_address_family", PI_PROTOCOL, PI_WARN, "Unknown address family", EXPFILL }},
+    };
+
+    expert_module_t* expert_rip;
     module_t *rip_module;
     int proto_rip;
 
-    proto_rip = proto_register_protocol("Routing Information Protocol",
-                                        "RIP", "rip");
+    proto_rip = proto_register_protocol("Routing Information Protocol", "RIP", "rip");
     hfi_rip = proto_registrar_get_nth(proto_rip);
 
     proto_register_fields(proto_rip, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rip = expert_register_protocol(proto_rip);
+    expert_register_field_array(expert_rip, ei, array_length(ei));
 
     rip_module = prefs_register_protocol(proto_rip, proto_reg_handoff_rip);
 

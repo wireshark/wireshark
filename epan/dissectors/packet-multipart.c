@@ -61,6 +61,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 
@@ -76,10 +77,20 @@ static dissector_table_t multipart_media_subdissector_table;
 /* Initialize the protocol and registered fields */
 static int proto_multipart = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_multipart_trailer = -1;
+static int hf_multipart_boundary = -1;
+static int hf_multipart_first_boundary = -1;
+static int hf_multipart_last_boundary = -1;
+static int hf_multipart_preamble = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_multipart = -1;
 static gint ett_multipart_main = -1;
 static gint ett_multipart_body = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_multipart_no_required_boundary_parameter = EI_INIT;
 
 /* Not sure that compact_name exists for multipart, but choose to keep
  * the structure from SIP dissector, all the content- is also from SIP */
@@ -538,22 +549,16 @@ process_preamble(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
     boundary_start = find_first_boundary(tvb, 0, boundary, boundary_len,
             &boundary_line_len, last_boundary);
     if (boundary_start == 0) {
-       proto_tree_add_text(tree, tvb, boundary_start, boundary_line_len,
-             "First boundary: %s",
-             tvb_format_text(tvb, boundary_start, boundary_line_len));
+       proto_tree_add_item(tree, hf_multipart_first_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
         return boundary_start + boundary_line_len;
     } else if (boundary_start > 0) {
         if (boundary_line_len > 0) {
             gint body_part_start = boundary_start + boundary_line_len;
 
             if (body_part_start > 0) {
-               proto_tree_add_text(tree, tvb, 0, body_part_start,
-                     "Preamble");
+               proto_tree_add_item(tree, hf_multipart_preamble, tvb, 0, body_part_start, ENC_NA);
             }
-            proto_tree_add_text(tree, tvb, boundary_start,
-                  boundary_line_len, "First boundary: %s",
-                  tvb_format_text(tvb, boundary_start,
-                     boundary_line_len));
+            proto_tree_add_item(tree, hf_multipart_first_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
             return body_part_start;
         }
     }
@@ -746,17 +751,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
         }
         proto_item_set_len(ti, boundary_start - start);
         if (*last_boundary == TRUE) {
-           proto_tree_add_text(tree, tvb,
-                 boundary_start, boundary_line_len,
-                 "Last boundary: %s",
-                 tvb_format_text(tvb, boundary_start,
-                    boundary_line_len));
+           proto_tree_add_item(tree, hf_multipart_last_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
         } else {
-           proto_tree_add_text(tree, tvb,
-                 boundary_start, boundary_line_len,
-                 "Boundary: %s",
-                 tvb_format_text(tvb, boundary_start,
-                    boundary_line_len));
+           proto_tree_add_item(tree, hf_multipart_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
         }
 
         g_free(filename);
@@ -790,9 +787,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /*
          * We can't get the required multipart information
          */
-        proto_tree_add_text(tree, tvb, 0, -1,
-                "The multipart dissector could not find "
-                "the required boundary parameter.");
+        proto_tree_add_expert(tree, pinfo, &ei_multipart_no_required_boundary_parameter, tvb, 0, -1);
         call_dissector(data_handle, tvb, pinfo, tree);
         return tvb_length(tvb);
     }
@@ -846,7 +841,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * Process the multipart trailer
      */
     if (tvb_length_remaining(tvb, header_start) > 0) {
-       proto_tree_add_text(subtree, tvb, header_start, -1, "Trailer");
+       proto_tree_add_item(subtree, hf_multipart_trailer, tvb, header_start, -1, ENC_NA);
     }
     /* Clean up the dynamically allocated memory */
     cleanup_multipart_info(m_info);
@@ -948,12 +943,22 @@ proto_register_multipart(void)
               "Content-Type Header", HFILL
           }
         },
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_multipart_first_boundary, { "First boundary", "mime_multipart.first_boundary", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_multipart_preamble, { "Preamble", "mime_multipart.preamble", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_multipart_last_boundary, { "Last boundary", "mime_multipart.last_boundary", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_multipart_boundary, { "Boundary", "mime_multipart.boundary", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_multipart_trailer, { "Trailer", "mime_multipart.trailer", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     };
 
     /*
      * Preferences
      */
     module_t *multipart_module;
+    expert_module_t* expert_multipart;
+
 
     /*
      * Setup protocol subtree array
@@ -962,6 +967,10 @@ proto_register_multipart(void)
         &ett_multipart,
         &ett_multipart_main,
         &ett_multipart_body,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_multipart_no_required_boundary_parameter, { "mime_multipart.no_required_boundary_parameter", PI_PROTOCOL, PI_ERROR, "The multipart dissector could not find the required boundary parameter.", EXPFILL }},
     };
 
     /*
@@ -978,6 +987,8 @@ proto_register_multipart(void)
      */
     proto_register_field_array(proto_multipart, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_multipart = expert_register_protocol(proto_multipart);
+    expert_register_field_array(expert_multipart, ei, array_length(ei));
 
     multipart_module = prefs_register_protocol(proto_multipart, NULL);
 
