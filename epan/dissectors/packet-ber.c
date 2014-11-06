@@ -2280,7 +2280,6 @@ ber_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format_value(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
@@ -2291,8 +2290,8 @@ ber_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
+                expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2318,26 +2317,25 @@ ber_sequence_try_again:
                 if ( seq->ber_class == BER_CLASS_UNI) {
                     cause = proto_tree_add_string_format_value(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
-                        "Wrong field in sequence  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",
+                        "Wrong field in SEQUENCE  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",
                         val_to_str_const(seq->ber_class, ber_class_codes, "Unknown"),
                         seq->ber_class,
                         seq->tag,
                         val_to_str_ext_const(seq->tag, &ber_uni_tag_codes_ext, "Unknown"),
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class, tag);
-                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format_value(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
-                        "Wrong field in sequence  expected class:%s(%d) tag:%d but found class:%s(%d) tag:%d",
+                        "Wrong field in SEQUENCE  expected class:%s(%d) tag:%d but found class:%s(%d) tag:%d",
                         val_to_str_const(seq->ber_class, ber_class_codes, "Unknown"),
                         seq->ber_class,
                         seq->tag,
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
+                expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -3447,14 +3445,30 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
           if ((seq->ber_class != ber_class)
            || (seq->tag != tag) ) {
             if (!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
-                cause = proto_tree_add_string_format_value(
-                    tree, hf_ber_error, tvb, offset, len, "wrong_field",
-                    "Wrong field in SQ OF(tag %u expected %u)",
-                    tag,
-                    seq->tag);
+                if ( seq->ber_class == BER_CLASS_UNI) {
+                    cause = proto_tree_add_string_format_value(
+                        tree, hf_ber_error, tvb, offset, len, "wrong_field",
+                        "Wrong field in SQ OF  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",
+                        val_to_str_const(seq->ber_class, ber_class_codes, "Unknown"),
+                        seq->ber_class,
+                        seq->tag,
+                        val_to_str_ext_const(seq->tag, &ber_uni_tag_codes_ext, "Unknown"),
+                        val_to_str_const(ber_class, ber_class_codes, "Unknown"),
+                        ber_class, tag);
+                } else {
+                    cause = proto_tree_add_string_format_value(
+                        tree, hf_ber_error, tvb, offset, len, "wrong_field",
+                        "Wrong field in SQ OF  expected class:%s(%d) tag:%d but found class:%s(%d) tag:%d",
+                        val_to_str_const(seq->ber_class, ber_class_codes, "Unknown"),
+                        seq->ber_class,
+                        seq->tag,
+                        val_to_str_const(ber_class, ber_class_codes, "Unknown"),
+                        ber_class,
+                        tag);
+                }
                 expert_add_info_format(
                     actx->pinfo, cause, &ei_ber_sequence_field_wrong,
-                    "BER Error: Wrong field in Sequence Of");
+                    "BER Error: Wrong field in SEQUENCE OF");
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
