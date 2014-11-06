@@ -1798,7 +1798,7 @@ void proto_register_lbtrm(void)
         "mim_outgoing_address",
         "MIM outgoing multicast address (default " MIM_DEFAULT_MC_OUTGOING_ADDRESS ")",
         "Set the outgoing MIM multicast address (context mim_outgoing_address)",
-        &global_mim_incoming_mc_address);
+        &global_mim_outgoing_mc_address);
 
     prefs_register_uint_preference(lbtrm_module,
         "mim_incoming_dport",
