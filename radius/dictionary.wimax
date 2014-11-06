@@ -208,7 +208,48 @@ VALUE	WiMAX-Media-Flow-Type		Data			13
 
 END-TLV WiMAX-QoS-Descriptor
 
-ATTRIBUTE	WiMAX-Uplink-Granted-QoS		30	string
+ATTRIBUTE	WiMAX-Uplink-Granted-QoS		30	tlv
+
+BEGIN-TLV WiMAX-Uplink-Granted-QoS
+ATTRIBUTE	WiMAX-QoS-Id				1	byte
+ATTRIBUTE	WiMAX-Global-Service-Class-Name		2	string # 6 octets
+ATTRIBUTE	WiMAX-Service-Class-Name		3	string
+ATTRIBUTE	WiMAX-Schedule-Type			4	byte
+ATTRIBUTE	WiMAX-Traffic-Priority			5	byte
+ATTRIBUTE	WiMAX-Maximum-Sustained-Traffic-Rate	6	integer
+ATTRIBUTE	WiMAX-Minimum-Reserved-Traffic-Rate	7	integer
+ATTRIBUTE	WiMAX-Maximum-Traffic-Burst		8	integer
+ATTRIBUTE	WiMAX-Tolerated-Jitter			9	integer
+ATTRIBUTE	WiMAX-Maximum-Latency			10	integer
+ATTRIBUTE	WiMAX-Reduced-Resources-Code		11	byte
+ATTRIBUTE	WiMAX-Media-Flow-Type			12	byte
+ATTRIBUTE	WiMAX-Unsolicited-Grant-Interval	13	short
+ATTRIBUTE	WiMAX-SDU-Size				14	short
+ATTRIBUTE	WiMAX-Unsolicited-Polling-Interval	15	short
+ATTRIBUTE	WiMAX-Media-Flow-Description-SDP	16	string
+
+VALUE	WiMAX-Schedule-Type		Best-Effort		2
+VALUE	WiMAX-Schedule-Type		nrtPS			3
+VALUE	WiMAX-Schedule-Type		rtPS			4
+VALUE	WiMAX-Schedule-Type		Extended-rtPS		5
+VALUE	WiMAX-Schedule-Type		UGS			6
+
+VALUE	WiMAX-Media-Flow-Type		VoIP			1
+VALUE	WiMAX-Media-Flow-Type		Robust-Browser		2
+VALUE	WiMAX-Media-Flow-Type		Secure-Browser-VPN	3
+VALUE	WiMAX-Media-Flow-Type		Streaming-Video		4
+VALUE	WiMAX-Media-Flow-Type		Streaming-Live-TV	5
+VALUE	WiMAX-Media-Flow-Type		Music-Photo-Download	6
+VALUE	WiMAX-Media-Flow-Type		Multi-Player-Gaming	7
+VALUE	WiMAX-Media-Flow-Type		Location-Based-Services	8
+VALUE	WiMAX-Media-Flow-Type		Text-Audio-Books	9
+VALUE	WiMAX-Media-Flow-Type		Video-Conversation	10
+VALUE	WiMAX-Media-Flow-Type		Message			11
+VALUE	WiMAX-Media-Flow-Type		Control			12
+VALUE	WiMAX-Media-Flow-Type		Data			13
+
+END-TLV WiMAX-Uplink-Granted-QoS
+
 ATTRIBUTE	WiMAX-Control-Packets-In		31	integer
 ATTRIBUTE	WiMAX-Control-Octets-In			32	integer
 ATTRIBUTE	WiMAX-Control-Packets-Out		33	integer
@@ -347,6 +388,46 @@ ATTRIBUTE	WiMAX-Downlink-Flow-Description		62	string
 
 # Same as QoS-Descriptor... dang.
 ATTRIBUTE	WiMAX-Downlink-Granted-QoS		63	tlv
+
+BEGIN-TLV WiMAX-Downlink-Granted-QoS
+ATTRIBUTE	WiMAX-QoS-Id				1	byte
+ATTRIBUTE	WiMAX-Global-Service-Class-Name		2	string # 6 octets
+ATTRIBUTE	WiMAX-Service-Class-Name		3	string
+ATTRIBUTE	WiMAX-Schedule-Type			4	byte
+ATTRIBUTE	WiMAX-Traffic-Priority			5	byte
+ATTRIBUTE	WiMAX-Maximum-Sustained-Traffic-Rate	6	integer
+ATTRIBUTE	WiMAX-Minimum-Reserved-Traffic-Rate	7	integer
+ATTRIBUTE	WiMAX-Maximum-Traffic-Burst		8	integer
+ATTRIBUTE	WiMAX-Tolerated-Jitter			9	integer
+ATTRIBUTE	WiMAX-Maximum-Latency			10	integer
+ATTRIBUTE	WiMAX-Reduced-Resources-Code		11	byte
+ATTRIBUTE	WiMAX-Media-Flow-Type			12	byte
+ATTRIBUTE	WiMAX-Unsolicited-Grant-Interval	13	short
+ATTRIBUTE	WiMAX-SDU-Size				14	short
+ATTRIBUTE	WiMAX-Unsolicited-Polling-Interval	15	short
+ATTRIBUTE	WiMAX-Media-Flow-Description-SDP	16	string
+
+VALUE	WiMAX-Schedule-Type		Best-Effort		2
+VALUE	WiMAX-Schedule-Type		nrtPS			3
+VALUE	WiMAX-Schedule-Type		rtPS			4
+VALUE	WiMAX-Schedule-Type		Extended-rtPS		5
+VALUE	WiMAX-Schedule-Type		UGS			6
+
+VALUE	WiMAX-Media-Flow-Type		VoIP			1
+VALUE	WiMAX-Media-Flow-Type		Robust-Browser		2
+VALUE	WiMAX-Media-Flow-Type		Secure-Browser-VPN	3
+VALUE	WiMAX-Media-Flow-Type		Streaming-Video		4
+VALUE	WiMAX-Media-Flow-Type		Streaming-Live-TV	5
+VALUE	WiMAX-Media-Flow-Type		Music-Photo-Download	6
+VALUE	WiMAX-Media-Flow-Type		Multi-Player-Gaming	7
+VALUE	WiMAX-Media-Flow-Type		Location-Based-Services	8
+VALUE	WiMAX-Media-Flow-Type		Text-Audio-Books	9
+VALUE	WiMAX-Media-Flow-Type		Video-Conversation	10
+VALUE	WiMAX-Media-Flow-Type		Message			11
+VALUE	WiMAX-Media-Flow-Type		Control			12
+VALUE	WiMAX-Media-Flow-Type		Data			13
+
+END-TLV WiMAX-Downlink-Granted-QoS
 
 # More MIP keys, calculated as above... but in different packets.
 # Why, oh why?
