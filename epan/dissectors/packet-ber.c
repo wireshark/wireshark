@@ -2433,7 +2433,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
             {
                 /* skip over EOC */
                 if (show_internal_ber_fields) {
-                    proto_tree_add_item(tree, hf_ber_seq_field_eoc, tvb, offset, count, ENC_NA);
+                    proto_tree_add_item(tree, hf_ber_seq_field_eoc, tvb, offset-2, 2, ENC_NA);
                 }
             }
         }
