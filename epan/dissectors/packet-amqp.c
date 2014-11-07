@@ -54,12 +54,6 @@ static guint amqp_port = 5672;
 
 /*  Generic defines  */
 
-#if 0
-#define AMQP_INCREMENT(offset, addend, bound) {\
-    offset += (addend);\
-    THROW_ON((offset > bound), ReportedBoundsError);  \
-}
-#else /* --> (temporary until in-progress code review completed; See Bug #10582) */
 #define AMQP_INCREMENT(offset, addend, bound) {\
         THROW_ON( \
             (((unsigned)(offset) + (unsigned)(addend)) < (unsigned)(offset)) || \
@@ -67,7 +61,6 @@ static guint amqp_port = 5672;
             , ReportedBoundsError);  \
     offset += (addend); \
 }
-#endif
 
 /*
  * This dissector handles AMQP 0-9, 0-10 and 1.0. The conversation structure
@@ -447,6 +440,9 @@ get_amqp_0_9_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 
 static void
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item);
+
+static guint
+amqp_0_10_get_size_field(tvbuff_t *tvb, int offset);
 
 static void
 dissect_amqp_0_10_map(tvbuff_t *tvb,
@@ -2883,7 +2879,7 @@ get_amqp_0_10_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
         return 8;
 
-    return (guint) tvb_get_ntohs(tvb, offset + 2);
+    return (guint) tvb_get_ntohs(tvb, offset + 2); /*  Max *frame* length = 65K; */
 }
 
 static guint
@@ -3036,6 +3032,29 @@ too_short:
     return;
 }
 
+/* Get amqp_0_10 32bit size field from a PDU */
+
+/*  XXX: This is a hack.
+ *  The issue: there are numerous places in the amqp_0_10 code
+ *   where a 32bit size field is fetched from the PDU and
+ *   then used as the size of the following data field and
+ *   to advance 'offset' & etc with the potential
+ *   to cause an overflow (using 32bit arithmetic).
+ *  The hack: limit the size to 65K.
+ *  Strictly speaking this is not OK since field sizes
+ *   presumably can be larger than 65K.
+ *  However: the code, as written, assumes that a field
+ *   fits within an AMQP_0_10 "frame" which has, by definition, a
+ *   maximum size of 65K.
+ */
+
+#define AMQP_0_10_SIZE_MAX(s) (((unsigned)(s) < (1U<<16)) ? (unsigned)s : (1U<<16))
+static guint
+amqp_0_10_get_32bit_size(tvbuff_t *tvb, int offset) {
+    guint size = tvb_get_ntohl(tvb, offset);
+    return AMQP_0_10_SIZE_MAX(size);
+}
+
 /*  Dissection routine for AMQP 0-10 maps  */
 
 static void
@@ -3073,6 +3092,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
         length -= 1;
         if (get_amqp_0_10_type_formatter(type, &amqp_typename, &formatter, &size)) {
             field_length = formatter(tvb, offset, bound, size, &value); /* includes var 'length' field if var field */
+            field_length = AMQP_0_10_SIZE_MAX(field_length);
             proto_tree_add_none_format(map_tree,
                                        hf_amqp_field,
                                        tvb,
@@ -3090,16 +3110,16 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
             case AMQP_0_10_TYPE_MAP:
             case AMQP_0_10_TYPE_LIST:
             case AMQP_0_10_TYPE_ARRAY:
-                field_length = tvb_get_ntohl(tvb, offset);
+                field_length = amqp_0_10_get_32bit_size(tvb, offset);
                 size_field_len = 4;
                 proto_tree_add_none_format(map_tree, hf_amqp_field,
-                                           tvb, field_start, (1 + namelen + + 1 + 4 + field_length),
+                                           tvb, field_start, (1 + namelen + 1 + 4 + field_length),
                                            "%s (composite): %d bytes",
                                            name, field_length);
                 break;
 
             default: {   /* Determine total field length from the type */
-                guint temp = 1 << ((type & 0x70) >> 4);  /* Hack to map type to a length value */
+                guint temp = 1 << ((type & 0x70) >> 4);  /* Map type to a length value */
                 amqp_typename = "unimplemented type";
 
                 /* fixed length cases */
@@ -3116,7 +3136,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                     field_length = 0;
                 }
 
-                /* variable length cases */
+                /* variable length/reserved cases */
                 else if ((type & 0x80) == 0x80) {
                     size_field_len = temp;
                     switch (size_field_len) {
@@ -3127,7 +3147,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                         field_length = tvb_get_ntohs(tvb, offset);
                         break;
                     case 4:
-                        field_length = tvb_get_ntohl(tvb, offset);
+                        field_length = amqp_0_10_get_32bit_size(tvb, offset);
                         break;
                     default:
                         field_length = 1;    /* Reserved... skip 1 */
@@ -3202,7 +3222,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             amqp_typename = "struct32";
             value = "structure";
             externally_formatted = 1;
-            struct_length = tvb_get_ntohl(tvb, offset);
+            struct_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, bound);
             length -= 4;
             array_tree = proto_item_add_subtree(item, ett_amqp_0_10_array);
@@ -3274,8 +3294,6 @@ dissect_amqp_0_10_xid (tvbuff_t *tvb,
     if (flag1 & 0x02) {
         /* global-id (vbin8) */
         len8 = tvb_get_guint8(tvb, offset);
-        if ((offset + 1 + len8) > max_length)
-            THROW(ReportedBoundsError);
         proto_tree_add_item(xid_tree,
                             hf_amqp_0_10_dtx_xid_global_id,
                             tvb, offset + 1, len8, ENC_NA);
@@ -3284,8 +3302,6 @@ dissect_amqp_0_10_xid (tvbuff_t *tvb,
     if (flag1 & 0x04) {
         /* branch-id (vbin8) */
         len8 = tvb_get_guint8(tvb, offset);
-        if ((offset + 1 + len8) > max_length)
-            THROW(ReportedBoundsError);
         proto_tree_add_item(xid_tree,
                             hf_amqp_0_10_dtx_xid_branch_id,
                             tvb, offset + 1, len8, ENC_NA);
@@ -3341,7 +3357,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  server-properties (map)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_method_connection_start_server_properties,
@@ -3357,7 +3373,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  mechanisms (str16-array)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_connection_start_mechanisms,
@@ -3374,7 +3390,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {
             /*  locales (str16-array)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_connection_start_locales,
@@ -3396,7 +3412,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  client-properties (map)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_method_connection_start_ok_client_properties,
@@ -3422,9 +3438,9 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             /*  response (vbin32)  */
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_start_ok_response,
-                                tvb, offset + 4, tvb_get_ntohl(tvb, offset),
+                                tvb, offset + 4, amqp_0_10_get_32bit_size(tvb, offset),
                                 ENC_NA);
-            AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), length);
+            AMQP_INCREMENT(offset, 4 + amqp_0_10_get_32bit_size(tvb, offset), length);
         }
         if (flag1 & 0x08) {
             /*  locale (str8)  */
@@ -3443,9 +3459,9 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             /*  challenge (vbin32)  */
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_secure_challenge,
-                                tvb, offset + 4, tvb_get_ntohl(tvb, offset),
+                                tvb, offset + 4, amqp_0_10_get_32bit_size(tvb, offset),
                                 ENC_NA);
-            AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), length);
+            AMQP_INCREMENT(offset, 4 + amqp_0_10_get_32bit_size(tvb, offset), length);
         }
         break;
 
@@ -3456,9 +3472,9 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             /*  response (vbin32)  */
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_secure_ok_response,
-                                tvb, offset + 4, tvb_get_ntohl(tvb, offset),
+                                tvb, offset + 4, amqp_0_10_get_32bit_size(tvb, offset),
                                 ENC_NA);
-            AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), length);
+            AMQP_INCREMENT(offset, 4 + amqp_0_10_get_32bit_size(tvb, offset), length);
         }
         break;
 
@@ -3535,7 +3551,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  capabilities (str16-array)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_connection_open_capabilities,
@@ -3563,7 +3579,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  known-hosts (amqp-host-array)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_connection_open_ok_known_hosts,
@@ -3593,7 +3609,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  known-hosts (amqp-host-array)  */
-            arg_length = tvb_get_ntohl(tvb, offset);
+            arg_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_connection_redirect_known_hosts,
@@ -3775,8 +3791,6 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_commands,
                                      tvb, offset, size + 2, ENC_NA);
@@ -3786,9 +3800,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  fragments (command-fragments [array of command-fragment]) */
-            array_size = tvb_get_ntohl(tvb, offset);
-            if ((offset + 4 + array_size) > length)
-                THROW(ReportedBoundsError);
+            array_size = amqp_0_10_get_32bit_size(tvb, offset);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_fragments,
                                      tvb, offset, array_size + 4, ENC_NA);
@@ -3809,8 +3821,6 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_commands,
                                      tvb, offset, size + 2, ENC_NA);
@@ -3820,9 +3830,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  fragments (command-fragments [array of command-fragment]) */
-            array_size = tvb_get_ntohl(tvb, offset);
-            if ((offset + 4 + array_size) > length)
-                THROW(ReportedBoundsError);
+            array_size = amqp_0_10_get_32bit_size(tvb, offset);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_fragments,
                                      tvb, offset, array_size + 4, ENC_NA);
@@ -3843,8 +3851,6 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_commands,
                                      tvb, offset, size + 2, ENC_NA);
@@ -3866,8 +3872,6 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_commands,
                                      tvb, offset, size + 2, ENC_NA);
@@ -3897,8 +3901,6 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_session_commands,
                                      tvb, offset, size + 2, ENC_NA);
@@ -3983,10 +3985,8 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {
             /*  value (struct32) */
-            struct_size = tvb_get_ntohl(tvb, offset);
+            struct_size = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            if ((offset + struct_size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_undissected_struct32,
                                      tvb, offset, struct_size, ENC_NA);
@@ -4072,15 +4072,13 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
         if (flag1 & 0x20) {
             /*  description (str16) */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             proto_tree_add_item(args_tree, hf_amqp_0_10_method_execution_description,
                                 tvb, offset + 2, size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (2 + size), length);
         }
         if (flag1 & 0x40) {
             /*  error-info (map) */
-            struct_size = tvb_get_ntohl(tvb, offset);
+            struct_size = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_execution_error_info,
@@ -4159,8 +4157,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* destination (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            if ((offset + 1 + str_size) > length)
-                THROW(ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_transfer_destination,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4186,8 +4182,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            if ((offset + 2 + size) > length)
-                THROW(ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_message_accept_transfers,
                                      tvb, offset, size + 2, ENC_NA);
@@ -4203,7 +4197,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_message_accept_transfers,
                                      tvb, offset, size + 2, ENC_NA);
@@ -4219,7 +4212,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* text (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_reject_text,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4233,7 +4225,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_accept_transfers,
                                 tvb, offset, size + 2, ENC_NA);
@@ -4255,7 +4246,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
-            THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_accept_transfers,
                                 tvb, offset, size + 2, ENC_NA);
@@ -4271,7 +4261,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4280,7 +4269,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x02) {
             /*  resume-id (resume-id [str16]) */
             size = tvb_get_ntohs(tvb, offset);
-            THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_resume_id,
                                 tvb, offset + 2, size, ENC_ASCII|ENC_NA);
@@ -4294,7 +4282,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_subscribe_queue,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4303,7 +4290,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x02) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4330,7 +4316,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x20) {
             /*  resume-id (resume-id [str16]) */
             size = tvb_get_ntohs(tvb, offset);
-            THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_resume_id,
                                 tvb, offset, 2 + size, ENC_ASCII|ENC_NA);
@@ -4345,8 +4330,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         }
         if (flag1 & 0x80) {
             /*  arguments (map) */
-            map_size = tvb_get_ntohl(tvb, offset);
-            THROW_ON(((offset + 4 + map_size) > length), ReportedBoundsError);
+            map_size = amqp_0_10_get_32bit_size(tvb, offset);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_message_subscribe_args,
                                      tvb,
@@ -4367,7 +4351,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4381,7 +4364,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4402,7 +4384,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4430,7 +4411,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4444,7 +4424,6 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4559,7 +4538,6 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
-            THROW_ON(((offset + xid_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_dtx_xid,
                                      tvb,
@@ -4589,7 +4567,6 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
-            THROW_ON(((offset + xid_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_dtx_xid,
                                      tvb,
@@ -4618,7 +4595,6 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
-            THROW_ON(((offset + xid_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_dtx_xid,
                                      tvb,
@@ -4647,7 +4623,6 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
-            THROW_ON(((offset + xid_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_dtx_xid,
                                      tvb,
@@ -4667,7 +4642,6 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
-            THROW_ON(((offset + xid_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_dtx_xid,
                                      tvb,
@@ -4752,7 +4726,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4760,7 +4733,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* type (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_type,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4768,7 +4740,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* alternate-exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_alt_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4787,9 +4758,8 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
                             hf_amqp_0_10_method_exchange_declare_auto_delete,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x40) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_exchange_declare_arguments,
                                      tvb,
@@ -4809,7 +4779,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4828,7 +4797,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4841,7 +4809,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4849,7 +4816,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4857,16 +4823,14 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_exchange_declare_arguments,
                                      tvb,
@@ -4886,7 +4850,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4894,7 +4857,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4902,7 +4864,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4915,7 +4876,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4923,7 +4883,6 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -4931,16 +4890,14 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_exchange_declare_arguments,
                                      tvb,
@@ -5019,7 +4976,6 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5027,7 +4983,6 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* alternate-exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_alt_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5049,9 +5004,8 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
                             hf_amqp_0_10_method_queue_declare_auto_delete,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x40) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_queue_declare_arguments,
                                      tvb,
@@ -5071,7 +5025,6 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5093,7 +5046,6 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5106,7 +5058,6 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5206,7 +5157,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5214,7 +5164,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5236,9 +5185,8 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
                             hf_amqp_0_10_method_file_consume_nowait,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x40) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_file_consume_arguments,
                                      tvb,
@@ -5259,7 +5207,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5272,7 +5219,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* identifier (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5302,7 +5248,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_publish_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5310,7 +5255,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* routing-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_publish_routing_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5327,7 +5271,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x10) {     /* identifier (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5346,7 +5289,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* reply-text (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_reply_text,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5354,7 +5296,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5362,7 +5303,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x08) {     /* routing-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_routing_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5375,7 +5315,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5395,7 +5334,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x08) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5403,7 +5341,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x10) {     /* routing-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_routing_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5411,7 +5348,6 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
         }
         if (flag1 & 0x20) {     /* identifier (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5550,7 +5486,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5558,7 +5493,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5577,9 +5511,8 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
                             hf_amqp_0_10_method_stream_consume_nowait,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
         if (flag1 & 0x20) {     /* arguments (map) */
-            map_length = tvb_get_ntohl(tvb, offset);
+            map_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON(((offset + map_length) > length), ReportedBoundsError);
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_method_stream_consume_arguments,
                                      tvb,
@@ -5600,7 +5533,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5613,7 +5545,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_publish_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5621,7 +5552,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* routing-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_publish_routing_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5649,7 +5579,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x02) {     /* reply-text (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_reply_text,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5657,7 +5586,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5665,7 +5593,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x08) {     /* routing-key (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_routing_key,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5678,7 +5605,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_consumer_tag,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5692,7 +5618,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_exchange,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5700,7 +5625,6 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
         }
         if (flag1 & 0x08) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
-            THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_queue,
                                 tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
@@ -5727,7 +5651,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
     int         max_length;
     nstime_t    tv;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     args_tree = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flags_offset = offset;
@@ -5810,7 +5734,6 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
     if (flag2 & 0x04) {
         /*  resume-id (resume-id [str16]) */
         len16 = tvb_get_ntohs(tvb, offset);
-        THROW_ON(((offset + 2 + len16) > max_length), ReportedBoundsError);
         proto_tree_add_item(args_tree,
                             hf_amqp_0_10_method_message_resume_id,
                             tvb, offset + 2, len16, ENC_ASCII|ENC_NA);
@@ -5838,7 +5761,7 @@ dissect_amqp_0_10_struct_fragment_properties(tvbuff_t *tvb,
     int         flags_offset;
     int         max_length;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     args_tree = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flags_offset = offset;
@@ -5886,7 +5809,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
     e_guid_t    uuid;
     int         max_length;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     frag = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -5988,7 +5911,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
     }
     if (flag2 & 0x01) {
         /* application-headers (map) */
-        map_length = tvb_get_ntohl(tvb, offset);
+        map_length = amqp_0_10_get_32bit_size(tvb, offset);
         AMQP_INCREMENT(offset, 4, max_length);
         ti = proto_tree_add_item(frag,
                                  hf_amqp_0_10_struct_message_properties_application_headers,
@@ -6020,7 +5943,7 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
     int         flags_offset;
     int         max_length;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     result = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flags_offset = offset;
@@ -6035,7 +5958,6 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
     if (flag1 & 0x01) {
         /*  type (str8) */
         len8 = tvb_get_guint8(tvb, offset);
-        THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_exchange_declare_type,
                             tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
@@ -6049,9 +5971,8 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
                         tvb, flags_offset, 1, ENC_BIG_ENDIAN);
     if (flag1 & 0x08) {
         /*  arguments (map) */
-        map_length = tvb_get_ntohl(tvb, offset);
+        map_length = amqp_0_10_get_32bit_size(tvb, offset);
         AMQP_INCREMENT(offset, 4, max_length);
-        THROW_ON(((offset + (int)map_length) > max_length), ReportedBoundsError);
         ti = proto_tree_add_item(result,
                                  hf_amqp_0_10_method_exchange_declare_arguments,
                                  tvb,
@@ -6082,7 +6003,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
     int         flags_offset;
     int         max_length;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     result = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flags_offset = offset;
@@ -6098,7 +6019,6 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
     if (flag1 & 0x01) {
         /*  queue (name [str8]) */
         len8 = tvb_get_guint8(tvb, offset);
-        THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_queue_name,
                             tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
@@ -6106,7 +6026,6 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
     }
     if (flag1 & 0x02) {     /* alternate-exchange (exchange.name [str8]) */
         len8 = tvb_get_guint8(tvb, offset);
-        THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_queue_alt_exchange,
                             tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
@@ -6125,9 +6044,8 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
                         hf_amqp_0_10_struct_queue_query_result_auto_delete,
                         tvb, flags_offset, 1, ENC_BIG_ENDIAN);
     if (flag1 & 0x20) {     /* arguments (map) */
-        map_length = tvb_get_ntohl(tvb, offset);
+        map_length = amqp_0_10_get_32bit_size(tvb, offset);
         AMQP_INCREMENT(offset, 4, max_length);
-        THROW_ON(((offset + (int)map_length) > max_length), ReportedBoundsError);
         ti = proto_tree_add_item(result,
                                  hf_amqp_0_10_method_queue_declare_arguments,
                                  tvb,
@@ -6171,7 +6089,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
     int         max_length;
     nstime_t    tv;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     props = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -6200,7 +6118,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
     }
     if (flag1 & 0x04) {
         /* headers (map) */
-        map_length = tvb_get_ntohl(tvb, offset);
+        map_length = amqp_0_10_get_32bit_size(tvb, offset);
         AMQP_INCREMENT(offset, 4, max_length);
         ti = proto_tree_add_item(props,
                                  hf_amqp_0_10_struct_file_properties_headers,
@@ -6282,7 +6200,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
     int         max_length;
     nstime_t    tv;
 
-    max_length = offset + struct_length;
+    max_length = offset + AMQP_0_10_SIZE_MAX(struct_length);
     props = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -6311,7 +6229,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
     }
     if (flag1 & 0x04) {
         /* headers (map) */
-        map_length = tvb_get_ntohl(tvb, offset);
+        map_length = amqp_0_10_get_32bit_size(tvb, offset);
         AMQP_INCREMENT(offset, 4, max_length);
         ti = proto_tree_add_item(props,
                                  hf_amqp_0_10_struct_stream_properties_headers,
@@ -6405,7 +6323,6 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             if (flag1 & 0x01) {
                 /*  transfers (commands [sequence-set])  */
                 size = tvb_get_ntohs(tvb, offset);
-                THROW_ON(((consumed + size) > struct_length), ReportedBoundsError);
                 ti = proto_tree_add_item(result,
                                          hf_amqp_0_10_struct_acquired_transfers,
                                          tvb, offset, size + 2, ENC_NA);
@@ -6456,7 +6373,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             /*flag1 = tvb_get_guint8(tvb, offset);*/
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Packing bytes */
             offset += 2;
-            array_length = tvb_get_ntohl(tvb, offset);
+            array_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(consumed, 4, struct_length);
             offset += 4;
             dissect_amqp_0_10_array(tvb,
@@ -7325,10 +7242,8 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         col_append_str(pinfo->cinfo, COL_INFO, "header ");
         col_set_fence(pinfo->cinfo, COL_INFO);
         do {
-            struct_length = tvb_get_ntohl(tvb, offset);
+            struct_length = amqp_0_10_get_32bit_size(tvb, offset);
             AMQP_INCREMENT(offset, 4, length);
-            THROW_ON((offset + struct_length > length), ReportedBoundsError);
-            THROW_ON((offset + struct_length < offset), ReportedBoundsError);
 
             ti = proto_tree_add_item(amqp_tree,
                                      hf_amqp_0_10_undissected_struct32,
@@ -8029,7 +7944,7 @@ dissect_amqp_0_9_method_connection_start(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  locales (longstr)        */
     proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_start_locales,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), ENC_NA);
+                        tvb, offset + 4, tvb_get_ntohl(tvb, offset), ENC_NA);
     offset += 4 + tvb_get_ntohl(tvb, offset);
 
     return offset;
@@ -10782,7 +10697,7 @@ format_amqp_0_10_vbin(tvbuff_t *tvb,
     else if (length == 2)
         bin_length = tvb_get_ntohs(tvb, offset);
     else if (length == 4)
-        bin_length = tvb_get_ntohl(tvb, offset);
+        bin_length = amqp_0_10_get_32bit_size(tvb, offset);
     else {
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid vbin length size %d!", length);
         return length;
@@ -10805,7 +10720,7 @@ format_amqp_0_10_str(tvbuff_t *tvb,
     else if (length == 2)
         string_length = tvb_get_ntohs(tvb, offset);
     else if (length == 4)
-        string_length = tvb_get_ntohl(tvb, offset);
+        string_length = amqp_0_10_get_32bit_size(tvb, offset);
     else {
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid string length size %d!", length);
         return length;
