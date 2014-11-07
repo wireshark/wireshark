@@ -4746,8 +4746,8 @@ more about Wireshark</source>
         <translation>Główny pasek stylów:</translation>
     </message>
     <message>
-        <source>Auto-Detect</source>
-        <translation>Wykryj język</translation>
+        <source>Use system setting</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>English</source>

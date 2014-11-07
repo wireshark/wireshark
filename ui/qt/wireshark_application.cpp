@@ -883,7 +883,7 @@ void WiresharkApplication::loadLanguage(const QString& newLanguage)
     QLocale locale;
     QString localeLanguage;
 
-    if (newLanguage.isEmpty() || newLanguage == "auto") {
+    if (newLanguage.isEmpty() || newLanguage == "system") {
         localeLanguage = QLocale::system().name();
     } else {
         localeLanguage = newLanguage;

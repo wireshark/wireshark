@@ -312,7 +312,7 @@
        </property>
        <item>
         <property name="text">
-         <string>Auto</string>
+         <string>Use system setting</string>
         </property>
        </item>
       </widget>

@@ -3005,7 +3005,7 @@ live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Auto-Detect</source>
+        <source>Use system setting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

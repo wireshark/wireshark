@@ -3881,7 +3881,7 @@ Wireshark 的更多信息</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="315"/>
-        <source>Auto-Detect</source>
+        <source>Use system setting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

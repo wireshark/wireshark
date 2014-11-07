@@ -5981,8 +5981,8 @@ altro su Wireshark</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="315"/>
-        <source>Auto-Detect</source>
-        <translation>Rileva automaticamente</translation>
+        <source>Use system setting</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="320"/>
