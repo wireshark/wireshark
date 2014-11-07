@@ -127,6 +127,19 @@ static int hf_gtpv2_s4af = -1;
 static int hf_gtpv2_mbmdt = -1;
 static int hf_gtpv2_israu = -1;
 static int hf_gtpv2_ccrsi = -1;
+static int hf_gtpv2_cprai = -1;
+static int hf_gtpv2_arrl = -1;
+static int hf_gtpv2_ppof = -1;
+static int hf_gtpv2_ppon_ppei = -1;
+static int hf_gtpv2_ppsi = -1;
+static int hf_gtpv2_csfbi = -1;
+static int hf_gtpv2_clii = -1;
+static int hf_gtpv2_cpsr = -1;
+static int hf_gtpv2_pcri = -1;
+static int hf_gtpv2_aosi = -1;
+static int hf_gtpv2_aopi = -1;
+
+
 static int hf_gtpv2_pdn_type = -1;
 static int hf_gtpv2_pdn_ipv4 = -1;
 static int hf_gtpv2_pdn_ipv6_len = -1;
@@ -1749,10 +1762,32 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         return;
     }
     /* Octet 8 CPRAI ARRL PPOF PPON/PPEI PPSI CSFBI CLII CPSR */
+    proto_tree_add_item(tree, hf_gtpv2_cprai,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_arrl,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ppof,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ppon_ppei,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ppsi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_csfbi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_clii,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_cpsr,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (length == 4) {
+        return;
+    }
+
+    /* Octet 9 Spare Spare Spare Spare Spare PCRI AOSI AOPI */
+    proto_tree_add_item(tree, hf_gtpv2_pcri,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_aosi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_aopi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (length == 4) {
+        return;
+    }
 
     proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
-    /* Octet 9 Spare Spare Spare Spare Spare PCRI AOSI AOPI */
 
 }
 
@@ -6197,6 +6232,51 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_ccrsi,
          {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+
+        {&hf_gtpv2_cprai,
+         {"CPRAI (Change of Presence Reporting Area information Indication)", "gtpv2.cprai",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_gtpv2_arrl,
+         {"ARRL (Abnormal Release of Radio Link)", "gtpv2.arrl",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        {&hf_gtpv2_ppof,
+         {"PPOFF (PDN Pause Off Indication)", "gtpv2.ppof",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        {&hf_gtpv2_ppon_ppei,
+         {"PPON (PDN Pause On Indication) / PPEI (PDN Pause Enabled Indication)", "gtpv2.ppon_ppei",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_gtpv2_ppsi,
+         {"PPSI (PDN Pause Support Indication)", "gtpv2.ppsi",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
+        },
+        {&hf_gtpv2_csfbi,
+         {"CSFBI (CSFB Indication)", "gtpv2.csfbi",
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+        {&hf_gtpv2_clii,
+         {"CLII (Change of Location Information Indication):", "gtpv2.clii",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_cpsr,
+         {"CPSR (CS to PS SRVCC indication)", "gtpv2.cpsr",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        {&hf_gtpv2_pcri,
+         {"PCRI (P-CSCF Restoration Indication)", "gtpv2.pcri",
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+        {&hf_gtpv2_aosi,
+         {"AOSI (Associate OCI with SGW node's Identity)", "gtpv2.aosi",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_aopi,
+         {"AOPI (Associate OCI with PGW node's Identity)", "gtpv2.aopi",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_pdn_type,
