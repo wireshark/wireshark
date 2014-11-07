@@ -208,8 +208,16 @@
 #define ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL   0x0701
 #define ZBEE_ZCL_CID_SIMPLE_METERING                0x0702
 #define ZBEE_ZCL_CID_MESSAGE                        0x0703
-#define ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING         0x0704
+#define ZBEE_ZCL_CID_TUNNELING                      0x0704
 #define ZBEE_ZCL_CID_PRE_PAYMENT                    0x0705
+#define ZBEE_ZCL_CID_ENERGY_MANAGEMENT              0x0706
+#define ZBEE_ZCL_CID_CALENDAR                       0x0707
+#define ZBEE_ZCL_CID_DEVICE_MANAGEMENT              0x0708
+#define ZBEE_ZCL_CID_EVENTS                         0x0709
+#define ZBEE_ZCL_CID_MDU_PAIRING                    0x070A
+
+/* ZCL Cluster IDs - Key Establishment */
+#define ZBEE_ZCL_CID_KE                             0x0800
 
 /* ZCL Cluster IDs - Home Automation */
 #define ZBEE_ZCL_CID_APPLIANCE_IDENTIFICATION       0x0b00
@@ -257,7 +265,6 @@ typedef struct{
     /* Fragmentation Fields. */
     guint8      fragmentation;  /* ZigBee 2007 and Later    */
     guint8      block_number;   /* ZigBee 2007 and Later    */
-    guint8      ack_bitfield;   /* ZigBee 2007 and Later    */
 
     /* Some helpers for the upper layers. */
     gboolean    profile_present;

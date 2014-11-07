@@ -32,8 +32,8 @@
 
 /** Struct for boolean enumerations */
 typedef struct true_false_string {
-        const char      *true_string;	/**< The string presented when true  */
-        const char      *false_string;	/**< The string presented when false */
+        const char      *true_string;   /**< The string presented when true  */
+        const char      *false_string;  /**< The string presented when false */
 } true_false_string;
 
 /*
@@ -95,5 +95,6 @@ WS_DLL_PUBLIC const true_false_string tfs_allocated_by_receiver_sender;
 WS_DLL_PUBLIC const true_false_string tfs_asynchronous_synchronous;
 WS_DLL_PUBLIC const true_false_string tfs_protocol_sensative_bit_transparent;
 WS_DLL_PUBLIC const true_false_string tfs_full_half;
+WS_DLL_PUBLIC const true_false_string tfs_acknowledged_not_acknowledged;
 
 #endif

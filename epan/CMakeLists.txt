@@ -1424,6 +1424,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-zbee-zcl-general.c
 	dissectors/packet-zbee-zcl-ha.c
 	dissectors/packet-zbee-zcl-meas-sensing.c
+	dissectors/packet-zbee-zcl-misc.c
 	dissectors/packet-zbee-zcl-se.c
 	dissectors/packet-zbee-zdp-binding.c
 	dissectors/packet-zbee-zdp-discovery.c

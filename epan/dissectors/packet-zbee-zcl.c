@@ -123,61 +123,11 @@ static int hf_zbee_zcl_attr_set_elements_num = -1;
 static int hf_zbee_zcl_attr_bag_elements_type = -1;
 static int hf_zbee_zcl_attr_bag_elements_num = -1;
 
-static int hf_zbee_zcl_ias_zone_client_cmd_id = -1;
-static int hf_zbee_zcl_ias_zone_client_zer_erc = -1;
-static int hf_zbee_zcl_ias_zone_client_zer_zone_id = -1;
-static int hf_zbee_zcl_ias_zone_server_cmd_id = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_ac_mains = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_alarm1 = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_alarm2 = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_battery = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_delay = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_ext_status = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_restore_reports = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_supervision_reports = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_tamper = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_trouble = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_zone_id = -1;
-static int hf_zbee_zcl_ias_zone_server_scn_zone_status = -1;
-static int hf_zbee_zcl_poll_control_client_cir_fpt = -1;
-static int hf_zbee_zcl_poll_control_client_cir_sfp = -1;
-static int hf_zbee_zcl_poll_control_client_cmd_id = -1;
-static int hf_zbee_zcl_poll_control_client_slpi_nlpi = -1;
-static int hf_zbee_zcl_poll_control_client_sspi_nspi = -1;
-static int hf_zbee_zcl_poll_control_server_cmd_id = -1;
-static int hf_zbee_zcl_thermostat_client_cmd_id = -1;
-static int hf_zbee_zcl_thermostat_client_gws_days_to_return = -1;
-static int hf_zbee_zcl_thermostat_client_gws_mtr = -1;
-static int hf_zbee_zcl_thermostat_client_gws_mtr_cool = -1;
-static int hf_zbee_zcl_thermostat_client_gws_mtr_heat = -1;
-static int hf_zbee_zcl_thermostat_client_setpointrl_amount_field = -1;
-static int hf_zbee_zcl_thermostat_client_setpointrl_modes = -1;
-static int hf_zbee_zcl_thermostat_client_sws_dow = -1;
-static int hf_zbee_zcl_thermostat_client_sws_mfs = -1;
-static int hf_zbee_zcl_thermostat_client_sws_mfs_cool = -1;
-static int hf_zbee_zcl_thermostat_client_sws_mfs_heat = -1;
-static int hf_zbee_zcl_thermostat_client_sws_n_trans = -1;
-static int hf_zbee_zcl_thermostat_server_cmd_id = -1;
-static int hf_zbee_zcl_thermostat_server_gwsr_dow = -1;
-static int hf_zbee_zcl_thermostat_server_gwsr_mfs = -1;
-static int hf_zbee_zcl_thermostat_server_gwsr_mfs_cool = -1;
-static int hf_zbee_zcl_thermostat_server_gwsr_mfs_heat = -1;
-static int hf_zbee_zcl_thermostat_server_gwsr_n_trans = -1;
-
 /* Subtree indices. */
 static gint ett_zbee_zcl = -1;
 static gint ett_zbee_zcl_fcf = -1;
 static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
 static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
-
-static gint ett_zbee_zcl_ias_zone_server_scn_zone_status = -1;
-static gint ett_zbee_zcl_thermostat_client_gws_days_to_return = -1;
-static gint ett_zbee_zcl_thermostat_client_gws_mtr = -1;
-static gint ett_zbee_zcl_thermostat_client_sws_dow_for_sequence = -1;
-static gint ett_zbee_zcl_thermostat_client_sws_mfs = -1;
-static gint ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence = -1;
-static gint ett_zbee_zcl_thermostat_server_gwsr_mfs = -1;
-
 /* Dissector Handles. */
 static dissector_handle_t   data_handle;
 
@@ -230,280 +180,356 @@ static const value_string zbee_zcl_cs_cmd_names[] = {
     { 0, NULL }
 };
 
-
-/* ZigBee Manufacturer Name Table */
-/* Per: 053298r19, December 2011 */
+/* ZigBee Manufacturer Code Table */
+/* Per: 053874r26, October 2014 */
 const value_string zbee_mfr_code_names[] = {
+    { ZBEE_MFG_CODE_PANASONIC_RF4CE,   ZBEE_MFG_PANASONIC },
+    { ZBEE_MFG_CODE_SONY_RF4CE,        ZBEE_MFG_SONY },
+    { ZBEE_MFG_CODE_SAMSUNG_RF4CE,     ZBEE_MFG_SAMSUNG },
+    { ZBEE_MFG_CODE_PHILIPS_RF4CE,     ZBEE_MFG_PHILIPS },
+    { ZBEE_MFG_CODE_FREESCALE_RF4CE,   ZBEE_MFG_FREESCALE },
+    { ZBEE_MFG_CODE_OKI_SEMI_RF4CE,    ZBEE_MFG_OKI_SEMI },
+    { ZBEE_MFG_CODE_TI_RF4CE,          ZBEE_MFG_TI },
 
-    { ZBEE_MFG_CODE_SAMSUNG,    ZBEE_MFG_SAMSUNG },
-    { ZBEE_MFG_CODE_CIRRONET,   ZBEE_MFG_CIRRONET },
-    { ZBEE_MFG_CODE_CHIPCON,    ZBEE_MFG_CHIPCON },
-    { ZBEE_MFG_CODE_EMBER,      ZBEE_MFG_EMBER },
-    { ZBEE_MFG_CODE_NTS,        ZBEE_MFG_NTS },
-    { ZBEE_MFG_CODE_FREESCALE,  ZBEE_MFG_FREESCALE },
-    { ZBEE_MFG_CODE_IPCOM,      ZBEE_MFG_IPCOM },
-    { ZBEE_MFG_CODE_SAN_JUAN,   ZBEE_MFG_SAN_JUAN },
-    { ZBEE_MFG_CODE_TUV,        ZBEE_MFG_TUV },
-    { ZBEE_MFG_CODE_COMPXS,     ZBEE_MFG_COMPXS },
-    { ZBEE_MFG_CODE_BM,         ZBEE_MFG_BM },
-    { ZBEE_MFG_CODE_AWAREPOINT, ZBEE_MFG_AWAREPOINT },
-    { ZBEE_MFG_CODE_PHILIPS,    ZBEE_MFG_PHILIPS },
-    { ZBEE_MFG_CODE_LUXOFT,     ZBEE_MFG_LUXOFT },
-    { ZBEE_MFG_CODE_KORWIN,     ZBEE_MFG_KORWIN },
-    { ZBEE_MFG_CODE_1_RF,       ZBEE_MFG_1_RF },
-    { ZBEE_MFG_CODE_STG,        ZBEE_MFG_STG },
+    { ZBEE_MFG_CODE_CIRRONET,          ZBEE_MFG_CIRRONET },
+    { ZBEE_MFG_CODE_CHIPCON,           ZBEE_MFG_CHIPCON },
+    { ZBEE_MFG_CODE_EMBER,             ZBEE_MFG_EMBER },
+    { ZBEE_MFG_CODE_NTS,               ZBEE_MFG_NTS },
+    { ZBEE_MFG_CODE_FREESCALE,         ZBEE_MFG_FREESCALE },
+    { ZBEE_MFG_CODE_IPCOM,             ZBEE_MFG_IPCOM },
+    { ZBEE_MFG_CODE_SAN_JUAN,          ZBEE_MFG_SAN_JUAN },
+    { ZBEE_MFG_CODE_TUV,               ZBEE_MFG_TUV },
+    { ZBEE_MFG_CODE_COMPXS,            ZBEE_MFG_COMPXS },
+    { ZBEE_MFG_CODE_BM,                ZBEE_MFG_BM },
+    { ZBEE_MFG_CODE_AWAREPOINT,        ZBEE_MFG_AWAREPOINT },
+    { ZBEE_MFG_CODE_PHILIPS,           ZBEE_MFG_PHILIPS },
+    { ZBEE_MFG_CODE_LUXOFT,            ZBEE_MFG_LUXOFT },
+    { ZBEE_MFG_CODE_KORWIN,            ZBEE_MFG_KORWIN },
+    { ZBEE_MFG_CODE_1_RF,              ZBEE_MFG_1_RF },
+    { ZBEE_MFG_CODE_STG,               ZBEE_MFG_STG },
 
-    { ZBEE_MFG_CODE_TELEGESIS,  ZBEE_MFG_TELEGESIS },
-    { ZBEE_MFG_CODE_VISIONIC,   ZBEE_MFG_VISIONIC },
-    { ZBEE_MFG_CODE_INSTA,      ZBEE_MFG_INSTA },
-    { ZBEE_MFG_CODE_ATALUM,     ZBEE_MFG_ATALUM },
-    { ZBEE_MFG_CODE_ATMEL,      ZBEE_MFG_ATMEL },
-    { ZBEE_MFG_CODE_DEVELCO,    ZBEE_MFG_DEVELCO },
-    { ZBEE_MFG_CODE_HONEYWELL,  ZBEE_MFG_HONEYWELL },
-    { 0x1017,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_RENESAS,    ZBEE_MFG_RENESAS },
-    { ZBEE_MFG_CODE_XANADU,     ZBEE_MFG_XANADU },
-    { ZBEE_MFG_CODE_NEC,        ZBEE_MFG_NEC },
-    { ZBEE_MFG_CODE_YAMATAKE,   ZBEE_MFG_YAMATAKE },
-    { ZBEE_MFG_CODE_TENDRIL,    ZBEE_MFG_TENDRIL },
-    { ZBEE_MFG_CODE_ASSA,       ZBEE_MFG_ASSA },
-    { ZBEE_MFG_CODE_MAXSTREAM,  ZBEE_MFG_MAXSTREAM },
-    { ZBEE_MFG_CODE_NEUROCOM,   ZBEE_MFG_NEUROCOM },
+    { ZBEE_MFG_CODE_TELEGESIS,         ZBEE_MFG_TELEGESIS },
+    { ZBEE_MFG_CODE_VISIONIC,          ZBEE_MFG_VISIONIC },
+    { ZBEE_MFG_CODE_INSTA,             ZBEE_MFG_INSTA },
+    { ZBEE_MFG_CODE_ATALUM,            ZBEE_MFG_ATALUM },
+    { ZBEE_MFG_CODE_ATMEL,             ZBEE_MFG_ATMEL },
+    { ZBEE_MFG_CODE_DEVELCO,           ZBEE_MFG_DEVELCO },
+    { ZBEE_MFG_CODE_HONEYWELL2,        ZBEE_MFG_HONEYWELL },
+    { ZBEE_MFG_CODE_RADIO_PULSE,       ZBEE_MFG_RADIO_PULSE },
+    { ZBEE_MFG_CODE_RENESAS,           ZBEE_MFG_RENESAS },
+    { ZBEE_MFG_CODE_XANADU,            ZBEE_MFG_XANADU },
+    { ZBEE_MFG_CODE_NEC,               ZBEE_MFG_NEC },
+    { ZBEE_MFG_CODE_YAMATAKE,          ZBEE_MFG_YAMATAKE },
+    { ZBEE_MFG_CODE_TENDRIL,           ZBEE_MFG_TENDRIL },
+    { ZBEE_MFG_CODE_ASSA,              ZBEE_MFG_ASSA },
+    { ZBEE_MFG_CODE_MAXSTREAM,         ZBEE_MFG_MAXSTREAM },
+    { ZBEE_MFG_CODE_NEUROCOM,          ZBEE_MFG_NEUROCOM },
 
-    { ZBEE_MFG_CODE_III,        ZBEE_MFG_III },
-    { ZBEE_MFG_CODE_VANTAGE,    ZBEE_MFG_VANTAGE },
-    { ZBEE_MFG_CODE_ICONTROL,   ZBEE_MFG_ICONTROL },
-    { ZBEE_MFG_CODE_RAYMARINE,  ZBEE_MFG_RAYMARINE },
-    { ZBEE_MFG_CODE_LSR,        ZBEE_MFG_LSR },
-    { ZBEE_MFG_CODE_ONITY,      ZBEE_MFG_ONITY },
-    { ZBEE_MFG_CODE_MONO,       ZBEE_MFG_MONO },
-    { ZBEE_MFG_CODE_RFT,        ZBEE_MFG_RFT },
-    { ZBEE_MFG_CODE_ITRON,      ZBEE_MFG_ITRON },
-    { ZBEE_MFG_CODE_TRITECH,    ZBEE_MFG_TRITECH },
-    { ZBEE_MFG_CODE_EMBEDIT,    ZBEE_MFG_EMBEDIT },
-    { ZBEE_MFG_CODE_S3C,        ZBEE_MFG_S3C },
-    { ZBEE_MFG_CODE_SIEMENS,    ZBEE_MFG_SIEMENS },
-    { ZBEE_MFG_CODE_MINDTECH,   ZBEE_MFG_MINDTECH },
-    { ZBEE_MFG_CODE_LGE,        ZBEE_MFG_LGE },
-    { ZBEE_MFG_CODE_MITSUBISHI, ZBEE_MFG_MITSUBISHI },
+    { ZBEE_MFG_CODE_III,               ZBEE_MFG_III },
+    { ZBEE_MFG_CODE_VANTAGE,           ZBEE_MFG_VANTAGE },
+    { ZBEE_MFG_CODE_ICONTROL,          ZBEE_MFG_ICONTROL },
+    { ZBEE_MFG_CODE_RAYMARINE,         ZBEE_MFG_RAYMARINE },
+    { ZBEE_MFG_CODE_LSR,               ZBEE_MFG_LSR },
+    { ZBEE_MFG_CODE_ONITY,             ZBEE_MFG_ONITY },
+    { ZBEE_MFG_CODE_MONO,              ZBEE_MFG_MONO },
+    { ZBEE_MFG_CODE_RFT,               ZBEE_MFG_RFT },
+    { ZBEE_MFG_CODE_ITRON,             ZBEE_MFG_ITRON },
+    { ZBEE_MFG_CODE_TRITECH,           ZBEE_MFG_TRITECH },
+    { ZBEE_MFG_CODE_EMBEDIT,           ZBEE_MFG_EMBEDIT },
+    { ZBEE_MFG_CODE_S3C,               ZBEE_MFG_S3C },
+    { ZBEE_MFG_CODE_SIEMENS,           ZBEE_MFG_SIEMENS },
+    { ZBEE_MFG_CODE_MINDTECH,          ZBEE_MFG_MINDTECH },
+    { ZBEE_MFG_CODE_LGE,               ZBEE_MFG_LGE },
+    { ZBEE_MFG_CODE_MITSUBISHI,        ZBEE_MFG_MITSUBISHI },
 
-    { ZBEE_MFG_CODE_JOHNSON,    ZBEE_MFG_JOHNSON },
-    { ZBEE_MFG_CODE_PRI,        ZBEE_MFG_PRI },
-    { ZBEE_MFG_CODE_KNICK,      ZBEE_MFG_KNICK },
-    { ZBEE_MFG_CODE_VICONICS,   ZBEE_MFG_VICONICS },
-    { ZBEE_MFG_CODE_FLEXIPANEL, ZBEE_MFG_FLEXIPANEL },
-    { 0x1035,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_TRANE,      ZBEE_MFG_TRANE },
-    { ZBEE_MFG_CODE_JENNIC,     ZBEE_MFG_JENNIC },
-    { ZBEE_MFG_CODE_LIG,        ZBEE_MFG_LIG },
-    { ZBEE_MFG_CODE_ALERTME,    ZBEE_MFG_ALERTME },
-    { ZBEE_MFG_CODE_DAINTREE,   ZBEE_MFG_DAINTREE },
-    { ZBEE_MFG_CODE_AIJI,       ZBEE_MFG_AIJI },
-    { ZBEE_MFG_CODE_TEL_ITALIA, ZBEE_MFG_TEL_ITALIA },
-    { ZBEE_MFG_CODE_MIKROKRETS, ZBEE_MFG_MIKROKRETS },
-    { ZBEE_MFG_CODE_OKI,        ZBEE_MFG_OKI },
-    { ZBEE_MFG_CODE_NEWPORT,    ZBEE_MFG_NEWPORT },
-
-    { ZBEE_MFG_CODE_C4,         ZBEE_MFG_C4 },
-    { ZBEE_MFG_CODE_STM,        ZBEE_MFG_STM },
-    { ZBEE_MFG_CODE_ASN,        ZBEE_MFG_ASN },
-    { ZBEE_MFG_CODE_DCSI,       ZBEE_MFG_DCSI },
-    { ZBEE_MFG_CODE_FRANCE_TEL, ZBEE_MFG_FRANCE_TEL },
-    { ZBEE_MFG_CODE_MUNET,      ZBEE_MFG_MUNET },
-    { ZBEE_MFG_CODE_AUTANI,     ZBEE_MFG_AUTANI },
-    { ZBEE_MFG_CODE_COL_VNET,   ZBEE_MFG_COL_VNET },
-    { ZBEE_MFG_CODE_AEROCOMM,   ZBEE_MFG_AEROCOMM },
-    { ZBEE_MFG_CODE_SI_LABS,    ZBEE_MFG_SI_LABS },
-    { ZBEE_MFG_CODE_INNCOM,     ZBEE_MFG_INNCOM },
-    { ZBEE_MFG_CODE_CANNON,     ZBEE_MFG_CANNON },
-    { ZBEE_MFG_CODE_SYNAPSE,    ZBEE_MFG_SYNAPSE },
-    { ZBEE_MFG_CODE_FPS,        ZBEE_MFG_FPS },
-    { ZBEE_MFG_CODE_CLS,        ZBEE_MFG_CLS },
-    { ZBEE_MFG_CODE_CRANE,      ZBEE_MFG_CRANE },
-
-    { ZBEE_MFG_CODE_MOBILARM,   ZBEE_MFG_MOBILARM },
-    { ZBEE_MFG_CODE_IMONITOR,   ZBEE_MFG_IMONITOR },
-    { ZBEE_MFG_CODE_BARTECH,    ZBEE_MFG_BARTECH },
-    { ZBEE_MFG_CODE_MESHNETICS, ZBEE_MFG_MESHNETICS },
-    { ZBEE_MFG_CODE_LS_IND,     ZBEE_MFG_LS_IND },
-    { ZBEE_MFG_CODE_CASON,      ZBEE_MFG_CASON },
-    { ZBEE_MFG_CODE_WLESS_GLUE, ZBEE_MFG_WLESS_GLUE },
-    { ZBEE_MFG_CODE_ELSTER,     ZBEE_MFG_ELSTER },
-    { ZBEE_MFG_CODE_SMS_TEC,    ZBEE_MFG_SMS_TEC },
-    { ZBEE_MFG_CODE_ONSET,      ZBEE_MFG_ONSET },
-    { ZBEE_MFG_CODE_RIGA,       ZBEE_MFG_RIGA },
-    { ZBEE_MFG_CODE_ENERGATE,   ZBEE_MFG_ENERGATE },
-    { ZBEE_MFG_CODE_CONMED,     ZBEE_MFG_CONMED },
-    { ZBEE_MFG_CODE_POWERMAND,  ZBEE_MFG_POWERMAND },
-    { ZBEE_MFG_CODE_SCHNEIDER,  ZBEE_MFG_SCHNEIDER },
-    { ZBEE_MFG_CODE_EATON,      ZBEE_MFG_EATON },
-
-    { ZBEE_MFG_CODE_TELULAR,    ZBEE_MFG_TELULAR },
-    { ZBEE_MFG_CODE_DELPHI,     ZBEE_MFG_DELPHI },
-    { ZBEE_MFG_CODE_EPISENSOR,  ZBEE_MFG_EPISENSOR },
-    { ZBEE_MFG_CODE_LANDIS_GYR, ZBEE_MFG_LANDIS_GYR },
-    { ZBEE_MFG_CODE_KABA,       ZBEE_MFG_KABA },
-    { ZBEE_MFG_CODE_SHURE,      ZBEE_MFG_SHURE },
-    { ZBEE_MFG_CODE_COMVERGE,   ZBEE_MFG_COMVERGE },
-    { 0x1067,                   "Unknown" },             /**/
-    { 0x1068,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_HIDALGO,    ZBEE_MFG_HIDALGO },
-    { ZBEE_MFG_CODE_AIR2APP,    ZBEE_MFG_AIR2APP },
-    { ZBEE_MFG_CODE_AMX,        ZBEE_MFG_AMX },
-    { ZBEE_MFG_CODE_EDMI,       ZBEE_MFG_EDMI },
-    { ZBEE_MFG_CODE_CYAN,       ZBEE_MFG_CYAN },
-    { ZBEE_MFG_CODE_SYS_SPA,    ZBEE_MFG_SYS_SPA },
-    { ZBEE_MFG_CODE_TELIT,      ZBEE_MFG_TELIT },
-
-    { ZBEE_MFG_CODE_KAGA,       ZBEE_MFG_KAGA },
-    { ZBEE_MFG_CODE_4_NOKS,     ZBEE_MFG_4_NOKS },
-    { 0x1072,                   "Unknown" },             /**/
-    { 0x1073,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_PROFILE_SYS,ZBEE_MFG_PROFILE_SYS },
-    { 0x1075,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_FREESTYLE,  ZBEE_MFG_FREESTYLE },
-    { 0x1077,                   "Unknown" },             /**/
-    { 0x1078,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_REMOTE     ,ZBEE_MFG_REMOTE },
-    { ZBEE_MFG_CODE_WAVECOM,    ZBEE_MFG_WAVECOM },
-    { ZBEE_MFG_CODE_ENERGY_OPT, ZBEE_MFG_ENERGY_OPT },
-    { ZBEE_MFG_CODE_GE,         ZBEE_MFG_GE },
-    { 0x107d,                   "Unknown" },             /**/
-    { 0x107e,                   "Unknown" },             /**/
-    { 0x107f,                   "Unknown" },             /**/
-
-    { 0x1080,                   "Unknown" },             /**/
-    { 0x1081,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_MESHWORKS,  ZBEE_MFG_MESHWORKS },
-    { ZBEE_MFG_CODE_ELLIPS,     ZBEE_MFG_ELLIPS },
-    { 0x1084,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_CEDO,       ZBEE_MFG_CEDO },
-    { 0x1086,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_DIGI,       ZBEE_MFG_DIGI },
-    { 0x1088,                   "Unknown" },             /**/
-    { 0x1089,                   "Unknown" },             /**/
-    { 0x108a,                   "Unknown" },             /**/
-    { 0x108b,                   "Unknown" },             /**/
-    { 0x108c,                   "Unknown" },             /**/
-    { 0x108d,                   "Unknown" },             /**/
-    { 0x108e,                   "Unknown" },             /**/
-    { 0x108f,                   "Unknown" },             /**/
-
-    { 0x1090,                   "Unknown" },             /**/
-    { 0x1091,                   "Unknown" },             /**/
-    { 0x1092,                   "Unknown" },             /**/
-    { 0x1093,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_A_D,        ZBEE_MFG_A_D },
-    { 0x1095,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_CARRIER,    ZBEE_MFG_CARRIER },
-    { ZBEE_MFG_CODE_SYCHIP,     ZBEE_MFG_SYCHIP },
-    { 0x1098,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_PASSIVESYS, ZBEE_MFG_PASSIVESYS },
-    { ZBEE_MFG_CODE_MMB,        ZBEE_MFG_MMB },
-    { ZBEE_MFG_CODE_HOME_AUTO,  ZBEE_MFG_HOME_AUTO },
-    { 0x109c,                   "Unknown" },             /**/
-    { 0x109d,                   "Unknown" },             /**/
-    { 0x109e,                   "Unknown" },             /**/
-    { 0x109f,                   "Unknown" },             /**/
-
-    { 0x10a0,                   "Unknown" },             /**/
-    { 0x10a1,                   "Unknown" },             /**/
-    { 0x10a2,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_SUNRISE,    ZBEE_MFG_SUNRISE },
-    { ZBEE_MFG_CODE_MEMTEC,     ZBEE_MFG_MEMTEC },
-    { 0x10a5,                   "Unknown" },             /**/
-    { 0x10a6,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_BRITISH_GAS,ZBEE_MFG_BRITISH_GAS },
-    { ZBEE_MFG_CODE_SENTEC,     ZBEE_MFG_SENTEC },
-    { ZBEE_MFG_CODE_NAVETAS,    ZBEE_MFG_NAVETAS },
-    { 0x10aa,                   "Unknown" },             /**/
-    { 0x10ab,                   "Unknown" },             /**/
-    { 0x10ac,                   "Unknown" },             /**/
-    { 0x10ad,                   "Unknown" },             /**/
-    { 0x10ae,                   "Unknown" },             /**/
-    { 0x10af,                   "Unknown" },             /**/
-
-    { 0x10b0,                   "Unknown" },             /**/
-    { 0x10b1,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_ENERNOC,    ZBEE_MFG_ENERNOC },
-    { ZBEE_MFG_CODE_ELTAV,      ZBEE_MFG_ELTAV },
-    { 0x10b4,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_XSTREAMHD,  ZBEE_MFG_XSTREAMHD },
-    { 0x10b6,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_GREEN,      ZBEE_MFG_GREEN },
-    { 0x10b8,                   "Unknown" },             /**/
-    { 0x10b9,                   "Unknown" },             /**/
-    { 0x10ba,                   "Unknown" },             /**/
-    { 0x10bb,                   "Unknown" },             /**/
-    { 0x10bc,                   "Unknown" },             /**/
-    { 0x10bd,                   "Unknown" },             /**/
-    { 0x10be,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_OMRON,      ZBEE_MFG_OMRON },
-    { 0x10c0,                   "Unknown" },             /**/
-    { 0x10c1,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_PEEL,       ZBEE_MFG_PEEL },
-    { 0x10c3,                   "Unknown" },             /**/
-    { 0x10c4,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_NEC_TOKIN,  ZBEE_MFG_NEC_TOKIN },
-    { ZBEE_MFG_CODE_G4S_JUSTICE,ZBEE_MFG_G4S_JUSTICE },
-    { 0x10c7,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_ELECTROLUX, ZBEE_MFG_ELECTROLUX },
-    { 0x10c9,                   "Unknown" },             /**/
-    { 0x10ca,                   "Unknown" },             /**/
-    { 0x10cb,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_MAINSTREAM, ZBEE_MFG_MAINSTREAM },
-    { ZBEE_MFG_CODE_INDESIT_C,  ZBEE_MFG_INDESIT_C },
-    { 0x10ce,                   "Unknown" },             /**/
-    { 0x10cf,                   "Unknown" },             /**/
-    { 0x10d0,                   "Unknown" },             /**/
-    { 0x10d1,                   "Unknown" },             /**/
-    { 0x10d2,                   "Unknown" },             /**/
-    { 0x10d3,                   "Unknown" },             /**/
-    { 0x10d4,                   "Unknown" },             /**/
-    { 0x10d5,                   "Unknown" },             /**/
-    { 0x10d6,                   "Unknown" },             /**/
-    { 0x10d7,                   "Unknown" },             /**/
-    { 0x10d8,                   "Unknown" },             /**/
-    { 0x10d9,                   "Unknown" },             /**/
-    { 0x10da,                   "Unknown" },             /**/
-    { 0x10db,                   "Unknown" },             /**/
-    { 0x10dc,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_RADIOCRAFTS,ZBEE_MFG_RADIOCRAFTS },
-    { 0x10de,                   "Unknown" },             /**/
-    { 0x10df,                   "Unknown" },             /**/
-    { 0x10e0,                   "Unknown" },             /**/
-    { 0x10e1,                   "Unknown" },             /**/
-    { 0x10e2,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_HUAWEI_1,   ZBEE_MFG_HUAWEI },
-    { ZBEE_MFG_CODE_HUAWEI_2,   ZBEE_MFG_HUAWEI },
-    { 0x10e5,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_BGLOBAL,    ZBEE_MFG_BGLOBAL },
-    { 0x10e7,                   "Unknown" },             /**/
-    { 0x10e8,                   "Unknown" },             /**/
-    { 0x10e9,                   "Unknown" },             /**/
-    { 0x10ea,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_ABB,        ZBEE_MFG_ABB },
-    { 0x10ec,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_GENUS,      ZBEE_MFG_GENUS },
-    { 0x10ee,                   "Unknown" },             /**/
-    { 0x10ef,                   "Unknown" },             /**/
-    { 0x10f0,                   "Unknown" },             /**/
-    { 0x10f1,                   "Unknown" },             /**/
-    { 0x10f2,                   "Unknown" },             /**/
-    { 0x10f3,                   "Unknown" },             /**/
-    { 0x10f4,                   "Unknown" },             /**/
-    { 0x10f5,                   "Unknown" },             /**/
-    { 0x10f6,                   "Unknown" },             /**/
-    { 0x10f7,                   "Unknown" },             /**/
-    { 0x10f8,                   "Unknown" },             /**/
-    { 0x10f9,                   "Unknown" },             /**/
-    { 0x10fa,                   "Unknown" },             /**/
-    { 0x10fb,                   "Unknown" },             /**/
-    { 0x10fc,                   "Unknown" },             /**/
-    { 0x10fd,                   "Unknown" },             /**/
-    { 0x10fe,                   "Unknown" },             /**/
-    { 0x10ff,                   "Unknown" },             /**/
-    { ZBEE_MFG_CODE_RELOC,      ZBEE_MFG_RELOC },
+    { ZBEE_MFG_CODE_JOHNSON,           ZBEE_MFG_JOHNSON },
+    { ZBEE_MFG_CODE_PRI,               ZBEE_MFG_PRI },
+    { ZBEE_MFG_CODE_KNICK,             ZBEE_MFG_KNICK },
+    { ZBEE_MFG_CODE_VICONICS,          ZBEE_MFG_VICONICS },
+    { ZBEE_MFG_CODE_FLEXIPANEL,        ZBEE_MFG_FLEXIPANEL },
+    { ZBEE_MFG_CODE_PIASIM,            ZBEE_MFG_PIASIM },
+    { ZBEE_MFG_CODE_TRANE,             ZBEE_MFG_TRANE },
+    { ZBEE_MFG_CODE_JENNIC,            ZBEE_MFG_JENNIC },
+    { ZBEE_MFG_CODE_LIG,               ZBEE_MFG_LIG },
+    { ZBEE_MFG_CODE_ALERTME,           ZBEE_MFG_ALERTME },
+    { ZBEE_MFG_CODE_DAINTREE,          ZBEE_MFG_DAINTREE },
+    { ZBEE_MFG_CODE_AIJI,              ZBEE_MFG_AIJI },
+    { ZBEE_MFG_CODE_TEL_ITALIA,        ZBEE_MFG_TEL_ITALIA },
+    { ZBEE_MFG_CODE_MIKROKRETS,        ZBEE_MFG_MIKROKRETS },
+    { ZBEE_MFG_CODE_OKI_SEMI,          ZBEE_MFG_OKI_SEMI },
+    { ZBEE_MFG_CODE_NEWPORT,           ZBEE_MFG_NEWPORT },
+    { ZBEE_MFG_CODE_C4,                ZBEE_MFG_C4 },
+    { ZBEE_MFG_CODE_STM,               ZBEE_MFG_STM },
+    { ZBEE_MFG_CODE_ASN,               ZBEE_MFG_ASN },
+    { ZBEE_MFG_CODE_DCSI,              ZBEE_MFG_DCSI },
+    { ZBEE_MFG_CODE_FRANCE_TEL,        ZBEE_MFG_FRANCE_TEL },
+    { ZBEE_MFG_CODE_MUNET,             ZBEE_MFG_MUNET },
+    { ZBEE_MFG_CODE_AUTANI,            ZBEE_MFG_AUTANI },
+    { ZBEE_MFG_CODE_COL_VNET,          ZBEE_MFG_COL_VNET },
+    { ZBEE_MFG_CODE_AEROCOMM,          ZBEE_MFG_AEROCOMM },
+    { ZBEE_MFG_CODE_SI_LABS,           ZBEE_MFG_SI_LABS },
+    { ZBEE_MFG_CODE_INNCOM,            ZBEE_MFG_INNCOM },
+    { ZBEE_MFG_CODE_CANNON,            ZBEE_MFG_CANNON },
+    { ZBEE_MFG_CODE_SYNAPSE,           ZBEE_MFG_SYNAPSE },
+    { ZBEE_MFG_CODE_FPS,               ZBEE_MFG_FPS },
+    { ZBEE_MFG_CODE_CLS,               ZBEE_MFG_CLS },
+    { ZBEE_MFG_CODE_CRANE,             ZBEE_MFG_CRANE },
+    { ZBEE_MFG_CODE_MOBILARM,          ZBEE_MFG_MOBILARM },
+    { ZBEE_MFG_CODE_IMONITOR,          ZBEE_MFG_IMONITOR },
+    { ZBEE_MFG_CODE_BARTECH,           ZBEE_MFG_BARTECH },
+    { ZBEE_MFG_CODE_MESHNETICS,        ZBEE_MFG_MESHNETICS },
+    { ZBEE_MFG_CODE_LS_IND,            ZBEE_MFG_LS_IND },
+    { ZBEE_MFG_CODE_CASON,             ZBEE_MFG_CASON },
+    { ZBEE_MFG_CODE_WLESS_GLUE,        ZBEE_MFG_WLESS_GLUE },
+    { ZBEE_MFG_CODE_ELSTER,            ZBEE_MFG_ELSTER },
+    { ZBEE_MFG_CODE_SMS_TEC,           ZBEE_MFG_SMS_TEC },
+    { ZBEE_MFG_CODE_ONSET,             ZBEE_MFG_ONSET },
+    { ZBEE_MFG_CODE_RIGA,              ZBEE_MFG_RIGA },
+    { ZBEE_MFG_CODE_ENERGATE,          ZBEE_MFG_ENERGATE },
+    { ZBEE_MFG_CODE_CONMED,            ZBEE_MFG_CONMED },
+    { ZBEE_MFG_CODE_POWERMAND,         ZBEE_MFG_POWERMAND },
+    { ZBEE_MFG_CODE_SCHNEIDER,         ZBEE_MFG_SCHNEIDER },
+    { ZBEE_MFG_CODE_EATON,             ZBEE_MFG_EATON },
+    { ZBEE_MFG_CODE_TELULAR,           ZBEE_MFG_TELULAR },
+    { ZBEE_MFG_CODE_DELPHI,            ZBEE_MFG_DELPHI },
+    { ZBEE_MFG_CODE_EPISENSOR,         ZBEE_MFG_EPISENSOR },
+    { ZBEE_MFG_CODE_LANDIS_GYR,        ZBEE_MFG_LANDIS_GYR },
+    { ZBEE_MFG_CODE_KABA,              ZBEE_MFG_KABA },
+    { ZBEE_MFG_CODE_SHURE,             ZBEE_MFG_SHURE },
+    { ZBEE_MFG_CODE_COMVERGE,          ZBEE_MFG_COMVERGE },
+    { ZBEE_MFG_CODE_DBS_LODGING,       ZBEE_MFG_DBS_LODGING },
+    { ZBEE_MFG_CODE_ENERGY_AWARE,      ZBEE_MFG_ENERGY_AWARE },
+    { ZBEE_MFG_CODE_HIDALGO,           ZBEE_MFG_HIDALGO },
+    { ZBEE_MFG_CODE_AIR2APP,           ZBEE_MFG_AIR2APP },
+    { ZBEE_MFG_CODE_AMX,               ZBEE_MFG_AMX },
+    { ZBEE_MFG_CODE_EDMI,              ZBEE_MFG_EDMI },
+    { ZBEE_MFG_CODE_CYAN,              ZBEE_MFG_CYAN },
+    { ZBEE_MFG_CODE_SYS_SPA,           ZBEE_MFG_SYS_SPA },
+    { ZBEE_MFG_CODE_TELIT,             ZBEE_MFG_TELIT },
+    { ZBEE_MFG_CODE_KAGA,              ZBEE_MFG_KAGA },
+    { ZBEE_MFG_CODE_4_NOKS,            ZBEE_MFG_4_NOKS },
+    { ZBEE_MFG_CODE_CERTICOM,          ZBEE_MFG_CERTICOM },
+    { ZBEE_MFG_CODE_GRIDPOINT,         ZBEE_MFG_GRIDPOINT },
+    { ZBEE_MFG_CODE_PROFILE_SYS,       ZBEE_MFG_PROFILE_SYS },
+    { ZBEE_MFG_CODE_COMPACTA,          ZBEE_MFG_COMPACTA },
+    { ZBEE_MFG_CODE_FREESTYLE,         ZBEE_MFG_FREESTYLE },
+    { ZBEE_MFG_CODE_ALEKTRONA,         ZBEE_MFG_ALEKTRONA },
+    { ZBEE_MFG_CODE_COMPUTIME,         ZBEE_MFG_COMPUTIME },
+    { ZBEE_MFG_CODE_REMOTE_TECH,       ZBEE_MFG_REMOTE_TECH },
+    { ZBEE_MFG_CODE_WAVECOM,           ZBEE_MFG_WAVECOM },
+    { ZBEE_MFG_CODE_ENERGY,            ZBEE_MFG_ENERGY },
+    { ZBEE_MFG_CODE_GE,                ZBEE_MFG_GE },
+    { ZBEE_MFG_CODE_JETLUN,            ZBEE_MFG_JETLUN },
+    { ZBEE_MFG_CODE_CIPHER,            ZBEE_MFG_CIPHER },
+    { ZBEE_MFG_CODE_CORPORATE,         ZBEE_MFG_CORPORATE },
+    { ZBEE_MFG_CODE_ECOBEE,            ZBEE_MFG_ECOBEE },
+    { ZBEE_MFG_CODE_SMK,               ZBEE_MFG_SMK },
+    { ZBEE_MFG_CODE_MESHWORKS,         ZBEE_MFG_MESHWORKS },
+    { ZBEE_MFG_CODE_ELLIPS,            ZBEE_MFG_ELLIPS },
+    { ZBEE_MFG_CODE_SECURE,            ZBEE_MFG_SECURE },
+    { ZBEE_MFG_CODE_CEDO,              ZBEE_MFG_CEDO },
+    { ZBEE_MFG_CODE_TOSHIBA,           ZBEE_MFG_TOSHIBA },
+    { ZBEE_MFG_CODE_DIGI,              ZBEE_MFG_DIGI },
+    { ZBEE_MFG_CODE_UBILOGIX,          ZBEE_MFG_UBILOGIX },
+    { ZBEE_MFG_CODE_ECHELON,           ZBEE_MFG_ECHELON },
+    { ZBEE_MFG_CODE_GREEN_ENERGY,      ZBEE_MFG_GREEN_ENERGY },
+    { ZBEE_MFG_CODE_SILVER_SPRING,     ZBEE_MFG_SILVER_SPRING },
+    { ZBEE_MFG_CODE_BLACK,             ZBEE_MFG_BLACK },
+    { ZBEE_MFG_CODE_AZTECH_ASSOC,      ZBEE_MFG_AZTECH_ASSOC },
+    { ZBEE_MFG_CODE_A_AND_D,           ZBEE_MFG_A_AND_D },
+    { ZBEE_MFG_CODE_RAINFOREST,        ZBEE_MFG_RAINFOREST },
+    { ZBEE_MFG_CODE_CARRIER,           ZBEE_MFG_CARRIER },
+    { ZBEE_MFG_CODE_SYCHIP,            ZBEE_MFG_SYCHIP },
+    { ZBEE_MFG_CODE_OPEN_PEAK,         ZBEE_MFG_OPEN_PEAK },
+    { ZBEE_MFG_CODE_PASSIVE,           ZBEE_MFG_PASSIVE },
+    { ZBEE_MFG_CODE_G4S_JUSTICE,       ZBEE_MFG_G4S_JUSTICE },
+    { ZBEE_MFG_CODE_MMB,               ZBEE_MFG_MMB },
+    { ZBEE_MFG_CODE_LEVITON,           ZBEE_MFG_LEVITON },
+    { ZBEE_MFG_CODE_KOREA_ELEC,        ZBEE_MFG_KOREA_ELEC },
+    { ZBEE_MFG_CODE_COMCAST1,          ZBEE_MFG_COMCAST },
+    { ZBEE_MFG_CODE_NEC_ELEC,          ZBEE_MFG_NEC_ELEC },
+    { ZBEE_MFG_CODE_NETVOX,            ZBEE_MFG_NETVOX },
+    { ZBEE_MFG_CODE_UCONTROL,          ZBEE_MFG_UCONTROL },
+    { ZBEE_MFG_CODE_EMBEDIA,           ZBEE_MFG_EMBEDIA },
+    { ZBEE_MFG_CODE_SENSUS,            ZBEE_MFG_SENSUS },
+    { ZBEE_MFG_CODE_SUNRISE,           ZBEE_MFG_SUNRISE },
+    { ZBEE_MFG_CODE_MEMTECH,           ZBEE_MFG_MEMTECH },
+    { ZBEE_MFG_CODE_FREEBOX,           ZBEE_MFG_FREEBOX },
+    { ZBEE_MFG_CODE_M2_LABS,           ZBEE_MFG_M2_LABS },
+    { ZBEE_MFG_CODE_BRITISH_GAS,       ZBEE_MFG_BRITISH_GAS },
+    { ZBEE_MFG_CODE_SENTEC,            ZBEE_MFG_SENTEC },
+    { ZBEE_MFG_CODE_NAVETAS,           ZBEE_MFG_NAVETAS },
+    { ZBEE_MFG_CODE_LIGHTSPEED,        ZBEE_MFG_LIGHTSPEED },
+    { ZBEE_MFG_CODE_OKI,               ZBEE_MFG_OKI },
+    { ZBEE_MFG_CODE_SISTEMAS,          ZBEE_MFG_SISTEMAS },
+    { ZBEE_MFG_CODE_DOMETIC,           ZBEE_MFG_DOMETIC },
+    { ZBEE_MFG_CODE_APLS,              ZBEE_MFG_APLS },
+    { ZBEE_MFG_CODE_ENERGY_HUB,        ZBEE_MFG_ENERGY_HUB },
+    { ZBEE_MFG_CODE_KAMSTRUP,          ZBEE_MFG_KAMSTRUP },
+    { ZBEE_MFG_CODE_ECHOSTAR,          ZBEE_MFG_ECHOSTAR },
+    { ZBEE_MFG_CODE_ENERNOC,           ZBEE_MFG_ENERNOC },
+    { ZBEE_MFG_CODE_ELTAV,             ZBEE_MFG_ELTAV },
+    { ZBEE_MFG_CODE_BELKIN,            ZBEE_MFG_BELKIN },
+    { ZBEE_MFG_CODE_XSTREAMHD,         ZBEE_MFG_XSTREAMHD },
+    { ZBEE_MFG_CODE_SATURN_SOUTH,      ZBEE_MFG_SATURN_SOUTH },
+    { ZBEE_MFG_CODE_GREENTRAP,         ZBEE_MFG_GREENTRAP },
+    { ZBEE_MFG_CODE_SMARTSYNCH,        ZBEE_MFG_SMARTSYNCH },
+    { ZBEE_MFG_CODE_NYCE,              ZBEE_MFG_NYCE },
+    { ZBEE_MFG_CODE_ICM_CONTROLS,      ZBEE_MFG_ICM_CONTROLS },
+    { ZBEE_MFG_CODE_MILLENNIUM,        ZBEE_MFG_MILLENNIUM },
+    { ZBEE_MFG_CODE_MOTOROLA,          ZBEE_MFG_MOTOROLA },
+    { ZBEE_MFG_CODE_EMERSON,           ZBEE_MFG_EMERSON },
+    { ZBEE_MFG_CODE_RADIO_THERMOSTAT,  ZBEE_MFG_RADIO_THERMOSTAT },
+    { ZBEE_MFG_CODE_OMRON,             ZBEE_MFG_OMRON },
+    { ZBEE_MFG_CODE_GIINII,            ZBEE_MFG_GIINII },
+    { ZBEE_MFG_CODE_FUJITSU,           ZBEE_MFG_FUJITSU },
+    { ZBEE_MFG_CODE_PEEL,              ZBEE_MFG_PEEL },
+    { ZBEE_MFG_CODE_ACCENT,            ZBEE_MFG_ACCENT },
+    { ZBEE_MFG_CODE_BYTESNAP,          ZBEE_MFG_BYTESNAP },
+    { ZBEE_MFG_CODE_NEC_TOKIN,         ZBEE_MFG_NEC_TOKIN },
+    { ZBEE_MFG_CODE_G4S_JUSTICE,       ZBEE_MFG_G4S_JUSTICE },
+    { ZBEE_MFG_CODE_TRILLIANT,         ZBEE_MFG_TRILLIANT },
+    { ZBEE_MFG_CODE_ELECTROLUX,        ZBEE_MFG_ELECTROLUX },
+    { ZBEE_MFG_CODE_ONZO,              ZBEE_MFG_ONZO },
+    { ZBEE_MFG_CODE_ENTEK,             ZBEE_MFG_ENTEK },
+    { ZBEE_MFG_CODE_PHILIPS2,          ZBEE_MFG_PHILIPS },
+    { ZBEE_MFG_CODE_MAINSTREAM,        ZBEE_MFG_MAINSTREAM },
+    { ZBEE_MFG_CODE_INDESIT,           ZBEE_MFG_INDESIT },
+    { ZBEE_MFG_CODE_THINKECO,          ZBEE_MFG_THINKECO },
+    { ZBEE_MFG_CODE_2D2C,              ZBEE_MFG_2D2C },
+    { ZBEE_MFG_CODE_GREENPEAK,         ZBEE_MFG_GREENPEAK },
+    { ZBEE_MFG_CODE_INTERCEL,          ZBEE_MFG_INTERCEL },
+    { ZBEE_MFG_CODE_LG,                ZBEE_MFG_LG },
+    { ZBEE_MFG_CODE_MITSUMI1,          ZBEE_MFG_MITSUMI1 },
+    { ZBEE_MFG_CODE_MITSUMI2,          ZBEE_MFG_MITSUMI2 },
+    { ZBEE_MFG_CODE_ZENTRUM,           ZBEE_MFG_ZENTRUM },
+    { ZBEE_MFG_CODE_NEST,              ZBEE_MFG_NEST },
+    { ZBEE_MFG_CODE_EXEGIN,            ZBEE_MFG_EXEGIN },
+    { ZBEE_MFG_CODE_HONEYWELL1,        ZBEE_MFG_HONEYWELL },
+    { ZBEE_MFG_CODE_TAKAHATA,          ZBEE_MFG_TAKAHATA },
+    { ZBEE_MFG_CODE_SUMITOMO,          ZBEE_MFG_SUMITOMO },
+    { ZBEE_MFG_CODE_GE_ENERGY,         ZBEE_MFG_GE_ENERGY },
+    { ZBEE_MFG_CODE_GE_APPLIANCES,     ZBEE_MFG_GE_APPLIANCES },
+    { ZBEE_MFG_CODE_RADIOCRAFTS,       ZBEE_MFG_RADIOCRAFTS },
+    { ZBEE_MFG_CODE_CEIVA,             ZBEE_MFG_CEIVA },
+    { ZBEE_MFG_CODE_TEC_CO,            ZBEE_MFG_TEC_CO },
+    { ZBEE_MFG_CODE_CHAMELEON,         ZBEE_MFG_CHAMELEON },
+    { ZBEE_MFG_CODE_SAMSUNG,           ZBEE_MFG_SAMSUNG },
+    { ZBEE_MFG_CODE_RUWIDO,            ZBEE_MFG_RUWIDO },
+    { ZBEE_MFG_CODE_HUAWEI_1,          ZBEE_MFG_HUAWEI },
+    { ZBEE_MFG_CODE_HUAWEI_2,          ZBEE_MFG_HUAWEI },
+    { ZBEE_MFG_CODE_GREENWAVE,         ZBEE_MFG_GREENWAVE },
+    { ZBEE_MFG_CODE_BGLOBAL,           ZBEE_MFG_BGLOBAL },
+    { ZBEE_MFG_CODE_MINDTECK,          ZBEE_MFG_MINDTECK },
+    { ZBEE_MFG_CODE_INGERSOLL_RAND,    ZBEE_MFG_INGERSOLL_RAND },
+    { ZBEE_MFG_CODE_DIUS,              ZBEE_MFG_DIUS },
+    { ZBEE_MFG_CODE_EMBEDDED,          ZBEE_MFG_EMBEDDED },
+    { ZBEE_MFG_CODE_ABB,               ZBEE_MFG_ABB },
+    { ZBEE_MFG_CODE_SONY,              ZBEE_MFG_SONY },
+    { ZBEE_MFG_CODE_GENUS,             ZBEE_MFG_GENUS },
+    { ZBEE_MFG_CODE_EMBEDDED,          ZBEE_MFG_EMBEDDED },
+    { ZBEE_MFG_CODE_ABB,               ZBEE_MFG_ABB },
+    { ZBEE_MFG_CODE_SONY,              ZBEE_MFG_SONY },
+    { ZBEE_MFG_CODE_GENUS,             ZBEE_MFG_GENUS },
+    { ZBEE_MFG_CODE_UNIVERSAL1,        ZBEE_MFG_UNIVERSAL },
+    { ZBEE_MFG_CODE_UNIVERSAL2,        ZBEE_MFG_UNIVERSAL },
+    { ZBEE_MFG_CODE_METRUM,            ZBEE_MFG_METRUM },
+    { ZBEE_MFG_CODE_CISCO,             ZBEE_MFG_CISCO },
+    { ZBEE_MFG_CODE_UBISYS,            ZBEE_MFG_UBISYS },
+    { ZBEE_MFG_CODE_CONSERT,           ZBEE_MFG_CONSERT },
+    { ZBEE_MFG_CODE_CRESTRON,          ZBEE_MFG_CRESTRON },
+    { ZBEE_MFG_CODE_ENPHASE,           ZBEE_MFG_ENPHASE },
+    { ZBEE_MFG_CODE_INVENSYS,          ZBEE_MFG_INVENSYS },
+    { ZBEE_MFG_CODE_MUELLER,           ZBEE_MFG_MUELLER },
+    { ZBEE_MFG_CODE_AAC_TECH,          ZBEE_MFG_AAC_TECH },
+    { ZBEE_MFG_CODE_U_NEXT,            ZBEE_MFG_U_NEXT },
+    { ZBEE_MFG_CODE_STEELCASE,         ZBEE_MFG_STEELCASE },
+    { ZBEE_MFG_CODE_TELEMATICS,        ZBEE_MFG_TELEMATICS },
+    { ZBEE_MFG_CODE_SAMIL,             ZBEE_MFG_SAMIL },
+    { ZBEE_MFG_CODE_PACE,              ZBEE_MFG_PACE },
+    { ZBEE_MFG_CODE_OSBORNE,           ZBEE_MFG_OSBORNE },
+    { ZBEE_MFG_CODE_POWERWATCH,        ZBEE_MFG_POWERWATCH },
+    { ZBEE_MFG_CODE_CANDELED,          ZBEE_MFG_CANDELED },
+    { ZBEE_MFG_CODE_FLEXGRID,          ZBEE_MFG_FLEXGRID },
+    { ZBEE_MFG_CODE_HUMAX,             ZBEE_MFG_HUMAX },
+    { ZBEE_MFG_CODE_UNIVERSAL,         ZBEE_MFG_UNIVERSAL },
+    { ZBEE_MFG_CODE_ADVANCED_ENERGY,   ZBEE_MFG_ADVANCED_ENERGY },
+    { ZBEE_MFG_CODE_BEGA,              ZBEE_MFG_BEGA },
+    { ZBEE_MFG_CODE_BRUNEL,            ZBEE_MFG_BRUNEL },
+    { ZBEE_MFG_CODE_PANASONIC,         ZBEE_MFG_PANASONIC },
+    { ZBEE_MFG_CODE_ESYSTEMS,          ZBEE_MFG_ESYSTEMS },
+    { ZBEE_MFG_CODE_PANAMAX,           ZBEE_MFG_PANAMAX },
+    { ZBEE_MFG_CODE_PHYSICAL,          ZBEE_MFG_PHYSICAL },
+    { ZBEE_MFG_CODE_EM_LITE,           ZBEE_MFG_EM_LITE },
+    { ZBEE_MFG_CODE_OSRAM,             ZBEE_MFG_OSRAM },
+    { ZBEE_MFG_CODE_2_SAVE,            ZBEE_MFG_2_SAVE },
+    { ZBEE_MFG_CODE_PLANET,            ZBEE_MFG_PLANET },
+    { ZBEE_MFG_CODE_AMBIENT,           ZBEE_MFG_AMBIENT },
+    { ZBEE_MFG_CODE_PROFALUX,          ZBEE_MFG_PROFALUX },
+    { ZBEE_MFG_CODE_BILLION,           ZBEE_MFG_BILLION },
+    { ZBEE_MFG_CODE_EMBERTEC,          ZBEE_MFG_EMBERTEC },
+    { ZBEE_MFG_CODE_IT_WATCHDOGS,      ZBEE_MFG_IT_WATCHDOGS },
+    { ZBEE_MFG_CODE_RELOC,             ZBEE_MFG_RELOC },
+    { ZBEE_MFG_CODE_INTEL,             ZBEE_MFG_INTEL },
+    { ZBEE_MFG_CODE_TREND,             ZBEE_MFG_TREND },
+    { ZBEE_MFG_CODE_MOXA,              ZBEE_MFG_MOXA },
+    { ZBEE_MFG_CODE_QEES,              ZBEE_MFG_QEES },
+    { ZBEE_MFG_CODE_SAYME,             ZBEE_MFG_SAYME },
+    { ZBEE_MFG_CODE_PENTAIR,           ZBEE_MFG_PENTAIR },
+    { ZBEE_MFG_CODE_ORBIT,             ZBEE_MFG_ORBIT },
+    { ZBEE_MFG_CODE_CALIFORNIA,        ZBEE_MFG_CALIFORNIA },
+    { ZBEE_MFG_CODE_COMCAST2,          ZBEE_MFG_COMCAST },
+    { ZBEE_MFG_CODE_IDT,               ZBEE_MFG_IDT },
+    { ZBEE_MFG_CODE_PIXELA,            ZBEE_MFG_PIXELA },
+    { ZBEE_MFG_CODE_TIVO,              ZBEE_MFG_TIVO },
+    { ZBEE_MFG_CODE_FIDURE,            ZBEE_MFG_FIDURE },
+    { ZBEE_MFG_CODE_MARVELL,           ZBEE_MFG_MARVELL },
+    { ZBEE_MFG_CODE_WASION,            ZBEE_MFG_WASION },
+    { ZBEE_MFG_CODE_JASCO,             ZBEE_MFG_JASCO },
+    { ZBEE_MFG_CODE_SHENZHEN,          ZBEE_MFG_SHENZHEN },
+    { ZBEE_MFG_CODE_NETCOMM,           ZBEE_MFG_NETCOMM },
+    { ZBEE_MFG_CODE_DEFINE,            ZBEE_MFG_DEFINE },
+    { ZBEE_MFG_CODE_IN_HOME_DISP,      ZBEE_MFG_IN_HOME_DISP },
+    { ZBEE_MFG_CODE_MIELE,             ZBEE_MFG_MIELE },
+    { ZBEE_MFG_CODE_TELEVES,           ZBEE_MFG_TELEVES },
+    { ZBEE_MFG_CODE_LABELEC,           ZBEE_MFG_LABELEC },
+    { ZBEE_MFG_CODE_CHINA_ELEC,        ZBEE_MFG_CHINA_ELEC },
+    { ZBEE_MFG_CODE_VECTORFORM,        ZBEE_MFG_VECTORFORM },
+    { ZBEE_MFG_CODE_BUSCH_JAEGER,      ZBEE_MFG_BUSCH_JAEGER },
+    { ZBEE_MFG_CODE_REDPINE,           ZBEE_MFG_REDPINE },
+    { ZBEE_MFG_CODE_BRIDGES,           ZBEE_MFG_BRIDGES },
+    { ZBEE_MFG_CODE_SERCOMM,           ZBEE_MFG_SERCOMM },
+    { ZBEE_MFG_CODE_WSH,               ZBEE_MFG_WSH },
+    { ZBEE_MFG_CODE_BOSCH,             ZBEE_MFG_BOSCH },
+    { ZBEE_MFG_CODE_EZEX,              ZBEE_MFG_EZEX },
+    { ZBEE_MFG_CODE_DRESDEN,           ZBEE_MFG_DRESDEN },
+    { ZBEE_MFG_CODE_MEAZON,            ZBEE_MFG_MEAZON },
+    { ZBEE_MFG_CODE_CROW,              ZBEE_MFG_CROW },
+    { ZBEE_MFG_CODE_HARVARD,           ZBEE_MFG_HARVARD },
+    { ZBEE_MFG_CODE_ANDSON,            ZBEE_MFG_ANDSON },
+    { ZBEE_MFG_CODE_ADHOCO,            ZBEE_MFG_ADHOCO },
+    { ZBEE_MFG_CODE_WAXMAN,            ZBEE_MFG_WAXMAN },
+    { ZBEE_MFG_CODE_OWON,              ZBEE_MFG_OWON },
+    { ZBEE_MFG_CODE_HITRON,            ZBEE_MFG_HITRON },
+    { ZBEE_MFG_CODE_SCEMTEC,           ZBEE_MFG_SCEMTEC },
+    { ZBEE_MFG_CODE_WEBEE,             ZBEE_MFG_WEBEE },
+    { ZBEE_MFG_CODE_GRID2HOME,         ZBEE_MFG_GRID2HOME },
+    { ZBEE_MFG_CODE_TELINK,            ZBEE_MFG_TELINK },
+    { ZBEE_MFG_CODE_JASMINE,           ZBEE_MFG_JASMINE },
+    { ZBEE_MFG_CODE_BIDGELY,           ZBEE_MFG_BIDGELY },
+    { ZBEE_MFG_CODE_LUTRON,            ZBEE_MFG_LUTRON },
+    { ZBEE_MFG_CODE_IJENKO,            ZBEE_MFG_IJENKO },
+    { ZBEE_MFG_CODE_STARFIELD,         ZBEE_MFG_STARFIELD },
+    { ZBEE_MFG_CODE_TCP,               ZBEE_MFG_TCP },
+    { ZBEE_MFG_CODE_ROGERS,            ZBEE_MFG_ROGERS },
+    { ZBEE_MFG_CODE_CREE,              ZBEE_MFG_CREE },
+    { ZBEE_MFG_CODE_ROBERT_BOSCH,      ZBEE_MFG_ROBERT_BOSCH },
+    { ZBEE_MFG_CODE_IBIS,              ZBEE_MFG_IBIS },
+    { ZBEE_MFG_CODE_QUIRKY,            ZBEE_MFG_QUIRKY },
+    { ZBEE_MFG_CODE_EFERGY,            ZBEE_MFG_EFERGY },
+    { ZBEE_MFG_CODE_SMARTLABS,         ZBEE_MFG_SMARTLABS },
+    { ZBEE_MFG_CODE_EVERSPRING,        ZBEE_MFG_EVERSPRING },
+    { ZBEE_MFG_CODE_SWANN,             ZBEE_MFG_SWANN },
     { 0, NULL }
 };
 static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);
@@ -541,7 +567,6 @@ const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_HARDWARE_FAILURE,               "Hardware Failure"},
     { ZBEE_ZCL_STAT_SOFTWARE_FAILURE,               "Software Failure"},
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
-
     { 0, NULL }
 };
 static value_string_ext zbee_zcl_status_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_status_names);
@@ -728,88 +753,6 @@ static const value_string zbee_zcl_dis_names[] = {
     { 0, NULL }
 };
 
-/* ZCL IAS Zone Client Commands */
-static const value_string zbee_zcl_ias_zone_client_cmd_names[] = {
-    { ZBEE_ZCL_CSC_IAS_ZONE_C_ZER, "Zone Enroll Response" },
-
-    { 0, NULL }
-};
-
-/* ZCL IAS Zone Client Enroll Response Code Commands */
-static const value_string zbee_zcl_ias_zone_client_erc[] = {
-    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NEP, "No enroll permit" },
-    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_NS, "Not supported" },
-    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_S, "Success" },
-    { ZBEE_ZCL_CSC_IAS_ZONE_C_ERC_TMZ, "Too many zones" },
-
-    { 0, NULL }
-};
-
-/* ZCL IAS Zone Server Commands */
-static const value_string zbee_zcl_ias_zone_server_cmd_names[] = {
-    { ZBEE_ZCL_CSC_IAS_ZONE_S_ZER, "Zone Enroll Request" },
-    { ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN, "Zone Status Change Notification" },
-
-    { 0, NULL }
-};
-
-/* ZCL Poll Control Client Commands */
-static const value_string zbee_zcl_poll_control_client_cmd_names[] = {
-    { ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR, "Check-in Response" },
-    { ZBEE_ZCL_CSC_POLL_CONTROL_C_FPS, "Fast Poll Stop" },
-    { ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI, "Set Long Poll Interval" },
-    { ZBEE_ZCL_CSC_POLL_CONTROL_C_SSPI, "Set Short Poll Interval" },
-
-    { 0, NULL }
-};
-
-/* ZCL Poll Control Server Commands */
-static const value_string zbee_zcl_poll_control_server_cmd_names[] = {
-    { ZBEE_ZCL_CSC_POLL_CONTROL_S_CI, "Check-in" },
-
-    { 0, NULL }
-};
-
-/* ZCL Thermostat Client Commands */
-static const value_string zbee_zcl_thermostat_client_cmd_names[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_CWS, "Clear Weekly Schedule" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_GWS, "Get Weekly Schedule" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SRL, "Setpoint Raise/Lower" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS, "Set Weekly Schedule" },
-
-    { 0, NULL }
-};
-
-/* ZCL Thermostat Client Setpoint Raise/Lower Mode Fields */
-static const value_string zbee_zcl_thermostat_client_setpointrl_mf[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B, "Both (adjust Heat Setpoint and Cool Setpoint)" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C, "Cool (adjust Cool Setpoint)" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H, "Heat (adjust Heat Setpoint)" },
-
-    { 0, NULL }
-};
-
-/* ZCL Thermostat Client Weekly Schedule Day of Week for Sequence */
-static const value_string zbee_zcl_thermostat_client_ws_dow[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_AV, "Away or Vacation" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_FR, "Friday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_MO, "Monday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_SA, "Saturday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_SU, "Sunday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_TH, "Thursday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_TU, "Tuesday" },
-    { ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_DOW_WE, "Wednesday" },
-
-    { 0, NULL }
-};
-
-/* ZCL Thermostat Server Commands */
-static const value_string zbee_zcl_thermostat_server_cmd_names[] = {
-    { ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR, "Get Weekly Schedule Response" },
-
-    { 0, NULL }
-};
-
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_zcl
@@ -833,7 +776,6 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *sub_tree = NULL;
 
     proto_item  *proto_root;
-    proto_item  *ti;
 
     zbee_nwk_packet *nwk;
     zbee_zcl_packet packet;
@@ -842,7 +784,6 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     guint8  fcf;
     guint   offset = 0;
-    guint   i;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -920,6 +861,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add command ID to the tree. */
     if ( packet.frame_type == ZBEE_ZCL_FCF_PROFILE_WIDE ) {
+        /* Profile-wide commands. */
         if ( tree ) {
             proto_item_append_text(proto_root, ", Command: %s, Seq: %u",
                 val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
@@ -934,340 +876,22 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cmd_id, tvb, offset, 1, packet.cmd_id);
         offset += 1;
     } else {
-        /* Cluster-specific. */
-        guint8 mode_for_sequence, number_of_transitions;
-
+        /* Cluster-specific commands. */
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         if (cluster_handle != NULL) {
             /* Call the specific cluster dissector registered. */
             call_dissector_with_data(cluster_handle, payload_tvb, pinfo, zcl_tree, &packet);
-            return tvb_length(tvb);
-        }
-        proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u", packet.cmd_id,
-            packet.tran_seqno);
-        switch (cluster_id) {
-            case ZBEE_ZCL_CID_IAS_ZONE:
-                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
-                    /* We have a client. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_ias_zone_client_cmd_names, "Unknown IAS Zone Client Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ias_zone_client_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_IAS_ZONE_C_ZER:
-                                /* Zone Enroll Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_client_zer_erc, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_client_zer_zone_id, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                break;
-                        }
-                    }
-                } else {
-                    /* We have a server. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_ias_zone_server_cmd_names, "Unknown IAS Zone Server Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ias_zone_server_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN:
-                                /* Zone Status Change Notification. */
-                                ti = proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_zone_status, tvb,
-                                    offset, 2, ENC_LITTLE_ENDIAN);
-                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ias_zone_server_scn_zone_status);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_alarm1, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_alarm2, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_tamper, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_battery, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_supervision_reports, tvb,
-                                    offset, 2, ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_restore_reports, tvb,
-                                    offset, 2, ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_trouble, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ias_zone_server_scn_ac_mains, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_ext_status, tvb, offset,
-                                    1, ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_zone_id, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_delay, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                break;
-                        }
-                    }
-                }
-                break;
-            case ZBEE_ZCL_CID_POLL_CONTROL:
-                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
-                    /* We have a client. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_poll_control_client_cmd_names, "Unknown Poll Control Client Command"),
-                        packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_poll_control_client_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR:
-                                /* Check-in Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_cir_sfp, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_cir_fpt, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                break;
-                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI:
-                                /* Set Long Poll Interval. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_slpi_nlpi, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                break;
-                            case ZBEE_ZCL_CSC_POLL_CONTROL_C_SSPI:
-                                /* Set Short Poll Interval. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_poll_control_client_sspi_nspi, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                break;
-                          }
-                    }
-                } else {
-                    /* We have a server. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_poll_control_server_cmd_names, "Unknown Poll Control Server Command"),
-                        packet.tran_seqno);
-                    proto_tree_add_uint(zcl_tree, hf_zbee_zcl_poll_control_server_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                    offset += 1;
-                    /*  switch (packet.cmd_id) {
-                        }
-                     */
-                }
-                break;
-            case ZBEE_ZCL_CID_THERMOSTAT:
-                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
-                    /* We have a client. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_thermostat_client_cmd_names, "Unknown Thermostat Client Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_client_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_THERMOSTAT_C_GWS:
-                                /* Get Weekly Schedule. */
-                                ti = proto_tree_add_uint_format(zcl_tree,
-                                    hf_zbee_zcl_thermostat_client_gws_days_to_return, tvb, offset, 1,
-                                    tvb_get_guint8(tvb, offset), "Days To Return");
-                                sub_tree = proto_item_add_subtree(ti,
-                                    ett_zbee_zcl_thermostat_client_gws_days_to_return);
-                                for (i = 0; i < 8; ++i) {
-                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
-                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_client_gws_days_to_return,
-                                            tvb, offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
-                                    }
-                                }
-                                offset += 1;
-                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_gws_mtr, tvb,
-                                    offset, 1, tvb_get_guint8(tvb, offset), "Mode To Return");
-                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_client_gws_mtr);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_thermostat_client_gws_mtr_heat, tvb, offset,
-                                    1, ENC_NA);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_thermostat_client_gws_mtr_cool, tvb, offset,
-                                    1, ENC_NA);
-                                offset += 1;
-                                break;
-                            case ZBEE_ZCL_CSC_THERMOSTAT_C_SRL:
-                                /* Setpoint Raise/Lower. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_thermostat_client_setpointrl_modes, tvb,
-                                    offset, 1, ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_thermostat_client_setpointrl_amount_field,
-                                    tvb, offset, 1, ENC_NA);
-                                offset += 1;
-                                break;
-                            case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS:
-                                {
-                                static const int * modes[] = {
-                                    &hf_zbee_zcl_thermostat_client_sws_mfs_heat,
-                                    &hf_zbee_zcl_thermostat_client_sws_mfs_cool,
-                                    NULL
-                                };
+            return tvb_captured_length(tvb);
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command: 0x%02x, Seq: %u", packet.cmd_id,
+                packet.tran_seqno);
 
-                                /* Set Weekly Schedule. */
-                                number_of_transitions = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_client_sws_n_trans, tvb, offset, 1,
-                                    number_of_transitions);
-                                offset += 1;
-                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_sws_dow, tvb,
-                                    offset, 1, tvb_get_guint8(tvb, offset), "Day of Week for Sequence");
-                                sub_tree = proto_item_add_subtree(ti,
-                                    ett_zbee_zcl_thermostat_client_sws_dow_for_sequence);
-                                for (i = 0; i < 8; ++i) {
-                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
-                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_client_sws_dow, tvb,
-                                            offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
-                                    }
-                                }
-                                offset += 1;
-                                mode_for_sequence = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_bitmask(zcl_tree, tvb, offset, hf_zbee_zcl_thermostat_client_sws_mfs, ett_zbee_zcl_thermostat_client_sws_mfs, modes, ENC_NA);
-                                offset += 1;
-                                for (i = 1; i <= number_of_transitions; ++i) {
-                                    switch (mode_for_sequence) {
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B:
-                                            /* Both Cool Set Point and Heat Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C:
-                                            /* Cool Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H:
-                                            /* Heat Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                    }
-                                }
-                                }
-                                break;
-                        }
-                    }
-                } else {
-                    /* We have a server. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_thermostat_server_cmd_names, "Unknown Thermostat Server Command"), packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_server_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR:
-                                {
-                                static const int * modes[] = {
-                                    &hf_zbee_zcl_thermostat_server_gwsr_mfs_heat,
-                                    &hf_zbee_zcl_thermostat_server_gwsr_mfs_cool,
-                                    NULL
-                                };
-
-                                /* Get Weekly Schedule Response. */
-                                number_of_transitions = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_n_trans, tvb, offset,
-                                    1, number_of_transitions);
-                                offset += 1;
-                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_dow, tvb,
-                                    offset, 1, tvb_get_guint8(tvb, offset), "Day of Week for Sequence");
-                                sub_tree = proto_item_add_subtree(ti,
-                                    ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence);
-                                for (i = 0; i < 8; ++i) {
-                                    if (tvb_get_guint8(tvb, offset) & (0x01 << i)) {
-                                        proto_tree_add_uint(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_dow, tvb,
-                                            offset, 1, tvb_get_guint8(tvb, offset) & (0x01 << i));
-                                    }
-                                }
-                                offset += 1;
-                                mode_for_sequence = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_bitmask(zcl_tree, tvb, offset, hf_zbee_zcl_thermostat_server_gwsr_mfs, ett_zbee_zcl_thermostat_server_gwsr_mfs, modes, ENC_NA);
-                                offset += 1;
-                                for (i = 1; i <= number_of_transitions; ++i) {
-                                    switch (mode_for_sequence) {
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_B:
-                                            /* Both Cool Set Point and Heat Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C:
-                                            /* Cool Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Cool Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                        case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H:
-                                            /* Heat Set Point. */
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Transition Time %d (minutes since midnight): %d", i,
-                                                tvb_get_letohs(tvb, offset));
-                                            offset += 2;
-                                            proto_tree_add_text(zcl_tree, tvb, offset, 2,
-                                                "Heat Set Point %d (with 0.01 C resolution): %d", i, tvb_get_letohs(tvb,
-                                                offset));
-                                            offset += 2;
-                                            break;
-                                    }
-                                }
-                                }
-                                break;
-                        }
-                    }
-                }
-                break;
-            default:
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command: 0x%02x, Seq: %u", packet.cmd_id,
-                    packet.tran_seqno);
-                if (zcl_tree) {
-                    proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, 1, packet.cmd_id);
-                    offset += 1;
-                }
-                break;
+            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, 1, packet.cmd_id);
+            offset += 1;
         }
         /* Don't decode the tail. */
         zcl_dump_data(tvb, offset, pinfo, zcl_tree);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     if ( zcl_tree ) {
@@ -1328,7 +952,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } /* switch */
     }
     zcl_dump_data(tvb, offset, pinfo, zcl_tree);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_zcl */
 
 /*FUNCTION:------------------------------------------------------
@@ -1350,7 +974,7 @@ void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     guint tvb_len;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len ) {
         /* Dissect the attribute identifier */
         dissect_zcl_attr_id(tvb, tree, offset, cluster_id);
@@ -1381,7 +1005,7 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint i = 0;
     guint16 attr_id;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1424,7 +1048,7 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     guint i = 0;
     guint16 attr_id;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1461,7 +1085,7 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1503,7 +1127,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
     guint attr_dir;
     guint16 attr_id;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1571,7 +1195,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     guint data_type;
     guint16 attr_id;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1636,7 +1260,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1677,7 +1301,7 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
     guint tvb_len;
     guint i = 0;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1712,21 +1336,21 @@ static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                                      guint *offset, guint16 cluster_id, guint8 dir)
 {
     zbee_zcl_cluster_desc *desc;
+    int hf_cmd_id = hf_zbee_zcl_cs_cmd_id;
 
-    /* Call the specific cluster function retrieves the command id */
+    /* Retreive the cluster-specific command ID definition, with the direction
+     * inverted, since this a response to the originating command. */
     desc = zbee_zcl_get_cluster_desc(cluster_id);
-    if ((desc != NULL) && (desc->fn_cmd_id != NULL)) {
-        desc->fn_cmd_id(tree, tvb, offset, dir);
+    if (dir == ZBEE_ZCL_FCF_TO_SERVER) {
+        if (desc && (desc->hf_cmd_tx_id >= 0)) hf_cmd_id = desc->hf_cmd_tx_id;
+    } else {
+        if (desc && (desc->hf_cmd_rx_id >= 0)) hf_cmd_id = desc->hf_cmd_rx_id;
     }
-    else {
-        proto_tree_add_item(tree, hf_zbee_zcl_cmd_id, tvb, *offset, 1, ENC_NA);
-    }
+    proto_tree_add_item(tree, hf_cmd_id, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Dissect the status */
     dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_status);
-
-    return;
 } /* dissect_zcl_default_resp */
 
 /*FUNCTION:------------------------------------------------------
@@ -1781,7 +1405,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     /* XXX - tree is never available!!!*/
     dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dis);
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
         /* Create subtree for attribute status field */
@@ -1816,16 +1440,14 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
 static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 cluster_id)
 {
     zbee_zcl_cluster_desc *desc;
+    int hf_attr_id = hf_zbee_zcl_attr_id;
 
+    /* Check if a cluster-specific attribute ID definition exists. */
     desc = zbee_zcl_get_cluster_desc(cluster_id);
-    if ((desc != NULL) && (desc->fn_attr_id != NULL)) {
-        desc->fn_attr_id(tree, tvb, offset);
-    }
-    else {
-        /* Add the identifier */
-        proto_tree_add_item(tree, hf_zbee_zcl_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-    }
+    if (desc && (desc->hf_attr_id >= 0)) hf_attr_id = desc->hf_attr_id;
 
+    /* Add the identifier. */
+    proto_tree_add_item(tree, hf_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 } /* dissect_zcl_attr_id */
 
@@ -2154,7 +1776,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
         case ZBEE_ZCL_DOUBLE_FLOAT:
             attr_double = tvb_get_letohieee_double(tvb, *offset);
 
-            proto_item_append_text(tree, ", Double: %lg", attr_double);
+            proto_item_append_text(tree, ", Double: %g", attr_double);
             proto_tree_add_item(tree, hf_zbee_zcl_attr_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
 
             *offset += 8;
@@ -2462,7 +2084,7 @@ dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elem
 static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *root   = proto_tree_get_root(tree);
-    guint       length = tvb_length_remaining(tvb, offset);
+    guint       length = tvb_captured_length_remaining(tvb, offset);
     tvbuff_t   *remainder;
 
     if (length > 0) {
@@ -2519,45 +2141,9 @@ void decode_zcl_time_in_minutes(gchar *s, guint16 value)
 void proto_register_zbee_zcl(void)
 {
     guint i, j;
-
     static const true_false_string tfs_client_server = {
         "To Client",
         "To Server"
-    };
-
-    static const true_false_string tfs_ac_mains = {
-        "AC/Mains fault",
-        "AC/Mains OK"
-    };
-
-    static const true_false_string tfs_alarmed_or_not = {
-        "Opened or alarmed",
-        "Closed or not alarmed"
-    };
-
-    static const true_false_string tfs_battery = {
-        "Low battery",
-        "Battery OK"
-    };
-
-    static const true_false_string tfs_reports_or_not = {
-        "Reports",
-        "Does not report"
-    };
-
-    static const true_false_string tfs_reports_restore = {
-        "Reports restore",
-        "Does not report restore"
-    };
-
-    static const true_false_string tfs_tampered_or_not = {
-        "Tampered",
-        "Not tampered"
-    };
-
-    static const true_false_string tfs_trouble_failure = {
-        "Trouble/Failure",
-        "OK"
     };
 
     static hf_register_info hf[] = {
@@ -2761,161 +2347,7 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_bag_elements_num,
             { "Elements Number",   "zbee_zcl.attr.bag.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_client_cmd_id,
-            { "Command", "zbee_zcl.ias_zone.client.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ias_zone_client_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_client_zer_erc,
-            { "Enroll response code", "zbee_zcl.ias_zone.client.zer.erc", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ias_zone_client_erc), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_client_zer_zone_id,
-            { "Zone ID", "zbee_zcl.ias_zone.client.zer.zone_id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_cmd_id,
-            { "Command", "zbee_zcl.ias_zone.server.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ias_zone_server_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_ac_mains,
-            { "AC (mains)", "zbee_zcl.ias_zone.server.scn.ac_mains", FT_BOOLEAN, 16, TFS(&tfs_ac_mains), 0x80, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_alarm1,
-            { "Alarm 1", "zbee_zcl.ias_zone.server.scn.alarm_1", FT_BOOLEAN, 16, TFS(&tfs_alarmed_or_not), 0x01, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_alarm2,
-            { "Alarm 2", "zbee_zcl.ias_zone.server.scn.alarm_2", FT_BOOLEAN, 16, TFS(&tfs_alarmed_or_not), 0x02, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_battery,
-            { "Battery", "zbee_zcl.ias_zone.server.scn.battery", FT_BOOLEAN, 16, TFS(&tfs_battery), 0x08, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_delay,
-            { "Delay (in quarterseconds)", "zbee_zcl.ias_zone.server.scn.delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_ext_status,
-            { "Extended Status", "zbee_zcl.ias_zone.server.scn.ext_status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_restore_reports,
-            { "Restore Reports", "zbee_zcl.ias_zone.server.scn.restore_reports", FT_BOOLEAN, 16,
-                TFS(&tfs_reports_restore), 0x20, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_supervision_reports,
-            { "Supervision Reports", "zbee_zcl.ias_zone.server.scn.supervision_reports", FT_BOOLEAN, 16,
-                TFS(&tfs_reports_or_not), 0x10, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_tamper,
-            { "Tamper", "zbee_zcl.ias_zone.server.scn.tamper", FT_BOOLEAN, 16, TFS(&tfs_tampered_or_not), 0x04, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_trouble,
-            { "Trouble", "zbee_zcl.ias_zone.server.scn.trouble", FT_BOOLEAN, 16, TFS(&tfs_trouble_failure), 0x40, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_zone_id,
-            { "Zone ID", "zbee_zcl.ias_zone.server.scn.zone_id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ias_zone_server_scn_zone_status,
-            { "Zone Status", "zbee_zcl.ias_zone.server.scn.zone_status", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_poll_control_client_cir_fpt,
-            { "Fast Poll Timeout (quarterseconds)", "zbee_zcl.poll_control.client.cir.fpt", FT_UINT16, BASE_DEC, NULL,
-                0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_poll_control_client_cir_sfp,
-            { "Start Fast Polling", "zbee_zcl.poll_control.client.cir.sfp", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x0,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_poll_control_client_cmd_id,
-            { "Command", "zbee_zcl.poll_control.client.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_poll_control_client_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_poll_control_client_slpi_nlpi,
-            { "New Long Poll Interval", "zbee_zcl.poll_control.client.slpi_nlpi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_poll_control_client_sspi_nspi,
-            { "New Short Poll Interval", "zbee_zcl.poll_control.client.sspi.nspi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_poll_control_server_cmd_id,
-            { "Command", "zbee_zcl.poll_control.server.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_poll_control_server_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_cmd_id,
-            { "Command", "zbee_zcl.thermostat.client.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_client_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_gws_days_to_return,
-            { "Days To Return", "zbee_zcl.thermostat.client.gws.days_to_return", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_gws_mtr,
-            { "Mode to Return", "zbee_zcl.thermostat.client.gws.mtr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_gws_mtr_cool,
-            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.gws.mtr.cool", FT_BOOLEAN, 8, NULL,
-                0x02, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_gws_mtr_heat,
-            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.gws.mtr.heat", FT_BOOLEAN, 8, NULL,
-                0x01, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_setpointrl_amount_field,
-            { "Amount Field: increased/decreased by (in steps of 0.1 C)",
-                "zbee_zcl.thermostat.client.sprl.amount_field", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_setpointrl_modes,
-            { "Mode Field", "zbee_zcl.thermostat.client.sprl.mode_field", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_client_setpointrl_mf), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_sws_dow,
-            { "Day of Week for Sequence", "zbee_zcl.thermostat.client.sws.dow", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_sws_mfs,
-            { "Mode for Sequence", "zbee_zcl.thermostat.client.sws.mfs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_sws_mfs_cool,
-            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.sws.mfs.cool", FT_BOOLEAN, 8, NULL,
-                0x02, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_sws_mfs_heat,
-            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.client.sws.mfs.heat", FT_BOOLEAN, 8, NULL,
-                0x01, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_client_sws_n_trans,
-            { "Number of Transitions for Sequence", "zbee_zcl.thermostat.client.sws.n_trans", FT_UINT8, BASE_HEX, NULL,
-                0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_cmd_id,
-            { "Command", "zbee_zcl.thermostat.server.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_server_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_gwsr_dow,
-            { "Day of Week for Sequence", "zbee_zcl.thermostat.server.gwsr.dow", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_thermostat_client_ws_dow), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_gwsr_mfs,
-            { "Mode for Sequence", "zbee_zcl.thermostat.server.gwsr.mfs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_gwsr_mfs_cool,
-            { "Cool Setpoint Field Present in Payload", "zbee_zcl.thermostat.server.gwsr.mfs_cool", FT_BOOLEAN, 8, NULL,
-                0x02, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_gwsr_mfs_heat,
-            { "Heat Setpoint Field Present in Payload", "zbee_zcl.thermostat.server.gwsr.mfs_heat", FT_BOOLEAN, 8, NULL,
-                0x01, NULL, HFILL }},
-
-        { &hf_zbee_zcl_thermostat_server_gwsr_n_trans,
-            { "Number of Transitions for Sequence", "zbee_zcl.thermostat.server.gwsr.n_trans", FT_UINT8, BASE_HEX, NULL,
-                0x0, NULL, HFILL }}
+                NULL, HFILL }}
     };
 
     /* ZCL subtrees */
@@ -2923,14 +2355,6 @@ void proto_register_zbee_zcl(void)
 
     ett[0] = &ett_zbee_zcl;
     ett[1] = &ett_zbee_zcl_fcf;
-    ett[2] = &ett_zbee_zcl_ias_zone_server_scn_zone_status;
-    ett[3] = &ett_zbee_zcl_thermostat_client_gws_days_to_return;
-    ett[4] = &ett_zbee_zcl_thermostat_client_gws_mtr;
-    ett[5] = &ett_zbee_zcl_thermostat_client_sws_dow_for_sequence;
-    ett[6] = &ett_zbee_zcl_thermostat_client_sws_mfs;
-    ett[7] = &ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence;
-    ett[8] = &ett_zbee_zcl_thermostat_server_gwsr_mfs;
-
     j = ZBEE_ZCL_NUM_INDIVIDUAL_ETT;
 
     /* initialize attribute subtree types */
@@ -2952,7 +2376,6 @@ void proto_register_zbee_zcl(void)
     /* Register the ZCL dissector and subdissector list. */
     zbee_zcl_dissector_table = register_dissector_table("zbee.zcl.cluster", "ZigBee ZCL Cluster ID", FT_UINT16, BASE_HEX);
     new_register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
-
 } /* proto_register_zbee_zcl */
 
 /*FUNCTION:------------------------------------------------------
@@ -2983,6 +2406,7 @@ void proto_reg_handoff_zbee_zcl(void)
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_TA,    zbee_zcl_handle);
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_HC,    zbee_zcl_handle);
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_SE,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_RS,    zbee_zcl_handle);
 
     dissector_add_uint("zbee.profile", ZBEE_PROFILE_C4_CL, zbee_zcl_handle);
 } /* proto_reg_handoff_zbee_zcl */
@@ -2997,15 +2421,16 @@ void proto_reg_handoff_zbee_zcl(void)
  *      proto            - dissector proto
  *      ett              - ett proto (not used at the moment)
  *      cluster_id       - cluster id
- *      fn_attr_id       - specific cluster attribute id decode function
+ *      hf_attr_id       - cluster-specific attribute ID field.
+ *      hf_cmd_rx_id     - cluster-specific client-to-server command ID field, or -1.
+ *      hf_cmd_tx_id     - cluster-specific server-to-client command ID field, or -1.
  *      fn_attr_data     - specific cluster attribute data decode function
- *      fn_cmd_id        - specific cluster command id decode function
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 void
-zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data, zbee_zcl_fn_cmd_id fn_cmd_id)
+zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, int hf_attr_id, int hf_cmd_rx_id, int hf_cmd_tx_id, zbee_zcl_fn_attr_data fn_attr_data)
 {
     zbee_zcl_cluster_desc *cluster_desc;
     cluster_desc  = g_new(zbee_zcl_cluster_desc, 1);
@@ -3013,9 +2438,10 @@ zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_
     cluster_desc->proto = find_protocol_by_id(proto);
     cluster_desc->name = proto_get_protocol_short_name(cluster_desc->proto);
     cluster_desc->cluster_id = cluster_id;
-    cluster_desc->fn_attr_id = fn_attr_id;
+    cluster_desc->hf_attr_id = hf_attr_id;
+    cluster_desc->hf_cmd_rx_id = hf_cmd_rx_id;
+    cluster_desc->hf_cmd_tx_id = hf_cmd_tx_id;
     cluster_desc->fn_attr_data = fn_attr_data;
-    cluster_desc->fn_cmd_id = fn_cmd_id;
     acluster_desc = g_list_append(acluster_desc, cluster_desc);
 
     cluster_desc->proto_id = proto;

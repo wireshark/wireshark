@@ -90,6 +90,7 @@ static int hf_zbee_aps_src = -1;
 static int hf_zbee_aps_counter = -1;
 static int hf_zbee_aps_fragmentation = -1;
 static int hf_zbee_aps_block_number = -1;
+static int hf_zbee_aps_block_ack = -1;
 static int hf_zbee_aps_block_ack1 = -1;
 static int hf_zbee_aps_block_ack2 = -1;
 static int hf_zbee_aps_block_ack3 = -1;
@@ -155,6 +156,7 @@ static int hf_zbee_aps_zdp_cluster = -1;
 
 /* Subtree indices for the ZigBee 2004 & earlier Application Framework. */
 static gint ett_zbee_apf = -1;
+static gint ett_zbee_aps_frag_ack = -1;
 
 /* Subtree indices for the ZigBee Test Profile #2. */
 static gint ett_zbee_aps_t2 = -1;
@@ -325,6 +327,7 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_TA,      ZBEE_PROFILE_TA,                "Telecom Automation" },
     { ZBEE_PROFILE_HC,      ZBEE_PROFILE_HC,                "Health Care" },
     { ZBEE_PROFILE_SE,      ZBEE_PROFILE_SE,                "Smart Energy" },
+    { ZBEE_PROFILE_RS,      ZBEE_PROFILE_RS,                "Retail Services" },
     { ZBEE_PROFILE_STD_MIN, ZBEE_PROFILE_STD_MAX,           "Unknown ZigBee Standard" },
 
     { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,                "Test Profile #2" },
@@ -336,7 +339,7 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_MFR_SPEC_ORG_MIN,    ZBEE_PROFILE_MFR_SPEC_ORG_MAX,
             "Unallocated Manufacturer-Specific" },
 
-    { ZBEE_PROFILE_IEEE_1451_5, ZBEE_PROFILE_IEEE_1451_5,   "IEEE_1451_5" },
+    { ZBEE_PROFILE_IEEE_1451_5,     ZBEE_PROFILE_IEEE_1451_5,       "IEEE_1451_5" },
 
     /* Manufacturer Allocations */
     { ZBEE_PROFILE_CIRRONET_0_MIN,  ZBEE_PROFILE_CIRRONET_0_MAX,    ZBEE_MFG_CIRRONET },
@@ -458,33 +461,41 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_4_NOKS_MIN,      ZBEE_PROFILE_4_NOKS_MAX,        ZBEE_MFG_4_NOKS },
     { ZBEE_PROFILE_PROFILE_SYS_MIN, ZBEE_PROFILE_PROFILE_SYS_MAX,   ZBEE_MFG_PROFILE_SYS },
     { ZBEE_PROFILE_FREESTYLE_MIN,   ZBEE_PROFILE_FREESTYLE_MAX,     ZBEE_MFG_FREESTYLE },
-    { ZBEE_PROFILE_REMOTE_MIN,      ZBEE_PROFILE_REMOTE_MAX,        ZBEE_MFG_REMOTE },
+    { ZBEE_PROFILE_REMOTE_MIN,      ZBEE_PROFILE_REMOTE_MAX,        ZBEE_MFG_REMOTE_TECH },
     { ZBEE_PROFILE_WAVECOM_MIN,     ZBEE_PROFILE_WAVECOM_MAX,       ZBEE_MFG_WAVECOM },
-    { ZBEE_PROFILE_ENERGY_OPT_MIN,  ZBEE_PROFILE_ENERGY_OPT_MAX,    ZBEE_MFG_ENERGY_OPT },
+    { ZBEE_PROFILE_ENERGY_OPT_MIN,  ZBEE_PROFILE_ENERGY_OPT_MAX,    ZBEE_MFG_GREEN_ENERGY },
     { ZBEE_PROFILE_GE_MIN,          ZBEE_PROFILE_GE_MAX,            ZBEE_MFG_GE },
     { ZBEE_PROFILE_MESHWORKS_MIN,   ZBEE_PROFILE_MESHWORKS_MAX,     ZBEE_MFG_MESHWORKS },
     { ZBEE_PROFILE_ELLIPS_MIN,      ZBEE_PROFILE_ELLIPS_MAX,        ZBEE_MFG_ELLIPS },
     { ZBEE_PROFILE_CEDO_MIN,        ZBEE_PROFILE_CEDO_MAX,          ZBEE_MFG_CEDO },
-    { ZBEE_PROFILE_A_D_MIN,         ZBEE_PROFILE_A_D_MAX,           ZBEE_MFG_A_D },
+    { ZBEE_PROFILE_A_D_MIN,         ZBEE_PROFILE_A_D_MAX,           ZBEE_MFG_A_AND_D },
     { ZBEE_PROFILE_CARRIER_MIN,     ZBEE_PROFILE_CARRIER_MAX,       ZBEE_MFG_CARRIER },
-    { ZBEE_PROFILE_PASSIVESYS_MIN,  ZBEE_PROFILE_PASSIVESYS_MAX,    ZBEE_MFG_PASSIVESYS },
-    { ZBEE_PROFILE_HOME_AUTO_MIN,   ZBEE_PROFILE_HOME_AUTO_MAX,     ZBEE_MFG_HOME_AUTO },
+    { ZBEE_PROFILE_PASSIVESYS_MIN,  ZBEE_PROFILE_PASSIVESYS_MAX,    ZBEE_MFG_PASSIVE },
     { ZBEE_PROFILE_SUNRISE_MIN,     ZBEE_PROFILE_SUNRISE_MAX,       ZBEE_MFG_SUNRISE },
-    { ZBEE_PROFILE_MEMTEC_MIN,      ZBEE_PROFILE_MEMTEC_MAX,        ZBEE_MFG_MEMTEC },
+    { ZBEE_PROFILE_MEMTEC_MIN,      ZBEE_PROFILE_MEMTEC_MAX,        ZBEE_MFG_MEMTECH },
     { ZBEE_PROFILE_BRITISH_GAS_MIN, ZBEE_PROFILE_BRITISH_GAS_MAX,   ZBEE_MFG_BRITISH_GAS },
     { ZBEE_PROFILE_SENTEC_MIN,      ZBEE_PROFILE_SENTEC_MAX,        ZBEE_MFG_SENTEC },
     { ZBEE_PROFILE_NAVETAS_MIN,     ZBEE_PROFILE_NAVETAS_MAX,       ZBEE_MFG_NAVETAS },
     { ZBEE_PROFILE_ENERNOC_MIN,     ZBEE_PROFILE_ENERNOC_MAX,       ZBEE_MFG_ENERNOC },
     { ZBEE_PROFILE_ELTAV_MIN,       ZBEE_PROFILE_ELTAV_MAX,         ZBEE_MFG_ELTAV },
     { ZBEE_PROFILE_XSTREAMHD_MIN,   ZBEE_PROFILE_XSTREAMHD_MAX,     ZBEE_MFG_XSTREAMHD },
-    { ZBEE_PROFILE_GREEN_MIN,       ZBEE_PROFILE_GREEN_MAX,         ZBEE_MFG_GREEN },
     { ZBEE_PROFILE_OMRON_MIN,       ZBEE_PROFILE_OMRON_MAX,         ZBEE_MFG_OMRON },
     { ZBEE_PROFILE_NEC_TOKIN_MIN,   ZBEE_PROFILE_NEC_TOKIN_MAX,     ZBEE_MFG_NEC_TOKIN },
     { ZBEE_PROFILE_PEEL_MIN,        ZBEE_PROFILE_PEEL_MAX,          ZBEE_MFG_PEEL },
     { ZBEE_PROFILE_ELECTROLUX_MIN,  ZBEE_PROFILE_ELECTROLUX_MAX,    ZBEE_MFG_ELECTROLUX },
     { ZBEE_PROFILE_SAMSUNG_MIN,     ZBEE_PROFILE_SAMSUNG_MAX,       ZBEE_MFG_SAMSUNG },
     { ZBEE_PROFILE_MAINSTREAM_MIN,  ZBEE_PROFILE_MAINSTREAM_MAX,    ZBEE_MFG_MAINSTREAM },
-
+    { ZBEE_PROFILE_DIGI_MIN,        ZBEE_PROFILE_DIGI_MAX,          ZBEE_MFG_DIGI },
+    { ZBEE_PROFILE_RADIOCRAFTS_MIN, ZBEE_PROFILE_RADIOCRAFTS_MAX,   ZBEE_MFG_RADIOCRAFTS },
+    { ZBEE_PROFILE_SCHNEIDER2_MIN,  ZBEE_PROFILE_SCHNEIDER2_MAX,    ZBEE_MFG_SCHNEIDER },
+    { ZBEE_PROFILE_HUAWEI_MIN,      ZBEE_PROFILE_HUAWEI_MAX,        ZBEE_MFG_HUAWEI },
+    { ZBEE_PROFILE_BGLOBAL_MIN,     ZBEE_PROFILE_BGLOBAL_MAX,       ZBEE_MFG_BGLOBAL },
+    { ZBEE_PROFILE_ABB_MIN,         ZBEE_PROFILE_ABB_MAX,           ZBEE_MFG_ABB },
+    { ZBEE_PROFILE_GENUS_MIN,       ZBEE_PROFILE_GENUS_MAX,         ZBEE_MFG_GENUS },
+    { ZBEE_PROFILE_UBISYS_MIN,      ZBEE_PROFILE_UBISYS_MAX,        ZBEE_MFG_UBISYS },
+    { ZBEE_PROFILE_CRESTRON_MIN,    ZBEE_PROFILE_CRESTRON_MAX,      ZBEE_MFG_CRESTRON },
+    { ZBEE_PROFILE_AAC_TECH_MIN,    ZBEE_PROFILE_AAC_TECH_MAX,      ZBEE_MFG_AAC_TECH },
+    { ZBEE_PROFILE_STEELCASE_MIN,   ZBEE_PROFILE_STEELCASE_MAX,     ZBEE_MFG_STEELCASE },
     { 0, 0, NULL }
 };
 
@@ -499,8 +510,8 @@ const range_string zbee_aps_apid_abbrs[] = {
     { ZBEE_PROFILE_TA,      ZBEE_PROFILE_TA,        "TA" },
     { ZBEE_PROFILE_HC,      ZBEE_PROFILE_HC,        "HC" },
     { ZBEE_PROFILE_SE,      ZBEE_PROFILE_SE,        "SE" },
+    { ZBEE_PROFILE_RS,      ZBEE_PROFILE_RS,        "RS" },
     { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,        "T2" },
-
     /* Manufacturer Allocations */
     { ZBEE_PROFILE_C4_MIN,  ZBEE_PROFILE_C4_MAX,    "C4" },
 
@@ -592,13 +603,21 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_REG,     "BACnet Multistage Value (Regular)"},
     { ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_EXT,     "BACnet Multistage Value (Extended)"},
 
-/* Smart Energy */
+/* ZCL Cluster IDs - Smart Energy */
     { ZBEE_ZCL_CID_PRICE,                           "Price"},
     { ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,    "Demand Response and Load Control"},
     { ZBEE_ZCL_CID_SIMPLE_METERING,                 "Simple Metering"},
     { ZBEE_ZCL_CID_MESSAGE,                         "Message"},
-    { ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING,          "Smart Energy Tunneling"},
+    { ZBEE_ZCL_CID_TUNNELING,                       "Tunneling"},
     { ZBEE_ZCL_CID_PRE_PAYMENT,                     "Pre-Payment"},
+    { ZBEE_ZCL_CID_ENERGY_MANAGEMENT,               "Energy Management"},
+    { ZBEE_ZCL_CID_CALENDAR,                        "Calendar"},
+    { ZBEE_ZCL_CID_DEVICE_MANAGEMENT,               "Device Management"},
+    { ZBEE_ZCL_CID_EVENTS,                          "Events"},
+    { ZBEE_ZCL_CID_MDU_PAIRING,                     "MDU Pairing"},
+
+/* ZCL Cluster IDs - Key Establishment */
+    { ZBEE_ZCL_CID_KE,                              "Key Establishment"},
 
 /* ZCL Cluster IDs - Home Automation */
     {ZBEE_ZCL_CID_APPLIANCE_IDENTIFICATION,         "Appliance Identification"},
@@ -640,6 +659,16 @@ const value_string zbee_aps_t2_btres_status_names[] = {
     { 0, NULL }
 };
 
+/* APS Fragmented Block Acknowledgements */
+#define ZBEE_APS_FRAG_BLOCK1_ACK    0x01
+#define ZBEE_APS_FRAG_BLOCK2_ACK    0x02
+#define ZBEE_APS_FRAG_BLOCK3_ACK    0x04
+#define ZBEE_APS_FRAG_BLOCK4_ACK    0x08
+#define ZBEE_APS_FRAG_BLOCK5_ACK    0x10
+#define ZBEE_APS_FRAG_BLOCK6_ACK    0x20
+#define ZBEE_APS_FRAG_BLOCK7_ACK    0x40
+#define ZBEE_APS_FRAG_BLOCK8_ACK    0x80
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_aps
@@ -657,17 +686,30 @@ static int
 dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tvbuff_t            *payload_tvb = NULL;
-    dissector_handle_t  profile_handle = NULL;
+    dissector_handle_t   profile_handle = NULL;
+    dissector_handle_t   zcl_handle = NULL;
 
-    proto_tree      *aps_tree;
-    proto_tree      *field_tree;
-    proto_item      *proto_root;
+    proto_tree          *aps_tree;
+    proto_tree          *field_tree;
+    proto_item          *proto_root;
 
-    zbee_aps_packet packet;
-    zbee_nwk_packet *nwk;
+    zbee_aps_packet      packet;
+    zbee_nwk_packet     *nwk;
 
-    guint8          fcf;
-    guint8          offset = 0;
+    guint8               fcf;
+    guint8               offset = 0;
+
+    static const int   * frag_ack_flags[] = {
+        &hf_zbee_aps_block_ack1,
+        &hf_zbee_aps_block_ack2,
+        &hf_zbee_aps_block_ack3,
+        &hf_zbee_aps_block_ack4,
+        &hf_zbee_aps_block_ack5,
+        &hf_zbee_aps_block_ack6,
+        &hf_zbee_aps_block_ack7,
+        &hf_zbee_aps_block_ack8,
+        NULL
+    };
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -678,7 +720,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     memset(&packet, 0, sizeof(zbee_aps_packet));
 
     /*  Create the protocol tree */
-    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_aps, tvb, offset, tvb_length(tvb), "ZigBee Application Support Layer");
+    proto_root = proto_tree_add_protocol_format(tree, proto_zbee_aps, tvb, offset, tvb_captured_length(tvb), "ZigBee Application Support Layer");
     aps_tree = proto_item_add_subtree(proto_root, ett_zbee_aps);
 
     /* Set the protocol column, if the NWK layer hasn't already done so. */
@@ -782,7 +824,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     else {
         /* Illegal Delivery Mode. */
         expert_add_info(pinfo, proto_root, &ei_zbee_aps_invalid_delivery_mode);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
 
     }
 
@@ -890,29 +932,9 @@ dissect_zbee_aps_no_endpt:
             offset += 1;
         }
 
-        /* If fragmentation is enabled, and this is an acknowledgement,
-         * get and display the ack bitfield.
-         */
+        /* If fragmentation is enabled, and this is an acknowledgement, get and display the ack bitfield. */
         if ((packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE) && (packet.type == ZBEE_APS_FCF_ACK)) {
-            packet.ack_bitfield = tvb_get_guint8(tvb, offset);
-            if (tree) {
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack1, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number, (packet.ack_bitfield & 0x01)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack2, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+1, (packet.ack_bitfield & 0x02)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack3, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+2, (packet.ack_bitfield & 0x04)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack4, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+3, (packet.ack_bitfield & 0x08)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack5, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+4, (packet.ack_bitfield & 0x10)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack6, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+5, (packet.ack_bitfield & 0x20)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack7, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+6, (packet.ack_bitfield & 0x40)?"Acknowledged":"Not Acknowledged");
-                proto_tree_add_uint_format_value(field_tree, hf_zbee_aps_block_ack8, tvb, offset, 1,
-                    packet.ack_bitfield, " (%d) %s", packet.block_number+7, (packet.ack_bitfield & 0x80)?"Acknowledged":"Not Acknowledged");
-            }
+            proto_tree_add_bitmask(field_tree, tvb, offset, hf_zbee_aps_block_ack, ett_zbee_aps_frag_ack, frag_ack_flags, ENC_NA);
             offset += 1;
         }
     }
@@ -924,15 +946,15 @@ dissect_zbee_aps_no_endpt:
     }
 
     /* If a payload is present, and security is enabled, decrypt the payload. */
-    if ((offset < tvb_length(tvb)) && packet.security) {
+    if ((offset < tvb_captured_length(tvb)) && packet.security) {
         payload_tvb = dissect_zbee_secure(tvb, pinfo, aps_tree, offset);
         if (payload_tvb == NULL) {
             /* If Payload_tvb is NULL, then the security dissector cleaned up. */
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
     /* If the payload exists, create a tvb subset. */
-    else if (offset < tvb_length(tvb)) {
+    else if (offset < tvb_captured_length(tvb)) {
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
     }
 
@@ -940,6 +962,7 @@ dissect_zbee_aps_no_endpt:
     if ((payload_tvb) && (packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE)) {
         guint32         msg_id;
         guint32         block_num;
+        guint32         num_blocks = -1;
         fragment_head   *frag_msg = NULL;
         tvbuff_t        *new_tvb;
 
@@ -957,7 +980,7 @@ dissect_zbee_aps_no_endpt:
          * the block number is the block being sent.
          */
         if (packet.fragmentation == ZBEE_APS_EXT_FCF_FRAGMENT_FIRST) {
-            fragment_set_tot_len(&zbee_aps_reassembly_table, pinfo, msg_id, NULL, packet.block_number);
+            num_blocks = packet.block_number - 1;
             block_num = 0;  /* first packet. */
         }
         else {
@@ -967,14 +990,14 @@ dissect_zbee_aps_no_endpt:
         /* Add this fragment to the reassembly handler. */
         frag_msg = fragment_add_seq_check(&zbee_aps_reassembly_table,
                 payload_tvb, 0, pinfo, msg_id, NULL,
-                block_num, tvb_length(payload_tvb), TRUE);
+                block_num, tvb_captured_length(payload_tvb), TRUE);
+
+        if (num_blocks > 0) {
+            fragment_set_tot_len(&zbee_aps_reassembly_table, pinfo, msg_id, NULL, num_blocks);
+        }
 
         new_tvb = process_reassembled_data(payload_tvb, 0, pinfo, "Reassembled ZigBee APS" ,
                 frag_msg, &zbee_aps_frag_items, NULL, aps_tree);
-
-        /* Update the info column regarding the fragmentation. */
-        if (frag_msg)   col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-        else            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", packet.counter);
 
         if (new_tvb) {
             /* The reassembly handler defragmented the message, and created a new tvbuff. */
@@ -982,8 +1005,9 @@ dissect_zbee_aps_no_endpt:
         }
         else {
             /* The reassembly handler could not defragment the message. */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (fragment %d)", block_num);
             call_dissector(data_handle, payload_tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
 
@@ -1002,21 +1026,26 @@ dissect_zbee_aps_no_endpt:
                 profile_handle = zbee_apf_handle;
             }
             else if (profile_handle == NULL) {
-                /* Could not locate a profile dissector. */
+                /* Could not locate a profile dissector, but there may
+                   be profile-wide commands so try to dissect them */
+                zcl_handle = find_dissector(ZBEE_PROTOABBREV_ZCL);
+                if (zcl_handle) {
+                    call_dissector_with_data(zcl_handle, payload_tvb, pinfo, tree, nwk);
+                }
                 break;
             }
             call_dissector_with_data(profile_handle, payload_tvb, pinfo, tree, nwk);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
         case ZBEE_APS_FCF_CMD:
             if (!payload_tvb) {
                 /* Command packets MUST contain a payload. */
                 expert_add_info(pinfo, proto_root, &ei_zbee_aps_missing_payload);
                 THROW(BoundsError);
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
             dissect_zbee_aps_cmd(payload_tvb, pinfo, aps_tree, nwk->version, data);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
         case ZBEE_APS_FCF_ACK:
             /* Acks should never contain a payload. */
@@ -1039,7 +1068,7 @@ dissect_zbee_aps_no_endpt:
         call_dissector(data_handle, payload_tvb, pinfo, tree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------
@@ -1135,7 +1164,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     } /* switch */
 
     /* Check for any excess bytes. */
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         /* There are leftover bytes! */
         proto_tree  *root;
         tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
@@ -1592,7 +1621,7 @@ dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     tunnel_tvb = tvb_new_subset_remaining(tvb, offset);
     root = proto_tree_get_root(tree);
     call_dissector_with_data(zbee_aps_handle, tunnel_tvb, pinfo, root, data);
-    offset = tvb_length(tvb);
+    offset = tvb_captured_length(tvb);
 
     /* Done */
     return offset;
@@ -1632,7 +1661,7 @@ static int dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Create the tree for the application framework. */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_apf, tvb, 0,
-            tvb_length(tvb), "ZigBee Application Framework");
+            tvb_captured_length(tvb), "ZigBee Application Framework");
     apf_tree = proto_item_add_subtree(proto_root, ett_zbee_apf);
 
     /* Get the count and type. */
@@ -1664,13 +1693,13 @@ static int dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 dissect_app_end:
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         /* There are bytes remaining! */
         app_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, app_tvb, pinfo, tree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_apf */
 
 /*FUNCTION:------------------------------------------------------
@@ -1881,37 +1910,41 @@ void proto_register_zbee_aps(void)
             { "Block Number",           "zbee_aps.block", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "A block identifier within a fragmented transmission, or the number of expected blocks if the first block.", HFILL }},
 
+            { &hf_zbee_aps_block_ack,
+            { "Block Acknowledgements", "zbee_aps.block_acks", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+
             { &hf_zbee_aps_block_ack1,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x01,
-                NULL, HFILL }},
+            { "Block 1", "zbee_aps.block1_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK1_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack2,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x02,
-                NULL, HFILL }},
+            { "Block 2", "zbee_aps.block2_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK2_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack3,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x04,
-                NULL, HFILL }},
+            { "Block 3", "zbee_aps.block3_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK3_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack4,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x08,
-                NULL, HFILL }},
+            { "Block 4", "zbee_aps.block4_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK4_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack5,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x10,
-                NULL, HFILL }},
+            { "Block 5", "zbee_aps.block5_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK5_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack6,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x20,
-                NULL, HFILL }},
+            { "Block 6", "zbee_aps.block6_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK6_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack7,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x40,
-                NULL, HFILL }},
+            { "Block 7", "zbee_aps.block7_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK7_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_block_ack8,
-            { "Block",           "zbee_aps.block_ack", FT_BOOLEAN, 8, NULL, 0x80,
-                NULL, HFILL }},
+            { "Block 8", "zbee_aps.block8_ack", FT_BOOLEAN, 8, TFS(&tfs_acknowledged_not_acknowledged),
+                ZBEE_APS_FRAG_BLOCK8_ACK, NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_id,
             { "Command Identifier",     "zbee_aps.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_aps_cmd_names), 0x0,
@@ -2067,7 +2100,8 @@ void proto_register_zbee_aps(void)
         &ett_zbee_aps_cmd,
         &ett_zbee_aps_fragment,
         &ett_zbee_aps_fragments,
-        &ett_zbee_aps_t2
+        &ett_zbee_aps_t2,
+        &ett_zbee_aps_frag_ack
     };
 
     static gint *ett_apf[] = {

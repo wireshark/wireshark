@@ -430,6 +430,8 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-wps.c") && (index($_[0], "eap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-wsp.c") && (index($_[0], "wap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-xot.c") && (index($_[0], "x25") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-zbee-zcl-misc.c") && (index($_[0], "zbee_zcl_hvac") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-zbee-zcl-misc.c") && (index($_[0], "zbee_zcl_ias") >= 0)) {return 1;}
 
 	#Understand why, but I think it could be prefixed with "dissector"
 	#prefix (which isn't necessarily "protocol")

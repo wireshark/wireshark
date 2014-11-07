@@ -649,7 +649,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * Ensure that the payload exists. There are no valid ZigBee network
      * packets that have no payload.
      */
-    if (offset >= tvb_length(tvb)) {
+    if (offset >= tvb_captured_length(tvb)) {
         /* Non-existent or truncated payload. */
         expert_add_info(pinfo, proto_root, &ei_zbee_nwk_missing_payload);
         THROW(BoundsError);
@@ -659,7 +659,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         payload_tvb = dissect_zbee_secure(tvb, pinfo, nwk_tree, offset);
         if (payload_tvb == NULL) {
             /* If Payload_tvb is NULL, then the security dissector cleaned up. */
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
     /* Plaintext payload. */
@@ -680,7 +680,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         call_dissector(data_handle, payload_tvb, pinfo, tree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_nwk */
 
 /*FUNCTION:------------------------------------------------------
@@ -807,7 +807,7 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     } /* switch */
 
     /* There is excess data in the packet. */
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         /* There are leftover bytes! */
         tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root           = NULL;
@@ -1488,7 +1488,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset += 3;
 
             /* Get and display the update ID. */
-            if(tvb_length_remaining(tvb, offset)) {
+            if(tvb_captured_length_remaining(tvb, offset)) {
                 proto_tree_add_item(beacon_tree, hf_zbee_beacon_update_id, tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
@@ -1504,7 +1504,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     /* Check for leftover bytes. */
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         /* Bytes leftover! */
         tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root           = NULL;
@@ -1519,7 +1519,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         call_dissector(data_handle, leftover_tvb, pinfo, root);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_beacon */
 
 /*FUNCTION:------------------------------------------------------
@@ -1612,7 +1612,7 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset += 16;
 
     /* Check for leftover bytes. */
-    if (offset < tvb_length(tvb)) {
+    if (offset < tvb_captured_length(tvb)) {
         /* TODO: There are TLV's to parse. */
         /* Bytes leftover! */
         tvbuff_t    *leftover_tvb   = tvb_new_subset_remaining(tvb, offset);
@@ -1627,7 +1627,7 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* Dump the leftover to the data dissector. */
         call_dissector(data_handle, leftover_tvb, pinfo, root);
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 } /* dissect_zbip_beacon */
 
 /*FUNCTION:------------------------------------------------------
@@ -1973,7 +1973,7 @@ void proto_register_zbee_nwk(void)
     register_init_routine(proto_init_zbee_nwk);
 
     /* Register the protocol with Wireshark. */
-    proto_zbee_nwk = proto_register_protocol("ZigBee Network Layer", "ZigBee NWK", ZBEE_PROTOABBREV_NWK);
+    proto_zbee_nwk = proto_register_protocol("ZigBee Network Layer", "ZigBee", ZBEE_PROTOABBREV_NWK);
     proto_zbee_beacon = proto_register_protocol("ZigBee Beacon", "ZigBee Beacon", "zbee_beacon");
     proto_zbip_beacon = proto_register_protocol("ZigBee IP Beacon", "ZigBee IP Beacon", "zbip_beacon");
     proto_register_field_array(proto_zbee_nwk, hf, array_length(hf));

@@ -80,7 +80,6 @@ void proto_register_zbee_zcl_illum_meas(void);
 void proto_reg_handoff_zbee_zcl_illum_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_illum_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_illum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -147,27 +146,6 @@ dissect_zbee_zcl_illum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      dissect_zcl_illum_meas_attr_id
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes identifier.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-dissect_zcl_illum_meas_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
-{
-    proto_tree_add_item(tree, hf_zbee_zcl_illum_meas_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-} /*dissect_zcl_illum_meas_attr_id*/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
  *      dissect_zcl_illum_meas_attr_data
  *  DESCRIPTION
  *      this function is called by ZCL foundation dissector in order to decode
@@ -217,7 +195,6 @@ dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
     }
-
 } /*dissect_zcl_illum_meas_attr_data*/
 
 /*FUNCTION:------------------------------------------------------
@@ -386,9 +363,9 @@ proto_reg_handoff_zbee_zcl_illum_meas(void)
     zbee_zcl_init_cluster(  proto_zbee_zcl_illum_meas,
                             ett_zbee_zcl_illum_meas,
                             ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT,
-                            (zbee_zcl_fn_attr_id)dissect_zcl_illum_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_illum_meas_attr_data,
-                            NULL
+                            hf_zbee_zcl_illum_meas_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_illum_meas_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_illum_meas*/
 
@@ -433,7 +410,6 @@ void proto_register_zbee_zcl_temp_meas(void);
 void proto_reg_handoff_zbee_zcl_temp_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_temp_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_temp_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -489,27 +465,6 @@ dissect_zbee_zcl_temp_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
     return;
 } /*dissect_zbee_zcl_temp_meas*/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_temp_meas_attr_id
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes identifier.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-dissect_zcl_temp_meas_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
-{
-    proto_tree_add_item(tree, hf_zbee_zcl_temp_meas_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-} /*dissect_zcl_temp_meas_attr_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -698,9 +653,7 @@ proto_register_zbee_zcl_temp_meas(void)
 
     /* Register the ZigBee ZCL Temperature Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
-
 } /*proto_register_zbee_zcl_temp_meas*/
-
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -719,9 +672,9 @@ proto_reg_handoff_zbee_zcl_temp_meas(void)
     zbee_zcl_init_cluster(  proto_zbee_zcl_temp_meas,
                             ett_zbee_zcl_temp_meas,
                             ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT,
-                            (zbee_zcl_fn_attr_id)dissect_zcl_temp_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_temp_meas_attr_data,
-                            NULL
+                            hf_zbee_zcl_temp_meas_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_temp_meas_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_temp_meas*/
 
@@ -774,7 +727,6 @@ void proto_register_zbee_zcl_press_meas(void);
 void proto_reg_handoff_zbee_zcl_press_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_press_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_press_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -840,27 +792,6 @@ dissect_zbee_zcl_press_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 {
     return;
 } /*dissect_zbee_zcl_press_meas*/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_press_meas_attr_id
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes identifier.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-dissect_zcl_press_meas_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
-{
-    proto_tree_add_item(tree, hf_zbee_zcl_press_meas_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-} /*dissect_zcl_press_meas_attr_id*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -933,9 +864,7 @@ dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
     }
-
 } /*dissect_zcl_press_meas_attr_data*/
-
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1096,9 +1025,7 @@ proto_register_zbee_zcl_press_meas(void)
 
     /* Register the ZigBee ZCL Pressure Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
-
 } /*proto_register_zbee_zcl_press_meas*/
-
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1117,9 +1044,9 @@ proto_reg_handoff_zbee_zcl_press_meas(void)
     zbee_zcl_init_cluster(  proto_zbee_zcl_press_meas,
                             ett_zbee_zcl_press_meas,
                             ZBEE_ZCL_CID_PRESSURE_MEASUREMENT,
-                            (zbee_zcl_fn_attr_id)dissect_zcl_press_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_press_meas_attr_data,
-                            NULL
+                            hf_zbee_zcl_press_meas_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_press_meas_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_press_meas*/
 
@@ -1165,7 +1092,6 @@ void proto_register_zbee_zcl_relhum_meas(void);
 void proto_reg_handoff_zbee_zcl_relhum_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_relhum_meas_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset);
 static void dissect_zcl_relhum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
 /* Private functions prototype */
@@ -1224,27 +1150,6 @@ dissect_zbee_zcl_relhum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      dissect_zcl_relhum_meas_attr_id
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes identifier.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-dissect_zcl_relhum_meas_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
-{
-    proto_tree_add_item(tree, hf_zbee_zcl_relhum_meas_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-} /*dissect_zcl_relhum_meas_attr_id*/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
  *      dissect_zcl_relhum_meas_attr_data
  *  DESCRIPTION
  *      this function is called by ZCL foundation dissector in order to decode
@@ -1289,9 +1194,7 @@ dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
     }
-
 } /*dissect_zcl_relhum_meas_attr_data*/
-
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1430,7 +1333,6 @@ proto_register_zbee_zcl_relhum_meas(void)
 
     /* Register the ZigBee ZCL Relative Humidity Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
-
 } /*proto_register_zbee_zcl_relhum_meas*/
 
 
@@ -1451,9 +1353,9 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
     zbee_zcl_init_cluster(  proto_zbee_zcl_relhum_meas,
                             ett_zbee_zcl_relhum_meas,
                             ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,
-                            (zbee_zcl_fn_attr_id)dissect_zcl_relhum_meas_attr_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_relhum_meas_attr_data,
-                            NULL
+                            hf_zbee_zcl_relhum_meas_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_relhum_meas_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_relhum_meas*/
 
