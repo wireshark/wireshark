@@ -1323,17 +1323,20 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
 
-    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, (guint32)strlen(name));
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, name_len > 1 ?  (guint32)strlen(name) : 0);
     PROTO_ITEM_SET_GENERATED(tq);
 
     /* Count how many '.' are in the string, plus 1, in order to count the number
        of labels */
     labels = 0;
-    for (i = 0; i < strlen(name); i++) {
-      if (name[i] == '.')
-        labels++;
+    if (name_len > 1) {
+     /* it was not a Zero-length name */
+      for (i = 0; i < strlen(name); i++) {
+        if (name[i] == '.')
+          labels++;
+      }
+      labels++;
     }
-    labels++;
     tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, name_len, labels);
     PROTO_ITEM_SET_GENERATED(tq);
 
