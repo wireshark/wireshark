@@ -32,8 +32,7 @@
 #include <epan/in_cksum.h>
 #include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
-
-#include "packet-pim.h"
+#include "packet-igmp.h"
 
 void proto_register_pim(void);
 void proto_reg_handoff_pim(void);
@@ -266,8 +265,7 @@ static const value_string pimv1_modevals[] = {
 
 /* This function is only called from the IGMP dissector */
 int
-dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-              int offset) {
+dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     guint8 pim_type;
     guint8 pim_ver;
     guint length, pim_length;
@@ -276,14 +274,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-
-    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_pim))) {
-        /*
-         * We are not enabled; skip entire packet to be nice to the
-         * IGMP layer (so clicking on IGMP will display the data).
-         */
-        return offset+tvb_reported_length_remaining(tvb, offset);
-    }
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -370,7 +361,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, NULL, "PIM options");
     } else
-        goto done;
+        return offset;
 
     /* version 1 decoder */
     switch (pim_type) {
@@ -582,9 +573,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         break;
     }
-done:;
 
-    return offset+tvb_reported_length_remaining(tvb, offset);
+    return tvb_reported_length(tvb);
 }
 
 static gboolean
@@ -1746,10 +1736,13 @@ proto_register_pim(void)
 void
 proto_reg_handoff_pim(void)
 {
-    dissector_handle_t pim_handle;
+    dissector_handle_t pim_handle, pimv1_handle;
 
     pim_handle = create_dissector_handle(dissect_pim, proto_pim);
     dissector_add_uint("ip.proto", IP_PROTO_PIM, pim_handle);
+
+    pimv1_handle = new_create_dissector_handle(dissect_pimv1, proto_pim);
+    dissector_add_uint("igmp.type", IGMP_V1_PIM_ROUTING_MESSAGE, pimv1_handle);
 
     /*
      * Get handles for the IPv4 and IPv6 dissectors.

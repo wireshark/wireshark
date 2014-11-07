@@ -25,9 +25,6 @@
  Based on RFC3488
 
  This is a setup for RGMP dissection, a simple protocol bolted on IGMP.
- The trick is to have IGMP dissector call this function (which by itself is not
- registered as dissector). IGAP and other do the same.
-
  */
 
 #include "config.h"
@@ -36,7 +33,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "packet-igmp.h"
-#include "packet-rgmp.h"
 
 void proto_register_rgmp(void);
 
@@ -48,6 +44,8 @@ static int hf_maddr        = -1;
 
 static int ett_rgmp = -1;
 
+#define MC_RGMP			0xe0000019
+
 static const value_string rgmp_types[] = {
     {IGMP_RGMP_LEAVE, "Leave"},
     {IGMP_RGMP_JOIN,  "Join"},
@@ -58,24 +56,23 @@ static const value_string rgmp_types[] = {
 
 /* This function is only called from the IGMP dissector */
 int
-dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_tree *tree;
     proto_item *item;
     guint8 type;
+    int offset = 0;
+    guint32 dst = g_htonl(MC_RGMP);
 
-    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_rgmp))) {
-        /* we are not enabled, skip entire packet to be nice
-           to the igmp layer. (so clicking on IGMP will display the data)
-        */
-        return offset + tvb_length_remaining(tvb, offset);
-    }
-
-    item = proto_tree_add_item(parent_tree, proto_rgmp, tvb, offset, -1, ENC_NA);
-    tree = proto_item_add_subtree(item, ett_rgmp);
+    /* Shouldn't be destined for us */
+    if (memcmp(pinfo->dst.data, &dst, 4))
+        return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RGMP");
     col_clear(pinfo->cinfo, COL_INFO);
+
+    item = proto_tree_add_item(parent_tree, proto_rgmp, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_rgmp);
 
     type = tvb_get_guint8(tvb, offset);
     col_add_str(pinfo->cinfo, COL_INFO,
@@ -126,10 +123,23 @@ proto_register_rgmp(void)
         &ett_rgmp
     };
 
-    proto_rgmp = proto_register_protocol
-        ("Router-port Group Management Protocol", "RGMP", "rgmp");
+    proto_rgmp = proto_register_protocol("Router-port Group Management Protocol", "RGMP", "rgmp");
     proto_register_field_array(proto_rgmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    new_register_dissector("rgmp", dissect_rgmp, proto_rgmp);
+}
+
+void
+proto_reg_handoff_rgmp(void)
+{
+    dissector_handle_t rgmp_handle;
+
+    rgmp_handle = new_create_dissector_handle(dissect_rgmp, proto_rgmp);
+    dissector_add_uint("igmp.type", IGMP_RGMP_HELLO, rgmp_handle);
+    dissector_add_uint("igmp.type", IGMP_RGMP_BYE, rgmp_handle);
+    dissector_add_uint("igmp.type", IGMP_RGMP_JOIN, rgmp_handle);
+    dissector_add_uint("igmp.type", IGMP_RGMP_LEAVE, rgmp_handle);
 }
 
 /*

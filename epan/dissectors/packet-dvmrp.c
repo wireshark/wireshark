@@ -57,7 +57,6 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include "packet-igmp.h"
-#include "packet-dvmrp.h"
 
 void proto_register_dvmrp(void);
 
@@ -678,25 +677,17 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 
 /* This function is only called from the IGMP dissector */
 int
-dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_tree *tree;
 	proto_item *item;
-
-	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_dvmrp))) {
-		/* we are not enabled, skip entire packet to be nice
-		   to the igmp layer. (so clicking on IGMP will display the data)
-		 */
-		return offset+tvb_length_remaining(tvb, offset);
-	}
-
-	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, ENC_NA);
-	tree = proto_item_add_subtree(item, ett_dvmrp);
-
+	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVMRP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_dvmrp);
 
 	if ((tvb_length_remaining(tvb, offset)>=8)
 	 && (((tvb_get_guint8(tvb, 6)==0xff)
@@ -892,8 +883,7 @@ proto_register_dvmrp(void)
 	};
 	module_t *module_dvmrp;
 
-	proto_dvmrp = proto_register_protocol("Distance Vector Multicast Routing Protocol",
-	    "DVMRP", "dvmrp");
+	proto_dvmrp = proto_register_protocol("Distance Vector Multicast Routing Protocol", "DVMRP", "dvmrp");
 	proto_register_field_array(proto_dvmrp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -903,6 +893,16 @@ proto_register_dvmrp(void)
 		"Allow only packets with Major=0x03//Minor=0xFF as DVMRP V3 packets",
 		&strict_v3);
 }
+
+void
+proto_reg_handoff_dvmrp(void)
+{
+	dissector_handle_t dvmrp_handle;
+
+	dvmrp_handle = new_create_dissector_handle(dissect_dvmrp, proto_dvmrp);
+	dissector_add_uint("igmp.type", IGMP_DVMRP, dvmrp_handle);
+}
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

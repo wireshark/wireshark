@@ -1435,7 +1435,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dvbci.h	\
 	packet-enip.h	\
 	packet-erf.h	\
-	packet-dvmrp.h	\
 	packet-e164.h	\
 	packet-e212.h	\
 	packet-edonkey.h	\
@@ -1501,7 +1500,6 @@ DISSECTOR_INCLUDES =	\
 	packet-ieee8021ah.h	\
 	packet-ieee8023.h	\
 	packet-ieee802a.h	\
-	packet-igap.h	\
 	packet-igmp.h	\
 	packet-imf.h	\
 	packet-inap.h	\
@@ -1546,8 +1544,6 @@ DISSECTOR_INCLUDES =	\
 	packet-mpeg-sect.h	\
 	packet-mpls.h	\
 	packet-mq.h	\
-	packet-mrdisc.h	\
-	packet-msnip.h	\
 	packet-msrp.h	\
 	packet-mstp.h	\
 	packet-mtp3.h	\
@@ -1577,7 +1573,6 @@ DISSECTOR_INCLUDES =	\
 	packet-pcnfsd.h	\
 	packet-pdcp-lte.h	\
 	packet-per.h	\
-	packet-pim.h	\
 	packet-pkcs1.h	\
 	packet-pkcs12.h	\
 	packet-pkix1explicit.h	\
@@ -1606,7 +1601,6 @@ DISSECTOR_INCLUDES =	\
 	packet-raw.h	\
 	packet-rdt.h	\
 	packet-reload.h	\
-	packet-rgmp.h	\
 	packet-rlc.h	\
 	packet-rlc-lte.h		\
 	packet-rmi.h	\

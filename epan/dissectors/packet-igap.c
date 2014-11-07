@@ -46,7 +46,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include "packet-igmp.h"
-#include "packet-igap.h"
 
 void proto_register_igap(void);
 
@@ -134,19 +133,13 @@ static const value_string igap_account_status[] = {
 
 /* This function is only called from the IGMP dissector */
 int
-dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_tree *tree;
     proto_item *item;
     guint8 type, tsecs, subtype, asize, msize;
+    int offset = 0;
     guchar account[ACCOUNT_SIZE+1], message[MESSAGE_SIZE+1];
-
-    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_igap))) {
-        /* we are not enabled, skip entire packet to be nice
-           to the igmp layer. (so clicking on IGMP will display the data)
-           */
-        return offset + tvb_length_remaining(tvb, offset);
-    }
 
     item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_igap);
@@ -342,11 +335,20 @@ proto_register_igap(void)
         &ett_igap
     };
 
-    proto_igap = proto_register_protocol
-        ("Internet Group membership Authentication Protocol",
-         "IGAP", "igap");
+    proto_igap = proto_register_protocol("Internet Group membership Authentication Protocol", "IGAP", "igap");
     proto_register_field_array(proto_igap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_igap(void)
+{
+    dissector_handle_t igap_handle;
+
+    igap_handle = new_create_dissector_handle(dissect_igap, proto_igap);
+    dissector_add_uint("igmp.type", IGMP_IGAP_JOIN, igap_handle);
+    dissector_add_uint("igmp.type", IGMP_IGAP_QUERY, igap_handle);
+    dissector_add_uint("igmp.type", IGMP_IGAP_LEAVE, igap_handle);
 }
 
 /*
