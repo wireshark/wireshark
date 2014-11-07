@@ -1525,7 +1525,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 1;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " PlayStatus: %s, SongPosition: %ums, SongLength: %ums",
-                        val_to_str_const(play_status, play_status_vals, "unknown"), song_length, song_position);
+                        val_to_str_const(play_status, play_status_vals, "unknown"), song_position, song_length);
             }
             break;
         case PDU_REGISTER_NOTIFICATION:
