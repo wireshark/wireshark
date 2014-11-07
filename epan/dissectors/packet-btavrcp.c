@@ -196,6 +196,8 @@ static int hf_btavrcp_feature_uid_persistency                              = -1;
 static int hf_btavrcp_reassembled                                          = -1;
 static int hf_btavrcp_currect_path                                         = -1;
 static int hf_btavrcp_response_time                                        = -1;
+static int hf_btavrcp_command_in_frame                                     = -1;
+static int hf_btavrcp_response_in_frame                                    = -1;
 static int hf_btavrcp_data                                                 = -1;
 
 static gint ett_btavrcp                                                    = -1;
@@ -209,6 +211,7 @@ static gint ett_btavrcp_features                                           = -1;
 static gint ett_btavrcp_features_not_used                                  = -1;
 static gint ett_btavrcp_path                                               = -1;
 
+static expert_field ei_btavrcp_no_response = EI_INIT;
 static expert_field ei_btavrcp_item_length_bad = EI_INIT;
 static expert_field ei_btavrcp_unexpected_data = EI_INIT;
 
@@ -2292,17 +2295,20 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (response_time > timing_info->max_response_time) {
                 proto_item_append_text(pitem, "; TIME EXCEEDED");
             }
+            PROTO_ITEM_SET_GENERATED(pitem);
 
             if (timing_info->response_frame_number == 0) {
-                    proto_item_append_text(pitem, "; There is no response");
+                pitem = proto_tree_add_expert(btavrcp_tree, pinfo, &ei_btavrcp_no_response, tvb, 0, 0);
+                PROTO_ITEM_SET_GENERATED(pitem);
             }  else {
                 if (is_command)  {
-                    proto_item_append_text(pitem, "; Response is at frame: %u", timing_info->response_frame_number);
+                    pitem = proto_tree_add_uint(btavrcp_tree, hf_btavrcp_response_in_frame, tvb, 0, 0, timing_info->response_frame_number);
+                    PROTO_ITEM_SET_GENERATED(pitem);
                 } else {
-                    proto_item_append_text(pitem, "; Command is at frame: %u", timing_info->command_frame_number);
+                    pitem = proto_tree_add_uint(btavrcp_tree, hf_btavrcp_command_in_frame, tvb, 0, 0, timing_info->command_frame_number);
+                    PROTO_ITEM_SET_GENERATED(pitem);
                 }
             }
-            PROTO_ITEM_SET_GENERATED(pitem);
 
         }
 
@@ -3122,6 +3128,16 @@ proto_register_btavrcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_btavrcp_command_in_frame,
+            { "Command in frame",                "btavrcp.command_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_response_in_frame,
+            { "Response in frame",               "btavrcp.response_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavrcp_data,
             { "Data",                            "btavrcp.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3143,6 +3159,7 @@ proto_register_btavrcp(void)
     static ei_register_info ei[] = {
         { &ei_btavrcp_item_length_bad, { "btavrcp.item.length.bad", PI_PROTOCOL, PI_WARN, "Item length does not correspond to sum of length of attributes", EXPFILL }},
         { &ei_btavrcp_unexpected_data, { "btavrcp.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+        { &ei_btavrcp_no_response,     { "btavrcp.no_response",     PI_PROTOCOL, PI_WARN, "No response", EXPFILL }},
     };
 
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
