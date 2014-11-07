@@ -6653,18 +6653,18 @@ proto_register_tn3270(void)
     { &hf_tn3270_cs_form_type1,
       { "18-byte form",
         "tn3270.cs_form_type1",
-        FT_BOOLEAN, 8, "the first 2 bytes contain a 16-bit vertical slice,"
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "the first 2 bytes contain a 16-bit vertical slice,"
         " the following 16 bytes contain 8-bit horizontal slices. For a 9"
-        " x 12 character matrix the last 4 bytes contain binary zero.", 0x80,
-        NULL, HFILL }
+        " x 12 character matrix the last 4 bytes contain binary zero.", HFILL }
     },
     { &hf_tn3270_cs_form_type2,
       { "18-byte form (COMPRESSED)",
         "tn3270.cs_form_type2",
-        FT_BOOLEAN, 8, "the first 2 bytes contain a 16-bit vertical slice,"
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "the first 2 bytes contain a 16-bit vertical slice,"
         " the following 16 bytes contain 8-bit horizontal slices. For a 9"
-        " x 12 character matrix the last 4 bytes contain binary zero. (COMPRESSED)", 0x40,
-        NULL, HFILL }
+        " x 12 character matrix the last 4 bytes contain binary zero. (COMPRESSED)", HFILL }
     },
     { &hf_tn3270_cs_form_type3,
       { "Row loading (from top to bottom)",
@@ -7472,14 +7472,14 @@ proto_register_tn3270(void)
     { &hf_tn3270_ua_xr,
       {  "Distance between points in X direction as a fraction",
          "tn3270.ua_xr",
-         FT_UINT32, BASE_HEX, "measured in UNITS, with 2-byte numerator and 2-byte denominator", 0x0,
-         NULL, HFILL }
+         FT_UINT32, BASE_HEX, NULL, 0x0,
+         "measured in UNITS, with 2-byte numerator and 2-byte denominator", HFILL }
     },
     { &hf_tn3270_ua_yr,
       {  "Distance between points in Y direction as a fraction",
          "tn3270.ua_xr",
-         FT_UINT32, BASE_HEX, "measured in UNITS, with 2-byte numerator and 2-byte denominator", 0x0,
-         NULL, HFILL }
+         FT_UINT32, BASE_HEX, NULL, 0x0,
+         "measured in UNITS, with 2-byte numerator and 2-byte denominator", HFILL }
     },
     { &hf_tn3270_ua_aw,
       {  "Number of X units in default cell",
