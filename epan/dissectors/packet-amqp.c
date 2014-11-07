@@ -441,9 +441,6 @@ get_amqp_0_9_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item);
 
-static guint
-amqp_0_10_get_size_field(tvbuff_t *tvb, int offset);
-
 static void
 dissect_amqp_0_10_map(tvbuff_t *tvb,
                       int offset,
