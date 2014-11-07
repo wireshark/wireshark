@@ -3423,7 +3423,7 @@ proto_register_ansi_683(void)
       { &hf_ansi_683_max_sid_nid_3fc0, { "Maximum stored SID/NID pairs (MAX_SID_NID)", "ansi_683.max_sid_nid", FT_UINT16, BASE_DEC, NULL, 0x3fc0, NULL, HFILL }},
       { &hf_ansi_683_stored_sid_nid_3fc0, { "Number of stored SID/NID pairs (STORED_SID_NID)", "ansi_683.stored_sid_nid", FT_UINT16, BASE_DEC, NULL, 0x3fc0, NULL, HFILL }},
       { &hf_ansi_683_sid_nid_pairs_3fff, { "SID/NID pairs", "ansi_683.sid_nid_pairs", FT_UINT16, BASE_DEC, NULL, 0x3fff, NULL, HFILL }},
-      { &hf_ansi_683_n_digits, { "Number of digits (N_DIGITS)", "ansi_683n_digits", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
+      { &hf_ansi_683_n_digits, { "Number of digits (N_DIGITS)", "ansi_683.n_digits", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
       { &hf_ansi_683_slotted_mode, { "Slotted Mode", "ansi_683.slotted_mode", FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
       { &hf_ansi_683_mob_p_rev_ff, { "Mobile station protocol revision number (MOB_P_REV)", "ansi_683.mob_p_rev", FT_UINT8, BASE_DEC, NULL, 0xFF, NULL, HFILL }},
       { &hf_ansi_683_imsi_m_class8000, { "IMSI_M Class assignment of the mobile station (IMSI_M_CLASS)", "ansi_683.imsi_m_class", FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},

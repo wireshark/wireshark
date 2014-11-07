@@ -3901,57 +3901,57 @@ proto_register_ssl(void)
             "Server's challenge to client", HFILL }
         },
         { &hf_pct_handshake_cipher_spec,
-          { "Cipher Spec", "pct.handshake.cipherspec",
+          { "Cipher Spec", "ssl.pct.handshake.cipherspec",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "PCT Cipher specification", HFILL }
         },
         { &hf_pct_handshake_cipher,
-          { "Cipher", "pct.handshake.cipher",
+          { "Cipher", "ssl.pct.handshake.cipher",
             FT_UINT16, BASE_HEX, VALS(pct_cipher_type), 0x0,
             "PCT Ciper", HFILL }
         },
         { &hf_pct_handshake_hash_spec,
-          { "Hash Spec", "pct.handshake.hashspec",
+          { "Hash Spec", "ssl.pct.handshake.hashspec",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "PCT Hash specification", HFILL }
         },
         { &hf_pct_handshake_hash,
-          { "Hash", "pct.handshake.hash",
+          { "Hash", "ssl.pct.handshake.hash",
             FT_UINT16, BASE_HEX, VALS(pct_hash_type), 0x0,
             "PCT Hash", HFILL }
         },
         { &hf_pct_handshake_cert_spec,
-          { "Cert Spec", "pct.handshake.certspec",
+          { "Cert Spec", "ssl.pct.handshake.certspec",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "PCT Certificate specification", HFILL }
         },
         { &hf_pct_handshake_cert,
-          { "Cert", "pct.handshake.cert",
+          { "Cert", "ssl.pct.handshake.cert",
             FT_UINT16, BASE_HEX, VALS(pct_cert_type), 0x0,
             "PCT Certificate", HFILL }
         },
         { &hf_pct_handshake_exch_spec,
-          { "Exchange Spec", "pct.handshake.exchspec",
+          { "Exchange Spec", "ssl.pct.handshake.exchspec",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "PCT Exchange specification", HFILL }
         },
         { &hf_pct_handshake_exch,
-          { "Exchange", "pct.handshake.exch",
+          { "Exchange", "ssl.pct.handshake.exch",
             FT_UINT16, BASE_HEX, VALS(pct_exch_type), 0x0,
             "PCT Exchange", HFILL }
         },
         { &hf_pct_handshake_sig,
-          { "Sig Spec", "pct.handshake.sig",
+          { "Sig Spec", "ssl.pct.handshake.sig",
             FT_UINT16, BASE_HEX, VALS(pct_sig_type), 0x0,
             "PCT Signature", HFILL }
         },
         { &hf_pct_msg_error_type,
-          { "PCT Error Code", "pct.msg_error_code",
+          { "PCT Error Code", "ssl.pct.msg_error_code",
             FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
             NULL, HFILL }
         },
         { &hf_pct_handshake_server_cert,
-          { "Server Cert", "pct.handshake.server_cert",
+          { "Server Cert", "ssl.pct.handshake.server_cert",
             FT_BYTES, BASE_NONE, NULL , 0x0,
             "PCT Server Certificate", HFILL }
         },

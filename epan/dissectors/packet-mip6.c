@@ -4075,53 +4075,53 @@ proto_register_mip6(void)
     },
 
     { &hf_fmip6_fbu_seqnr,
-      { "Sequence number", "fmip6.fbu.seqnr",
+      { "Sequence number", "mip6.fbu.seqnr",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_fmip6_fbu_a_flag,
-      { "Acknowledge (A) flag", "fmip6.fbu.a_flag",
+      { "Acknowledge (A) flag", "mip6.fbu.a_flag",
         FT_BOOLEAN, 8, TFS(&fmip6_fbu_a_flag_value), 0x80,
         NULL, HFILL }
     },
     { &hf_fmip6_fbu_h_flag,
-      { "Home Registration (H) flag", "fmip6.fbu.h_flag",
+      { "Home Registration (H) flag", "mip6.fbu.h_flag",
         FT_BOOLEAN, 8, TFS(&fmip6_fbu_h_flag_value), 0x40,
         NULL, HFILL }
     },
     { &hf_fmip6_fbu_l_flag,
-      { "Link-Local Compatibility (L) flag", "fmip6.fbu.l_flag",
+      { "Link-Local Compatibility (L) flag", "mip6.fbu.l_flag",
         FT_BOOLEAN, 8, TFS(&fmip6_fbu_l_flag_value), 0x20,
         "Home Registration (H) flag", HFILL }
     },
     { &hf_fmip6_fbu_k_flag,
-      { "Key Management Compatibility (K) flag", "fmip6.fbu.k_flag",
+      { "Key Management Compatibility (K) flag", "mip6.fbu.k_flag",
         FT_BOOLEAN, 8, TFS(&fmip6_fbu_k_flag_value), 0x10,
         NULL, HFILL }
     },
     { &hf_fmip6_fbu_lifetime,
-      { "Lifetime", "fmip6.fbu.lifetime",
+      { "Lifetime", "mip6.fbu.lifetime",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
     { &hf_fmip6_fback_status,
-      { "Status", "fmip6.fback.status",
+      { "Status", "mip6.fback.status",
         FT_UINT8, BASE_DEC, VALS(fmip6_fback_status_value), 0,
         "Fast Binding Acknowledgement status", HFILL }
     },
     { &hf_fmip6_fback_k_flag,
-      { "Key Management Compatibility (K) flag", "fmip6.fback.k_flag",
+      { "Key Management Compatibility (K) flag", "mip6.fback.k_flag",
         FT_BOOLEAN, 8, TFS(&fmip6_fbu_k_flag_value), 0x80,
         NULL, HFILL }
     },
     { &hf_fmip6_fback_seqnr,
-      { "Sequence number", "fmip6.fback.seqnr",
+      { "Sequence number", "mip6.fback.seqnr",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_fmip6_fback_lifetime,
-      { "Lifetime", "fmip6.fback.lifetime",
+      { "Lifetime", "mip6.fback.lifetime",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
@@ -4571,22 +4571,22 @@ proto_register_mip6(void)
     },
 
     { &hf_mip6_cr_req_type,
-      { "Req-type", "mmip6.cr.req_type",
+      { "Req-type", "mip6.cr.req_type",
         FT_UINT8, BASE_DEC | BASE_EXT_STRING, &mip6_mobility_options_ext, 0,
         NULL, HFILL }
     },
     { &hf_mip6_cr_req_length,
-      { "Req-type", "mmip6.cr.req_length",
+      { "Req-type", "mip6.cr.req_length",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_mip6_lmaa_opt_code,
-      { "Option-Code", "mmip6.lmaa.opt_code",
+      { "Option-Code", "mip6.lmaa.opt_code",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_mip6_lmaa_reserved,
-      { "Reserved", "mmip6.lmaa.reserved",
+      { "Reserved", "mip6.lmaa.reserved",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

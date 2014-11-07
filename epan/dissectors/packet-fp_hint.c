@@ -579,7 +579,7 @@ proto_register_fp_hint(void)
 
     static ei_register_info ei[] = {
         { &ei_fph_radio_bearers, { "fp_hint.rb.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more Radio Bearers than currently supported", EXPFILL }},
-        { &ei_fph_mac_frames, { "cip.mac_frames.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more MAC Frames than currently supported", EXPFILL }},
+        { &ei_fph_mac_frames, { "fp_hint.mac_frames.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more MAC Frames than currently supported", EXPFILL }},
         { &ei_fph_fp_channels, { "fp_hint.fp_channels.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more FP channels than currently supported", EXPFILL }},
     };
 

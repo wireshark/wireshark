@@ -110,7 +110,7 @@ proto_register_nonstd(void)
                 VALS(ms_codec_vals), 0, NULL, HFILL }
         },
         { &hf_h221_nonstd_netmeeting_non_standard,
-            { "Microsoft NetMeeting Non Standard", "netmeeting.non_standard", FT_BYTES, BASE_NONE,
+            { "Microsoft NetMeeting Non Standard", "h221nonstd.netmeeting.non_standard", FT_BYTES, BASE_NONE,
                 NULL, 0, NULL, HFILL }
         },
     };

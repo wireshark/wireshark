@@ -366,6 +366,7 @@ sub is_from_other_protocol_whitelist {
 
 	# XXX - may be faster to hash this (note 1-many relationship)?
 	if (($proto_filename eq "packet-bpdu.c") && (index($_[0], "mstp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-bssap.c") && (index($_[0], "bsap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cimetrics.c") && (index($_[0], "llc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "cip") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "enip") >= 0)) {return 1;}
@@ -384,6 +385,12 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-ieee80211-radio.c") && (index($_[0], "wlan") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ieee80211-wlancap.c") && (index($_[0], "wlan") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ieee802154.c") && (index($_[0], "wpan") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-isup.c") && (index($_[0], "ansi_isup") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-isup.c") && (index($_[0], "bat_ase") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-isup.c") && (index($_[0], "nsap") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-isup.c") && (index($_[0], "x213") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-iwarp-ddp-rdmap.c") && (index($_[0], "iwarp_ddp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-iwarp-ddp-rdmap.c") && (index($_[0], "iwarp_rdma") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-k12.c") && (index($_[0], "aal2") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-k12.c") && (index($_[0], "atm") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-m3ua.c") && (index($_[0], "mtp3") >= 0)) {return 1;}
@@ -399,6 +406,11 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-wps.c") && (index($_[0], "eap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-wsp.c") && (index($_[0], "wap") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-xot.c") && (index($_[0], "x25") >= 0)) {return 1;}
+
+	#Understand why, but I think it could be prefixed with "dissector"
+	#prefix (which isn't necessarily "protocol")
+	if (($proto_filename eq "packet-rtcp.c") && (index($_[0], "srtcp") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-rtp.c") && (index($_[0], "srtp") >= 0)) {return 1;}
 
 	#XXX - HACK to get around nested "s in field name
 	if (($proto_filename eq "packet-gsm_sim.c") && (index($_[0], "e\\") >= 0)) {return 1;}
