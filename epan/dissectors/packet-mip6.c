@@ -4576,7 +4576,7 @@ proto_register_mip6(void)
         NULL, HFILL }
     },
     { &hf_mip6_cr_req_length,
-      { "Req-type", "mip6.cr.req_length",
+      { "Req-length", "mip6.cr.req_length",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
