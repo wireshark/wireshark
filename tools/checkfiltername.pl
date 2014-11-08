@@ -104,8 +104,6 @@ my $showall = 0;
 
 my $comment = 0;
 
-my $error = 0;
-
 sub checkprotoabbrev {
 	my $abbrev = "";
 	my $abbrevpos;
@@ -695,7 +693,10 @@ while (<>) {
 
 &printprevfile();
 
-print "\n\nTOTAL ERRORS: $totalerrorcount";
+if ($totalerrorcount > 0) {
+	print "\n\nTOTAL ERRORS: $totalerrorcount";
+}
+
 if ($filecount > 1) {
 	print " ($errorfilecount files)\n";
 
@@ -742,6 +743,6 @@ if ($filecount > 1) {
 
 print "\n";
 
-exit $error;
+exit (($totalerrorcount == 0) ? 0 : 1);   # exit 1 if ERROR
 
 __END__

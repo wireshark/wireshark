@@ -30,6 +30,9 @@ for FILE in `git diff-index --cached --name-status HEAD | grep -v "^D" | cut -f2
     #Check if fix-encoding-args is good
     ./tools/fix-encoding-args.pl $FILE  || exit_status=1
 
+    #Check if checkfiltername is good
+    ./tools/checkfiltername.pl $FILE  || exit_status=1
+
 done
 
 # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
