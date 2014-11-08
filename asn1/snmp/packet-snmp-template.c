@@ -300,6 +300,7 @@ static const value_string sec_models[] = {
 	{ 0,				NULL }
 };
 
+#if 0
 /* SMUX PDU types */
 #define SMUX_MSG_OPEN 		0
 #define SMUX_MSG_CLOSE		1
@@ -315,6 +316,7 @@ static const value_string smux_types[] = {
 	{ SMUX_MSG_SOUT,	"Commit Or Rollback" },
 	{ 0,			NULL }
 };
+#endif
 
 
 #define SNMP_IPA    0		/* IP Address */
