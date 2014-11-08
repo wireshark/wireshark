@@ -2810,45 +2810,50 @@ static void
 dissect_pmip6_opt_cr(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
-    int     len;
+    gint    offset_start;
     guint8  req_type, req_length;
     guint32 vendorid;
 
-    /* offset points to tag(opt) */
+    /* offset points to tag(opt), optlen includes tag and length field */
+
+    offset_start = offset;
+
+    /* skip the tag */
     offset++;
+
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(opt_tree, hf_mip6_cr_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    len = optlen - 4;
-
-    while (len > 0) {
+    while ((guint)(offset-offset_start) < optlen) {
         req_type = tvb_get_guint8(tvb,offset);
         proto_tree_add_item(opt_tree, hf_mip6_cr_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        len--;
+
         req_length = tvb_get_guint8(tvb,offset);
         proto_tree_add_item(opt_tree, hf_mip6_cr_req_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        len--;
-        if (req_length != 0) {
-            if (req_type == MIP6_VSM) {
-                /* vendor specific option */
-                vendorid = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_item(opt_tree, hf_mip6_vsm_vid, tvb, offset, 4, ENC_BIG_ENDIAN);
-                if (vendorid == VENDOR_THE3GPP) {
-                    proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype_3gpp, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-                } else {
-                    proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-                }
-            }else{
-                proto_tree_add_text(opt_tree, tvb, offset, req_length, "Req-Data");
+
+        if (req_length == 0)
+            continue;
+
+        if (req_type == MIP6_VSM) {
+            /* vendor specific option */
+            vendorid = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(opt_tree, hf_mip6_vsm_vid, tvb, offset, 4, ENC_BIG_ENDIAN);
+            if (vendorid == VENDOR_THE3GPP) {
+                proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype_3gpp, tvb, offset+4, 1, ENC_BIG_ENDIAN);
             }
-            offset += req_length;
-            len    -= req_length;
+            else {
+                proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            }
         }
+        else {
+            proto_tree_add_text(opt_tree, tvb, offset, req_length, "Req-Data");
+        }
+        offset += req_length;
     }
 }
 
