@@ -8067,6 +8067,27 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
         }
         break;
     case 17: /* change-of-characterstring */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                 /* changed-value (CharacterString) */
+                offset  = fCharacterString(tvb, pinfo, subtree, offset, "changed-value: ");
+                break;
+            case 1:
+                offset = fBitStringTagVS(tvb, pinfo, subtree, offset,
+                    "status-flags: ", BACnetStatusFlags);
+                break;
+            case 2:
+                /* alarm-value (CharacterString) */
+                offset  = fCharacterString(tvb, pinfo, subtree, offset, "alarm-value: ");
+                lastoffset = offset;
+                break;
+            default:
+                break;
+            }
+            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        }
         break;
     case 18: /* change-of-status-flags */
         break;
