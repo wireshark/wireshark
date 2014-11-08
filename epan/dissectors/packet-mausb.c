@@ -1376,8 +1376,8 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         if (mausb_is_setup_response(&header)) {
-            offset = dissect_usb_setup_response(pinfo, mausb_tree, mausb_tree, tvb,
-                                                offset, URB_COMPLETE, usb_conv_info);
+            offset = dissect_usb_setup_response(pinfo, mausb_tree, tvb, offset,
+                                                URB_COMPLETE, usb_conv_info);
         }
         /*
          * TODO: dissect MA USB Payload with USB class dissectors

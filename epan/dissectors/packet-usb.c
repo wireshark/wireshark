@@ -2813,11 +2813,14 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
 int
 dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
-                           proto_tree *parent, tvbuff_t *tvb, int offset,
+                           tvbuff_t *tvb, int offset,
                            guint8 urb_type, usb_conv_info_t *usb_conv_info)
 {
-    tvbuff_t *next_tvb = NULL;
-    gint      length_remaining;
+    proto_tree *parent;
+    tvbuff_t   *next_tvb = NULL;
+    gint        length_remaining;
+
+    parent = proto_tree_get_parent_tree(tree);
 
     if (usb_conv_info && usb_conv_info->usb_trans_info) {
         if (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD) {
@@ -3518,7 +3521,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             }
 
-            offset = dissect_usb_setup_response(pinfo, tree, parent, tvb, offset,
+            offset = dissect_usb_setup_response(pinfo, tree, tvb, offset,
                                                 urb_type, usb_conv_info);
         }
         break;
