@@ -14,9 +14,55 @@ What's New
 
    The following vulnerabilities have been fixed.
      * [1]wnpa-sec-2014-20
-       A dissector went awry. (ws-buglink:XXX[])
+       SigComp UDVM buffer overflow. ([2]Bug 10662)
+       [3]CVE-2014-8710
+     * [4]wnpa-sec-2014-21
+       AMQP crash. ([5]Bug 10582) [6]CVE-2014-8711
+     * [7]wnpa-sec-2014-22
+       NCP crashes. ([8]Bug 10552, [9]Bug 10628) [10]CVE-2014-8712
+       [11]CVE-2014-8713
+     * [12]wnpa-sec-2014-23
+       TN5250 infinite loops. ([13]Bug 10596) [14]CVE-2014-8714
 
    The following bugs have been fixed:
+     * 6LoWPAN Mesh headers not treated as encapsulating address.
+       ([15]Bug 10462)
+     * UCP dissector bug of operation 31 - PID 0639 not
+       recognized. ([16]Bug 10463)
+     * iSCSI dissector rejects PDUs with "expected data transfer
+       length" > 16M. ([17]Bug 10469)
+     * GTPv2: trigging_tree under Trace information has wrong
+       length. ([18]Bug 10470)
+     * Attempt to render an SMS-DELIVER-REPORT instead of an
+       SMS-DELIVER. ([19]Bug 10547)
+     * IPv6 Mobility Option IPv6 Address/Prefix marks too many
+       bytes for the address/prefix field. ([20]Bug 10576)
+     * IPv6 Mobility Option Binding Authorization Data for FMIPv6
+       Authenticator field is read beyond the option data.
+       ([21]Bug 10577)
+     * IPv6 Mobility Option Mobile Node Link Layer Identifier
+       Link-layer Identifier field is read beyond the option data.
+       ([22]Bug 10578)
+     * Malformed PTPoE announce packet. ([23]Bug 10611)
+     * IPv6 Permanent Home Keygen Token mobility option includes
+       too many bytes for the token field. ([24]Bug 10619)
+     * IPv6 Redirect Mobility Option K and N bits are parsed
+       incorrectly. ([25]Bug 10622)
+     * IPv6 Care Of Test mobility option includes too many bytes
+       for the Keygen Token field. ([26]Bug 10624)
+     * IPv6 MESG-ID mobility option is parsed incorrectly.
+       ([27]Bug 10625)
+     * IPv6 AUTH mobility option parses Mobility SPI and
+       Authentication Data incorrectly. ([28]Bug 10626)
+     * IPv6 DNS-UPDATE-TYPE mobility option includes too many
+       bytes for the MD identity field. ([29]Bug 10629)
+     * IPv6 Local Mobility Anchor Address mobility option's code
+       and reserved fields are parsed as 2 bytes instead of 1.
+       ([30]Bug 10630)
+     * TShark crashes when running with PDML on a specific packet.
+       ([31]Bug 10651)
+     * IPv6 Mobility Option Context Request reads an extra
+       request. ([32]Bug 10676)
 
   New and Updated Features
 
@@ -28,21 +74,26 @@ What's New
 
   Updated Protocol Support
 
+   6LoWPAN, AMQP, GSM MAP, GTPv2, H.223, IEEE 802.11, iSCSI, MIH,
+   Mobile IPv6, PTPoE, TN5250, and UCP
+
   New and Updated Capture File Support
+
+   Catapult DCT2000, HP-UX nettl, pcap-ng, and Sniffer (DOS)
      __________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available
-   from [2]http://www.wireshark.org/download.html.
+   from [33]http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark
    packages. You can usually install or upgrade Wireshark using
    the package management system specific to that platform. A list
-   of third-party packages can be found on the [3]download page on
-   the Wireshark web site.
+   of third-party packages can be found on the [34]download page
+   on the Wireshark web site.
      __________________________________________________________
 
 File Locations
@@ -55,74 +106,105 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug
+   Dumpcap might not quit if Wireshark or TShark crashes. ([35]Bug
    1419)
 
-   The BER dissector might infinitely loop. ([5]Bug 1516)
+   The BER dissector might infinitely loop. ([36]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([6]Bug 1814)
+   ([37]Bug 1814)
 
    Filtering tshark captures with read filters (-R) no longer
-   works. ([7]Bug 2234)
+   works. ([38]Bug 2234)
 
    The 64-bit Windows installer does not support Kerberos
-   decryption. ([8]Win64 development page)
+   decryption. ([39]Win64 development page)
 
-   Resolving ([9]Bug 9044) reopens ([10]Bug 3528) so that
+   Resolving ([40]Bug 9044) reopens ([41]Bug 3528) so that
    Wireshark no longer automatically decodes gzip data when
    following a TCP stream.
 
-   Application crash when changing real-time option. ([11]Bug
+   Application crash when changing real-time option. ([42]Bug
    4035)
 
-   Hex pane display issue after startup. ([12]Bug 4056)
+   Hex pane display issue after startup. ([43]Bug 4056)
 
-   Packet list rows are oversized. ([13]Bug 4357)
+   Packet list rows are oversized. ([44]Bug 4357)
 
    Summary pane selected frame highlighting not maintained.
-   ([14]Bug 4445)
+   ([45]Bug 4445)
 
    Wireshark and TShark will display incorrect delta times in some
-   cases. ([15]Bug 4985)
+   cases. ([46]Bug 4985)
      __________________________________________________________
 
 Getting Help
 
-   Community support is available on [16]Wireshark's Q&A site and
+   Community support is available on [47]Wireshark's Q&A site and
    on the wireshark-users mailing list. Subscription information
    and archives for all of Wireshark's mailing lists can be found
-   on [17]the web site.
+   on [48]the web site.
 
    Official Wireshark training and certification are available
-   from [18]Wireshark University.
+   from [49]Wireshark University.
      __________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [19]Wireshark web site.
+   A complete FAQ is available on the [50]Wireshark web site.
      __________________________________________________________
 
-   Last updated 2014-09-16 12:51:39 PDT
+   Last updated 2014-11-12 10:09:05 PST
 
 References
 
    1. https://www.wireshark.org/security/wnpa-sec-2014-20.html
-   2. http://www.wireshark.org/download.html
-   3. http://www.wireshark.org/download.html#thirdparty
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   8. https://wiki.wireshark.org/Development/Win64
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  16. http://ask.wireshark.org/
-  17. http://www.wireshark.org/lists/
-  18. http://www.wiresharktraining.com/
-  19. http://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10662
+   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8710
+   4. https://www.wireshark.org/security/wnpa-sec-2014-21.html
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10582
+   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8711
+   7. https://www.wireshark.org/security/wnpa-sec-2014-22.html
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10552
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10628
+  10. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8712
+  11. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8713
+  12. https://www.wireshark.org/security/wnpa-sec-2014-23.html
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10596
+  14. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8714
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10462
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10463
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10469
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10470
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10547
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10576
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10577
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10578
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10611
+  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10619
+  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10622
+  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10624
+  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10625
+  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10626
+  29. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10629
+  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10630
+  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10651
+  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10676
+  33. http://www.wireshark.org/download.html
+  34. http://www.wireshark.org/download.html#thirdparty
+  35. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+  36. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  37. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  38. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  39. https://wiki.wireshark.org/Development/Win64
+  40. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+  41. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  42. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  43. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  44. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  45. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  46. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  47. http://ask.wireshark.org/
+  48. http://www.wireshark.org/lists/
+  49. http://www.wiresharktraining.com/
+  50. http://www.wireshark.org/faq.html
