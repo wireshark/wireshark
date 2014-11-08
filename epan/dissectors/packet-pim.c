@@ -741,7 +741,7 @@ static void
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     guint8 pim_typever;
-    guint8 pim_bidir_subtype;
+    guint8 pim_bidir_subtype = 0;
     guint length, pim_length;
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[4];
@@ -1306,7 +1306,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += 4;
         proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        break;
+
         switch(PIM_BIDIR_SUBTYPE(pim_bidir_subtype)) {
             case PIM_BDIR_DF_BACKOFF :
                 if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
@@ -1319,7 +1319,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_metric, tvb, offset, 4, ENC_NA);
                 offset += 4;
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_offer_interval, tvb, offset, 2, ENC_NA);
-                offset += 2;
                 break;
             case PIM_BDIR_DF_PASS:
                 if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
@@ -1330,7 +1329,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_pass_metric_pref, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_pass_metric, tvb, offset, 4, ENC_NA);
-                offset += 4;
                 break;
         }
     }
