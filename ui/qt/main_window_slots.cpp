@@ -767,9 +767,6 @@ void MainWindow::stopCapture() {
 
 /**
  * Add the capture filename (with an absolute path) to the "Recent Files" menu.
- *
- * @param cf_name Absolute path to the file.
- * @param first Prepend the filename if true, otherwise append it. Default is false (append).
  */
 // XXX - We should probably create a RecentFile class.
 void MainWindow::updateRecentFiles() {

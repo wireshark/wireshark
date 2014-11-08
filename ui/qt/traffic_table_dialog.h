@@ -99,8 +99,8 @@ public:
      *
      * @param parent Parent widget.
      * @param cf Capture file. No statistics will be calculated if this is NULL.
-     * @param proto_id If valid, add this protocol and bring it to the front.
      * @param filter Display filter to apply.
+     * @param table_name If valid, add this protocol and bring it to the front.
      */
     explicit TrafficTableDialog(QWidget *parent = 0, capture_file *cf = NULL, const char *filter = NULL, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();

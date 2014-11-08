@@ -236,8 +236,8 @@ private slots:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
 
     /** Pass stat cmd arguments to a slot.
-     * @param slot Partial slot name, e.g. "StatisticsIOGraph".
-     * @param "-z" argument, e.g. "io,stat".
+     * @param menu_path slot Partial slot name, e.g. "StatisticsIOGraph".
+     * @param arg "-z" argument, e.g. "io,stat".
      * @param userdata Optional user data.
      */
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
