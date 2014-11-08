@@ -176,7 +176,7 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
 void EndpointDialog::tabChanged()
 {
     EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
-    map_bt_->setEnabled(cur_tree->hasGeoIPData());
+    map_bt_->setEnabled(cur_tree && cur_tree->hasGeoIPData());
 }
 
 void EndpointDialog::createMap()
