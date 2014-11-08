@@ -1370,8 +1370,8 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* If this packet contains USB Setup Data */
         if (mausb_has_setup_data(&header)) {
-            offset = dissect_usb_setup_request(pinfo, mausb_tree, mausb_tree, tvb,
-                                               offset, URB_SUBMIT, usb_conv_info,
+            offset = dissect_usb_setup_request(pinfo, mausb_tree, tvb, offset,
+                                               URB_SUBMIT, usb_conv_info,
                                                USB_HEADER_IS_MAUSB);
         }
 

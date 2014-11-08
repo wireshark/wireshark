@@ -233,7 +233,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
 
 int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
-                          proto_tree *parent, tvbuff_t *tvb, int offset,
+                          tvbuff_t *tvb, int offset,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
                           guint8 header_info);
 

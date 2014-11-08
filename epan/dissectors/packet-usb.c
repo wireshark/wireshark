@@ -2893,12 +2893,12 @@ try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
 /* Dissector used for usb setup requests */
 int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
-                          proto_tree *parent, tvbuff_t *tvb, int offset,
+                          tvbuff_t *tvb, int offset,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
                           guint8 header_info)
 {
     gint              req_type;
-    proto_tree       *setup_tree;
+    proto_tree       *parent, *setup_tree;
     tvbuff_t         *setup_tvb;
     usb_trans_info_t *usb_trans_info;
     tvbuff_t         *next_tvb, *data_tvb;
@@ -2908,6 +2908,8 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         return offset;
 
     usb_trans_info = usb_conv_info->usb_trans_info;
+
+    parent = proto_tree_get_parent_tree(tree);
 
     setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
     setup_tvb = tvb_new_subset_length(tvb, offset, 8);
@@ -3481,7 +3483,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
-                offset = dissect_usb_setup_request(pinfo, tree, parent, tvb, offset,
+                offset = dissect_usb_setup_request(pinfo, tree, tvb, offset,
                                                    urb_type, usb_conv_info, header_info);
 
             } else {
