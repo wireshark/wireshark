@@ -2822,7 +2822,7 @@ dissect_pmip6_opt_cr(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_tree_add_item(opt_tree, hf_mip6_cr_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    len = optlen - 3;
+    len = optlen - 4;
 
     while (len > 0) {
         req_type = tvb_get_guint8(tvb,offset);
