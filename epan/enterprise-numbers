@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-11-01)
+(last updated 2014-11-07)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -31190,9 +31190,9 @@ Decimal
     Scott Foster
       hostmaster&reardensteel.com
 7809
-  Finch Computer Services
-    Phil Lobbes
-      phil&finchcomputer.com
+  Phil Pearl (previous was 'Finch Computer Services')
+    Phil Pearl
+      phil&pearl-family.com
 7810
   Seek Systems
     Steve Kahle
@@ -64788,8 +64788,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       edvorg.simon&rhoen-klinikum-ag.com
 16309
   NTT Software Corporation
-    Yusuke Takahashi
-      takayuu&po.ntts.co.jp
+    Kikuchi Nobuyuki
+      isd-wan-staff&sl.ntts.co.jp
 16310
   Marketline Rt.
     Buglos Tamás
@@ -65275,9 +65275,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Dr Andy Murray
       A.Murray&Mutiny.com
 16431
-  T-Systems Italia S.p.A.
-    Michele Popescu
-      michele.popescu&t-systems.it
+  Engineering.MO S.p.A. (previous was 'T-Systems Italia S.p.A.')
+    Stefano Mason
+      stefano.mason&eng.it
 16432
   PKI Innovations Inc.
     Paul Wiebe
@@ -104911,9 +104911,9 @@ Auswertungsstelle
     Alfred Marx
       alfred.marx&megatrondataservices.com
 26335
-  Divinetworks Ltd. (previous was 'IPortent Ltd.')
-    Ezra Muallem
-      yoel&divinetworks.com
+  DiViNetworks Ltd. (previous was 'IPortent Ltd.')
+    Yair Shapira
+      yair&divinetworks.com
 26336
   Pawel Kraszewski
     Pawel Kraszewski
@@ -114696,8 +114696,8 @@ Decentralization / Helenic Public Administra
     Jani Peltonen
       jani.peltonen&intellistream.co.uk
 28779
-  Fox-IT Forensic IT Expert B.V
-    Dirk Maij
+  Fox-IT B.V.
+    Frans van Dorsselaer
       iana&fox-it.com
 28780
   patteran, inc.
@@ -119976,9 +119976,9 @@ Decentralization / Helenic Public Administra
     Ian Wilcox
       sysadmin&bbp.ch
 30099
-  L-1 Identity Solutioins, Inc.
-    Sergey Karlin
-      skarlin&L1id.com
+  MorphoTrust USA (previous was 'L-1 Identity Solutioins, Inc.')
+    Eric Osterberg
+      eosterberg&morphotrust.com
 30100
   greenBytes Inc.
     Paul Zuchowski
@@ -144030,8 +144030,8 @@ Decentralization / Helenic Public Administra
       support&innos.net
 36112
   Perceptive Software, Inc
-    Jon Helmer
-      jon.helmer&perceptivesoftware.com
+    Michael Price
+      michael.price&perceptivesoftware.com
 36113
   IQinVision
     Rochak Sharma
@@ -159685,9 +159685,9 @@ Decentralization / Helenic Public Administra
     James Carpenter
       jcarpenter&tym3.com
 40026
-  SIS-FRANCE
-    Bruno Villedieu
-      bruno.villedieu&sis-france.com
+  Société d’Informatique et de Systèmes
+    Sebastien FLEURY (System Administrator)
+      contact.iana&sis-france.com
 40027
   Aki Network Technology
     Akifumi Shiroma
@@ -159815,7 +159815,7 @@ Decentralization / Helenic Public Administra
 40058
   Vitaliy Tokarev
     Vitaliy Tokarev
-      gh0stwizard&myopera.com
+      vitaliy.tokarev&gmail.com
 40059
   Datagram, Inc.
     Jae Kim
@@ -171781,7 +171781,7 @@ Decentralization / Helenic Public Administra
     Stewart Bryant
       stewart.bryant&gmail.com
 43050
-  Vobileinc
+  Vobile Co., Ltd.
     Honghui Ding
       ding_honghui&vobile.cn
 43051
@@ -178193,9 +178193,9 @@ Decentralization / Helenic Public Administra
     Pat DeLacluyse
       pdelacluyse&lamarchemfg.com
 44653
-  Leo Vegoda
-    Leo Vegoda
-      leo&vegoda.org
+  Unassigned
+    Removed 2014-11-04
+      
 44654
   Hochschule für Musik Freiburg
     Jürgen Diez
@@ -178252,6 +178252,286 @@ Decentralization / Helenic Public Administra
   Pardic Systems , Ltd.
     Farid Nabizad
       pardicsys&gmail.com
+44668
+  Securosys SA
+    Robert Rogenmoser
+      roro&securosys.ch
+44669
+  First Capital Payments
+    Fredrick Robinson
+      frobinson&firstcapitalpayments.com
+44670
+  Prism Software Corporation
+    Mayank Aggarwal
+      mayank&prismsoftware.com
+44671
+  Sysctl AB
+    Andreas Jonsson
+      andreas&sysctl.se
+44672
+  Naucra Co., Ltd
+    Shimhyun Lee
+      shlee&naucra.com
+44673
+  SitePen, Inc.
+    Robert Chady
+      sitepen-pen&sitepen.com
+44674
+  FUSED NETWORK CORP
+    Paul Fleming
+      admins&fused.net
+44675
+  Spillman Technologies Inc.
+    Michael F. Wilkinson
+      mwilkinson&spillman.com
+44676
+  Glenn McGurrin
+    Glenn McGurrin
+      oid-pen-admin&glennmcgurrin.com
+44677
+  Dreamhack Network
+    Christian Svensson
+      bluecmd&tech.dreamhack.se
+44678
+  Loopia AB
+    Fredrik Eriksson
+      fredrik.eriksson&loopia.se
+44679
+  Plansee Group Service GmbH
+    Martin Broll
+      martin.broll&plansee.com
+44680
+  Iudex
+    Tuomas RIihimäki
+      pen.iana&iudex.fi
+44681
+  Ajuntament de València
+    Pedro Belenguer
+      pbelenguer&valencia.es
+44682
+  CompliSpace Technology Pty Ltd
+    Michael McHugh
+      michael.mchugh&complispace.com.au
+44683
+  Intern-net
+    Bastian Brunner
+      contact&intern-net.de
+44684
+  Corsa Technology Inc.
+    Richard Perrin
+      mibmaster&corsa.com
+44685
+  NTENT
+    Ashton Davis
+      itns&ntent.com
+44686
+  ROI Development Corp., DBA Newmar
+    Kurt Palermo
+      kurtp&newmarpower.com
+44687
+  Hebeo
+    Damien Lesgourgues
+      damien&hebeo.org
+44688
+  WorldWide Supply LLC (aka "WWS")
+    Barry Hardek
+      bhardek&worldwidesupply.net
+44689
+  Groupe Simplinet inc.
+    Martin Hébert
+      support&simpli.net
+44690
+  Sonavox Canada Inc.
+    Stephanie Tedesco
+      stedesco-rizzo&sonavox.com
+44691
+  GRUPO ONCOLOGICO COMUNITARIO DE SAN JUAN
+    JENNIFER OYOLA
+      oyolajennifer&gmail.com
+44692
+  Sedus Stoll AG
+    Eric Michael
+      ericmichael&sedus.com
+44693
+  Microwave Photonic Systems, Inc.
+    Keith Voss
+      kvoss&b2bphotonics.com
+44694
+  Adams County Cancer Center
+    Payal Patel
+      payalppatel87&gmail.com
+44695
+  Wolfgang Erlenkoetter IT
+    Wolfgang Erlenkoetter
+      wolfgang&erlenkoetter.net
+44696
+  apl.io
+    Luke Van Horn
+      luke&apl.io
+44697
+  Charles University in Prague, Faculty of Mathematics and Physics
+    Dan Lukes
+      netadm&mff.cuni.cz
+44698
+  Baxter Planning System
+    Ken Hughes
+      it&bybaxter.com
+44699
+  BiLL GmbH
+    Yvan Zaugg
+      zaugg&billgmbh.ch
+44700
+  Kuss IT-Solutions
+    Reinhard Kuss
+      office&edv-profi24.at
+44701
+  Hearsay Social
+    Adam DePue
+      opsmgmt&hearsaysocial.com
+44702
+  Voiceworks B.V.
+    Oliver Bril
+      oliver.bril&voiceworks.com
+44703
+  Danville Hematology and Oncology
+    Star Reed
+      starlette.reed&lpnt.net
+44704
+  BlackSip Development
+    Jens Sauer
+      j.sauer&mx.blacksip.de
+44705
+  Hack12
+    Morgan Attias
+      morgan&hack12.com
+44706
+  Hostopia.com Inc.
+    Kelvin Hockin
+      khockin&hostopia.com
+44707
+  SAI Technology Inc.
+    Herman Lee
+      hlee&saitechnology.com
+44708
+  Crews Banking corporation 
+    Matt Opalach 
+      Mopalach&crewsbankcorp.com
+44709
+  Xolphin B.V.
+    Maarten Bremer
+      info&xolphin.com
+44710
+  Ensured B.V.
+    Maarten Bremer
+      info&ensured.com
+44711
+  T-Mobile Nederland BV
+    Brahim Mouhdi
+      brahim.mouhdi&t-mobile.nl
+44712
+  AGAT-System
+    Ujin Kosy
+      ujinkosy&gmail.com
+44713
+  COSMOS-SOFT.net
+    Masato KISHI
+      mkishi&cosmos-soft.net
+44714
+  Transdata
+    Pavol Podolak
+      podolak&transdata.sk
+44715
+  Ezitherm
+    James Yong
+      jamesy&ezitherm.com
+44716
+  University of the Sunshine Coast
+    Peter Embleton
+      pembleto&usc.edu.au
+44717
+  CO-Sol Inc.
+    Ryota Watabe
+      ryota.watabe&cosol.jp
+44718
+  Loews Hotels Inc
+    Manuel Olivero
+      HotelItTech&loewshotels.com
+44719
+  UniversalCard Sibiria LLC
+    Anton Maltsev
+      akm&ruspro.info
+44720
+  Shanghai BEIDIAN Industry Group
+    Chenliyang
+      chenly&shbeidian.com.cn
+44721
+  Okaki Health Intelligence Inc
+    Wei Tam
+      wei&okaki.com
+44722
+  WALLMEDIEN AG
+    Sven Koepfer
+      iana&wallmedien.de
+44723
+  Orange Business Services 
+    Ahmed KHALLAF
+      ahmed.khallaf&orange.com
+44724
+  LLC "ITTech"
+    Andrey Kravchenko
+      kravchenko&i-t-tech.ru
+44725
+  BADTRONIC sarl
+    JEROME MSIKA
+      badtronic&badtronic.fr
+44726
+  Radionika Sp. z o.o.
+    Aleksander Piwkowski
+      aleksander.piwkowski&radionika.com
+44727
+  Y2S Corporation
+    Yuji Kanematsu
+      iana&y2s.net
+44728
+  I3 CZ s.r.o.
+    Tomáš Brandýský
+      brandysky&i3.cz
+44729
+  Fixmon
+    Smirnov Alexey
+      chemist&haskell.su
+44730
+  Elkomtech S.A.
+    Tomasz Biczyński
+      tomasz.biczynski&elkomtech.com.pl
+44731
+  Palestine Monetary Authority 
+    Hani Amer
+      smart&pma.ps
+44732
+  OOO bella-Don
+    Vladislav Spivak
+      spivak&bella-don.ru
+44733
+  Forbes Technosys Ltd
+    Mahesh Kulkarni
+      mahesh.kulkarni&forbestechnosys.com
+44734
+  Menlo Security
+    Todd Ignasiak
+      info&menlosecurity.com
+44735
+  Electronic Commerce Inc.
+    Don Magee
+      dmagee&ecipay.com
+44736
+  JERRA Soft GmbH
+    Mr. Sascha Poss
+      sascha.poss&jerra.de
+44737
+  Raindrop Laboratories (Alan Batie)
+    Alan Batie
+      hostmaster&rdrop.com
 
 
 End of Document
