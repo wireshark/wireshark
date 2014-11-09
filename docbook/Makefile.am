@@ -64,7 +64,7 @@ wsug_src/%.xml : wsug_src/%.asciidoc
 		--format=docbook --doctype=book \
 		$<
 	mv wsug_src/$*.xml wsug_src/$*.dbk
-	xmllint --xpath '//chapter | //preface' wsug_src/$*.dbk > $@
+	xmllint --xpath '//chapter | //preface | //appendix' wsug_src/$*.dbk > $@
 
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes

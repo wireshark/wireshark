@@ -1,0 +1,544 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSUG Appendix Files -->
+++++++++++++++++++++++++++++++++++++++
+
+[[AppFiles]]
+
+[appendix]
+== Files and Folders
+
+[[ChAppFilesCaptureFilesSection]]
+
+=== Capture Files
+
+To understand which information will remain available after the captured packets
+are saved to a capture file, it's helpful to know a bit about the capture file
+contents.
+
+Wireshark uses the
+link:http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html[pcapng] file
+format as the default format to save captured packets. It is very flexible
+but other tools may not support it.
+
+Wireshark also supports the
+link:http://wiki.wireshark.org/Development/LibpcapFileFormat[libpcap] file
+format. This is a much simpler format and is well established. However, it has
+some drawbacks: it's not extensible and lacks some information that would be
+really helpful (e.g. being able to add a comment to a packet such as ``the
+problems start here'' would be really nice).
+
+In addition to the libpcap format, Wireshark supports several different capture
+file formats. However, the problems described above also applies for these
+formats.
+
+[[ChIOFileContentSection]]
+
+==== Libpcap File Contents
+
+At the start of each libpcap capture file some basic information is stored like
+a magic number to identify the libpcap file format. The most interesting
+information of this file start is the link layer type (Ethernet, 802.11,
+MPLS, etc).
+
+The following data is saved for each packet:
+
+* The timestamp with millisecond resolution
+
+* The packet length as it was ``on the wire''
+
+* The packet length as it's saved in the file
+
+* The packet's raw bytes
+
+A detailed description of the libpcap file format can be found at:
+link:$$http://wiki.wireshark.org/Development/LibpcapFileFormat$$[]
+
+[[ChIOFileNotContentSection]]
+
+==== Not Saved in the Capture File
+
+You should also know the things that are _not saved_ in capture files:
+
+* Current selections (selected packet, ...)
+
+* Name resolution information. See <<ChAdvNameResolutionSection>> for details
++
+--
+Pcapng files can optionally save name resolution information. Libpcap files
+can't. Other file formats have varying levels of support.
+--
+
+* The number of packets dropped while capturing
+
+* Packet marks set with ``Edit/Mark Packet''
+
+* Time references set with ``Edit/Time Reference''
+
+* The current display filter
+
+[[ChAppFilesConfigurationSection]]
+
+=== Configuration Files and Folders
+
+Wireshark uses a number of files and folders while it is running. Some of these
+reside in the personal configuration folder and are used to maintain information
+between runs of Wireshark, while some of them are maintained in system areas.
+
+[TIP]
+====
+A list of the folders Wireshark actually uses can be found under the _Folders_
+tab in the dialog box shown when you select _About Wireshark_ from the _Help_
+menu.
+====
+
+The content format of the configuration files is the same on all platforms.
+However, to match the different policies for Unix and Windows platforms,
+different folders are used for these files.
+
+[[AppFilesTabFolders]]
+.Configuration files and folders overview
+[options="header"]
+|===============
+|File/Folder|Description|Unix/Linux folders|Windows folders
+|_preferences_|Settings from the Preferences dialog box.|/etc/wireshark.conf, $HOME/.wireshark/preferences|%WIRESHARK%\wireshark.conf, %APPDATA%\Wireshark\preferences
+|_recent_|Recent GUI settings (e.g. recent files lists).|$HOME/.wireshark/recent|%APPDATA%\Wireshark\recent
+|_cfilters_|Capture filters.|$HOME/.wireshark/cfilters|%WIRESHARK%\cfilters, %APPDATA%\Wireshark\cfilters
+|_dfilters_|Display filters.|$HOME/.wireshark/dfilters|%WIRESHARK%\dfilters, %APPDATA%\Wireshark\dfilters
+|_colorfilters_|Coloring rules.|$HOME/.wireshark/colorfilters|%WIRESHARK%\colorfilters, %APPDATA%\Wireshark\colorfilters
+|_$$disabled_protos$$_|Disabled protocols.|$HOME/.wireshark/disabled_protos|%WIRESHARK%\disabled_protos, %APPDATA%\Wireshark\disabled_protos
+|_ethers_|Ethernet name resolution.|/etc/ethers, $HOME/.wireshark/ethers|%WIRESHARK%\ethers, %APPDATA%\Wireshark\ethers
+|_manuf_|Ethernet name resolution.|/etc/manuf, $HOME/.wireshark/manuf|%WIRESHARK%\manuf, %APPDATA%\Wireshark\manuf
+|_hosts_|IPv4 and IPv6 name resolution.|/etc/hosts, $HOME/.wireshark/hosts|%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts
+|_services_|Network services.|/etc/services, $HOME/.wireshark/services|%WIRESHARK%\services, %APPDATA%\Wireshark\services
+|_subnets_|IPv4 subnet name resolution.|/etc/subnets, $HOME/.wireshark/subnets|%WIRESHARK%\subnets, %APPDATA%\Wireshark\subnets
+|_ipxnets_|IPX name resolution.|/etc/ipxnets, $HOME/.wireshark/ipxnets|%WIRESHARK%\ipxnets, %APPDATA%\Wireshark\ipxnets
+|_plugins_|Plugin directories.|/usr/share/wireshark/plugins, /usr/local/share/wireshark/plugins, $HOME/.wireshark/plugins|%WIRESHARK%\plugins\<version>,%APPDATA%\Wireshark\plugins
+|_temp_|Temporary files.|Environment: TMPDIR|Environment: TMPDIR or TEMP
+|===============
+
+[float]
+===== Windows folders
+%APPDATA% points to the personal configuration folder, e.g.: _C:\Documents and
+Settings\<username>\Application Data_ (details can be found at:
+<<ChWindowsProfiles>>),
+
+%WIRESHARK% points to the Wireshark program folder, e.g.: _C:\Program
+Files\Wireshark_
+
+[float]
+===== Unix/Linux folders
+The _/etc_ folder is the global Wireshark configuration folder. The folder
+actually used on your system may vary, maybe something like: _/usr/local/etc_.
+
+$HOME is usually something like: _/home/<username>_
+
+[float]
+===== File contents
+
+_preferences/wireshark.conf_::
+This file contains your Wireshark preferences, including defaults for capturing
+and displaying packets. It is a simple text file containing statements of the
+form:
++
+--
+----
+variable: value
+----
+
+The settings from this file are read in at program start and written to disk
+when you press the Save button in the ``Preferences'' dialog box.
+--
+
+_recent_::
+This file contains various GUI related settings like the main window position
+and size, the recent files list and such. It is a simple text file containing
+statements of the form:
++
+--
+----
+variable: value
+----
+
+It is read at program start and written at program exit.
+--
+
+_cfilters_::
+This file contains all the capture filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
++
+--
+----
+"<filter name>" <filter string>
+----
+
+The settings from this file are read in at program start and written to disk
+when you press the Save button in the ``Capture Filters'' dialog box.
+--
+
+_dfilters_::
+This file contains all the display filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
++
+--
+----
+"<filter name>" <filter string>
+----
+
+The settings from this file are read in at program start and written to disk
+when you press the Save button in the ``Display Filters'' dialog box.
+--
+
+_colorfilters_::
+This file contains all the color filters that you have defined and saved. It
+consists of one or more lines, where each line has the following format:
++
+--
+----
+@<filter name>@<filter string>@[<bg RGB(16-bit)>][<fg RGB(16-bit)>]
+----
+
+The settings from this file are read in at program start and written to disk
+when you press the Save button in the ``Coloring Rules'' dialog box.
+--
+
+_$$disabled_protos$$_::
+Each line in this file specifies a disabled protocol name. The following are
+some examples:
++
+--
+----
+tcp
+udp
+----
+
+The settings from this file are read in at program start and written to disk
+when you press the Save button in the ``Enabled Protocols'' dialog box.
+--
+
+_ethers_::
+When Wireshark is trying to translate Ethernet hardware addresses to names, it
+consults the files listed in <<AppFilesTabFolders>>. If an address is not found
+in /etc/ethers, Wireshark looks in $HOME/.wireshark/ethers
++
+--
+Each line in these files consists of one hardware address and name separated by
+whitespace. The digits of hardware addresses are separated by colons (:), dashes
+(-) or periods(.). The following are some examples:
+
+----
+ff-ff-ff-ff-ff-ff    Broadcast
+c0-00-ff-ff-ff-ff    TR_broadcast
+00.2b.08.93.4b.a1    Freds_machine
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_manuf_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate the first
+three bytes of an Ethernet address into a manufacturers name. This file has the
+same format as the ethers file, except addresses are three bytes long.
++
+--
+An example is:
+
+----
+00:00:01    Xerox                  # XEROX CORPORATION
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_hosts_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate IPv4 and
+IPv6 addresses into names.
++
+--
+This file has the same format as the usual /etc/hosts file on Unix systems.
+
+An example is:
+
+----
+# Comments must be prepended by the # sign!
+192.168.0.1 homeserver
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_services_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate port
+numbers into names.
++
+--
+An example is:
+
+----
+mydns       5045/udp     # My own Domain Name Server
+mydns       5045/tcp     # My own Domain Name Server
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_subnets_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate an IPv4
+address into a subnet name. If no exact match from the hosts file or from DNS is
+found, Wireshark will attempt a partial match for the subnet of the address.
++
+--
+Each line of this file consists of an IPv4 address, a subnet mask length
+separated only by a '/' and a name separated by whitespace. While the address
+must be a full IPv4 address, any values beyond the mask length are subsequently
+ignored.
+
+An example is:
+----
+# Comments must be prepended by the # sign!
+192.168.0.0/24 ws_test_network
+----
+
+A partially matched name will be printed as ``subnet-name.remaining-address''.
+For example, ``192.168.0.1'' under the subnet above would be printed as
+``ws_test_network.1"; if the mask length above had been 16 rather than 24, the
+printed address would be ``ws_test_network.0.1''.
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_ipxnets_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate IPX network numbers into names.
++
+--
+
+An example is:
+----
+C0.A8.2C.00      HR
+c0-a8-1c-00      CEO
+00:00:BE:EF      IT_Server1
+110f             FileServer3
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_plugins_ folder::
+Wireshark searches for plugins in the directories listed in
+<<AppFilesTabFolders>>. They are searched in the order listed.
+
+_temp_ folder::
+If you start a new capture and don't specify a filename for it, Wireshark uses
+this directory to store that file; see <<ChCapCaptureFiles>>.
+
+[[ChProtocolHelp]]
+
+==== Protocol help configuration
+
+Wireshark can use configuration files to create context-sensitive menu items for
+protocol detail items which will load help URLs in your web browser.
+
+To create a protocol help file, create a folder named ``protocol_help'' in
+either the personal or global configuration folders. Then create a text file
+with the extension ``.ini'' in the ``protocol_help'' folder. The file must
+contain key-value pairs with the following sections:
+
+[database]::
+Mandatory. This contains initialization information for the
+help file. The following keys must be defined:
++
+--
+source::
+Source name, e.g. ``HyperGlobalMegaMart''
+
+version::
+Must be ``1''.
+
+location::
+General URL for help items. Variables can be substituted using
+the [location data] section below.
+--
+
+[location data]::
+Optional. Contains keys that will be used for variable
+substitution in the ``location'' value. For example, if
+the database section contains
++
+--
+----
+location = http://www.example.com/proto?cookie=${cookie}&amp;path=${PATH}
+----
+then setting
+----
+cookie = anonymous-user-1138
+----
+will result in the URL
+``http://www.example.com/proto?cookie=anonymous-user-1138&amp;path=${PATH}''.
+PATH is used for help path substitution, and shouldn't be defined in this section.
+--
+
+[map]::
+Maps Wireshark protocol names to section names below. Each key
+MUST match a valid protocol name such as ``ip''. Each value MUST
+have a matching section defined in the configuration file.
+
+Each protocol section must contain an ``_OVERVIEW'' key which will be used as
+the first menu item for the help source. Subsequent keys must match descriptions
+in the protocol detail. Values will be used as the ${PATH} variable in the
+location template. If ${PATH} isn't present in the location template the value
+will be appended to the location.
+
+Suppose the file
+_$$C:\Users\sam.clemens\AppData\Roaming\Wireshark\protocol_help\wikipedia.ini$$_
+contains the following:
+----
+
+# Wikipedia (en) protocol help file.
+
+# Help file initialization
+# source: The source of the help information, e.g. ``Inacon'' or ``Wikipedia"
+# version: Currently unused. Must be ``1''.
+# url_template: Template for generated URLs. See ``URL Data'' below.
+[database]
+source=Wikipedia
+version=1
+url_template=http://${language}.wikipedia.org/wiki/${PATH}
+
+# Substitution data for the location template.
+# Each occurrence of the keys below in the location template will be
+# substituted with their corresponding values. For example, ``${license}"
+# in the URL template above will be replaced with the value of ``license"
+# below.
+#
+# PATH is reserved for the help paths below; do not specify it here.
+[location data]
+language = en
+
+# Maps Wireshark protocol names to section names below. Each key MUST match
+# a valid protocol name. Each value MUST have a matching section below.
+[map]
+tcp=TCP
+
+# Mapped protocol sections.
+# Keys must match protocol detail items descriptions.
+[TCP]
+_OVERVIEW=Transmission_Control_Protocol
+Destination port=Transmission_Control_Protocol#TCP_ports
+Source port=Transmission_Control_Protocol#TCP_ports
+
+----
+
+Right-clicking on a TCP protocol detail item will display a help menu item that
+displays the Wikipedia page for TCP. Right-clicking on the TCP destination or
+source ports will display additional help menu items that take you to the ``TCP
+ports'' section of the page.
+
+The [location data] and ${PATH} can be omitted if they are not needed. For
+example, the following configuration is functionally equivalent to the previous
+configuration:
+----
+
+[database]
+source=Wikipedia
+version=1
+location=http://en.wikipedia.org/wiki/
+
+[map]
+tcp=TCP
+
+[TCP]
+_OVERVIEW=Transmission_Control_Protocol
+Destination port=Transmission_Control_Protocol#TCP_ports
+Source port=Transmission_Control_Protocol#TCP_ports
+
+----
+
+[[ChWindowsFolder]]
+
+=== Windows folders
+
+Here you will find some details about the folders used in Wireshark on different
+Windows versions.
+
+As already mentioned, you can find the currently used folders in the _About
+Wireshark_ dialog.
+
+[[ChWindowsProfiles]]
+
+==== Windows profiles
+
+Windows uses some special directories to store user configuration files which
+define the ``user profile''. This can be confusing, as the default directory
+location changed from Windows version to version and might also be different for
+English and internationalized versions of Windows.
+
+[NOTE]
+====
+If you've upgraded to a new Windows version, your profile might be kept in the
+former location. The defaults mentioned here might not apply.
+====
+
+The following guides you to the right place where to look for Wireshark's
+profile data.
+
+Windows 8, Windows 7, Windows Vista, and associated server editions::
+_C:\Users\<username>\AppData\Roaming\Wireshark_
+
+Windows XP and Windows Server 2003 footnoteref:[historical,No longer supported by Wireshark. For historical reference only.]::
+_C:\Documents and Settings\<username>\Application Data_. ``Documents and
+Settings'' and ``Application Data'' might be internationalized.
+
+Windows 2000 footnoteref:[historical]::
+_C:\Documents and Settings\<username>\Application Data_. ``Documents and
+Settings'' and ``Application Data'' might be internationalized.
+
+Windows NT 4 footnoteref:[historical]::
+_C:\WINNT\Profiles\<username>\Application Data\Wireshark_
+
+Windows ME, Windows 98 with user profiles footnoteref:[historical]::
+In Windows ME and 98 you could enable separate user profiles. In that case,
+something like _C:\windows\Profiles\<username>\Application Data\Wireshark_
+is used.
+
+Windows ME, Windows 98 without user profiles footnoteref:[historical]::
+Without user profiles enabled the default location for all users was
+_C:\windows\Application Data\Wireshark_
+
+[[ChWindowsRoamingProfiles]]
+
+==== Windows roaming profiles
+
+Some larger Windows environments use roaming profiles. If this is the case the
+configurations of all programs you use won't be saved on your local hard drive.
+They will be stored on the domain server instead.
+
+Your settings will travel with you from computer to computer with one exception.
+The ``Local Settings'' folder in your profile data (typically something like:
+__C:\Documents and Settings\<username>\Local Settings__) will not be
+transferred to the domain server. This is the default for temporary capture
+files.
+
+[[ChWindowsTempFolder]]
+
+==== Windows temporary folder
+
+Wireshark uses the folder which is set by the TMPDIR or TEMP environment
+variable. This variable will be set by the Windows installer.
+
+Windows 8, Windows 7, Windows Vista, and associated server editions::
+_C:\Users\<username>\AppData\Local\Temp_
+
+Windows XP, Windows 2000 footnoteref:[historical]::
+_C:\Documents and Settings\<username>\Local Settings\Temp_
+
+Windows NT footnoteref:[historical]::
+_C:\TEMP_
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSUG Appendix Files -->
+++++++++++++++++++++++++++++++++++++++

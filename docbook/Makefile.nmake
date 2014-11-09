@@ -46,7 +46,7 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 		$<
 <<
 	mv $*.xml $*.dbk
-	xmllint --xpath "//chapter | //preface" $*.dbk > $@
+	xmllint --xpath "//chapter | //preface | //appendix" $*.dbk > $@
 
 .SUFFIXES: .asciidoc .xml
 

@@ -32,7 +32,7 @@ set(COMMON_GRAPHICS
 )
 
 set(WSUG_FILES
-	wsug_src/WSUG_app_files.xml
+	WSUG_app_files.xml
 	wsug_src/WSUG_app_howitworks.xml
 	wsug_src/WSUG_app_messages.xml
 	wsug_src/WSUG_app_protocols.xml
@@ -54,6 +54,7 @@ set(WSUG_FILES
 )
 
 set(WSDG_ASCIIDOC_FILES
+	wsug_src/WSUG_app_files.asciidoc
 	wsug_src/WSUG_chapter_advanced.asciidoc
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_capture.asciidoc
@@ -312,7 +313,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conf_files )
 			${_output_xml}
 			${_output_dbk}
 		COMMAND ${XMLLINT_EXECUTABLE}
-			--xpath '//chapter | //preface'
+			--xpath '//chapter | //preface | //appendix'
 			${_output_dbk}
 			> ${_output_xml}
 		DEPENDS
