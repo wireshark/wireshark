@@ -9677,6 +9677,7 @@ tidp             7548/udp # Threat Information Distribution Protocol [Chui_Tin_Y
 nls-tl           7549/tcp # Network Layer Signaling Transport Layer [Melinda_Shore] [Melinda_Shore] 2006-05
 nls-tl           7549/udp # Network Layer Signaling Transport Layer [Melinda_Shore] [Melinda_Shore] 2006-05
 cloudsignaling   7550/udp # Cloud Signaling Service [Scott_Dawson] [Scott_Dawson] 2011-07-01
+controlone-con   7551/tcp # ControlONE Console signaling [SIMB_Tecnologia] [Diego_Dias] 2014-11-07
 sncp             7560/tcp # Sniffer Command Protocol [Dominick_Cafarelli] [Dominick_Cafarelli] 2005-08
 sncp             7560/udp # Sniffer Command Protocol [Dominick_Cafarelli] [Dominick_Cafarelli] 2005-08
 cfw              7563/tcp # Control Framework [RFC6230]
