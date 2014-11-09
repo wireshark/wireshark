@@ -42,6 +42,7 @@
 #include "packet-netbios.h"
 #include "packet-vines.h"
 #include "packet-sll.h"
+#include "packet-juniper.h"
 #include <epan/sna-utils.h>
 
 #include "packet-llc.h"
@@ -945,6 +946,9 @@ proto_reg_handoff_llc(void)
 	 */
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_JUMBO_LLC, llc_handle);
+
+	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC, llc_handle);
+	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC_SNAP, llc_handle);
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.

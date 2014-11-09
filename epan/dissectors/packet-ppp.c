@@ -48,6 +48,7 @@
 #include <epan/oui.h>
 #include "packet-usb.h"
 #include "packet-sll.h"
+#include "packet-juniper.h"
 
 void proto_register_ppp_raw_hdlc(void);
 void proto_reg_handoff_ppp_raw_hdlc(void);
@@ -5486,6 +5487,7 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("sll.ltype", LINUX_SLL_P_PPPHDLC, ppp_hdlc_handle);
     dissector_add_uint("osinl.excl", NLPID_PPP, ppp_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_PPP, ppp_handle);
 }
 
 void

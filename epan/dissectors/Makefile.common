@@ -1516,6 +1516,7 @@ DISSECTOR_INCLUDES =	\
 	packet-isl.h	\
 	packet-isup.h	\
 	packet-iwarp-ddp-rdmap.h	\
+	packet-juniper.h	\
 	packet-jxta.h	\
 	packet-kerberos.h	\
 	packet-klm.h	\

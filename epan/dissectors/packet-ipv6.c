@@ -50,6 +50,7 @@
 #include <wiretap/erf.h>
 #include "packet-ipv6.h"
 #include "packet-ip.h"
+#include "packet-juniper.h"
 
 #ifdef HAVE_GEOIP_V6
 #include <GeoIP.h>
@@ -3037,6 +3038,8 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("osinl.excl", NLPID_IP6, ipv6_handle);
     dissector_add_uint("x.25.spi", NLPID_IP6, ipv6_handle);
     dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6, ipv6_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP6, ipv6_handle);
 
     ipv6_hopopts_handle = new_create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
     dissector_add_uint("ipv6.nxt", IP_PROTO_HOPOPTS, ipv6_hopopts_handle);

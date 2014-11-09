@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/nlpid.h>
+#include "packet-juniper.h"
 
 void proto_register_q933(void);
 void proto_reg_handoff_q933(void);
@@ -2245,6 +2246,7 @@ proto_reg_handoff_q933(void)
 
 	q933_handle = find_dissector("q933");
 	dissector_add_uint("fr.osinl", NLPID_Q_933, q933_handle);
+	dissector_add_uint("juniper.proto", JUNIPER_PROTO_Q933, q933_handle);
 }
 
 /*

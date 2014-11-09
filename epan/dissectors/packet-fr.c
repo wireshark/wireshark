@@ -48,6 +48,7 @@
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "packet-fr.h"
+#include "packet-juniper.h"
 #include <epan/xdlc.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
@@ -1008,6 +1009,7 @@ proto_reg_handoff_fr(void)
   fr_handle = find_dissector("fr");
   dissector_add_uint("gre.proto", ETHERTYPE_RAW_FR, fr_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
+  dissector_add_uint("juniper.proto", JUNIPER_PROTO_FRELAY, fr_handle);
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);

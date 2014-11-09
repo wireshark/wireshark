@@ -63,6 +63,7 @@
 #include "packet-mpls.h"
 #include "packet-pw-common.h"
 #include "packet-bfd.h"
+#include "packet-juniper.h"
 
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
@@ -833,6 +834,10 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("gre.proto", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS, mpls_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP_MPLS, mpls_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6_MPLS, mpls_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP_MPLS, mpls_handle);
 
     mpls_handle = find_dissector("mplspwcw");
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_handle );

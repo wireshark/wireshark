@@ -53,6 +53,7 @@
 #include <wiretap/erf.h>
 
 #include "packet-ip.h"
+#include "packet-juniper.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
@@ -3103,6 +3104,8 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);
   dissector_add_uint("ax25.pid", AX25_P_IP, ip_handle);
+  dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
+  dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
   dissector_add_for_decode_as("udp.port", ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, proto_ip);

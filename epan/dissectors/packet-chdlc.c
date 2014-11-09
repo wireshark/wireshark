@@ -33,6 +33,7 @@
 #include "packet-chdlc.h"
 #include "packet-ppp.h"
 #include "packet-ip.h"
+#include "packet-juniper.h"
 
 /*
  * See section 4.3.1 of RFC 1547, and
@@ -253,6 +254,7 @@ proto_reg_handoff_chdlc(void)
   chdlc_handle = find_dissector("chdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
+  dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);
 }
 
 

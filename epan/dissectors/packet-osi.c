@@ -38,6 +38,7 @@
 #include <epan/ipproto.h>
 #include "packet-osi.h"
 #include "packet-tpkt.h"
+#include "packet-juniper.h"
 
 void proto_reg_handoff_osi(void);
 void proto_register_osi(void);
@@ -456,6 +457,19 @@ dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_handle);
 }
 
+static void dissect_osi_juniper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint8     nlpid;
+  tvbuff_t   *next_tvb;
+
+  nlpid = tvb_get_guint8(tvb, 0);
+  if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
+     return;
+
+  next_tvb = tvb_new_subset_remaining(tvb, 1);
+  dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree);
+}
+
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8    nlpid;
@@ -498,7 +512,7 @@ void
 proto_reg_handoff_osi(void)
 {
   static gboolean           osi_prefs_initialized = FALSE;
-  static dissector_handle_t osi_tpkt_handle;
+  static dissector_handle_t osi_tpkt_handle, osi_juniper_handle;
   static guint              tcp_port_osi_over_tpkt;
 
   if (!osi_prefs_initialized) {
@@ -513,6 +527,12 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
     dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /*  ISO-TP4 ISO Transport Protocol Class 4 [RFC905,RC77] */
+
+    osi_juniper_handle = create_dissector_handle(dissect_osi_juniper, proto_osi);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_ISO, osi_juniper_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP, osi_juniper_handle);
+    dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_CLNP, osi_juniper_handle);
+
     data_handle = find_dissector("data");
     ppp_handle  = find_dissector("ppp");
 
