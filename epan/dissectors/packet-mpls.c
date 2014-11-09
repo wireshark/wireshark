@@ -105,6 +105,7 @@ static dissector_handle_t dissector_mpls_pw_atm_n1_nocw;
 static dissector_handle_t dissector_mpls_pw_atm_11_aal5pdu;
 static dissector_handle_t dissector_mpls_pw_atm_aal5_sdu;
 static dissector_handle_t dissector_pw_cesopsn;
+static dissector_handle_t dissector_pw_ach;
 
 enum mpls_default_dissector_t {
     MDD_PW_ETH_HEUR = 0
@@ -316,6 +317,17 @@ static gpointer mpls_value(packet_info *pinfo)
     return p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0);
 }
 
+static void pw_ach_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Channel type 0x%x as",
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0)));
+}
+
+static gpointer pw_ach_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0);
+}
+
 /*
  * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
  * decode it.
@@ -352,6 +364,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     channel_type = tvb_get_ntohs(tvb, 2);
+    p_add_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0, GUINT_TO_POINTER(channel_type));
 
     if (tree) {
         proto_tree *mpls_pw_ach_tree;
@@ -411,7 +424,7 @@ dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             call_dissector(dissector_ip, tvb, pinfo, tree);
             return TRUE;
         case 1:
-            dissect_pw_ach(tvb, pinfo, tree );
+            call_dissector(dissector_pw_ach, tvb, pinfo, tree );
             return TRUE;
         default:
             break;
@@ -532,7 +545,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if ((label == MPLS_LABEL_GACH) && bos) {
             g_strlcpy(PW_ACH, "Generic Associated Channel Header",50);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            dissect_pw_ach( next_tvb, pinfo, tree );
+            call_dissector(dissector_pw_ach, next_tvb, pinfo, tree );
             return;
         }
         else
@@ -566,7 +579,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
         return;
     } else if (first_nibble == 1) {
-        dissect_pw_ach(next_tvb, pinfo, tree);
+        call_dissector(dissector_pw_ach, next_tvb, pinfo, tree);
         return;
     } else if (first_nibble == 0) {
         /*
@@ -712,6 +725,11 @@ proto_register_mpls(void)
     static decode_as_t mpls_da = {"mpls", "MPLS", "mpls.label", 1, 0, &mpls_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
+    static build_valid_func pw_ach_da_build_value[1] = {pw_ach_value};
+    static decode_as_value_t pw_ach_da_values = {pw_ach_prompt, 1, pw_ach_da_build_value};
+    static decode_as_t pw_ach_da = {"pwach", "PW Associated Channel", "pwach.channel_type", 1, 0, &pw_ach_da_values, NULL, NULL,
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     module_t * module_mpls;
 
     /* FF: mpls subdissector table is indexed by label */
@@ -750,6 +768,7 @@ proto_register_mpls(void)
                                     &mpls_bos_flowlabel);
 
     register_decode_as(&mpls_da);
+    register_decode_as(&pw_ach_da);
 }
 
 void
@@ -771,6 +790,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP_MPLS, mpls_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6_MPLS, mpls_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP_MPLS, mpls_handle);
+    dissector_add_for_decode_as("pwach.channel_type", mpls_handle);
 
     mpls_handle = find_dissector("mplspwcw");
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_handle );
@@ -792,6 +812,7 @@ proto_reg_handoff_mpls(void)
     dissector_mpls_pw_atm_aal5_sdu  = find_dissector("mpls_pw_atm_aal5_sdu");
     dissector_pw_cesopsn            = find_dissector("pw_cesopsn_mpls");
 
+    dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
 }
 /*
  * Editor modelines

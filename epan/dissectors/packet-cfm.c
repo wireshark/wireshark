@@ -2160,6 +2160,7 @@ void proto_register_cfm(void)
 void proto_reg_handoff_cfm(void)
 {
 	dissector_add_uint("ethertype", ETHERTYPE_CFM, cfm_handle);
+	dissector_add_for_decode_as("pwach.channel_type", cfm_handle);
 }
 
 /*
