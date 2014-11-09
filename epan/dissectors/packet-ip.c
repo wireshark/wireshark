@@ -3106,6 +3106,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("ax25.pid", AX25_P_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
+  dissector_add_uint("pwach.channel_type", 0x21, ip_handle); /* IPv4, RFC4385 clause 6. */
   dissector_add_for_decode_as("udp.port", ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, proto_ip);

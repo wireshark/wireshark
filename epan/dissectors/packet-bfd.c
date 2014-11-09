@@ -40,6 +40,7 @@
 #include <epan/expert.h>
 
 #include "packet-bfd.h"
+#include "packet-mpls.h"
 
 void proto_register_bfd(void);
 void proto_reg_handoff_bfd(void);
@@ -923,6 +924,10 @@ proto_reg_handoff_bfd(void)
     bfd_control_handle = find_dissector("bfd");
     dissector_add_uint("udp.port", UDP_PORT_BFD_1HOP_CONTROL,     bfd_control_handle);
     dissector_add_uint("udp.port", UDP_PORT_BFD_MULTIHOP_CONTROL, bfd_control_handle);
+
+    dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CC, bfd_control_handle);
+    dissector_add_uint("pwach.channel_type", ACH_TYPE_BFD_CV, bfd_control_handle);
+    dissector_add_uint("pwach.channel_type", 0x7, bfd_control_handle); /* PWACH-encapsulated BFD, RFC 5885 */
 }
 
 /*

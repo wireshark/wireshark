@@ -111,12 +111,6 @@ static int hf_mpls_pm_timestamp4_r_ntp = -1;
 static int hf_mpls_pm_timestamp4_r_ptp = -1;
 static int hf_mpls_pm_timestamp4_unk = -1;
 
-static dissector_handle_t mpls_pm_dlm_handle;
-static dissector_handle_t mpls_pm_ilm_handle;
-static dissector_handle_t mpls_pm_dm_handle;
-static dissector_handle_t mpls_pm_dlm_dm_handle;
-static dissector_handle_t mpls_pm_ilm_dm_handle;
-
 /*
  * FF: please keep this list in sync with
  * http://www.iana.org/assignments/mpls-lsp-ping-parameters
@@ -1383,31 +1377,25 @@ proto_register_mpls_pm(void)
 
     proto_register_field_array(proto_mpls_pm_dlm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    register_dissector("mpls_pm_dlm", dissect_mpls_pm_dlm,
-                       proto_mpls_pm_dlm);
-
-    register_dissector("mpls_pm_ilm", dissect_mpls_pm_ilm,
-                       proto_mpls_pm_ilm);
-
-    register_dissector("mpls_pm_dm", dissect_mpls_pm_delay,
-                       proto_mpls_pm_dm);
-
-    register_dissector("mpls_pm_dlm_dm", dissect_mpls_pm_dlm_dm,
-                       proto_mpls_pm_dlm_dm);
-
-    register_dissector("mpls_pm_ilm_dm", dissect_mpls_pm_ilm_dm,
-                       proto_mpls_pm_ilm_dm);
 }
 
 void
 proto_reg_handoff_mpls_pm(void)
 {
-    mpls_pm_dlm_handle    = find_dissector("mpls_pm_dlm");
-    mpls_pm_ilm_handle    = find_dissector("mpls_pm_ilm");
-    mpls_pm_dm_handle     = find_dissector("mpls_pm_dm");
-    mpls_pm_dlm_dm_handle = find_dissector("mpls_pm_dlm_dm");
-    mpls_pm_ilm_dm_handle = find_dissector("mpls_pm_ilm_dm");
+    dissector_handle_t mpls_pm_dlm_handle, mpls_pm_ilm_handle, mpls_pm_dm_handle,
+                       mpls_pm_dlm_dm_handle, mpls_pm_ilm_dm_handle;
+
+    mpls_pm_dlm_handle    = create_dissector_handle( dissect_mpls_pm_dlm, proto_mpls_pm_dlm );
+    dissector_add_uint("pwach.channel_type", 0x000A, mpls_pm_dlm_handle); /* FF: MPLS PM, RFC 6374, DLM */
+    mpls_pm_ilm_handle    = create_dissector_handle( dissect_mpls_pm_ilm, proto_mpls_pm_ilm );
+    dissector_add_uint("pwach.channel_type", 0x000B, mpls_pm_ilm_handle); /* FF: MPLS PM, RFC 6374, ILM */
+    mpls_pm_dm_handle    = create_dissector_handle( dissect_mpls_pm_delay, proto_mpls_pm_dm );
+    dissector_add_uint("pwach.channel_type", 0x000C, mpls_pm_dm_handle); /* FF: MPLS PM, RFC 6374, DM */
+    mpls_pm_dlm_dm_handle    = create_dissector_handle( dissect_mpls_pm_dlm_dm, proto_mpls_pm_dlm_dm );
+    dissector_add_uint("pwach.channel_type", 0x000D, mpls_pm_dlm_dm_handle); /* FF: MPLS PM, RFC 6374, DLM+DM */
+    mpls_pm_ilm_dm_handle    = create_dissector_handle( dissect_mpls_pm_ilm_dm, proto_mpls_pm_ilm_dm );
+    dissector_add_uint("pwach.channel_type", 0x000E, mpls_pm_ilm_dm_handle); /* FF: MPLS PM, RFC 6374, ILM+DM */
+
 }
 
 /*

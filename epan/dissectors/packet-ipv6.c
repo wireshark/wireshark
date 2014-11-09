@@ -3040,6 +3040,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6, ipv6_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP6, ipv6_handle);
+    dissector_add_uint("pwach.channel_type", 0x57, ipv6_handle); /* IPv6, RFC4385 clause 6. */
 
     ipv6_hopopts_handle = new_create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
     dissector_add_uint("ipv6.nxt", IP_PROTO_HOPOPTS, ipv6_hopopts_handle);

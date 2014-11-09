@@ -2564,6 +2564,8 @@ proto_reg_handoff_mpls_echo(void)
 
     mpls_echo_udp_port = global_mpls_echo_udp_port;
     dissector_add_uint("udp.port", global_mpls_echo_udp_port, mpls_echo_handle);
+
+    dissector_add_uint("pwach.channel_type", ACH_TYPE_ONDEMAND_CV, mpls_echo_handle);
 }
 
 /*

@@ -200,8 +200,15 @@ proto_register_pw_oam(void)
 
   proto_register_field_array (proto_pw_oam, hf, array_length(hf));
   proto_register_subtree_array (ett, array_length(ett));
+}
 
-  register_dissector("pw_oam", dissect_pw_oam, proto_pw_oam);
+void
+proto_reg_handoff_pw_oam(void)
+{
+  dissector_handle_t pw_oam_handle;
+
+  pw_oam_handle = create_dissector_handle( dissect_pw_oam, proto_pw_oam );
+  dissector_add_uint("pwach.channel_type", 0x0027, pw_oam_handle); /* KM: MPLSTP PW-OAM, RFC 6478 */
 }
 
 /*

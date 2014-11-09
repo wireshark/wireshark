@@ -68,12 +68,6 @@
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
 
-/* As per RFC 6428 http://tools.ietf.org/html/rfc6428, Section: 3.3 */
-#define ACH_TYPE_BFD_CC               0x0022
-#define ACH_TYPE_BFD_CV               0x0023
-/* As RFC 6426:http://tools.ietf.org/html/rfc6426, Section: 7.4 */
-#define ACH_TYPE_ONDEMAND_CV          0x0025
-
 static gint proto_mpls = -1;
 static gint proto_pw_ach = -1;
 static gint proto_pw_mcw = -1;
@@ -93,19 +87,11 @@ const value_string special_labels[] = {
     {0, NULL }
 };
 
+static dissector_table_t   pw_ach_subdissector_table;
+
 static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
-static dissector_handle_t dissector_bfd;
-static dissector_handle_t dissector_mpls_pm_dlm;
-static dissector_handle_t dissector_mpls_pm_ilm;
-static dissector_handle_t dissector_mpls_pm_dm;
-static dissector_handle_t dissector_mpls_pm_dlm_dm;
-static dissector_handle_t dissector_mpls_pm_ilm_dm;
-static dissector_handle_t dissector_mpls_psc;
-static dissector_handle_t dissector_mplstp_lock;
-static dissector_handle_t dissector_mplstp_fm;
-static dissector_handle_t dissector_pw_oam;
 static dissector_handle_t dissector_pw_eth_heuristic;
 static dissector_handle_t dissector_pw_fr;
 static dissector_handle_t dissector_pw_hdlc_nocw_fr;
@@ -397,71 +383,16 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb     = tvb_new_subset_remaining(tvb, 4);
 
-    switch (channel_type) {
-        case ACH_TYPE_BFD_CC:
-            call_dissector(dissector_bfd, next_tvb, pinfo, tree);  /* bfd_control() */
-            break;
+	if (!dissector_try_uint(pw_ach_subdissector_table, channel_type, next_tvb, pinfo, tree))
+	{
+        call_dissector(dissector_data, next_tvb, pinfo, tree);
+	}
 
-        case ACH_TYPE_BFD_CV:
-            call_dissector(dissector_bfd, next_tvb, pinfo, tree);  /* bfd_control() */
-            dissect_bfd_mep(next_tvb, tree, 0);
-            break;
-
-        case ACH_TYPE_ONDEMAND_CV:
-            dissect_mpls_echo(next_tvb, pinfo, tree, NULL);
-            break;
-
-        case 0x21:   /* IPv4, RFC4385 clause 6. */
-            call_dissector(dissector_ip, next_tvb, pinfo, tree);
-            break;
-
-        case 0x7:    /* PWACH-encapsulated BFD, RFC 5885 */
-            call_dissector(dissector_bfd, next_tvb, pinfo, tree);
-            break;
-
-        case 0x57:   /* IPv6, RFC4385 clause 6. */
-            call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
-            break;
-
-        case 0x000A: /* FF: MPLS PM, RFC 6374, DLM */
-            call_dissector(dissector_mpls_pm_dlm, next_tvb, pinfo, tree);
-            break;
-
-        case 0x000B: /* FF: MPLS PM, RFC 6374, ILM */
-            call_dissector(dissector_mpls_pm_ilm, next_tvb, pinfo, tree);
-            break;
-
-        case 0x000C: /* FF: MPLS PM, RFC 6374, DM */
-            call_dissector(dissector_mpls_pm_dm, next_tvb, pinfo, tree);
-            break;
-
-        case 0x000D: /* FF: MPLS PM, RFC 6374, DLM+DM */
-            call_dissector(dissector_mpls_pm_dlm_dm, next_tvb, pinfo, tree);
-            break;
-
-        case 0x000E: /* FF: MPLS PM, RFC 6374, ILM+DM */
-            call_dissector(dissector_mpls_pm_ilm_dm, next_tvb, pinfo, tree);
-            break;
-
-        case 0x0024: /* FF: PSC, RFC 6378 */
-            call_dissector(dissector_mpls_psc, next_tvb, pinfo, tree);
-            break;
-
-        case 0x0026: /* KM: MPLSTP LOCK, RFC 6435 */
-            call_dissector(dissector_mplstp_lock, next_tvb, pinfo, tree);
-            break;
-
-        case 0x0027: /* KM: MPLSTP PW-OAM, RFC 6478 */
-            call_dissector(dissector_pw_oam, next_tvb, pinfo, tree);
-            break;
-
-        case 0x0058: /* KM: MPLSTP FM, RFC 6427 */
-            call_dissector(dissector_mplstp_fm, next_tvb, pinfo, tree);
-            break;
-
-        default:
-            call_dissector(dissector_data, next_tvb, pinfo, tree);
-            break;
+    if (channel_type == ACH_TYPE_BFD_CV)
+    {
+        /* The BFD dissector has already been called, this is called in addition
+           XXX - Perhaps a new dissector function that combines both is preferred.*/
+        dissect_bfd_mep(next_tvb, tree, 0);
     }
 }
 
@@ -799,6 +730,8 @@ proto_register_mpls(void)
     register_dissector("mpls", dissect_mpls, proto_mpls);
     register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
 
+    pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX);
+
     module_mpls = prefs_register_protocol( proto_mpls, NULL );
 
     prefs_register_enum_preference(module_mpls,
@@ -845,16 +778,6 @@ proto_reg_handoff_mpls(void)
     dissector_data                  = find_dissector("data");
     dissector_ipv6                  = find_dissector("ipv6");
     dissector_ip                    = find_dissector("ip");
-    dissector_bfd                   = find_dissector("bfd");
-    dissector_mpls_pm_dlm           = find_dissector("mpls_pm_dlm");
-    dissector_mpls_pm_ilm           = find_dissector("mpls_pm_ilm");
-    dissector_mpls_pm_dm            = find_dissector("mpls_pm_dm");
-    dissector_mpls_pm_dlm_dm        = find_dissector("mpls_pm_dlm_dm");
-    dissector_mpls_pm_ilm_dm        = find_dissector("mpls_pm_ilm_dm");
-    dissector_mpls_psc              = find_dissector("mpls_psc");
-    dissector_mplstp_lock           = find_dissector("mplstp_lock");
-    dissector_mplstp_fm             = find_dissector("mplstp_fm");
-    dissector_pw_oam                = find_dissector("pw_oam");
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
     dissector_pw_fr                 = find_dissector("pw_fr");
     dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");

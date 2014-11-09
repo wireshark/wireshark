@@ -42,6 +42,12 @@ enum {
     MPLS_LABEL_INVALID           = -1
 };
 
+/* As per RFC 6428 http://tools.ietf.org/html/rfc6428, Section: 3.3 */
+#define ACH_TYPE_BFD_CC               0x0022
+#define ACH_TYPE_BFD_CV               0x0023
+/* As RFC 6426:http://tools.ietf.org/html/rfc6426, Section: 7.4 */
+#define ACH_TYPE_ONDEMAND_CV          0x0025
+
 /*
  * FF: private data passed from the MPLS dissector to subdissectors
  * (data parameter).
@@ -60,6 +66,5 @@ extern void decode_mpls_label(tvbuff_t *tvb, int offset,
 
 extern gboolean dissect_try_cw_first_nibble(tvbuff_t *tvb, packet_info *pinfo,
                                             proto_tree *tree );
-int dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 #endif
