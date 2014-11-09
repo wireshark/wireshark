@@ -511,7 +511,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     &hf_bfd_flags_m,
                     NULL
                 };
-                proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
+                ti = proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
 
                 sep = initial_sep;
                 APPEND_BOOLEAN_FLAG(bfd_flags_p, ti, "%sP");
