@@ -1,0 +1,85 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSUG Appendix Messages -->
+++++++++++++++++++++++++++++++++++++++
+
+[[AppMessages]]
+
+[appendix]
+== Wireshark Messages
+
+Wireshark provides you with additional information generated out of the plain
+packet data or it may need to indicate dissection problems. Messages generated
+by Wireshark are usually placed in square brackets (``[]'').
+
+[[AppMessagesList]]
+
+=== Packet List Messages
+
+These messages might appear in the packet list.
+
+==== [Malformed Packet]
+
+Malformed packet means that the protocol dissector can't dissect the contents of
+the packet any further. There can be various reasons:
+
+* __Wrong dissector__: Wireshark erroneously has chosen the wrong protocol
+  dissector for this packet. This will happen e.g. if you are using a protocol
+  not on its well known TCP or UDP port. You may try Analyze|Decode As to
+  circumvent this problem.
+
+* __Packet not reassembled__: The packet is longer than a single frame and it is
+  not reassembled, see <<ChAdvReassemblySection>> for further details.
+
+* __Packet is malformed__: The packet is actually wrong (malformed), meaning
+  that a part of the packet is just not as expected (not following the protocol
+  specifications).
+
+* __Dissector is buggy__: The corresponding protocol dissector is simply buggy
+  or still incomplete.
+
+Any of the above is possible. You'll have to look into the specific situation to
+determine the reason. You could disable the dissector by disabling the protocol
+on the Analyze menu and check how Wireshark displays the packet then. You could
+(if it's TCP) enable reassembly for TCP and the specific dissector (if possible)
+in the Edit|Preferences menu. You could check the packet contents yourself by
+reading the packet bytes and comparing it to the protocol specification. This
+could reveal a dissector bug. Or you could find out that the packet is indeed
+wrong.
+
+==== [Packet size limited during capture]
+
+The packet size was limited during capture, see ``Limit each packet to n bytes''
+at the <<ChCapCaptureOptions>>. While dissecting, the current protocol dissector
+was simply running out of packet bytes and had to give up. There's nothing else
+you can do now, except to repeat the whole capture process again with a higher
+(or no) packet size limitation.
+
+[[AppMessagesDetails]]
+
+=== Packet Details Messages
+
+These messages might appear in the packet details.
+
+==== [Response in frame: 123]
+
+The current packet is the request of a detected request/response pair. You can
+directly jump to the corresponding response packet just by double clicking on
+this message.
+
+==== [Request in frame: 123]
+
+Same as ``Response in frame: 123'' above, but the other way round.
+
+==== [Time from request: 0.123 seconds]
+
+The time between the request and the response packets.
+
+==== [Stream setup by PROTOCOL (frame 123)]
+
+The session control protocol (SDP, H225, etc) message which signaled the
+creation of this session. You can directly jump to the corresponding packet just
+by double clicking on this message.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSUG Appendix Messages -->
+++++++++++++++++++++++++++++++++++++++

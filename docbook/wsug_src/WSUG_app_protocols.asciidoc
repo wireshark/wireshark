@@ -1,0 +1,19 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSUG Appendix Protocols -->
+++++++++++++++++++++++++++++++++++++++
+
+[[AppProtocols]]
+
+[appendix]
+== Protocols and Protocol Fields
+
+Wireshark distinguishes between protocols (e.g. tcp) and protocol fields (e.g.
+tcp.port).
+
+A comprehensive list of all protocols and protocol fields can be found
+in the ``Display Filter Reference'' at
+link:$$wireshark-display-filter-reference:[]$$[wireshark-display-filter-reference:[]]
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSUG Appendix Protocols -->
+++++++++++++++++++++++++++++++++++++++
