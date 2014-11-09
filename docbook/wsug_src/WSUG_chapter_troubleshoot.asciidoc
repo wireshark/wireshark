@@ -1,0 +1,85 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSUG Chapter Four -->
+++++++++++++++++++++++++++++++++++++++
+
+[[Chap04]]
+
+== Troubleshooting with Wireshark
+
+=== An approach to troubleshooting with Wireshark
+
+Wireshark is a very useful tool for network troubleshooting, since it contains a
+number of features that allow you to quickly focus on problems in your network
+for several reasons:
+
+* It allows you to focus in on specific packets and protocols, as you can see a
+  large amount of detail associated with various protocols.
+
+* It supports a large number of protocols, and the list of protocols supported
+  is growing as more people contribute dissectors
+
+* By giving you a visual view of traffic in parts of your network, and providing
+  tools to filter and colorize that information, you can get a better feel for
+  your network traffic, and can understand your network better.
+
+The following general approach is suggested:
+
+* Determine that the problem looks like a networking problem. There is no point
+  in capturing packets if the problem is not networking related.
+
+* Figure out where to capture packets. You will have to capture packets from a
+  part of the network where you can actually get network traffic related to the
+  problem. This is especially important in the presence of switches and routers.
+  See <<Ch04ROUSWI>> for more details.
++
+Because Wireshark can read many capture file formats, you can capture using any
+convenient tool. One useful approach is to use _tcpdump_ to capture on remote
+systems and then copy the capture file to your system for later analysis. For
+more details on capturing with _tcpdump_, see <<Ch05tcpdump>>.
+
+* Once you have captured packets that you think relate to the problem, load them
+  into Wireshark and look for your problem. Using Wireshark's filtering and
+  colorization capabilities, you can quickly narrow down the capture to the area
+  of interest.
+
+* Examine the appropriate fields within the packets where the problem appears to
+  be. These can often help to reveal the problem.
+
+[[Ch04ROUSWI]]
+
+=== Capturing in the presence of switches and routers
+
+In the old days of Ethernet, all network traffic was spread over one ``yellow''
+cable through the whole network. Capturing data was easy, as all packets from
+the network could be captured using the ``promiscuous mode'' at any place in the
+network. The only devices blocking network traffic, were routers. But as routers
+were extremely expensive, they were not widely used.
+
+Then Ethernet wiring using hubs become the state of the art. As the hubs still
+spaded the packets all over the network, things regarding capturing didn't
+change.
+
+At the next stage, Ethernet switches became widely available. This complicated
+things a lot. When capturing traffic on a computer connected to a switch,
+usually the switch will only forward packets to the computer, which are directed
+to it, or to all computers (broadcasts). It's much the same like deactivating
+the promiscuous mode of the capturing network card.
+
+There are some ways to circumvent this.
+
+Many vendor's switches support a feature known as ``port spanning'' or ``port
+mirroring'' in which all of the traffic to and from port A are also sent out
+port B. An excellent reference on the ``port spanning'' feature of Cisco
+switches can be found at
+link:$$http://www.cisco.com/warp/public/473/41.html$$[Configuring the Catalyst Switched Port Analyzer (SPAN) Feature]
+
+=== Examples of troubleshooting
+
+Troubleshooting often requires a reasonable knowledge of the protocols in
+question. However, as Wireshark will often give you some good hints, you might
+get an idea of what is going wrong simply by looking in the packets being
+exchanged.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSUG Chapter 4 -->
+++++++++++++++++++++++++++++++++++++++
