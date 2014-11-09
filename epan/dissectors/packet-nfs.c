@@ -133,6 +133,9 @@ static int hf_nfs_fh_ex_inode = -1;
 static int hf_nfs_fh_ex_gen = -1;
 static int hf_nfs_fh_flag = -1;
 static int hf_nfs_fh_endianness = -1;
+static int hf_nfs_fh_dc_opaque = -1;
+static int hf_nfs_fh_dc_exportid = -1;
+static int hf_nfs_fh_dc_handle_type = -1;
 static int hf_nfs_full_name = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_data = -1;
@@ -751,6 +754,7 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_NETAPP_GX_V3     7
 #define FHT_CELERRA_VNX      8
 #define FHT_GLUSTER          9
+#define FHT_DCACHE          10
 
 static const enum_val_t nfs_fhandle_types[] = {
 	{ "unknown",     "Unknown",     FHT_UNKNOWN },
@@ -763,6 +767,7 @@ static const enum_val_t nfs_fhandle_types[] = {
 	{ "ontap_gx_v3", "ONTAP_GX_V3", FHT_NETAPP_GX_V3},
 	{ "celerra_vnx", "CELERRA_VNX", FHT_CELERRA_VNX },
 	{ "gluster",     "GLUSTER",     FHT_GLUSTER },
+	{ "dcache",      "dCache",      FHT_DCACHE },
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
@@ -1241,6 +1246,7 @@ static const value_string names_fhtype[] =
 	{	FHT_NETAPP_GX_V3,	"ONTAP GX nfs v3 file handle"		},
 	{	FHT_CELERRA_VNX,	"Celerra|VNX NFS file handle"		},
 	{	FHT_GLUSTER,		"GlusterFS/NFS file handle"		},
+	{	FHT_DCACHE,		"dCache NFS file handle"		},
 	{	0,			NULL					}
 };
 static value_string_ext names_fhtype_ext = VALUE_STRING_EXT_INIT(names_fhtype);
@@ -2166,6 +2172,57 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	/*offset += 16;*/
 }
 
+/*
+ * Dissect dCache NFS File Handle - dcache > 2.6
+ */
+
+#define DCACHE_MAGIC_MASK   0x00FFFFFF
+#define DCACHE_VERSION_MASK 0xFF000000
+#define DCACHE_MAGIC        0xCAFFEE
+
+static const value_string dcache_handle_types[] = {
+	{ 0, "INODE" },
+	{ 1, "TAG" },
+	{ 2, "TAGS" },
+	{ 3, "ID" },
+	{ 4, "PATHOF" },
+	{ 5, "PARENT" },
+	{ 6, "NAMEOF" },
+	{ 7, "PGET" },
+	{ 8, "PSET" },
+	{ 9, "CONST" },
+	{ 0, NULL }
+};
+
+static void
+dissect_fhandle_data_DCACHE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint32 version;
+	guint32 magic;
+	guint8 obj_len;
+
+	if (!tree)
+		return;
+
+	version = (tvb_get_ntohl(tvb, offset) & DCACHE_VERSION_MASK) >> 24;
+	magic   = (tvb_get_ntohl(tvb, offset) & DCACHE_MAGIC_MASK);
+
+	if ((version != 1) || (magic != DCACHE_MAGIC)) {
+		/* unknown file handle */
+		goto out;
+	}
+
+	obj_len = tvb_get_guint8(tvb, offset + 16);
+
+	proto_tree_add_item(tree, hf_nfs_fh_version, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_generation, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_nfs_fh_dc_exportid, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_nfs_fh_dc_handle_type, tvb, offset+15, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_dc_opaque, tvb, offset + 17, obj_len, ENC_NA);
+out:
+	;
+}
 
 /* Dissect EMC Celerra or VNX NFSv3/v4 File Handle */
 static void
@@ -10315,7 +10372,7 @@ dissect_nfs4_cb_compound_call(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 dissect_nfs4_cb_resp_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
- 	guint32	    ops, ops_counter;
+	guint32	    ops, ops_counter;
 	guint32	    opcode;
 	proto_item *fitem;
 	proto_tree *ftree;
@@ -10674,6 +10731,15 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_endianness, {
 			"endianness", "nfs.fh.endianness", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_endianness), 0x0, "server native endianness", HFILL }},
+		{ &hf_nfs_fh_dc_opaque, {
+			"fh opaque data", "nfs.fh.dc.opaque", FT_BYTES, BASE_NONE,
+			NULL, 0, "fh opaque data", HFILL }},
+		{ &hf_nfs_fh_dc_exportid, {
+			"export_id", "nfs.fh.dc.exportid", FT_UINT32, BASE_HEX,
+			NULL, 0, "export id", HFILL }},
+		{ &hf_nfs_fh_dc_handle_type, {
+			"fh type", "nfs.fh.dc.type", FT_UINT32, BASE_DEC,
+			VALS(dcache_handle_types), 0, "export id", HFILL }},
 		{ &hf_nfs2_status, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			&names_nfs2_stat_ext, 0, "Reply status", HFILL }},
@@ -12679,6 +12745,9 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_GLUSTER, fhandle_handle);
+
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs);
+	dissector_add_uint("nfs_fhandle.type", FHT_DCACHE, fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
