@@ -50,6 +50,8 @@ assistance. In particular, the authors would like to thank:
 * Guy Harris, for many helpful hints and his effort in maintaining
 the various contributions on the mailing lists.
 
+* Frank Singleton from whose `README.idl2wrs` <<ChDissectIdl2wrs>> is derived.  
+
 The authors would also like to thank the following people for their 
 helpful feedback on this document:
 

@@ -36,7 +36,7 @@ set(WSUG_FILES
 	WSUG_app_howitworks.xml
 	WSUG_app_messages.xml
 	WSUG_app_protocols.xml
-	wsug_src/WSUG_app_tools.xml
+	WSUG_app_tools.xml
 	WSUG_chapter_advanced.xml
 	WSUG_chapter_build_install.xml
 	WSUG_chapter_capture.xml
@@ -58,6 +58,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_app_howitworks.asciidoc
 	wsug_src/WSUG_app_protocols.asciidoc
 	wsug_src/WSUG_app_messages.asciidoc
+	wsug_src/WSUG_app_tools.asciidoc
 	wsug_src/WSUG_chapter_advanced.asciidoc
 	wsug_src/WSUG_chapter_build_install.asciidoc
 	wsug_src/WSUG_chapter_capture.asciidoc

@@ -1132,7 +1132,193 @@ us to record statistics by packet type.
 Some info about how to use conversations in a dissector can be found in the file
 'doc/README.dissector', chapter 2.2.
 
+[[ChDissectIdl2wrs]]
+
+=== __idl2wrs__: Creating dissectors from CORBA IDL files
+
+Many of Wireshark's dissectors are automatically generated. This section shows
+how to generate one from a CORBA IDL file.
+
+==== What is it?
+
+As you have probably guessed from the name, `idl2wrs` takes a user specified IDL
+file and attempts to build a dissector that can decode the IDL traffic over
+GIOP. The resulting file is ``C'' code, that should compile okay as a Wireshark
+dissector.
+
++idl2wrs+ parses the data struct given to it by the `omniidl` compiler,
+and using the GIOP API available in packet-giop.[ch], generates get_CDR_xxx
+calls to decode the CORBA traffic on the wire.
+
+It consists of 4 main files.
+
+_README.idl2wrs_::
+This document
+
+_$$wireshark_be.py$$_::
+The main compiler backend
+
+_$$wireshark_gen.py$$_::
+A helper class, that generates the C code.
+
+_idl2wrs_::
+A simple shell script wrapper that the end user should use to generate the
+dissector from the IDL file(s).
+
+==== Why do this?
+
+It is important to understand what CORBA traffic looks like over GIOP/IIOP, and
+to help build a tool that can assist in troubleshooting CORBA interworking. This
+was especially the case after seeing a lot of discussions about how particular
+IDL types are represented inside an octet stream.
+
+I have also had comments/feedback that this tool would be good for say a CORBA
+class when teaching students what CORBA traffic looks like ``on the wire''.
+
+It is also COOL to work on a great Open Source project such as the case with
+``Wireshark'' (link:$$wireshark-web-site:[]$$[wireshark-web-site:[]] )
+
+
+==== How to use idl2wrs
+
+To use the idl2wrs to generate Wireshark dissectors, you need the following:
+
+* Python must be installed.  See link:$$http://python.org/$$[]
+
+* +omniidl+ from the omniORB package must be available. See link:$$http://omniorb.sourceforge.net/$$[]
+
+* Of course you need Wireshark installed to compile the code and tweak it if
+required. idl2wrs is part of the standard Wireshark distribution
+
+To use idl2wrs to generate an Wireshark dissector from an idl file use the following procedure:
+
+* To write the C code to stdout.
++
+--
+----
+$ idl2wrs <your_file.idl>
+----
+
+e.g.:
+
+----
+$ idl2wrs echo.idl
+----
+--
+
+* To write to a file, just redirect the output.
++
+--
+----
+$ idl2wrs echo.idl > packet-test-idl.c
+----
+
+You may wish to comment out the register_giop_user_module() code and that will
+leave you with heuristic dissection.
+
+If you don't want to use the shell script wrapper, then try steps 3 or 4 instead.
+--
+
+* To write the C code to stdout.
++
+--
+----
+$ omniidl  -p ./ -b wireshark_be <your file.idl>
+----
+
+e.g.:
+
+----
+$ omniidl  -p ./ -b wireshark_be echo.idl
+----
+--
+
+* To write to a file, just redirect the output.
++
+--
+----
+$ omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c
+----
+
+You may wish to comment out the register_giop_user_module() code and that will
+leave you with heuristic dissection.
+--
+
+* Copy the resulting C code to subdirectory epan/dissectors/ inside your
+Wireshark source directory.
++
+--
+----
+$ cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
+----
+
+The new dissector has to be added to Makefile.common in the same directory. Look
+for the declaration CLEAN_DISSECTOR_SRC and add the new dissector there. For
+example,
+
+----
+CLEAN_DISSECTOR_SRC = \
+        packet-2dparityfec.c    \
+        packet-3com-njack.c     \
+        ...
+----
+
+becomes
+
+----
+CLEAN_DISSECTOR_SRC = \
+        packet-test-idl.c       \
+        packet-2dparityfec.c    \
+        packet-3com-njack.c     \
+        ...
+----
+--
+
+For the next steps, go up to the top of your Wireshark source directory.
+
+* Run configure
++
+--
+----
+$ ./configure (or ./autogen.sh)
+----
+--
+
+* Compile the code
++
+--
+----
+$ make
+----
+--
+
+* Good Luck !!
+
+==== TODO
+
+* Exception code not generated  (yet), but can be added manually.
+
+* Enums not converted to symbolic values (yet), but can be added manually.
+
+* Add command line options etc
+
+* More I am sure :-)
+
+==== Limitations
+
+See the TODO list inside _packet-giop.c_
+
+==== Notes
+
+The `-p ./` option passed to omniidl indicates that the wireshark_be.py and
+wireshark_gen.py are residing in the current directory. This may need tweaking
+if you place these files somewhere else.
+
+If it complains about being unable to find some modules (e.g. tempfile.py), you
+may want to check if PYTHONPATH is set correctly. On my Linux box, it is
+PYTHONPATH=/usr/lib/python2.4/
+
+
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Dissection -->
 ++++++++++++++++++++++++++++++++++++++
-

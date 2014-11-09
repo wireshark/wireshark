@@ -69,8 +69,6 @@ Wireshark project from who sections of this document borrow heavily:
 
 * Ashok Narayanan from whose `text2pcap` man page <<AppToolstext2pcap>> is derived. 
 
-* Frank Singleton from whose `README.idl2wrs` <<AppToolsidl2wrs>> is derived.  
-
 [[PreAbout]]
 
 === About this document
