@@ -55,11 +55,11 @@ static guint amqp_port = 5672;
 /*  Generic defines  */
 
 #define AMQP_INCREMENT(offset, addend, bound) {\
-        THROW_ON( \
+        THROW_ON(                                                       \
             (((unsigned)(offset) + (unsigned)(addend)) < (unsigned)(offset)) || \
             (((unsigned)(offset) + (unsigned)(addend)) > (unsigned)(bound )) \
-            , ReportedBoundsError);  \
-    offset += (addend); \
+            , ReportedBoundsError);                                     \
+        offset += (addend);                                             \
 }
 
 /*
@@ -2141,7 +2141,7 @@ static expert_field ei_amqp_unknown_sasl_command = EI_INIT;
 static expert_field ei_amqp_unknown_amqp_command = EI_INIT;
 static expert_field ei_amqp_unknown_amqp_type = EI_INIT;
 static expert_field ei_amqp_invalid_number_of_params = EI_INIT;
-
+static expert_field ei_amqp_amqp_1_0_frame_length_exceeds_65K = EI_INIT;
 /*  Various enumerations  */
 
 static const value_string amqp_1_0_SASL_code_value [] = {
@@ -2896,7 +2896,7 @@ get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
      * packet).
      */
     length = tvb_get_ntohl(tvb, offset + 3);
-    if (length > 1048576)
+    if (length > 1048576) /* [0x100000] */
         length = 1048576;
     return length + 8;
 }
@@ -3045,7 +3045,7 @@ too_short:
  *   maximum size of 65K.
  */
 
-#define AMQP_0_10_SIZE_MAX(s) (((unsigned)(s) < (1U<<16)) ? (unsigned)s : (1U<<16))
+#define AMQP_0_10_SIZE_MAX(s) (((unsigned)(s) < (1U << 16)) ? (unsigned)s : (1U << 16))
 static guint
 amqp_0_10_get_32bit_size(tvbuff_t *tvb, int offset) {
     guint size = tvb_get_ntohl(tvb, offset);
@@ -3116,7 +3116,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                 break;
 
             default: {   /* Determine total field length from the type */
-                guint temp = 1 << ((type & 0x70) >> 4);  /* Map type to a length value */
+                guint temp = 1U << ((type & 0x70) >> 4);  /* Map type to a length value */
                 amqp_typename = "unimplemented type";
 
                 /* fixed length cases */
@@ -7095,7 +7095,17 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_tree_add_item(amqp_tree, hf_amqp_channel,  tvb, 6, 2, ENC_BIG_ENDIAN);
     }
 
-    length     = tvb_get_ntohl(tvb, 0);
+    /* XXX: The original code used only the low-order 16 bits of the 32 bit length
+     *      field from the PDU as the length to dissect */
+    {
+        guint length32;
+        length32 = tvb_get_ntohl(tvb, 0);
+        length = (length32 < 0x10000U) ? length32 : 0xFFFFU;
+        if (length32 > length) {
+            expert_add_info(pinfo, ti, &ei_amqp_amqp_1_0_frame_length_exceeds_65K);
+        }
+    }
+
     offset     = 4*tvb_get_guint8(tvb,4); /* i.e. 4*DOFF */
     frame_type = tvb_get_guint8(tvb, 5);
     THROW_ON((length < offset), ReportedBoundsError);
@@ -7117,7 +7127,7 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_append_str(pinfo->cinfo, COL_INFO, method_name);
     col_append_str(pinfo->cinfo, COL_INFO, " ");
     col_set_fence(pinfo->cinfo, COL_INFO);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static int
@@ -7262,7 +7272,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 /*  Dissection routine for AMQP 0-9 frames  */
@@ -7906,7 +7916,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 /*  Dissection routine for method Connection.Start                        */
@@ -13506,6 +13516,7 @@ proto_register_amqp(void)
         { &ei_amqp_unknown_amqp_command, { "amqp.unknown.amqp_command", PI_PROTOCOL, PI_ERROR, "Unknown AMQP command", EXPFILL }},
         { &ei_amqp_unknown_amqp_type,  { "amqp.unknown.amqp_type", PI_PROTOCOL, PI_ERROR, "Unknown AMQP type", EXPFILL }},
         { &ei_amqp_invalid_number_of_params, { "amqp.invalid.params_number", PI_PROTOCOL, PI_ERROR, "Invalid number of parameters", EXPFILL }},
+        { &ei_amqp_amqp_1_0_frame_length_exceeds_65K, {"amqp.amqp_1_0_frame_length_exceeds_65K", PI_PROTOCOL, PI_WARN, "Frame length exceeds 65K; Dissection limited to 65K", EXPFILL}},
     };
 
     expert_module_t* expert_amqp;
