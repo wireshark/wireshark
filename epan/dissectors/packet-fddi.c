@@ -36,6 +36,7 @@
 #include <epan/conversation_table.h>
 #include "packet-fddi.h"
 #include "packet-llc.h"
+#include "packet-sflow.h"
 #include <epan/tap.h>
 
 #include <epan/addr_resolv.h>
@@ -546,6 +547,8 @@ proto_reg_handoff_fddi(void)
 
   fddi_handle = find_dissector("fddi");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_handle);
+  dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FDDI, fddi_handle);
+
   fddi_bitswapped_handle =
     create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,

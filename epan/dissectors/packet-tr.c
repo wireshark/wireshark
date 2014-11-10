@@ -32,6 +32,7 @@
 #include <wsutil/pint.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
+#include "packet-sflow.h"
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
 #include <epan/tap.h>
@@ -820,6 +821,7 @@ proto_reg_handoff_tr(void)
 
 	tr_handle = find_dissector("tr");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
+	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_TOKENRING, tr_handle);
 }
 
 /*

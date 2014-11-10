@@ -49,6 +49,7 @@
 #include "packet-usb.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
+#include "packet-sflow.h"
 
 void proto_register_ppp_raw_hdlc(void);
 void proto_reg_handoff_ppp_raw_hdlc(void);
@@ -5488,6 +5489,7 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("osinl.excl", NLPID_PPP, ppp_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_PPP, ppp_handle);
+	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_PPP, ppp_hdlc_handle);
 }
 
 void

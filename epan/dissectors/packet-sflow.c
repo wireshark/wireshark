@@ -57,6 +57,7 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
+#include "packet-sflow.h"
 
 #define SFLOW_UDP_PORTS "6343"
 
@@ -160,24 +161,6 @@ const true_false_string tfs_low_normal = { "Low", "Normal" };
 const true_false_string tfs_high_normal = { "High", "Normal" };
 const true_false_string tfs_minimize_monetary_normal = { "Minimize Monetary", "Normal" };
 const true_false_string tfs_up_down = { "Up", "Down" };
-
-#define SFLOW_245_HEADER_ETHERNET            1
-#define SFLOW_245_HEADER_TOKENBUS            2
-#define SFLOW_245_HEADER_TOKENRING           3
-#define SFLOW_245_HEADER_FDDI                4
-#define SFLOW_245_HEADER_FRAME_RELAY         5
-#define SFLOW_245_HEADER_X25                 6
-#define SFLOW_245_HEADER_PPP                 7
-#define SFLOW_245_HEADER_SMDS                8
-#define SFLOW_245_HEADER_AAL5                9
-#define SFLOW_245_HEADER_AAL5_IP            10
-#define SFLOW_245_HEADER_IPv4               11
-#define SFLOW_245_HEADER_IPv6               12
-#define SFLOW_245_HEADER_MPLS               13
-#define SFLOW_5_HEADER_POS                  14
-#define SFLOW_5_HEADER_80211_MAC            15
-#define SFLOW_5_HEADER_80211_AMPDU          16
-#define SFLOW_5_HEADER_80211_AMSDU_SUBFRAME 17
 
 static const value_string sflow_245_header_protocol[] = {
     { SFLOW_245_HEADER_ETHERNET,           "Ethernet"},
@@ -630,23 +613,7 @@ static gint ett_sflow_245_sampled_header = -1;
 
 static expert_field ei_sflow_invalid_address_type = EI_INIT;
 
-/* dissectors for other protocols */
-static dissector_handle_t eth_withoutfcs_handle;
-static dissector_handle_t tr_handle;
-static dissector_handle_t fddi_handle;
-static dissector_handle_t fr_handle;
-static dissector_handle_t x25_handle;
-static dissector_handle_t ppp_hdlc_handle;
-static dissector_handle_t smds_handle;
-static dissector_handle_t aal5_handle;
-static dissector_handle_t ipv4_handle;
-static dissector_handle_t ipv6_handle;
-static dissector_handle_t mpls_handle;
-static dissector_handle_t pos_handle;
-static dissector_handle_t ieee80211_mac_handle;
-static dissector_handle_t ieee80211_ampdu_handle;
-static dissector_handle_t ieee80211_amsdu_subframe_handle;
-/* don't dissect */
+static dissector_table_t   header_subdissector_table;
 static dissector_handle_t data_handle;
 
 void proto_reg_handoff_sflow_245(void);
@@ -732,59 +699,11 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
     TRY
     {
-        switch (header_proto) {
-            case SFLOW_245_HEADER_ETHERNET:
-                call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_TOKENRING:
-                call_dissector(tr_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_FDDI:
-                call_dissector(fddi_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_FRAME_RELAY:
-                call_dissector(fr_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_X25:
-                call_dissector(x25_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_PPP:
-                call_dissector(ppp_hdlc_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_SMDS:
-                call_dissector(smds_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_AAL5:
-            case SFLOW_245_HEADER_AAL5_IP:
-                /* I'll be surprised if this works! I have no AAL5 captures
-                 * to test with, and I'm not sure how the encapsulation goes */
-                call_dissector(aal5_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_IPv4:
-                call_dissector(ipv4_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_IPv6:
-                call_dissector(ipv6_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_245_HEADER_MPLS:
-                call_dissector(mpls_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_5_HEADER_POS:
-                call_dissector(pos_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_5_HEADER_80211_MAC:
-                call_dissector(ieee80211_mac_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_5_HEADER_80211_AMPDU:
-                call_dissector(ieee80211_ampdu_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            case SFLOW_5_HEADER_80211_AMSDU_SUBFRAME:
-                call_dissector(ieee80211_amsdu_subframe_handle, next_tvb, pinfo, sflow_245_header_tree);
-                break;
-            default:
-                /* some of the protocols, I have no clue where to begin. */
-                break;
-        }
+	    if ((global_dissect_samp_headers == FALSE) ||
+            !dissector_try_uint(header_subdissector_table, header_proto, next_tvb, pinfo, sflow_245_header_tree))
+	    {
+            call_dissector(data_handle, next_tvb, pinfo, sflow_245_header_tree);
+	    }
     }
 
     CATCH_BOUNDS_ERRORS {
@@ -3552,6 +3471,8 @@ proto_register_sflow(void) {
     expert_sflow = expert_register_protocol(proto_sflow);
     expert_register_field_array(expert_sflow, ei, array_length(ei));
 
+    header_subdissector_table  = register_dissector_table("sflow_245.header_protocol", "SFLOW header protocol", FT_UINT32, BASE_DEC);
+
     /* Register our configuration options for sFlow */
     sflow_245_module = prefs_register_protocol(proto_sflow, proto_reg_handoff_sflow_245);
 
@@ -3610,79 +3531,6 @@ proto_reg_handoff_sflow_245(void) {
 
     sflow_ports = range_copy(global_sflow_ports);
     dissector_add_uint_range("udp.port", sflow_ports, sflow_handle);
-
-
-    /*dissector_handle_t sflow_245_handle;*/
-
-    /*
-     * XXX - should this be done with a dissector table?
-     */
-
-    if (global_dissect_samp_headers) {
-        eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        tr_handle = find_dissector("tr");
-        fddi_handle = find_dissector("fddi");
-        fr_handle = find_dissector("fr");
-        x25_handle = find_dissector("x.25");
-        ppp_hdlc_handle = find_dissector("ppp_hdlc");
-#if 0
-        smds_handle = find_dissector("smds");
-#else
-        /* We don't have an SMDS dissector yet
-         *
-         *Switched multimegabit data service (SMDS) was a connectionless service
-         *used to connect LANs, MANs and WANs to exchange data. SMDS was based on
-         *the IEEE 802.6 DQDB standard. SMDS fragmented its datagrams into smaller
-         *"cells" for transport, and can be viewed as a technological precursor of ATM.
-         */
-        smds_handle = data_handle;
-#endif
-#if 0
-        aal5_handle = find_dissector("aal5");
-#else
-        /*
-         * No AAL5 (ATM Adaptation Layer 5) dissector available.
-         * What does the packet look like?  An AAL5 PDU?  Where
-         * do the VPI/VCI pair appear, if anywhere?
-         */
-        aal5_handle = data_handle;
-#endif
-        ipv4_handle = find_dissector("ip");
-        ipv6_handle = find_dissector("ipv6");
-        mpls_handle = find_dissector("mpls");
-#if 0
-        pos_handle = find_dissector("pos");
-#else
-        /* wireshark does not have POS dissector yet */
-        pos_handle = data_handle;
-#endif
-        ieee80211_mac_handle = find_dissector("wlan_withoutfcs");
-#if 0
-        ieee80211_ampdu_handle = find_dissector("ampdu");
-        ieee80211_amsdu_subframe_handle = find_dissector("wlan_aggregate");
-#else
-        /* No handles for these */
-        ieee80211_ampdu_handle = data_handle;
-        ieee80211_amsdu_subframe_handle = data_handle;
-#endif
-    } else {
-        eth_withoutfcs_handle = data_handle;
-        tr_handle = data_handle;
-        fddi_handle = data_handle;
-        fr_handle = data_handle;
-        x25_handle = data_handle;
-        ppp_hdlc_handle = data_handle;
-        smds_handle = data_handle;
-        aal5_handle = data_handle;
-        ipv4_handle = data_handle;
-        ipv6_handle = data_handle;
-        mpls_handle = data_handle;
-        pos_handle = data_handle;
-        ieee80211_mac_handle = data_handle;
-        ieee80211_ampdu_handle = data_handle;
-        ieee80211_amsdu_subframe_handle = data_handle;
-    }
-
 }
 
 /*

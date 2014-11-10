@@ -64,6 +64,7 @@
 #include "packet-pw-common.h"
 #include "packet-bfd.h"
 #include "packet-juniper.h"
+#include "packet-sflow.h"
 
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
@@ -791,6 +792,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6_MPLS, mpls_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP_MPLS, mpls_handle);
     dissector_add_for_decode_as("pwach.channel_type", mpls_handle);
+    dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_MPLS, mpls_handle);
 
     mpls_handle = find_dissector("mplspwcw");
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_handle );

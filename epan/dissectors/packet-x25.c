@@ -39,6 +39,7 @@
 #include <epan/x264_prt_id.h>
 #include <epan/lapd_sapi.h>
 #include <wiretap/wtap.h>
+#include "packet-sflow.h"
 
 void proto_register_x25(void);
 void proto_reg_handoff_x25(void);
@@ -2473,6 +2474,7 @@ proto_reg_handoff_x25(void)
     dissector_add_uint("llc.dsap", SAP_X25, x25_handle);
     dissector_add_uint("lapd.sapi", LAPD_SAPI_X25, x25_handle);
     dissector_add_uint("ax25.pid", AX25_P_ROSE, x25_handle);
+    dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_X25, x25_handle);
 }
 
 /*

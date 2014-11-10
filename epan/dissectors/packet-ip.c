@@ -54,6 +54,7 @@
 
 #include "packet-ip.h"
 #include "packet-juniper.h"
+#include "packet-sflow.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
@@ -3107,6 +3108,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
   dissector_add_uint("pwach.channel_type", 0x21, ip_handle); /* IPv4, RFC4385 clause 6. */
+  dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_for_decode_as("udp.port", ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, proto_ip);

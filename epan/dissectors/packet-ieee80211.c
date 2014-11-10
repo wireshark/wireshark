@@ -108,6 +108,7 @@
 
 #include "packet-wps.h"
 #include "packet-e212.h"
+#include "packet-sflow.h"
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #include <epan/crypt/airpdcap_ws.h>
@@ -26670,7 +26671,7 @@ void
 proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t data_encap_handle, centrino_handle;
-  dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle;
+  dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle, wlan_withoutfcs_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -26725,6 +26726,9 @@ proto_reg_handoff_ieee80211(void)
   wlan_rsna_eapol_rsn_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_rsn_key,
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, wlan_rsna_eapol_rsn_key_handle);
+
+  wlan_withoutfcs_handle = find_dissector("wlan_withoutfcs");
+  dissector_add_uint("sflow_245.header_protocol", SFLOW_5_HEADER_80211_MAC, wlan_withoutfcs_handle);
 }
 
 /*
