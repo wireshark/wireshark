@@ -2935,7 +2935,7 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n", name);
                 /* we are traversing a indfinite length choice where we did not pass the tag length */
                 /* we need to eat the EOC */
                     if (show_internal_ber_fields) {
-                        proto_tree_add_item(tree, hf_ber_choice_eoc, tvb, start_offset, count+2, ENC_NA);
+                        proto_tree_add_item(tree, hf_ber_choice_eoc, tvb, end_offset-2, 2, ENC_NA);
                     }
                 }
             }
