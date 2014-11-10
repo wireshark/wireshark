@@ -195,8 +195,7 @@ COMMON_GRAPHICS = \
 
 # user-guide.xml must be first in the list (to match $<)
 WSUG_DIST =	\
-	user-guide.xml		\
-	git_version.xml		\
+	user-guide.asciidoc	\
 	GPL_appendix.asciidoc	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
@@ -205,7 +204,7 @@ WSUG_DIST =	\
 	$(WSUG_GRAPHICS)	\
 	$(COMMON_GRAPHICS)
 
-WSUG_SOURCE = $(WSUG_DIST) $(WSUG_GENERATED_SOURCE)
+WSUG_SOURCE = $(WSUG_GENERATED_SOURCE) $(WSUG_DIST)
 
 # developer-guide.asciidoc must be first in the list (to match $<)
 WSDG_DIST =	\
