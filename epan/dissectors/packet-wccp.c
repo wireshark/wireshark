@@ -2252,17 +2252,21 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
   switch (type_of_assignment)
     {
     case WCCP2_HASH_ASSIGNMENT_TYPE:
-      return dissect_wccp2_hash_assignment_data_element(tvb, offset, assignment_length,
+      dissect_wccp2_hash_assignment_data_element(tvb, offset, assignment_length,
                                                         pinfo, item_tree);
+      return length - assignment_length;
     case WCCP2_MASK_ASSIGNMENT_TYPE:
-      return dissect_wccp2_mask_assignment_data_element(tvb, offset, assignment_length,
+      dissect_wccp2_mask_assignment_data_element(tvb, offset, assignment_length,
                                                         pinfo, item_tree);
+      return length - assignment_length;
     case WCCP2r1_ALT_MASK_ASSIGNMENT_TYPE:
-      return dissect_wccp2_alternate_mask_assignment_data_element(tvb, offset, assignment_length,
+      dissect_wccp2_alternate_mask_assignment_data_element(tvb, offset, assignment_length,
                                                                   pinfo, item_tree);
+      return length - assignment_length;
     case WCCP2r1_ASSIGNMENT_WEIGHT_STATUS:
-      return dissect_wccp2_assignment_weight_and_status_element(tvb, offset, assignment_length,
+      dissect_wccp2_assignment_weight_and_status_element(tvb, offset, assignment_length,
                                                                 pinfo, item_tree);
+      return length - assignment_length;
     }
   return length;
 }
