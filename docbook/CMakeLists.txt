@@ -32,28 +32,6 @@ set(COMMON_GRAPHICS
 )
 
 set(WSUG_FILES
-	WSUG_app_files.xml
-	WSUG_app_howitworks.xml
-	WSUG_app_messages.xml
-	WSUG_app_protocols.xml
-	WSUG_app_tools.xml
-	WSUG_chapter_advanced.xml
-	WSUG_chapter_build_install.xml
-	WSUG_chapter_capture.xml
-	WSUG_chapter_customize.xml
-	WSUG_chapter_introduction.xml
-	WSUG_chapter_io.xml
-	WSUG_chapter_statistics.xml
-	WSUG_chapter_telephony.xml
-	WSUG_chapter_troubleshoot.xml
-	WSUG_chapter_use.xml
-	WSUG_chapter_work.xml
-	wsug_src/WSUG_meta_info.xml
-	WSUG_preface.xml
-	ws.css
-)
-
-set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_app_files.asciidoc
 	wsug_src/WSUG_app_howitworks.asciidoc
 	wsug_src/WSUG_app_protocols.asciidoc
@@ -72,6 +50,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
 	wsluarm.asciidoc
+	ws.css
 )
 
 set(WSUG_GRAPHICS
@@ -230,7 +209,6 @@ set(WSDG_GRAPHICS
 set(WSUG_SOURCE
 	user-guide.xml
 	git_version.xml
-	wsluarm
 	${WSUG_FILES}
 	${WSUG_GRAPHICS}
 )
@@ -271,72 +249,11 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
 		DEPENDS
 			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
 			${_conf_deps}
-			${WSDG_GENERATED_FILES}
 	)
 ENDMACRO()
 
 ASCIIDOC2DOCBOOK( developer-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
-
-SET( WSDG_GENERATED_FILES )
-# Convert an AsciiDoc document to a DocBook chapter
-# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
-# Can be removed after the User's Guide is converted.
-# .asciidoc -> whole book (.dbk) -> chapter (.xml)
-MACRO( ASCIIDOC2CHAPTER _asciidocsource _conf_files )
-	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-	set( A2X_HTML_OPTS --stylesheet=ws.css )
-	set( _output_xml ${_source_base_name}.xml )
-	set( _output_dbk ${_source_base_name}.dbk )
-
-	set(_conf_opts_list)
-	foreach(_conf_file ${_conf_files})
-		set( _conf_opts_list ${_conf_opts_list} --conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
-	endforeach()
-	string(REPLACE ";" " " _conf_opts "${_conf_opts_list}")
-
-	set(_conf_deps)
-	foreach(_conf_file ${_conf_files})
-		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
-	endforeach()
-
-	ADD_CUSTOM_COMMAND(
-		OUTPUT
-			${_output_xml} ${_output_dbk}
-		# XXX - Output to a specific directory, e.g. wsdg_generated_src
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMAND ${A2X_EXECUTABLE}
-			--verbose
-			--attribute=build_dir=${CMAKE_CURRENT_BINARY_DIR}
-			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-			--asciidoc-opts=${_conf_opts}
-			--no-xmllint
-			--fop
-			--format=docbook --doctype=book
-			${A2X_HTML_OPTS}
-			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-		COMMAND mv
-			${_output_xml}
-			${_output_dbk}
-		COMMAND ${XMLLINT_EXECUTABLE}
-			--xpath '//chapter | //preface | //appendix'
-			${_output_dbk}
-			> ${_output_xml}
-		DEPENDS
-			${_outptudir}
-			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-			${_conf_deps}
-	)
-	LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
-ENDMACRO()
-
-FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
-	ASCIIDOC2CHAPTER(
-		${ASCIIDOCFILE}
-		"${ASCIIDOC_CONF_FILES}"
-	)
-ENDFOREACH()
-
-ADD_CUSTOM_TARGET( wsug_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
+ASCIIDOC2DOCBOOK( user-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
 
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE

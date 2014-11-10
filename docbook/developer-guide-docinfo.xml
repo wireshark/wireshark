@@ -4,19 +4,26 @@
 
   <!-- <title><inlinegraphic entityref="WiresharkLogo" valign="middle" format="PNG"/> &DocumentTitle;</title> -->
 
-  <!--
-  <authorgroup>
-    <author><firstname>&AuthorFirstName;</firstname><surname>&AuthorSurname;</surname>
-      <affiliation><orgname>&AuthorOrgName;</orgname></affiliation>
-    </author>
-  </authorgroup>
-  -->
+<authorgroup>
 
-  <!--<edition>&DocumentEdition;</edition>
-  <pubdate>2008</pubdate>-->
-  <copyright><year>2004-2014</year>
-    <holder>Ulf Lamping</holder>
-  </copyright>
+  <author><firstname>Ulf</firstname><surname>Lamping</surname>
+    <!-- <affiliation><orgname></orgname></affiliation> -->
+    <email>ulf.lamping[AT]web.de</email>
+  </author>
+
+  <author><firstname>Luis</firstname><othername>E.</othername><othername>Garcia</othername><surname>Ontanon</surname>
+    <!-- <affiliation><orgname></orgname></affiliation> -->
+    <email>luis[AT]ontanon.org</email>
+  </author>
+
+</authorgroup>
+
+<!--<edition>&DocumentEdition;</edition>
+<pubdate>2008</pubdate>-->
+<copyright><year>2004-2014</year>
+  <holder>Ulf Lamping</holder>
+  <holder>Luis E. Garcia Ontanon</holder>
+</copyright>
 
 <revhistory>
 

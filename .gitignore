@@ -138,6 +138,7 @@ help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
 docbook/developer-guide.xml
+docbook/user-guide.xml
 docbook/ws?g_src/WS?G_*.dbk
 docbook/*-guide-*.fo
 docbook/*-guide-*.pdf

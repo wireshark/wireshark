@@ -31,25 +31,6 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 
 .SUFFIXES: .fo .pdf
 
-# Convert an AsciiDoc document to a DocBook chapter
-# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
-# .asciidoc -> whole book (.dbk) -> chapter (.xml)
-# Can be removed after the User's Guide is converted.
-.asciidoc.xml:
-	$(SH) <<
-	PATH=/usr/bin
-	PYTHONHOME=/
-	$(A2X) --verbose \
-		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
-		--no-xmllint \
-		--format=docbook --doctype=book \
-		$<
-<<
-	mv $*.xml $*.dbk
-	xmllint --xpath "//chapter | //preface | //appendix" $*.dbk > $@
-
-.SUFFIXES: .asciidoc .xml
-
 # -- (Public) targets -------------------------------------------------------
 
 # Make all (default)
@@ -90,6 +71,19 @@ git_version.xml: git_version_check
 # -- User Guide ------------------------------------------------------------------------
 
 wsug_x: wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
+
+user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
+	@ echo --- WSUG - XML ---
+	$(SH) <<
+	PATH=/usr/bin
+	PYTHONHOME=/
+	$(A2X) --verbose \
+		--attribute=docinfo \
+		--asciidoc-opts="--conf-file=asciidoc.conf --conf-file=asciidoctor-asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook \
+		user-guide.asciidoc
+<<
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -164,7 +158,7 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 wsdg_x: wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
-developer-guide.xml: developer-guide.asciidoc  $(WSDG_FILES)  wsluarm
+developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)  wsluarm
 	@ echo --- WSDG - XML ---
 	$(SH) <<
 	PATH=/usr/bin

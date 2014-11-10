@@ -53,19 +53,6 @@ else
 	@false
 endif
 
-# Convert an AsciiDoc document to a DocBook chapter
-# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
-# Can be removed after the User's Guide is converted.
-# .asciidoc -> whole book (.dbk) -> chapter (.xml)
-wsug_src/%.xml : wsug_src/%.asciidoc
-	$(A2X) --verbose \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
-		--no-xmllint \
-		--format=docbook --doctype=book \
-		$<
-	mv wsug_src/$*.xml wsug_src/$*.dbk
-	xmllint --xpath '//chapter | //preface | //appendix' wsug_src/$*.dbk > $@
-
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes
 else
@@ -94,6 +81,14 @@ WSUG_TARGETS=wsug.validated wsug_html_chunked wsug_html
 endif
 
 wsug: $(WSUG_TARGETS)
+
+user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
+	$(A2X) --verbose \
+		--attribute=docinfo \
+		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook \
+		$<
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -169,7 +164,7 @@ wsdg: $(WSDG_TARGETS)
 developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 	$(A2X) --verbose \
 		--attribute=docinfo \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoc.conf" \
+		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
 		$<
