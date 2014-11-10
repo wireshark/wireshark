@@ -183,6 +183,9 @@
 /* Define to 1 if you have OS X frameworks */
 #cmakedefine HAVE_OS_X_FRAMEWORKS 1
 
+/* Define to 1 if you have the OS X CFPropertyListCreateWithStream function */
+#cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1
+
 /* Define if pcap_breakloop is known */
 #cmakedefine HAVE_PCAP_BREAKLOOP 1
 

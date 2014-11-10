@@ -93,6 +93,12 @@ check_function_exists("setresgid"        HAVE_SETRESGID)
 check_function_exists("setresuid"        HAVE_SETRESUID)
 check_function_exists("strptime"         HAVE_STRPTIME)
 check_function_exists("sysconf"          HAVE_SYSCONF)
+if (APPLE)
+	cmake_push_check_state()
+	set(CMAKE_REQUIRED_LIBRARIES ${APPLE_CORE_FOUNDATION_LIBRARY})
+	check_function_exists("CFPropertyListCreateWithStream" HAVE_CFPROPERTYLISTCREATEWITHSTREAM)
+	cmake_pop_check_state()
+endif()
 
 #Struct members
 include(CheckStructHasMember)

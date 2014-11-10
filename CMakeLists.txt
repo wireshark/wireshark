@@ -751,6 +751,17 @@ endif()
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
 
+if(APPLE)
+	#
+	# We assume that APPLE means OS X so that we have the OS X
+	# frameworks.
+	#
+	set(HAVE_OS_X_FRAMEWORKS 1)
+	FIND_LIBRARY (APPLE_APPLICATION_SERVICES_LIBRARY ApplicationServices)
+	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
+	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)
+endif()
+
 include(ConfigureChecks.cmake)
 
 #Big or little endian ?
@@ -863,17 +874,6 @@ include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
 
 add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
-
-if(APPLE)
-	#
-	# We assume that APPLE means OS X so that we have the OS X
-	# frameworks.
-	#
-	set(HAVE_OS_X_FRAMEWORKS 1)
-	FIND_LIBRARY (APPLE_APPLICATION_SERVICES_LIBRARY ApplicationServices)
-	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
-	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)
-endif()
 
 if(WIN32)
 	set(WS_MSVC_NORETURN "__declspec(noreturn)")
