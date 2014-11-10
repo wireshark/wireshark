@@ -8090,6 +8090,26 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
         }
         break;
     case 18: /* change-of-status-flags */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset,
+                    "present-value: ", BACnetStatusFlags);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 1:
+                offset = fBitStringTagVS(tvb, pinfo, subtree, offset,
+                    "referenced-flags: ", BACnetStatusFlags);
+                lastoffset = offset;
+                break;
+            default:
+                break;
+            }
+            if (offset == lastoffset) break;     /* nothing happened, exit loop */
+        }
         break;
         /* todo: add new parameters here ... */
     default:
