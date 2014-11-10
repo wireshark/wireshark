@@ -178,23 +178,9 @@ include::{build_dir}/wsluarm_src/wslua_tree.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_tvb.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_file.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_dir.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_utility.asciidoc[]
+include::{build_dir}/wsluarm_src/wslua_util.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.asciidoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.asciidoc[]
-
-// WsLuaDumper
-// WsLuaField
-// WsLuaGui
-// WsLuaListener
-// WsLuaPinfo
-// WsLuaProto
-// WsLuaTree
-// WsLuaTvb
-// WsLuaFile
-// WsLuaDir
-// WsLuaUtility
-// WsLuaInt64
-// WsLuaStruct
 
 [[lua_module_GRegex]]
 
