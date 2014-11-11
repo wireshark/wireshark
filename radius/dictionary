@@ -253,7 +253,8 @@ $INCLUDE dictionary.siemens
 $INCLUDE dictionary.slipstream
 $INCLUDE dictionary.sonicwall
 $INCLUDE dictionary.springtide
-$INCLUDE dictionary.starent
+#$INCLUDE dictionary.starent       Thes two are mutally exlusive I think, make the "old" one the default
+$INCLUDE dictionary.starent.vsa1
 $INCLUDE dictionary.surfnet
 $INCLUDE dictionary.symbol
 $INCLUDE dictionary.telebit
