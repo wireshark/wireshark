@@ -452,12 +452,12 @@ hiqnet_display_netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offs
 
 static gint
 hiqnet_display_sernum(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
-    gint strlen;
-    strlen = tvb_get_ntohs(tvb, offset);
+    gint str_len;
+    str_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_sernumlen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_sernum, tvb, offset, strlen, ENC_BIG_ENDIAN);
-    offset += strlen;
+    proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_sernum, tvb, offset, str_len, ENC_BIG_ENDIAN);
+    offset += str_len;
     return offset;
 }
 
@@ -651,7 +651,7 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 paramcount = 0;
     guint16 subcount = 0;
     guint16 attrcount = 0;
-    gint strlen = 0;
+    gint str_len = 0;
     guint16 vdscount = 0;
     guint32 cats = 0;
     guint16 eventscount = 0;
@@ -878,11 +878,11 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case HIQNET_GETVDLIST_MSG :
                 /* FIXME: Not tested, straight from the spec, never occurred with the devices I own */
-                strlen = tvb_get_ntohs(tvb, offset);
+                str_len = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_strlen, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, strlen, ENC_UCS_2);
-                offset += strlen;
+                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, str_len, ENC_UCS_2);
+                offset += str_len;
                 if (flags & HIQNET_INFO_FLAG) { /* This is not a request */
                     vdscount = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_numvds, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -904,11 +904,11 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 1;
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_strnum, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                strlen = tvb_get_ntohs(tvb, offset);
+                str_len = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_strlen, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, strlen, ENC_UCS_2);
-                offset += strlen;
+                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, str_len, ENC_UCS_2);
+                offset += str_len;
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             case HIQNET_RECALL_MSG :
@@ -916,11 +916,11 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 1;
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_recnum, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                strlen = tvb_get_ntohs(tvb, offset);
+                str_len = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_strlen, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, strlen, ENC_UCS_2);
-                offset += strlen;
+                proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_wrkgrppath, tvb, offset, str_len, ENC_UCS_2);
+                offset += str_len;
                 proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             case HIQNET_LOCATE_MSG :
@@ -961,19 +961,19 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         offset += 1;
                         proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventseqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
-                        strlen = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventtime, tvb, offset, strlen, ENC_UCS_2);
-                        offset += strlen;
-                        strlen = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventdate, tvb, offset, strlen, ENC_UCS_2);
-                        offset += strlen;
-                        strlen = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventinfo, tvb, offset, strlen, ENC_UCS_2);
-                        offset += strlen;
-                        strlen = tvb_get_ntohs(tvb, offset);
+                        str_len = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventtime, tvb, offset, str_len, ENC_UCS_2);
+                        offset += str_len;
+                        str_len = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventdate, tvb, offset, str_len, ENC_UCS_2);
+                        offset += str_len;
+                        str_len = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventinfo, tvb, offset, str_len, ENC_UCS_2);
+                        offset += str_len;
+                        str_len = tvb_get_ntohs(tvb, offset);
                         proto_tree_add_item(
-                            hiqnet_event_tree, hf_hiqnet_eventadddata, tvb, offset, strlen, ENC_BIG_ENDIAN);
-                        offset += strlen;
+                            hiqnet_event_tree, hf_hiqnet_eventadddata, tvb, offset, str_len, ENC_BIG_ENDIAN);
+                        offset += str_len;
                         eventscount -= 1;
                     }
                 }
