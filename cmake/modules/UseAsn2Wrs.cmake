@@ -1,5 +1,7 @@
 #
 MACRO(ASN2WRS)
+	find_package(Asn2Wrs REQUIRED)
+
 	set( DISSECTOR ${CMAKE_SOURCE_DIR}/epan/dissectors/packet-${PROTOCOL_NAME}.c )
 
 	if ( NOT PROTO_OPT )
@@ -12,7 +14,7 @@ MACRO(ASN2WRS)
 	# cause EXCLUDE_FROM_ALL to be ignored.
 	ADD_CUSTOM_TARGET(generate_dissector-${PROTOCOL_NAME} ALL
 		COMMAND ${PYTHON_EXECUTABLE}
-		  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+		  ${ASN2WRS_EXECUTABLE}
 		  ${A2W_FLAGS}
 		  ${PROTO_OPT}
 		  -c ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf
@@ -21,7 +23,7 @@ MACRO(ASN2WRS)
 		  -O ${CMAKE_SOURCE_DIR}/epan/dissectors
 		  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 		DEPENDS
-		  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+		  ${ASN2WRS_EXECUTABLE}
 		  ${SRC_FILES}
 		  ${EXTRA_CNF}
 	)
@@ -30,7 +32,7 @@ MACRO(ASN2WRS)
 		ADD_CUSTOM_TARGET( ${_asn2wrs_export_file}
 			WORKING_DIRECTORY .
 			COMMAND ${PYTHON_EXECUTABLE}
-			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			  ${ASN2WRS_EXECUTABLE}
 			  -E
 			  ${A2W_FLAGS}
 			  ${PROTO_OPT}
@@ -38,7 +40,7 @@ MACRO(ASN2WRS)
 			  -D ${CMAKE_CURRENT_SOURCE_DIR}
 			  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 			DEPENDS
-			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			  ${ASN2WRS_EXECUTABLE}
 			  ${SRC_FILES}
 			  ${EXPORT_DEPENDS}
 		)
