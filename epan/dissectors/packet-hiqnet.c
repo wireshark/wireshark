@@ -1418,7 +1418,7 @@ proto_register_hiqnet(void)
                 NULL, HFILL }
         },
         { &hf_hiqnet_datalen,
-            { "Data lenght", "hiqnet.datalen",
+            { "Data length", "hiqnet.datalen",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
@@ -1484,7 +1484,7 @@ proto_register_hiqnet(void)
                 NULL, HFILL }
         },
         { &hf_hiqnet_strlen,
-            { "String lenght", "hiqnet.strlen",
+            { "String length", "hiqnet.strlen",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
