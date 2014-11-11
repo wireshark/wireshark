@@ -167,12 +167,15 @@ entity(E) ::= STRING(S).	{ E = S; }
 entity(E) ::= UNPARSED(U).	{ E = U; }
 entity(E) ::= range(R).		{ E = R; }
 
+range_body(B) ::= FIELD(F).	{ B = F; }
+range_body(B) ::= STRING(S).	{ B = S; }
+range_body(B) ::= range(R).	{ B = R; }
 
 /* Ranges */
-range(R) ::= entity(E) LBRACKET drnode_list(L) RBRACKET.
+range(R) ::= range_body(B) LBRACKET drnode_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, E, L);
+	sttype_range_set(R, B, L);
 
 	/* Delete the list, but not the drange_nodes that
 	 * the list contains. */
