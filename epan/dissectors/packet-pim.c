@@ -574,7 +574,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         break;
     }
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static gboolean
