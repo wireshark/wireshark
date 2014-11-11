@@ -29,6 +29,7 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
     pf_ui_(new Ui::PacketFormatGroupBox)
 {
     pf_ui_->setupUi(this);
+    setFlat(true);
 
     QStyleOption style_opt;
     int cb_label_offset =  pf_ui_->detailsCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();

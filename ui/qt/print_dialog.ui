@@ -26,6 +26,9 @@
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -69,6 +72,9 @@
     <widget class="PacketRangeGroupBox" name="rangeGroupBox">
      <property name="title">
       <string>Packet Range</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

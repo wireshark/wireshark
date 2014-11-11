@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="inputTab">
       <attribute name="title">
@@ -250,13 +250,10 @@
           <string>Capture to a permanent file</string>
          </property>
          <property name="flat">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="checkable">
           <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="2">
@@ -301,13 +298,10 @@
           <string>Create a new file automatically after...</string>
          </property>
          <property name="flat">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="checkable">
           <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="1" column="1">
@@ -518,10 +512,7 @@ PLEASE NOTE: One option MUST be selected.</string>
             <string>Display Options</string>
            </property>
            <property name="flat">
-            <bool>false</bool>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
@@ -576,7 +567,7 @@ PLEASE NOTE: One option MUST be selected.</string>
             <string>Name Resolution</string>
            </property>
            <property name="flat">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
@@ -636,10 +627,7 @@ PLEASE NOTE: One option MUST be selected.</string>
           <string>Stop capture automatically after...</string>
          </property>
          <property name="flat">
-          <bool>false</bool>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="1">

@@ -40,6 +40,9 @@
      <property name="title">
       <string>Import From</string>
      </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
      <layout class="QFormLayout" name="formLayout_2">
       <item row="1" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -225,6 +228,9 @@
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Encapsulation</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">

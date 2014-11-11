@@ -54,13 +54,16 @@
      <property name="title">
       <string>File</string>
      </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
      <widget class="QWidget" name="layoutWidget_1">
       <property name="geometry">
        <rect>
         <x>21</x>
         <y>21</y>
         <width>731</width>
-        <height>88</height>
+        <height>90</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout">
@@ -135,6 +138,9 @@
      <property name="title">
       <string>Time</string>
      </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
      <widget class="QWidget" name="layoutWidget_2">
       <property name="geometry">
        <rect>
@@ -205,6 +211,9 @@
      <property name="title">
       <string>Capture</string>
      </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
      <widget class="QTextEdit" name="teCFComments">
       <property name="geometry">
        <rect>
@@ -274,7 +283,7 @@
        </item>
       </layout>
      </widget>
-     <zorder>layoutWidget_1</zorder>
+     <zorder>layoutWidget_3</zorder>
      <zorder>teCFComments</zorder>
      <zorder>label_17</zorder>
     </widget>
