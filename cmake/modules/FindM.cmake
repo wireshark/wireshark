@@ -12,7 +12,27 @@ IF (M_INCLUDE_DIRS)
   SET(M_FIND_QUIETLY TRUE)
 ENDIF (M_INCLUDE_DIRS)
 
+#
+# On OS X, make sure we do *NOT* find math.h in the Kernel framework,
+# as that will convince CMake to cause the build to look there for
+# headers.
+#
+# For some unknown reason, on Yosemite, math.h is included in the Kernel
+# framework.  That framework exists to supply headers for building
+# *kernel* modules; it includes versions of C headers that are similar
+# to the standard userland headers, but not similar enough to be usable
+# when building userland code.
+#
+# Unless told not to look first in the framework paths, CMake will, on
+# Yosemite, or when using the Yosemite SDK, find math.h in the Kernel
+# framework, and add the header directory for the Kernel framework to
+# the list of places to look for headers, causing it to pick up other
+# headers from there as well.  This causes the build to fail.
+#
+SET(SAVED_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
+SET(CMAKE_FIND_FRAMEWORK LAST)
 FIND_PATH(M_INCLUDE_DIR math.h)
+SET(CMAKE_FIND_FRAMEWORK ${SAVED_CMAKE_FIND_FRAMEWORK})
 
 SET(M_NAMES m)
 FIND_LIBRARY(M_LIBRARY NAMES ${M_NAMES} )
