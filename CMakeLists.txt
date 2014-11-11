@@ -1789,6 +1789,18 @@ CHECKAPI(
 	${WIRESHARK_SRC}
 )
 
+set(CMAKE_INSTALL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@)
+configure_file("${CMAKE_MODULE_PATH}/WiresharkConfig.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfig.cmake" @ONLY)
+configure_file("${CMAKE_MODULE_PATH}/WiresharkConfigVersion.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake" @ONLY)
+install(
+	FILES
+		${CMAKE_MODULE_PATH}/FindWireshark.cmake
+		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
+		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
+	DESTINATION
+		${CMAKE_INSTALL_MODULES_DIR}
+)
+
 if(DOC_DIR)
 	message(STATUS "Docdir install: ${DOC_DIR}")
 	INSTALL(
