@@ -4212,10 +4212,10 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     guint8      al_ret_priority;
     guint8      delay, reliability, peak, precedence, mean, spare1, spare2, spare3;
     guint8      traf_class, del_order, del_err_sdu;
-    guint8      max_sdu_size, max_ul, max_dl, max_ul_ext, max_dl_ext;
+    guint8      max_sdu_size, max_ul, max_dl, max_ul_ext, max_dl_ext, max_ul_ext2, max_dl_ext2;
     guint8      res_ber, sdu_err_ratio;
     guint8      trans_delay, traf_handl_prio;
-    guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext;
+    guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext, guar_ul_ext2, guar_dl_ext2;
     guint8      src_stat_desc, sig_ind;
     proto_tree *ext_tree_qos, *ext_tree_qos_arp;
     int         mss, mu, md, gu, gd;
@@ -4287,7 +4287,11 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         length -= offset;
         length /= 2;
 
-        retval = length + 2;    /* Actually, will be ignored. */
+		/* Fake the length of the IE including the IE id and length octets
+		 * we are actually using it to determine precense of Octet n as counted in
+		 * TS 24.008
+		 */
+        length = retval = length + 2;    /* Actually, will be ignored. */
         break;
     default:
         /* XXX - what should we do with the length here? */
@@ -4393,7 +4397,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3,      tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, spare3);
     proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean,        tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, mean);
 
-    /* TS 24.008 V 7.8.0
+    /* TS 24.008 V 7.8.0 10.5.6.5 Quality of service
      * The quality of service is a type 4 information element with a minimum length of 14 octets and a maximum length of 18
      * octets. The QoS requested by the MS shall be encoded both in the QoS attributes specified in octets 3-5 and in the QoS
      * attributes specified in octets 6-14.
@@ -4443,6 +4447,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         if (length > 16) {
             max_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (15 - 1) * utf8_type + 1, utf8_type);
             guar_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (16 - 1) * utf8_type + 1, utf8_type);
+        }
+        if (length > 18) {
+            max_dl_ext2 = wrapped_tvb_get_guint8(tvb, offset + (17 - 1) * utf8_type + 1, utf8_type);
+            guar_dl_ext2 = wrapped_tvb_get_guint8(tvb, offset + (18 - 1) * utf8_type + 1, utf8_type);
+        }
+        if (length > 20) {
+            max_ul_ext2 = wrapped_tvb_get_guint8(tvb, offset + (19 - 1) * utf8_type + 1, utf8_type);
+            guar_ul_ext2 = wrapped_tvb_get_guint8(tvb, offset + (20 - 1) * utf8_type + 1, utf8_type);
         }
 
         /*
@@ -4613,6 +4625,91 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             }
         }
 
+        if(length > 18) {
+            /* Octet 19 Maximum bit rate for downlink (extended-2)
+             * This field is an extension of the Maximum bit rate for uplink in octet 8. The coding is identical to that of the Maximum bit
+             * rate for downlink (extended).
+             */
+            if (guar_dl_ext2 == 0)
+                proto_tree_add_text(ext_tree_qos, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for downlink in octet 9 and octet 15.");
+
+            if ((max_dl_ext2 > 0) && (max_dl_ext2 <= 0x3d)) {
+                md = 256 + max_dl_ext2 * 4;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for downlink: %u Mbps", md);
+            }
+            if ((max_dl_ext2 > 0x3d) && (max_dl_ext2 <= 0xa1)) {
+                md = 500 + (max_dl_ext2-0x3d) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for downlink: %u Mbps", md);
+            }
+            if ((max_dl_ext2 > 0xa1) && (max_dl_ext2 <= 0xf6)) {
+                md = 1500 + (max_dl_ext2-0xa1)*10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for downlink: %u Mbps", md);
+            }
+            /* Octet 20 Guaranteed bit rate for downlink (extended-2) */
+            if (max_dl_ext2 == 0)
+                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for downlink in octet 13 and octet 16.");
+            if ((max_dl_ext2 > 0) && (max_dl_ext2 <= 0x3d)) {
+                gd = 256 + max_dl_ext2 * 4;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for downlink: %u Mbps", gd);
+            }
+            if ((max_dl_ext2 > 0x3d) && (max_dl_ext2 <= 0xa1)) {
+                gd = 500 + (max_dl_ext2-0x3d) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for downlink: %u Mbps", gd);
+            }
+            if ((max_dl_ext2 > 0xba) && (max_dl_ext2 <= 0xfa)) {
+                gd = 1500 + (max_dl_ext2-0xa1) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
+            }
+        }
+
+        if(length > 20) {
+            /* Maximum bit rate for uplink (extended-2), octet 21
+             * This field is an extension of the Maximum bit rate for uplink in octet 8. The coding is identical to that of the Maximum bit
+             * rate for downlink (extended).
+             */
+            if (guar_ul_ext2 == 0)
+                proto_tree_add_text(ext_tree_qos, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for uplink in octet 9 and octet 15.");
+
+            if ((max_ul_ext2 > 0) && (max_ul_ext2 <= 0x3d)) {
+                md = 256 + max_ul_ext2 * 4;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for uplink: %u Mbps", md);
+            }
+            if ((max_ul_ext2 > 0x3d) && (max_ul_ext2 <= 0xa1)) {
+                md = 500 + (max_ul_ext2-0x3d) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for uplink: %u Mbps", md);
+            }
+            if ((max_ul_ext2 > 0xa1) && (max_ul_ext2 <= 0xf6)) {
+                md = 1500 + (max_ul_ext2-0xa1)*10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+                                           "Ext Maximum bit rate for uplink: %u Mbps", md);
+            }
+            /* Guaranteed bit rate for uplink (extended-2), octet 22 */
+            if (max_ul_ext2 == 0)
+                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for uplink in octet 13 and octet 16.");
+            if ((max_ul_ext2 > 0) && (max_ul_ext2 <= 0x3d)) {
+                gd = 256 + max_ul_ext2 * 4;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
+            }
+            if ((max_ul_ext2 > 0x3d) && (max_ul_ext2 <= 0xa1)) {
+                gd = 500 + (max_ul_ext2-0x3d) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
+            }
+            if ((max_ul_ext2 > 0xba) && (max_ul_ext2 <= 0xfa)) {
+                gd = 1500 + (max_ul_ext2-0xa1) * 10;
+                proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+                                           "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
+            }
+        }
     }
 
     return retval;
