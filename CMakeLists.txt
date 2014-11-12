@@ -1794,7 +1794,9 @@ configure_file("${CMAKE_MODULE_PATH}/WiresharkConfig.cmake.in" "${CMAKE_BINARY_D
 configure_file("${CMAKE_MODULE_PATH}/WiresharkConfigVersion.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake" @ONLY)
 install(
 	FILES
+		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
 		${CMAKE_MODULE_PATH}/FindWireshark.cmake
+		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 	DESTINATION
