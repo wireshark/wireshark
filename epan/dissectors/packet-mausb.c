@@ -180,48 +180,44 @@ enum mausb_pkt_type {
     CapResp               ,
     USBDevHandleReq       ,
     USBDevHandleResp      ,
-
     EPHandleReq           ,
     EPHandleResp          ,
     EPActivateReq         ,
     EPActivateResp        ,
     EPInactivateReq       ,
     EPInactivateResp      ,
-    EPRestartReq          ,
-    EPRestartResp         ,
+    EPResetReq            ,
+    EPResetResp           ,
     EPClearTransferReq    ,
     EPClearTransferResp   ,
     EPHandleDeleteReq     ,
     EPHandleDeleteResp    ,
 
-    MAUSBDevResetReq      ,
-    MAUSBDevResetResp     ,
+    DevResetReq           ,
+    DevResetResp          ,
     ModifyEP0Req          ,
     ModifyEP0Resp         ,
-    SetDevAddrReq         ,
-    SetDevAddrResp        ,
+    SetUSBDevAddrReq      ,
+    SetUSBDevAddrResp     ,
     UpdateDevReq          ,
     UpdateDevResp         ,
-    DisconnectDevReq      ,
-    DisconnectDevResp     ,
+    USBDevDisconnectReq   ,
+    USBDevDisconnectResp  ,
+    USBSuspendReq         ,
+    USBSuspendResp        ,
+    USBResumeReq          ,
+    USBResumeResp         ,
+    RemoteWakeReq         ,
+    RemoteWakeResp        ,
 
-    MAUSBDevSleepReq      ,
-    MAUSBDevSleepResp     ,
-    MAUSBDevWakeReq       ,
-    MAUSBDevWakeResp      ,
-    MAUSBDevInitSleepReq  , /* Transmitted by Device */
-    MAUSBDevInitSleepResp , /* Transmitted by Host   */
-    MAUSBDevRemoteWakeReq , /* Transmitted by Device */
-    MAUSBDevRemoteWakeResp, /* Transmitted by Host   */
-    PingReq               , /* Transmitted by either */
-    PingResp              , /* Transmitted by either */
-    MAUSBDevDisconnectReq ,
-    MAUSBDevDisconnectResp,
-    MAUSBDevInitDisconReq , /* Transmitted by Device */
-    MAUSBDevInitDisconResp, /* Transmitted by Host   */
-    MAUSBSyncReq          ,
-    MAUSBSyncResp         ,
-
+    PingReq               ,
+    PingResp              ,
+    DevDisconnectReq      ,
+    DevDisconnectResp     ,
+    DevInitDisconnectReq  ,
+    DevInitDisconnectResp ,
+    SynchReq              ,
+    SynchResp             ,
     CancelTransferReq     ,
     CancelTransferResp    ,
     EPOpenStreamReq       ,
@@ -231,22 +227,32 @@ enum mausb_pkt_type {
     USBDevResetReq        ,
     USBDevResetResp       ,
 
+    DevNotificationReq    ,
+    DevNotificationResp   ,
+    EPSetKeepAliveReq     ,
+    EPSetKeepAliveResp    ,
+    GetPortBWReq          ,
+    GetPortBWResp         ,
+    SleepReq              ,
+    SleepResp             ,
+    WakeReq               ,
+    WakeResp              ,
+
     /* Vendor-Specific Management Packets */
-    /* Transmitted by either */
     VendorSpecificReq = 0x3E | MAUSB_PKT_TYPE_MGMT,
     VendorSpecificResp    ,
 
-    /* Control Packets */ /* Transmitter not defined! */
+    /* Control Packets */
     TransferSetupReq = 0x00 | MAUSB_PKT_TYPE_CTRL,
     TransferSetupResp     ,
     TransferTearDownConf  ,
 
     /* Data Packets */
     TransferReq = 0x00 | MAUSB_PKT_TYPE_DATA,
-    TransferResp = 0x01 | MAUSB_PKT_TYPE_DATA,
-    TransferAck           , /* Transmitted by Host   */
-    IsochTransferReq      , /* Transmitter not defined! */
-    IsochTransferResp       /* Transmitter not defined! */
+    TransferResp          ,
+    TransferAck           ,
+    IsochTransferReq      ,
+    IsochTransferResp
 };
 
 
@@ -255,83 +261,83 @@ enum mausb_pkt_type {
  */
 static const value_string mausb_type_string[] = {
     /* Management packets */
-    { MAUSB_PKT_TYPE_MGMT | 0x00 , "CapReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x01 , "CapResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x02 , "USBDevHandleReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x03 , "USBDevHandleResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x04 , "EPHandleReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x05 , "EPHandleResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x06 , "EPActivateReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x07 , "EPActivateResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x08 , "EPInactivateReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x09 , "EPInactivateResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0a , "EPResetReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0b , "EPResetResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0c , "EPClearTransferReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0d , "EPClearTransferResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0e , "EPHandleDeleteReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x0f , "EPHandleDeleteResp" },
+    { CapReq               , "CapReq" },
+    { CapResp              , "CapResp" },
+    { USBDevHandleReq      , "USBDevHandleReq" },
+    { USBDevHandleResp     , "USBDevHandleResp" },
+    { EPHandleReq          , "EPHandleReq" },
+    { EPHandleResp         , "EPHandleResp" },
+    { EPActivateReq        , "EPActivateReq" },
+    { EPActivateResp       , "EPActivateResp" },
+    { EPInactivateReq      , "EPInactivateReq" },
+    { EPInactivateResp     , "EPInactivateResp" },
+    { EPResetReq           , "EPResetReq" },
+    { EPResetResp          , "EPResetResp" },
+    { EPClearTransferReq   , "EPClearTransferReq" },
+    { EPClearTransferResp  , "EPClearTransferResp" },
+    { EPHandleDeleteReq    , "EPHandleDeleteReq" },
+    { EPHandleDeleteResp   , "EPHandleDeleteResp" },
 
-    { MAUSB_PKT_TYPE_MGMT | 0x10 , "MADevResetReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x11 , "MADevResetResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x12 , "ModifyEP0Req" },
-    { MAUSB_PKT_TYPE_MGMT | 0x13 , "ModifyEP0Resp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x14 , "SetDevAddrReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x15 , "SetDevAddrResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x16 , "UpdateDevReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x17 , "UpdateDevResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x18 , "DisconnectDevReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x19 , "DisconnectDevResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1a , "USBSuspendReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1b , "USBSuspendResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1c , "USBResumeReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1d , "USBResumeResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1e , "RemoteWakeReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x1f , "RemoteWakeResp" },
+    { DevResetReq          , "DevResetReq" },
+    { DevResetResp         , "DevResetResp" },
+    { ModifyEP0Req         , "ModifyEP0Req" },
+    { ModifyEP0Resp        , "ModifyEP0Resp" },
+    { SetUSBDevAddrReq     , "SetUSBDevAddrReq" },
+    { SetUSBDevAddrResp    , "SetUSBDevAddrResp" },
+    { UpdateDevReq         , "UpdateDevReq" },
+    { UpdateDevResp        , "UpdateDevResp" },
+    { USBDevDisconnectReq  , "USBDevDisconnectReq" },
+    { USBDevDisconnectResp , "USBDevDisconnectResp" },
+    { USBSuspendReq        , "USBSuspendReq" },
+    { USBSuspendResp       , "USBSuspendResp" },
+    { USBResumeReq         , "USBResumeReq" },
+    { USBResumeResp        , "USBResumeResp" },
+    { RemoteWakeReq        , "RemoteWakeReq" },
+    { RemoteWakeResp       , "RemoteWakeResp" },
 
-    { MAUSB_PKT_TYPE_MGMT | 0x20 , "PingReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x21 , "PingResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x22 , "MADevDisconnectReq " },
-    { MAUSB_PKT_TYPE_MGMT | 0x23 , "MADevDisconnectResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x24 , "MADevInitDisconReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x25 , "MADevInitDisconResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x26 , "SyncReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x27 , "SyncResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x28 , "CancelTransferReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x29 , "CancelTransferResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2a , "EPOpenStreamReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2b , "EPOpenStreamResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2c , "EPCloseStreamReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2d , "EPCloseStreamResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2e , "USBDevResetReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x2f , "USBDevResetResp" },
+    { PingReq              , "PingReq" },
+    { PingResp             , "PingResp" },
+    { DevDisconnectReq     , "DevDisconnectReq " },
+    { DevDisconnectResp    , "DevDisconnectResp" },
+    { DevInitDisconnectReq , "DevInitDisconnectReq" },
+    { DevInitDisconnectResp, "DevInitDisconnectResp" },
+    { SynchReq             , "SynchReq" },
+    { SynchResp            , "SynchResp" },
+    { CancelTransferReq    , "CancelTransferReq" },
+    { CancelTransferResp   , "CancelTransferResp" },
+    { EPOpenStreamReq      , "EPOpenStreamReq" },
+    { EPOpenStreamResp     , "EPOpenStreamResp" },
+    { EPCloseStreamReq     , "EPCloseStreamReq" },
+    { EPCloseStreamResp    , "EPCloseStreamResp" },
+    { USBDevResetReq       , "USBDevResetReq" },
+    { USBDevResetResp      , "USBDevResetResp" },
 
-    { MAUSB_PKT_TYPE_MGMT | 0x30 , "DevNotificationReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x31 , "DevNotificationResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x32 , "EPSetKeepAliveReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x33 , "EPSetKeepAliveResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x34 , "GetPortBWReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x35 , "GetPortBWResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x36 , "SleepReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x37 , "SleepResp" },
-    { MAUSB_PKT_TYPE_MGMT | 0x38 , "WakeReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x39 , "WakeResp" },
+    { DevNotificationReq   , "DevNotificationReq" },
+    { DevNotificationResp  , "DevNotificationResp" },
+    { EPSetKeepAliveReq    , "EPSetKeepAliveReq" },
+    { EPSetKeepAliveResp   , "EPSetKeepAliveResp" },
+    { GetPortBWReq         , "GetPortBWReq" },
+    { GetPortBWResp        , "GetPortBWResp" },
+    { SleepReq             , "SleepReq" },
+    { SleepResp            , "SleepResp" },
+    { WakeReq              , "WakeReq" },
+    { WakeResp             , "WakeResp" },
 
     /* Vendor-Specific Management Packets */
-    { MAUSB_PKT_TYPE_MGMT | 0x3e, "VendorSpecificReq" },
-    { MAUSB_PKT_TYPE_MGMT | 0x3f, "VendorSpecificResp" },
+    { VendorSpecificReq    , "VendorSpecificReq" },
+    { VendorSpecificResp   , "VendorSpecificResp" },
 
     /* Control Packets */
-    { MAUSB_PKT_TYPE_CTRL | 0x00, "TransferSetupReq" },
-    { MAUSB_PKT_TYPE_CTRL | 0x01, "TransferSetupResp" },
-    { MAUSB_PKT_TYPE_CTRL | 0x02, "TransferTearDownConf" },
+    { TransferSetupReq     , "TransferSetupReq" },
+    { TransferSetupResp    , "TransferSetupResp" },
+    { TransferTearDownConf , "TransferTearDownConf" },
 
     /* Data Packets */
-    { MAUSB_PKT_TYPE_DATA | 0x00, "TransferReq" },
-    { MAUSB_PKT_TYPE_DATA | 0x01, "TransferResp" },
-    { MAUSB_PKT_TYPE_DATA | 0x02, "TransferAck" },
-    { MAUSB_PKT_TYPE_DATA | 0x03, "IsochTransferReq" },
-    { MAUSB_PKT_TYPE_DATA | 0x04, "IsochTransferResp" },
+    { TransferReq          , "TransferReq" },
+    { TransferResp         , "TransferResp" },
+    { TransferAck          , "TransferAck" },
+    { IsochTransferReq     , "IsochTransferReq" },
+    { IsochTransferResp    , "IsochTransferResp" },
     { 0, NULL}
 };
 
@@ -460,7 +466,7 @@ static const value_string mausb_transfer_type_string[] = {
     { 1, "Isochronous" },
     { 2, "Bulk" },
     { 3, "Interrupt" },
-    { 0, NULL},
+    { 0, NULL}
 };
 
 static const value_string mausb_tflag_string[] = {
@@ -1030,8 +1036,8 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case EPActivateResp:
     case EPInactivateReq:
     case EPInactivateResp:
-    case EPRestartReq:
-    case EPRestartResp:
+    case EPResetReq:
+    case EPResetResp:
     case EPClearTransferReq:
     case EPClearTransferResp:
         proto_tree_add_item(mgmt_tree, hf_mausb_mgmt_type_spec_generic,
@@ -1061,10 +1067,10 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case USBDevHandleReq:
     case USBDevHandleResp:
     case ModifyEP0Req:
-    case SetDevAddrReq:
-    case SetDevAddrResp:
+    case SetUSBDevAddrReq:
+    case SetUSBDevAddrResp:
     case UpdateDevReq:
-    case MAUSBSyncReq:
+    case SynchReq:
     case EPCloseStreamReq:
     case CancelTransferReq:
     case CancelTransferResp:
@@ -1077,26 +1083,22 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
 
 
     /* Managment packets with no additional data */
-    case MAUSBDevResetReq:
-    case MAUSBDevResetResp:
+    case DevResetReq:
+    case DevResetResp:
     case UpdateDevResp:
-    case DisconnectDevReq:
-    case DisconnectDevResp:
-    case MAUSBDevSleepReq:
-    case MAUSBDevSleepResp:
-    case MAUSBDevWakeReq:
-    case MAUSBDevWakeResp:
-    case MAUSBDevInitSleepReq:
-    case MAUSBDevInitSleepResp:
-    case MAUSBDevRemoteWakeReq:
-    case MAUSBDevRemoteWakeResp:
+    case USBDevDisconnectReq:
+    case USBDevDisconnectResp:
+    case SleepReq:
+    case SleepResp:
+    case WakeReq:
+    case WakeResp:
     case PingReq:
     case PingResp:
-    case MAUSBDevDisconnectReq:
-    case MAUSBDevDisconnectResp:
-    case MAUSBDevInitDisconReq:
-    case MAUSBDevInitDisconResp:
-    case MAUSBSyncResp:
+    case DevDisconnectReq:
+    case DevDisconnectResp:
+    case DevInitDisconnectReq:
+    case DevInitDisconnectResp:
+    case SynchResp:
     break;
 
     default:
