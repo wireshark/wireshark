@@ -16,6 +16,7 @@
 # Wireshark_INSTALL_DIR
 # Wireshark_PLUGIN_INSTALL_DIR
 # Wireshark_LIB_DIR
+# Wireshark_LIBRARY
 # Wireshark_INCLUDE_DIR
 # Wireshark_CMAKE_MODULES_DIR
 
