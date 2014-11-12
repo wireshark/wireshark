@@ -13,84 +13,20 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2014-20[]
+* ws-salink:2014-24[]
 +
-SigComp UDVM buffer overflow.
-// Fixed in master: g2bd15c7
-// Fixed in master-1.12: g254436c
-// Fixed in master-1.10: g9a2e8ea
-(ws-buglink:10662[])
-cve-idlink:2014-8710[]
-
-* ws-salink:2014-21[]
-+
-AMQP crash.
-// Fixed in master: g8def8ef, g9ac261f, g8f62bb7
-// Fixed in master-1.12: g4655270, gbba3b55, g924db97, g69e9a65
-// Fixed in master-1.10: g531d294, ge369608, gc567c0e
-(ws-buglink:10582[])
-cve-idlink:2014-8711[]
-
-* ws-salink:2014-22[]
-+
-NCP crashes.
-// Fixed in master: g41f6923, gb9988e2
-// Fixed in master-1.12: gb726d17, g6fa8338
-// Fixed in master-1.10: g8f61ce9, g146cff5
-(ws-buglink:10552[], ws-buglink:10628[])
-cve-idlink:2014-8712[]
-cve-idlink:2014-8713[]
-
-* ws-salink:2014-23[]
-+
-TN5250 infinite loops.
-// Fixed in master: gbc27265, g1463db3
-// Fixed in master-1.12: gfad4ecc, gd12ab6a
-// Fixed in master-1.10: gd7174c0, g7b6e578
-(ws-buglink:10596[])
-cve-idlink:2014-8714[]
+A dissector went awry.
+// Fixed in master: gXXX
+// Fixed in master-1.12: gXXX
+// Fixed in master-1.10: gXXX
+(ws-buglink:XXX[])
+//cve-idlink:2014-XXX[]
 
 The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying
 //  to sleep. (ws-buglink:0000[])
-
-* 6LoWPAN Mesh headers not treated as encapsulating address. (ws-buglink:10462[])
-
-* UCP dissector bug of operation 31 - PID 0639 not recognized. (ws-buglink:10463[])
-
-* iSCSI dissector rejects PDUs with "expected data transfer length" > 16M. (ws-buglink:10469[])
-
-* GTPv2: trigging_tree under Trace information has wrong length. (ws-buglink:10470[])
-
-* Attempt to render an SMS-DELIVER-REPORT instead of an SMS-DELIVER. (ws-buglink:10547[])
-
-* IPv6 Mobility Option IPv6 Address/Prefix marks too many bytes for the address/prefix field. (ws-buglink:10576[])
-
-* IPv6 Mobility Option Binding Authorization Data for FMIPv6 Authenticator field is read beyond the option data. (ws-buglink:10577[])
-
-* IPv6 Mobility Option Mobile Node Link Layer Identifier Link-layer Identifier field is read beyond the option data. (ws-buglink:10578[])
-
-* Malformed PTPoE announce packet. (ws-buglink:10611[])
-
-* IPv6 Permanent Home Keygen Token mobility option includes too many bytes for the token field. (ws-buglink:10619[])
-
-* IPv6 Redirect Mobility Option K and N bits are parsed incorrectly. (ws-buglink:10622[])
-
-* IPv6 Care Of Test mobility option includes too many bytes for the Keygen Token field. (ws-buglink:10624[])
-
-* IPv6 MESG-ID mobility option is parsed incorrectly. (ws-buglink:10625[])
-
-* IPv6 AUTH mobility option parses Mobility SPI and Authentication Data incorrectly. (ws-buglink:10626[])
-
-* IPv6 DNS-UPDATE-TYPE mobility option includes too many bytes for the MD identity field. (ws-buglink:10629[])
-
-* IPv6 Local Mobility Anchor Address mobility option's code and reserved fields are parsed as 2 bytes instead of 1. (ws-buglink:10630[])
-
-* TShark crashes when running with PDML on a specific packet. (ws-buglink:10651[])
-
-* IPv6 Mobility Option Context Request reads an extra request. (ws-buglink:10676[])
 
 === New and Updated Features
 
@@ -103,27 +39,11 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-AMQP
-GSM MAP
-GTPv2
-H.223
-IEEE 802.11
-iSCSI
-MIH
-Mobile IPv6
-PTPoE
-TN5250
-UCP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
-Catapult DCT2000
-HP-UX nettl
-pcap-ng
-Sniffer (DOS)
 --sort-and-group--
 
 == Getting Wireshark
