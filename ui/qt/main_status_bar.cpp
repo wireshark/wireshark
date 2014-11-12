@@ -118,13 +118,18 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     expert_status_.setTextFormat(Qt::RichText);
     expert_status_.hide();
 
-    // XXX Add the comment icon
+    // We just want a clickable image. Using a QPushButton or QToolButton would require
+    // a lot of adjustment.
+    comment_label_.setText("<a href><img src=\":/comment/capture_comment_update.png\"></img></a>");
+    comment_label_.setToolTip(tr("Open the Capture Properties dialgo"));
+    connect(&comment_label_, SIGNAL(linkActivated(QString)), this, SIGNAL(editCaptureComment()));
 
     info_progress_hb->setContentsMargins(0, 0, 0, 0);
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
 
     info_progress_hb->addWidget(&expert_status_);
+    info_progress_hb->addWidget(&comment_label_);
     info_progress_hb->addWidget(&info_status_);
     info_progress_hb->addWidget(&progress_bar_);
     info_progress_hb->addStretch(10);
@@ -221,6 +226,7 @@ void MainStatusBar::expertUpdate() {
 void MainStatusBar::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
+    comment_label_.setEnabled(cap_file_ != NULL);
 }
 
 void MainStatusBar::pushTemporaryStatus(QString &message) {

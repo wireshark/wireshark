@@ -49,6 +49,7 @@
 
 #include "ui/follow.h"
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QKeyEvent>

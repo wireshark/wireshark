@@ -407,7 +407,7 @@
      <addaction name="actionStatistics29WestLBTRM"/>
      <addaction name="actionStatistics29WestLBTRU"/>
     </widget>
-    <addaction name="actionSummary"/>
+    <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionProtocol_Hierarchy"/>
     <addaction name="actionStatisticsConversations"/>
     <addaction name="actionStatisticsEndpoints"/>
@@ -1383,12 +1383,15 @@
     <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
-  <action name="actionSummary">
+  <action name="actionStatisticsCaptureFileProperties">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Summary</string>
+    <string>Capture File Properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Capture file properties</string>
    </property>
   </action>
   <action name="actionProtocol_Hierarchy">

@@ -8334,238 +8334,238 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 <context>
     <name>SummaryDialog</name>
     <message>
-        <location filename="summary_dialog.ui" line="20"/>
+        <location filename="capture_file_properties_dialog.ui" line="20"/>
         <source>Wireshark - Summary</source>
         <translation>Wireshark - 統計</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="43"/>
+        <location filename="capture_file_properties_dialog.ui" line="43"/>
         <source>File capture details</source>
         <translation>ファイルキャプチャ詳細</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="55"/>
+        <location filename="capture_file_properties_dialog.ui" line="55"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="70"/>
+        <location filename="capture_file_properties_dialog.ui" line="70"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="77"/>
-        <location filename="summary_dialog.ui" line="91"/>
-        <location filename="summary_dialog.ui" line="105"/>
-        <location filename="summary_dialog.ui" line="119"/>
-        <location filename="summary_dialog.ui" line="161"/>
-        <location filename="summary_dialog.ui" line="175"/>
-        <location filename="summary_dialog.ui" line="189"/>
-        <location filename="summary_dialog.ui" line="407"/>
-        <location filename="summary_dialog.ui" line="421"/>
+        <location filename="capture_file_properties_dialog.ui" line="77"/>
+        <location filename="capture_file_properties_dialog.ui" line="91"/>
+        <location filename="capture_file_properties_dialog.ui" line="105"/>
+        <location filename="capture_file_properties_dialog.ui" line="119"/>
+        <location filename="capture_file_properties_dialog.ui" line="161"/>
+        <location filename="capture_file_properties_dialog.ui" line="175"/>
+        <location filename="capture_file_properties_dialog.ui" line="189"/>
+        <location filename="capture_file_properties_dialog.ui" line="407"/>
+        <location filename="capture_file_properties_dialog.ui" line="421"/>
         <source>/</source>
         <translation>/</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="84"/>
+        <location filename="capture_file_properties_dialog.ui" line="84"/>
         <source>Length</source>
         <translation>長さ</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="98"/>
+        <location filename="capture_file_properties_dialog.ui" line="98"/>
         <source>Format</source>
         <translation>フォーマット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="112"/>
+        <location filename="capture_file_properties_dialog.ui" line="112"/>
         <source>Encapsulation</source>
         <translation>カプセル化</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="136"/>
+        <location filename="capture_file_properties_dialog.ui" line="136"/>
         <source>Time</source>
         <translation>時間</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="154"/>
+        <location filename="capture_file_properties_dialog.ui" line="154"/>
         <source>First packet</source>
         <translation>最初のパケット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="168"/>
+        <location filename="capture_file_properties_dialog.ui" line="168"/>
         <source>Last packet</source>
         <translation>最後のパケット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="182"/>
+        <location filename="capture_file_properties_dialog.ui" line="182"/>
         <source>Elapsed</source>
         <translation>経過時間</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="206"/>
+        <location filename="capture_file_properties_dialog.ui" line="206"/>
         <source>Capture</source>
         <translation>キャプチャ</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="234"/>
+        <location filename="capture_file_properties_dialog.ui" line="234"/>
         <source>Capture file comments</source>
         <translation>キャプチャファイルコメント</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="250"/>
+        <location filename="capture_file_properties_dialog.ui" line="250"/>
         <source>OS</source>
         <translation>OS</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="257"/>
-        <location filename="summary_dialog.ui" line="271"/>
-        <location filename="summary_dialog.cpp" line="393"/>
+        <location filename="capture_file_properties_dialog.ui" line="257"/>
+        <location filename="capture_file_properties_dialog.ui" line="271"/>
+        <location filename="capture_file_properties_dialog.cpp" line="393"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="264"/>
+        <location filename="capture_file_properties_dialog.ui" line="264"/>
         <source>Capture app</source>
         <translation>キャプチャアプリケーション</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="284"/>
+        <location filename="capture_file_properties_dialog.ui" line="284"/>
         <source>Capture statistics</source>
         <translation>キャプチャ統計</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="318"/>
+        <location filename="capture_file_properties_dialog.ui" line="318"/>
         <source>Traffic</source>
         <translation>トラフィック</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="323"/>
+        <location filename="capture_file_properties_dialog.ui" line="323"/>
         <source>Captured</source>
         <translation>キャプチャされた</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="328"/>
+        <location filename="capture_file_properties_dialog.ui" line="328"/>
         <source>Displayed</source>
         <translation>表示</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="333"/>
+        <location filename="capture_file_properties_dialog.ui" line="333"/>
         <source>Marked</source>
         <translation>マークされた</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="363"/>
+        <location filename="capture_file_properties_dialog.ui" line="363"/>
         <source>Interface</source>
         <translation>インタフェース</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="368"/>
+        <location filename="capture_file_properties_dialog.ui" line="368"/>
         <source>Dropped packets</source>
         <translation>ドロップしたパケット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="373"/>
+        <location filename="capture_file_properties_dialog.ui" line="373"/>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="378"/>
+        <location filename="capture_file_properties_dialog.ui" line="378"/>
         <source>Link type</source>
         <translation>リンク形式</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="383"/>
+        <location filename="capture_file_properties_dialog.ui" line="383"/>
         <source>Packet size limit</source>
         <translation>パケットサイズ限界</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="400"/>
+        <location filename="capture_file_properties_dialog.ui" line="400"/>
         <source>Display filter</source>
         <translation>表示フィルタ</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="414"/>
+        <location filename="capture_file_properties_dialog.ui" line="414"/>
         <source>Ignored packets</source>
         <translation>無視されたパケット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="430"/>
+        <location filename="capture_file_properties_dialog.ui" line="430"/>
         <source>Comment summary</source>
         <translation>コメント統計</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="68"/>
+        <location filename="capture_file_properties_dialog.cpp" line="68"/>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="71"/>
+        <location filename="capture_file_properties_dialog.cpp" line="71"/>
         <source>Copy To Clipboard</source>
         <translation>クリップボードへコピー</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="130"/>
+        <location filename="capture_file_properties_dialog.cpp" line="130"/>
         <source>Summary created by Wireshark %1
 
 </source>
         <translation>Wiresharkによって作成された統計 %1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="133"/>
+        <location filename="capture_file_properties_dialog.cpp" line="133"/>
         <source>File: 
 </source>
         <translation>ファイル: </translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="134"/>
+        <location filename="capture_file_properties_dialog.cpp" line="134"/>
         <source>Name:		%1
 </source>
         <translation>名前:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="135"/>
+        <location filename="capture_file_properties_dialog.cpp" line="135"/>
         <source>Length:		%1 bytes
 </source>
         <translation>長さ:		%1 バイト</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="136"/>
+        <location filename="capture_file_properties_dialog.cpp" line="136"/>
         <source>Format:		%1%2
 </source>
         <translation>形式:		%1%2</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="138"/>
-        <location filename="summary_dialog.cpp" line="284"/>
+        <location filename="capture_file_properties_dialog.cpp" line="138"/>
+        <location filename="capture_file_properties_dialog.cpp" line="284"/>
         <source> (gzip compressed)</source>
         <translation> (GZIP 圧縮)</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="139"/>
+        <location filename="capture_file_properties_dialog.cpp" line="139"/>
         <source>Encapsulation:		%1
 </source>
         <translation>カプセル化:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="144"/>
+        <location filename="capture_file_properties_dialog.cpp" line="144"/>
         <source>Time:
 </source>
         <translation>時間:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="150"/>
+        <location filename="capture_file_properties_dialog.cpp" line="150"/>
         <source>First packet:		%1
 </source>
         <translation>最初のパケット:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="153"/>
+        <location filename="capture_file_properties_dialog.cpp" line="153"/>
         <source>Last packet:		%1
 </source>
         <translation>最後のパケット:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="157"/>
+        <location filename="capture_file_properties_dialog.cpp" line="157"/>
         <source>Elapsed:		%1
 </source>
         <oldsource>経過時間:		%1
@@ -8573,137 +8573,137 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="164"/>
+        <location filename="capture_file_properties_dialog.cpp" line="164"/>
         <source>Capture:
 </source>
         <translation>キャプチャ:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="173"/>
+        <location filename="capture_file_properties_dialog.cpp" line="173"/>
         <source>OS:	%1
 </source>
         <translation>OS:	%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="178"/>
+        <location filename="capture_file_properties_dialog.cpp" line="178"/>
         <source>Capture application:	%1
 </source>
         <translation>キャプチャアプリケーション:	%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="187"/>
+        <location filename="capture_file_properties_dialog.cpp" line="187"/>
         <source>Dropped packets:	%1
 </source>
         <translation>ドロップパケット:	%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="189"/>
+        <location filename="capture_file_properties_dialog.cpp" line="189"/>
         <source>Capture filter:		%1
 </source>
         <translation>キャプチャフィルタ:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="191"/>
+        <location filename="capture_file_properties_dialog.cpp" line="191"/>
         <source>Link type:		%1
 </source>
         <translation>リンク形式:		%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="193"/>
+        <location filename="capture_file_properties_dialog.cpp" line="193"/>
         <source>Packet size limit:	%1
 </source>
         <translation>パケットサイズ制限:	%1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="200"/>
+        <location filename="capture_file_properties_dialog.cpp" line="200"/>
         <source>Statistics:
 </source>
         <translation>統計:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="203"/>
+        <location filename="capture_file_properties_dialog.cpp" line="203"/>
         <source>%1:	%2</source>
         <translation>%1:	%2</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="215"/>
+        <location filename="capture_file_properties_dialog.cpp" line="215"/>
         <source>Capture File Comments:
 </source>
         <translation>キャプチャファイルコメント:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="230"/>
+        <location filename="capture_file_properties_dialog.cpp" line="230"/>
         <source>Not representable</source>
         <translation>何も表現できません</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="281"/>
+        <location filename="capture_file_properties_dialog.cpp" line="281"/>
         <source>%1 bytes (%2 Mbytes)</source>
         <translation>%1 バイト (%2 メガバイト)</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="377"/>
-        <location filename="summary_dialog.cpp" line="412"/>
+        <location filename="capture_file_properties_dialog.cpp" line="377"/>
+        <location filename="capture_file_properties_dialog.cpp" line="412"/>
         <source>unknown</source>
         <translation>不明</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="408"/>
-        <location filename="summary_dialog.cpp" line="436"/>
+        <location filename="capture_file_properties_dialog.cpp" line="408"/>
+        <location filename="capture_file_properties_dialog.cpp" line="436"/>
         <source>none</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="419"/>
+        <location filename="capture_file_properties_dialog.cpp" line="419"/>
         <source>%u bytes</source>
         <translation>%u バイト</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="460"/>
+        <location filename="capture_file_properties_dialog.cpp" line="460"/>
         <source>Packets</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="489"/>
+        <location filename="capture_file_properties_dialog.cpp" line="489"/>
         <source>Between first and last packet</source>
         <translation>最初と最後のパケットの間</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="492"/>
-        <location filename="summary_dialog.cpp" line="504"/>
-        <location filename="summary_dialog.cpp" line="515"/>
+        <location filename="capture_file_properties_dialog.cpp" line="492"/>
+        <location filename="capture_file_properties_dialog.cpp" line="504"/>
+        <location filename="capture_file_properties_dialog.cpp" line="515"/>
         <source>%.3f sec</source>
         <translation>%.3f 秒</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="531"/>
+        <location filename="capture_file_properties_dialog.cpp" line="531"/>
         <source>Avg. packets/sec</source>
         <translation>平均パケット/秒</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="572"/>
+        <location filename="capture_file_properties_dialog.cpp" line="572"/>
         <source>Avg. packet size</source>
         <translation>平均パケットサイズ</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="575"/>
-        <location filename="summary_dialog.cpp" line="588"/>
-        <location filename="summary_dialog.cpp" line="600"/>
+        <location filename="capture_file_properties_dialog.cpp" line="575"/>
+        <location filename="capture_file_properties_dialog.cpp" line="588"/>
+        <location filename="capture_file_properties_dialog.cpp" line="600"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="616"/>
+        <location filename="capture_file_properties_dialog.cpp" line="616"/>
         <source>Bytes</source>
         <translation>バイト</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="658"/>
+        <location filename="capture_file_properties_dialog.cpp" line="658"/>
         <source>Avg. bytes/sec</source>
         <translation>平均バイト/秒</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="702"/>
+        <location filename="capture_file_properties_dialog.cpp" line="702"/>
         <source>Avg. MBit/sec</source>
         <translation>平均MBit/秒</translation>
     </message>

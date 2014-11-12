@@ -33,6 +33,7 @@ reassembled packets.
 ** Hovering over a byte-view field causes the field to be highlighted and a
 description to be shown in the status bar.
 ** An Italian translation has been added.
+** The Summary dialog has been updated and renamed to Capture File Properties.
 
 The following features are new (or have been significantly updated)
 since version 1.12.0:

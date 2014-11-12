@@ -193,8 +193,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 
-    connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
-
 #ifdef HAVE_LIBPCAP
     connect(&capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
     connect(&capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
@@ -366,6 +364,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(QString&)),
             main_ui_->statusBar, SLOT(pushByteStatus(QString&)));
+
+    connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
+            this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
             this, SLOT(openCaptureFile(QString&)));
@@ -1448,6 +1449,8 @@ void MainWindow::initShowHideMainWidgets()
     connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
 
+Q_DECLARE_METATYPE(ts_type)
+
 void MainWindow::initTimeDisplayFormatMenu()
 {
     if (time_display_actions_) {
@@ -1480,6 +1483,8 @@ void MainWindow::initTimeDisplayFormatMenu()
 
     main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes->setChecked(recent.gui_seconds_format == TS_SECONDS_HOUR_MIN_SEC);
 }
+
+Q_DECLARE_METATYPE(ts_precision)
 
 void MainWindow::initTimePrecisionFormatMenu()
 {
@@ -1647,7 +1652,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileClose->setEnabled(false);
         main_ui_->actionFileSave->setEnabled(false);
         main_ui_->actionFileSaveAs->setEnabled(false);
-        main_ui_->actionSummary->setEnabled(false);
+        main_ui_->actionStatisticsCaptureFileProperties->setEnabled(false);
         main_ui_->actionFileExportPackets->setEnabled(false);
         main_ui_->menuFileExportPacketDissections->setEnabled(false);
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
@@ -1661,7 +1666,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileClose->setEnabled(true);
         main_ui_->actionFileSave->setEnabled(cf_can_save(cap_file_));
         main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(cap_file_));
-        main_ui_->actionSummary->setEnabled(true);
+        main_ui_->actionStatisticsCaptureFileProperties->setEnabled(true);
         /*
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.
@@ -1690,7 +1695,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 
-    main_ui_->actionSummary->setEnabled(capture_in_progress);
+    main_ui_->actionStatisticsCaptureFileProperties->setEnabled(capture_in_progress);
 
     // XXX Fix packet list heading menu sensitivity
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
@@ -1712,7 +1717,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
-    main_ui_->actionSummary->setEnabled(false);
+    main_ui_->actionStatisticsCaptureFileProperties->setEnabled(false);
 #ifdef HAVE_LIBPCAP
     main_ui_->actionCaptureStart->setChecked(false);
     main_ui_->actionCaptureStop->setEnabled(false);

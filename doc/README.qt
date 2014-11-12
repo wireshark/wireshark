@@ -177,13 +177,22 @@ porting a feature, consider the following:
 2.1.1 Name conventions
 
 Most of the code in the ui/qt directory uses three APIs: Qt (which uses
-InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
-API (which also uses underscore_convention). As a general rule Wireshark's Qt
-code uses InterCapConvention for class names and methods and
-underscore_convention for variables, with a trailing underscore for member
-variables.
+InterCapConvention), GLib (which uses underscore_convention), and the
+Wireshark API (which also uses underscore_convention). As a general rule
+Wireshark's Qt code uses InterCapConvention for class names,
+interCapConvention for methods, and underscore_convention for variables,
+with a trailing underscore for member variables.
 
-2.1.2 Strings
+2.1.2 Class layout
+
+Dialogs that work with capture file information shouldn't close just
+because the capture file closes. I.e. they should receive the
+setCaptureFile signal and react accordingly.
+
+In most cases you should handle the changeEvent in order to catch
+QEvent::LanguageChange.
+
+2.1.3 Strings
 
 If you're using GLib string functions or plain old C character array idioms in
 Qt-only code you're probably doing something wrong. QStrings are generally
@@ -192,7 +201,7 @@ Qt-only code you're probably doing something wrong. QStrings are generally
 If you need to pass strings between Qt and GLib you can use qstring_strdup
 gchar_free_to_qstring, which are defined in ui/qt/qt_ui_utils.h.
 
-2.1.3 Mixing C and C++
+2.1.4 Mixing C and C++
 
 Sometimes we have to call C++ functions from one of Wireshark's C callbacks and
 pass C++ objects to or from C. The C++ FAQ describes how to do this safely:

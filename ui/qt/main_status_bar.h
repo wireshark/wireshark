@@ -26,9 +26,9 @@
 #include "label_stack.h"
 #include "progress_bar.h"
 
-#include <QStatusBar>
 #include <QLabel>
 #include <QMenu>
+#include <QStatusBar>
 
 #include "cfile.h"
 
@@ -43,6 +43,7 @@ public:
 
 private:
     QLabel expert_status_;
+    QLabel comment_label_;
     LabelStack info_status_;
     ProgressBar progress_bar_;
     LabelStack packet_status_;
@@ -54,6 +55,8 @@ private:
     QAction *delete_action_;
 
 signals:
+    void editCaptureComment();
+
 
 public slots:
     void setCaptureFile(capture_file *cf);

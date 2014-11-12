@@ -27,6 +27,7 @@ set(WIRESHARK_QT_HEADERS
 	byte_view_tab.h
 	byte_view_text.h
 	capture_file_dialog.h
+	capture_file_properties_dialog.h
 	capture_filter_combo.h
 	capture_filter_edit.h
 	capture_filter_syntax_worker.h
@@ -91,7 +92,6 @@ set(WIRESHARK_QT_HEADERS
 	simple_dialog.h
 	splash_overlay.h
 	stats_tree_dialog.h
-	summary_dialog.h
 	syntax_line_edit.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
@@ -122,6 +122,7 @@ set(WIRESHARK_QT_SRC
 	byte_view_tab.cpp
 	byte_view_text.cpp
 	capture_file_dialog.cpp
+	capture_file_properties_dialog.cpp
 	capture_filter_combo.cpp
 	capture_filter_edit.cpp
 	capture_filter_syntax_worker.cpp
@@ -188,7 +189,6 @@ set(WIRESHARK_QT_SRC
 	splash_overlay.cpp
 	sparkline_delegate.cpp
 	stock_icon.cpp
-	summary_dialog.cpp
 	syntax_line_edit.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
@@ -223,8 +223,9 @@ set(DIRTY_FILES
 
 set(WIRESHARK_QT_UI
 	about_dialog.ui
-	capture_preferences_frame.ui
+	capture_file_properties_dialog.ui
 	capture_interfaces_dialog.ui
+	capture_preferences_frame.ui
 	column_preferences_frame.ui
 	compiled_filter_output.ui
 	decode_as_dialog.ui
@@ -262,7 +263,6 @@ set(WIRESHARK_QT_UI
 	sequence_dialog.ui
 	splash_overlay.ui
 	stats_tree_dialog.ui
-	summary_dialog.ui
 	tcp_stream_dialog.ui
 	time_shift_dialog.ui
 	traffic_table_dialog.ui

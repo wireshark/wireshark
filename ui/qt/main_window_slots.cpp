@@ -73,6 +73,7 @@
 #endif
 
 #include "capture_file_dialog.h"
+#include "capture_file_properties_dialog.h"
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
 #include "endpoint_dialog.h"
@@ -578,8 +579,6 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
 
     main_ui_->statusBar->popFileStatus();
     cap_file_ = NULL;
-
-    summary_dialog_.close();
 
     if (df_combo_box_)
     {
@@ -1776,6 +1775,8 @@ void MainWindow::showHideMainWidgets(QAction *action)
     }
 }
 
+Q_DECLARE_METATYPE(ts_type)
+
 void MainWindow::setTimestampFormat(QAction *action)
 {
     if (!action) {
@@ -1794,6 +1795,8 @@ void MainWindow::setTimestampFormat(QAction *action)
         }
     }
 }
+
+Q_DECLARE_METATYPE(ts_precision)
 
 void MainWindow::setTimestampPrecision(QAction *action)
 {
@@ -2552,21 +2555,14 @@ void MainWindow::on_actionCaptureStop_triggered()
     stopCapture();
 }
 
-void MainWindow::on_actionSummary_triggered()
+void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
 {
-    summary_dialog_.UpdateValues();
-
-    if (summary_dialog_.isMinimized() == true)
-    {
-        summary_dialog_.showNormal();
-    }
-    else
-    {
-        summary_dialog_.show();
-    }
-
-    summary_dialog_.raise();
-    summary_dialog_.activateWindow();
+    CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(this, cap_file_);
+    connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
+            this, SLOT(updateForUnsavedChanges()));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            capture_file_properties_dialog, SLOT(setCaptureFile(capture_file*)));
+    capture_file_properties_dialog->show();
 }
 
 #ifdef HAVE_LIBPCAP

@@ -6046,375 +6046,375 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>SummaryDialog</name>
     <message>
-        <location filename="summary_dialog.ui" line="20"/>
+        <location filename="capture_file_properties_dialog.ui" line="20"/>
         <source>Wireshark - Summary</source>
         <translation>Wireshark - Sommaire</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="43"/>
+        <location filename="capture_file_properties_dialog.ui" line="43"/>
         <source>File capture details</source>
         <translation>Détails du fichier de capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="55"/>
+        <location filename="capture_file_properties_dialog.ui" line="55"/>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="70"/>
+        <location filename="capture_file_properties_dialog.ui" line="70"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="77"/>
-        <location filename="summary_dialog.ui" line="91"/>
-        <location filename="summary_dialog.ui" line="105"/>
-        <location filename="summary_dialog.ui" line="119"/>
-        <location filename="summary_dialog.ui" line="161"/>
-        <location filename="summary_dialog.ui" line="175"/>
-        <location filename="summary_dialog.ui" line="189"/>
-        <location filename="summary_dialog.ui" line="407"/>
-        <location filename="summary_dialog.ui" line="421"/>
+        <location filename="capture_file_properties_dialog.ui" line="77"/>
+        <location filename="capture_file_properties_dialog.ui" line="91"/>
+        <location filename="capture_file_properties_dialog.ui" line="105"/>
+        <location filename="capture_file_properties_dialog.ui" line="119"/>
+        <location filename="capture_file_properties_dialog.ui" line="161"/>
+        <location filename="capture_file_properties_dialog.ui" line="175"/>
+        <location filename="capture_file_properties_dialog.ui" line="189"/>
+        <location filename="capture_file_properties_dialog.ui" line="407"/>
+        <location filename="capture_file_properties_dialog.ui" line="421"/>
         <source>/</source>
         <translation>/</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="84"/>
+        <location filename="capture_file_properties_dialog.ui" line="84"/>
         <source>Length</source>
         <translation>Longueur</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="98"/>
+        <location filename="capture_file_properties_dialog.ui" line="98"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="112"/>
+        <location filename="capture_file_properties_dialog.ui" line="112"/>
         <source>Encapsulation</source>
         <translation>Encapsulation</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="136"/>
+        <location filename="capture_file_properties_dialog.ui" line="136"/>
         <source>Time</source>
         <translation>Temps</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="154"/>
+        <location filename="capture_file_properties_dialog.ui" line="154"/>
         <source>First packet</source>
         <translation>Premier paquet</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="168"/>
+        <location filename="capture_file_properties_dialog.ui" line="168"/>
         <source>Last packet</source>
         <translation>Dernier paquet</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="182"/>
+        <location filename="capture_file_properties_dialog.ui" line="182"/>
         <source>Elapsed</source>
         <translation>Passé</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="206"/>
+        <location filename="capture_file_properties_dialog.ui" line="206"/>
         <source>Capture</source>
         <translation>Capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="234"/>
+        <location filename="capture_file_properties_dialog.ui" line="234"/>
         <source>Capture file comments</source>
         <translation>Commentaires du fichier de capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="250"/>
+        <location filename="capture_file_properties_dialog.ui" line="250"/>
         <source>OS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="257"/>
-        <location filename="summary_dialog.ui" line="271"/>
-        <location filename="summary_dialog.cpp" line="391"/>
+        <location filename="capture_file_properties_dialog.ui" line="257"/>
+        <location filename="capture_file_properties_dialog.ui" line="271"/>
+        <location filename="capture_file_properties_dialog.cpp" line="391"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="264"/>
+        <location filename="capture_file_properties_dialog.ui" line="264"/>
         <source>Capture app</source>
         <translation>Application de Capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="284"/>
+        <location filename="capture_file_properties_dialog.ui" line="284"/>
         <source>Capture statistics</source>
         <translation>Statistiques de Capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="318"/>
+        <location filename="capture_file_properties_dialog.ui" line="318"/>
         <source>Traffic</source>
         <translation>Trafic</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="323"/>
+        <location filename="capture_file_properties_dialog.ui" line="323"/>
         <source>Captured</source>
         <translation>Capturés</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="328"/>
+        <location filename="capture_file_properties_dialog.ui" line="328"/>
         <source>Displayed</source>
         <translation>Affichés</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="333"/>
+        <location filename="capture_file_properties_dialog.ui" line="333"/>
         <source>Marked</source>
         <translation>Marqués</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="363"/>
+        <location filename="capture_file_properties_dialog.ui" line="363"/>
         <source>Interface</source>
         <translation>Interface</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="368"/>
+        <location filename="capture_file_properties_dialog.ui" line="368"/>
         <source>Dropped packets</source>
         <translation>Paquets supprimés</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="373"/>
+        <location filename="capture_file_properties_dialog.ui" line="373"/>
         <source>Capture filter</source>
         <translation>Filtre de capture</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="378"/>
+        <location filename="capture_file_properties_dialog.ui" line="378"/>
         <source>Link type</source>
         <oldsource>Link size</oldsource>
         <translation>Taille du lien</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="383"/>
+        <location filename="capture_file_properties_dialog.ui" line="383"/>
         <source>Packet size limit</source>
         <translation>Limite de taille de paquets </translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="400"/>
+        <location filename="capture_file_properties_dialog.ui" line="400"/>
         <source>Display filter</source>
         <translation>Filtre d&apos;affichage</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="414"/>
+        <location filename="capture_file_properties_dialog.ui" line="414"/>
         <source>Ignored packets</source>
         <translation>Paquets ignorés</translation>
     </message>
     <message>
-        <location filename="summary_dialog.ui" line="430"/>
+        <location filename="capture_file_properties_dialog.ui" line="430"/>
         <source>Comment summary</source>
         <translation>Résumé des commentaires</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="66"/>
+        <location filename="capture_file_properties_dialog.cpp" line="66"/>
         <source>Refresh</source>
         <translation>Rafraichir</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="69"/>
+        <location filename="capture_file_properties_dialog.cpp" line="69"/>
         <source>Copy To Clipboard</source>
         <translation>Copier dans le Presse-papiers</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="128"/>
+        <location filename="capture_file_properties_dialog.cpp" line="128"/>
         <source>Summary created by Wireshark %1
 
 </source>
         <translation>Sommaire creé par Wireshark %1</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="131"/>
+        <location filename="capture_file_properties_dialog.cpp" line="131"/>
         <source>File: 
 </source>
         <translation>Fichier:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="132"/>
+        <location filename="capture_file_properties_dialog.cpp" line="132"/>
         <source>Name:		%1
 </source>
         <translation>Nom:\t\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="133"/>
+        <location filename="capture_file_properties_dialog.cpp" line="133"/>
         <source>Length:		%1 bytes
 </source>
         <translation>Longueur:\n\n%1 octets\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="134"/>
+        <location filename="capture_file_properties_dialog.cpp" line="134"/>
         <source>Format:		%1%2
 </source>
         <translation>Format:\t\t%1%2\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="136"/>
-        <location filename="summary_dialog.cpp" line="282"/>
+        <location filename="capture_file_properties_dialog.cpp" line="136"/>
+        <location filename="capture_file_properties_dialog.cpp" line="282"/>
         <source> (gzip compressed)</source>
         <translation>(compressé gzip)</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="137"/>
+        <location filename="capture_file_properties_dialog.cpp" line="137"/>
         <source>Encapsulation:		%1
 </source>
         <translation>Encapsulation:\t\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="142"/>
+        <location filename="capture_file_properties_dialog.cpp" line="142"/>
         <source>Time:
 </source>
         <translation>Temps:\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="148"/>
+        <location filename="capture_file_properties_dialog.cpp" line="148"/>
         <source>First packet:		%1
 </source>
         <translation>Premier Paquet:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="151"/>
+        <location filename="capture_file_properties_dialog.cpp" line="151"/>
         <source>Last packet:		%1
 </source>
         <translation>Dernier paquet:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="155"/>
+        <location filename="capture_file_properties_dialog.cpp" line="155"/>
         <source>Elapsed:		%1
 </source>
         <translation>Passé:\t\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="162"/>
+        <location filename="capture_file_properties_dialog.cpp" line="162"/>
         <source>Capture:
 </source>
         <translation>Capture:\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="171"/>
+        <location filename="capture_file_properties_dialog.cpp" line="171"/>
         <source>OS:	%1
 </source>
         <translation>OS:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="176"/>
+        <location filename="capture_file_properties_dialog.cpp" line="176"/>
         <source>Capture application:	%1
 </source>
         <translation>Application de Capture:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="185"/>
+        <location filename="capture_file_properties_dialog.cpp" line="185"/>
         <source>Dropped packets:	%1
 </source>
         <translation>Paquets supprimés:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="187"/>
+        <location filename="capture_file_properties_dialog.cpp" line="187"/>
         <source>Capture filter:		%1
 </source>
         <translation>Filtre de Capture:\t\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="189"/>
+        <location filename="capture_file_properties_dialog.cpp" line="189"/>
         <source>Link type:		%1
 </source>
         <translation>Link type:\t\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="191"/>
+        <location filename="capture_file_properties_dialog.cpp" line="191"/>
         <source>Packet size limit:	%1
 </source>
         <translation>Paquet taille limit:\t%1\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="198"/>
+        <location filename="capture_file_properties_dialog.cpp" line="198"/>
         <source>Statistics:
 </source>
         <translation>Statistiques:\n</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="201"/>
+        <location filename="capture_file_properties_dialog.cpp" line="201"/>
         <source>%1:	%2</source>
         <translation>%1:\t%2</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="213"/>
+        <location filename="capture_file_properties_dialog.cpp" line="213"/>
         <source>Capture File Comments:
 </source>
         <translation>Commentaires du fichier de capture:</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="228"/>
+        <location filename="capture_file_properties_dialog.cpp" line="228"/>
         <source>Not representable</source>
         <translation>non représentable</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="279"/>
+        <location filename="capture_file_properties_dialog.cpp" line="279"/>
         <source>%1 bytes (%2 Mbytes)</source>
         <translation>%1 octets (%2 Moctets)</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="375"/>
-        <location filename="summary_dialog.cpp" line="410"/>
+        <location filename="capture_file_properties_dialog.cpp" line="375"/>
+        <location filename="capture_file_properties_dialog.cpp" line="410"/>
         <source>unknown</source>
         <translation>inconnu</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="406"/>
-        <location filename="summary_dialog.cpp" line="434"/>
+        <location filename="capture_file_properties_dialog.cpp" line="406"/>
+        <location filename="capture_file_properties_dialog.cpp" line="434"/>
         <source>none</source>
         <translation>aucun</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="417"/>
+        <location filename="capture_file_properties_dialog.cpp" line="417"/>
         <source>%u bytes</source>
         <translation>%u octets</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="458"/>
+        <location filename="capture_file_properties_dialog.cpp" line="458"/>
         <source>Packets</source>
         <translation>Paquets</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="487"/>
+        <location filename="capture_file_properties_dialog.cpp" line="487"/>
         <source>Between first and last packet</source>
         <translation>Entre le premier et le dernier paquet</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="490"/>
-        <location filename="summary_dialog.cpp" line="502"/>
-        <location filename="summary_dialog.cpp" line="513"/>
+        <location filename="capture_file_properties_dialog.cpp" line="490"/>
+        <location filename="capture_file_properties_dialog.cpp" line="502"/>
+        <location filename="capture_file_properties_dialog.cpp" line="513"/>
         <source>%.3f sec</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="529"/>
+        <location filename="capture_file_properties_dialog.cpp" line="529"/>
         <source>Avg. packets/sec</source>
         <translation>Moyenne paquets/sec</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="570"/>
+        <location filename="capture_file_properties_dialog.cpp" line="570"/>
         <source>Avg. packet size</source>
         <translation>Moyenne taille de paquet</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="573"/>
-        <location filename="summary_dialog.cpp" line="586"/>
-        <location filename="summary_dialog.cpp" line="598"/>
+        <location filename="capture_file_properties_dialog.cpp" line="573"/>
+        <location filename="capture_file_properties_dialog.cpp" line="586"/>
+        <location filename="capture_file_properties_dialog.cpp" line="598"/>
         <source>%</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="614"/>
+        <location filename="capture_file_properties_dialog.cpp" line="614"/>
         <source>Bytes</source>
         <translation>Octets</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="656"/>
+        <location filename="capture_file_properties_dialog.cpp" line="656"/>
         <source>Avg. bytes/sec</source>
         <translation>Moyenne octets/sec</translation>
     </message>
     <message>
-        <location filename="summary_dialog.cpp" line="700"/>
+        <location filename="capture_file_properties_dialog.cpp" line="700"/>
         <source>Avg. MBit/sec</source>
         <translation>Moyenne MBit/sec</translation>
     </message>

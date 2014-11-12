@@ -7,4 +7,7 @@
         <file>expert_warn.png</file>
         <file>expert_ok.png</file>
     </qresource>
+    <qresource prefix="/comment">
+        <file>capture_comment_update.png</file>
+    </qresource>
 </RCC>

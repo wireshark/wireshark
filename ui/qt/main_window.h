@@ -55,16 +55,12 @@
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "capture_file_dialog.h"
-#include "summary_dialog.h"
 #include "follow_stream_dialog.h"
 #include "capture_interfaces_dialog.h"
 #include "about_dialog.h"
 
 class QAction;
 class QActionGroup;
-
-Q_DECLARE_METATYPE(ts_type)
-Q_DECLARE_METATYPE(ts_precision)
 
 namespace Ui {
     class MainWindow;
@@ -120,7 +116,6 @@ private:
     ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog file_set_dialog_;
-    SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
     QActionGroup *show_hide_actions_;
@@ -366,7 +361,7 @@ private slots:
     void on_actionCaptureStart_triggered();
     void on_actionCaptureStop_triggered();
 
-    void on_actionSummary_triggered();
+    void on_actionStatisticsCaptureFileProperties_triggered();
     void on_actionStatisticsFlowGraph_triggered();
     void openTcpStreamDialog(int graph_type);
     void on_actionStatisticsTcpStreamStevens_triggered();

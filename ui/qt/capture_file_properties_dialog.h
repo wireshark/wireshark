@@ -1,4 +1,4 @@
-/* summary_dialog.h
+/* capture_file_properties_dialog.h
  *
  * GSoC 2013 - QtShark
  *
@@ -21,8 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SUMMARY_DIALOG_H
-#define SUMMARY_DIALOG_H
+#ifndef CAPTURE_FILE_PROPERTIES_DIALOG_H
+#define CAPTURE_FILE_PROPERTIES_DIALOG_H
 
 #include "config.h"
 
@@ -34,55 +34,56 @@
 #include <epan/strutil.h>
 #include <wiretap/wtap.h>
 
-#include "globals.h"
 #include "file.h"
-#include "summary.h"
 
 #ifdef HAVE_LIBPCAP
     #include "ui/capture.h"
     #include "ui/capture_globals.h"
 #endif
 
-#include <QDialog>
 #include <QClipboard>
+#include <QDialog>
 
 namespace Ui {
 class SummaryDialog;
 }
 
-class SummaryDialog : public QDialog
+class QAbstractButton;
+
+class CaptureFilePropertiesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SummaryDialog(QWidget *parent = 0);
-    ~SummaryDialog();
+    explicit CaptureFilePropertiesDialog(QWidget *parent = 0, capture_file *cf = NULL);
+    ~CaptureFilePropertiesDialog();
 
-
-    QString TimeToString(time_t ti_time);
-    void UpdateValues();
-    QString SummaryToString();
+public slots:
+    void setCaptureFile(capture_file *cf);
 
 signals:
     void captureCommentChanged();
 
-
 protected slots:
-    void RefreshData();
-    void SaveComment();
-    void HelpButton();
-    void CopyComment();
-    void on_tabWidget_currentChanged(int index);
     void changeEvent(QEvent* event);
 
 
 private:
-    Ui::SummaryDialog   *ui;
+    Ui::SummaryDialog *ui;
+    capture_file *cap_file_;
 
-    QPushButton     *bRefresh;
-    QPushButton     *bCopyComment;
+    QPushButton *refresh_button_;
+    QPushButton *copy_comment_button_;
 
-    summary_tally       summary_;
+    QString timeToString(time_t ti_time);
+    QString summaryToHtml();
+
+private slots:
+    void updateWidgets();
+    void on_buttonBox_helpRequested();
+    void on_buttonBox_accepted();
+    void on_buttonBox_clicked(QAbstractButton *button);
+    void on_buttonBox_rejected();
 };
 
 #endif

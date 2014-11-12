@@ -207,8 +207,9 @@ HEADERS_WS_C  = \
 
 FORMS += \
     about_dialog.ui \
-    capture_preferences_frame.ui \
+    capture_file_properties_dialog.ui \
     capture_interfaces_dialog.ui \
+    capture_preferences_frame.ui \
     column_preferences_frame.ui \
     compiled_filter_output.ui \
     decode_as_dialog.ui \
@@ -248,7 +249,6 @@ FORMS += \
     sequence_dialog.ui \
     splash_overlay.ui \
     stats_tree_dialog.ui \
-    summary_dialog.ui \
     tcp_stream_dialog.ui \
     time_shift_dialog.ui \
     traffic_table_dialog.ui \
@@ -258,6 +258,7 @@ FORMS += \
 HEADERS += $$HEADERS_WS_C \
     about_dialog.h \
     accordion_frame.h \
+    capture_file_properties_dialog.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
     column_preferences_frame.h \
@@ -298,7 +299,6 @@ HEADERS += $$HEADERS_WS_C \
     search_frame.h \
     splash_overlay.h \
     stats_tree_dialog.h \
-    summary_dialog.h \
     tango_colors.h \
     tcp_stream_dialog.h \
     traffic_table_dialog.h \
@@ -588,6 +588,7 @@ SOURCES += \
     byte_view_tab.cpp \
     byte_view_text.cpp \
     capture_file_dialog.cpp \
+    capture_file_properties_dialog.cpp \
     capture_filter_combo.cpp \
     capture_filter_edit.cpp \
     capture_filter_syntax_worker.cpp \
@@ -661,7 +662,6 @@ SOURCES += \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \
     stock_icon.cpp \
-    summary_dialog.cpp \
     syntax_line_edit.cpp \
     tcp_stream_dialog.cpp \
     time_shift_dialog.cpp \

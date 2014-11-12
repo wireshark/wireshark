@@ -122,6 +122,8 @@ ui_%.h: %.ui
 
 about_dialog.cpp about_dialog.h: ui_about_dialog.h
 
+capture_file_properties_dialog.cpp capture_file_properties_dialog.h: ui_capture_file_properties_dialog.h
+
 capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces_dialog.h
 
 capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preferences_frame.h
@@ -203,8 +205,6 @@ sctp_graph_byte_dialog.cpp sctp_graph_byte_dialog.h: ui_sctp_graph_byte_dialog.h
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
 stats_tree_dialog.cpp stats_tree_dialog.h: ui_stats_tree_dialog.h
-
-summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
 
 tcp_stream_dialog.cpp: ui_tcp_stream_dialog.h
 

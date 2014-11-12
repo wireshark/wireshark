@@ -30,6 +30,7 @@ GENERATED_HEADER_FILES =
 # Generated header files that we don't want in the distribution.
 NODIST_GENERATED_HEADER_FILES =	\
 	ui_about_dialog.h	\
+	ui_capture_file_properties_dialog.h	\
 	ui_capture_interfaces_dialog.h	\
 	ui_capture_preferences_frame.h	\
 	ui_column_preferences_frame.h	\
@@ -71,7 +72,6 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_search_frame.h	\
 	ui_sequence_dialog.h	\
 	ui_splash_overlay.h	\
-	ui_summary_dialog.h	\
 	ui_tcp_stream_dialog.h	\
 	ui_time_shift_dialog.h	\
 	ui_traffic_table_dialog.h	\
@@ -116,6 +116,7 @@ MOC_HDRS =	\
 	byte_view_tab.h	\
 	byte_view_text.h	\
 	capture_file_dialog.h	\
+	capture_file_properties_dialog.h	\
 	capture_filter_combo.h	\
 	capture_filter_edit.h	\
 	capture_filter_syntax_worker.h	\
@@ -184,7 +185,6 @@ MOC_HDRS =	\
 	sparkline_delegate.h	\
 	splash_overlay.h	\
 	stats_tree_dialog.h	\
-	summary_dialog.h	\
 	syntax_line_edit.h	\
 	tcp_stream_dialog.h	\
 	time_shift_dialog.h	\
@@ -198,6 +198,7 @@ MOC_HDRS =	\
 #
 UI_FILES =	\
 	about_dialog.ui	\
+	capture_file_properties_dialog.ui 	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
@@ -239,7 +240,6 @@ UI_FILES =	\
 	sequence_dialog.ui	\
 	splash_overlay.ui	\
 	stats_tree_dialog.ui	\
-	summary_dialog.ui 	\
 	tcp_stream_dialog.ui	\
 	time_shift_dialog.ui	\
 	traffic_table_dialog.ui	\
@@ -307,6 +307,7 @@ WIRESHARK_QT_SRC =	\
 	byte_view_tab.cpp	\
 	byte_view_text.cpp	\
 	capture_file_dialog.cpp	\
+	capture_file_properties_dialog.cpp	\
 	capture_filter_combo.cpp	\
 	capture_filter_edit.cpp	\
 	capture_filter_syntax_worker.cpp	\
@@ -380,7 +381,6 @@ WIRESHARK_QT_SRC =	\
 	splash_overlay.cpp	\
 	stats_tree_dialog.cpp	\
 	stock_icon.cpp		\
-	summary_dialog.cpp	\
 	syntax_line_edit.cpp	\
 	tcp_stream_dialog.cpp	\
 	time_shift_dialog.cpp	\
