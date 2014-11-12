@@ -90,6 +90,10 @@ static int hf_clock_offset = -1;
 static int hf_afh_map = -1;
 static int hf_bdaddr = -1;
 static int hf_usb_rx_packet = -1;
+static int hf_state = -1;
+static int hf_crc_init = -1;
+static int hf_hop_interval = -1;
+static int hf_hop_increment = -1;
 static int hf_usb_rx_packet_channel = -1;
 static int hf_spectrum_entry = -1;
 static int hf_frequency = -1;
@@ -401,6 +405,7 @@ static const value_string command_vals[] = {
     { 54,  "BTLE Slave" },
     { 55,  "Get Compile Info" },
     { 56,  "BTLE Set Target" },
+    { 57,  "BTLE Phy" },
     { 0x00, NULL }
 };
 static value_string_ext(command_vals_ext) = VALUE_STRING_EXT_INIT(command_vals);
@@ -432,9 +437,19 @@ static const value_string packet_type_vals[] = {
     { 0x01,  "LE" },
     { 0x02,  "Message" },
     { 0x03,  "Keep Alive" },
+    { 0x04,  "Spectrum Analyze"},
+    { 0x05,  "LE Promiscuous" },
     { 0x00, NULL }
 };
 static value_string_ext(packet_type_vals_ext) = VALUE_STRING_EXT_INIT(packet_type_vals);
+
+static const value_string usb_rx_packet_state_vals[] = {
+    { 0x00,  "Access Address" },
+    { 0x01,  "CRC Init" },
+    { 0x02,  "Hop Interval" },
+    { 0x03,  "Hop Increment" },
+    { 0x00, NULL }
+};
 
 static const value_string modulation_vals[] = {
     { 0x00,  "Basic Rate" },
@@ -1170,20 +1185,64 @@ static gint
 dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint16 command)
 {
     proto_item  *sub_item;
-    proto_item  *sub_tree;
+    proto_tree  *sub_tree;
+    proto_item  *p_item;
     proto_item  *data_item;
-    proto_item  *data_tree;
+    proto_tree  *data_tree;
     proto_item  *entry_item;
-    proto_item  *entry_tree;
+    proto_tree  *entry_tree;
     gint         i_spec;
     gint         length;
     tvbuff_t    *next_tvb;
+    guint8       packet_type;
+    guint32      start_offset;
 
     sub_item = proto_tree_add_item(tree, hf_usb_rx_packet, tvb, offset, 64, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_usb_rx_packet);
 
+    start_offset = offset;
+
     proto_tree_add_item(sub_tree, hf_packet_type, tvb, offset, 1, ENC_NA);
+    packet_type = tvb_get_guint8(tvb, offset);
     offset += 1;
+
+    if (packet_type == 0x05) { /* LE_PROMISC */
+        guint8  state;
+
+        proto_tree_add_item(sub_tree, hf_state, tvb, offset, 1, ENC_NA);
+        state = tvb_get_guint8(tvb, offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " LE Promiscuous - %s", val_to_str_const(state, usb_rx_packet_state_vals, "Unknown"));
+        offset += 1;
+
+        switch (state) {
+        case 0: /* Access Address */
+            proto_tree_add_item(sub_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x", tvb_get_letohl(tvb, offset));
+            offset += 4;
+            break;
+        case 1: /* CRC Init */
+            proto_tree_add_item(sub_tree, hf_crc_init, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x", tvb_get_letohl(tvb, offset));
+            offset += 4;
+            break;
+        case 2: /* Hop Interval */
+            p_item = proto_tree_add_item(sub_tree, hf_hop_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(p_item, " (%f ms), ", tvb_get_letohs(tvb, offset) * 1.25);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %f ms", tvb_get_letohs(tvb, offset) * 1.25);
+            offset += 2;
+            break;
+        case 3: /* Hop Increment */
+            proto_tree_add_item(sub_tree, hf_hop_increment, tvb, offset, 1, ENC_NA);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %u", tvb_get_guint8(tvb, offset));
+            offset += 1;
+            break;
+        }
+
+        proto_tree_add_item(sub_tree, hf_reserved, tvb, offset, 64 - (offset - start_offset), ENC_NA);
+        offset += 64 - (offset - start_offset);
+
+        return offset;
+    }
 
     proto_tree_add_item(sub_tree, hf_chip_status_reserved, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(sub_tree, hf_chip_status_rssi_trigger, tvb, offset, 1, ENC_NA);
@@ -1971,6 +2030,26 @@ proto_register_ubertooth(void)
         { &hf_packet_type,
             { "Packet Type",                     "ubertooth.packet_type",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &packet_type_vals_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_state,
+            { "State",                           "ubertooth.state",
+            FT_UINT8, BASE_HEX, VALS(usb_rx_packet_state_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_crc_init,
+            { "CRC Init",                        "ubertooth.crc_init",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_hop_interval,
+            { "Hop Interval",                    "ubertooth.hop_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "Hop Interval in unit 1.25ms", HFILL }
+        },
+        { &hf_hop_increment,
+            { "Hop Increment",                    "ubertooth.hop_increment",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_chip_status_reserved,
