@@ -4212,12 +4212,10 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     guint8      al_ret_priority;
     guint8      delay, reliability, peak, precedence, mean, spare1, spare2, spare3;
     guint8      traf_class, del_order, del_err_sdu;
-    guint8      max_sdu_size, max_ul, max_dl, max_ul_ext, max_dl_ext, max_ul_ext2;
-    guint8      max_dl_ext2 = 0;
+    guint8      max_sdu_size, max_ul, max_dl, max_ul_ext, max_dl_ext, max_ul_ext2 = 0, max_dl_ext2 = 0;
     guint8      res_ber, sdu_err_ratio;
     guint8      trans_delay, traf_handl_prio;
-    guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext, guar_ul_ext2;
-    guint8      guar_dl_ext2 = 0;
+    guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext, guar_ul_ext2 = 0, guar_dl_ext2 = 0;
     guint8      src_stat_desc, sig_ind;
     proto_tree *ext_tree_qos, *ext_tree_qos_arp;
     int         mss, mu, md, gu, gd;
