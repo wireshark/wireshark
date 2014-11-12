@@ -62,6 +62,7 @@ static int hf_sbc_cummulative_frame_duration                               = -1;
 static int hf_sbc_delta_time                                               = -1;
 static int hf_sbc_delta_time_from_the_beginning                            = -1;
 static int hf_sbc_cummulative_duration                                     = -1;
+static int hf_sbc_avrcp_song_position                                      = -1;
 static int hf_sbc_diff                                                     = -1;
 
 static int hf_sbc_data                                                     = -1;
@@ -252,13 +253,19 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
+        pitem = proto_tree_add_double(sbc_tree, hf_sbc_avrcp_song_position, tvb, offset, 0, info->previous_media_packet_info->avrcp_song_position);
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
         nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->flags.visited) {
             info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+            info->current_media_packet_info->avrcp_song_position        += cummulative_frame_duration;
+        }
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_cummulative_duration, tvb, offset, 0, info->previous_media_packet_info->cummulative_frame_duration);
         proto_item_append_text(pitem, " ms");
@@ -375,6 +382,11 @@ proto_register_sbc(void)
         },
         { &hf_sbc_cummulative_duration,
             { "Cummulative Music Duration",      "sbc.cummulative_music_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_avrcp_song_position,
+            { "AVRCP Song Position",             "sbc.avrcp_song_position",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },

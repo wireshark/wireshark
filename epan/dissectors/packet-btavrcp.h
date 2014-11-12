@@ -1,7 +1,7 @@
-/* packet-btavdtp.h
- * Headers for AVDTP
+/* packet-btavrcp.h
+ * Headers for AVRCP
  *
- * Copyright 2012, Michal Labedzki for Tieto Corporation
+ * Copyright 2014, Michal Labedzki for Tieto Corporation
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -22,30 +22,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PACKET_BTAVDTP_H__
-#define __PACKET_BTAVDTP_H__
+#ifndef __PACKET_BTAVRCP_H__
+#define __PACKET_BTAVRCP_H__
 
-#define BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T  0x02
+wmem_tree_t *btavrcp_song_positions;
 
-typedef struct _media_packet_info_t {
-    nstime_t  abs_ts;
-    nstime_t  first_abs_ts;
-    gdouble   cummulative_frame_duration;
-    gdouble   avrcp_song_position;
-    guint32   stream_number;
-} media_packet_info_t;
-
-typedef struct _bta2dp_codec_info_t {
-    dissector_handle_t    codec_dissector;
-    gint                  content_protection_type;
-    media_packet_info_t  *previous_media_packet_info;
-    media_packet_info_t  *current_media_packet_info;
-} bta2dp_codec_info_t;
-
-typedef struct _btvdp_codec_info_t {
-    dissector_handle_t  codec_dissector;
-    gint                content_protection_type;
-} btvdp_codec_info_t;
+typedef struct _btavrcp_song_position_data_t {
+    guint32   song_position;
+    guint32   used_in_frame;
+} btavrcp_song_position_data_t;
 
 #endif
 

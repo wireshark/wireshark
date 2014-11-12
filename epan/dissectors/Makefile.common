@@ -1381,6 +1381,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bssgp.h	\
 	packet-btavctp.h	\
 	packet-btavdtp.h	\
+	packet-btavrcp.h	\
 	packet-bthci_acl.h	\
 	packet-btl2cap.h	\
 	packet-btle.h		\

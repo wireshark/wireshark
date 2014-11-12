@@ -34,6 +34,7 @@
 #include "packet-btsdp.h"
 #include "packet-btavdtp.h"
 #include "packet-rtp.h"
+#include "packet-btavrcp.h"
 
 #define AVDTP_MESSAGE_TYPE_MASK  0x03
 #define AVDTP_PACKET_TYPE_MASK   0x0C
@@ -354,6 +355,7 @@ static int  proto_aptx                            = -1;
 static int  hf_aptx_data                          = -1;
 static int  hf_aptx_cummulative_frame_duration    = -1;
 static int  hf_aptx_delta_time                    = -1;
+static int  hf_aptx_avrcp_song_position           = -1;
 static int  hf_aptx_delta_time_from_the_beginning = -1;
 static int  hf_aptx_cummulative_duration          = -1;
 static int  hf_aptx_diff                          = -1;
@@ -1382,6 +1384,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 media_packet_info_t          *current_media_packet_info;
                 nstime_t                      first_abs_ts;
                 gdouble                       cummulative_frame_duration;
+                gdouble                       avrcp_song_position = -1.0;
+                btavrcp_song_position_data_t *song_position_data;
 
                 sep_data.codec        = channels_info->sep->codec;
                 sep_data.vendor_id    = channels_info->sep->vendor_id;
@@ -1410,19 +1414,41 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[5].length = 0;
                 key[5].key    = NULL;
 
+                key[2].length = 0;
+                key[2].key    = NULL;
+
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(btavrcp_song_positions, key);
+                song_position_data = (subtree) ? (btavrcp_song_position_data_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                if (song_position_data && (song_position_data->used_in_frame == 0 ||
+                        song_position_data->used_in_frame == frame_number)) {
+                    avrcp_song_position = song_position_data->song_position;
+                    if (!pinfo->fd->flags.visited)
+                        song_position_data->used_in_frame = frame_number;
+                }
+
+                key[2].length = 1;
+                key[2].key    = &chandle;
+
                 subtree = (wmem_tree_t *) wmem_tree_lookup32_array(media_packet_times, key);
                 previous_media_packet_info = (subtree) ? (media_packet_info_t *) wmem_tree_lookup32_le(subtree, frame_number - 1) : NULL;
                 if (previous_media_packet_info && previous_media_packet_info->stream_number == sep_data.stream_number ) {
                     sep_data.previous_media_packet_info = previous_media_packet_info;
                     first_abs_ts = previous_media_packet_info->first_abs_ts;
                     cummulative_frame_duration = previous_media_packet_info->cummulative_frame_duration;
+                    if (avrcp_song_position == -1.0)
+                        avrcp_song_position = previous_media_packet_info->avrcp_song_position;
+                    else
+                        previous_media_packet_info->avrcp_song_position = avrcp_song_position;
                 } else {
+                    if (avrcp_song_position == -1.0)
+                        avrcp_song_position = 0.0;
                     first_abs_ts = pinfo->fd->abs_ts;
                     cummulative_frame_duration = 0.0;
                     sep_data.previous_media_packet_info = (media_packet_info_t *) wmem_new(wmem_epan_scope(), media_packet_info_t);
                     sep_data.previous_media_packet_info->abs_ts = pinfo->fd->abs_ts;
                     sep_data.previous_media_packet_info->first_abs_ts = first_abs_ts;
                     sep_data.previous_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    sep_data.previous_media_packet_info->avrcp_song_position = avrcp_song_position;
                     sep_data.previous_media_packet_info->stream_number = sep_data.stream_number;
                 }
 
@@ -1432,10 +1458,14 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     key[6].length = 0;
                     key[6].key    = NULL;
 
+                    if (avrcp_song_position == -1.0)
+                        avrcp_song_position = 0.0;
+
                     current_media_packet_info = wmem_new(wmem_file_scope(), media_packet_info_t);
                     current_media_packet_info->abs_ts = pinfo->fd->abs_ts;
                     current_media_packet_info->first_abs_ts = first_abs_ts;
                     current_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    current_media_packet_info->avrcp_song_position = avrcp_song_position;
                     current_media_packet_info->stream_number = sep_data.stream_number;
 
                     wmem_tree_insert32_array(media_packet_times, key, current_media_packet_info);
@@ -2665,6 +2695,10 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_avrcp_song_position, tvb, 0, 0, info->previous_media_packet_info->avrcp_song_position);
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
         nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
         pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
         proto_item_append_text(pitem, " ms");
@@ -2701,6 +2735,11 @@ proto_register_aptx(void)
         },
         { &hf_aptx_delta_time,
             { "Delta time",                      "aptx.delta_time",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_avrcp_song_position,
+            { "AVRCP Song Position",             "aptx.avrcp_song_position",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },

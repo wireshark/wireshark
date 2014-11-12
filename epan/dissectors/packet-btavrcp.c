@@ -34,6 +34,7 @@
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 #include "packet-btavctp.h"
+#include "packet-btavrcp.h"
 
 static int proto_btavrcp                                                   = -1;
 
@@ -272,8 +273,9 @@ static dissector_handle_t btavrcp_handle;
 
 #define STATUS_OK  0x04
 
-static wmem_tree_t *reassembling = NULL;
-static wmem_tree_t *timing       = NULL;
+static wmem_tree_t *reassembling  = NULL;
+static wmem_tree_t *timing        = NULL;
+       wmem_tree_t *btavrcp_song_positions = NULL;
 
 typedef struct _fragment {
     guint        start_frame_number;
@@ -307,7 +309,7 @@ typedef struct _timing_info {
     guint32   opcode;
     guint32   op;
     guint32   op_arg;
-    } timing_info_t;
+} timing_info_t;
 
 static const value_string packet_type_vals[] = {
     { PACKET_TYPE_SINGLE,     "Single" },
@@ -1592,6 +1594,27 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         if (song_position == 0xFFFFFFFF) {
                             proto_item_append_text(pitem, " (NOT SELECTED)");
                             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
+                        } else if (!pinfo->fd->flags.visited) {
+                            btavrcp_song_position_data_t  *song_position_data;
+
+                            k_interface_id = interface_id;
+                            k_adapter_id   = adapter_id;
+                            k_frame_number = pinfo->fd->num;
+
+                            key[0].length = 1;
+                            key[0].key = &k_interface_id;
+                            key[1].length = 1;
+                            key[1].key = &k_adapter_id;
+                            key[2].length = 1;
+                            key[2].key = &k_frame_number;
+                            key[3].length = 0;
+                            key[3].key = NULL;
+
+                            song_position_data = wmem_new(wmem_file_scope(), btavrcp_song_position_data_t);
+                            song_position_data->song_position = song_position;
+                            song_position_data->used_in_frame = 0;
+
+                            wmem_tree_insert32_array(btavrcp_song_positions, key, song_position_data);
                         }
                         break;
                     case EVENT_BATTERY_STATUS_CHANGED:
@@ -3162,8 +3185,9 @@ proto_register_btavrcp(void)
         { &ei_btavrcp_no_response,     { "btavrcp.no_response",     PI_PROTOCOL, PI_WARN, "No response", EXPFILL }},
     };
 
-    reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    timing       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    reassembling   = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    timing         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    btavrcp_song_positions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
     btavrcp_handle = new_register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
