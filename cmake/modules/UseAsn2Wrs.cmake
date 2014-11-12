@@ -1,4 +1,5 @@
-#
+# - Convert ASN.1 file into C source and header files that can be used to create a wireshark dissector
+
 MACRO(ASN2WRS)
 	find_package(Asn2Wrs REQUIRED)
 
@@ -8,6 +9,14 @@ MACRO(ASN2WRS)
 		set( PROTO_OPT -p ${PROTOCOL_NAME} )
 	elseif ( PROTO_OPT STREQUAL "_EMPTY_" )
 		set( PROTO_OPT )
+	endif()
+
+	# Backwards compability for build in dissectors,
+	# set to '_EMPTY_' for out of source dissector builds
+	if ( NOT A2W_OUTPUT_DIR )
+		set (A2W_OUTPUT_DIR -O ${CMAKE_SOURCE_DIR}/epan/dissectors)
+	elseif ( A2W_OUTPUT_DIR STREQUAL "_EMPTY_" )
+		set( A2W_OUTPUT_DIR )
 	endif()
 
 	# Don't use packet-${PROTOCOL_NAME}.c instead of generate_dissector, it will
@@ -20,7 +29,7 @@ MACRO(ASN2WRS)
 		  -c ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf
 		  -s ${CMAKE_CURRENT_SOURCE_DIR}/packet-${PROTOCOL_NAME}-template
 		  -D ${CMAKE_CURRENT_SOURCE_DIR}
-		  -O ${CMAKE_SOURCE_DIR}/epan/dissectors
+		  ${A2W_OUTPUT_DIR}
 		  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 		DEPENDS
 		  ${ASN2WRS_EXECUTABLE}
