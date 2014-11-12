@@ -44,6 +44,7 @@
 #include "packet-igmp.h"
 
 void proto_register_mrdisc(void);
+void proto_reg_handoff_mrdisc(void);
 
 static int proto_mrdisc = -1;
 static int hf_checksum = -1;
@@ -183,7 +184,7 @@ dissect_mrdisc_mrst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 
 /* This function is only called from the IGMP dissector */
-int
+static int
 dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_tree *tree;
@@ -192,9 +193,9 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 	int offset = 0;
 	guint32 dst = g_htonl(MC_ALL_ROUTERS);
 
-    /* Shouldn't be destined for us */
+	/* Shouldn't be destined for us */
 	if (memcmp(pinfo->dst.data, &dst, 4))
-        return 0;
+	return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRDISC");
 	col_clear(pinfo->cinfo, COL_INFO);

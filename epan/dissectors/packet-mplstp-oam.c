@@ -34,6 +34,8 @@
 
 void proto_register_mplstp_lock(void);
 void proto_register_mplstp_fm(void);
+void proto_reg_handoff_mplstp_lock(void);
+void proto_reg_handoff_mplstp_fm(void);
 
 /* MPLS-TP FM protocol specific variables */
 static gint proto_mplstp_fm     = -1;

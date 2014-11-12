@@ -48,6 +48,7 @@
 #include "packet-igmp.h"
 
 void proto_register_igap(void);
+void proto_reg_handoff_igap(void);
 
 static int proto_igap      = -1;
 static int hf_type         = -1;
@@ -132,7 +133,7 @@ static const value_string igap_account_status[] = {
 #define MESSAGE_SIZE    64
 
 /* This function is only called from the IGMP dissector */
-int
+static int
 dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_tree *tree;

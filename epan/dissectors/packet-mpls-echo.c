@@ -1682,7 +1682,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 /*
  * Dissector for MPLS Echo (LSP PING) packets
  */
-int
+static int
 dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset = 0, rem = 0, len;

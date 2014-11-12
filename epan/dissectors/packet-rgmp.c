@@ -35,6 +35,7 @@
 #include "packet-igmp.h"
 
 void proto_register_rgmp(void);
+void proto_reg_handoff_rgmp(void);
 
 static int proto_rgmp      = -1;
 static int hf_type         = -1;
@@ -55,7 +56,7 @@ static const value_string rgmp_types[] = {
 };
 
 /* This function is only called from the IGMP dissector */
-int
+static int
 dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_tree *tree;

@@ -59,6 +59,7 @@
 #include "packet-igmp.h"
 
 void proto_register_dvmrp(void);
+void proto_reg_handoff_dvmrp(void);
 
 static int proto_dvmrp = -1;
 static int hf_version = -1;
@@ -676,7 +677,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 }
 
 /* This function is only called from the IGMP dissector */
-int
+static int
 dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_tree *tree;
