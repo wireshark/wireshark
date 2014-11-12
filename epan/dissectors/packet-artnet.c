@@ -3134,12 +3134,12 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   guint64     qword;
 
   /* check if we atleast have the 8 byte header */
-  if (tvb_length(tvb) < 8)
+  if (tvb_captured_length(tvb) < 8)
     return FALSE;
 
-  /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e7400*/
+  /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e657400*/
   qword = tvb_get_ntoh64(tvb,0);
-  if(qword != G_GUINT64_CONSTANT (0x4172742d4e7400))
+  if(qword != G_GUINT64_CONSTANT (0x4172742d4e657400))
     return FALSE;
 
   /* if the header matches, dissect it */
