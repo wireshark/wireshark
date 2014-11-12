@@ -107,7 +107,7 @@ extern GtkWidget *dlg_window_new(const gchar *title);
  *
  * @param title the title for the new dialog
  * @param geom_name A unique name for the geometry of this new dialog
- * @parm pos the initial position of the window if a previously saved geometry was not saved or found.
+ * @param pos the initial position of the window if a previously saved geometry was not saved or found.
  *     If the initial position does not matter, specify GTK_WIN_POS_NONE.
  * @return the newly created dialog
  */
