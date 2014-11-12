@@ -21,7 +21,8 @@ MACRO(ASN2WRS)
 
 	# Don't use packet-${PROTOCOL_NAME}.c instead of generate_dissector, it will
 	# cause EXCLUDE_FROM_ALL to be ignored.
-	ADD_CUSTOM_TARGET(generate_dissector-${PROTOCOL_NAME} ALL
+	ADD_CUSTOM_COMMAND(
+		OUTPUT packet-${PROTOCOL_NAME}.c
 		COMMAND ${PYTHON_EXECUTABLE}
 		  ${ASN2WRS_EXECUTABLE}
 		  ${A2W_FLAGS}
@@ -38,8 +39,8 @@ MACRO(ASN2WRS)
 	)
 
 	foreach( _asn2wrs_export_file IN LISTS EXPORT_FILES )
-		ADD_CUSTOM_TARGET( ${_asn2wrs_export_file}
-			WORKING_DIRECTORY .
+		ADD_CUSTOM_COMMAND(
+			OUTPUT ${_asn2wrs_export_file}
 			COMMAND ${PYTHON_EXECUTABLE}
 			  ${ASN2WRS_EXECUTABLE}
 			  -E
