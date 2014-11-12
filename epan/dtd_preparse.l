@@ -155,8 +155,8 @@ newline    \n
 <IN_QUOTE>{non_quote}			|
 <IN_QUOTE>{escaped_quote}		g_string_append(current,yytext);
 <NAMED_ENTITY>{system}			{
-    g_string_append_printf(error,"at %s:%u: file inclusion is not supported!", filename, linenum);
-    yyterminate();
+	g_string_append_printf(error,"at %s:%u: file inclusion is not supported!", filename, linenum);
+	yyterminate();
 }
 <ENTITY_DONE>{special_stop}		{ current = output; g_string_append(current,"\n"); BEGIN OUTSIDE; }
 
@@ -226,7 +226,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	g_hash_table_foreach_remove(entities,free_gstring_hash_items,NULL);
 	g_hash_table_destroy(entities);
 
-    g_free(fullname);
+	g_free(fullname);
 
 	return output;
 }
@@ -239,5 +239,5 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
  */
 
 int yywrap(void) {
-    return 1;
+	return 1;
 }
