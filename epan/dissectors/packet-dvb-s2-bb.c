@@ -11,6 +11,8 @@
  *  ETSI EN 301 545 - Digital Video Broadcasting (DVB) - Second Generation DVB Interactive Satellite System (DVB-RCS2)
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
+ * Copyright 2013-2020, Thales Alenia Space
+ * Copyright 2013-2020, Viveris Technologies <adrien.destugues@opensource.viveris.fr>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -66,11 +68,16 @@ static guint8 crc8_table[256] = {
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t dvb_s2_table_handle;
+static dissector_handle_t data_handle;
 
 void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
 
 /* preferences */
+#define DVB_S2_RCS_TABLE_DECODING      0
+#define DVB_S2_RCS2_TABLE_DECODING     1
+
 static gboolean dvb_s2_full_dissection = FALSE;
 static gboolean dvb_s2_df_dissection = FALSE;
 
@@ -794,17 +801,19 @@ static const value_string gse_labeltype[] = {
 #define DVB_S2_GSE_HDR_LENGTH_MASK      0x0FFF
 
 #define DVB_RCS2_NCR 0x0081
+#define DVB_RCS2_SIGNAL_TABLE 0x0082
 
 static const range_string gse_proto_str[] = {
-    {0x0000        , 0x00FF        , "not implemented"},
-    {DVB_RCS2_NCR  , DVB_RCS2_NCR  , "NCR"            },
-    {0x0100        , 0x05FF        , "not implemented"},
-    {0x0600        , 0x07FF        , "not implemented"},
-    {ETHERTYPE_IP  , ETHERTYPE_IP  , "IPv4 Payload"   },
-    {0x0801        , 0x86DC        , "not implemented"},
-    {ETHERTYPE_IPv6, ETHERTYPE_IPv6, "IPv6 Payload"   },
-    {0x86DE        , 0xFFFF        , "not implemented"},
-    {0             , 0             , NULL             }
+    {0x0000               , 0x00FF               , "not implemented"},
+    {DVB_RCS2_NCR         , DVB_RCS2_NCR         , "NCR"            },
+    {DVB_RCS2_SIGNAL_TABLE, DVB_RCS2_SIGNAL_TABLE, "Signaling Table"},
+    {0x0100               , 0x05FF               , "not implemented"},
+    {0x0600               , 0x07FF               , "not implemented"},
+    {ETHERTYPE_IP         , ETHERTYPE_IP         , "IPv4 Payload"   },
+    {0x0801               , 0x86DC               , "not implemented"},
+    {ETHERTYPE_IPv6       , ETHERTYPE_IPv6       , "IPv6 Payload"   },
+    {0x86DE               , 0xFFFF               , "not implemented"},
+    {0                    , 0                    , NULL             }
 };
 
 #define DVB_S2_GSE_CRC32_LEN            4
@@ -833,7 +842,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
     proto_item *ttf;
     proto_tree *dvb_s2_gse_tree, *dvb_s2_gse_ncr_tree;
 
-    tvbuff_t   *next_tvb;
+    tvbuff_t   *next_tvb, *data_tvb;
     gboolean   dissected = FALSE;
 
     static int * const gse_header_bitfields[] = {
@@ -937,19 +946,29 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
         }
 
+        data_tvb = tvb_new_subset_length(tvb, cur_off + new_off, data_len);
+
         switch (gse_proto) {
             case ETHERTYPE_IP:
-                if (dvb_s2_full_dissection) {
+                if (dvb_s2_full_dissection)
+                {
                     new_off += call_dissector(ip_handle, next_tvb, pinfo, tree);
                     dissected = TRUE;
                 }
                 break;
 
             case ETHERTYPE_IPv6:
-                if (dvb_s2_full_dissection) {
+                if (dvb_s2_full_dissection)
+                {
                     new_off += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
                     dissected = TRUE;
                 }
+                break;
+
+            case DVB_RCS2_SIGNAL_TABLE:
+                call_dissector(dvb_s2_table_handle, data_tvb, pinfo, tree);
+                new_off += data_len;
+                dissected = TRUE;
                 break;
 
             case DVB_RCS2_NCR:
@@ -1560,6 +1579,8 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
         heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
         ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
         ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
+        dvb_s2_table_handle = find_dissector("dvb-s2_table");
+        data_handle = find_dissector("data");
         prefs_initialized = TRUE;
     }
 }
