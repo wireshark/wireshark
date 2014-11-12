@@ -542,6 +542,7 @@ DISSECTOR_SRC = \
 	packet-ehs.c		\
 	packet-eigrp.c		\
 	packet-eiss.c		\
+	packet-elasticsearch.c	\
 	packet-elcom.c		\
 	packet-elmi.c		\
 	packet-enc.c		\

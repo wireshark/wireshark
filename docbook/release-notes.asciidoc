@@ -86,6 +86,7 @@ Android Logcat text
 Couchbase
 AllJoyn Reliable Datagram Protocol
 HiQnet
+Elasticsearch
 --sort-and-group--
 
 === Updated Protocol Support

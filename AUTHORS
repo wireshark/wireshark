@@ -3627,6 +3627,11 @@ Raphaël Doursenaud	<rdoursenaud[AT]free.fr> {
 	Harman Pro HiQnet dissector
 }
 
+Ryan Doyle	<ryan[AT]doylenet.net> {
+	Dissector for Elasticsearch
+	Dissector for Performance Co-Pilot
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
