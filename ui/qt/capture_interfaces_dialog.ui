@@ -353,7 +353,7 @@ PLEASE NOTE: One option MUST be selected.</string>
            <widget class="QComboBox" name="SecsComboBox">
             <property name="toolTip">
              <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selecteds.</string>
+PLEASE NOTE: One option MUST be selected.</string>
             </property>
             <item>
              <property name="text">
