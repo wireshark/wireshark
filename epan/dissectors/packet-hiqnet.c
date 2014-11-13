@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-tcp.h"
 
 /*
  * See
@@ -534,8 +535,8 @@ hiqnet_display_data(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
-static void
-dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 headerlen = 0;
     guint32 messagelen = 0;
@@ -987,8 +988,59 @@ dissect_hiqnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
     }
+    return tvb_reported_length(tvb);
 }
 
+
+static guint
+get_hiqnet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    /* length is at offset + 2 */
+    return tvb_get_ntohl(tvb, offset + 2);
+}
+
+/* Fixme: For multiple hiqnet PDUS in a single TCP or UDP packet,
+   the INFO column shows the information only for the last PDU */
+
+static int
+dissect_hiqnet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 6,
+                     get_hiqnet_pdu_len, dissect_hiqnet_pdu, data);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_hiqnet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    gint      offset = 0;
+    tvbuff_t *next_tvb;
+    gint      offset_before;
+    guint     plen;
+    guint     captured_length;
+
+    /* loop on (possibly multiple) hiqnet PDUs in UDP payload */
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        plen = get_hiqnet_pdu_len(pinfo, tvb, offset);
+        captured_length = tvb_captured_length_remaining(tvb, offset);
+
+        if (captured_length > plen)
+            captured_length = plen;
+        next_tvb = tvb_new_subset(tvb, offset, captured_length, plen);
+
+        dissect_hiqnet_pdu(next_tvb, pinfo, tree, data);
+
+        /*
+         * Step to the next PDU.
+         * Make sure we don't overflow.
+         */
+        offset_before = offset;
+        offset += plen;
+        if (offset <= offset_before)
+            break;
+    }
+    return tvb_captured_length(tvb);
+}
 
 void
 proto_register_hiqnet(void)
@@ -1613,11 +1665,13 @@ proto_register_hiqnet(void)
 void
 proto_reg_handoff_hiqnet(void)
 {
-    static dissector_handle_t hiqnet_handle;
+    static dissector_handle_t hiqnet_udp_handle;
+    static dissector_handle_t hiqnet_tcp_handle;
 
-    hiqnet_handle = create_dissector_handle(dissect_hiqnet, proto_hiqnet);
-    dissector_add_uint("udp.port", HIQNET_PORT, hiqnet_handle);
-    dissector_add_uint("tcp.port", HIQNET_PORT, hiqnet_handle);
+    hiqnet_udp_handle = new_create_dissector_handle(dissect_hiqnet_udp, proto_hiqnet);
+    hiqnet_tcp_handle = new_create_dissector_handle(dissect_hiqnet_tcp, proto_hiqnet);
+    dissector_add_uint("udp.port", HIQNET_PORT, hiqnet_udp_handle);
+    dissector_add_uint("tcp.port", HIQNET_PORT, hiqnet_tcp_handle);
 }
 
 /*
