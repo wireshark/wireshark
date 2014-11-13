@@ -60,7 +60,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setDisabled(true);
 
     ti = new QTreeWidgetItem();
-    ti->setText(0, tr("Waiting for startup" UTF8_HORIZONTAL_ELLIPSIS));
+    ti->setText(0, tr("Waiting for startup%1").arg(UTF8_HORIZONTAL_ELLIPSIS));
     addTopLevelItem(ti);
     resizeColumnToContents(0);
 
