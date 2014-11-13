@@ -343,12 +343,12 @@ static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint l
 		 * dictionary to overwrite these values even for vendors that
 		 * have already been loaded.
 		 *
-	 	 * XXX - this could be due to the vendor being in multiple
+		 * XXX - this could be due to the vendor being in multiple
 		 * dictionary files, rather than having been specially
 		 * entered by the RADIUS dissector, as a side effect of
 		 * specially entering an attribute; should we report vendors
-	 	 * that appear in different dictionaries with different
-	 	 * properties?
+		 * that appear in different dictionaries with different
+		 * properties?
 		 */
 		v->type_octets = type_octets;
 		v->length_octets = length_octets;
@@ -427,16 +427,16 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 		 * This attribute is already in the table.
 		 *
 		 * Overwrite the encrypted flag, tagged property, and type;
-	 	 * the other properties don't get set until after we've
-	 	 * finished reading the dictionaries.
-	 	 *
-	 	 * XXX - this could be due to the attribute being in
-	 	 * multiple dictionary files, rather than having been
-	 	 * specially entered by the RADIUS dissector to give it
-	 	 * a special dissection routine; should we report attributes
-	 	 * that appear in different dictionaries with different
-	 	 * properties?
-	 	 */
+		 * the other properties don't get set until after we've
+		 * finished reading the dictionaries.
+		 *
+		 * XXX - this could be due to the attribute being in
+		 * multiple dictionary files, rather than having been
+		 * specially entered by the RADIUS dissector to give it
+		 * a special dissection routine; should we report attributes
+		 * that appear in different dictionaries with different
+		 * properties?
+		 */
 		a->encrypt = encrypted_flag;
 		a->tagged =  tagged;
 		a->type = type;
