@@ -356,7 +356,7 @@ static void
 dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t   *next_tvb;
-    guint16     channel_type;
+    guint       channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
