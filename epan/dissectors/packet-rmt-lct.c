@@ -219,7 +219,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
                 proto_tree_add_item(ext_tree, hf_cc_sequence, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ext_tree, hf_cc_flags, tvb, offset+4, 1, ENC_NA);
                 proto_tree_add_item(ext_tree, hf_cc_rtt, tvb, offset+5, 1, ENC_NA);
-                proto_tree_add_item(ext_tree, hf_cc_loss, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_double(ext_tree, hf_cc_loss, tvb, offset+6, 2, tvb_get_ntohs(tvb, offset+6)/65535.0);
                 proto_tree_add_item(ext_tree, hf_cc_rate, tvb, offset+8, 2, ENC_BIG_ENDIAN);
                 break;
 
@@ -659,12 +659,31 @@ proto_register_rmt_lct(void)
             FT_UINT32, BASE_DEC, NULL, 0x000FFFFF,
             NULL, HFILL }
         },
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_cc_sequence, { "CC Sequence", "rmt-lct.cc_sequence", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cc_flags, { "CC Flags", "rmt-lct.cc_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_cc_rtt, { "CC RTT", "rmt-lct.cc_rtt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cc_loss, { "CC Loss", "rmt-lct.cc_loss", FT_UINT16, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_cc_rate, { "CC Rate", "rmt-lct.cc_rate", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_cc_sequence,
+          { "CC Sequence", "rmt-lct.cc_sequence",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_cc_flags,
+          { "CC Flags", "rmt-lct.cc_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_cc_rtt,
+          { "CC RTT", "rmt-lct.cc_rtt",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_cc_loss,
+          { "CC Loss", "rmt-lct.cc_loss",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_cc_rate,
+          { "CC Rate", "rmt-lct.cc_rate",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
