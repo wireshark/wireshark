@@ -342,6 +342,13 @@ static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint l
 		 * the type/length/has_flags information and thus allow the
 		 * dictionary to overwrite these values even for vendors that
 		 * have already been loaded.
+		 *
+	 	 * XXX - this could be due to the vendor being in multiple
+		 * dictionary files, rather than having been specially
+		 * entered by the RADIUS dissector, as a side effect of
+		 * specially entering an attribute; should we report vendors
+	 	 * that appear in different dictionaries with different
+	 	 * properties?
 		 */
 		v->type_octets = type_octets;
 		v->length_octets = length_octets;
@@ -367,8 +374,6 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	guint32 code;
-	const gchar *tmpName = NULL;
-
 
 	if (attr){
 		add_tlv(name, codestr, type, attr);
@@ -396,36 +401,59 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	a=(radius_attr_info_t*)g_hash_table_lookup(by_id, GUINT_TO_POINTER(code));
 
 	if (!a) {
+		/*
+		 * New attribute.
+		 * Allocate a new entry and insert it into the by-ID and
+		 * by-name hash tables.
+		 */
 		a = g_new(radius_attr_info_t,1);
-		a->name = NULL;
+		a->code = code;
+		a->name = g_strdup(name);
 		a->dissector = NULL;
-	}
+		a->encrypt = encrypted_flag;
+		a->tagged =  tagged;
+		a->type = type;
+		a->vs = NULL;
+		a->hf = -1;
+		a->hf_alt = -1;
+		a->hf_tag = -1;
+		a->hf_len = -1;
+		a->ett = -1;
+		a->tlvs_by_id = NULL;
+		g_hash_table_insert(by_id, GUINT_TO_POINTER(code),a);
+		g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
+	} else {
+		/*
+		 * This attribute is already in the table.
+		 *
+		 * Overwrite the encrypted flag, tagged property, and type;
+	 	 * the other properties don't get set until after we've
+	 	 * finished reading the dictionaries.
+	 	 *
+	 	 * XXX - this could be due to the attribute being in
+	 	 * multiple dictionary files, rather than having been
+	 	 * specially entered by the RADIUS dissector to give it
+	 	 * a special dissection routine; should we report attributes
+	 	 * that appear in different dictionaries with different
+	 	 * properties?
+	 	 */
+		a->encrypt = encrypted_flag;
+		a->tagged =  tagged;
+		a->type = type;
 
-	a->code = code;
-	a->encrypt = encrypted_flag;
-	a->tagged =  tagged;
-	a->type = type;
-	a->vs = NULL;
-	a->hf = -1;
-	a->hf_alt = -1;
-	a->hf_tag = -1;
-	a->hf_len = -1;
-	a->ett = -1;
-	a->tlvs_by_id = NULL;
-
-	if (a->name) {
-		tmpName = a->name;
-	}
-	a->name = g_strdup(name);
-
-	g_hash_table_insert(by_id, GUINT_TO_POINTER(code),a);
-	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
-
-	/* Don't free the old name until after the hash_table ops, since it
-	   seems to end up being used in there somewhere, causing valgrind
-	   errors. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803 */
-	if (tmpName) {
-		g_free((gpointer) tmpName);
+		/*
+		 * Did the name change?
+		 */
+		if (g_strcmp0(a->name, name) != 0) {
+			/*
+			 * Yes.  Remove the entry from the by-name hash table
+			 * and re-insert it with the new name.
+			 */
+			g_hash_table_remove(dict->attrs_by_name, (gpointer) (a->name));
+			g_free((gpointer) a->name);
+			a->name = g_strdup(name);
+			g_hash_table_insert(dict->attrs_by_name, (gpointer) (a->name),a);
+		}
 	}
 }
 
@@ -458,30 +486,39 @@ static void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissec
 	s = (radius_attr_info_t*)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(code));
 
 	if (!s) {
+		/*
+		 * This TLV doesn't yet exist in this attribute's TLVs-by-ID
+		 * hash table.  Add it.
+		 */
 		s = g_new(radius_attr_info_t,1);
-		s->name = NULL;
+		s->name = g_strdup(name);
 		s->dissector = NULL;
+		s->code = code;
+		s->type = type;
+		s->encrypt = FALSE;
+		s->tagged = FALSE;
+		s->dissector = NULL;
+		s->vs = NULL;
+		s->hf = -1;
+		s->hf_alt = -1;
+		s->hf_tag = -1;
+		s->hf_len = -1;
+		s->ett = -1;
+		s->tlvs_by_id = NULL;
+
+		g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code),s);
+		g_hash_table_insert(dict->tlvs_by_name,(gpointer) (s->name),s);
 	}
 
-	s->code = code;
-	s->type = type;
-	s->encrypt = FALSE;
-	s->tagged = FALSE;
-	s->dissector = NULL;
-	s->vs = NULL;
-	s->hf = -1;
-	s->hf_alt = -1;
-	s->hf_tag = -1;
-	s->hf_len = -1;
-	s->ett = -1;
-	s->tlvs_by_id = NULL;
-
-	if (s->name)
-		g_free((gpointer) s->name);
-	s->name = g_strdup(name);
-
-	g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code),s);
-	g_hash_table_insert(dict->tlvs_by_name,(gpointer) (s->name),s);
+	/*
+	 * If it *does* exist, leave it alone; there shouldn't be duplicate
+	 * entries by name in the dictionaries (even if there might be
+	 * multiple entries for a given attribute in the dictionaries, each
+	 * one adding some TLV values), and we don't directly add entries
+	 * for TLVs in the RADIUS dissector.
+	 *
+	 * XXX - report the duplicate entries? 
+	 */
 }
 
 void add_value(const gchar* attrib_name, const gchar* repr, guint32 value) {
