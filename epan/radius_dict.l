@@ -318,26 +318,49 @@ static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint l
 	v = (radius_vendor_info_t *)g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(id));
 
 	if (!v) {
+		/*
+		 * New vendor.
+		 * Allocate a new entry and insert it into the by-ID and
+		 * by-name hash tables.
+		 */
 		v = g_new(radius_vendor_info_t,1);
 		v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 		v->code = id;
 		v->ett = -1;
-		v->name = NULL;
+		v->name = g_strdup(name);
+		v->type_octets = type_octets;
+		v->length_octets = length_octets;
+		v->has_flags = has_flags;
+
+		g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
+		g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
+	} else {
+		/*
+		 * This vendor is already in the table.
+		 *
+		 * Assume that the dictionary knows the 'ground truth' about
+		 * the type/length/has_flags information and thus allow the
+		 * dictionary to overwrite these values even for vendors that
+		 * have already been loaded.
+		 */
+		v->type_octets = type_octets;
+		v->length_octets = length_octets;
+		v->has_flags = has_flags;
+
+		/*
+		 * Did the name change?
+		 */
+		if (g_strcmp0(v->name, name) != 0) {
+			/*
+			 * Yes.  Remove the entry from the by-name hash table
+			 * and re-insert it with the new name.
+			 */
+			g_hash_table_remove(dict->vendors_by_name, (gpointer) v->name);
+			g_free((gpointer) v->name);
+			v->name = g_strdup(name);
+			g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
+		}
 	}
-        /* Assume that the dictionary knows the 'ground truth' about the
-         * type/length/has_flags information and thus allow the dictionary to
-         * overwrite these values even for vendors that have already been loaded.
-         */
-	v->type_octets = type_octets;
-	v->length_octets = length_octets;
-	v->has_flags = has_flags;
-
-	if (v->name)
-		g_free((gpointer) v->name);
-	v->name = g_strdup(name);
-
-	g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
-	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
 
 static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, const gchar* attr) {
