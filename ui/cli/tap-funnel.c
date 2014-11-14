@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <epan/stat_tap_ui.h>
 
-void register_tap_listener_gtkfunnel(void);
+void register_tap_listener_funnel(void);
 
 struct _funnel_text_window_t {
     gchar *title;
@@ -196,7 +196,7 @@ void initialize_funnel_ops(void) {
 
 #endif
 void
-register_tap_listener_gtkfunnel(void)
+register_tap_listener_funnel(void)
 {
 #if 0
     /* #if 0 at least since Revision Rev 17396 */

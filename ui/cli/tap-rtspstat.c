@@ -36,7 +36,7 @@
 #include "register.h"
 #include <epan/dissectors/packet-rtsp.h>
 
-void register_tap_listener_gtkrtspstat(void);
+void register_tap_listener_rtspstat(void);
 
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _rtsp_stats_t {
@@ -228,10 +228,10 @@ rtspstat_draw(void *psp  )
 
 
 
-/* When called, this function will create a new instance of gtk_rtspstat.
+/* When called, this function will create a new instance of rtspstat.
  */
 static void
-gtk_rtspstat_init(const char *opt_arg, void *userdata _U_)
+rtspstat_init(const char *opt_arg, void *userdata _U_)
 {
 	rtspstat_t *sp;
 	const char *filter = NULL;
@@ -277,14 +277,14 @@ static stat_tap_ui rtspstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"rtsp,stat,",
-	gtk_rtspstat_init,
+	rtspstat_init,
 	-1,
 	0,
 	NULL
 };
 
 void
-register_tap_listener_gtkrtspstat(void)
+register_tap_listener_rtspstat(void)
 {
 	register_stat_tap_ui(&rtspstat_ui, NULL);
 }

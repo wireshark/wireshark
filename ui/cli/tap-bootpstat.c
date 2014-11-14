@@ -30,7 +30,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 
-void register_tap_listener_gtkdhcpstat(void);
+void register_tap_listener_dhcpstat(void);
 
 typedef const char *bootp_info_value_t;
 
@@ -185,7 +185,7 @@ static stat_tap_ui dhcpstat_ui = {
 };
 
 void
-register_tap_listener_gtkdhcpstat(void)
+register_tap_listener_dhcpstat(void)
 {
 	register_stat_tap_ui(&dhcpstat_ui, NULL);
 }

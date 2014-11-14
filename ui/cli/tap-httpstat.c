@@ -32,7 +32,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-http.h>
 
-void register_tap_listener_gtkhttpstat(void);
+void register_tap_listener_httpstat(void);
 
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _http_stats_t {
@@ -275,10 +275,10 @@ httpstat_draw(void *psp  )
 
 
 
-/* When called, this function will create a new instance of gtk_httpstat.
+/* When called, this function will create a new instance of httpstat.
  */
 static void
-gtk_httpstat_init(const char *opt_arg, void *userdata _U_)
+httpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	httpstat_t *sp;
 	const char *filter = NULL;
@@ -324,14 +324,14 @@ static stat_tap_ui httpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"http,stat,",
-	gtk_httpstat_init,
+	httpstat_init,
 	-1,
 	0,
 	NULL
 };
 
 void
-register_tap_listener_gtkhttpstat(void)
+register_tap_listener_httpstat(void)
 {
 	register_stat_tap_ui(&httpstat_ui, NULL);
 }
