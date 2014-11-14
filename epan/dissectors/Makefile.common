@@ -1354,6 +1354,7 @@ FILE_DISSECTOR_INCLUDES = \
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES)	\
 	packet-6lowpan.h	\
+	packet-a21.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
 	packet-actrace.h	\

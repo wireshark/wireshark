@@ -43,6 +43,7 @@
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-s1ap.h"
+#include "packet-a21.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -81,6 +82,7 @@ static int ett_s1ap_RRCContainer = -1;
 static int ett_s1ap_UERadioCapability = -1;
 static int ett_s1ap_RIMInformation = -1;
 static int ett_s1ap_Cdma2000PDU = -1;
+static int ett_s1ap_Cdma2000SectorID = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -259,6 +261,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_UERadioCapability,
 		  &ett_s1ap_RIMInformation,
           &ett_s1ap_Cdma2000PDU,
+          &ett_s1ap_Cdma2000SectorID,
 #include "packet-s1ap-ettarr.c"
   };
 
