@@ -133,7 +133,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui protocolinfo_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"proto,colinfo,",
+	"proto,colinfo",
 	protocolinfo_init,
 	-1,
 	0,

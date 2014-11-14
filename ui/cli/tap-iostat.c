@@ -1499,7 +1499,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui iostat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
-    "io,stat,",
+    "io,stat",
     iostat_init,
     -1,
     0,

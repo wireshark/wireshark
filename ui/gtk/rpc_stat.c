@@ -526,7 +526,7 @@ gtk_rpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 static stat_tap_ui rpcstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"rpc,srt,",
+	"rpc,srt",
 	gtk_rpcstat_init,
 	-1,
 	0,

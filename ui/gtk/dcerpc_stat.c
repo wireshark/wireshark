@@ -717,7 +717,7 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 static stat_tap_ui dcerpcstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"dcerpc,srt,",
+	"dcerpc,srt",
 	gtk_dcerpcstat_init,
 	-1,
 	0,

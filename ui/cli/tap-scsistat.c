@@ -254,7 +254,7 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 static stat_tap_ui scsistat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"scsi,srt,",
+	"scsi,srt",
 	scsistat_init,
 	-1,
 	0,

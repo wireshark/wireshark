@@ -177,7 +177,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui dhcpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"bootp,stat,",
+	"bootp,stat",
 	dhcpstat_init,
 	-1,
 	0,

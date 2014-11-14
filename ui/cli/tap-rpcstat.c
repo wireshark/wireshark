@@ -345,7 +345,7 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
 static stat_tap_ui rpcstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
-	"rpc,srt,",
+	"rpc,srt",
 	rpcstat_init,
 	-1,
 	0,
