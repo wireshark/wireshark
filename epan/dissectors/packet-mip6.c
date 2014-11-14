@@ -1164,6 +1164,7 @@ static gint ett_mip6_opt_em = -1;
 static gint ett_mip6_opt_vsm = -1;
 static gint ett_mip6_opt_ssm = -1;
 static gint ett_mip6_opt_badff = -1;
+static gint ett_mip6_opt_unknown = -1;
 static gint ett_pmip6_opt_hnp = -1;
 static gint ett_pmip6_opt_hi = -1;
 static gint ett_pmip6_opt_att = -1;
@@ -3549,6 +3550,8 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                                          val_to_str_ext_const(opt, &mip6_mobility_options_ext, "<unknown>"));
                 if (optp && *optp->subtree_index) {
                     opt_data_tree = proto_item_add_subtree(ti, *optp->subtree_index);
+                } else {
+                    opt_data_tree = proto_item_add_subtree(ti, ett_mip6_opt_unknown);
                 }
                 proto_tree_add_item(opt_data_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (optp == NULL) {
@@ -4679,6 +4682,7 @@ proto_register_mip6(void)
         &ett_mip6_opt_vsm,
         &ett_mip6_opt_ssm,
         &ett_mip6_opt_badff,
+        &ett_mip6_opt_unknown,
         &ett_pmip6_opt_hnp,
         &ett_pmip6_opt_hi,
         &ett_pmip6_opt_att,
