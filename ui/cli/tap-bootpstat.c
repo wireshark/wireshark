@@ -174,12 +174,20 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-
+static tap_ui dhcpstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"bootp,stat,",
+	dhcpstat_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_stat_cmd_arg("bootp,stat,", dhcpstat_init, NULL);
+	register_tap_ui(&dhcpstat_ui, NULL);
 }
 
 /*

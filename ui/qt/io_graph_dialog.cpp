@@ -2164,11 +2164,21 @@ io_graph_init(const char *, void*) {
     wsApp->emitStatCommandSignal("IOGraph", NULL, NULL);
 }
 
+static tap_ui io_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "io,stat",
+    io_graph_init,
+    -1,
+    0,
+    NULL
+};
+
 extern "C" {
 void
 register_tap_listener_qt_iostat(void)
 {
-    register_stat_cmd_arg("io,stat", io_graph_init, NULL);
+    register_tap_ui(&io_stat_ui, NULL);
 }
 }
 

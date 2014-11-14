@@ -67,14 +67,22 @@ register_param_stat(tap_param_dlg *info, const char *name,
 {
     gchar *full_name;
     const gchar *stock_id = NULL;
-
-    register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
+    tap_ui ui_info;
 
     /*
      * This menu item will pop up a dialog box, so append "..."
      * to it.
      */
     full_name = g_strdup_printf("%s...", name);
+
+    ui_info.group = group;
+    ui_info.title = full_name;
+    ui_info.cli_string = info->init_string;
+    ui_info.tap_init_cb = info->tap_init_cb;
+    ui_info.index = -1;
+    ui_info.nparams = info->nparams;
+    ui_info.params = info->params;
+    register_tap_ui(&ui_info, NULL);
 
     switch (group) {
 

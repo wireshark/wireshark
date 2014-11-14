@@ -206,11 +206,20 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
+static tap_ui protohierstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"io,phs",
+	protohierstat_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_protohierstat(void)
 {
-	register_stat_cmd_arg("io,phs", protohierstat_init, NULL);
+	register_tap_ui(&protohierstat_ui, NULL);
 }
 
 /*

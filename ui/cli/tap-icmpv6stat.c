@@ -310,11 +310,20 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
     }
 }
 
+static tap_ui icmpv6stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "icmpv6,srt",
+    icmpv6stat_init,
+    -1,
+    0,
+    NULL
+};
 
 void
 register_tap_listener_icmpv6stat(void)
 {
-    register_stat_cmd_arg("icmpv6,srt", icmpv6stat_init, NULL);
+    register_tap_ui(&icmpv6stat_ui, NULL);
 }
 
 /*

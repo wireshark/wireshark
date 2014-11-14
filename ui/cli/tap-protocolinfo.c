@@ -130,11 +130,20 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
+static tap_ui protocolinfo_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"proto,colinfo,",
+	protocolinfo_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_protocolinfo(void)
 {
-	register_stat_cmd_arg("proto,colinfo,", protocolinfo_init, NULL);
+	register_tap_ui(&protocolinfo_ui, NULL);
 }
 
 /*

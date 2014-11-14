@@ -541,12 +541,21 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     }
 }
 
+static tap_ui mac_lte_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "mac-lte,stat",
+    mac_lte_stat_init,
+    -1,
+    0,
+    NULL
+};
 
 /* Register this tap listener (need void on own so line register function found) */
 void
 register_tap_listener_mac_lte_stat(void)
 {
-    register_stat_cmd_arg("mac-lte,stat", mac_lte_stat_init, NULL);
+    register_tap_ui(&mac_lte_stat_ui, NULL);
 }
 
 /*

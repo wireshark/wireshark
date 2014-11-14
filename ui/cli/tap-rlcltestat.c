@@ -402,10 +402,20 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 
 
 /* Register this tap listener (need void on own so line register function found) */
+static tap_ui rlc_lte_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "rlc-lte,stat",
+    rlc_lte_stat_init,
+    -1,
+    0,
+    NULL
+};
+
 void
 register_tap_listener_rlc_lte_stat(void)
 {
-    register_stat_cmd_arg("rlc-lte,stat", rlc_lte_stat_init, NULL);
+    register_tap_ui(&rlc_lte_stat_ui, NULL);
 }
 
 /*

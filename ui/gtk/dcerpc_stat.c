@@ -714,8 +714,18 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	window_present(dlg);
 }
 
+static tap_ui dcerpcstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"dcerpc,srt,",
+	gtk_dcerpcstat_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_gtkdcerpcstat(void)
 {
-	register_stat_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init,NULL);
+	register_tap_ui(&dcerpcstat_ui, NULL);
 }

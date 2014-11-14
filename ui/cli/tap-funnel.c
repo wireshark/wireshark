@@ -170,6 +170,7 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap _U_) {
     menu_cb_t *mcb = g_malloc(sizeof(menu_cb_t));
+    tap_ui ui_info;
 
     mcb->callback = callback;
     mcb->callback_data = callback_data;
@@ -179,7 +180,14 @@ static void register_menu_cb(const char *name,
 
     g_hash_table_insert(menus, g_strdup(name), mcb);
 
-    register_stat_cmd_arg(name, init_funnel_cmd, mcb);
+    ui_info.group = REGISTER_STAT_GROUP_GENERIC;
+    ui_info.title = NULL;
+    ui_info.cli_string = name;
+    ui_info.tap_init_cb = init_funnel_cmd;
+    ui_info.index = -1;
+    ui_info.nparams = 0;
+    ui_info.params = NULL;
+    register_tap_ui(&ui_info, mcb);
 }
 
 void initialize_funnel_ops(void) {

@@ -451,6 +451,16 @@ gsm_map_stat_gtk_init(const char        *opt_arg _U_,
 }
 
 
+static tap_ui gsm_map_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "gsm_map",
+    gsm_map_stat_gtk_init,
+    -1,
+    0,
+    NULL
+};
+
 void
 register_tap_listener_gtkgsm_map_stat(void)
 {
@@ -473,5 +483,5 @@ register_tap_listener_gtkgsm_map_stat(void)
         exit(1);
     }
 
-    register_stat_cmd_arg("gsm_map", gsm_map_stat_gtk_init,NULL);
+    register_tap_ui(&gsm_map_stat_ui, NULL);
 }

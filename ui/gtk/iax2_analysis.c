@@ -3808,10 +3808,20 @@ iax2_analysis_init(const char *dummy _U_,void* userdata _U_)
 }
 
 /****************************************************************************/
+static tap_ui iax2_analysis_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"IAX2",	/* XXX - should be "iax2" */
+	iax2_analysis_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_iax2_analysis(void)
 {
-	register_stat_cmd_arg("IAX2", iax2_analysis_init,NULL);
+	register_tap_ui(&iax2_analysis_ui,NULL);
 }
 
 

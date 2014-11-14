@@ -288,10 +288,20 @@ dcerpcstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
+static tap_ui dcerpcstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"dcerpc,srt,",
+	dcerpcstat_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_stat_cmd_arg("dcerpc,srt,", dcerpcstat_init, NULL);
+	register_tap_ui(&dcerpcstat_ui, NULL);
 }
 
 /*

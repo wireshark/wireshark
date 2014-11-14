@@ -342,11 +342,20 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
+static tap_ui rpcstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"rpc,srt,",
+	rpcstat_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_rpcstat(void)
 {
-	register_stat_cmd_arg("rpc,srt,", rpcstat_init, NULL);
+	register_tap_ui(&rpcstat_ui, NULL);
 }
 
 /*

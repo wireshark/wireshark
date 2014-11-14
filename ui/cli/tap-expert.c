@@ -262,12 +262,21 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
     }
 }
 
+static tap_ui expert_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "expert",
+    expert_stat_init,
+    -1,
+    0,
+    NULL
+};
 
 /* Register this tap listener (need void on own so line register function found) */
 void
 register_tap_listener_expert_info(void)
 {
-    register_stat_cmd_arg("expert", expert_stat_init, NULL);
+    register_tap_ui(&expert_stat_ui, NULL);
 }
 
 /*

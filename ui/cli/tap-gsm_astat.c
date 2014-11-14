@@ -339,11 +339,20 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     }
 }
 
+static tap_ui gsm_a_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "gsm_a,",
+    gsm_a_stat_init,
+    -1,
+    0,
+    NULL
+};
 
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init, NULL);
+    register_tap_ui(&gsm_a_stat_ui, NULL);
 }
 
 /*

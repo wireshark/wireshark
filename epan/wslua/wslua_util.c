@@ -264,13 +264,21 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
 #define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* Action */
     const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
     statcmd_t* sc = (statcmd_t *)g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
+    tap_ui ui_info;
 
     sc->L = L;
     lua_pushvalue(L, WSLUA_OPTARG_register_stat_cmd_arg_ACTION);
     sc->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_remove(L,1);
 
-    register_stat_cmd_arg(arg, statcmd_init, sc);
+    ui_info.group = REGISTER_STAT_GROUP_UNSORTED;	/* XXX - need group for CLI-only? */
+    ui_info.title = NULL;
+    ui_info.cli_string = arg;
+    ui_info.tap_init_cb = statcmd_init;
+    ui_info.index = -1;
+    ui_info.nparams = 0;
+    ui_info.params = NULL;
+    register_tap_ui(&ui_info, sc);
     return 0;
 }
 

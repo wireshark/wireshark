@@ -273,10 +273,20 @@ gtk_rtspstat_init(const char *opt_arg, void *userdata _U_)
 	rtsp_init_hash(sp);
 }
 
+static tap_ui rtspstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"rtsp,stat,",
+	gtk_rtspstat_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_gtkrtspstat(void)
 {
-	register_stat_cmd_arg("rtsp,stat,", gtk_rtspstat_init, NULL);
+	register_tap_ui(&rtspstat_ui, NULL);
 }
 
 /*

@@ -1046,11 +1046,20 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	window_present(dlg);
 }
 
+static tap_ui compare_stat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"compare",
+	gtk_comparestat_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_gtkcomparestat(void)
 {
-	register_stat_cmd_arg("compare", gtk_comparestat_init, NULL);
+	register_tap_ui(&compare_stat_ui, NULL);
 }
 
 /*

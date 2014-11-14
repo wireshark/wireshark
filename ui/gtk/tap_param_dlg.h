@@ -62,19 +62,7 @@
  */
 
 #include <epan/params.h>
-
-typedef enum {
-	PARAM_UINT,
-	PARAM_STRING,
-	PARAM_ENUM,
-	PARAM_FILTER
-} param_type;
-
-typedef struct _tap_param {
-	param_type type;
-	const char *title;
-	const enum_val_t *enum_vals;
-} tap_param;
+#include <epan/stat_cmd_args.h>
 
 typedef struct _tap_param_dlg {
 	const char *win_title;		/* title */

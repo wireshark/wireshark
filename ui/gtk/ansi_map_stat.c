@@ -350,6 +350,15 @@ ansi_map_stat_gtk_init(
     ansi_map_stat_gtk_cb(NULL, NULL);
 }
 
+static tap_ui ansi_map_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "ansi_map",
+    ansi_map_stat_gtk_init,
+    -1,
+    0,
+    NULL
+};
 
 void
 register_tap_listener_gtkansi_map_stat(void)
@@ -372,5 +381,5 @@ register_tap_listener_gtkansi_map_stat(void)
 
         exit(1);
     }
-    register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init,NULL);
+    register_tap_ui(&ansi_map_ui, NULL);
 }

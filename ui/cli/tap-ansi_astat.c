@@ -153,10 +153,20 @@ ansi_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
 }
 
 
+static tap_ui ansi_a_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "ansi_a,",
+    ansi_a_stat_init,
+    -1,
+    0,
+    NULL
+};
+
 void
 register_tap_listener_ansi_astat(void)
 {
-    register_stat_cmd_arg("ansi_a,", ansi_a_stat_init, NULL);
+    register_tap_ui(&ansi_a_stat_ui, NULL);
 }
 
 /*

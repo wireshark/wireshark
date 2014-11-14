@@ -85,11 +85,20 @@ smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 }
 
+static tap_ui smbsids_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"smb,sids",
+	smbsids_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_smbsids(void)
 {
-	register_stat_cmd_arg("smb,sids", smbsids_init, NULL);
+	register_tap_ui(&smbsids_ui, NULL);
 }
 
 /*

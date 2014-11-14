@@ -420,6 +420,16 @@ mtp3_stat_gtk_init( const char *opt_arg _U_, void* userdata _U_)
 }
 
 
+static tap_ui mtp3_stat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "mtp3,msus",
+    mtp3_stat_gtk_init,
+    -1,
+    0,
+    NULL
+};
+
 void
 register_tap_listener_gtkmtp3_stat(void)
 {
@@ -441,5 +451,5 @@ register_tap_listener_gtkmtp3_stat(void)
 
         exit(1);
     }
-    register_stat_cmd_arg("mtp3,msus", mtp3_stat_gtk_init,NULL);
+    register_tap_ui(&mtp3_stat_ui, NULL);
 }

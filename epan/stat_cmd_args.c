@@ -34,6 +34,7 @@
    arguments.
  */
 typedef struct _stat_cmd_arg {
+    tap_ui *ui;
     const char *cmd;
     void (*func)(const char *arg, void* userdata);
     void* userdata;
@@ -59,6 +60,7 @@ sort_by_name(gconstpointer a, gconstpointer b)
 {
     return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
 }
+
 void
 register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* userdata)
 {
@@ -67,6 +69,18 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* us
     newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
     newsca->cmd=cmd;
     newsca->func=func;
+    newsca->userdata=userdata;
+    stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
+}
+
+void
+register_tap_ui(tap_ui *ui, void *userdata)
+{
+    stat_cmd_arg *newsca;
+
+    newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
+    newsca->cmd=ui->cli_string;
+    newsca->func=ui->tap_init_cb;
     newsca->userdata=userdata;
     stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
 }

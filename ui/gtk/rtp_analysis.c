@@ -4044,8 +4044,18 @@ rtp_analysis_init(const char *dummy _U_, void *userdata _U_)
 }
 
 /****************************************************************************/
+static tap_ui rtp_analysis_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"rtp",
+	rtp_analysis_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_stat_cmd_arg("rtp", rtp_analysis_init, NULL);
+	register_tap_ui(&rtp_analysis_ui, NULL);
 }

@@ -73,10 +73,20 @@ svstat_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 }
 
+static tap_ui svstat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"sv",
+	svstat_init,
+	-1,
+	0,
+	NULL
+};
+
 void
 register_tap_listener_sv(void)
 {
-	register_stat_cmd_arg("sv", svstat_init, NULL);
+	register_tap_ui(&svstat_ui, NULL);
 }
 
 /*

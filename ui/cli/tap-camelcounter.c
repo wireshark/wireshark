@@ -118,11 +118,20 @@ static void camelcounter_init(const char *opt_arg, void *userdata _U_)
   }
 }
 
+static tap_ui camelcounter_ui = {
+  REGISTER_STAT_GROUP_GENERIC,
+  NULL,
+  "camel,counter",
+  camelcounter_init,
+  -1,
+  0,
+  NULL
+};
 
 void  /* Next line mandatory */
 register_tap_listener_camelcounter(void)
 {
-  register_stat_cmd_arg("camel,counter", camelcounter_init, NULL);
+  register_tap_ui(&camelcounter_ui, NULL);
 }
 
 /*

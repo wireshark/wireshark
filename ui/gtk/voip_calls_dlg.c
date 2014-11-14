@@ -921,9 +921,19 @@ voip_flows_launch(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 /****************************************************************************/
+static tap_ui voip_calls_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "voip,calls",
+    voip_calls_init_tap,
+    -1,
+    0,
+    NULL
+};
+
 void
 register_tap_listener_voip_calls_dlg(void)
 {
-	register_stat_cmd_arg("voip,calls", voip_calls_init_tap, NULL);
+	register_tap_ui(&voip_calls_ui, NULL);
 }
 

@@ -129,13 +129,22 @@ megacostat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
+static tap_ui megacostat_ui = {
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"megaco,rtd",
+	megacostat_init,
+	-1,
+	0,
+	NULL
+};
 
 void
 register_tap_listener_megacostat(void)
 {
 	/* We don't register this tap, if we don't have the megaco plugin loaded.*/
 	if (find_tap_id("megaco")) {
-		register_stat_cmd_arg("megaco,rtd", megacostat_init, NULL);
+		register_tap_ui(&megacostat_ui, NULL);
 	}
 }
 

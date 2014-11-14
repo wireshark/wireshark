@@ -37,11 +37,48 @@ extern "C" {
  * @param func Callbak to be invoked when the CLI argument is supplied.
  * @param userdata Additional data for the callback.
  */
+#if 0
 WS_DLL_PUBLIC void register_stat_cmd_arg(const char *cmd,
     void (*func)(const char *arg,void* userdata), void* userdata);
+#endif
 WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
 WS_DLL_PUBLIC void list_stat_cmd_args(void);
 WS_DLL_PUBLIC void start_requested_stats(void);
+
+/*
+ * Parameters for taps.
+ */
+
+#include <epan/params.h>
+#include <epan/stat_groups.h>
+
+typedef enum {
+	PARAM_UINT,
+	PARAM_STRING,
+	PARAM_ENUM,
+	PARAM_FILTER
+} param_type;
+
+typedef struct _tap_param {
+	param_type type;
+	const char *title;
+	const enum_val_t *enum_vals;
+} tap_param;
+
+typedef struct _tap_ui {
+	register_stat_group_t group;	/* group to which statistic belongs */
+	const char *title;		/* title of statistic */
+	const char *cli_string;		/* initial part of the "-z" argument for statistic */
+	void (* tap_init_cb)(const char *,void*);	/* callback to init function of the tap */
+	gint index;			/* initiate this value always with "-1" */
+	size_t nparams;			/* number of parameters */
+	tap_param *params;		/* pointer to table of parameter info */
+} tap_ui;
+
+/*
+ * Register the parameters a tap takes.
+ */
+WS_DLL_PUBLIC void register_tap_ui(tap_ui *ui, void *userdata);
 
 #ifdef __cplusplus
 }

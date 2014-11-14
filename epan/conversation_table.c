@@ -148,6 +148,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     register_ct_t *table;
     GString *conv_cmd_str = g_string_new("conv,");
     GString *host_cmd_str = g_string_new("");
+    tap_ui ui_info;
 
     table = g_new(register_ct_t,1);
 
@@ -163,12 +164,26 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
 
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
     cmd_string_list_ = g_list_append(cmd_string_list_, conv_cmd_str->str);
-    register_stat_cmd_arg(conv_cmd_str->str, dissector_conversation_init, table);
+    ui_info.group = REGISTER_STAT_GROUP_CONVERSATION_LIST;
+    ui_info.title = NULL;	/* construct this from the protocol info? */
+    ui_info.cli_string = conv_cmd_str->str;
+    ui_info.tap_init_cb = dissector_conversation_init;
+    ui_info.index = -1;
+    ui_info.nparams = 0;
+    ui_info.params = NULL;
+    register_tap_ui(&ui_info, table);
     g_string_free(conv_cmd_str, FALSE);
 
     g_string_printf(host_cmd_str, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
                     proto_get_protocol_filter_name(table->proto_id));
-    register_stat_cmd_arg(host_cmd_str->str, dissector_hostlist_init, table);
+    ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
+    ui_info.title = NULL;	/* construct this from the protocol info? */
+    ui_info.cli_string = host_cmd_str->str;
+    ui_info.tap_init_cb = dissector_hostlist_init;
+    ui_info.index = -1;
+    ui_info.nparams = 0;
+    ui_info.params = NULL;
+    register_tap_ui(&ui_info, table);
     g_string_free(host_cmd_str, FALSE);
 }
 

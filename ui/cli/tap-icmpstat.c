@@ -309,11 +309,20 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
     }
 }
 
+static tap_ui icmpstat_ui = {
+    REGISTER_STAT_GROUP_GENERIC,
+    NULL,
+    "icmp,srt",
+    icmpstat_init,
+    -1,
+    0,
+    NULL
+};
 
 void
 register_tap_listener_icmpstat(void)
 {
-    register_stat_cmd_arg("icmp,srt", icmpstat_init, NULL);
+    register_tap_ui(&icmpstat_ui, NULL);
 }
 
 /*
