@@ -98,6 +98,13 @@ static int hf_mausb_ep_handle_resp_buf_size = -1;
 static int hf_mausb_ep_handle_resp_iso_prog_dly = -1;
 static int hf_mausb_ep_handle_resp_iso_resp_dly = -1;
 
+/* CancelTransferReq & Resp packet specific */
+static int hf_mausb_cancel_transfer_rsvd = -1;
+static int hf_mausb_cancel_transfer_status = -1;
+static int hf_mausb_cancel_transfer_rsvd_2 = -1;
+static int hf_mausb_cancel_transfer_seq_num = -1;
+static int hf_mausb_cancel_transfer_byte_offset = -1;
+
 /* data packet specific */
 static int hf_mausb_eps = -1;
 static int hf_mausb_eps_rsvd = -1;
@@ -521,6 +528,16 @@ const true_false_string tfs_ep_handle_resp_dir = { "IN", "OUT or Control" };
 #define MAUSB_TRANSFER_TYPE_ISO       (1 << MAUSB_TRANSFER_TYPE_OFFSET)
 #define MAUSB_TRANSFER_TYPE_BULK      (2 << MAUSB_TRANSFER_TYPE_OFFSET)
 #define MAUSB_TRANSFER_TYPE_INTERRUPT (3 << MAUSB_TRANSFER_TYPE_OFFSET)
+
+static const value_string mausb_cancel_transfer_status_string[] = {
+    { 0, "Cancel Unsuccessful"},
+    { 1, "Canceled before any data was moved"},
+    { 2, "Canceled after some data was moved"},
+    { 3, "Transfer Not Found"},
+    { 0, NULL}
+};
+
+#define MAUSB_CANCEL_TRANSFER_STATUS_MASK 0x03
 
 /** Common header fields, per section 6.2.1 */
 struct mausb_header {
@@ -994,6 +1011,67 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 
 }
 
+/* dissects portions of a MA USB packet specific to CancelTransfer packets */
+static guint16 dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
+        tvbuff_t *tvb, gint offset, gboolean req)
+{
+
+    guint8 status;
+
+    offset += dissect_ep_handle(tree, tvb, offset);
+
+    proto_tree_add_item(tree, hf_mausb_stream_id, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mausb_req_id, tvb, offset, 1,
+                        ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    if (req) {
+        proto_tree_add_item(tree, hf_mausb_cancel_transfer_rsvd, tvb, offset, 3,
+                            ENC_NA);
+        offset += 3;
+
+        return offset;
+    } /* else resp */
+
+    status = tvb_get_guint8(tvb, offset) |
+                       MAUSB_CANCEL_TRANSFER_STATUS_MASK;
+
+    proto_tree_add_item(tree, hf_mausb_cancel_transfer_status, tvb, offset, 3,
+                        ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(tree, hf_mausb_cancel_transfer_rsvd_2, tvb, offset, 3,
+                        ENC_LITTLE_ENDIAN);
+    /* Reserved */
+    offset += 3;
+
+    /* if some data was moved */
+    if (2 == status) {
+        /* TODO: sequence number reserved for INs */
+        proto_tree_add_item(tree, hf_mausb_cancel_transfer_seq_num, tvb, offset,
+                            3, ENC_LITTLE_ENDIAN);
+        offset += 3;
+
+        proto_tree_add_item(tree, hf_mausb_cancel_transfer_rsvd, tvb, offset, 1,
+                            ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_mausb_cancel_transfer_byte_offset, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+    } else {
+        proto_tree_add_item(tree, hf_mausb_cancel_transfer_rsvd, tvb, offset, 8,
+                            ENC_NA);
+        offset += 8;
+    }
+
+    return offset;
+
+}
+
 /* dissects portions of a MA USB packet specific to particaular management packets */
 static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         proto_tree *tree, tvbuff_t *tvb,
@@ -1072,8 +1150,19 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case UpdateDevReq:
     case SynchReq:
     case EPCloseStreamReq:
+        proto_tree_add_item(mgmt_tree, hf_mausb_mgmt_type_spec_generic,
+                            tvb, offset, type_spec_len, ENC_NA);
+        offset += type_spec_len;
+        break;
+
     case CancelTransferReq:
+        offset = dissect_mausb_mgmt_pkt_cancel_transfer(mgmt_tree, tvb, offset,
+                                                        TRUE);
+        break;
     case CancelTransferResp:
+        offset = dissect_mausb_mgmt_pkt_cancel_transfer(mgmt_tree, tvb, offset,
+                                                        FALSE);
+        break;
     case EPOpenStreamReq:
 
         proto_tree_add_item(mgmt_tree, hf_mausb_mgmt_type_spec_generic,
@@ -1800,6 +1889,38 @@ proto_register_mausb(void)
 
     };
 
+    /* CancelTransferReq/Resp specific fields */
+    static hf_register_info hf_cancel_transfer[] = {
+        { &hf_mausb_cancel_transfer_rsvd,
+            { "Reserved", "mausb.cancel_transfer.rsvd", FT_NONE, 0,
+              NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_cancel_transfer_status,
+            { "Status", "mausb.cancel_transfer.status", FT_UINT24, BASE_HEX,
+              VALS(mausb_cancel_transfer_status_string),
+              MAUSB_CANCEL_TRANSFER_STATUS_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_cancel_transfer_rsvd_2,
+            { "Reserved", "mausb.cancel_transfer.rsvd_2", FT_UINT24, BASE_HEX,
+              NULL, ~MAUSB_CANCEL_TRANSFER_STATUS_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_cancel_transfer_seq_num,
+            { "Delivered Sequence Number", "mausb.cancel_transfer.seqnum",
+              FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_cancel_transfer_byte_offset,
+            { "Delivered Byte Offset", "mausb.cancel_transfer.byte_offset",
+              FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+            }
+        },
+
+    };
+
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_mausb,
@@ -1857,6 +1978,7 @@ proto_register_mausb(void)
     proto_register_field_array(proto_mausb, hf, array_length(hf));
     proto_register_field_array(proto_mausb, hf_cap, array_length(hf_cap));
     proto_register_field_array(proto_mausb, hf_ep_handle, array_length(hf_ep_handle));
+    proto_register_field_array(proto_mausb, hf_cancel_transfer, array_length(hf_cancel_transfer));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* for Expert info */
