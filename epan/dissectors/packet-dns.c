@@ -2448,6 +2448,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     case T_NAPTR: /*  Naming Authority PoinTeR (35) */
     {
+      proto_item    *ti_len;
       int           offset = cur_offset;
       guint16       order;
       guint16       preference;
@@ -2494,8 +2495,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       /* Replacement */
       replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
       name_out = format_text(replacement, strlen(replacement));
-      proto_tree_add_item(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
+      ti_len = proto_tree_add_uint(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 0, replacement_len);
+      PROTO_ITEM_SET_GENERATED(ti_len);
 
       proto_tree_add_string(rr_tree, hf_dns_naptr_replacement, tvb, offset, replacement_len, name_out);
 
@@ -4201,7 +4202,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_naptr_replacement_length,
-      { "rReplacement Length", "dns.naptr.replacement_length",
+      { "Replacement Length", "dns.naptr.replacement_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
