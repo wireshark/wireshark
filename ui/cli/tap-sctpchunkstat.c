@@ -241,7 +241,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui sctpstat_ui = {
+static stat_tap_ui sctpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"sctp,stat",
@@ -254,7 +254,7 @@ static tap_ui sctpstat_ui = {
 void
 register_tap_listener_sctpstat(void)
 {
-	register_tap_ui(&sctpstat_ui, NULL);
+	register_stat_tap_ui(&sctpstat_ui, NULL);
 }
 
 /*

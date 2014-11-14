@@ -370,7 +370,7 @@ h225counter_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui h225counter_ui = {
+static stat_tap_ui h225counter_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"h225,counter",
@@ -383,7 +383,7 @@ static tap_ui h225counter_ui = {
 void
 register_tap_listener_h225counter(void)
 {
-	register_tap_ui(&h225counter_ui, NULL);
+	register_stat_tap_ui(&h225counter_ui, NULL);
 }
 
 /*

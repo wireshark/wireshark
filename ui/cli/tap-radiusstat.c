@@ -229,7 +229,7 @@ radiusstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui radiusstat_ui = {
+static stat_tap_ui radiusstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"radius,rtd",
@@ -242,7 +242,7 @@ static tap_ui radiusstat_ui = {
 void
 register_tap_listener_radiusstat(void)
 {
-	register_tap_ui(&radiusstat_ui, NULL);
+	register_stat_tap_ui(&radiusstat_ui, NULL);
 }
 
 /*

@@ -67,7 +67,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
 {
     gchar *full_name;
     const gchar *stock_id = NULL;
-    tap_ui ui_info;
+    stat_tap_ui ui_info;
 
     /*
      * This menu item will pop up a dialog box, so append "..."
@@ -82,7 +82,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
     ui_info.index = -1;
     ui_info.nparams = info->nparams;
     ui_info.params = info->params;
-    register_tap_ui(&ui_info, NULL);
+    register_stat_tap_ui(&ui_info, NULL);
 
     switch (group) {
 

@@ -213,7 +213,7 @@ mgcpstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui mgcpstat_ui = {
+static stat_tap_ui mgcpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"mgcp,rtd",
@@ -228,7 +228,7 @@ register_tap_listener_mgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_tap_ui(&mgcpstat_ui, NULL);
+		register_stat_tap_ui(&mgcpstat_ui, NULL);
 	}
 }
 

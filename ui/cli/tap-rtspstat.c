@@ -273,7 +273,7 @@ gtk_rtspstat_init(const char *opt_arg, void *userdata _U_)
 	rtsp_init_hash(sp);
 }
 
-static tap_ui rtspstat_ui = {
+static stat_tap_ui rtspstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"rtsp,stat,",
@@ -286,7 +286,7 @@ static tap_ui rtspstat_ui = {
 void
 register_tap_listener_gtkrtspstat(void)
 {
-	register_tap_ui(&rtspstat_ui, NULL);
+	register_stat_tap_ui(&rtspstat_ui, NULL);
 }
 
 /*

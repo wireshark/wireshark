@@ -85,7 +85,7 @@ smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 }
 
-static tap_ui smbsids_ui = {
+static stat_tap_ui smbsids_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"smb,sids",
@@ -98,7 +98,7 @@ static tap_ui smbsids_ui = {
 void
 register_tap_listener_smbsids(void)
 {
-	register_tap_ui(&smbsids_ui, NULL);
+	register_stat_tap_ui(&smbsids_ui, NULL);
 }
 
 /*

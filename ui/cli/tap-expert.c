@@ -262,7 +262,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
     }
 }
 
-static tap_ui expert_stat_ui = {
+static stat_tap_ui expert_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "expert",
@@ -276,7 +276,7 @@ static tap_ui expert_stat_ui = {
 void
 register_tap_listener_expert_info(void)
 {
-    register_tap_ui(&expert_stat_ui, NULL);
+    register_stat_tap_ui(&expert_stat_ui, NULL);
 }
 
 /*

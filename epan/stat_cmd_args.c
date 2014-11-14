@@ -34,7 +34,7 @@
    arguments.
  */
 typedef struct _stat_cmd_arg {
-    tap_ui *ui;
+    stat_tap_ui *ui;
     const char *cmd;
     void (*func)(const char *arg, void* userdata);
     void* userdata;
@@ -74,7 +74,7 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* us
 }
 
 void
-register_tap_ui(tap_ui *ui, void *userdata)
+register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 {
     stat_cmd_arg *newsca;
 

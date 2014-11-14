@@ -148,7 +148,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     register_ct_t *table;
     GString *conv_cmd_str = g_string_new("conv,");
     GString *host_cmd_str = g_string_new("");
-    tap_ui ui_info;
+    stat_tap_ui ui_info;
 
     table = g_new(register_ct_t,1);
 
@@ -171,7 +171,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
-    register_tap_ui(&ui_info, table);
+    register_stat_tap_ui(&ui_info, table);
     g_string_free(conv_cmd_str, FALSE);
 
     g_string_printf(host_cmd_str, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
@@ -183,7 +183,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
-    register_tap_ui(&ui_info, table);
+    register_stat_tap_ui(&ui_info, table);
     g_string_free(host_cmd_str, FALSE);
 }
 

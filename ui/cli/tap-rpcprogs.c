@@ -225,7 +225,7 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 }
 
-static tap_ui rpcprogs_ui = {
+static stat_tap_ui rpcprogs_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"rpc,programs",
@@ -238,7 +238,7 @@ static tap_ui rpcprogs_ui = {
 void
 register_tap_listener_rpcprogs(void)
 {
-	register_tap_ui(&rpcprogs_ui, NULL);
+	register_stat_tap_ui(&rpcprogs_ui, NULL);
 }
 
 /*

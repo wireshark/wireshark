@@ -339,7 +339,7 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     }
 }
 
-static tap_ui gsm_a_stat_ui = {
+static stat_tap_ui gsm_a_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,",
@@ -352,7 +352,7 @@ static tap_ui gsm_a_stat_ui = {
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_tap_ui(&gsm_a_stat_ui, NULL);
+    register_stat_tap_ui(&gsm_a_stat_ui, NULL);
 }
 
 /*

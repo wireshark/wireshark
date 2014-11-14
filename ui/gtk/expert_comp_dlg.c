@@ -1006,7 +1006,7 @@ expert_comp_dlg_launch(void)
     }
 }
 
-static tap_ui expert_comp_ui = {
+static stat_tap_ui expert_comp_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "expert_comp",
@@ -1019,7 +1019,7 @@ static tap_ui expert_comp_ui = {
 void
 register_tap_listener_expert_comp(void)
 {
-    register_tap_ui(&expert_comp_ui, NULL);
+    register_stat_tap_ui(&expert_comp_ui, NULL);
 }
 
 void

@@ -562,7 +562,7 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui comparestat_ui = {
+static stat_tap_ui comparestat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"compare,",
@@ -575,7 +575,7 @@ static tap_ui comparestat_ui = {
 void
 register_tap_listener_comparestat(void)
 {
-	register_tap_ui(&comparestat_ui, NULL);
+	register_stat_tap_ui(&comparestat_ui, NULL);
 }
 
 /*

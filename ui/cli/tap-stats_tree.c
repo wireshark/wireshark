@@ -111,7 +111,7 @@ static void
 register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
 	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
-	tap_ui ui_info;
+	stat_tap_ui ui_info;
 
 	cfg->pr = (tree_cfg_pres *)g_malloc(sizeof(tree_cfg_pres));
 	cfg->pr->init_string = g_strdup_printf("%s,tree", cfg->abbr);
@@ -123,7 +123,7 @@ register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	ui_info.index = -1;
 	ui_info.nparams = 0;
 	ui_info.params = NULL;
-	register_tap_ui(&ui_info, NULL);
+	register_stat_tap_ui(&ui_info, NULL);
 
 }
 

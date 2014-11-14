@@ -320,7 +320,7 @@ gtk_httpstat_init(const char *opt_arg, void *userdata _U_)
 	http_init_hash(sp);
 }
 
-static tap_ui httpstat_ui = {
+static stat_tap_ui httpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"http,stat,",
@@ -333,7 +333,7 @@ static tap_ui httpstat_ui = {
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_tap_ui(&httpstat_ui, NULL);
+	register_stat_tap_ui(&httpstat_ui, NULL);
 }
 
 /*

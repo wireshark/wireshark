@@ -2164,7 +2164,7 @@ io_graph_init(const char *, void*) {
     wsApp->emitStatCommandSignal("IOGraph", NULL, NULL);
 }
 
-static tap_ui io_stat_ui = {
+static stat_tap_ui io_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "io,stat",
@@ -2178,7 +2178,7 @@ extern "C" {
 void
 register_tap_listener_qt_iostat(void)
 {
-    register_tap_ui(&io_stat_ui, NULL);
+    register_stat_tap_ui(&io_stat_ui, NULL);
 }
 }
 

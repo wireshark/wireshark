@@ -984,7 +984,7 @@ followSsl(
   }
 }
 
-static tap_ui followTcp_ui = {
+static stat_tap_ui followTcp_ui = {
   REGISTER_STAT_GROUP_GENERIC,
   NULL,
   STR_FOLLOW_TCP,
@@ -994,7 +994,7 @@ static tap_ui followTcp_ui = {
   NULL
 };
 
-static tap_ui followUdp_ui = {
+static stat_tap_ui followUdp_ui = {
   REGISTER_STAT_GROUP_GENERIC,
   NULL,
   STR_FOLLOW_UDP,
@@ -1004,7 +1004,7 @@ static tap_ui followUdp_ui = {
   NULL
 };
 
-static tap_ui followSsl_ui = {
+static stat_tap_ui followSsl_ui = {
   REGISTER_STAT_GROUP_GENERIC,
   NULL,
   STR_FOLLOW_SSL,
@@ -1017,9 +1017,9 @@ static tap_ui followSsl_ui = {
 void
 register_tap_listener_follow(void)
 {
-  register_tap_ui(&followTcp_ui, NULL);
-  register_tap_ui(&followUdp_ui, NULL);
-  register_tap_ui(&followSsl_ui, NULL);
+  register_stat_tap_ui(&followTcp_ui, NULL);
+  register_stat_tap_ui(&followUdp_ui, NULL);
+  register_stat_tap_ui(&followSsl_ui, NULL);
 }
 
 /*

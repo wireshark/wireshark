@@ -4044,7 +4044,7 @@ rtp_analysis_init(const char *dummy _U_, void *userdata _U_)
 }
 
 /****************************************************************************/
-static tap_ui rtp_analysis_ui = {
+static stat_tap_ui rtp_analysis_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"rtp",
@@ -4057,5 +4057,5 @@ static tap_ui rtp_analysis_ui = {
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_tap_ui(&rtp_analysis_ui, NULL);
+	register_stat_tap_ui(&rtp_analysis_ui, NULL);
 }

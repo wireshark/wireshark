@@ -627,7 +627,7 @@ gsm_a_stat_gtk_sacch_rr_init(
     gsm_a_stat_gtk_sacch_rr_cb(NULL, NULL);
 }
 
-static tap_ui gsm_a_stat_bssmap_ui = {
+static stat_tap_ui gsm_a_stat_bssmap_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,bssmap",
@@ -637,7 +637,7 @@ static tap_ui gsm_a_stat_bssmap_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_mm_ui = {
+static stat_tap_ui gsm_a_stat_dtap_mm_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_mm",
@@ -647,7 +647,7 @@ static tap_ui gsm_a_stat_dtap_mm_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_rr_ui = {
+static stat_tap_ui gsm_a_stat_dtap_rr_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_rr",
@@ -657,7 +657,7 @@ static tap_ui gsm_a_stat_dtap_rr_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_cc_ui = {
+static stat_tap_ui gsm_a_stat_dtap_cc_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_cc",
@@ -667,7 +667,7 @@ static tap_ui gsm_a_stat_dtap_cc_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_gmm_ui = {
+static stat_tap_ui gsm_a_stat_dtap_gmm_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_gmm",
@@ -677,7 +677,7 @@ static tap_ui gsm_a_stat_dtap_gmm_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_sms_ui = {
+static stat_tap_ui gsm_a_stat_dtap_sms_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_sms",
@@ -687,7 +687,7 @@ static tap_ui gsm_a_stat_dtap_sms_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_sm_ui = {
+static stat_tap_ui gsm_a_stat_dtap_sm_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_sm",
@@ -697,7 +697,7 @@ static tap_ui gsm_a_stat_dtap_sm_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_ss_ui = {
+static stat_tap_ui gsm_a_stat_dtap_ss_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_ss",
@@ -707,7 +707,7 @@ static tap_ui gsm_a_stat_dtap_ss_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_dtap_tp_ui = {
+static stat_tap_ui gsm_a_stat_dtap_tp_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,dtap_tp",
@@ -717,7 +717,7 @@ static tap_ui gsm_a_stat_dtap_tp_ui = {
     NULL
 };
 
-static tap_ui gsm_a_stat_sacch_rr_ui = {
+static stat_tap_ui gsm_a_stat_sacch_rr_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "gsm_a,sacch",
@@ -749,23 +749,23 @@ register_tap_listener_gtkgsm_a_stat(void)
         exit(1);
     }
 
-    register_tap_ui(&gsm_a_stat_bssmap_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_bssmap_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_mm_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_mm_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_rr_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_rr_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_cc_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_cc_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_gmm_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_gmm_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_sms_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_sms_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_sm_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_sm_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_ss_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_ss_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_dtap_tp_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_dtap_tp_ui,NULL);
 
-    register_tap_ui(&gsm_a_stat_sacch_rr_ui,NULL);
+    register_stat_tap_ui(&gsm_a_stat_sacch_rr_ui,NULL);
 }

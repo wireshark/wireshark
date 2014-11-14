@@ -246,7 +246,7 @@ smbstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui smbstat_ui = {
+static stat_tap_ui smbstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"smb,srt",
@@ -259,7 +259,7 @@ static tap_ui smbstat_ui = {
 void
 register_tap_listener_smbstat(void)
 {
-	register_tap_ui(&smbstat_ui, NULL);
+	register_stat_tap_ui(&smbstat_ui, NULL);
 }
 
 /*

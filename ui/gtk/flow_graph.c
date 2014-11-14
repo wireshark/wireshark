@@ -395,7 +395,7 @@ flow_graph_launch(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 /****************************************************************************/
-static tap_ui flow_graph_ui = {
+static stat_tap_ui flow_graph_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"flow_graph",
@@ -408,7 +408,7 @@ static tap_ui flow_graph_ui = {
 void
 register_tap_listener_flow_graph(void)
 {
-	register_tap_ui(&flow_graph_ui,NULL);
+	register_stat_tap_ui(&flow_graph_ui,NULL);
 }
 
 /*

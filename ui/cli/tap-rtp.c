@@ -152,7 +152,7 @@ rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
     }
 }
 
-static tap_ui rtp_streams_stat_ui = {
+static stat_tap_ui rtp_streams_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "rtp,streams",
@@ -165,7 +165,7 @@ static tap_ui rtp_streams_stat_ui = {
 void
 register_tap_listener_rtp_streams(void)
 {
-    register_tap_ui(&rtp_streams_stat_ui, NULL);
+    register_stat_tap_ui(&rtp_streams_stat_ui, NULL);
 }
 
 /*

@@ -240,7 +240,7 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
   gcamel_StatSRT = TRUE;
 }
 
-static tap_ui camelsrt_ui = {
+static stat_tap_ui camelsrt_ui = {
   REGISTER_STAT_GROUP_GENERIC,
   NULL,
   "camel,srt",
@@ -253,7 +253,7 @@ static tap_ui camelsrt_ui = {
 void /* Next line mandatory */
 register_tap_listener_camelsrt(void)
 {
-  register_tap_ui(&camelsrt_ui, NULL);
+  register_stat_tap_ui(&camelsrt_ui, NULL);
 }
 
 /*

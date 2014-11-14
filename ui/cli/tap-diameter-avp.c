@@ -267,7 +267,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui diameteravp_ui = {
+static stat_tap_ui diameteravp_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"diameter,avp",
@@ -280,7 +280,7 @@ static tap_ui diameteravp_ui = {
 void
 register_tap_listener_diameteravp(void)
 {
-	register_tap_ui(&diameteravp_ui, NULL);
+	register_stat_tap_ui(&diameteravp_ui, NULL);
 }
 
 

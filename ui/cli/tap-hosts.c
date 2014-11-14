@@ -137,7 +137,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui hosts_ui = {
+static stat_tap_ui hosts_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	TAP_NAME,
@@ -150,7 +150,7 @@ static tap_ui hosts_ui = {
 void
 register_tap_listener_hosts(void)
 {
-	register_tap_ui(&hosts_ui, NULL);
+	register_stat_tap_ui(&hosts_ui, NULL);
 }
 
 

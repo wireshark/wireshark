@@ -152,7 +152,7 @@ afpstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui afpstat_ui = {
+static stat_tap_ui afpstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"afp,srt",
@@ -165,7 +165,7 @@ static tap_ui afpstat_ui = {
 void
 register_tap_listener_afpstat(void)
 {
-	register_tap_ui(&afpstat_ui, NULL);
+	register_stat_tap_ui(&afpstat_ui, NULL);
 }
 
 /*

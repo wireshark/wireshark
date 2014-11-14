@@ -233,7 +233,7 @@ h225rassrt_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui h225rassrt_ui = {
+static stat_tap_ui h225rassrt_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"h225,srt",
@@ -246,7 +246,7 @@ static tap_ui h225rassrt_ui = {
 void
 register_tap_listener_h225rassrt(void)
 {
-	register_tap_ui(&h225rassrt_ui, NULL);
+	register_stat_tap_ui(&h225rassrt_ui, NULL);
 }
 
 /*

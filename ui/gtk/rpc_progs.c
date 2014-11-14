@@ -426,7 +426,7 @@ gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer data _U_)
 	gtk_rpcprogs_init("", NULL);
 }
 
-static tap_ui rpcprogs_ui = {
+static stat_tap_ui rpcprogs_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"rpc,programs",
@@ -439,5 +439,5 @@ static tap_ui rpcprogs_ui = {
 void
 register_tap_listener_gtkrpcprogs(void)
 {
-	register_tap_ui(&rpcprogs_ui, NULL);
+	register_stat_tap_ui(&rpcprogs_ui, NULL);
 }

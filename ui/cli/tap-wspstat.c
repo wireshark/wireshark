@@ -276,7 +276,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 	}
 }
 
-static tap_ui wspstat_ui = {
+static stat_tap_ui wspstat_ui = {
 	REGISTER_STAT_GROUP_GENERIC,
 	NULL,
 	"wsp,stat,",
@@ -289,7 +289,7 @@ static tap_ui wspstat_ui = {
 void
 register_tap_listener_wspstat(void)
 {
-	register_tap_ui(&wspstat_ui, NULL);
+	register_stat_tap_ui(&wspstat_ui, NULL);
 }
 
 /*
