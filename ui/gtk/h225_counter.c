@@ -50,7 +50,7 @@ void register_tap_listener_gtk_h225counter(void);
 static void gtk_h225counter_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_counter_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg h225_counter_dlg = {

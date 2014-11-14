@@ -53,7 +53,7 @@ void register_tap_listener_sctpstat(void);
 static void sctpstat_init(const char *opt_arg, void *userdata);
 
 static tap_param sctp_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg sctp_stat_dlg = {

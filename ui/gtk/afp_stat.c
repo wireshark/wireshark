@@ -185,7 +185,7 @@ gtk_afpstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param afp_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg afp_stat_dlg = {

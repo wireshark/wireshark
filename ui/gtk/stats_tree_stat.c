@@ -541,7 +541,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 }
 
 static tap_param tree_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static void

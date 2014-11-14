@@ -218,7 +218,7 @@ static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param camel_srt_params[] = {
-  { PARAM_FILTER, "Filter", NULL }
+  { PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg camel_srt_dlg = {

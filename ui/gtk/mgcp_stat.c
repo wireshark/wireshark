@@ -296,7 +296,7 @@ gtk_mgcpstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param mgcp_srt_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg mgcp_srt_dlg = {

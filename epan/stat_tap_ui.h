@@ -40,6 +40,7 @@ typedef enum {
 	PARAM_UINT,
 	PARAM_STRING,
 	PARAM_ENUM,
+	PARAM_UUID,
 	PARAM_FILTER
 } param_type;
 
@@ -47,6 +48,7 @@ typedef struct _tap_param {
 	param_type type;
 	const char *title;
 	const enum_val_t *enum_vals;
+	gboolean optional;
 } tap_param;
 
 /*

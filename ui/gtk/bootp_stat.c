@@ -253,7 +253,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param bootp_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+	{ PARAM_FILTER, "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg dhcp_stat_dlg = {

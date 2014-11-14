@@ -180,6 +180,7 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
             break;
 
         case PARAM_STRING:
+        case PARAM_UUID:	/* XXX - do as multiple fixed-length boxes */
         case PARAM_FILTER:
             g_string_append(params,
                             gtk_entry_get_text(GTK_ENTRY(dlg_data->param_items[i])));
@@ -377,6 +378,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
 
         case PARAM_STRING:
         case PARAM_FILTER:
+        case PARAM_UUID:
             dlg_set_activate(current_dlg->param_items[i], start_button);
             break;
         }
