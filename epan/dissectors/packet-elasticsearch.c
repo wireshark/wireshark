@@ -414,7 +414,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
 
     int offset = 0;
     gint8 transport_status_flags;
-    gint64 request_id;
+    guint64 request_id;
     proto_item *transport_status_flags_item;
     proto_tree *transport_status_flags_tree;
 
@@ -463,7 +463,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     } else {
         elasticsearch_decode_binary_response(tvb, pinfo, tree, offset, transport_status_flags);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, "request_id=%lu ", request_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "request_id=%"G_GUINT64_FORMAT" ", request_id);
 
 
     /* Everything is marked as data, return the whole tvb as the length */
