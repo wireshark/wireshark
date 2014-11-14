@@ -224,6 +224,15 @@ static int hf_docsis_tlv_sflow_vendor_spec = -1;
 static int hf_docsis_tlv_sflow_max_concat_burst = -1;
 static int hf_docsis_tlv_sflow_sched_type = -1;
 static int hf_docsis_tlv_sflow_reqxmit_pol = -1;
+static int hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast = -1;
+static int hf_docsis_tlv_sflow_reqxmit_priority_multicast = -1;
+static int hf_docsis_tlv_sflow_reqxmit_req_data_requests = -1;
+static int hf_docsis_tlv_sflow_reqxmit_req_data_data = -1;
+static int hf_docsis_tlv_sflow_reqxmit_piggy_back = -1;
+static int hf_docsis_tlv_sflow_reqxmit_concatenate_data = -1;
+static int hf_docsis_tlv_sflow_reqxmit_fragment = -1;
+static int hf_docsis_tlv_sflow_reqxmit_suppress_payload = -1;
+static int hf_docsis_tlv_sflow_reqxmit_drop_packets = -1;
 static int hf_docsis_tlv_sflow_nominal_polling = -1;
 static int hf_docsis_tlv_sflow_tolerated_jitter = -1;
 static int hf_docsis_tlv_sflow_ugs_size = -1;
@@ -814,47 +823,26 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
     }                           /* while */
 }
 
+static const true_false_string tfs_must_not_must = { "MUST NOT", "MUST" };
+static const true_false_string tfs_must_must_not = { "MUST", "MUST NOT" };
 
 static void
 dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 {
-  guint32 value;
-  proto_item *it;
-  proto_tree *pol_tree;
-
-  value = tvb_get_ntohl (tvb, start);
-  it =
-    proto_tree_add_item (tree, hf_docsis_tlv_sflow_reqxmit_pol, tvb, start, 4,
-                         ENC_BIG_ENDIAN);
-  pol_tree = proto_item_add_subtree (it, ett_docsis_tlv_reqxmitpol);
-
-  if (value & 0x01)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT use \"all CMs\" broadcast request opportunities");
-  if (value & 0x02)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT use priority multicast request opportunities");
-  if (value & 0x04)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT use Request/Data opportunities for requests");
-  if (value & 0x08)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT use Request/Data opportunities for data");
-  if (value & 0x10)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT use piggy back requests with data");
-  if (value & 0x20)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT concatenate data");
-  if (value & 0x40)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT fragment data");
-  if (value & 0x80)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST NOT suppress payload headers");
-  if (value & 0x100)
-    proto_tree_add_text (pol_tree, tvb, start, 4,
-                         "Service flow MUST drop packets that do not fit in the UGS size");
+  static const gint *requests[] = {
+    &hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast,
+    &hf_docsis_tlv_sflow_reqxmit_priority_multicast,
+    &hf_docsis_tlv_sflow_reqxmit_req_data_requests,
+    &hf_docsis_tlv_sflow_reqxmit_req_data_data,
+    &hf_docsis_tlv_sflow_reqxmit_piggy_back,
+    &hf_docsis_tlv_sflow_reqxmit_concatenate_data,
+    &hf_docsis_tlv_sflow_reqxmit_fragment,
+    &hf_docsis_tlv_sflow_reqxmit_suppress_payload,
+    &hf_docsis_tlv_sflow_reqxmit_drop_packets,
+    NULL
+  };
+  proto_tree_add_bitmask(tree, tvb, start, hf_docsis_tlv_sflow_reqxmit_pol,
+                         ett_docsis_tlv_reqxmitpol, requests, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -4983,6 +4971,51 @@ proto_register_docsis_tlv (void)
      {".16 Request/Transmission Policy", "docsis_tlv.sflow.reqxmitpol",
       FT_UINT32, BASE_HEX, NULL, 0x0,
       "Request/Transmission Policy", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_all_cm_broadcast,
+     {"Service flow use \"all CMs\" broadcast request opportunities", "docsis_tlv.sflow.reqxmitpol.all_cm_broadcast",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_priority_multicast,
+     {"Service flow use priority multicast request opportunities", "docsis_tlv.sflow.reqxmitpol.priority_multicast",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_req_data_requests,
+     {"Service flow use Request/Data opportunities for requests", "docsis_tlv.sflow.reqxmitpol.req_data_requests",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x04,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_req_data_data,
+     {"Service flow use Request/Data opportunities for data", "docsis_tlv.sflow.reqxmitpol.req_data_data",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x08,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_piggy_back,
+     {"Service flow use piggy back requests with data", "docsis_tlv.sflow.reqxmitpol.piggy_back",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x10,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_concatenate_data,
+     {"Service flow concatenate data", "docsis_tlv.sflow.reqxmitpol.concatenate_data",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x20,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_fragment,
+     {"Service flow fragment data", "docsis_tlv.sflow.reqxmitpol.fragment",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x40,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_suppress_payload,
+     {"Service flow suppress payload headers", "docsis_tlv.sflow.reqxmitpol.suppress_payload",
+      FT_BOOLEAN, 32, TFS(&tfs_must_not_must), 0x80,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_sflow_reqxmit_drop_packets,
+     {"Service flow drop packets that do not fit in the UGS size", "docsis_tlv.sflow.reqxmitpol.drop_packets",
+      FT_BOOLEAN, 32, TFS(&tfs_must_must_not), 0x100,
+      NULL, HFILL}
     },
     {&hf_docsis_tlv_sflow_nominal_polling,
      {".17 Nominal Polling Interval(usec)", "docsis_tlv.sflow.nominal_polling",

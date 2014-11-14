@@ -92,10 +92,6 @@ static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset);
 
 
-static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
-                           gint offset,guint msg_len);
-
-
 static int proto_unistim = -1;
 static int hf_unistim_seq_nu = -1;
 static int hf_unistim_packet_type = -1;
@@ -123,6 +119,7 @@ static int hf_network_switch_cmd=-1;
 static int hf_network_phone_cmd=-1;
 static int hf_expansion_switch_cmd=-1;
 static int hf_expansion_phone_cmd=-1;
+static int hf_module_key_number=-1;
 
 static int hf_generic_data=-1;
 static int hf_generic_string=-1;
@@ -578,7 +575,7 @@ dissect_basic_phone(proto_tree *msg_tree,
          break;
       case 0x0b:
    /*not in pdf but get them*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0xff:
@@ -963,12 +960,12 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x12:
    /*Display Scroll with Data (before)*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x13:
    /*Display Scroll with Data (after)*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x14:
@@ -985,12 +982,12 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x15:
    /*Month Labels Download*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x16:
    /*Call Duration Timer Label Download*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=1;msg_len-=1;
          break;
       case 0x17:
@@ -1008,7 +1005,7 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x18:
    /*address|no control|no tag|no*/
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x19:
@@ -1056,7 +1053,7 @@ dissect_display_switch(proto_tree *msg_tree,
          if(msg_len>0){
             /* I'm guessing this will work flakily at best */
             uinfo->string_data = tvb_get_string(wmem_packet_scope(), tvb,offset,msg_len);
-            set_ascii_item(msg_tree,tvb,offset,msg_len);
+            proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          }
 
          offset+=msg_len;
@@ -1077,7 +1074,7 @@ dissect_display_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          proto_tree_add_item(msg_tree,hf_generic_string,
                              tvb,offset,msg_len,ENC_ASCII|ENC_NA);
@@ -1139,14 +1136,14 @@ dissect_display_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x1c:
    /*address|no control|no tag|yes*/
          proto_tree_add_item(msg_tree,hf_display_write_tag,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x1d:
@@ -1185,7 +1182,7 @@ dissect_display_switch(proto_tree *msg_tree,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x1e:
@@ -1209,7 +1206,7 @@ dissect_display_switch(proto_tree *msg_tree,
          offset+=msg_len;
          proto_tree_add_item(msg_tree,hf_display_write_tag,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x1f:
@@ -1267,7 +1264,7 @@ dissect_display_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_display_write_tag,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x20:
@@ -1332,7 +1329,7 @@ dissect_display_switch(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_layer_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x31:
@@ -1881,7 +1878,7 @@ dissect_expansion_switch(proto_tree *msg_tree,
          offset+=1;
          msg_len-=1;
 
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          break;
       case 0x59:
          /*skip a byte for now, not sure what it means*/
@@ -1918,7 +1915,7 @@ dissect_expansion_phone(proto_tree *msg_tree,
 
    switch(expansion_cmd){
       case 0x59:
-         proto_tree_add_text(msg_tree,tvb,offset,msg_len,"Module Key Number: %i",key_number);
+         proto_tree_add_int(msg_tree,hf_module_key_number,tvb,offset,1,key_number);
          offset+=1;
          msg_len-=1;
          break;
@@ -2589,7 +2586,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_audio_sdes_rpt_source_desc,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_sdes_rpt_buk_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         set_ascii_item(msg_tree,tvb,offset,msg_len);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x11:
@@ -2694,12 +2691,6 @@ dissect_audio_phone(proto_tree *msg_tree,
    return offset;
 }
 
-static void
-set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
-   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"DATA: %s",
-                       tvb_format_text(tvb,offset,msg_len));
-}
-
 void
 proto_register_unistim(void){
 
@@ -2715,23 +2706,23 @@ proto_register_unistim(void){
           BASE_HEX,VALS(command_address),0x0,NULL,HFILL}
       },
       { &hf_uftp_command,
-        { "UFTP CMD","uftp.cmd",FT_UINT8,
+        { "UFTP CMD","unistim.uftp.cmd",FT_UINT8,
           BASE_HEX,VALS(uftp_commands),0x0,NULL,HFILL}
       },
       { &hf_uftp_datablock_size,
-        { "UFTP Datablock Size","uftp.blocksize",FT_UINT32,
+        { "UFTP Datablock Size","unistim.uftp.blocksize",FT_UINT32,
           BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_uftp_datablock_limit,
-        { "UFTP Datablock Limit","uftp.limit",FT_UINT8,
+        { "UFTP Datablock Limit","unistim.uftp.limit",FT_UINT8,
           BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_uftp_filename,
-        { "UFTP Filename","uftp.filename",FT_STRINGZ,
+        { "UFTP Filename","unistim.uftp.filename",FT_STRINGZ,
           BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_uftp_datablock,
-        { "UFTP Data Block","uftp.datablock",FT_BYTES,
+        { "UFTP Data Block","unistim.uftp.datablock",FT_BYTES,
           BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_unistim_packet_type,
@@ -4011,6 +4002,10 @@ proto_register_unistim(void){
         {"Expansion CMD (phone)","unistim.expansion.phone",FT_UINT8,
          BASE_HEX,VALS(expansion_phone_msgs),0x0,NULL,HFILL}
       },
+      { &hf_module_key_number,
+        {"Module Key Number","unistim.expansion.phone",FT_INT32,
+         BASE_DEC,NULL,0x0,NULL,HFILL}
+      },
       { &hf_expansion_softlabel_number,
         {"Module Soft Label Number","unistim.expansion.label.number",FT_UINT8,
          BASE_DEC,NULL,0x00,NULL,HFILL}
@@ -4019,7 +4014,7 @@ proto_register_unistim(void){
 
       /****LAST****/
       { &hf_generic_string,
-        {"DATA","unistim.generic.data",FT_STRING,
+        {"DATA","unistim.generic.string_data",FT_STRING,
          BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_generic_data,

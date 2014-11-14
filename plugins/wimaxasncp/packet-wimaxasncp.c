@@ -105,6 +105,7 @@ static gint ett_wimaxasncp_tlv_ip_address_mask_list              = -1;
 static gint ett_wimaxasncp_tlv_ip_address_mask                   = -1;
 static gint ett_wimaxasncp_tlv_eap                               = -1;
 static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
+static gint ett_wimaxasncp_port_range                            = -1;
 
 static expert_field ei_wimaxasncp_tlv_type = EI_INIT;
 static expert_field ei_wimaxasncp_function_type = EI_INIT;
@@ -1395,24 +1396,25 @@ static void wimaxasncp_dissect_tlv_value(
             {
                 guint16 portLow;
                 guint16 portHigh;
+                proto_tree* range_tree;
 
                 portLow  = tvb_get_ntohs(tvb, offset);
                 portHigh = tvb_get_ntohs(tvb, offset + 2);
 
-                proto_tree_add_text(
+                range_tree = proto_tree_add_subtree_format(
                     port_range_list_tree, tvb, offset, 4,
-                    "Port Range: %u-%u", portLow, portHigh);
+                    ett_wimaxasncp_port_range, NULL, "Port Range: %u-%u", portLow, portHigh);
 
                 /* hidden items are for filtering */
 
                 item = proto_tree_add_item(
-                    port_range_list_tree, tlv_info->hf_port_low,
+                    range_tree, tlv_info->hf_port_low,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 PROTO_ITEM_SET_HIDDEN(item);
 
                 item = proto_tree_add_item(
-                    port_range_list_tree, tlv_info->hf_port_high,
+                    range_tree, tlv_info->hf_port_high,
                     tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
                 PROTO_ITEM_SET_HIDDEN(item);
@@ -3244,7 +3246,8 @@ register_wimaxasncp_fields(const char* unused _U_)
             &ett_wimaxasncp_tlv_ip_address_mask_list,
             &ett_wimaxasncp_tlv_ip_address_mask,
             &ett_wimaxasncp_tlv_eap,
-            &ett_wimaxasncp_tlv_vendor_specific_information_field
+            &ett_wimaxasncp_tlv_vendor_specific_information_field,
+            &ett_wimaxasncp_port_range
     };
 
     static ei_register_info ei[] = {

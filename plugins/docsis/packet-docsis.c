@@ -207,9 +207,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
       len = (tvb_get_guint8 (tvb, pos) & 0x0F);
       if ((((type >> 4) & 0x0F)== 6) && (len == 2))
         {
-          item = proto_tree_add_item(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, ENC_BIG_ENDIAN);
-          PROTO_ITEM_SET_HIDDEN(item);
-          proto_tree_add_text(ehdr_tree, tvb, pos, 1, "0110 ....  = Unsolicited Grant Sync EHDR Sub-Element" );
+          proto_tree_add_uint_format_value(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, 0x60, "Unsolicited Grant Sync EHDR Sub-Element");
         }
       else
         proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -284,14 +282,11 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
         case EH_SFLOW_HDR_DOWN:
         case EH_SFLOW_HDR_UP:
           val = tvb_get_guint8 (tvb, pos+1);
+          item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, ENC_BIG_ENDIAN);
           if (val == 0)
           {
-            item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(item);
-            proto_tree_add_text (ehdr_tree, tvb, pos+1, 1, "0000 0000 = No PHS on current packet" );
+            proto_item_append_text(item, " (No PHS on current packet)" );
           }
-          else
-            proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 
           if (len == 2)
           {
