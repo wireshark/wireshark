@@ -1,5 +1,5 @@
-/* stat_cmd_args.c
- * Routines to register "-z" command-line argument handlers for stats
+/* stat_tap_ui.c
+ * Routines to register UI information for stats
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,7 +28,7 @@
 
 #include <glib.h>
 
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 /* structure to keep track of what stats have registered command-line
    arguments.
@@ -59,18 +59,6 @@ static gint
 sort_by_name(gconstpointer a, gconstpointer b)
 {
     return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
-}
-
-void
-register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* userdata)
-{
-    stat_cmd_arg *newsca;
-
-    newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
-    newsca->cmd=cmd;
-    newsca->func=func;
-    newsca->userdata=userdata;
-    stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
 }
 
 void

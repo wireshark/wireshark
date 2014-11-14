@@ -26,7 +26,7 @@
 #include <string.h>
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-scsi.h>

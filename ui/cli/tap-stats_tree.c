@@ -30,7 +30,7 @@
 #include <wsutil/report_err.h>
 
 #include <epan/stats_tree_priv.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 void register_tap_listener_stats_tree_stat(void);
 

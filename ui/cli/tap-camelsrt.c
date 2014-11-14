@@ -35,7 +35,7 @@
 #include "epan/dissectors/packet-camel.h"
 #include "epan/dissectors/packet-tcap.h"
 #include "epan/timestats.h"
-#include "epan/stat_cmd_args.h"
+#include "epan/stat_tap_ui.h"
 
 
 void register_tap_listener_camelsrt(void);

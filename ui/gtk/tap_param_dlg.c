@@ -28,7 +28,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 #include "../file.h"
 #include "../globals.h"

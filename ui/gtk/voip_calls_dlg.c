@@ -42,7 +42,7 @@
 #include <epan/packet.h>
 #include "wsutil/filesystem.h"
 #include <epan/tap.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/to_str.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>

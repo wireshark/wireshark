@@ -81,7 +81,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/tap.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/uat.h>
 #include <epan/print.h>
 #include <epan/timestamp.h>

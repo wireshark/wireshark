@@ -1598,7 +1598,7 @@ set(LIBWIRESHARK_FILES
 	sigcomp-udvm.c
 	sminmpec.c
 	sna-utils.c
-	stat_cmd_args.c
+	stat_tap_ui.c
 	stats_tree.c
 	strutil.c
 	stream.c

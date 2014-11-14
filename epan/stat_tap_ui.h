@@ -1,6 +1,5 @@
-/* stat_cmd_args.h
- * Declarations of routines to register "-z" command-line argument handlers
- * for stats
+/* stat_tap_ui.h
+ * Declarations of routines to register UI information for stats
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,29 +20,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __STAT_CMD_ARGS_H__
-#define __STAT_CMD_ARGS_H__
+#ifndef __STAT_TAP_UI_H__
+#define __STAT_TAP_UI_H__
 
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/** Register a stat ("-z") command line argument.
- *
- * @param cmd The command name without arguments, e.g. "conv,tcp" or "io,stat".
- * MUST be valid when other stat_cmd routines below are called.
- * @param func Callbak to be invoked when the CLI argument is supplied.
- * @param userdata Additional data for the callback.
- */
-#if 0
-WS_DLL_PUBLIC void register_stat_cmd_arg(const char *cmd,
-    void (*func)(const char *arg,void* userdata), void* userdata);
-#endif
-WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
-WS_DLL_PUBLIC void list_stat_cmd_args(void);
-WS_DLL_PUBLIC void start_requested_stats(void);
 
 /*
  * Parameters for taps.
@@ -65,6 +49,9 @@ typedef struct _tap_param {
 	const enum_val_t *enum_vals;
 } tap_param;
 
+/*
+ * UI information for a tap.
+ */
 typedef struct _stat_tap_ui {
 	register_stat_group_t group;	/* group to which statistic belongs */
 	const char *title;		/* title of statistic */
@@ -75,10 +62,18 @@ typedef struct _stat_tap_ui {
 	tap_param *params;		/* pointer to table of parameter info */
 } stat_tap_ui;
 
-/*
- * Register the parameters a tap takes.
+/** Register UI information for a tap.
+ *
+ * @param ui UI information for the tap.
+ * @param userdata Additional data for the init routine.
  */
 WS_DLL_PUBLIC void register_stat_tap_ui(stat_tap_ui *ui, void *userdata);
+
+WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
+
+WS_DLL_PUBLIC void list_stat_cmd_args(void);
+
+WS_DLL_PUBLIC void start_requested_stats(void);
 
 #ifdef __cplusplus
 }

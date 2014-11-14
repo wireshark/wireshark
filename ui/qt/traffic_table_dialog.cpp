@@ -24,7 +24,7 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 //#include <epan/dissectors/packet-tcp.h>
 

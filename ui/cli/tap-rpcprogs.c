@@ -32,7 +32,7 @@
 
 #include "epan/packet_info.h"
 #include <epan/tap.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rpc.h>
 
 #define MICROSECS_PER_SEC   1000000

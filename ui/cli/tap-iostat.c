@@ -30,7 +30,7 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/strutil.h>
 #include "globals.h"
 

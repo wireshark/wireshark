@@ -60,7 +60,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/strutil.h>
 
 #include <epan/stat_groups.h>

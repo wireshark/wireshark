@@ -84,7 +84,7 @@ LIBWIRESHARK_SRC =		\
 	sigcomp-udvm.c		\
 	sminmpec.c		\
 	sna-utils.c		\
-	stat_cmd_args.c		\
+	stat_tap_ui.c		\
 	stats_tree.c		\
 	strutil.c		\
 	stream.c		\
@@ -243,7 +243,7 @@ LIBWIRESHARK_INCLUDES =		\
 	slow_protocol_subtypes.h \
 	sminmpec.h		\
 	sna-utils.h		\
-	stat_cmd_args.h		\
+	stat_tap_ui.h		\
 	stat_groups.h		\
 	stats_tree.h		\
 	stats_tree_priv.h	\

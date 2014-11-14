@@ -61,7 +61,7 @@
 #include <epan/dissectors/packet-iax2.h>
 #include <epan/iax2_codec_type.h>
 #include <epan/addr_resolv.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/strutil.h>
 
 #include <epan/stat_groups.h>

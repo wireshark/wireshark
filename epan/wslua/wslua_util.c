@@ -28,7 +28,7 @@
 
 #include "wslua.h"
 #include <math.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 
 WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets a string of the Wireshark version. */

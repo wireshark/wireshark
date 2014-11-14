@@ -32,7 +32,7 @@
 
 #include <epan/funnel.h>
 #include <stdio.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 void register_tap_listener_gtkfunnel(void);
 

@@ -31,7 +31,7 @@
 #include "addr_resolv.h"
 #include "emem.h"
 
-#include "stat_cmd_args.h"
+#include "stat_tap_ui.h"
 
 GList *cmd_string_list_ = NULL;
 

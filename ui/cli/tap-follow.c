@@ -39,7 +39,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <epan/follow.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/tvbuff-int.h>
 

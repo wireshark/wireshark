@@ -22,7 +22,7 @@
 #include "io_graph_dialog.h"
 #include "ui_io_graph_dialog.h"
 
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
 

@@ -32,7 +32,7 @@
 #include "epan/column-utils.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/strutil.h>
 
 void register_tap_listener_protocolinfo(void);

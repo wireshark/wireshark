@@ -62,7 +62,7 @@
  */
 
 #include <epan/params.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 
 typedef struct _tap_param_dlg {
 	const char *win_title;		/* title */

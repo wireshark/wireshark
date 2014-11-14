@@ -42,7 +42,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-ip.h>
 #include "epan/timestats.h"
 

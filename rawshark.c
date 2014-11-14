@@ -96,7 +96,7 @@
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include <epan/epan_dissect.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/timestamp.h>
 #include <wsutil/unicode-utils.h>
 #include "epan/column-utils.h"

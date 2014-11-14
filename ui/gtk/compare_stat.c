@@ -45,7 +45,7 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
-#include <epan/stat_cmd_args.h>
+#include <epan/stat_tap_ui.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
