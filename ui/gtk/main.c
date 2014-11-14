@@ -2759,6 +2759,11 @@ main(int argc, char *argv[])
                  by the preferences set callback) from being used as
                  part of a tap filter.  Instead, we just add the argument
                  to a list of stat arguments. */
+                if (strcmp("help", optarg) == 0) {
+                  fprintf(stderr, "wireshark: The available statistics for the \"-z\" option are:\n");
+                  list_stat_cmd_args();
+                  exit(0);
+                }
                 if (!process_stat_cmd_arg(optarg)) {
                     cmdarg_err("Invalid -z argument.");
                     cmdarg_err_cont("  -z argument must be one of :");

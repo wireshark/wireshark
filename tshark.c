@@ -1645,12 +1645,12 @@ main(int argc, char *argv[])
          by the preferences set callback) from being used as
          part of a tap filter.  Instead, we just add the argument
          to a list of stat arguments. */
+      if (strcmp("help", optarg) == 0) {
+        fprintf(stderr, "tshark: The available statistics for the \"-z\" option are:\n");
+        list_stat_cmd_args();
+        return 0;
+      }
       if (!process_stat_cmd_arg(optarg)) {
-        if (strcmp("help", optarg)==0) {
-          fprintf(stderr, "tshark: The available statistics for the \"-z\" option are:\n");
-          list_stat_cmd_args();
-          return 0;
-        }
         cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", optarg);
         list_stat_cmd_args();
         return 1;
