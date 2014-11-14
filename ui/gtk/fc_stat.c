@@ -190,7 +190,7 @@ gtk_fcstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param fc_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL, TRUE }
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg fc_stat_dlg = {

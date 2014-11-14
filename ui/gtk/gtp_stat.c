@@ -209,7 +209,7 @@ gtk_gtpstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param gtp_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL, TRUE }
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg gtp_stat_dlg = {

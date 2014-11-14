@@ -206,7 +206,7 @@ static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param camel_counter_params[] = {
-  { PARAM_FILTER, "Filter", NULL, TRUE }
+  { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg camel_counter_dlg = {

@@ -283,8 +283,8 @@ static const enum_val_t scsi_command_sets[] = {
 };
 
 static tap_param scsi_stat_params[] = {
-	{ PARAM_ENUM,   "Command set", scsi_command_sets, FALSE },
-	{ PARAM_FILTER, "Filter", NULL, TRUE }
+	{ PARAM_ENUM,   "cmdset", "Command set", scsi_command_sets, FALSE },
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg scsi_stat_dlg = {

@@ -45,10 +45,11 @@ typedef enum {
 } param_type;
 
 typedef struct _tap_param {
-	param_type type;
-	const char *title;
-	const enum_val_t *enum_vals;
-	gboolean optional;
+	param_type type;		/* type of parameter */
+	const char *name;		/* name to use in error messages */
+	const char *title;		/* title to use in GUI widgets */
+	const enum_val_t *enum_vals;	/* values for PARAM_ENUM */
+	gboolean optional;		/* TRUE if the parameter is optional */
 } tap_param;
 
 /*

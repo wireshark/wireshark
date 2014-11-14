@@ -209,7 +209,7 @@ gtk_megacostat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param megaco_srt_params[] = {
-	{ PARAM_FILTER, "Filter", NULL, TRUE }
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg megaco_srt_dlg = {

@@ -51,7 +51,7 @@ void register_tap_listener_gtk_h225rassrt(void);
 static void gtk_h225rassrt_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_rassrt_params[] = {
-	{ PARAM_FILTER, "Filter", NULL, TRUE }
+	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg h225_rassrt_dlg = {
