@@ -2315,6 +2315,7 @@ static guint16
 be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *l3_tvb;
+    guint16 word;
 
     proto_tree_add_bytes_format(tree, hf_gsm_a_bssmap_layer3_message_contents, tvb, offset, len, NULL,
         "Layer 3 Message Contents");
@@ -2324,6 +2325,18 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
      */
     l3_tvb = tvb_new_subset_length(tvb, offset, len);
 
+    /* Some vendors do:
+     * Octets 3-12 contain the unchanged radio interface layer 3 message contents, as received from the radio interface.
+     * When received in the CIPHER MODE COMPLETE message, this IE contains the mobile identity IE with identity type set to IMEISV.
+     * The mobile identity IE is a variable length element and includes a length indicator, which is set to 9 if the type is IMEISV.
+     *
+     */
+    word = tvb_get_ntohs(tvb, offset);
+    if(word==0x1709){
+        /* start the dissection from byte 3 */
+        de_mid(l3_tvb, tree, pinfo, 2, 7, NULL, 0);
+        return(len);
+    }
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
      * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
     call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
