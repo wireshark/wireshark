@@ -2740,6 +2740,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     guint8 indx;
     guint8 flags;
     guint8 ipver;
+    int start_offset = offset;
 
     mptcp_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, ett_tcp_option_mptcp, &ti, "Multipath TCP");
 
@@ -2912,9 +2913,12 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                             2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_checksum, tvb, offset,
-                            2, ENC_BIG_ENDIAN);
+                if ((int)optlen >= offset-start_offset+4)
+                {
+                    proto_tree_add_item(mptcp_tree,
+                                hf_tcp_option_mptcp_checksum, tvb, offset,
+                                2, ENC_BIG_ENDIAN);
+                }
             }
             break;
 
