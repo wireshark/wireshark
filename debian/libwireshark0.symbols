@@ -725,6 +725,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  http_dissector_add@Base 1.9.1
  http_port_add@Base 1.9.1
  ieee80211_chan_to_mhz@Base 1.9.1
+ ieee80211_float_htrates@Base 1.99.1
  ieee80211_mhz_to_chan@Base 1.9.1
  ieee80211_mhz_to_str@Base 1.9.1
  ieee802a_add_oui@Base 1.9.1
@@ -1001,6 +1002,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_children_foreach@Base 1.9.1
  proto_tree_free@Base 1.9.1
  proto_tree_get_parent@Base 1.9.1
+ proto_tree_get_parent_tree@Base 1.99.1
  proto_tree_get_root@Base 1.9.1
  proto_tree_move_item@Base 1.9.1
  proto_tree_print@Base 1.12.0~rc1
@@ -1065,9 +1067,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_init_routine@Base 1.9.1
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
- register_stat_cmd_arg@Base 1.9.1
+#MISSING: 1.99.1# register_stat_cmd_arg@Base 1.9.1
  register_tap@Base 1.9.1
  register_tap_listener@Base 1.9.1
+ register_tap_ui@Base 1.99.1
  rel_oid_encoded2string@Base 1.12.0~rc1
  rel_oid_resolved_from_encoded@Base 1.12.0~rc1
  rel_oid_str_to_bytes@Base 1.12.0~rc1
