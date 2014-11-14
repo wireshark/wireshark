@@ -1067,7 +1067,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_init_routine@Base 1.9.1
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
-#MISSING: 1.99.1# register_stat_cmd_arg@Base 1.9.1
  register_tap@Base 1.9.1
  register_tap_listener@Base 1.9.1
  register_tap_ui@Base 1.99.1
