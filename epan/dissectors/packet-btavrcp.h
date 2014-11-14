@@ -25,7 +25,7 @@
 #ifndef __PACKET_BTAVRCP_H__
 #define __PACKET_BTAVRCP_H__
 
-wmem_tree_t *btavrcp_song_positions;
+extern wmem_tree_t *btavrcp_song_positions;
 
 typedef struct _btavrcp_song_position_data_t {
     guint32   song_position;
