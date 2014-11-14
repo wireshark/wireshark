@@ -109,32 +109,36 @@ enum
 
 
 /****************************************************************************/
+static gboolean have_voip_calls_tap_listeners = FALSE;
+
 static void
-voip_calls_remove_tap_listener(void)
+voip_calls_remove_tap_listener(void* tap_id_base)
 {
 	/* Remove the calls tap listener */
-	remove_tap_listener_sip_calls();
-	remove_tap_listener_isup_calls();
-	remove_tap_listener_mtp3_calls();
-	remove_tap_listener_h225_calls();
-	remove_tap_listener_h245dg_calls();
-	remove_tap_listener_q931_calls();
-	remove_tap_listener_h248_calls();
-	remove_tap_listener_sccp_calls();
-	remove_tap_listener_sdp_calls();
-	remove_tap_listener_rtp();
+	remove_tap_listener_actrace_calls(tap_id_base);
+	remove_tap_listener_h225_calls(tap_id_base);
+	remove_tap_listener_h245dg_calls(tap_id_base);
+	remove_tap_listener_h248_calls(tap_id_base);
+	remove_tap_listener_iax2_calls(tap_id_base);
+	remove_tap_listener_isup_calls(tap_id_base);
+	remove_tap_listener_mgcp_calls(tap_id_base);
+	remove_tap_listener_mtp3_calls(tap_id_base);
+	remove_tap_listener_q931_calls(tap_id_base);
+	remove_tap_listener_rtp(tap_id_base);
+	remove_tap_listener_rtp_event(tap_id_base);
+	remove_tap_listener_sccp_calls(tap_id_base);
+	remove_tap_listener_sdp_calls(tap_id_base);
+	remove_tap_listener_sip_calls(tap_id_base);
+	remove_tap_listener_skinny_calls(tap_id_base);
+	remove_tap_listener_t38(tap_id_base);
 	if (find_tap_id("unistim")) { /* The plugin may be missing */
-		remove_tap_listener_unistim_calls();
+		remove_tap_listener_unistim_calls(tap_id_base);
 	}
 	if (find_tap_id("voip")) {
-		remove_tap_listener_voip_calls();
+		remove_tap_listener_voip_calls(tap_id_base);
 	}
-	remove_tap_listener_rtp_event();
-	remove_tap_listener_mgcp_calls();
-	remove_tap_listener_actrace_calls();
-	remove_tap_listener_skinny_calls();
-	remove_tap_listener_iax2_calls();
-	remove_tap_listener_t38();
+	
+	have_voip_calls_tap_listeners = FALSE;
 }
 
 /****************************************************************************/
@@ -144,7 +148,7 @@ static void
 voip_calls_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* remove_tap_listeners */
-	voip_calls_remove_tap_listener();
+	voip_calls_remove_tap_listener(voip_calls_get_info());
 
 	/* Clean up memory used by calls tap */
 	voip_calls_dlg_reset(NULL);
@@ -849,6 +853,8 @@ voip_calls_dlg_reset(void *ptr _U_)
 static void
 voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 {
+	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
+	
 	if (graph_analysis_data == NULL) {
 		graph_analysis_data_init();
 		/* init the Graph Analysys */
@@ -858,31 +864,35 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	/* Clean up memory used by calls tap */
 	voip_calls_reset(voip_calls_get_info());
 
-	/* Register the tap listener */
-	sip_calls_init_tap();
-	mtp3_calls_init_tap();
-	isup_calls_init_tap();
-	h225_calls_init_tap();
-	h245dg_calls_init_tap();
-	q931_calls_init_tap();
-	h248_calls_init_tap();
-	sccp_calls_init_tap();
-	sdp_calls_init_tap();
-	/* We don't register this tap, if we don't have the unistim plugin loaded.*/
-	if (find_tap_id("unistim")) {
-		unistim_calls_init_tap();
-	}
-	if (find_tap_id("voip")) {
-		VoIPcalls_init_tap();
-	}
-	rtp_init_tap();
-	rtp_event_init_tap();
-	mgcp_calls_init_tap();
-	actrace_calls_init_tap();
-	skinny_calls_init_tap();
-	iax2_calls_init_tap();
-	t38_init_tap();
+	/* Register the tap listeners */
+	if (!have_voip_calls_tap_listeners) {
+		actrace_calls_init_tap(tap_id_base);
+		h225_calls_init_tap(tap_id_base);
+		h245dg_calls_init_tap(tap_id_base);
+		h248_calls_init_tap(tap_id_base);
+		iax2_calls_init_tap(tap_id_base);
+		isup_calls_init_tap(tap_id_base);
+		mgcp_calls_init_tap(tap_id_base);
+		mtp3_calls_init_tap(tap_id_base);
+		q931_calls_init_tap(tap_id_base);
+		rtp_event_init_tap(tap_id_base);
+		rtp_init_tap(tap_id_base);
+		sccp_calls_init_tap(tap_id_base);
+		sdp_calls_init_tap(tap_id_base);
+		sip_calls_init_tap(tap_id_base);
+		skinny_calls_init_tap(tap_id_base);
+		t38_init_tap(tap_id_base);
+		/* We don't register this tap, if we don't have the unistim plugin loaded.*/
+		if (find_tap_id("unistim")) {
+			unistim_calls_init_tap(tap_id_base);
+		}
+		if (find_tap_id("voip")) {
+			VoIPcalls_init_tap(tap_id_base);
+		}
 
+		have_voip_calls_tap_listeners = TRUE;
+	}
+	
 	/* create dialog box if necessary */
 	if (voip_calls_dlg == NULL) {
 		voip_calls_dlg_create();

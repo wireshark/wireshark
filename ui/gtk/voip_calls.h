@@ -201,47 +201,47 @@ typedef struct _voip_rtp_tapinfo {
  * So whenever voip_calls.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
  * If not, it will be registered on demand by the voip_calls functions that need it.
  */
-void sip_calls_init_tap(void);
-void isup_calls_init_tap(void);
-void mtp3_calls_init_tap(void);
-void h225_calls_init_tap(void);
-void h245dg_calls_init_tap(void);
-void q931_calls_init_tap(void);
-void sdp_calls_init_tap(void);
-void rtp_init_tap(void);
-void rtp_event_init_tap(void);
-void mgcp_calls_init_tap(void);
-void actrace_calls_init_tap(void);
-void t38_init_tap(void);
-void h248_calls_init_tap(void);
-void sccp_calls_init_tap(void);
-void unistim_calls_init_tap(void);
-void skinny_calls_init_tap(void);
-void iax2_calls_init_tap(void);
-void VoIPcalls_init_tap(void);
+void actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void rtp_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void t38_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base);
 
 /**
  * Removes the voip_calls tap listener (if not already done)
  * From that point on, the voip calls list won't be updated any more.
  */
-void remove_tap_listener_sip_calls(void);
-void remove_tap_listener_isup_calls(void);
-void remove_tap_listener_mtp3_calls(void);
-void remove_tap_listener_h225_calls(void);
-void remove_tap_listener_h245dg_calls(void);
-void remove_tap_listener_q931_calls(void);
-void remove_tap_listener_sdp_calls(void);
-void remove_tap_listener_rtp(void);
-void remove_tap_listener_rtp_event(void);
-void remove_tap_listener_mgcp_calls(void);
-void remove_tap_listener_actrace_calls(void);
-void remove_tap_listener_t38(void);
-void remove_tap_listener_h248_calls(void);
-void remove_tap_listener_sccp_calls(void);
-void remove_tap_listener_unistim_calls(void);
-void remove_tap_listener_skinny_calls(void);
-void remove_tap_listener_iax2_calls(void);
-void remove_tap_listener_voip_calls(void);
+void remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_mtp3_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_rtp_event(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_t38(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base);
+void remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base);
 
 /**
  * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

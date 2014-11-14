@@ -464,42 +464,32 @@ rtp_event_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 /****************************************************************************/
-static gboolean have_rtp_event_tap_listener=FALSE;
-
 void
-rtp_event_init_tap(void)
+rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
+	error_string = register_tap_listener("rtpevent", tap_id_base + tap_id_offset_rtp_event_,
+		NULL,
+		0,
+		NULL,
+		rtp_event_packet,
+		NULL
+		);
 
-	if(have_rtp_event_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("rtpevent", &the_tapinfo_rtp_struct + tap_id_offset_rtp_event_,
-			NULL,
-			0,
-			NULL,
-			rtp_event_packet,
-			NULL
-			);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_rtp_event_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 
 void
-remove_tap_listener_rtp_event(void)
+remove_tap_listener_rtp_event(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(&the_tapinfo_rtp_struct + tap_id_offset_rtp_event_);
-
-	have_rtp_event_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_rtp_event_);
 }
 
 /****************************************************************************/
@@ -768,39 +758,32 @@ static void RTP_packet_draw(void *prs _U_)
 	}
 }
 #endif
-static gboolean have_RTP_tap_listener=FALSE;
+
 /****************************************************************************/
 void
-rtp_init_tap(void)
+rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_RTP_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("rtp", &the_tapinfo_rtp_struct + tap_id_offset_rtp_, NULL,
-			0,
-			voip_rtp_reset,
-			RTP_packet,
-			RTP_packet_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_RTP_tap_listener=TRUE;
+	error_string = register_tap_listener("rtp", tap_id_base + tap_id_offset_rtp_, NULL,
+		0,
+		voip_rtp_reset,
+		RTP_packet,
+		RTP_packet_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_rtp(void)
+remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(&the_tapinfo_rtp_struct + tap_id_offset_rtp_);
-
-	have_RTP_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_rtp_);
 }
 
 /****************************************************************************/
@@ -957,39 +940,31 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	return 1;  /* refresh output */
 }
 
-static gboolean have_T38_tap_listener=FALSE;
 /****************************************************************************/
 void
-t38_init_tap(void)
+t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_T38_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("t38", voip_calls_get_info() + tap_id_offset_t38_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			T38_packet,
-			voip_calls_dlg_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_T38_tap_listener=TRUE;
+	error_string = register_tap_listener("t38", tap_id_base + tap_id_offset_t38_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		T38_packet,
+		voip_calls_dlg_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_t38(void)
+remove_tap_listener_t38(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_t38_);
-
-	have_T38_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_t38_);
 }
 
 
@@ -1203,39 +1178,30 @@ voip_calls_tapinfo_t* voip_calls_get_info(void)
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_SIP_tap_listener=FALSE;
-/****************************************************************************/
+
 void
-sip_calls_init_tap(void)
+sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_SIP_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sip", voip_calls_get_info() + tap_id_offset_sip_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			SIPcalls_packet,
-			voip_calls_dlg_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_SIP_tap_listener=TRUE;
+	error_string = register_tap_listener("sip", tap_id_base + tap_id_offset_sip_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		SIPcalls_packet,
+		voip_calls_dlg_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_sip_calls(void)
+remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sip_);
-
-	have_SIP_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_sip_);
 }
 
 /****************************************************************************/
@@ -1411,42 +1377,33 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 /****************************************************************************/
 
-static gboolean have_isup_tap_listener=FALSE;
-
 void
-isup_calls_init_tap(void)
+isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
+	error_string = register_tap_listener("isup", tap_id_base + tap_id_offset_isup_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		isup_calls_packet,
+		voip_calls_dlg_draw
+		);
 
-	if(have_isup_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("isup", voip_calls_get_info() + tap_id_offset_isup_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			isup_calls_packet,
-			voip_calls_dlg_draw
-			);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_isup_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 
 void
-remove_tap_listener_isup_calls(void)
+remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_isup_);
-
-	have_isup_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_isup_);
 }
 
 
@@ -1474,51 +1431,38 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 /****************************************************************************/
 
-static gboolean have_mtp3_tap_listener=FALSE;
-static gboolean have_m3ua_tap_listener=FALSE;
-
 void
-mtp3_calls_init_tap(void)
+mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
 
-	if(have_mtp3_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("mtp3", voip_calls_get_info() + tap_id_offset_mtp3_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			mtp3_calls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("mtp3", tap_id_base + tap_id_offset_mtp3_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		mtp3_calls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_mtp3_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 
-	if(have_m3ua_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("m3ua", voip_calls_get_info() + tap_id_offset_m3ua_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			mtp3_calls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("m3ua", tap_id_base + tap_id_offset_m3ua_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		mtp3_calls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_m3ua_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 
 }
@@ -1526,13 +1470,10 @@ mtp3_calls_init_tap(void)
 /****************************************************************************/
 
 void
-remove_tap_listener_mtp3_calls(void)
+remove_tap_listener_mtp3_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_mtp3_);
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_m3ua_);
-
-	have_mtp3_tap_listener=FALSE;
-	have_m3ua_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_mtp3_);
+	remove_tap_listener(tap_id_base + tap_id_offset_m3ua_);
 }
 
 /****************************************************************************/
@@ -1818,42 +1759,33 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 /****************************************************************************/
-static gboolean have_q931_tap_listener=FALSE;
 
 void
-q931_calls_init_tap(void)
+q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
+	error_string = register_tap_listener("q931", tap_id_base + tap_id_offset_q931_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		q931_calls_packet,
+		voip_calls_dlg_draw
+		);
 
-	if(have_q931_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("q931", voip_calls_get_info() + tap_id_offset_q931_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			q931_calls_packet,
-			voip_calls_dlg_draw
-			);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_q931_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 
 void
-remove_tap_listener_q931_calls(void)
+remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_q931_);
-
-	have_q931_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_q931_);
 }
 
 /****************************************************************************/
@@ -2111,40 +2043,31 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_H225_tap_listener=FALSE;
-/****************************************************************************/
 void
-h225_calls_init_tap(void)
+h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_H225_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h225", voip_calls_get_info() + tap_id_offset_h225_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			H225calls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("h225", tap_id_base + tap_id_offset_h225_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		H225calls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_H225_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_h225_calls(void)
+remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h225_);
-
-	have_H225_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_h225_);
 }
 
 /* Add the h245 label info to the graph */
@@ -2267,40 +2190,31 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_H245dg_tap_listener=FALSE;
-/****************************************************************************/
 void
-h245dg_calls_init_tap(void)
+h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_H245dg_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h245dg", voip_calls_get_info() + tap_id_offset_h245dg_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			H245dgcalls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("h245dg", tap_id_base + tap_id_offset_h245dg_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		H245dgcalls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_H245dg_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_h245dg_calls(void)
+remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h245dg_);
-
-	have_H245dg_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_h245dg_);
 }
 
 /****************************************************************************/
@@ -2332,40 +2246,31 @@ SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_sdp_tap_listener=FALSE;
-/****************************************************************************/
 void
-sdp_calls_init_tap(void)
+sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_sdp_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sdp", voip_calls_get_info() + tap_id_offset_sdp_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			SDPcalls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("sdp", tap_id_base + tap_id_offset_sdp_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		SDPcalls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_sdp_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_sdp_calls(void)
+remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sdp_);
-
-	have_sdp_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_sdp_);
 }
 
 
@@ -2707,47 +2612,37 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_MGCP_tap_listener=FALSE;
-/****************************************************************************/
 void
-mgcp_calls_init_tap(void)
+mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_MGCP_tap_listener==FALSE)
-	{
-		/*
-		 * Don't register the tap listener if we have it already.
-		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-		 * in the MGCP dissector; otherwise, the dissector
-		 * doesn't fill in the info passed to the tap's packet
-		 * routine.
-		 */
-		error_string = register_tap_listener("mgcp",
-			voip_calls_get_info() + tap_id_offset_mgcp_,
-			NULL,
-			TL_REQUIRES_PROTO_TREE,
-			voip_calls_dlg_reset,
-			MGCPcalls_packet,
-			voip_calls_dlg_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_MGCP_tap_listener=TRUE;
+	/*
+	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+	 * in the MGCP dissector; otherwise, the dissector
+	 * doesn't fill in the info passed to the tap's packet
+	 * routine.
+	 */
+	error_string = register_tap_listener("mgcp",
+		tap_id_base + tap_id_offset_mgcp_,
+		NULL,
+		TL_REQUIRES_PROTO_TREE,
+		voip_calls_dlg_reset,
+		MGCPcalls_packet,
+		voip_calls_dlg_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_mgcp_calls(void)
+remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_mgcp_);
-
-	have_MGCP_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_mgcp_);
 }
 
 
@@ -2841,48 +2736,36 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_actrace_tap_listener=FALSE;
-/****************************************************************************/
 void
-actrace_calls_init_tap(void)
+actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_actrace_tap_listener==FALSE)
-	{
-		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("actrace", voip_calls_get_info() + tap_id_offset_actrace_, NULL,
-			0,
-			voip_calls_dlg_reset,
-			ACTRACEcalls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("actrace", tap_id_base + tap_id_offset_actrace_, NULL,
+		0,
+		voip_calls_dlg_reset,
+		ACTRACEcalls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_actrace_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_actrace_calls(void)
+remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_actrace_);
-
-	have_actrace_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_actrace_);
 }
 
 
 /****************************************************************************/
 /**************************** TAP for H248/MEGACO **********************************/
 /****************************************************************************/
-static gboolean have_h248_tap_listener = FALSE;
-static gboolean have_megaco_tap_listener = FALSE;
 
 #define gcp_is_req(type) ( type == GCP_CMD_ADD_REQ || type == GCP_CMD_MOVE_REQ || type == GCP_CMD_MOD_REQ || \
 							type == GCP_CMD_SUB_REQ || type == GCP_CMD_AUDITCAP_REQ || type == GCP_CMD_AUDITVAL_REQ || \
@@ -2988,67 +2871,48 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 	return 1;
 }
 
-void h248_calls_init_tap(void)
+void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
+	error_string = register_tap_listener("megaco", tap_id_base + tap_id_offset_megaco_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		h248_calls_packet,
+		voip_calls_dlg_draw);
 
-	if(have_megaco_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("megaco", voip_calls_get_info() + tap_id_offset_megaco_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			h248_calls_packet,
-			voip_calls_dlg_draw);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		have_megaco_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 
-	if(have_h248_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("h248", voip_calls_get_info() + tap_id_offset_h248_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			h248_calls_packet,
-			voip_calls_dlg_draw);
+	error_string = register_tap_listener("h248", tap_id_base + tap_id_offset_h248_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		h248_calls_packet,
+		voip_calls_dlg_draw);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		have_h248_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 void
-remove_tap_listener_h248_calls(void)
+remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h248_);
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_megaco_);
-
-	have_megaco_tap_listener=FALSE;
-	have_h248_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_h248_);
+	remove_tap_listener(tap_id_base + tap_id_offset_megaco_);
 }
 
 /****************************************************************************/
 /**************************** TAP for SCCP and SUA **********************************/
 /**************************** ( RANAP and BSSAP ) **********************************/
 /****************************************************************************/
-
-static gboolean have_sccp_tap_listener = FALSE;
-static gboolean have_sua_tap_listener = FALSE;
 
 static const voip_protocol sccp_proto_map[] = {
 	TEL_SCCP,
@@ -3173,58 +3037,42 @@ static int sua_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *e
 }
 
 
-void sccp_calls_init_tap(void)
+void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_sccp_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("sccp", voip_calls_get_info() + tap_id_offset_sccp_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			sccp_calls_packet,
-			voip_calls_dlg_draw);
+	error_string = register_tap_listener("sccp", tap_id_base + tap_id_offset_sccp_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		sccp_calls_packet,
+		voip_calls_dlg_draw);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		have_sccp_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 
-	if(have_sua_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("sua", voip_calls_get_info() + tap_id_offset_sua_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			sua_calls_packet,
-			voip_calls_dlg_draw);
+	error_string = register_tap_listener("sua", tap_id_base + tap_id_offset_sua_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		sua_calls_packet,
+		voip_calls_dlg_draw);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		have_sua_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
-
 }
 
 void
-remove_tap_listener_sccp_calls(void)
+remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sccp_);
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sua_);
-
-	have_sccp_tap_listener=FALSE;
-	have_sua_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_sccp_);
+	remove_tap_listener(tap_id_base + tap_id_offset_sua_);
 }
 
 
@@ -3699,41 +3547,31 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_unistim_tap_listener=FALSE;
-/****************************************************************************/
 void
-unistim_calls_init_tap(void) {
+unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 
 	GString *error_string;
 
-	if(have_unistim_tap_listener==FALSE) {
+	error_string = register_tap_listener("unistim", tap_id_base + tap_id_offset_unistim_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		unistim_calls_packet,
+		voip_calls_dlg_draw
+		);
 
-		error_string = register_tap_listener("unistim", voip_calls_get_info() + tap_id_offset_unistim_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			unistim_calls_packet,
-			voip_calls_dlg_draw
-			);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		have_unistim_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_unistim_calls(void)
+remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_unistim_);
-
-	have_unistim_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_unistim_);
 }
 
 /****************************************************************************/
@@ -3857,47 +3695,37 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_skinny_tap_listener=FALSE;
-/****************************************************************************/
 void
-skinny_calls_init_tap(void)
+skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_skinny_tap_listener==FALSE)
-	{
-		/*
-		 * Don't register the tap listener if we have it already.
-		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-		 * in the SKINNY dissector; otherwise, the dissector
-		 * doesn't fill in the info passed to the tap's packet
-		 * routine.
-		 */
-		error_string = register_tap_listener("skinny",
-			voip_calls_get_info() + tap_id_offset_skinny_,
-			NULL,
-			TL_REQUIRES_PROTO_TREE,
-			voip_calls_dlg_reset,
-			skinny_calls_packet,
-			voip_calls_dlg_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_skinny_tap_listener=TRUE;
+	/*
+	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+	 * in the SKINNY dissector; otherwise, the dissector
+	 * doesn't fill in the info passed to the tap's packet
+	 * routine.
+	 */
+	error_string = register_tap_listener("skinny",
+		tap_id_base + tap_id_offset_skinny_,
+		NULL,
+		TL_REQUIRES_PROTO_TREE,
+		voip_calls_dlg_reset,
+		skinny_calls_packet,
+		voip_calls_dlg_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_skinny_calls(void)
+remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_skinny_);
-
-	have_skinny_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_skinny_);
 }
 
 /****************************************************************************/
@@ -3993,50 +3821,40 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-static gboolean have_iax2_tap_listener=FALSE;
-/****************************************************************************/
 void
-iax2_calls_init_tap(void)
+iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_iax2_tap_listener==FALSE)
-	{
-		/*
-		 * Don't register the tap listener if we have it already.
-		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-		 * in the IAX2 dissector; otherwise, the dissector
-		 * doesn't fill in the info passed to the tap's packet
-		 * routine.
-		 * XXX - that appears to be true of the MGCP and SKINNY
-		 * dissectors, but, unless I've missed something, it doesn't
-		 * appear to be true of the IAX2 dissector.
-		 */
-		error_string = register_tap_listener("IAX2",
-			voip_calls_get_info() + tap_id_offset_iax2_,
-			NULL,
-			TL_REQUIRES_PROTO_TREE,
-			voip_calls_dlg_reset,
-			iax2_calls_packet,
-			voip_calls_dlg_draw
-			);
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-				      error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_iax2_tap_listener=TRUE;
+	/*
+	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+	 * in the IAX2 dissector; otherwise, the dissector
+	 * doesn't fill in the info passed to the tap's packet
+	 * routine.
+	 * XXX - that appears to be true of the MGCP and SKINNY
+	 * dissectors, but, unless I've missed something, it doesn't
+	 * appear to be true of the IAX2 dissector.
+	 */
+	error_string = register_tap_listener("IAX2",
+		tap_id_base + tap_id_offset_iax2_,
+		NULL,
+		TL_REQUIRES_PROTO_TREE,
+		voip_calls_dlg_reset,
+		iax2_calls_packet,
+		voip_calls_dlg_draw
+		);
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+			      error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 
 /****************************************************************************/
 void
-remove_tap_listener_iax2_calls(void)
+remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_iax2_);
-
-	have_iax2_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_iax2_);
 }
 
 /****************************************************************************/
@@ -4110,39 +3928,31 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	return 1;
 }
 /****************************************************************************/
-static gboolean have_voip_tap_listener=FALSE;
 
 void
-VoIPcalls_init_tap(void)
+VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_voip_tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("voip", voip_calls_get_info() + tap_id_offset_voip_,
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			VoIPcalls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("voip", tap_id_base + tap_id_offset_voip_,
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		VoIPcalls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_voip_tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 /****************************************************************************/
 void
-remove_tap_listener_voip_calls(void)
+remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_voip_);
-
-	have_voip_tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_voip_);
 }
 
 /****************************************************************************/
@@ -4184,41 +3994,33 @@ prot_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 */
 /****************************************************************************/
 /*
-static gboolean have_prot__tap_listener=FALSE;
 
 void
-prot_calls_init_tap(void)
+prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	if(have_prot__tap_listener==FALSE)
-	{
-		error_string = register_tap_listener("prot_", voip_calls_get_info() + tap_id_offset_prot_),
-			NULL,
-			0,
-			voip_calls_dlg_reset,
-			prot__calls_packet,
-			voip_calls_dlg_draw
-			);
+	error_string = register_tap_listener("prot_", tap_id_base + tap_id_offset_prot_),
+		NULL,
+		0,
+		voip_calls_dlg_reset,
+		prot__calls_packet,
+		voip_calls_dlg_draw
+		);
 
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "%s", error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-		have_prot__tap_listener=TRUE;
+	if (error_string != NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "%s", error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 }
 */
 /****************************************************************************/
 /*
 void
-remove_tap_listener_prot__calls(void)
+remove_tap_listener_prot__calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(voip_calls_get_info() + tap_id_offset_prot_);
-
-	have_prot__tap_listener=FALSE;
+	remove_tap_listener(tap_id_base + tap_id_offset_prot_);
 }
 */
 
