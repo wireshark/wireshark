@@ -2803,7 +2803,7 @@ dissect_s1ap_Cdma2000SectorID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_Cdma2000SectorID);
-  dissect_a21_ie_common(parameter_tvb, actx->pinfo, NULL/* Top tree not needed */, tree, 0,  0 /* message_type not needed */);
+  dissect_a21_ie_common(parameter_tvb, actx->pinfo, NULL/* Top tree not needed */, subtree, 0,  0 /* message_type not needed */);
 
 
 
