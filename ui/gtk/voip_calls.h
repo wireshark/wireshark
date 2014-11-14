@@ -180,29 +180,6 @@ typedef struct _voip_calls_tapinfo {
 	int rejected_calls;
 	seq_analysis_info_t* graph_analysis;
 	gboolean redraw;
-	/*
-	 * Now add dummy variables, one for each tap listener.
-	 * Their address will be used to distinguish between them.
-	 */
-	int sip_dummy;
-	int sdp_dummy;
-	int h225_dummy;
-	int h245dg_dummy;
-	int mtp3_dummy;
-	int m3ua_dummy;
-	int isup_dummy;
-	int q931_dummy;
-	int mgcp_dummy;
-	int actrace_dummy;
-	int t38_dummy;
-	int h248_dummy;
-	int sccp_dummy;
-	int sua_dummy;
-	int megaco_dummy;
-	int unistim_dummy;
-	int skinny_dummy;
-	int iax2_dummy;
-	int voip_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -212,8 +189,6 @@ typedef struct _voip_calls_tapinfo {
 typedef struct _voip_rtp_tapinfo {
 	int     nstreams;       /**< number of rtp streams */
 	GList*  list;			/**< list with the rtp streams */
-	int rtp_dummy;
-	int rtp_event_dummy;
 } voip_rtp_tapinfo_t;
 
 /****************************************************************************/

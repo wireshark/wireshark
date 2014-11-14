@@ -107,6 +107,30 @@ const char *voip_protocol_name[]={
 	"VoIP"
 };
 
+enum {
+       tap_id_offset_actrace_,
+       tap_id_offset_h225_,
+       tap_id_offset_h245dg_,
+       tap_id_offset_h248_,
+       tap_id_offset_iax2_,
+       tap_id_offset_isup_,
+       tap_id_offset_m3ua_,
+       tap_id_offset_megaco_,
+       tap_id_offset_mgcp_,
+       tap_id_offset_mtp3_,
+       tap_id_offset_q931_,
+       tap_id_offset_rtp_,
+       tap_id_offset_rtp_event_,
+       tap_id_offset_sccp_,
+       tap_id_offset_sdp_,
+       tap_id_offset_sip_,
+       tap_id_offset_skinny_,
+       tap_id_offset_sua_,
+       tap_id_offset_t38_,
+       tap_id_offset_unistim_,
+       tap_id_offset_voip_
+};
+
 typedef struct {
 	gchar *frame_label;
 	gchar *comment;
@@ -148,7 +172,7 @@ typedef struct _voip_rtp_stream_info {
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
-	{0, NULL, 0, 0};
+	{0, NULL};
 
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
@@ -450,7 +474,7 @@ rtp_event_init_tap(void)
 
 	if(have_rtp_event_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("rtpevent", &(the_tapinfo_rtp_struct.rtp_event_dummy),
+		error_string = register_tap_listener("rtpevent", &the_tapinfo_rtp_struct + tap_id_offset_rtp_event_,
 			NULL,
 			0,
 			NULL,
@@ -473,7 +497,7 @@ rtp_event_init_tap(void)
 void
 remove_tap_listener_rtp_event(void)
 {
-	remove_tap_listener(&(the_tapinfo_rtp_struct.rtp_event_dummy));
+	remove_tap_listener(&the_tapinfo_rtp_struct + tap_id_offset_rtp_event_);
 
 	have_rtp_event_tap_listener=FALSE;
 }
@@ -754,7 +778,7 @@ rtp_init_tap(void)
 	if(have_RTP_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("rtp", &(the_tapinfo_rtp_struct.rtp_dummy), NULL,
+		error_string = register_tap_listener("rtp", &the_tapinfo_rtp_struct + tap_id_offset_rtp_, NULL,
 			0,
 			voip_rtp_reset,
 			RTP_packet,
@@ -774,7 +798,7 @@ rtp_init_tap(void)
 void
 remove_tap_listener_rtp(void)
 {
-	remove_tap_listener(&(the_tapinfo_rtp_struct.rtp_dummy));
+	remove_tap_listener(&the_tapinfo_rtp_struct + tap_id_offset_rtp_);
 
 	have_RTP_tap_listener=FALSE;
 }
@@ -943,7 +967,7 @@ t38_init_tap(void)
 	if(have_T38_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("t38", &(voip_calls_get_info()->t38_dummy), NULL,
+		error_string = register_tap_listener("t38", voip_calls_get_info() + tap_id_offset_t38_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			T38_packet,
@@ -963,7 +987,7 @@ t38_init_tap(void)
 void
 remove_tap_listener_t38(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->t38_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_t38_);
 
 	have_T38_tap_listener=FALSE;
 }
@@ -1168,7 +1192,7 @@ voip_calls_tapinfo_t* voip_calls_get_info(void)
 {
 	/* the one and only global voip_calls_tapinfo_t structure */
 	static voip_calls_tapinfo_t the_tapinfo_struct =
-			{0, NULL, {0}, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+			{0, NULL, {0}, 0, NULL, 0, 0, 0, 0, NULL, FALSE};
 	if (!the_tapinfo_struct.callsinfos) {
 		/* not initialized yet */
 		the_tapinfo_struct.callsinfos = g_queue_new();
@@ -1189,7 +1213,7 @@ sip_calls_init_tap(void)
 	if(have_SIP_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sip", &(voip_calls_get_info()->sip_dummy), NULL,
+		error_string = register_tap_listener("sip", voip_calls_get_info() + tap_id_offset_sip_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			SIPcalls_packet,
@@ -1209,7 +1233,7 @@ sip_calls_init_tap(void)
 void
 remove_tap_listener_sip_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->sip_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sip_);
 
 	have_SIP_tap_listener=FALSE;
 }
@@ -1397,7 +1421,7 @@ isup_calls_init_tap(void)
 
 	if(have_isup_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("isup", &(voip_calls_get_info()->isup_dummy),
+		error_string = register_tap_listener("isup", voip_calls_get_info() + tap_id_offset_isup_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -1420,7 +1444,7 @@ isup_calls_init_tap(void)
 void
 remove_tap_listener_isup_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->isup_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_isup_);
 
 	have_isup_tap_listener=FALSE;
 }
@@ -1461,7 +1485,7 @@ mtp3_calls_init_tap(void)
 
 	if(have_mtp3_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("mtp3", &(voip_calls_get_info()->mtp3_dummy),
+		error_string = register_tap_listener("mtp3", voip_calls_get_info() + tap_id_offset_mtp3_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -1480,7 +1504,7 @@ mtp3_calls_init_tap(void)
 
 	if(have_m3ua_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("m3ua", &(voip_calls_get_info()->mtp3_dummy),
+		error_string = register_tap_listener("m3ua", voip_calls_get_info() + tap_id_offset_m3ua_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -1504,8 +1528,8 @@ mtp3_calls_init_tap(void)
 void
 remove_tap_listener_mtp3_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->mtp3_dummy));
-	remove_tap_listener(&(voip_calls_get_info()->m3ua_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_mtp3_);
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_m3ua_);
 
 	have_mtp3_tap_listener=FALSE;
 	have_m3ua_tap_listener=FALSE;
@@ -1804,7 +1828,7 @@ q931_calls_init_tap(void)
 
 	if(have_q931_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("q931", &(voip_calls_get_info()->q931_dummy),
+		error_string = register_tap_listener("q931", voip_calls_get_info() + tap_id_offset_q931_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -1827,7 +1851,7 @@ q931_calls_init_tap(void)
 void
 remove_tap_listener_q931_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->q931_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_q931_);
 
 	have_q931_tap_listener=FALSE;
 }
@@ -2097,7 +2121,7 @@ h225_calls_init_tap(void)
 	if(have_H225_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h225", &(voip_calls_get_info()->h225_dummy), NULL,
+		error_string = register_tap_listener("h225", voip_calls_get_info() + tap_id_offset_h225_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			H225calls_packet,
@@ -2118,7 +2142,7 @@ h225_calls_init_tap(void)
 void
 remove_tap_listener_h225_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->h225_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h225_);
 
 	have_H225_tap_listener=FALSE;
 }
@@ -2253,7 +2277,7 @@ h245dg_calls_init_tap(void)
 	if(have_H245dg_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h245dg", &(voip_calls_get_info()->h245dg_dummy), NULL,
+		error_string = register_tap_listener("h245dg", voip_calls_get_info() + tap_id_offset_h245dg_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			H245dgcalls_packet,
@@ -2274,7 +2298,7 @@ h245dg_calls_init_tap(void)
 void
 remove_tap_listener_h245dg_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->h245dg_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h245dg_);
 
 	have_H245dg_tap_listener=FALSE;
 }
@@ -2318,7 +2342,7 @@ sdp_calls_init_tap(void)
 	if(have_sdp_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sdp", &(voip_calls_get_info()->sdp_dummy), NULL,
+		error_string = register_tap_listener("sdp", voip_calls_get_info() + tap_id_offset_sdp_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			SDPcalls_packet,
@@ -2339,7 +2363,7 @@ sdp_calls_init_tap(void)
 void
 remove_tap_listener_sdp_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->sdp_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sdp_);
 
 	have_sdp_tap_listener=FALSE;
 }
@@ -2700,7 +2724,7 @@ mgcp_calls_init_tap(void)
 		 * routine.
 		 */
 		error_string = register_tap_listener("mgcp",
-			&(voip_calls_get_info()->mgcp_dummy),
+			voip_calls_get_info() + tap_id_offset_mgcp_,
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
@@ -2721,7 +2745,7 @@ mgcp_calls_init_tap(void)
 void
 remove_tap_listener_mgcp_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->mgcp_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_mgcp_);
 
 	have_MGCP_tap_listener=FALSE;
 }
@@ -2827,7 +2851,7 @@ actrace_calls_init_tap(void)
 	if(have_actrace_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("actrace", &(voip_calls_get_info()->actrace_dummy), NULL,
+		error_string = register_tap_listener("actrace", voip_calls_get_info() + tap_id_offset_actrace_, NULL,
 			0,
 			voip_calls_dlg_reset,
 			ACTRACEcalls_packet,
@@ -2848,7 +2872,7 @@ actrace_calls_init_tap(void)
 void
 remove_tap_listener_actrace_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->actrace_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_actrace_);
 
 	have_actrace_tap_listener=FALSE;
 }
@@ -2971,7 +2995,7 @@ void h248_calls_init_tap(void)
 
 	if(have_megaco_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("megaco", &(voip_calls_get_info()->megaco_dummy),
+		error_string = register_tap_listener("megaco", voip_calls_get_info() + tap_id_offset_megaco_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -2990,7 +3014,7 @@ void h248_calls_init_tap(void)
 
 	if(have_h248_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("h248", &(voip_calls_get_info()->h248_dummy),
+		error_string = register_tap_listener("h248", voip_calls_get_info() + tap_id_offset_h248_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -3011,8 +3035,8 @@ void h248_calls_init_tap(void)
 void
 remove_tap_listener_h248_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->h248_dummy));
-	remove_tap_listener(&(voip_calls_get_info()->megaco_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_h248_);
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_megaco_);
 
 	have_megaco_tap_listener=FALSE;
 	have_h248_tap_listener=FALSE;
@@ -3155,7 +3179,7 @@ void sccp_calls_init_tap(void)
 
 	if(have_sccp_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("sccp", &(voip_calls_get_info()->sccp_dummy),
+		error_string = register_tap_listener("sccp", voip_calls_get_info() + tap_id_offset_sccp_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -3174,7 +3198,7 @@ void sccp_calls_init_tap(void)
 
 	if(have_sua_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("sua", &(voip_calls_get_info()->sua_dummy),
+		error_string = register_tap_listener("sua", voip_calls_get_info() + tap_id_offset_sua_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -3196,7 +3220,8 @@ void sccp_calls_init_tap(void)
 void
 remove_tap_listener_sccp_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->sccp_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sccp_);
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_sua_);
 
 	have_sccp_tap_listener=FALSE;
 	have_sua_tap_listener=FALSE;
@@ -3683,7 +3708,7 @@ unistim_calls_init_tap(void) {
 
 	if(have_unistim_tap_listener==FALSE) {
 
-		error_string = register_tap_listener("unistim", &(voip_calls_get_info()->unistim_dummy),
+		error_string = register_tap_listener("unistim", voip_calls_get_info() + tap_id_offset_unistim_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -3706,7 +3731,7 @@ unistim_calls_init_tap(void) {
 void
 remove_tap_listener_unistim_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->unistim_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_unistim_);
 
 	have_unistim_tap_listener=FALSE;
 }
@@ -3849,7 +3874,7 @@ skinny_calls_init_tap(void)
 		 * routine.
 		 */
 		error_string = register_tap_listener("skinny",
-			&(voip_calls_get_info()->skinny_dummy),
+			voip_calls_get_info() + tap_id_offset_skinny_,
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
@@ -3870,7 +3895,7 @@ skinny_calls_init_tap(void)
 void
 remove_tap_listener_skinny_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->skinny_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_skinny_);
 
 	have_skinny_tap_listener=FALSE;
 }
@@ -3988,7 +4013,7 @@ iax2_calls_init_tap(void)
 		 * appear to be true of the IAX2 dissector.
 		 */
 		error_string = register_tap_listener("IAX2",
-			&(voip_calls_get_info()->iax2_dummy),
+			voip_calls_get_info() + tap_id_offset_iax2_,
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
@@ -4009,7 +4034,7 @@ iax2_calls_init_tap(void)
 void
 remove_tap_listener_iax2_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->iax2_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_iax2_);
 
 	have_iax2_tap_listener=FALSE;
 }
@@ -4094,7 +4119,7 @@ VoIPcalls_init_tap(void)
 
 	if(have_voip_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("voip", &(voip_calls_get_info()->voip_dummy),
+		error_string = register_tap_listener("voip", voip_calls_get_info() + tap_id_offset_voip_,
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -4115,7 +4140,7 @@ VoIPcalls_init_tap(void)
 void
 remove_tap_listener_voip_calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->voip_dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_voip_);
 
 	have_voip_tap_listener=FALSE;
 }
@@ -4168,7 +4193,7 @@ prot_calls_init_tap(void)
 
 	if(have_prot__tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("prot_", &(voip_calls_get_info()->prot__dummy),
+		error_string = register_tap_listener("prot_", voip_calls_get_info() + tap_id_offset_prot_),
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -4191,7 +4216,7 @@ prot_calls_init_tap(void)
 void
 remove_tap_listener_prot__calls(void)
 {
-	remove_tap_listener(&(voip_calls_get_info()->prot__dummy));
+	remove_tap_listener(voip_calls_get_info() + tap_id_offset_prot_);
 
 	have_prot__tap_listener=FALSE;
 }
