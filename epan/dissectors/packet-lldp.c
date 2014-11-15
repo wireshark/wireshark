@@ -3078,7 +3078,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	proto_tree *hytec_data = NULL;
 	proto_item *tf = NULL;
 	proto_item *tlm, *group_proto_item, *identifier_proto_item;
-	float float_value = 0.0;
+	float float_value = 0.0f;
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_hytec_tlv_subtype, tvb, offset, 1, subtype);
