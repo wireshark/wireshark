@@ -335,6 +335,8 @@ static int hf_rsvp_integrity_sequence_number = -1;
 static int hf_rsvp_adspec_message_format_version = -1;
 static int hf_rsvp_fast_reroute_setup_priority = -1;
 static int hf_rsvp_eth_tspec_reserved = -1;
+static int hf_rsvp_eth_tspec_el2cp = -1;
+static int hf_rsvp_eth_tspec_il2cp = -1;
 static int hf_rsvp_fast_reroute_include_all = -1;
 static int hf_rsvp_association_routing_area_id = -1;
 static int hf_rsvp_label_label = -1;
@@ -506,6 +508,7 @@ static int hf_rsvp_message_id_list_flags = -1;
 static int hf_rsvp_label_data = -1;
 static int hf_rsvp_flowspec_slack_term = -1;
 static int hf_rsvp_label_generalized_label = -1;
+static int hf_rsvp_label_generalized_label_evpl_vlad_id = -1;
 static int hf_rsvp_session_attribute_name = -1;
 static int hf_rsvp_ifid_tlv_padding = -1;
 static int hf_rsvp_max_dlci = -1;
@@ -520,6 +523,7 @@ static int hf_rsvp_ero_rro_autonomous_system = -1;
 static int hf_rsvp_gen_uni_service_level = -1;
 static int hf_rsvp_hf_rsvp_adspec_break_bit = -1;
 static int hf_rsvp_extended_tunnel_id = -1;
+static int hf_rsvp_extended_tunnel_ipv6 = -1;
 static int hf_rsvp_maximum_packet_size = -1;
 static int hf_rsvp_min_dlci = -1;
 static int hf_rsvp_gen_uni_data = -1;
@@ -528,6 +532,7 @@ static int hf_rsvp_refresh_interval = -1;
 static int hf_rsvp_detour_plr_id = -1;
 static int hf_rsvp_restart_cap_recovery_time = -1;
 static int hf_rsvp_extended_tunnel = -1;
+static int hf_rsvp_call_attributes_endpont_id = -1;
 
 static expert_field ei_rsvp_invalid_length = EI_INIT;
 static expert_field ei_rsvp_packet_filter_component = EI_INIT;
@@ -564,6 +569,12 @@ typedef struct rsvp_session_ipv4_lsp_info {
     guint16 udp_dest_port;
     guint32 ext_tunnel_id;
 } rsvp_session_ipv4_lsp_info;
+
+typedef struct rsvp_session_ipv6_lsp_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint64 ext_tunnel_id;
+} rsvp_session_ipv6_lsp_info;
 
 typedef struct rsvp_session_agg_ipv4_info {
     address destination;
@@ -603,6 +614,7 @@ struct rsvp_request_key {
         rsvp_session_ipv4_info session_ipv4;
         rsvp_session_ipv6_info session_ipv6;
         rsvp_session_ipv4_lsp_info session_ipv4_lsp;
+        rsvp_session_ipv6_lsp_info session_ipv6_lsp;
         rsvp_session_agg_ipv4_info session_agg_ipv4;
         rsvp_session_ipv4_uni_info session_ipv4_uni;
         rsvp_session_ipv4_enni_info session_ipv4_enni;
@@ -686,6 +698,7 @@ enum {
     TT_3GPP2_OBJECT,
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
+    TT_LINK_CAP,
     TT_PROTECTION_INFO,
     TT_PROTECTION_INFO_LINK,
     TT_PROTECTION_INFO_LSP,
@@ -849,6 +862,7 @@ enum rsvp_classes {
     RSVP_CLASS_SUGGESTED_LABEL,
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
+    RSVP_CLASS_LINK_CAP          = 133,
 
     /* 132-160 Unassigned */
 
@@ -867,6 +881,7 @@ enum rsvp_classes {
     RSVP_CLASS_LSP_ATTRIBUTES,
     RSVP_CLASS_ALARM_SPEC,
     RSVP_CLASS_ASSOCIATION,
+    RSVP_CLASS_CALL_ATTRIBUTES   = 202,
 
     /* 203-204  Unassigned */
     /*
@@ -976,6 +991,7 @@ static const value_string rsvp_class_vals[] = {
     { RSVP_CLASS_SUGGESTED_LABEL,       "SUGGESTED-LABEL object"},
     { RSVP_CLASS_ACCEPTABLE_LABEL_SET,  "ACCEPTABLE-LABEL-SET object"},
     { RSVP_CLASS_RESTART_CAP,           "RESTART-CAPABILITY object"},
+    { RSVP_CLASS_LINK_CAP,              "LINK-CAPABILITY object"},
 
     { RSVP_CLASS_VENDOR_PRIVATE_5,      "VENDOR PRIVATE object (10bbbbbb: "
                                          "ignore if unknown)"},
@@ -997,6 +1013,8 @@ static const value_string rsvp_class_vals[] = {
     RSVP_CLASS_ALARM_SPEC,
 */
     { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
+
+    { RSVP_CLASS_CALL_ATTRIBUTES,       "CALL ATTRIBUTES object"},
 
     { RSVP_CLASS_JUNIPER_PROPERTIES,    "Juniper properties object"},
     { RSVP_CLASS_FAST_REROUTE,          "FAST-REROUTE object"},
@@ -1347,6 +1365,26 @@ static const value_string intsrv_services_str[] = {
 };
 static value_string_ext intsrv_services_str_ext = VALUE_STRING_EXT_INIT(intsrv_services_str);
 
+/*Ingress Layer 2 Control Processing values*/
+static const value_string il2cp_val_str[] = {
+    { 0, "Ingress Layer 2 Control Processing: 0 - Reserved" },
+    { 1, "Ingress Layer 2 Control Processing: 1 - Discard/Block" },
+    { 2, "Ingress Layer 2 Control Processing: 2 - Peer/Process" },
+    { 3, "Ingress Layer 2 Control Processing: 3 - Pass to EVC/Pass" },
+    { 4, "Ingress Layer 2 Control Processing: 4 - Peer and Pass to EVC" },
+    { 0, NULL }
+};
+
+/*Egress Layer 2 Control Processing values*/
+static const value_string el2cp_val_str[] = {
+    { 0, "Egress Layer 2 Control Processing: 0 - Reserved" },
+    { 1, "Egress Layer 2 Control Processing: 1 - Based on IL2CP Value" },
+    { 2, "Egress Layer 2 Control Processing: 2 - Generate" },
+    { 3, "Egress Layer 2 Control Processing: 3 - None" },
+    { 4, "Egress Layer 2 Control Processing: 4 - Reserved" },
+    { 0, NULL }
+};
+
 #if 0
 enum intsrv_field_name {
     INTSRV_NON_IS_HOPS           = 1,
@@ -1687,6 +1725,8 @@ enum hf_rsvp_filter_keys {
     RSVPF_ACCEPTABLE_LABEL_SET,
     RSVPF_RESTART_CAP,
 
+    RSVPF_LINK_CAP,
+
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_DCLASS,
     RSVPF_LSP_TUNNEL_IF_ID,
@@ -1702,6 +1742,7 @@ enum hf_rsvp_filter_keys {
     RSVPF_ADMIN_STATUS_DELETE,
     RSVPF_LSP_ATTRIBUTES,
     RSVPF_ASSOCIATION,
+    RSVPF_CALL_ATTRIBUTES,
     RSVPF_GENERALIZED_UNI,
     RSVPF_CALL_ID,
     RSVPF_3GPP2_OBJECT,
@@ -1709,15 +1750,18 @@ enum hf_rsvp_filter_keys {
 
     /* Session object */
     RSVPF_SESSION_IP,
+    RSVPF_SESSION_SHORT_CALL_ID,
     RSVPF_SESSION_PROTO,
     RSVPF_SESSION_PORT,
     RSVPF_SESSION_TUNNEL_ID,
     RSVPF_SESSION_EXT_TUNNEL_ID,
+    RSVPF_SESSION_EXT_TUNNEL_ID_IPV6,
 
     /* Sender template */
     RSVPF_SENDER_IP,
     RSVPF_SENDER_PORT,
     RSVPF_SENDER_LSP_ID,
+    RSVPF_SENDER_SHORT_CALL_ID,
 
     /* Diffserv object */
     RSVPF_DIFFSERV_MAPNB,
@@ -2001,6 +2045,9 @@ rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_RESTART_CAP :
         return RSVPF_SUGGESTED_LABEL + (classnum - RSVP_CLASS_SUGGESTED_LABEL);
 
+    case RSVP_CLASS_LINK_CAP :
+        return RSVPF_LINK_CAP;
+
     case RSVP_CLASS_DIFFSERV :
         return RSVPF_DIFFSERV;
 
@@ -2015,6 +2062,8 @@ rsvp_class_to_filter_num(int classnum)
         return RSVPF_LSP_ATTRIBUTES;
     case RSVP_CLASS_ASSOCIATION :
         return RSVPF_ASSOCIATION;
+    case RSVP_CLASS_CALL_ATTRIBUTES:
+        return RSVPF_CALL_ATTRIBUTES;
 
     case RSVP_CLASS_SESSION_ATTRIBUTE :
         return RSVPF_SESSION_ATTRIBUTE;
@@ -2111,6 +2160,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_UNKNOWN_CLASS;
     case RSVP_CLASS_RESTART_CAP :
         return TT_RESTART_CAP;
+    case RSVP_CLASS_LINK_CAP :
+        return TT_LINK_CAP;
     case RSVP_CLASS_DIFFSERV :
         return TT_DIFFSERV;
     case RSVP_CLASS_CLASSTYPE:
@@ -2124,6 +2175,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_LSP_ATTRIBUTES;
     case RSVP_CLASS_ASSOCIATION :
         return TT_ASSOCIATION;
+    case RSVP_CLASS_CALL_ATTRIBUTES:
+        return RSVPF_CALL_ATTRIBUTES;
     case RSVP_CLASS_JUNIPER_PROPERTIES :
         return TT_JUNIPER;
     case RSVP_CLASS_SESSION_ATTRIBUTE :
@@ -2204,11 +2257,22 @@ summary_session(tvbuff_t *tvb, int offset)
         break;
     case RSVP_SESSION_TYPE_IPV4_LSP:
         return wmem_strdup_printf(wmem_packet_scope(),
-                                  "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
+                                  "SESSION: IPv4-LSP, Destination %s, Short Call ID %d, Tunnel ID %d, Ext ID %0x. ",
                                   tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+8),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_get_ntohl(tvb, offset+12));
         break;
+    case RSVP_SESSION_TYPE_IPV6_LSP:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv6-LSP, Destination %s, Short Call ID %d, Tunnel ID %d, Ext ID %0x%0x%0x%0x. ",
+                                  tvb_ip6_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+20),
+                                  tvb_get_ntohs(tvb, offset+22),
+                                  tvb_get_ntohl(tvb, offset+24),
+                                  tvb_get_ntohl(tvb, offset+28),
+                                  tvb_get_ntohl(tvb, offset+32),
+                                  tvb_get_ntohl(tvb, offset+36));
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
         return wmem_strdup_printf(wmem_packet_scope(),
                                   "SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
@@ -2270,9 +2334,17 @@ summary_template(tvbuff_t *tvb, int offset)
         break;
     case 7:
         return wmem_strdup_printf(wmem_packet_scope(),
-                                  "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
+                                  "%s: IPv4-LSP, Tunnel Source: %s, Short Call ID: %d, LSP ID: %d. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+8),
                                   tvb_get_ntohs(tvb, offset+10));
+        break;
+    case 8:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: IPv6-LSP, Tunnel Source: %s, Short Call ID: %d, LSP ID: %d. ", objtype,
+                                  tvb_ip6_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+20),
+                                  tvb_get_ntohs(tvb, offset+22));
         break;
     case 9:
         return wmem_strdup_printf(wmem_packet_scope(),
@@ -2352,6 +2424,11 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
 
+        /*short call id*/
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_SHORT_CALL_ID],
+                            tvb, offset2+4, 2, ENC_BIG_ENDIAN);
+
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
                             tvb, offset2+6, 2, ENC_BIG_ENDIAN);
@@ -2374,6 +2451,43 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
         break;
+
+    case RSVP_SESSION_TYPE_IPV6_LSP:
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                            type, "8 - IPv6 LSP");
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_IP],
+                            tvb, offset2, 16, ENC_BIG_ENDIAN);
+
+        /*short call id*/
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_SHORT_CALL_ID],
+                            tvb, offset2+16, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+                            tvb, offset2+18, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_extended_tunnel_ipv6, tvb, offset2+20, 16, ENC_NA);
+        proto_item_set_text(ti, "Extended Tunnel ID: (%s)", tvb_ip6_to_str(tvb, offset2+20));
+
+
+        hidden_item = proto_tree_add_item(rsvp_object_tree,
+                                   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID_IPV6],
+                                   tvb, offset2+20, 16, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+        /*
+         * Save this information to build the conversation request key
+         * later.
+         */
+        rsvph->session_type = RSVP_SESSION_TYPE_IPV6_LSP;
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv6, tvb, offset2, 16);
+        rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+18);
+        rsvph->ext_tunnel_id_ipv6_pre = tvb_get_ntoh64(tvb, offset2+20);
+        rsvph->ext_tunnel_id_ipv6_post = tvb_get_ntoh64(tvb, offset2+28);
+        break;
+
 
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
@@ -2778,6 +2892,20 @@ dissect_rsvp_hop(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_tre
 
         break;
 
+    case 4:
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                            type, "4 - IPv6 IF-ID");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_neighbor_address_ipv6, tvb, offset2, 16, ENC_NA);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_logical_interface, tvb, offset2+16, 4, ENC_BIG_ENDIAN);
+
+        proto_item_set_text(ti, "HOP: IPv6 IF-ID. Control IPv6: %s. ",
+                            tvb_ip6_to_str(tvb, offset2));
+
+        dissect_rsvp_ifid_tlv(ti, pinfo, rsvp_object_tree, tvb, offset+24, obj_length-24,
+                              TREE(TT_HOP_SUBOBJ));
+
+        break;
+
     default:
         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                             type, "Unknown (%u)", type);
@@ -2908,7 +3036,7 @@ dissect_rsvp_error(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
                    int rsvp_class _U_, int type)
 {
     int         offset2 = offset + 4;
-    int         offset3;
+    int         offset3 = 0;
     guint8      error_flags;
     guint8      error_code;
     guint16     error_val;
@@ -2944,6 +3072,17 @@ dissect_rsvp_error(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_error_node_ipv4, tvb, offset2, 4, ENC_BIG_ENDIAN);
 
         offset3 = offset2+4;
+        }
+        break;
+    }
+
+    case 4: {
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                            type, "4 - IPv6 IF-ID");
+        if(obj_length>16) {
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_error_node_ipv6, tvb, offset2, 16, ENC_NA);
+
+        offset3 = offset2+16;
         }
         break;
     }
@@ -3152,6 +3291,13 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
          proto_tree_add_item(rsvp_object_tree,
                              hf_rsvp_filter[RSVPF_SENDER_IP],
                              tvb, offset2, 4, ENC_BIG_ENDIAN);
+         /*short call ID*/
+         if (rsvp_class == RSVP_CLASS_SENDER_TEMPLATE){
+             proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_SHORT_CALL_ID],
+                             tvb, offset2+4, 2, ENC_BIG_ENDIAN);
+         }
+
          proto_tree_add_item(rsvp_object_tree,
                              hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
                              tvb, offset2+6, 2, ENC_BIG_ENDIAN);
@@ -3161,6 +3307,29 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
           */
          TVB_SET_ADDRESS(&rsvph->source, AT_IPv4, tvb, offset2, 4);
          rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
+         break;
+
+     case 8:
+         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                             type, "8 - IPv6 LSP");
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_IP],
+                             tvb, offset2, 16, ENC_BIG_ENDIAN);
+         /*short call ID*/
+         if (rsvp_class == RSVP_CLASS_SENDER_TEMPLATE){
+            proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_SHORT_CALL_ID],
+                             tvb, offset2+16, 2, ENC_BIG_ENDIAN);
+         }
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
+                             tvb, offset2+18, 2, ENC_BIG_ENDIAN);
+
+         /*
+          * Save this information to build the conversation request key later.
+          */
+         TVB_SET_ADDRESS(&rsvph->source, AT_IPv6, tvb, offset2, 16);
+         rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+18);
          break;
 
     case 9:
@@ -3193,6 +3362,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
                            int subtree_type)
 {
     int         tlv_off;
+    int         bit_offset;
     guint16     tlv_type;
     int         tlv_len;
     guint8      profile;
@@ -3209,6 +3379,58 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
         switch(tlv_type) {
         case 0:
         case 1:
+
+        /*case 2: ethernet bandwidth profile accordig to RFC 6003*/
+        case 2:
+            rsvp_ethspec_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
+                                      offset+tlv_off, tlv_len, subtree_type, NULL,
+                                      "Ethernet Bandwidth Profile TLV: CIR=%.10g, CBS=%.10g, "
+                                      "EIR=%.10g, EBS=%.10g",
+                                      tvb_get_ntohieee_float(tvb, offset+tlv_off+8),
+                                      tvb_get_ntohieee_float(tvb, offset+tlv_off+12),
+                                      tvb_get_ntohieee_float(tvb, offset+tlv_off+16),
+                                      tvb_get_ntohieee_float(tvb, offset+tlv_off+20));
+            proto_tree_add_uint_format_value(rsvp_ethspec_subtree, hf_rsvp_type, tvb, offset+tlv_off, 2,
+                                tlv_type, "%u - Ethernet Bandwidth Profile", tlv_type);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_length, tvb, offset+tlv_off+2, 2, ENC_BIG_ENDIAN);
+            profile = tvb_get_guint8(tvb, offset+tlv_off+4);
+            ti3 = proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_profile, tvb, offset+tlv_off+4, 1, ENC_NA);
+            ethspec_profile_subtree = proto_item_add_subtree(ti3, TREE(TT_ETHSPEC_SUBTREE));
+            proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_color_mode,
+                             tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_coupling_flag,
+                             tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti3, " %s %s",
+                                   (profile & (1<<1))  ? "CM" : "",
+                                   (profile & (1<<0))  ? "CF" : "");
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_index, tvb, offset+tlv_off+5, 1, ENC_NA);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_reserved, tvb, offset+tlv_off+6, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_cir, tvb, offset+tlv_off+8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_cbs, tvb, offset+tlv_off+12, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_eir, tvb, offset+tlv_off+16, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_ebs, tvb, offset+tlv_off+20, 4, ENC_BIG_ENDIAN);
+
+            proto_item_append_text(ti, "ETH profile: CIR=%.10g, CBS=%.10g, EIR=%.10g, "
+                                       "EBS=%.10g",
+                                   tvb_get_ntohieee_float(tvb, offset+tlv_off+8),
+                                   tvb_get_ntohieee_float(tvb, offset+tlv_off+12),
+                                   tvb_get_ntohieee_float(tvb, offset+tlv_off+16),
+                                   tvb_get_ntohieee_float(tvb, offset+tlv_off+20));
+
+        /* L2CP RFC 6004 */
+        case 3:
+            if (tlv_len != 8){
+                proto_tree_add_expert_format(rsvp_object_tree, pinfo, &ei_rsvp_invalid_length,
+                                             tvb, offset+tlv_off+2, 2, "Invalid TLV length");
+            return;
+            }
+            /* point to the first bit in the Ingress Layer 2 Control Processing */
+            bit_offset = (offset<<5) + 31;
+            proto_tree_add_bits_item(rsvp_object_tree, hf_rsvp_eth_tspec_il2cp, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            bit_offset += 4;
+            proto_tree_add_bits_item(rsvp_object_tree, hf_rsvp_eth_tspec_el2cp, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            break;
+
         case 255:
             rsvp_ethspec_subtree = proto_tree_add_subtree(rsvp_object_tree, tvb,
                                       offset+tlv_off, tlv_len,
@@ -3218,7 +3440,6 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_length, tvb, offset+tlv_off+2, 2, ENC_BIG_ENDIAN);
             break;
 
-        case 2:
         case 129:     /* OIF demo 2009 */
             rsvp_ethspec_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+tlv_off, tlv_len, subtree_type, NULL,
@@ -4205,6 +4426,29 @@ dissect_glabel_g709(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                         t3, t2, t1);
 }
 
+/*
+  FF: EVPL Generalized Label, see RFC6004
+         0                   1
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Rsvd  |        VLAN ID        |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
+static void
+dissect_glabel_evpl(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+                    tvbuff_t *tvb,
+                    int offset)
+{
+    int bit_offset;
+    guint16 vlan_id = ((tvb_get_ntohs(tvb,offset) << 4) & 0xFFFF);
+
+    /* point to the first bit in VLAN ID */
+    bit_offset = (offset<<2)+3;
+    proto_tree_add_bits_item(rsvp_object_tree,hf_rsvp_label_generalized_label_evpl_vlad_id,tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti, ": EVPL Generalized Label: "
+                        "VLAN ID = %u" ,vlan_id);
+}
+
 static void
 dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
                    tvbuff_t *tvb,
@@ -4251,6 +4495,8 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
             dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
         } else if (rsvp_generalized_label_option == 3) {
             dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
+        } else if (rsvp_generalized_label_option == 5) {
+            dissect_glabel_evpl(ti, rsvp_object_tree, tvb, offset2);
         }
         break;
 
@@ -6359,6 +6605,32 @@ dissect_rsvp_restart_cap(proto_tree *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
+ * LINK CAPABILITY
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_link_cap(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
+                          tvbuff_t *tvb,
+                          int offset, int obj_length,
+                          int rsvp_class, int type)
+{
+    proto_item_set_text(ti, "LINK CAPABILITY: ");
+    switch(type) {
+    case 1:
+        proto_tree_add_uint(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, type);
+
+        dissect_rsvp_ero_rro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
+                                        offset + 4, obj_length, rsvp_class);
+        break;
+
+    default:
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                            type, "Unknown (%u)", type);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_record_route_data, tvb, offset+4, obj_length - 4, ENC_NA);
+        break;
+    }
+
+}
+/*------------------------------------------------------------------------------
  * PROTECTION INFORMATION
  *------------------------------------------------------------------------------*/
 static void
@@ -6739,6 +7011,34 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
 }
 
 /*----------------------------------------------------------------------------
+ * CALL ATTRIBUTES
+ *---------------------------------------------------------------------------*/
+static void
+dissect_rsvp_call_attributes(proto_tree *ti _U_, packet_info* pinfo, proto_tree *rsvp_object_tree,
+                                tvbuff_t *tvb, int offset, int obj_length _U_, int rsvp_class _U_, int type _U_)
+{
+
+    int offset2 = offset + 4;
+    guint16 tlv_type;
+    guint16  tlv_len;
+
+    tlv_type = tvb_get_ntohs(tvb, offset2);
+    tlv_len = tvb_get_ntohs(tvb, offset2+2);
+
+    if (tlv_len < 4){
+        proto_tree_add_expert_format(rsvp_object_tree, pinfo, &ei_rsvp_invalid_length,
+                                     tvb, offset2+2, 2, "Invalid TLV length");
+        return;
+    }
+
+    switch(tlv_type){
+        case 2:
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_attributes_endpont_id, tvb, offset2 + 4, tlv_len - 4, ENC_NA|ENC_ASCII);
+        break;
+    }
+}
+
+/*----------------------------------------------------------------------------
  * JUNIPER PROPRIETARY
  *---------------------------------------------------------------------------*/
 static void
@@ -7111,6 +7411,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_rsvp_restart_cap(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
+        case RSVP_CLASS_LINK_CAP:
+            dissect_rsvp_link_cap(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
         case RSVP_CLASS_PROTECTION:
             dissect_rsvp_protection_info(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
@@ -7144,6 +7448,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case RSVP_CLASS_VENDOR_PRIVATE_11:
         case RSVP_CLASS_VENDOR_PRIVATE_12:
             dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
+        case RSVP_CLASS_CALL_ATTRIBUTES:
+            dissect_rsvp_call_attributes(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_JUNIPER_PROPERTIES:
@@ -7644,6 +7952,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_filter[RSVPF_LINK_CAP],
+         { "LINK CAPABILITY", "rsvp.link",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_filter[RSVPF_LABEL_REQUEST],
          { "LABEL REQUEST", "rsvp.label_request",
            FT_NONE, BASE_NONE, NULL, 0x0,
@@ -7764,6 +8078,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_filter[RSVPF_ASSOCIATION],
+         { "CALL ATTRIBUTES", "rsvp.call_attributes",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_filter[RSVPF_NOTIFY_REQUEST],
          { "NOTIFY REQUEST", "rsvp.notify_request",
            FT_NONE, BASE_NONE, NULL, 0x0,
@@ -7806,6 +8126,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_filter[RSVPF_SESSION_SHORT_CALL_ID],
+         { "Short Call ID", "rsvp.session.short_call_id",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_filter[RSVPF_SESSION_PORT],
          { "Port number", "rsvp.session.port",
            FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -7830,6 +8156,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID_IPV6],
+         { "Extended tunnel ID", "rsvp.session.ext_tunnel_id_ipv6",
+           FT_IPv6, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_filter[RSVPF_JUNIPER],
          { "Juniper", "rsvp.juniper",
            FT_NONE, BASE_NONE, NULL, 0x0,
@@ -7851,6 +8183,12 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
          { "Sender LSP ID", "rsvp.sender.lsp_id",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_filter[RSVPF_SENDER_SHORT_CALL_ID],
+         { "Short Call ID", "rsvp.sender.short_call_id",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
@@ -9029,6 +9367,8 @@ proto_register_rsvp(void)
       { &hf_rsvp_eth_tspec_profile, { "Profile", "rsvp.eth_tspec.profile", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_index, { "Index", "rsvp.eth_tspec.index", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_reserved, { "Reserved", "rsvp.eth_tspec.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_eth_tspec_el2cp, { "EL2CP", "rsvp.eth_tspec.el2cp", FT_UINT8, BASE_DEC, VALS(el2cp_val_str), 0x0, NULL, HFILL }},
+      { &hf_rsvp_eth_tspec_il2cp, { "IL2CP", "rsvp.eth_tspec.il2cp", FT_UINT8, BASE_DEC, VALS(il2cp_val_str), 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_cir, { "CIR", "rsvp.eth_tspec.cir", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_cbs, { "CBS", "rsvp.eth_tspec.cbs", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_eir, { "EIR", "rsvp.eth_tspec.eir", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -9086,6 +9426,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_label_request_data, { "Data", "rsvp.label_request.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_label_label, { "Label", "rsvp.label.label", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_label_generalized_label, { "Generalized Label", "rsvp.label.generalized_label", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_label_generalized_label_evpl_vlad_id, { "VLAN ID", "rsvp.label.generalized_label_evpl_vlad_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_label_data, { "Data", "rsvp.label.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_label_set_action, { "Action", "rsvp.label_set.action", FT_UINT8, BASE_DEC, VALS(action_type_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_session_attribute_exclude_any, { "Exclude-Any", "rsvp.session_attribute.exclude_any", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -9187,6 +9528,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_message_length, { "Message length", "rsvp.message_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_length, { "Length", "rsvp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_extended_tunnel_id, { "Extended Tunnel ID", "rsvp.extended_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_extended_tunnel_ipv6, { "Extended Tunnel ID", "rsvp.extended_tunnel_id_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_extended_tunnel, { "Extended Tunnel", "rsvp.extended_tunnel", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_refresh_interval, { "Refresh interval", "rsvp.refresh_interval", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_minimum_policed_unit, { "Minimum policed unit [m]", "rsvp.minimum_policed_unit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -9206,6 +9548,8 @@ proto_register_rsvp(void)
       { &hf_rsvp_detour_plr_id, { "PLR ID", "rsvp.detour.plr_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_detour_avoid_node_id, { "Avoid Node ID", "rsvp.detour.avoid_node_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_checksum, { "Message Checksum", "rsvp.message_checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_call_attributes_endpont_id, { "Endpoint ID", "rsvp.call_attributes.endpoint_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     };
 
     static ei_register_info ei[] = {
