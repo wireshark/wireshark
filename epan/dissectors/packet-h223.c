@@ -458,7 +458,7 @@ find_or_create_call_info_circ(packet_info * pinfo, circuit_type ctype, guint32 c
     h223_call_info *datax;
     circuit_t *circ = NULL;
 
-    if(pinfo->ctype != CT_NONE)
+    if(ctype != CT_NONE)
         circ = find_circuit( ctype, circuit_id, pinfo->fd->num );
     if(circ == NULL)
         return NULL;

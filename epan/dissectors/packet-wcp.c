@@ -219,8 +219,8 @@ static const value_string ext_cmd_string[] = {
 
 
 
-static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree);
-static wcp_window_t *get_wcp_window_ptr( packet_info *pinfo);
+static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree, circuit_type ctype, guint32 circuit_id);
+static wcp_window_t *get_wcp_window_ptr(packet_info *pinfo, circuit_type ctype, guint32 circuit_id);
 
 static void
 dissect_wcp_con_req(tvbuff_t *tvb, int offset, proto_tree *tree) {
@@ -276,14 +276,14 @@ dissect_wcp_reset( tvbuff_t *tvb, int offset, proto_tree *tree){
 }
 
 
-static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
+static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo, circuit_type ctype, guint32 circuit_id){
 
 	wcp_window_t *buf_ptr = 0;
 	size_t len;
 
 	/* discard first 2 bytes, header and last byte (check byte) */
 	len = tvb_reported_length( tvb)-3;
-	buf_ptr = get_wcp_window_ptr( pinfo);
+	buf_ptr = get_wcp_window_ptr(pinfo, ctype, circuit_id);
 
 	if (( buf_ptr->buf_cur + len) <= (buf_ptr->buffer + MAX_WIN_BUF_LEN)){
 		tvb_memcpy( tvb, buf_ptr->buf_cur, 2, len);
@@ -373,13 +373,13 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	if ( cmd == 1) {		/* uncompressed data */
 		if ( !pinfo->fd->flags.visited){	/* if first pass */
-			wcp_save_data( tvb, pinfo);
+			wcp_save_data( tvb, pinfo, pinfo->ctype, pinfo->circuit_id);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, wcp_header_len);
 	}
 	else {		/* cmd == 0 || (cmd == 0xf && ext_cmd == 0) */
 
-		next_tvb = wcp_uncompress( tvb, wcp_header_len, pinfo, wcp_tree);
+		next_tvb = wcp_uncompress( tvb, wcp_header_len, pinfo, wcp_tree, pinfo->ctype, pinfo->circuit_id);
 
 		if ( !next_tvb){
 			return;
@@ -440,7 +440,7 @@ static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * 
 
 
 static
-wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
+wcp_window_t *get_wcp_window_ptr(packet_info *pinfo, circuit_type ctype, guint32 circuit_id){
 
 /* find the circuit for this DLCI, create one if needed */
 /* and return the wcp_window data structure pointer */
@@ -449,11 +449,11 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 	circuit_t *circuit;
 	wcp_circuit_data_t *wcp_circuit_data;
 
-	circuit = find_circuit( pinfo->ctype, pinfo->circuit_id,
-	    pinfo->fd->num);
+	circuit = find_circuit( ctype, circuit_id,
+		pinfo->fd->num);
 	if ( !circuit){
-		circuit = circuit_new( pinfo->ctype, pinfo->circuit_id,
-		    pinfo->fd->num);
+		circuit = circuit_new( ctype, circuit_id,
+			pinfo->fd->num);
 	}
 	wcp_circuit_data = (wcp_circuit_data_t *)circuit_get_proto_data(circuit, proto_wcp);
 	if ( !wcp_circuit_data){
@@ -469,7 +469,7 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 }
 
 
-static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pinfo, proto_tree *tree, circuit_type ctype, guint32 circuit_id) {
 
 /* do the packet data uncompression and load it into the dst buffer */
 
@@ -485,7 +485,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	wcp_window_t *buf_ptr = 0;
 	wcp_pdata_t *pdata_ptr;
 
-	buf_ptr = get_wcp_window_ptr( pinfo);
+	buf_ptr = get_wcp_window_ptr(pinfo, ctype, circuit_id);
 
 	buf_start = buf_ptr->buffer;
 	buf_end = buf_start + MAX_WIN_BUF_LEN;

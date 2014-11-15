@@ -111,6 +111,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
 	}
 
+    /* XXX - Are these still needed? We've used other values where necessary */
 	pinfo->ctype = CT_ISDN;
 	pinfo->circuit_id = pinfo->pseudo_header->isdn.channel;
 
@@ -125,10 +126,9 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Set up a circuit for this channel, and assign it a dissector.
 	 */
-	circuit = find_circuit(pinfo->ctype, pinfo->circuit_id, pinfo->fd->num);
+	circuit = find_circuit(CT_ISDN, pinfo->pseudo_header->isdn.channel, pinfo->fd->num);
 	if (circuit == NULL)
-		circuit = circuit_new(pinfo->ctype, pinfo->circuit_id,
-		    pinfo->fd->num);
+		circuit = circuit_new(CT_ISDN, pinfo->pseudo_header->isdn.channel, pinfo->fd->num);
 
 	if (circuit_get_dissector(circuit) == NULL) {
 		/*
@@ -199,7 +199,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (!try_circuit_dissector(pinfo->ctype, pinfo->circuit_id,
+	if (!try_circuit_dissector(CT_ISDN, pinfo->pseudo_header->isdn.channel,
 		pinfo->fd->num, tvb, pinfo, tree, NULL))
 		call_dissector(data_handle, tvb, pinfo, tree);
 }
