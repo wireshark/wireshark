@@ -112,7 +112,7 @@ enum
 static gboolean have_voip_calls_tap_listeners = FALSE;
 
 static void
-voip_calls_remove_tap_listener(void* tap_id_base)
+voip_calls_remove_tap_listener(voip_calls_tapinfo_t* tap_id_base)
 {
 	/* Remove the calls tap listener */
 	remove_tap_listener_actrace_calls(tap_id_base);
@@ -137,7 +137,7 @@ voip_calls_remove_tap_listener(void* tap_id_base)
 	if (find_tap_id("voip")) {
 		remove_tap_listener_voip_calls(tap_id_base);
 	}
-	
+
 	have_voip_calls_tap_listeners = FALSE;
 }
 
@@ -854,7 +854,7 @@ static void
 voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 {
 	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
-	
+
 	if (graph_analysis_data == NULL) {
 		graph_analysis_data_init();
 		/* init the Graph Analysys */
@@ -892,7 +892,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 
 		have_voip_calls_tap_listeners = TRUE;
 	}
-	
+
 	/* create dialog box if necessary */
 	if (voip_calls_dlg == NULL) {
 		voip_calls_dlg_create();
