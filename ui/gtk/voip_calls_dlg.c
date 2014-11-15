@@ -854,6 +854,7 @@ static void
 voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 {
 	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
+	tap_id_base->session = cfile.epan;
 
 	if (graph_analysis_data == NULL) {
 		graph_analysis_data_init();
@@ -862,7 +863,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	}
 
 	/* Clean up memory used by calls tap */
-	voip_calls_reset(voip_calls_get_info());
+	voip_calls_reset(tap_id_base);
 
 	/* Register the tap listeners */
 	if (!have_voip_calls_tap_listeners) {
@@ -946,4 +947,3 @@ register_tap_listener_voip_calls_dlg(void)
 {
 	register_stat_tap_ui(&voip_calls_ui, NULL);
 }
-

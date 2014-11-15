@@ -179,6 +179,7 @@ typedef struct _voip_calls_tapinfo {
 	int completed_calls;
 	int rejected_calls;
 	seq_analysis_info_t* graph_analysis;
+	epan_t *session;					/**< epan session */
 	gboolean redraw;
 } voip_calls_tapinfo_t;
 
