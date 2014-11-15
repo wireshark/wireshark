@@ -4035,11 +4035,15 @@ static gboolean    dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto
     return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP, NULL);
 }
 /*
-function used to compare value_string when sorting the arry
+function used to compare value_string when sorting the array
 */
 static int _mq_vals_fncomp(const void *e1, const void *e2)
 {
-    return (((value_string *)e1)->value < ((value_string *)e2)->value) ? -1 : (((value_string *)e1)->value > ((value_string *)e2)->value) ? 1 : 0;
+    if (((const value_string *)e1)->value < ((const value_string *)e2)->value)
+        return -1;
+    if (((const value_string *)e1)->value > ((const value_string *)e2)->value)
+        return 1;
+    return  0;
 }
 /*
 if the value_string_ext is not yet initialized, try first to
@@ -4049,7 +4053,8 @@ static void _try_mq_vals_sort(value_string_ext *pExt)
 {
     if (pExt->_vs_match2 == _try_val_to_str_ext_init)
     {
-        qsort((void *)pExt->_vs_p, pExt->_vs_num_entries, sizeof(value_string), _mq_vals_fncomp);
+        qsort((void *)(value_string_ext *)pExt->_vs_p,
+            pExt->_vs_num_entries, sizeof(value_string), _mq_vals_fncomp);
     }
 }
 
@@ -4756,6 +4761,7 @@ void proto_reg_handoff_mq(void)
     Sort the value_string_ext to improve the use of bsearch
     in case the string_value is not sorted by value when created
     */
+
     _try_mq_vals_sort(GET_VALS_EXTP(mqrc));
     _try_mq_vals_sort(GET_VALS_EXTP(mqcmd));
     _try_mq_vals_sort(GET_VALS_EXTP(PrmId));
