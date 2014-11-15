@@ -77,33 +77,33 @@
 #define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
 
 const char *voip_call_state_name[8]={
-	"",
-	"CALL SETUP",
-	"RINGING",
-	"IN CALL",
-	"CANCELLED",
-	"COMPLETED",
-	"REJECTED",
-	"UNKNOWN"
+    "",
+    "CALL SETUP",
+    "RINGING",
+    "IN CALL",
+    "CANCELLED",
+    "COMPLETED",
+    "REJECTED",
+    "UNKNOWN"
 };
 
 /* defines whether we can consider the call active */
 const char *voip_protocol_name[]={
-	"SIP",
-	"ISUP",
-	"H.323",
-	"MGCP",
-	"AC_ISDN",
-	"AC_CAS",
-	"T.38",
-	"H.248",
-	"SCCP",
-	"BSSMAP",
-	"RANAP",
-	"UNISTIM",
-	"SKINNY",
-	"IAX2",
-	"VoIP"
+    "SIP",
+    "ISUP",
+    "H.323",
+    "MGCP",
+    "AC_ISDN",
+    "AC_CAS",
+    "T.38",
+    "H.248",
+    "SCCP",
+    "BSSMAP",
+    "RANAP",
+    "UNISTIM",
+    "SKINNY",
+    "IAX2",
+    "VoIP"
 };
 
 /*
@@ -112,74 +112,74 @@ const char *voip_protocol_name[]={
  * value.
  */
 enum {
-       tap_id_offset_actrace_,
-       tap_id_offset_h225_,
-       tap_id_offset_h245dg_,
-       tap_id_offset_h248_,
-       tap_id_offset_iax2_,
-       tap_id_offset_isup_,
-       tap_id_offset_m3ua_,
-       tap_id_offset_megaco_,
-       tap_id_offset_mgcp_,
-       tap_id_offset_mtp3_,
-       tap_id_offset_q931_,
-       tap_id_offset_rtp_,
-       tap_id_offset_rtp_event_,
-       tap_id_offset_sccp_,
-       tap_id_offset_sdp_,
-       tap_id_offset_sip_,
-       tap_id_offset_skinny_,
-       tap_id_offset_sua_,
-       tap_id_offset_t38_,
-       tap_id_offset_unistim_,
-       tap_id_offset_voip_
+    tap_id_offset_actrace_,
+    tap_id_offset_h225_,
+    tap_id_offset_h245dg_,
+    tap_id_offset_h248_,
+    tap_id_offset_iax2_,
+    tap_id_offset_isup_,
+    tap_id_offset_m3ua_,
+    tap_id_offset_megaco_,
+    tap_id_offset_mgcp_,
+    tap_id_offset_mtp3_,
+    tap_id_offset_q931_,
+    tap_id_offset_rtp_,
+    tap_id_offset_rtp_event_,
+    tap_id_offset_sccp_,
+    tap_id_offset_sdp_,
+    tap_id_offset_sip_,
+    tap_id_offset_skinny_,
+    tap_id_offset_sua_,
+    tap_id_offset_t38_,
+    tap_id_offset_unistim_,
+    tap_id_offset_voip_
 };
 
 static inline void *
 tap_base_to_id(voip_calls_tapinfo_t* tap_base, int offset) {
-	return GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_base) + offset);
+    return GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_base) + offset);
 }
 
 static inline voip_calls_tapinfo_t *
 tap_id_to_base(void* tap_id, int offset) {
-	return (voip_calls_tapinfo_t *) GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_id) - offset);
+    return (voip_calls_tapinfo_t *) GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_id) - offset);
 }
 
 typedef struct {
-	gchar *frame_label;
-	gchar *comment;
+    gchar *frame_label;
+    gchar *comment;
 } graph_str;
 
 #define H245_MAX 6
 
 typedef struct {
-	guint32	frame_num;
-	gint8 labels_count;
-	graph_str labels[H245_MAX];
+    guint32	frame_num;
+    gint8 labels_count;
+    graph_str labels[H245_MAX];
 } h245_labels_t;
 
 static h245_labels_t h245_labels;
 
 /* defines a RTP stream */
 typedef struct _voip_rtp_stream_info {
-	address src_addr;
-	guint16 src_port;
-	address dest_addr;
-	guint16 dest_port;
-	guint32 ssrc;
-	guint32  pt;
-	gchar *pt_str;
-	gboolean is_srtp;
-	guint32 npackets;
-	gboolean end_stream;
+    address src_addr;
+    guint16 src_port;
+    address dest_addr;
+    guint16 dest_port;
+    guint32 ssrc;
+    guint32  pt;
+    gchar *pt_str;
+    gboolean is_srtp;
+    guint32 npackets;
+    gboolean end_stream;
 
-	guint32 setup_frame_number; /* frame number of setup message */
-	/* The frame_data struct holds the frame number and timing information needed. */
-	frame_data *start_fd;
-	nstime_t start_rel_ts;
-	frame_data *stop_fd;
-	nstime_t stop_rel_ts;
-	gint32 rtp_event;
+    guint32 setup_frame_number; /* frame number of setup message */
+    /* The frame_data struct holds the frame number and timing information needed. */
+    frame_data *start_fd;
+    nstime_t start_rel_ts;
+    frame_data *stop_fd;
+    nstime_t stop_rel_ts;
+    gint32 rtp_event;
 } voip_rtp_stream_info_t;
 
 /****************************************************************************/
@@ -192,86 +192,86 @@ static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
 /* when there is a [re]reading of packet's */
 void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 {
-	voip_calls_info_t *callsinfo;
-	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
-	voip_rtp_stream_info_t *strinfo;
-	seq_analysis_item_t *graph_item;
-	GList *list;
+    voip_calls_info_t *callsinfo;
+    voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
+    voip_rtp_stream_info_t *strinfo;
+    seq_analysis_item_t *graph_item;
+    GList *list;
 
 #ifdef HAVE_LIBPORTAUDIO
-	/* reset the RTP player */
-	reset_rtp_player();
+    /* reset the RTP player */
+    reset_rtp_player();
 #endif
 
-	/* free the data items first */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		callsinfo = (voip_calls_info_t *)list->data;
-		g_free(callsinfo->call_id);
-		g_free(callsinfo->from_identity);
-		g_free(callsinfo->to_identity);
-		g_free((void *)(callsinfo->initial_speaker.data));
-		g_free(callsinfo->protocol_name);
-		g_free(callsinfo->call_comment);
+    /* free the data items first */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        callsinfo = (voip_calls_info_t *)list->data;
+        g_free(callsinfo->call_id);
+        g_free(callsinfo->from_identity);
+        g_free(callsinfo->to_identity);
+        g_free((void *)(callsinfo->initial_speaker.data));
+        g_free(callsinfo->protocol_name);
+        g_free(callsinfo->call_comment);
 
-		if (callsinfo->free_prot_info && callsinfo->prot_info)
-			callsinfo->free_prot_info(callsinfo->prot_info);
+        if (callsinfo->free_prot_info && callsinfo->prot_info)
+            callsinfo->free_prot_info(callsinfo->prot_info);
 
-		g_free(list->data);
-		list = g_list_next(list);
-	}
-	g_queue_clear(tapinfo->callsinfos);
-	/* free the SIP_HASH */
-	if(NULL!=tapinfo->callsinfo_hashtable[SIP_HASH])
-		g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
-	tapinfo->ncalls = 0;
-	tapinfo->npackets = 0;
-	tapinfo->start_packets = 0;
-	tapinfo->completed_calls = 0;
-	tapinfo->rejected_calls = 0;
+        g_free(list->data);
+        list = g_list_next(list);
+    }
+    g_queue_clear(tapinfo->callsinfos);
+    /* free the SIP_HASH */
+    if(NULL!=tapinfo->callsinfo_hashtable[SIP_HASH])
+        g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
+    tapinfo->ncalls = 0;
+    tapinfo->npackets = 0;
+    tapinfo->start_packets = 0;
+    tapinfo->completed_calls = 0;
+    tapinfo->rejected_calls = 0;
 
-	/* free the graph data items first */
-	if(NULL!=tapinfo->graph_analysis->ht)
-		g_hash_table_remove_all(tapinfo->graph_analysis->ht);
-	list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-	while (list)
-	{
-		graph_item = (seq_analysis_item_t *)list->data;
-		g_free(graph_item->frame_label);
-		g_free(graph_item->comment);
-		g_free((void *)graph_item->src_addr.data);
-		g_free((void *)graph_item->dst_addr.data);
-		g_free(graph_item->time_str);
-		g_free(list->data);
-		list = g_list_next(list);
-	}
-	g_queue_clear(tapinfo->graph_analysis->items);
-	tapinfo->graph_analysis->nconv = 0;
+    /* free the graph data items first */
+    if(NULL!=tapinfo->graph_analysis->ht)
+        g_hash_table_remove_all(tapinfo->graph_analysis->ht);
+    list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+    while (list)
+    {
+        graph_item = (seq_analysis_item_t *)list->data;
+        g_free(graph_item->frame_label);
+        g_free(graph_item->comment);
+        g_free((void *)graph_item->src_addr.data);
+        g_free((void *)graph_item->dst_addr.data);
+        g_free(graph_item->time_str);
+        g_free(list->data);
+        list = g_list_next(list);
+    }
+    g_queue_clear(tapinfo->graph_analysis->items);
+    tapinfo->graph_analysis->nconv = 0;
 
-	++(tapinfo->launch_count);
+    ++(tapinfo->launch_count);
 
-	/* free the strinfo data items first */
-	list = g_list_first(rtp_tapinfo->list);
-	while(list)
-	{
-		strinfo = (voip_rtp_stream_info_t *)list->data;
-		g_free(strinfo->pt_str);
-		list = g_list_next(list);
-	}
-	g_list_free(rtp_tapinfo->list);
-	rtp_tapinfo->list = NULL;
+    /* free the strinfo data items first */
+    list = g_list_first(rtp_tapinfo->list);
+    while(list)
+    {
+        strinfo = (voip_rtp_stream_info_t *)list->data;
+        g_free(strinfo->pt_str);
+        list = g_list_next(list);
+    }
+    g_list_free(rtp_tapinfo->list);
+    rtp_tapinfo->list = NULL;
 
-	return;
+    return;
 }
 
 /****************************************************************************/
 void graph_analysis_data_init(void) {
-	voip_calls_tapinfo_t *voip_tapinfo = voip_calls_get_info();
-	voip_tapinfo->graph_analysis = (seq_analysis_info_t *)g_malloc(sizeof(seq_analysis_info_t));
-	voip_tapinfo->graph_analysis->nconv = 0;
-	voip_tapinfo->graph_analysis->items = g_queue_new();;
-	voip_tapinfo->graph_analysis->ht= g_hash_table_new(g_int_hash, g_int_equal);
+    voip_calls_tapinfo_t *voip_tapinfo = voip_calls_get_info();
+    voip_tapinfo->graph_analysis = (seq_analysis_info_t *)g_malloc(sizeof(seq_analysis_info_t));
+    voip_tapinfo->graph_analysis->nconv = 0;
+    voip_tapinfo->graph_analysis->items = g_queue_new();;
+    voip_tapinfo->graph_analysis->ht= g_hash_table_new(g_int_hash, g_int_equal);
 }
 
 /****************************************************************************/
@@ -279,35 +279,35 @@ void graph_analysis_data_init(void) {
 static void
 add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style)
 {
-	seq_analysis_item_t *gai;
-	gchar time_str[COL_MAX_LEN];
+    seq_analysis_item_t *gai;
+    gchar time_str[COL_MAX_LEN];
 
-	gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
-	gai->fd = pinfo->fd;
-	COPY_ADDRESS(&(gai->src_addr),src_addr);
-	COPY_ADDRESS(&(gai->dst_addr),dst_addr);
+    gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+    gai->fd = pinfo->fd;
+    COPY_ADDRESS(&(gai->src_addr),src_addr);
+    COPY_ADDRESS(&(gai->dst_addr),dst_addr);
 
-	gai->port_src=pinfo->srcport;
-	gai->port_dst=pinfo->destport;
-	if (frame_label != NULL)
-		gai->frame_label = g_strdup(frame_label);
-	else
-		gai->frame_label = g_strdup("");
+    gai->port_src=pinfo->srcport;
+    gai->port_dst=pinfo->destport;
+    if (frame_label != NULL)
+        gai->frame_label = g_strdup(frame_label);
+    else
+        gai->frame_label = g_strdup("");
 
-	if (comment != NULL)
-		gai->comment = g_strdup(comment);
-	else
-		gai->comment = g_strdup("");
-	gai->conv_num=call_num;
-	gai->line_style=line_style;
-	set_fd_time(edt->session, gai->fd, time_str);
-	gai->time_str = g_strdup(time_str);
-	gai->display=FALSE;
+    if (comment != NULL)
+        gai->comment = g_strdup(comment);
+    else
+        gai->comment = g_strdup("");
+    gai->conv_num=call_num;
+    gai->line_style=line_style;
+    set_fd_time(edt->session, gai->fd, time_str);
+    gai->time_str = g_strdup(time_str);
+    gai->display=FALSE;
 
-	if(tapinfo->graph_analysis){
-		g_queue_push_tail(tapinfo->graph_analysis->items, gai);
-		g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
-	}
+    if(tapinfo->graph_analysis){
+        g_queue_push_tail(tapinfo->graph_analysis->items, gai);
+        g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
+    }
 
 }
 
@@ -316,28 +316,28 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
 /* return 0 if the frame_num is not in the graph list */
 static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
-	seq_analysis_item_t *gai=NULL;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
+    seq_analysis_item_t *gai=NULL;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
 
-	if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
-		gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
-	if(gai) {
-		frame_label = gai->frame_label;
-		comment = gai->comment;
+    if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
+        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
+    if(gai) {
+        frame_label = gai->frame_label;
+        comment = gai->comment;
 
-		if (new_frame_label != NULL) {
-			gai->frame_label = g_strdup_printf("%s %s", frame_label, new_frame_label);
-			g_free(frame_label);
-		}
+        if (new_frame_label != NULL) {
+            gai->frame_label = g_strdup_printf("%s %s", frame_label, new_frame_label);
+            g_free(frame_label);
+        }
 
-		if (new_comment != NULL) {
-			gai->comment = g_strdup_printf("%s %s", comment, new_comment);
-			g_free(comment);
-		}
-	}
+        if (new_comment != NULL) {
+            gai->comment = g_strdup_printf("%s %s", comment, new_comment);
+            g_free(comment);
+        }
+    }
 
-	return gai? 1 : 0;
+    return gai? 1 : 0;
 }
 
 /****************************************************************************/
@@ -345,109 +345,108 @@ static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 fram
 /* return 0 if the frame_num is not in the graph list */
 static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
-	seq_analysis_item_t *gai=NULL;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
+    seq_analysis_item_t *gai=NULL;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
 
+    if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
+        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
+    if(gai) {
+        frame_label = gai->frame_label;
+        comment = gai->comment;
 
-	if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
-		gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
-	if(gai) {
-		frame_label = gai->frame_label;
-		comment = gai->comment;
+        if (new_frame_label != NULL) {
+            gai->frame_label = g_strdup(new_frame_label);
+            g_free(frame_label);
+        }
 
-		if (new_frame_label != NULL) {
-			gai->frame_label = g_strdup(new_frame_label);
-			g_free(frame_label);
-		}
+        if (new_comment != NULL) {
+            gai->comment = g_strdup(new_comment);
+            g_free(comment);
+        }
+    }
 
-		if (new_comment != NULL) {
-			gai->comment = g_strdup(new_comment);
-			g_free(comment);
-		}
-	}
-
-	return gai? 1 : 0;
+    return gai? 1 : 0;
 }
 
 /****************************************************************************/
 /* Change all the graph items with call_num to new_call_num */
 static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
 {
-	seq_analysis_item_t *gai;
-	GList *list;
-	guint items_changed;
+    seq_analysis_item_t *gai;
+    GList *list;
+    guint items_changed;
 
-	items_changed = 0;
-	if(tapinfo->graph_analysis){
-		list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-		while (list)
-		{
-			gai = (seq_analysis_item_t *)list->data;
-			if (gai->conv_num == call_num) {
-				gai->conv_num = new_call_num;
-				items_changed++;
-			}
-			list = g_list_next(list);
-		}
-	}
-	return items_changed;
+    items_changed = 0;
+    if(tapinfo->graph_analysis){
+        list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+        while (list)
+        {
+            gai = (seq_analysis_item_t *)list->data;
+            if (gai->conv_num == call_num) {
+                gai->conv_num = new_call_num;
+                items_changed++;
+            }
+            list = g_list_next(list);
+        }
+    }
+    return items_changed;
 }
 
 /****************************************************************************/
 /* Insert the item in the graph list */
 static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, guint32 frame_num)
 {
-	seq_analysis_item_t *gai, *new_gai;
-	GList *list;
-	guint item_num;
-	gboolean inserted;
-	gchar time_str[COL_MAX_LEN];
+    seq_analysis_item_t *gai, *new_gai;
+    GList *list;
+    guint item_num;
+    gboolean inserted;
+    gchar time_str[COL_MAX_LEN];
 
-	new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
-	new_gai->fd = packet_list_get_row_data(frame_num);
-	COPY_ADDRESS(&(new_gai->src_addr),src_addr);
-	COPY_ADDRESS(&(new_gai->dst_addr),dst_addr);
+    new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+    new_gai->fd = packet_list_get_row_data(frame_num);
+    COPY_ADDRESS(&(new_gai->src_addr),src_addr);
+    COPY_ADDRESS(&(new_gai->dst_addr),dst_addr);
 
-	new_gai->port_src=pinfo->srcport;
-	new_gai->port_dst=pinfo->destport;
-	if (frame_label != NULL)
-		new_gai->frame_label = g_strdup(frame_label);
-	else
-		new_gai->frame_label = g_strdup("");
+    new_gai->port_src=pinfo->srcport;
+    new_gai->port_dst=pinfo->destport;
+    if (frame_label != NULL)
+        new_gai->frame_label = g_strdup(frame_label);
+    else
+        new_gai->frame_label = g_strdup("");
 
-	if (comment != NULL)
-		new_gai->comment = g_strdup(comment);
-	else
-		new_gai->comment = g_strdup("");
-	new_gai->conv_num=call_num;
-	new_gai->line_style=line_style;
-	set_fd_time(edt->session, new_gai->fd, time_str);
-	new_gai->time_str = g_strdup(time_str);
-	new_gai->display=FALSE;
+    if (comment != NULL)
+        new_gai->comment = g_strdup(comment);
+    else
+        new_gai->comment = g_strdup("");
+    new_gai->conv_num=call_num;
+    new_gai->line_style=line_style;
+    set_fd_time(edt->session, new_gai->fd, time_str);
+    new_gai->time_str = g_strdup(time_str);
+    new_gai->display=FALSE;
 
-	item_num = 0;
-	inserted = FALSE;
-	if(tapinfo->graph_analysis){
-	list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-		while (list)
-		{
-			gai = (seq_analysis_item_t *)list->data;
-			if (gai->fd->num > frame_num) {
-				g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
-				g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
-				inserted = TRUE;
-				break;
-			}
-			list = g_list_next(list);
-			item_num++;
-		}
+    item_num = 0;
+    inserted = FALSE;
+    if(tapinfo->graph_analysis){
+        list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+        while (list)
+        {
+            gai = (seq_analysis_item_t *)list->data;
+            if (gai->fd->num > frame_num) {
+                g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
+                g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+                inserted = TRUE;
+                break;
+            }
+            list = g_list_next(list);
+            item_num++;
+        }
 
-		if (!inserted) {
-			g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-			g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
-		}
-	}
+        if (!inserted) {
+            g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
+            g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+        }
+    }
 }
 
 /****************************************************************************/
@@ -464,39 +463,39 @@ static gboolean rtp_evt_end = FALSE;
 static int
 rtp_event_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info)
 {
-	const struct _rtp_event_info *pi = (const struct _rtp_event_info *)rtp_event_info;
+    const struct _rtp_event_info *pi = (const struct _rtp_event_info *)rtp_event_info;
 
-	/* do not consider RTP events packets without a setup frame */
-	if (pi->info_setup_frame_num == 0) {
-		return 0;
-	}
+    /* do not consider RTP events packets without a setup frame */
+    if (pi->info_setup_frame_num == 0) {
+        return 0;
+    }
 
-	rtp_evt_frame_num = pinfo->fd->num;
-	rtp_evt = pi->info_rtp_evt;
-	rtp_evt_end = pi->info_end;
+    rtp_evt_frame_num = pinfo->fd->num;
+    rtp_evt = pi->info_rtp_evt;
+    rtp_evt_end = pi->info_end;
 
-	return 0;
+    return 0;
 }
 
 /****************************************************************************/
 void
 rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("rtpevent", tap_base_to_id(tap_id_base, tap_id_offset_rtp_event_),
-		NULL,
-		0,
-		NULL,
-		rtp_event_packet,
-		NULL
-		);
+    error_string = register_tap_listener("rtpevent", tap_base_to_id(tap_id_base, tap_id_offset_rtp_event_),
+            NULL,
+            0,
+            NULL,
+            rtp_event_packet,
+            NULL
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
@@ -515,19 +514,19 @@ remove_tap_listener_rtp_event(voip_calls_tapinfo_t *tap_id_base)
 /* when there is a [re]reading of RTP packets */
 static void voip_rtp_reset(void *ptr _U_)
 {
-	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
-	GList *list;
-	/* free the data items first */
-	list = g_list_first(tapinfo->list);
-	while (list)
-	{
-		g_free(list->data);
-		list = g_list_next(list);
-	}
-	g_list_free(tapinfo->list);
-	tapinfo->list = NULL;
-	tapinfo->nstreams = 0;
-	return;
+    voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
+    GList *list;
+    /* free the data items first */
+    list = g_list_first(tapinfo->list);
+    while (list)
+    {
+        g_free(list->data);
+        list = g_list_next(list);
+    }
+    g_list_free(tapinfo->list);
+    tapinfo->list = NULL;
+    tapinfo->nstreams = 0;
+    return;
 }
 
 /****************************************************************************/
@@ -535,163 +534,163 @@ static void voip_rtp_reset(void *ptr _U_)
 static int
 rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, void const *RTPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
-	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
-	voip_rtp_stream_info_t *tmp_listinfo;
-	voip_rtp_stream_info_t *strinfo = NULL;
-	GList *list;
-	struct _rtp_conversation_info *p_conv_data = NULL;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
+    voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
+    voip_rtp_stream_info_t *tmp_listinfo;
+    voip_rtp_stream_info_t *strinfo = NULL;
+    GList *list;
+    struct _rtp_conversation_info *p_conv_data = NULL;
 
-	const struct _rtp_info *pi = (const struct _rtp_info *)RTPinfo;
+    const struct _rtp_info *pi = (const struct _rtp_info *)RTPinfo;
 
-	/* do not consider RTP packets without a setup frame */
-	if (pi->info_setup_frame_num == 0) {
-		return 0;
-	}
+    /* do not consider RTP packets without a setup frame */
+    if (pi->info_setup_frame_num == 0) {
+        return 0;
+    }
 
-	/* add this RTP for future listening using the RTP Player*/
+    /* add this RTP for future listening using the RTP Player*/
 #ifdef HAVE_LIBPORTAUDIO
-	add_rtp_packet(pi, pinfo);
+    add_rtp_packet(pi, pinfo);
 #endif
 
-	/* check whether we already have a RTP stream with this setup frame and ssrc in the list */
-	list = g_list_first(rtp_tapinfo->list);
-	while (list)
-	{
-		tmp_listinfo=(voip_rtp_stream_info_t *)list->data;
-		if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num)
-			&& (tmp_listinfo->ssrc == pi->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
-			/* if the payload type has changed, we mark the stream as finished to create a new one
-			   this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
-			if ( tmp_listinfo->pt != pi->info_payload_type ) {
-				tmp_listinfo->end_stream = TRUE;
-			} else {
-				strinfo = (voip_rtp_stream_info_t*)(list->data);
-				break;
-			}
-		}
-		list = g_list_next(list);
-	}
+    /* check whether we already have a RTP stream with this setup frame and ssrc in the list */
+    list = g_list_first(rtp_tapinfo->list);
+    while (list)
+    {
+        tmp_listinfo=(voip_rtp_stream_info_t *)list->data;
+        if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num)
+                && (tmp_listinfo->ssrc == pi->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
+            /* if the payload type has changed, we mark the stream as finished to create a new one
+               this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
+            if ( tmp_listinfo->pt != pi->info_payload_type ) {
+                tmp_listinfo->end_stream = TRUE;
+            } else {
+                strinfo = (voip_rtp_stream_info_t*)(list->data);
+                break;
+            }
+        }
+        list = g_list_next(list);
+    }
 
-	/* if this is a duplicated RTP Event End, just return */
-	if ((rtp_evt_frame_num == pinfo->fd->num) && !strinfo && (rtp_evt_end == TRUE)) {
-		return 0;
-	}
+    /* if this is a duplicated RTP Event End, just return */
+    if ((rtp_evt_frame_num == pinfo->fd->num) && !strinfo && (rtp_evt_end == TRUE)) {
+        return 0;
+    }
 
-	/* not in the list? then create a new entry */
-	if (strinfo==NULL) {
-		strinfo = (voip_rtp_stream_info_t *)g_malloc(sizeof(voip_rtp_stream_info_t));
-		COPY_ADDRESS(&(strinfo->src_addr), &(pinfo->src));
-		strinfo->src_port = pinfo->srcport;
-		COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
-		strinfo->dest_port = pinfo->destport;
-		strinfo->ssrc = pi->info_sync_src;
-		strinfo->end_stream = FALSE;
-		strinfo->pt = pi->info_payload_type;
-		strinfo->pt_str = NULL;
-		strinfo->is_srtp = pi->info_is_srtp;
-		/* if it is dynamic payload, let use the conv data to see if it is defined */
-		if ( (strinfo->pt >= PT_UNDF_96) && (strinfo->pt <= PT_UNDF_127) ) {
-			/* Use existing packet info if available */
-			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
-			if (p_conv_data && p_conv_data->rtp_dyn_payload) {
-				const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->pt);
-				if (encoding_name) {
-					strinfo->pt_str = g_strdup(encoding_name);
-				}
-			}
-		}
-		if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext, "%u"));
-		strinfo->npackets = 0;
-		strinfo->start_fd = pinfo->fd;
-		strinfo->start_rel_ts = pinfo->rel_ts;
-		strinfo->setup_frame_number = pi->info_setup_frame_num;
-		strinfo->rtp_event = -1;
-		rtp_tapinfo->list = g_list_prepend(rtp_tapinfo->list, strinfo);
-	}
+    /* not in the list? then create a new entry */
+    if (strinfo==NULL) {
+        strinfo = (voip_rtp_stream_info_t *)g_malloc(sizeof(voip_rtp_stream_info_t));
+        COPY_ADDRESS(&(strinfo->src_addr), &(pinfo->src));
+        strinfo->src_port = pinfo->srcport;
+        COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
+        strinfo->dest_port = pinfo->destport;
+        strinfo->ssrc = pi->info_sync_src;
+        strinfo->end_stream = FALSE;
+        strinfo->pt = pi->info_payload_type;
+        strinfo->pt_str = NULL;
+        strinfo->is_srtp = pi->info_is_srtp;
+        /* if it is dynamic payload, let use the conv data to see if it is defined */
+        if ( (strinfo->pt >= PT_UNDF_96) && (strinfo->pt <= PT_UNDF_127) ) {
+            /* Use existing packet info if available */
+            p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
+            if (p_conv_data && p_conv_data->rtp_dyn_payload) {
+                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->pt);
+                if (encoding_name) {
+                    strinfo->pt_str = g_strdup(encoding_name);
+                }
+            }
+        }
+        if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext, "%u"));
+        strinfo->npackets = 0;
+        strinfo->start_fd = pinfo->fd;
+        strinfo->start_rel_ts = pinfo->rel_ts;
+        strinfo->setup_frame_number = pi->info_setup_frame_num;
+        strinfo->rtp_event = -1;
+        rtp_tapinfo->list = g_list_prepend(rtp_tapinfo->list, strinfo);
+    }
 
-	/* Add the info to the existing RTP stream */
-	strinfo->npackets++;
-	strinfo->stop_fd = pinfo->fd;
-	strinfo->stop_rel_ts = pinfo->rel_ts;
+    /* Add the info to the existing RTP stream */
+    strinfo->npackets++;
+    strinfo->stop_fd = pinfo->fd;
+    strinfo->stop_rel_ts = pinfo->rel_ts;
 
-	/* process RTP Event */
-	if (rtp_evt_frame_num == pinfo->fd->num) {
-		strinfo->rtp_event = rtp_evt;
-		if (rtp_evt_end == TRUE) {
-			strinfo->end_stream = TRUE;
-		}
-	}
+    /* process RTP Event */
+    if (rtp_evt_frame_num == pinfo->fd->num) {
+        strinfo->rtp_event = rtp_evt;
+        if (rtp_evt_end == TRUE) {
+            strinfo->end_stream = TRUE;
+        }
+    }
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;
+    return 1;
 }
 
 /****************************************************************************/
 /* whenever a redraw in the RTP tap listener */
 static void rtp_packet_draw(void *tap_offset_ptr)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
-	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
-	GList *rtp_streams_list;
-	voip_rtp_stream_info_t *rtp_listinfo;
-	/* GList *voip_calls_graph_list; */
-	seq_analysis_item_t *gai = NULL;
-	seq_analysis_item_t *new_gai;
-	guint16 conv_num;
-	guint32 duration;
-	gchar time_str[COL_MAX_LEN];
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
+    voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
+    GList *rtp_streams_list;
+    voip_rtp_stream_info_t *rtp_listinfo;
+    /* GList *voip_calls_graph_list; */
+    seq_analysis_item_t *gai = NULL;
+    seq_analysis_item_t *new_gai;
+    guint16 conv_num;
+    guint32 duration;
+    gchar time_str[COL_MAX_LEN];
 
-	/* add each rtp stream to the graph */
-	rtp_streams_list = g_list_first(rtp_tapinfo->list);
-	while (rtp_streams_list)
-	{
-		rtp_listinfo = (voip_rtp_stream_info_t *)rtp_streams_list->data;
+    /* add each rtp stream to the graph */
+    rtp_streams_list = g_list_first(rtp_tapinfo->list);
+    while (rtp_streams_list)
+    {
+        rtp_listinfo = (voip_rtp_stream_info_t *)rtp_streams_list->data;
 
-		/* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
-		/* voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list); */
-		if(tapinfo->graph_analysis){
-			gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
-		}
-		if(gai != NULL) {
-			/* Found the setup frame*/
-			conv_num = gai->conv_num;
-			/* if RTP was already in the Graph, just update the comment information */
-			gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd->num);
-			if(gai != NULL) {
-				duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
-				g_free(gai->comment);
-				gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
-												(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
-												duration/1000,(duration%1000), rtp_listinfo->ssrc);
-			}else {
-				new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
-				new_gai->fd = rtp_listinfo->start_fd;
-				COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
-				COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
-				new_gai->port_src = rtp_listinfo->src_port;
-				new_gai->port_dst = rtp_listinfo->dest_port;
-				duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
-				new_gai->frame_label = g_strdup_printf("%s (%s) %s",
-										(rtp_listinfo->is_srtp)?"SRTP":"RTP",
-										rtp_listinfo->pt_str,
-										(rtp_listinfo->rtp_event == -1)?
-										    "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
-				new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
-													(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
-													duration/1000,(duration%1000), rtp_listinfo->ssrc);
-				new_gai->conv_num = conv_num;
-				set_fd_time(tapinfo->session, new_gai->fd, time_str);
-				new_gai->time_str = g_strdup(time_str);
-				new_gai->display=FALSE;
-				new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
-				g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-				g_hash_table_insert(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd, new_gai);
-			}
-		}
-		rtp_streams_list = g_list_next(rtp_streams_list);
-	}/* while (rtp_streams_list) */
+        /* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
+        /* voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list); */
+        if(tapinfo->graph_analysis){
+            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
+        }
+        if(gai != NULL) {
+            /* Found the setup frame*/
+            conv_num = gai->conv_num;
+            /* if RTP was already in the Graph, just update the comment information */
+            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd->num);
+            if (gai != NULL) {
+                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
+                g_free(gai->comment);
+                gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
+                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+                        duration/1000,(duration%1000), rtp_listinfo->ssrc);
+            } else {
+                new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
+                new_gai->fd = rtp_listinfo->start_fd;
+                COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
+                COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
+                new_gai->port_src = rtp_listinfo->src_port;
+                new_gai->port_dst = rtp_listinfo->dest_port;
+                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
+                new_gai->frame_label = g_strdup_printf("%s (%s) %s",
+                        (rtp_listinfo->is_srtp)?"SRTP":"RTP",
+                        rtp_listinfo->pt_str,
+                        (rtp_listinfo->rtp_event == -1)?
+                        "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
+                new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
+                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+                        duration/1000,(duration%1000), rtp_listinfo->ssrc);
+                new_gai->conv_num = conv_num;
+                set_fd_time(tapinfo->session, new_gai->fd, time_str);
+                new_gai->time_str = g_strdup(time_str);
+                new_gai->display=FALSE;
+                new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
+                g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
+                g_hash_table_insert(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd, new_gai);
+            }
+        }
+        rtp_streams_list = g_list_next(rtp_streams_list);
+    }/* while (rtp_streams_list) */
 }
 #if 0
 static void RTP_packet_draw(void *tap_offset_ptr)
@@ -781,26 +780,26 @@ static void RTP_packet_draw(void *tap_offset_ptr)
 void
 rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("rtp", tap_base_to_id(tap_id_base, tap_id_offset_rtp_), NULL,
-		0,
-		voip_rtp_reset,
-		rtp_packet,
-		rtp_packet_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    error_string = register_tap_listener("rtp", tap_base_to_id(tap_id_base, tap_id_offset_rtp_), NULL,
+            0,
+            voip_rtp_reset,
+            rtp_packet,
+            rtp_packet_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_rtp_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_rtp_));
 }
 
 /****************************************************************************/
@@ -812,175 +811,175 @@ remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 static int
 t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *T38info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
 
-	voip_calls_info_t *callsinfo = NULL;
-	voip_calls_info_t *tmp_listinfo;
-	GList *voip_calls_graph_list = NULL;
-	GList *list;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
-	seq_analysis_item_t *tmp_gai, *gai = NULL;
-	guint16 line_style = 2;
-	double duration;
-	int conv_num = -1;
+    voip_calls_info_t *callsinfo = NULL;
+    voip_calls_info_t *tmp_listinfo;
+    GList *voip_calls_graph_list = NULL;
+    GList *list;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
+    seq_analysis_item_t *tmp_gai, *gai = NULL;
+    guint16 line_style = 2;
+    double duration;
+    int conv_num = -1;
 
-	const t38_packet_info *pi = (const t38_packet_info *)T38info;
+    const t38_packet_info *pi = (const t38_packet_info *)T38info;
 
-	if  (pi->setup_frame_number != 0) {
-		/* using the setup frame number of the T38 packet, we get the call number that it belongs */
-		if(tapinfo->graph_analysis){
-			voip_calls_graph_list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-		}
-		while (voip_calls_graph_list)
-		{
-			tmp_gai = (seq_analysis_item_t *)voip_calls_graph_list->data;
-			if (pi->setup_frame_number == tmp_gai->fd->num) {
-				gai = tmp_gai;
-				break;
-			}
-			voip_calls_graph_list = g_list_next(voip_calls_graph_list);
-		}
-		if (gai) conv_num = (int) gai->conv_num;
-	}
+    if  (pi->setup_frame_number != 0) {
+        /* using the setup frame number of the T38 packet, we get the call number that it belongs */
+        if(tapinfo->graph_analysis){
+            voip_calls_graph_list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+        }
+        while (voip_calls_graph_list)
+        {
+            tmp_gai = (seq_analysis_item_t *)voip_calls_graph_list->data;
+            if (pi->setup_frame_number == tmp_gai->fd->num) {
+                gai = tmp_gai;
+                break;
+            }
+            voip_calls_graph_list = g_list_next(voip_calls_graph_list);
+        }
+        if (gai) conv_num = (int) gai->conv_num;
+    }
 
-	/* if setup_frame_number in the t38 packet is 0, it means it was not set using an SDP or H245 sesion, which means we don't
-	 * have the associated Voip calls. It probably means the the packet was decoded using the default t38 port, or using "Decode as.."
-	 * in this case we create a "voip" call that only have t38 media (no signaling)
-	 * OR if we have not found the Setup message in the graph.
-	 */
-	if ( (pi->setup_frame_number == 0) || (gai == NULL) ) {
-		/* check whether we already have a call with these parameters in the list */
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if (tmp_listinfo->protocol == MEDIA_T38) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-			}
-			list = g_list_next (list);
-		}
+    /* if setup_frame_number in the t38 packet is 0, it means it was not set using an SDP or H245 sesion, which means we don't
+     * have the associated Voip calls. It probably means the the packet was decoded using the default t38 port, or using "Decode as.."
+     * in this case we create a "voip" call that only have t38 media (no signaling)
+     * OR if we have not found the Setup message in the graph.
+     */
+    if ( (pi->setup_frame_number == 0) || (gai == NULL) ) {
+        /* check whether we already have a call with these parameters in the list */
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if (tmp_listinfo->protocol == MEDIA_T38) {
+                callsinfo = (voip_calls_info_t*)(list->data);
+                break;
+            }
+            list = g_list_next (list);
+        }
 
-		/* not in the list? then create a new entry */
-		if (callsinfo==NULL) {
-			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_UNKNOWN;
-			callsinfo->from_identity=g_strdup("T38 Media only");
-			callsinfo->to_identity=g_strdup("T38 Media only");
-			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->selected=FALSE;
-			callsinfo->start_fd = pinfo->fd;
-			callsinfo->start_rel_ts = pinfo->rel_ts;
-			callsinfo->protocol=MEDIA_T38;
-			callsinfo->prot_info=NULL;
-			callsinfo->free_prot_info = NULL;
-			callsinfo->npackets = 0;
-			callsinfo->call_num = tapinfo->ncalls++;
-			g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-		}
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+        /* not in the list? then create a new entry */
+        if (callsinfo==NULL) {
+            callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_UNKNOWN;
+            callsinfo->from_identity=g_strdup("T38 Media only");
+            callsinfo->to_identity=g_strdup("T38 Media only");
+            COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+            callsinfo->selected=FALSE;
+            callsinfo->start_fd = pinfo->fd;
+            callsinfo->start_rel_ts = pinfo->rel_ts;
+            callsinfo->protocol=MEDIA_T38;
+            callsinfo->prot_info=NULL;
+            callsinfo->free_prot_info = NULL;
+            callsinfo->npackets = 0;
+            callsinfo->call_num = tapinfo->ncalls++;
+            g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+        }
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
 
-		conv_num = (int) callsinfo->call_num;
-	}
+        conv_num = (int) callsinfo->call_num;
+    }
 
-	/* at this point we should have found the call num for this t38 packets belong */
-	if (conv_num == -1) {
-		return 0;
-	}
+    /* at this point we should have found the call num for this t38 packets belong */
+    if (conv_num == -1) {
+        return 0;
+    }
 
-	/* add the item to the graph list */
-	if (pi->type_msg == 0) { /* 0=t30-indicator */
-		frame_label = g_strdup(val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
-		comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
-		line_style = 1;
-	} else if (pi->type_msg == 1) {	/* 1=data */
-		switch(pi->Data_Field_field_type_value) {
-			case 0: /* hdlc-data */
-				break;
-			case 2: /* hdlc-fcs-OK */
-			case 4: /* hdlc-fcs-OK-sig-end */
-				frame_label = g_strdup_printf("%s %s",
-							      val_to_str_ext(pi->t30_Facsimile_Control & 0x7F,
-									     &t30_facsimile_control_field_vals_short_ext,
-									     "Ukn (0x%02X)"),
-							      pi->desc);
-				comment      = g_strdup_printf("t38:%s:HDLC:%s",
-							       val_to_str(pi->data_value,
-									  t38_T30_data_vals,
-									  "Ukn (0x%02X)"),
-							       val_to_str_ext(pi->t30_Facsimile_Control & 0x7F,
-									      &t30_facsimile_control_field_vals_ext,
-									      "Ukn (0x%02X)"));
-				break;
-			case 3: /* hdlc-fcs-BAD */
-			case 5: /* hdlc-fcs-BAD-sig-end */
-				frame_label = g_strdup(pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
-				comment    = g_strdup_printf("WARNING: received t38:%s:HDLC:%s",
-							     val_to_str(pi->data_value,
-									t38_T30_data_vals,
-									"Ukn (0x%02X)"),
-							     pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
-				break;
-			case 7: /* t4-non-ecm-sig-end */
-				duration = nstime_to_sec(&pinfo->rel_ts) - pi->time_first_t4_data;
-				frame_label = g_strdup_printf("t4-non-ecm-data:%s",
-							      val_to_str(pi->data_value,
-									 t38_T30_data_vals,
-									 "Ukn (0x%02X)") );
-				comment     = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",
-							      val_to_str(pi->data_value,
-									 t38_T30_data_vals,
-									 "Ukn (0x%02X)"),
-							      duration, pi->desc_comment );
-				insert_to_graph_t38(tapinfo, pinfo, edt, frame_label, comment,
-						    (guint16)conv_num, &(pinfo->src), &(pinfo->dst),
-						    line_style, pi->frame_num_first_t4_data);
-				break;
-		}
-	}
+    /* add the item to the graph list */
+    if (pi->type_msg == 0) { /* 0=t30-indicator */
+        frame_label = g_strdup(val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
+        comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
+        line_style = 1;
+    } else if (pi->type_msg == 1) {	/* 1=data */
+        switch(pi->Data_Field_field_type_value) {
+            case 0: /* hdlc-data */
+                break;
+            case 2: /* hdlc-fcs-OK */
+            case 4: /* hdlc-fcs-OK-sig-end */
+                frame_label = g_strdup_printf("%s %s",
+                        val_to_str_ext(pi->t30_Facsimile_Control & 0x7F,
+                            &t30_facsimile_control_field_vals_short_ext,
+                            "Ukn (0x%02X)"),
+                        pi->desc);
+                comment      = g_strdup_printf("t38:%s:HDLC:%s",
+                        val_to_str(pi->data_value,
+                            t38_T30_data_vals,
+                            "Ukn (0x%02X)"),
+                        val_to_str_ext(pi->t30_Facsimile_Control & 0x7F,
+                            &t30_facsimile_control_field_vals_ext,
+                            "Ukn (0x%02X)"));
+                break;
+            case 3: /* hdlc-fcs-BAD */
+            case 5: /* hdlc-fcs-BAD-sig-end */
+                frame_label = g_strdup(pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
+                comment    = g_strdup_printf("WARNING: received t38:%s:HDLC:%s",
+                        val_to_str(pi->data_value,
+                            t38_T30_data_vals,
+                            "Ukn (0x%02X)"),
+                        pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
+                break;
+            case 7: /* t4-non-ecm-sig-end */
+                duration = nstime_to_sec(&pinfo->rel_ts) - pi->time_first_t4_data;
+                frame_label = g_strdup_printf("t4-non-ecm-data:%s",
+                        val_to_str(pi->data_value,
+                            t38_T30_data_vals,
+                            "Ukn (0x%02X)") );
+                comment     = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",
+                        val_to_str(pi->data_value,
+                            t38_T30_data_vals,
+                            "Ukn (0x%02X)"),
+                        duration, pi->desc_comment );
+                insert_to_graph_t38(tapinfo, pinfo, edt, frame_label, comment,
+                        (guint16)conv_num, &(pinfo->src), &(pinfo->dst),
+                        line_style, pi->frame_num_first_t4_data);
+                break;
+        }
+    }
 
-	if (frame_label && !(pi->Data_Field_field_type_value == 7 && pi->type_msg == 1)) {
-		add_to_graph(tapinfo, pinfo, edt, frame_label, comment, (guint16)conv_num, &(pinfo->src), &(pinfo->dst), line_style);
-	}
+    if (frame_label && !(pi->Data_Field_field_type_value == 7 && pi->type_msg == 1)) {
+        add_to_graph(tapinfo, pinfo, edt, frame_label, comment, (guint16)conv_num, &(pinfo->src), &(pinfo->dst), line_style);
+    }
 
-	g_free(comment);
-	g_free(frame_label);
+    g_free(comment);
+    g_free(frame_label);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 /****************************************************************************/
 void
 t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("t38", tap_base_to_id(tap_id_base, tap_id_offset_t38_), NULL,
-		0,
-		voip_calls_dlg_reset,
-		t38_packet,
-		voip_calls_dlg_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    error_string = register_tap_listener("t38", tap_base_to_id(tap_id_base, tap_id_offset_t38_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            t38_packet,
+            voip_calls_dlg_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_t38(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_t38_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_t38_));
 }
 
 
@@ -994,10 +993,10 @@ static guint32 sdp_frame_num = 0;
 
 
 static void free_sip_info(gpointer p) {
-	sip_calls_info_t *si = (sip_calls_info_t *)p;
+    sip_calls_info_t *si = (sip_calls_info_t *)p;
 
-	g_free(si->call_identifier);
-	g_free(si);
+    g_free(si->call_identifier);
+    g_free(si);
 }
 
 /****************************************************************************/
@@ -1005,191 +1004,191 @@ static void free_sip_info(gpointer p) {
 static int
 sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt , const void *SIPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
-	/* we just take note of the ISUP data here; when we receive the MTP3 part everything will
-	   be compared with existing calls */
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
+    /* we just take note of the ISUP data here; when we receive the MTP3 part everything will
+       be compared with existing calls */
 
-	voip_calls_info_t *callsinfo = NULL;
-	sip_calls_info_t *tmp_sipinfo = NULL;
-	address tmp_src, tmp_dst;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
-	gchar *old_comment = NULL;
-	gchar *key=NULL;
+    voip_calls_info_t *callsinfo = NULL;
+    sip_calls_info_t *tmp_sipinfo = NULL;
+    address tmp_src, tmp_dst;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
+    gchar *old_comment = NULL;
+    gchar *key=NULL;
 
-	const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
+    const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
 
-	/* do not consider packets without call_id */
-	if (pi->tap_call_id ==NULL) {
-		return 0;
-	}
-	key=pi->tap_call_id;
-	/* init the hash table */
-	if(NULL==tapinfo->callsinfo_hashtable[SIP_HASH]) {
-		/* TODO: check how efficient g_str_hash is for sip call ids */
-		tapinfo->callsinfo_hashtable[SIP_HASH]=g_hash_table_new_full(g_str_hash,
-									     g_str_equal,
-									     NULL, /* key_destroy_func */
-									     NULL);/* value_destroy_func */
-	}
-	/* search the call information in the SIP_HASH */
-	callsinfo = (voip_calls_info_t *)g_hash_table_lookup(tapinfo->callsinfo_hashtable[SIP_HASH], key);
+    /* do not consider packets without call_id */
+    if (pi->tap_call_id ==NULL) {
+        return 0;
+    }
+    key=pi->tap_call_id;
+    /* init the hash table */
+    if(NULL==tapinfo->callsinfo_hashtable[SIP_HASH]) {
+        /* TODO: check how efficient g_str_hash is for sip call ids */
+        tapinfo->callsinfo_hashtable[SIP_HASH]=g_hash_table_new_full(g_str_hash,
+                g_str_equal,
+                NULL, /* key_destroy_func */
+                NULL);/* value_destroy_func */
+    }
+    /* search the call information in the SIP_HASH */
+    callsinfo = (voip_calls_info_t *)g_hash_table_lookup(tapinfo->callsinfo_hashtable[SIP_HASH], key);
 
-	/* Create a new flow entry if the message is INVITE in case of FLOW_ONLY_INVITES,
-	   Create a new flow entry for all messages which have a method in case of FLOW_ALL.
-	   Flows for REGISTER, OPTIONS, MESSAGE and other SIP methods can be seen. */
+    /* Create a new flow entry if the message is INVITE in case of FLOW_ONLY_INVITES,
+       Create a new flow entry for all messages which have a method in case of FLOW_ALL.
+       Flows for REGISTER, OPTIONS, MESSAGE and other SIP methods can be seen. */
 
-	if ((callsinfo==NULL) && (pi->request_method!=NULL)) {
+    if ((callsinfo==NULL) && (pi->request_method!=NULL)) {
 
-		/* check VoIPcalls_get_flow_show_option() == FLOW_ALL or FLOW_ONLY_INVITES */
+        /* check VoIPcalls_get_flow_show_option() == FLOW_ALL or FLOW_ONLY_INVITES */
 
-		if (VoIPcalls_get_flow_show_option() == FLOW_ALL ||
-		    (VoIPcalls_get_flow_show_option() == FLOW_ONLY_INVITES &&
-		     strcmp(pi->request_method,"INVITE")==0)) {
-			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_CALL_SETUP;
-			callsinfo->from_identity=g_strdup(pi->tap_from_addr);
-			callsinfo->to_identity=g_strdup(pi->tap_to_addr);
-			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->selected=FALSE;
-			callsinfo->start_fd=pinfo->fd;
-			callsinfo->start_rel_ts=pinfo->rel_ts;
-			callsinfo->protocol=VOIP_SIP;
-			callsinfo->prot_info=g_malloc(sizeof(sip_calls_info_t));
-			callsinfo->free_prot_info = free_sip_info;
-			callsinfo->call_id = g_strdup(pi->tap_call_id);
-			tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
-			tmp_sipinfo->call_identifier = g_strdup(pi->tap_call_id);
-			tmp_sipinfo->sip_state = SIP_INVITE_SENT;
-			tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
-			callsinfo->npackets = 0;
-			callsinfo->call_num = tapinfo->ncalls++;
+        if (VoIPcalls_get_flow_show_option() == FLOW_ALL ||
+                (VoIPcalls_get_flow_show_option() == FLOW_ONLY_INVITES &&
+                 strcmp(pi->request_method,"INVITE")==0)) {
+            callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_CALL_SETUP;
+            callsinfo->from_identity=g_strdup(pi->tap_from_addr);
+            callsinfo->to_identity=g_strdup(pi->tap_to_addr);
+            COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+            callsinfo->selected=FALSE;
+            callsinfo->start_fd=pinfo->fd;
+            callsinfo->start_rel_ts=pinfo->rel_ts;
+            callsinfo->protocol=VOIP_SIP;
+            callsinfo->prot_info=g_malloc(sizeof(sip_calls_info_t));
+            callsinfo->free_prot_info = free_sip_info;
+            callsinfo->call_id = g_strdup(pi->tap_call_id);
+            tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
+            tmp_sipinfo->call_identifier = g_strdup(pi->tap_call_id);
+            tmp_sipinfo->sip_state = SIP_INVITE_SENT;
+            tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
+            callsinfo->npackets = 0;
+            callsinfo->call_num = tapinfo->ncalls++;
 
-			/* show method in comment in conversation list dialog, user can discern different conversation types */
-			callsinfo->call_comment=g_strdup(pi->request_method);
+            /* show method in comment in conversation list dialog, user can discern different conversation types */
+            callsinfo->call_comment=g_strdup(pi->request_method);
 
-			g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-			/* insert the call information in the SIP_HASH */
-			g_hash_table_insert(tapinfo->callsinfo_hashtable[SIP_HASH],
-					    tmp_sipinfo->call_identifier, callsinfo);
-		}
-	}
+            g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+            /* insert the call information in the SIP_HASH */
+            g_hash_table_insert(tapinfo->callsinfo_hashtable[SIP_HASH],
+                    tmp_sipinfo->call_identifier, callsinfo);
+        }
+    }
 
-	if (callsinfo!=NULL) {
-		tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
+    if (callsinfo!=NULL) {
+        tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
 
-		/* let's analyze the call state */
+        /* let's analyze the call state */
 
-		COPY_ADDRESS(&(tmp_src), &(pinfo->src));
-		COPY_ADDRESS(&(tmp_dst), &(pinfo->dst));
+        COPY_ADDRESS(&(tmp_src), &(pinfo->src));
+        COPY_ADDRESS(&(tmp_dst), &(pinfo->dst));
 
-		if (pi->request_method == NULL) {
-			frame_label = g_strdup_printf("%u %s", pi->response_code, pi->reason_phrase );
-			comment = g_strdup_printf("SIP Status %u %s", pi->response_code, pi->reason_phrase );
+        if (pi->request_method == NULL) {
+            frame_label = g_strdup_printf("%u %s", pi->response_code, pi->reason_phrase );
+            comment = g_strdup_printf("SIP Status %u %s", pi->response_code, pi->reason_phrase );
 
-			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(callsinfo->initial_speaker)))) {
-				if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)) {
-					tmp_sipinfo->sip_state = SIP_200_REC;
-				}
-				else if ((pi->response_code>299)&&(tmp_sipinfo->sip_state == SIP_INVITE_SENT)) {
-					callsinfo->call_state = VOIP_REJECTED;
-					tapinfo->rejected_calls++;
-				}
+            if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(callsinfo->initial_speaker)))) {
+                if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)) {
+                    tmp_sipinfo->sip_state = SIP_200_REC;
+                }
+                else if ((pi->response_code>299)&&(tmp_sipinfo->sip_state == SIP_INVITE_SENT)) {
+                    callsinfo->call_state = VOIP_REJECTED;
+                    tapinfo->rejected_calls++;
+                }
 
-				/* UPDATE comment in conversation list dialog with response code and reason.
-				   Multiple code(+reason) may be appended, so skip over intermediate codes (100 trying, 183 ringing, e.t.c.)
-				   TODO: is useful but not perfect, what is appended is truncated when displayed in dialog window */
-				if (pi->response_code >= 200) {
-					old_comment = callsinfo->call_comment;
-					callsinfo->call_comment=g_strdup_printf("%s %u",
-										callsinfo->call_comment,
-										pi->response_code/*, pi->reason_phrase*/);
+                /* UPDATE comment in conversation list dialog with response code and reason.
+                   Multiple code(+reason) may be appended, so skip over intermediate codes (100 trying, 183 ringing, e.t.c.)
+TODO: is useful but not perfect, what is appended is truncated when displayed in dialog window */
+                if (pi->response_code >= 200) {
+                    old_comment = callsinfo->call_comment;
+                    callsinfo->call_comment=g_strdup_printf("%s %u",
+                            callsinfo->call_comment,
+                            pi->response_code/*, pi->reason_phrase*/);
 
-					g_free(old_comment);
-				}
+                    g_free(old_comment);
+                }
 
-			}
+            }
 
-		}
-		else {
-			frame_label = g_strdup(pi->request_method);
+        }
+        else {
+            frame_label = g_strdup(pi->request_method);
 
-			if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))) {
-				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
-				callsinfo->call_state = VOIP_CALL_SETUP;
-				/* TODO: sometimes truncated when displayed in dialog window */
-				comment = g_strdup_printf("SIP INVITE From: %s To:%s Call-ID:%s CSeq:%d",
-							  callsinfo->from_identity, callsinfo->to_identity,
-							  callsinfo->call_id, pi->tap_cseq_number);
-			}
-			else if ((strcmp(pi->request_method,"ACK")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
-				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)
-				&&(callsinfo->call_state == VOIP_CALL_SETUP)) {
-				callsinfo->call_state = VOIP_IN_CALL;
-				comment = g_strdup_printf("SIP Request INVITE ACK 200 CSeq:%d", pi->tap_cseq_number);
-			}
-			else if (strcmp(pi->request_method,"BYE")==0) {
-				callsinfo->call_state = VOIP_COMPLETED;
-				tapinfo->completed_calls++;
-				comment = g_strdup_printf("SIP Request BYE CSeq:%d", pi->tap_cseq_number);
-			}
-			else if ((strcmp(pi->request_method,"CANCEL")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
-				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(callsinfo->call_state==VOIP_CALL_SETUP)) {
-				callsinfo->call_state = VOIP_CANCELLED;
-				tmp_sipinfo->sip_state = SIP_CANCEL_SENT;
-				comment = g_strdup_printf("SIP Request CANCEL CSeq:%d", pi->tap_cseq_number);
-			} else {
-				/* comment = g_strdup_printf("SIP %s", pi->request_method); */
-				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
-				callsinfo->call_state = VOIP_CALL_SETUP;
-				comment = g_strdup_printf("SIP %s From: %s To:%s CSeq:%d",
-							  pi->request_method,
-							  callsinfo->from_identity,
-							  callsinfo->to_identity, pi->tap_cseq_number);
-			}
-		}
+            if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))) {
+                tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
+                callsinfo->call_state = VOIP_CALL_SETUP;
+                /* TODO: sometimes truncated when displayed in dialog window */
+                comment = g_strdup_printf("SIP INVITE From: %s To:%s Call-ID:%s CSeq:%d",
+                        callsinfo->from_identity, callsinfo->to_identity,
+                        callsinfo->call_id, pi->tap_cseq_number);
+            }
+            else if ((strcmp(pi->request_method,"ACK")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
+                    &&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)
+                    &&(callsinfo->call_state == VOIP_CALL_SETUP)) {
+                callsinfo->call_state = VOIP_IN_CALL;
+                comment = g_strdup_printf("SIP Request INVITE ACK 200 CSeq:%d", pi->tap_cseq_number);
+            }
+            else if (strcmp(pi->request_method,"BYE")==0) {
+                callsinfo->call_state = VOIP_COMPLETED;
+                tapinfo->completed_calls++;
+                comment = g_strdup_printf("SIP Request BYE CSeq:%d", pi->tap_cseq_number);
+            }
+            else if ((strcmp(pi->request_method,"CANCEL")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
+                    &&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(callsinfo->call_state==VOIP_CALL_SETUP)) {
+                callsinfo->call_state = VOIP_CANCELLED;
+                tmp_sipinfo->sip_state = SIP_CANCEL_SENT;
+                comment = g_strdup_printf("SIP Request CANCEL CSeq:%d", pi->tap_cseq_number);
+            } else {
+                /* comment = g_strdup_printf("SIP %s", pi->request_method); */
+                tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
+                callsinfo->call_state = VOIP_CALL_SETUP;
+                comment = g_strdup_printf("SIP %s From: %s To:%s CSeq:%d",
+                        pi->request_method,
+                        callsinfo->from_identity,
+                        callsinfo->to_identity, pi->tap_cseq_number);
+            }
+        }
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
 
-		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-		g_free(comment);
-		g_free(frame_label);
-		g_free((void *)tmp_src.data);
-		g_free((void *)tmp_dst.data);
+        /* add to the graph */
+        add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+        g_free(comment);
+        g_free(frame_label);
+        g_free((void *)tmp_src.data);
+        g_free((void *)tmp_dst.data);
 
-		/* add SDP info if apply */
-		if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ) {
-				append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
-				g_free(sdp_summary);
-				sdp_summary = NULL;
-		}
+        /* add SDP info if apply */
+        if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ) {
+            append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+            g_free(sdp_summary);
+            sdp_summary = NULL;
+        }
 
-	}
+    }
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 
 /****************************************************************************/
 voip_calls_tapinfo_t* voip_calls_get_info(void)
 {
-	/* the one and only global voip_calls_tapinfo_t structure */
-	static voip_calls_tapinfo_t the_tapinfo_struct =
-			{0, NULL, {0}, 0, NULL, 0, 0, 0, 0, NULL, NULL, FALSE};
-	/* XXX set "session" to cfile.epan */
-	if (!the_tapinfo_struct.callsinfos) {
-		/* not initialized yet */
-		the_tapinfo_struct.callsinfos = g_queue_new();
-	}
-	return &the_tapinfo_struct;
+    /* the one and only global voip_calls_tapinfo_t structure */
+    static voip_calls_tapinfo_t the_tapinfo_struct =
+        {0, NULL, {0}, 0, NULL, 0, 0, 0, 0, NULL, NULL, FALSE};
+    /* XXX set "session" to cfile.epan */
+    if (!the_tapinfo_struct.callsinfos) {
+        /* not initialized yet */
+        the_tapinfo_struct.callsinfos = g_queue_new();
+    }
+    return &the_tapinfo_struct;
 }
 
 /****************************************************************************/
@@ -1199,26 +1198,26 @@ voip_calls_tapinfo_t* voip_calls_get_info(void)
 void
 sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("sip", tap_base_to_id(tap_id_base, tap_id_offset_sip_), NULL,
-		0,
-		voip_calls_dlg_reset,
-		sip_calls_packet,
-		voip_calls_dlg_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    error_string = register_tap_listener("sip", tap_base_to_id(tap_id_base, tap_id_offset_sip_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            sip_calls_packet,
+            voip_calls_dlg_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sip_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sip_));
 }
 
 /****************************************************************************/
@@ -1235,160 +1234,159 @@ static 	guint32		mtp3_frame_num;
 static int
 isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *isup_info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	isup_calls_info_t *tmp_isupinfo;
-	gboolean found = FALSE;
-	gboolean forward = FALSE;
-	gboolean right_pair;
-	GList *list;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    isup_calls_info_t *tmp_isupinfo;
+    gboolean found = FALSE;
+    gboolean forward = FALSE;
+    gboolean right_pair;
+    GList *list;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
 
-	const isup_tap_rec_t *pi = (const isup_tap_rec_t *)isup_info;
+    const isup_tap_rec_t *pi = (const isup_tap_rec_t *)isup_info;
 
-	/* check if the lower layer is MTP matching the frame number */
-	if (mtp3_frame_num != pinfo->fd->num) return 0;
+    /* check if the lower layer is MTP matching the frame number */
+    if (mtp3_frame_num != pinfo->fd->num) return 0;
 
-	/* check whether we already have a call with these parameters in the list */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		right_pair = TRUE;
-		tmp_listinfo=(voip_calls_info_t *)list->data;
-		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)) {
-			tmp_isupinfo = (isup_calls_info_t *)tmp_listinfo->prot_info;
-			if ((tmp_isupinfo->cic == pi->circuit_id)&&(tmp_isupinfo->ni == mtp3_ni)) {
-				if ((tmp_isupinfo->opc == mtp3_opc)&&(tmp_isupinfo->dpc == mtp3_dpc)) {
-					 forward = TRUE;
-				} else if ((tmp_isupinfo->dpc == mtp3_opc)&&(tmp_isupinfo->opc == mtp3_dpc)) {
-					 forward = FALSE;
-				} else {
-					right_pair = FALSE;
-				}
+    /* check whether we already have a call with these parameters in the list */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        right_pair = TRUE;
+        tmp_listinfo=(voip_calls_info_t *)list->data;
+        if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)) {
+            tmp_isupinfo = (isup_calls_info_t *)tmp_listinfo->prot_info;
+            if ((tmp_isupinfo->cic == pi->circuit_id)&&(tmp_isupinfo->ni == mtp3_ni)) {
+                if ((tmp_isupinfo->opc == mtp3_opc)&&(tmp_isupinfo->dpc == mtp3_dpc)) {
+                    forward = TRUE;
+                } else if ((tmp_isupinfo->dpc == mtp3_opc)&&(tmp_isupinfo->opc == mtp3_dpc)) {
+                    forward = FALSE;
+                } else {
+                    right_pair = FALSE;
+                }
 
-				 if (right_pair) {
-					/* if there is an IAM for a call that is not in setup state, that means the previous call in the same
-					   cic is no longer active */
-					if (tmp_listinfo->call_state == VOIP_CALL_SETUP) {
-						found = TRUE;
-					} else if (pi->message_type != 1) {
-						found = TRUE;
-					} else {
-						tmp_listinfo->call_active_state=VOIP_INACTIVE;
-					}
-				}
+                if (right_pair) {
+                    /* if there is an IAM for a call that is not in setup state, that means the previous call in the same
+                       cic is no longer active */
+                    if (tmp_listinfo->call_state == VOIP_CALL_SETUP) {
+                        found = TRUE;
+                    } else if (pi->message_type != 1) {
+                        found = TRUE;
+                    } else {
+                        tmp_listinfo->call_active_state=VOIP_INACTIVE;
+                    }
+                }
 
-				if (found) {
-					callsinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-		}
-		list = g_list_next (list);
-	}
+                if (found) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
+                    break;
+                }
+            }
+        }
+        list = g_list_next (list);
+    }
 
-	/* not in the list? then create a new entry if the message is IAM
-	   -i.e. if this session is a call*/
+    /* not in the list? then create a new entry if the message is IAM
+       -i.e. if this session is a call*/
 
-
-	if ((callsinfo==NULL) &&(pi->message_type==1)) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		callsinfo->call_state = VOIP_UNKNOWN;
-		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-		callsinfo->selected=FALSE;
-		callsinfo->start_fd=pinfo->fd;
-		callsinfo->start_rel_ts=pinfo->rel_ts;
-		callsinfo->protocol=VOIP_ISUP;
-		if (pi->calling_number!=NULL) {
-			callsinfo->from_identity=g_strdup(pi->calling_number);
-		}
-		if (pi->called_number!=NULL) {
-			callsinfo->to_identity=g_strdup(pi->called_number);
-		}
-		callsinfo->prot_info=g_malloc(sizeof(isup_calls_info_t));
-		callsinfo->free_prot_info = g_free;
-		tmp_isupinfo=(isup_calls_info_t *)callsinfo->prot_info;
-		tmp_isupinfo->opc = mtp3_opc;
-		tmp_isupinfo->dpc = mtp3_dpc;
-		tmp_isupinfo->ni = mtp3_ni;
-		tmp_isupinfo->cic = pi->circuit_id;
-		callsinfo->npackets = 0;
-		callsinfo->call_num = tapinfo->ncalls++;
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	}
-
-
-	if (callsinfo!=NULL) {
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-
-		/* Let's analyze the call state */
-
-		frame_label = g_strdup(val_to_str_ext_const(pi->message_type, &isup_message_type_value_acro_ext, "Unknown"));
-
-		if (callsinfo->npackets == 1) { /* this is the first packet, that must be an IAM */
-
-			if ((pi->calling_number!=NULL)&&(pi->called_number !=NULL)) {
-				comment = g_strdup_printf("Call from %s to %s",
-				 pi->calling_number, pi->called_number);
-			 }
-		} else if (callsinfo->npackets == 2) { /* in the second packet we show the SPs */
-			if (forward) {
-				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
-				 mtp3_ni, mtp3_opc,
-				 mtp3_ni, mtp3_dpc, pi->circuit_id);
-			} else {
-				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
-				 mtp3_ni, mtp3_dpc,
-				 mtp3_ni, mtp3_opc, pi->circuit_id);
-			}
-		}
+    if ((callsinfo==NULL) &&(pi->message_type==1)) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        callsinfo->call_state = VOIP_UNKNOWN;
+        COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+        callsinfo->selected=FALSE;
+        callsinfo->start_fd=pinfo->fd;
+        callsinfo->start_rel_ts=pinfo->rel_ts;
+        callsinfo->protocol=VOIP_ISUP;
+        if (pi->calling_number!=NULL) {
+            callsinfo->from_identity=g_strdup(pi->calling_number);
+        }
+        if (pi->called_number!=NULL) {
+            callsinfo->to_identity=g_strdup(pi->called_number);
+        }
+        callsinfo->prot_info=g_malloc(sizeof(isup_calls_info_t));
+        callsinfo->free_prot_info = g_free;
+        tmp_isupinfo=(isup_calls_info_t *)callsinfo->prot_info;
+        tmp_isupinfo->opc = mtp3_opc;
+        tmp_isupinfo->dpc = mtp3_dpc;
+        tmp_isupinfo->ni = mtp3_ni;
+        tmp_isupinfo->cic = pi->circuit_id;
+        callsinfo->npackets = 0;
+        callsinfo->call_num = tapinfo->ncalls++;
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    }
 
 
-		switch(pi->message_type) {
-			case 1: /* IAM */
-				callsinfo->call_state=VOIP_CALL_SETUP;
-				break;
-			case 7: /* CONNECT */
-			case 9: /* ANSWER */
-				callsinfo->call_state=VOIP_IN_CALL;
-				break;
-			case 12: /* RELEASE */
-				if (callsinfo->call_state==VOIP_CALL_SETUP) {
-					if (forward) {
-						callsinfo->call_state=VOIP_CANCELLED;
-					}
-					else {
-						callsinfo->call_state=VOIP_REJECTED;
-						tapinfo->rejected_calls++;
-					}
-				}
-				else if (callsinfo->call_state == VOIP_IN_CALL) {
-					callsinfo->call_state = VOIP_COMPLETED;
-					tapinfo->completed_calls++;
-				}
-				comment = g_strdup_printf("Cause %i - %s",
-							  pi->cause_value,
-							  val_to_str_ext_const(pi->cause_value, &q931_cause_code_vals_ext, "(Unknown)"));
-				break;
-		}
+    if (callsinfo!=NULL) {
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
 
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+        /* Let's analyze the call state */
 
-		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-		g_free(comment);
-		g_free(frame_label);
-	}
+        frame_label = g_strdup(val_to_str_ext_const(pi->message_type, &isup_message_type_value_acro_ext, "Unknown"));
 
-	tapinfo->redraw = TRUE;
+        if (callsinfo->npackets == 1) { /* this is the first packet, that must be an IAM */
 
-	return 1;  /* refresh output */
+            if ((pi->calling_number!=NULL)&&(pi->called_number !=NULL)) {
+                comment = g_strdup_printf("Call from %s to %s",
+                        pi->calling_number, pi->called_number);
+            }
+        } else if (callsinfo->npackets == 2) { /* in the second packet we show the SPs */
+            if (forward) {
+                comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+                        mtp3_ni, mtp3_opc,
+                        mtp3_ni, mtp3_dpc, pi->circuit_id);
+            } else {
+                comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+                        mtp3_ni, mtp3_dpc,
+                        mtp3_ni, mtp3_opc, pi->circuit_id);
+            }
+        }
+
+
+        switch(pi->message_type) {
+            case 1: /* IAM */
+                callsinfo->call_state=VOIP_CALL_SETUP;
+                break;
+            case 7: /* CONNECT */
+            case 9: /* ANSWER */
+                callsinfo->call_state=VOIP_IN_CALL;
+                break;
+            case 12: /* RELEASE */
+                if (callsinfo->call_state==VOIP_CALL_SETUP) {
+                    if (forward) {
+                        callsinfo->call_state=VOIP_CANCELLED;
+                    }
+                    else {
+                        callsinfo->call_state=VOIP_REJECTED;
+                        tapinfo->rejected_calls++;
+                    }
+                }
+                else if (callsinfo->call_state == VOIP_IN_CALL) {
+                    callsinfo->call_state = VOIP_COMPLETED;
+                    tapinfo->completed_calls++;
+                }
+                comment = g_strdup_printf("Cause %i - %s",
+                        pi->cause_value,
+                        val_to_str_ext_const(pi->cause_value, &q931_cause_code_vals_ext, "(Unknown)"));
+                break;
+        }
+
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
+
+        /* add to the graph */
+        add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+        g_free(comment);
+        g_free(frame_label);
+    }
+
+    tapinfo->redraw = TRUE;
+
+    return 1;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1396,21 +1394,21 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 void
 isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("isup", tap_base_to_id(tap_id_base, tap_id_offset_isup_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		isup_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("isup", tap_base_to_id(tap_id_base, tap_id_offset_isup_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            isup_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
@@ -1418,7 +1416,7 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_isup_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_isup_));
 }
 
 
@@ -1432,16 +1430,16 @@ remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 static int
 mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
 {
-	const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
+    const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
 
-	/* keep the data in memory to use when the ISUP information arrives */
+    /* keep the data in memory to use when the ISUP information arrives */
 
-	mtp3_opc = pi->addr_opc.pc;
-	mtp3_dpc = pi->addr_dpc.pc;
-	mtp3_ni = pi->addr_opc.ni;
-	mtp3_frame_num = pinfo->fd->num;
+    mtp3_opc = pi->addr_opc.pc;
+    mtp3_dpc = pi->addr_dpc.pc;
+    mtp3_ni = pi->addr_opc.ni;
+    mtp3_frame_num = pinfo->fd->num;
 
-	return 0;
+    return 0;
 }
 
 /****************************************************************************/
@@ -1449,36 +1447,35 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 void
 mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
+    error_string = register_tap_listener("mtp3", tap_base_to_id(tap_id_base, tap_id_offset_mtp3_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            mtp3_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	error_string = register_tap_listener("mtp3", tap_base_to_id(tap_id_base, tap_id_offset_mtp3_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		mtp3_calls_packet,
-		voip_calls_dlg_draw
-		);
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            mtp3_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		mtp3_calls_packet,
-		voip_calls_dlg_draw
-		);
-
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 
 }
 
@@ -1487,8 +1484,8 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_mtp3_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mtp3_));
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_m3ua_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mtp3_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_m3ua_));
 }
 
 /****************************************************************************/
@@ -1519,258 +1516,258 @@ static gint32 actrace_direction = 0;
 static int
 q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *q931_info)
 {
-	GList *list,*list2;
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_q931_);
-	h323_calls_info_t *tmp_h323info,*tmp2_h323info;
-	actrace_isdn_calls_info_t *tmp_actrace_isdn_info;
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	h245_address_t *h245_add = NULL;
-	gchar *comment;
+    GList *list,*list2;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_q931_);
+    h323_calls_info_t *tmp_h323info,*tmp2_h323info;
+    actrace_isdn_calls_info_t *tmp_actrace_isdn_info;
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    h245_address_t *h245_add = NULL;
+    gchar *comment;
 
-	const q931_packet_info *pi = (const q931_packet_info *)q931_info;
+    const q931_packet_info *pi = (const q931_packet_info *)q931_info;
 
-	/* free previously allocated q931_calling/ed_number */
-	g_free(q931_calling_number);
-	g_free(q931_called_number);
+    /* free previously allocated q931_calling/ed_number */
+    g_free(q931_calling_number);
+    g_free(q931_called_number);
 
-	if (pi->calling_number!=NULL)
-		q931_calling_number = g_strdup(pi->calling_number);
-	else
-		q931_calling_number = g_strdup("");
+    if (pi->calling_number!=NULL)
+        q931_calling_number = g_strdup(pi->calling_number);
+    else
+        q931_calling_number = g_strdup("");
 
-	if (pi->called_number!=NULL)
-		q931_called_number = g_strdup(pi->called_number);
-	else
-		q931_called_number = g_strdup("");
-	q931_cause_value = pi->cause_value;
-	q931_frame_num = pinfo->fd->num;
-	q931_crv = pi->crv;
+    if (pi->called_number!=NULL)
+        q931_called_number = g_strdup(pi->called_number);
+    else
+        q931_called_number = g_strdup("");
+    q931_cause_value = pi->cause_value;
+    q931_frame_num = pinfo->fd->num;
+    q931_crv = pi->crv;
 
 
-	/* add staff to H323 calls */
-	if (h225_frame_num == q931_frame_num) {
-		tmp_h323info = NULL;
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if ( (tmp_listinfo->protocol == VOIP_H323) && (tmp_listinfo->call_num == h225_call_num) ) {
-				tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
-				callsinfo = (voip_calls_info_t*)(list->data);
+    /* add staff to H323 calls */
+    if (h225_frame_num == q931_frame_num) {
+        tmp_h323info = NULL;
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if ( (tmp_listinfo->protocol == VOIP_H323) && (tmp_listinfo->call_num == h225_call_num) ) {
+                tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+                callsinfo = (voip_calls_info_t*)(list->data);
 
-				/* Add the CRV to the h323 call */
-				if (tmp_h323info->q931_crv == -1) {
-					tmp_h323info->q931_crv = q931_crv;
-				} else if (tmp_h323info->q931_crv != q931_crv) {
-					tmp_h323info->q931_crv2 = q931_crv;
-				}
-				break;
-			}
-			list = g_list_next (list);
-		}
+                /* Add the CRV to the h323 call */
+                if (tmp_h323info->q931_crv == -1) {
+                    tmp_h323info->q931_crv = q931_crv;
+                } else if (tmp_h323info->q931_crv != q931_crv) {
+                    tmp_h323info->q931_crv2 = q931_crv;
+                }
+                break;
+            }
+            list = g_list_next (list);
+        }
 
-		if (callsinfo != NULL) {
-			comment = NULL;
-			if (h225_cstype == H225_SETUP) {
-				/* set te calling and called number from the Q931 packet */
-				if (q931_calling_number != NULL) {
-					g_free(callsinfo->from_identity);
-					callsinfo->from_identity=g_strdup(q931_calling_number);
-				}
-				if (q931_called_number != NULL) {
-					g_free(callsinfo->to_identity);
-					callsinfo->to_identity=g_strdup(q931_called_number);
-				}
+        if (callsinfo != NULL) {
+            comment = NULL;
+            if (h225_cstype == H225_SETUP) {
+                /* set te calling and called number from the Q931 packet */
+                if (q931_calling_number != NULL) {
+                    g_free(callsinfo->from_identity);
+                    callsinfo->from_identity=g_strdup(q931_calling_number);
+                }
+                if (q931_called_number != NULL) {
+                    g_free(callsinfo->to_identity);
+                    callsinfo->to_identity=g_strdup(q931_called_number);
+                }
 
-				/* check if there is an LRQ/LCF that match this Setup */
-				/* TODO: we are just checking the DialedNumer in LRQ/LCF against the Setup
-					we should also check if the h225 signaling IP and port match the destination
-					Setup ip and port */
-				list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-				while (list)
-				{
-					tmp_listinfo=(voip_calls_info_t *)list->data;
-					if (tmp_listinfo->protocol == VOIP_H323) {
-						tmp2_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+                /* check if there is an LRQ/LCF that match this Setup */
+                /* TODO: we are just checking the DialedNumer in LRQ/LCF against the Setup
+                   we should also check if the h225 signaling IP and port match the destination
+                   Setup ip and port */
+                list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+                while (list)
+                {
+                    tmp_listinfo=(voip_calls_info_t *)list->data;
+                    if (tmp_listinfo->protocol == VOIP_H323) {
+                        tmp2_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
 
-						/* check if the called number match a LRQ/LCF */
-						if ( (strcmp(callsinfo->to_identity, tmp_listinfo->to_identity)==0)
-							 && (memcmp(&tmp2_h323info->guid, &guid_allzero, GUID_LEN) == 0) ) {
-							/* change the call graph to the LRQ/LCF to belong to this call */
-							callsinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, callsinfo->call_num);
+                        /* check if the called number match a LRQ/LCF */
+                        if ( (strcmp(callsinfo->to_identity, tmp_listinfo->to_identity)==0)
+                                && (memcmp(&tmp2_h323info->guid, &guid_allzero, GUID_LEN) == 0) ) {
+                            /* change the call graph to the LRQ/LCF to belong to this call */
+                            callsinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, callsinfo->call_num);
 
-							/* remove this LRQ/LCF call entry because we have found the Setup that match them */
-							g_free(tmp_listinfo->from_identity);
-							g_free(tmp_listinfo->to_identity);
-							DUMP_PTR2(tmp2_h323info->guid);
-							g_free(tmp2_h323info->guid);
+                            /* remove this LRQ/LCF call entry because we have found the Setup that match them */
+                            g_free(tmp_listinfo->from_identity);
+                            g_free(tmp_listinfo->to_identity);
+                            DUMP_PTR2(tmp2_h323info->guid);
+                            g_free(tmp2_h323info->guid);
 
-							list2 = g_list_first(tmp2_h323info->h245_list);
-							while (list2)
-							{
-								h245_add=(h245_address_t *)list2->data;
-								g_free((void *)h245_add->h245_address.data);
-								g_free(list2->data);
-								list2 = g_list_next(list2);
-							}
-							g_list_free(tmp_h323info->h245_list);
-							tmp_h323info->h245_list = NULL;
-							g_free(tmp_listinfo->prot_info);
-							g_queue_unlink(tapinfo->callsinfos, list);
-							break;
-						}
-					}
-			        list = g_list_next (list);
-				}
+                            list2 = g_list_first(tmp2_h323info->h245_list);
+                            while (list2)
+                            {
+                                h245_add=(h245_address_t *)list2->data;
+                                g_free((void *)h245_add->h245_address.data);
+                                g_free(list2->data);
+                                list2 = g_list_next(list2);
+                            }
+                            g_list_free(tmp_h323info->h245_list);
+                            tmp_h323info->h245_list = NULL;
+                            g_free(tmp_listinfo->prot_info);
+                            g_queue_unlink(tapinfo->callsinfos, list);
+                            break;
+                        }
+                    }
+                    list = g_list_next (list);
+                }
 
-				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", callsinfo->from_identity, callsinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-							  (h225_is_faststart==TRUE?"on":"off"));
-			} else if (h225_cstype == H225_RELEASE_COMPLET) {
-				/* get the Q931 Release cause code */
-				if (q931_cause_value != 0xFF) {
-					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value,
-								  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
-				} else { /* Cause not set */
-					comment = g_strdup("H225 No Q931 Rel Cause");
-				}
-			}
-			/* change the graph comment for this new one */
-			if (comment != NULL) {
-				change_frame_graph(tapinfo, h225_frame_num, NULL, comment);
-				g_free(comment);
-			}
-		}
-		/* we reset the h225_frame_num to 0 because there could be empty h225 in the same frame
-		   as non empty h225 (e.g connect), so we don't have to be here twice */
-		h225_frame_num = 0;
+                comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", callsinfo->from_identity, callsinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+                        (h225_is_faststart==TRUE?"on":"off"));
+            } else if (h225_cstype == H225_RELEASE_COMPLET) {
+                /* get the Q931 Release cause code */
+                if (q931_cause_value != 0xFF) {
+                    comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value,
+                            val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+                } else { /* Cause not set */
+                    comment = g_strdup("H225 No Q931 Rel Cause");
+                }
+            }
+            /* change the graph comment for this new one */
+            if (comment != NULL) {
+                change_frame_graph(tapinfo, h225_frame_num, NULL, comment);
+                g_free(comment);
+            }
+        }
+        /* we reset the h225_frame_num to 0 because there could be empty h225 in the same frame
+           as non empty h225 (e.g connect), so we don't have to be here twice */
+        h225_frame_num = 0;
 
-	/* add staff to H245 */
-	} else if (h245_labels.frame_num == q931_frame_num) {
-	/* there are empty H225 frames that don't have guid (guaid=0) but they have h245 info,
-	   so the only way to match those frames is with the Q931 CRV number */
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if (tmp_listinfo->protocol == VOIP_H323) {
-				tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
-				if ( ((tmp_h323info->q931_crv == q931_crv) || (tmp_h323info->q931_crv2 == q931_crv)) && (q931_crv!=-1)) {
-					/* if the frame number exists in graph, append to it*/
-					if (!append_to_frame_graph(tapinfo, q931_frame_num, NULL, NULL)) {
-						/* if not exist, add to the graph */
-						add_to_graph(tapinfo, pinfo, edt, NULL, NULL, tmp_listinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-						++(tmp_listinfo->npackets);
-						/* increment the packets counter of all calls */
-						++(tapinfo->npackets);
-					}
+        /* add staff to H245 */
+    } else if (h245_labels.frame_num == q931_frame_num) {
+        /* there are empty H225 frames that don't have guid (guaid=0) but they have h245 info,
+           so the only way to match those frames is with the Q931 CRV number */
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if (tmp_listinfo->protocol == VOIP_H323) {
+                tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+                if ( ((tmp_h323info->q931_crv == q931_crv) || (tmp_h323info->q931_crv2 == q931_crv)) && (q931_crv!=-1)) {
+                    /* if the frame number exists in graph, append to it*/
+                    if (!append_to_frame_graph(tapinfo, q931_frame_num, NULL, NULL)) {
+                        /* if not exist, add to the graph */
+                        add_to_graph(tapinfo, pinfo, edt, NULL, NULL, tmp_listinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+                        ++(tmp_listinfo->npackets);
+                        /* increment the packets counter of all calls */
+                        ++(tapinfo->npackets);
+                    }
 
-					/* Add the H245 info if exists to the Graph */
-					h245_add_to_graph(tapinfo, pinfo->fd->num);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
+                    /* Add the H245 info if exists to the Graph */
+                    h245_add_to_graph(tapinfo, pinfo->fd->num);
+                    break;
+                }
+            }
+            list = g_list_next (list);
+        }
 
-	/* add stuff to ACTRACE */
-	} else {
-		address pstn_add;
+        /* add stuff to ACTRACE */
+    } else {
+        address pstn_add;
 
-		comment = NULL;
-		callsinfo = NULL;
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if ( tmp_listinfo->protocol == VOIP_AC_ISDN ) {
-				tmp_actrace_isdn_info = (actrace_isdn_calls_info_t *)tmp_listinfo->prot_info;
-				/* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
-				if ( (tmp_actrace_isdn_info->crv == q931_crv) && (tmp_actrace_isdn_info->trunk == actrace_trunk) ) {
-					callsinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
+        comment = NULL;
+        callsinfo = NULL;
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if ( tmp_listinfo->protocol == VOIP_AC_ISDN ) {
+                tmp_actrace_isdn_info = (actrace_isdn_calls_info_t *)tmp_listinfo->prot_info;
+                /* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
+                if ( (tmp_actrace_isdn_info->crv == q931_crv) && (tmp_actrace_isdn_info->trunk == actrace_trunk) ) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
+                    break;
+                }
+            }
+            list = g_list_next (list);
+        }
 
-		SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, g_strdup("PSTN"));
+        SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, g_strdup("PSTN"));
 
-		/* if it is a new call, add it to the list */
-		if (!callsinfo) {
-			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_CALL_SETUP;
-			callsinfo->from_identity=g_strdup(q931_calling_number);
-			callsinfo->to_identity=g_strdup(q931_called_number);
-			COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
-			callsinfo->selected=FALSE;
-			callsinfo->start_fd=pinfo->fd;
-			callsinfo->start_rel_ts=pinfo->rel_ts;
-			callsinfo->protocol=VOIP_AC_ISDN;
-			callsinfo->prot_info=g_malloc(sizeof(actrace_isdn_calls_info_t));
-			callsinfo->free_prot_info = g_free;
-			tmp_actrace_isdn_info=(actrace_isdn_calls_info_t *)callsinfo->prot_info;
-			tmp_actrace_isdn_info->crv=q931_crv;
-			tmp_actrace_isdn_info->trunk=actrace_trunk;
-			callsinfo->npackets = 0;
-			callsinfo->call_num = tapinfo->ncalls++;
-			g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-		}
+        /* if it is a new call, add it to the list */
+        if (!callsinfo) {
+            callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_CALL_SETUP;
+            callsinfo->from_identity=g_strdup(q931_calling_number);
+            callsinfo->to_identity=g_strdup(q931_called_number);
+            COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
+            callsinfo->selected=FALSE;
+            callsinfo->start_fd=pinfo->fd;
+            callsinfo->start_rel_ts=pinfo->rel_ts;
+            callsinfo->protocol=VOIP_AC_ISDN;
+            callsinfo->prot_info=g_malloc(sizeof(actrace_isdn_calls_info_t));
+            callsinfo->free_prot_info = g_free;
+            tmp_actrace_isdn_info=(actrace_isdn_calls_info_t *)callsinfo->prot_info;
+            tmp_actrace_isdn_info->crv=q931_crv;
+            tmp_actrace_isdn_info->trunk=actrace_trunk;
+            callsinfo->npackets = 0;
+            callsinfo->call_num = tapinfo->ncalls++;
+            g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+        }
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
 
-		switch(pi->message_type) {
-		case Q931_SETUP:
-			comment = g_strdup_printf("AC_ISDN trunk:%u Calling: %s  Called:%s", actrace_trunk, q931_calling_number, q931_called_number);
-			callsinfo->call_state=VOIP_CALL_SETUP;
-			break;
-		case Q931_CONNECT:
-			callsinfo->call_state=VOIP_IN_CALL;
-			break;
-		case Q931_RELEASE_COMPLETE:
-		case Q931_RELEASE:
-		case Q931_DISCONNECT:
-			if (callsinfo->call_state==VOIP_CALL_SETUP) {
-				if (ADDRESSES_EQUAL(&(callsinfo->initial_speaker), actrace_direction?&pstn_add:&(pinfo->src) )) {  /* forward direction */
-					callsinfo->call_state=VOIP_CANCELLED;
-				}
-				else {												/* reverse */
-					callsinfo->call_state=VOIP_REJECTED;
-					tapinfo->rejected_calls++;
-				}
-			} else if ( (callsinfo->call_state!=VOIP_CANCELLED) && (callsinfo->call_state!=VOIP_REJECTED) ) {
-					callsinfo->call_state=VOIP_COMPLETED;
-					tapinfo->completed_calls++;
-			}
-			if (q931_cause_value != 0xFF) {
-				comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value,
-							  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
-			} else { /* Cause not set */
-				comment = g_strdup("AC_ISDN No Q931 Rel Cause");
-			}
-			break;
-		}
+        switch(pi->message_type) {
+            case Q931_SETUP:
+                comment = g_strdup_printf("AC_ISDN trunk:%u Calling: %s  Called:%s", actrace_trunk, q931_calling_number, q931_called_number);
+                callsinfo->call_state=VOIP_CALL_SETUP;
+                break;
+            case Q931_CONNECT:
+                callsinfo->call_state=VOIP_IN_CALL;
+                break;
+            case Q931_RELEASE_COMPLETE:
+            case Q931_RELEASE:
+            case Q931_DISCONNECT:
+                if (callsinfo->call_state==VOIP_CALL_SETUP) {
+                    if (ADDRESSES_EQUAL(&(callsinfo->initial_speaker), actrace_direction?&pstn_add:&(pinfo->src) )) {  /* forward direction */
+                        callsinfo->call_state=VOIP_CANCELLED;
+                    }
+                    else {												/* reverse */
+                        callsinfo->call_state=VOIP_REJECTED;
+                        tapinfo->rejected_calls++;
+                    }
+                } else if ( (callsinfo->call_state!=VOIP_CANCELLED) && (callsinfo->call_state!=VOIP_REJECTED) ) {
+                    callsinfo->call_state=VOIP_COMPLETED;
+                    tapinfo->completed_calls++;
+                }
+                if (q931_cause_value != 0xFF) {
+                    comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value,
+                            val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+                } else { /* Cause not set */
+                    comment = g_strdup("AC_ISDN No Q931 Rel Cause");
+                }
+                break;
+        }
 
-		if (!comment)
-			comment = g_strdup_printf("AC_ISDN  trunk:%u", actrace_trunk );
+        if (!comment)
+            comment = g_strdup_printf("AC_ISDN  trunk:%u", actrace_trunk );
 
-		add_to_graph(tapinfo, pinfo, edt, val_to_str(pi->message_type, q931_message_type_vals, "<unknown>") , comment, callsinfo->call_num,
-				actrace_direction?&pstn_add:&(pinfo->src),
-				actrace_direction?&(pinfo->src):&pstn_add,
-				1 );
+        add_to_graph(tapinfo, pinfo, edt, val_to_str(pi->message_type, q931_message_type_vals, "<unknown>") , comment, callsinfo->call_num,
+                actrace_direction?&pstn_add:&(pinfo->src),
+                actrace_direction?&(pinfo->src):&pstn_add,
+                1 );
 
-		g_free(comment);
-		g_free((char *)pstn_add.data);
-	}
+        g_free(comment);
+        g_free((char *)pstn_add.data);
+    }
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1778,21 +1775,21 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 void
 q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("q931", tap_base_to_id(tap_id_base, tap_id_offset_q931_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		q931_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("q931", tap_base_to_id(tap_id_base, tap_id_offset_q931_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            q931_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
@@ -1800,7 +1797,7 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_q931_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_q931_));
 }
 
 /****************************************************************************/
@@ -1809,249 +1806,249 @@ remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base)
 
 static void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
 {
-	h323info->h245_list = g_list_prepend(h323info->h245_list, h245_address);
+    h323info->h245_list = g_list_prepend(h323info->h245_list, h245_address);
 }
 
 
 static void free_h225_info(gpointer p) {
-	h323_calls_info_t *tmp_h323info = (h323_calls_info_t *)p;
+    h323_calls_info_t *tmp_h323info = (h323_calls_info_t *)p;
 
-	DUMP_PTR2(tmp_h323info->guid);
-	g_free(tmp_h323info->guid);
+    DUMP_PTR2(tmp_h323info->guid);
+    g_free(tmp_h323info->guid);
 
-	if (tmp_h323info->h245_list) {
-		GList *list2 = g_list_first(tmp_h323info->h245_list);
-		while (list2)
-		{
-			h245_address_t *h245_add=(h245_address_t *)list2->data;
-			g_free((void *)h245_add->h245_address.data);
-			g_free(list2->data);
-			list2 = g_list_next(list2);
-		}
+    if (tmp_h323info->h245_list) {
+        GList *list2 = g_list_first(tmp_h323info->h245_list);
+        while (list2)
+        {
+            h245_address_t *h245_add=(h245_address_t *)list2->data;
+            g_free((void *)h245_add->h245_address.data);
+            g_free(list2->data);
+            list2 = g_list_next(list2);
+        }
 
-		g_list_free(tmp_h323info->h245_list);
+        g_list_free(tmp_h323info->h245_list);
 
-	}
+    }
 
-	g_free(p);
+    g_free(p);
 }
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
 static int
 h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H225info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	h323_calls_info_t *tmp_h323info = NULL;
-	gchar *frame_label;
-	gchar *comment;
-	GList *list;
-	h245_address_t *h245_add = NULL;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    h323_calls_info_t *tmp_h323info = NULL;
+    gchar *frame_label;
+    gchar *comment;
+    GList *list;
+    h245_address_t *h245_add = NULL;
 
-	const h225_packet_info *pi = (const h225_packet_info *)H225info;
+    const h225_packet_info *pi = (const h225_packet_info *)H225info;
 
-	/* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
-	/* OR, if not guid and is H225 return because doesn't belong to a call */
-	if ((memcmp(&pi->guid, &guid_allzero, GUID_LEN) == 0))
-		if ( ((pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20))) || (pi->msg_type != H225_RAS) )
-			return 0;
+    /* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
+    /* OR, if not guid and is H225 return because doesn't belong to a call */
+    if ((memcmp(&pi->guid, &guid_allzero, GUID_LEN) == 0))
+        if ( ((pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20))) || (pi->msg_type != H225_RAS) )
+            return 0;
 
-	/* if it is RAS LCF or LRJ*/
-	if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) {
-		/* if the LCF/LRJ doesn't match to a LRQ, just return */
-		if (!pi->request_available) return 0;
+    /* if it is RAS LCF or LRJ*/
+    if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) {
+        /* if the LCF/LRJ doesn't match to a LRQ, just return */
+        if (!pi->request_available) return 0;
 
-		/* check whether we already have a call with this request SeqNum */
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			g_assert(tmp_listinfo != NULL);
-			if (tmp_listinfo->protocol == VOIP_H323) {
-				tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
-				if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
-					callsinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
-	} else {
-		/* check whether we already have a call with this guid in the list */
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if (tmp_listinfo->protocol == VOIP_H323) {
-				tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
-				g_assert(tmp_h323info != NULL);
-				if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ) {
-					callsinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
-	}
+        /* check whether we already have a call with this request SeqNum */
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            g_assert(tmp_listinfo != NULL);
+            if (tmp_listinfo->protocol == VOIP_H323) {
+                tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+                if (tmp_h323info->requestSeqNum == pi->requestSeqNum) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
+                    break;
+                }
+            }
+            list = g_list_next (list);
+        }
+    } else {
+        /* check whether we already have a call with this guid in the list */
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if (tmp_listinfo->protocol == VOIP_H323) {
+                tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+                g_assert(tmp_h323info != NULL);
+                if ( (memcmp(tmp_h323info->guid, &guid_allzero, GUID_LEN) != 0) && (memcmp(tmp_h323info->guid, &pi->guid,GUID_LEN)==0) ) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
+                    break;
+                }
+            }
+            list = g_list_next (list);
+        }
+    }
 
-	h225_cstype = pi->cs_type;
-	h225_is_faststart = pi->is_faststart;
+    h225_cstype = pi->cs_type;
+    h225_is_faststart = pi->is_faststart;
 
-	/* not in the list? then create a new entry */
-	if (callsinfo==NULL) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		callsinfo->call_state = VOIP_UNKNOWN;
-		callsinfo->from_identity=g_strdup("");
-		callsinfo->to_identity=g_strdup("");
-		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-		callsinfo->selected=FALSE;
-		callsinfo->start_fd=pinfo->fd;
-		callsinfo->start_rel_ts=pinfo->rel_ts;
-		callsinfo->protocol=VOIP_H323;
-		callsinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
-		callsinfo->free_prot_info = free_h225_info;
+    /* not in the list? then create a new entry */
+    if (callsinfo==NULL) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        callsinfo->call_state = VOIP_UNKNOWN;
+        callsinfo->from_identity=g_strdup("");
+        callsinfo->to_identity=g_strdup("");
+        COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+        callsinfo->selected=FALSE;
+        callsinfo->start_fd=pinfo->fd;
+        callsinfo->start_rel_ts=pinfo->rel_ts;
+        callsinfo->protocol=VOIP_H323;
+        callsinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
+        callsinfo->free_prot_info = free_h225_info;
 
-		tmp_h323info = (h323_calls_info_t *)callsinfo->prot_info;
-		g_assert(tmp_h323info != NULL);
-		tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
-		DUMP_PTR1(tmp_h323info->guid);
+        tmp_h323info = (h323_calls_info_t *)callsinfo->prot_info;
+        g_assert(tmp_h323info != NULL);
+        tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
+        DUMP_PTR1(tmp_h323info->guid);
 
-		tmp_h323info->h225SetupAddr.type = AT_NONE;
-		tmp_h323info->h225SetupAddr.len = 0;
-		tmp_h323info->h245_list = NULL;
-		tmp_h323info->is_faststart_Setup = FALSE;
-		tmp_h323info->is_faststart_Proc = FALSE;
-		tmp_h323info->is_h245Tunneling = FALSE;
-		tmp_h323info->is_h245 = FALSE;
-		tmp_h323info->q931_crv = -1;
-		tmp_h323info->q931_crv2 = -1;
-		tmp_h323info->requestSeqNum = 0;
-		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->npackets = 0;
+        tmp_h323info->h225SetupAddr.type = AT_NONE;
+        tmp_h323info->h225SetupAddr.len = 0;
+        tmp_h323info->h245_list = NULL;
+        tmp_h323info->is_faststart_Setup = FALSE;
+        tmp_h323info->is_faststart_Proc = FALSE;
+        tmp_h323info->is_h245Tunneling = FALSE;
+        tmp_h323info->is_h245 = FALSE;
+        tmp_h323info->q931_crv = -1;
+        tmp_h323info->q931_crv2 = -1;
+        tmp_h323info->requestSeqNum = 0;
+        callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->npackets = 0;
 
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	}
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    }
 
-	h225_frame_num = pinfo->fd->num;
-	h225_call_num = callsinfo->call_num;
+    h225_frame_num = pinfo->fd->num;
+    h225_call_num = callsinfo->call_num;
 
-	/* let's analyze the call state */
+    /* let's analyze the call state */
 
-	callsinfo->stop_fd = pinfo->fd;
-	callsinfo->stop_rel_ts = pinfo->rel_ts;
-	++(callsinfo->npackets);
-	/* increment the packets counter of all calls */
-	++(tapinfo->npackets);
+    callsinfo->stop_fd = pinfo->fd;
+    callsinfo->stop_rel_ts = pinfo->rel_ts;
+    ++(callsinfo->npackets);
+    /* increment the packets counter of all calls */
+    ++(tapinfo->npackets);
 
 
-	/* XXX: it is supposed to be initialized isn't it? */
-	g_assert(tmp_h323info != NULL);
+    /* XXX: it is supposed to be initialized isn't it? */
+    g_assert(tmp_h323info != NULL);
 
-	/* change the status */
-	if (pi->msg_type == H225_CS) {
+    /* change the status */
+    if (pi->msg_type == H225_CS) {
 
-		/* this is still IPv4 only, because the dissector is */
-		if (pi->is_h245 == TRUE) {
-			h245_add = (h245_address_t *)g_malloc(sizeof (h245_address_t));
-			h245_add->h245_address.type=AT_IPv4;
-			h245_add->h245_address.len=4;
-			h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
-			memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
-			h245_add->h245_port = pi->h245_port;
-			add_h245_Address(tmp_h323info, h245_add);
-		}
+        /* this is still IPv4 only, because the dissector is */
+        if (pi->is_h245 == TRUE) {
+            h245_add = (h245_address_t *)g_malloc(sizeof (h245_address_t));
+            h245_add->h245_address.type=AT_IPv4;
+            h245_add->h245_address.len=4;
+            h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
+            memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
+            h245_add->h245_port = pi->h245_port;
+            add_h245_Address(tmp_h323info, h245_add);
+        }
 
-		if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
+        if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
 
-		frame_label = g_strdup(pi->frame_label);
+        frame_label = g_strdup(pi->frame_label);
 
-		switch(pi->cs_type) {
-		case H225_SETUP:
-			tmp_h323info->is_faststart_Setup = pi->is_faststart;
+        switch(pi->cs_type) {
+            case H225_SETUP:
+                tmp_h323info->is_faststart_Setup = pi->is_faststart;
 
-			/* Set the Setup address if it was not set */
-			if (tmp_h323info->h225SetupAddr.type == AT_NONE)
-				COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
-			callsinfo->call_state=VOIP_CALL_SETUP;
-			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-									  (pi->is_faststart==TRUE?"on":"off"));
-			break;
-		case H225_CONNECT:
-			callsinfo->call_state=VOIP_IN_CALL;
-			if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
-				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-										  (pi->is_faststart==TRUE?"on":"off"));
-			break;
-		case H225_RELEASE_COMPLET:
-			if (callsinfo->call_state==VOIP_CALL_SETUP) {
-				if (ADDRESSES_EQUAL(&(tmp_h323info->h225SetupAddr),&(pinfo->src))) {  /* forward direction */
-					callsinfo->call_state=VOIP_CANCELLED;
-				}
-				else {	/* reverse */
-					callsinfo->call_state=VOIP_REJECTED;
-					tapinfo->rejected_calls++;
-				}
-			} else {
-					callsinfo->call_state=VOIP_COMPLETED;
-					tapinfo->completed_calls++;
-			}
-			comment = g_strdup("H225 No Q931 Rel Cause");
-			break;
-		case H225_PROGRESS:
-		case H225_ALERTING:
-		case H225_CALL_PROCEDING:
-			if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
-			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-									  (pi->is_faststart==TRUE?"on":"off"));
-			break;
-		default:
-			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-									  (pi->is_faststart==TRUE?"on":"off"));
+                /* Set the Setup address if it was not set */
+                if (tmp_h323info->h225SetupAddr.type == AT_NONE)
+                    COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
+                callsinfo->call_state=VOIP_CALL_SETUP;
+                comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+                        (pi->is_faststart==TRUE?"on":"off"));
+                break;
+            case H225_CONNECT:
+                callsinfo->call_state=VOIP_IN_CALL;
+                if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
+                comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+                        (pi->is_faststart==TRUE?"on":"off"));
+                break;
+            case H225_RELEASE_COMPLET:
+                if (callsinfo->call_state==VOIP_CALL_SETUP) {
+                    if (ADDRESSES_EQUAL(&(tmp_h323info->h225SetupAddr),&(pinfo->src))) {  /* forward direction */
+                        callsinfo->call_state=VOIP_CANCELLED;
+                    }
+                    else {	/* reverse */
+                        callsinfo->call_state=VOIP_REJECTED;
+                        tapinfo->rejected_calls++;
+                    }
+                } else {
+                    callsinfo->call_state=VOIP_COMPLETED;
+                    tapinfo->completed_calls++;
+                }
+                comment = g_strdup("H225 No Q931 Rel Cause");
+                break;
+            case H225_PROGRESS:
+            case H225_ALERTING:
+            case H225_CALL_PROCEDING:
+                if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
+                comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+                        (pi->is_faststart==TRUE?"on":"off"));
+                break;
+            default:
+                comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+                        (pi->is_faststart==TRUE?"on":"off"));
 
-		}
-	}
-	else if (pi->msg_type == H225_RAS) {
-		switch(pi->msg_tag) {
-		case 18:  /* LRQ */
-			if (!pi->is_duplicate) {
-				g_free(callsinfo->to_identity);
-				callsinfo->to_identity=g_strdup(pi->dialedDigits);
-				tmp_h323info->requestSeqNum = pi->requestSeqNum;
-			}
-		case 19: /* LCF */
-			if (strlen(pi->dialedDigits))
-				comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
-			else
-				comment = g_strdup("H225 RAS");
-			break;
-		default:
-			comment = g_strdup("H225 RAS");
-		}
-		frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
-	} else {
-		frame_label = g_strdup("H225: Unknown");
-		comment = NULL;
-	}
+        }
+    }
+    else if (pi->msg_type == H225_RAS) {
+        switch(pi->msg_tag) {
+            case 18:  /* LRQ */
+                if (!pi->is_duplicate) {
+                    g_free(callsinfo->to_identity);
+                    callsinfo->to_identity=g_strdup(pi->dialedDigits);
+                    tmp_h323info->requestSeqNum = pi->requestSeqNum;
+                }
+            case 19: /* LCF */
+                if (strlen(pi->dialedDigits))
+                    comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
+                else
+                    comment = g_strdup("H225 RAS");
+                break;
+            default:
+                comment = g_strdup("H225 RAS");
+        }
+        frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+    } else {
+        frame_label = g_strdup("H225: Unknown");
+        comment = NULL;
+    }
 
-	/* add to graph analysis */
+    /* add to graph analysis */
 
-	/* if the frame number exists in graph, append to it*/
-	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
-		/* if not exist, add to the graph */
-		add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-	}
+    /* if the frame number exists in graph, append to it*/
+    if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
+        /* if not exist, add to the graph */
+        add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    }
 
-	/* Add the H245 info if exists to the Graph */
-	h245_add_to_graph(tapinfo, pinfo->fd->num);
+    /* Add the H245 info if exists to the Graph */
+    h245_add_to_graph(tapinfo, pinfo->fd->num);
 
-	g_free(frame_label);
-	g_free(comment);
+    g_free(frame_label);
+    g_free(comment);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 
@@ -2061,76 +2058,76 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 void
 h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("h225", tap_base_to_id(tap_id_base, tap_id_offset_h225_), NULL,
-		0,
-		voip_calls_dlg_reset,
-        h225_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("h225", tap_base_to_id(tap_id_base, tap_id_offset_h225_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            h225_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h225_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h225_));
 }
 
 /* Add the h245 label info to the graph */
 void
 h245_add_to_graph(voip_calls_tapinfo_t *tapinfo, guint32 new_frame_num)
 {
-	gint8 n;
+    gint8 n;
 
-	if (new_frame_num != h245_labels.frame_num) return;
+    if (new_frame_num != h245_labels.frame_num) return;
 
-	for (n=0; n<h245_labels.labels_count; n++) {
-		append_to_frame_graph(tapinfo, new_frame_num, h245_labels.labels[n].frame_label, h245_labels.labels[n].comment);
-		g_free(h245_labels.labels[n].frame_label);
-		h245_labels.labels[n].frame_label = NULL;
-		g_free(h245_labels.labels[n].comment);
-		h245_labels.labels[n].comment = NULL;
-	}
-	h245_labels.frame_num = 0;
-	h245_labels.labels_count = 0;
+    for (n=0; n<h245_labels.labels_count; n++) {
+        append_to_frame_graph(tapinfo, new_frame_num, h245_labels.labels[n].frame_label, h245_labels.labels[n].comment);
+        g_free(h245_labels.labels[n].frame_label);
+        h245_labels.labels[n].frame_label = NULL;
+        g_free(h245_labels.labels[n].comment);
+        h245_labels.labels[n].comment = NULL;
+    }
+    h245_labels.frame_num = 0;
+    h245_labels.labels_count = 0;
 }
 
 /* free the h245_labels if the frame number is different */
 static void h245_free_labels(guint32 new_frame_num)
 {
-	gint8 n;
+    gint8 n;
 
-	if (new_frame_num == h245_labels.frame_num) return;
+    if (new_frame_num == h245_labels.frame_num) return;
 
-	for (n=0; n<h245_labels.labels_count; n++) {
-		g_free(h245_labels.labels[n].frame_label);
-		h245_labels.labels[n].frame_label = NULL;
-		g_free(h245_labels.labels[n].comment);
-		h245_labels.labels[n].comment = NULL;
-	}
-	h245_labels.frame_num = 0;
-	h245_labels.labels_count = 0;
+    for (n=0; n<h245_labels.labels_count; n++) {
+        g_free(h245_labels.labels[n].frame_label);
+        h245_labels.labels[n].frame_label = NULL;
+        g_free(h245_labels.labels[n].comment);
+        h245_labels.labels[n].comment = NULL;
+    }
+    h245_labels.frame_num = 0;
+    h245_labels.labels_count = 0;
 }
 
 /* add the frame_label and comment to h245_labels and free the actual one if it is different frame num */
 static void h245_add_label(guint32 new_frame_num, const gchar *frame_label, const gchar *comment)
 {
-	h245_free_labels(new_frame_num);
+    h245_free_labels(new_frame_num);
 
-	h245_labels.frame_num = new_frame_num;
-	h245_labels.labels[h245_labels.labels_count].frame_label = g_strdup(frame_label);
-	h245_labels.labels[h245_labels.labels_count].comment = g_strdup(comment);
+    h245_labels.frame_num = new_frame_num;
+    h245_labels.labels[h245_labels.labels_count].frame_label = g_strdup(frame_label);
+    h245_labels.labels[h245_labels.labels_count].comment = g_strdup(comment);
 
-	if (h245_labels.labels_count < (H245_MAX-1))
-		h245_labels.labels_count++;
+    if (h245_labels.labels_count < (H245_MAX-1))
+        h245_labels.labels_count++;
 
 }
 
@@ -2139,66 +2136,66 @@ static void h245_add_label(guint32 new_frame_num, const gchar *frame_label, cons
 static int
 h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H245info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	h323_calls_info_t *tmp_h323info;
-	GList *list;
-	GList *list2;
-	h245_address_t *h245_add = NULL;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    h323_calls_info_t *tmp_h323info;
+    GList *list;
+    GList *list2;
+    h245_address_t *h245_add = NULL;
 
-	const h245_packet_info *pi = (const h245_packet_info *)H245info;
+    const h245_packet_info *pi = (const h245_packet_info *)H245info;
 
-	/* check if Tunneling is OFF and we have a call with this H245 add */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		tmp_listinfo=(voip_calls_info_t *)list->data;
-		if (tmp_listinfo->protocol == VOIP_H323) {
-			tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
+    /* check if Tunneling is OFF and we have a call with this H245 add */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        tmp_listinfo=(voip_calls_info_t *)list->data;
+        if (tmp_listinfo->protocol == VOIP_H323) {
+            tmp_h323info = (h323_calls_info_t *)tmp_listinfo->prot_info;
 
-			list2 = g_list_first(tmp_h323info->h245_list);
-			while (list2)
-			{
-				h245_add=(h245_address_t *)list2->data;
-				if ( (ADDRESSES_EQUAL(&(h245_add->h245_address),&(pinfo->src)) && (h245_add->h245_port == pinfo->srcport))
-					|| (ADDRESSES_EQUAL(&(h245_add->h245_address),&(pinfo->dst)) && (h245_add->h245_port == pinfo->destport)) ) {
-					callsinfo = (voip_calls_info_t*)(list->data);
+            list2 = g_list_first(tmp_h323info->h245_list);
+            while (list2)
+            {
+                h245_add=(h245_address_t *)list2->data;
+                if ( (ADDRESSES_EQUAL(&(h245_add->h245_address),&(pinfo->src)) && (h245_add->h245_port == pinfo->srcport))
+                        || (ADDRESSES_EQUAL(&(h245_add->h245_address),&(pinfo->dst)) && (h245_add->h245_port == pinfo->destport)) ) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
 
-					++(callsinfo->npackets);
-					/* increment the packets counter of all calls */
-					++(tapinfo->npackets);
+                    ++(callsinfo->npackets);
+                    /* increment the packets counter of all calls */
+                    ++(tapinfo->npackets);
 
-					break;
-				}
-				list2 = g_list_next(list2);
-			}
-			if (callsinfo!=NULL) break;
-		}
-		list = g_list_next(list);
-	}
+                    break;
+                }
+                list2 = g_list_next(list2);
+            }
+            if (callsinfo!=NULL) break;
+        }
+        list = g_list_next(list);
+    }
 
-	/* Tunnel is OFF, and we matched the h245 add so we add it to graph */
-	if (callsinfo!=NULL) {
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
-		/* if the frame number exists in graph, append to it*/
-		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, pi->comment)) {
-			/* if not exist, add to the graph */
-			add_to_graph(tapinfo, pinfo, edt, pi->frame_label, pi->comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-		}
-	} else {
-	/* Tunnel is ON, so we save the label info to use it into h225 or q931 tap. OR may be
-		 tunnel OFF but we did not matched the h245 add, in this case nobady will set this label
-		 since the frame_num will not match */
+    /* Tunnel is OFF, and we matched the h245 add so we add it to graph */
+    if (callsinfo!=NULL) {
+        ++(callsinfo->npackets);
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
+        /* if the frame number exists in graph, append to it*/
+        if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, pi->comment)) {
+            /* if not exist, add to the graph */
+            add_to_graph(tapinfo, pinfo, edt, pi->frame_label, pi->comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+        }
+    } else {
+        /* Tunnel is ON, so we save the label info to use it into h225 or q931 tap. OR may be
+           tunnel OFF but we did not matched the h245 add, in this case nobady will set this label
+           since the frame_num will not match */
 
-		h245_add_label(pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
-	}
+        h245_add_label(pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
+    }
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 
@@ -2208,27 +2205,27 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 void
 h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("h245dg", tap_base_to_id(tap_id_base, tap_id_offset_h245dg_), NULL,
-		0,
-		voip_calls_dlg_reset,
-        h245dg_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("h245dg", tap_base_to_id(tap_id_base, tap_id_offset_h245dg_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            h245dg_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h245dg_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h245dg_));
 }
 
 /****************************************************************************/
@@ -2238,22 +2235,22 @@ remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 static int
 sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
-	const sdp_packet_info *pi = (const sdp_packet_info *)SDPinfo;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
+    const sdp_packet_info *pi = (const sdp_packet_info *)SDPinfo;
 
-	/* There are protocols like MGCP/SIP where the SDP is called before the tap for the
-	   MGCP/SIP packet, in those cases we assign the SPD summary to global lastSDPsummary
-	   to use it later
-	*/
-	g_free(sdp_summary);
-	sdp_frame_num = pinfo->fd->num;
-	/* Append to graph the SDP summary if the packet exists */
-	sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
-	append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+    /* There are protocols like MGCP/SIP where the SDP is called before the tap for the
+       MGCP/SIP packet, in those cases we assign the SPD summary to global lastSDPsummary
+       to use it later
+     */
+    g_free(sdp_summary);
+    sdp_frame_num = pinfo->fd->num;
+    /* Append to graph the SDP summary if the packet exists */
+    sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
+    append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 
@@ -2263,29 +2260,28 @@ sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
 void
 sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("sdp", tap_base_to_id(tap_id_base, tap_id_offset_sdp_), NULL,
-		0,
-		voip_calls_dlg_reset,
-        sdp_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("sdp", tap_base_to_id(tap_id_base, tap_id_offset_sdp_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            sdp_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sdp_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sdp_));
 }
-
 
 
 /****************************************************************************/
@@ -2298,26 +2294,26 @@ remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base)
 */
 static gboolean isSignal(const gchar *signal_str_p, const gchar *signalStr)
 {
-	gint i;
-	gchar **resultArray;
+    gint i;
+    gchar **resultArray;
 
-	/* if there is no signalStr, just return false */
-	if (signalStr == NULL) return FALSE;
+    /* if there is no signalStr, just return false */
+    if (signalStr == NULL) return FALSE;
 
-	/* if are both "blank" return true */
-	if ( (*signal_str_p == '\0') &&  (*signalStr == '\0') ) return TRUE;
+    /* if are both "blank" return true */
+    if ( (*signal_str_p == '\0') &&  (*signalStr == '\0') ) return TRUE;
 
-	/* look for signal in signalStr */
-	resultArray = g_strsplit(signalStr, ",", 10);
+    /* look for signal in signalStr */
+    resultArray = g_strsplit(signalStr, ",", 10);
 
-	for (i = 0; resultArray[i]; i++) {
-		g_strstrip(resultArray[i]);
-		if (strcmp(resultArray[i], signal_str_p) == 0) return TRUE;
-	}
+    for (i = 0; resultArray[i]; i++) {
+        g_strstrip(resultArray[i]);
+        if (strcmp(resultArray[i], signal_str_p) == 0) return TRUE;
+    }
 
-	g_strfreev(resultArray);
+    g_strfreev(resultArray);
 
-	return FALSE;
+    return FALSE;
 }
 
 /*
@@ -2326,20 +2322,20 @@ static gboolean isSignal(const gchar *signal_str_p, const gchar *signalStr)
 */
 static void mgcpCallerID(gchar *signalStr, gchar **callerId)
 {
-	gchar **arrayStr;
+    gchar **arrayStr;
 
-	/* if there is no signalStr, just return false */
-	if (signalStr == NULL) return;
+    /* if there is no signalStr, just return false */
+    if (signalStr == NULL) return;
 
-	arrayStr = g_strsplit(signalStr, "\"", 3);
+    arrayStr = g_strsplit(signalStr, "\"", 3);
 
-	/* look for the ci signal */
-	if (g_strv_length(arrayStr) == 3 && strstr(arrayStr[0], "ci(")) {
-		/* free the previous "From" field of the call, and assign the new */
-		g_free(*callerId);
-		*callerId = g_strdup(arrayStr[1]);
-	}
-	g_strfreev(arrayStr);
+    /* look for the ci signal */
+    if (g_strv_length(arrayStr) == 3 && strstr(arrayStr[0], "ci(")) {
+        /* free the previous "From" field of the call, and assign the new */
+        g_free(*callerId);
+        *callerId = g_strdup(arrayStr[1]);
+    }
+    g_strfreev(arrayStr);
 }
 
 
@@ -2349,50 +2345,50 @@ static void mgcpCallerID(gchar *signalStr, gchar **callerId)
 */
 static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 {
-	gchar *tmpStr;
-	gchar *resultStr;
-	gint i,j;
+    gchar *tmpStr;
+    gchar *resultStr;
+    gint i,j;
 
-	/* start with 1 for the null-terminator */
-	guint resultStrLen = 1;
+    /* start with 1 for the null-terminator */
+    guint resultStrLen = 1;
 
-	/* if there is no signalStr, just return false */
-	if (signalStr == NULL) return;
+    /* if there is no signalStr, just return false */
+    if (signalStr == NULL) return;
 
-	tmpStr = g_strdup(signalStr);
+    tmpStr = g_strdup(signalStr);
 
-	for ( i = 0 ; tmpStr[i] ; i++) {
-		switch (tmpStr[i]) {
-			case '0' : case '1' : case '2' : case '3' : case '4' :
-			case '5' : case '6' : case '7' : case '8' : case '9' :
-			case '#' : case '*' :
-				resultStrLen++;
-				break;
-			default:
-				tmpStr[i] = '?';
-				break;
-		}
-	}
+    for ( i = 0 ; tmpStr[i] ; i++) {
+        switch (tmpStr[i]) {
+            case '0' : case '1' : case '2' : case '3' : case '4' :
+            case '5' : case '6' : case '7' : case '8' : case '9' :
+            case '#' : case '*' :
+                resultStrLen++;
+                break;
+            default:
+                tmpStr[i] = '?';
+                break;
+        }
+    }
 
-	if (resultStrLen == 1) {
-		g_free(tmpStr);
-		return;
-	}
+    if (resultStrLen == 1) {
+        g_free(tmpStr);
+        return;
+    }
 
-	resultStr = (gchar *)g_malloc(resultStrLen);
+    resultStr = (gchar *)g_malloc(resultStrLen);
 
-	for (i = 0, j = 0; tmpStr[i]; i++) {
-		if (tmpStr[i] != '?')
-			resultStr[j++] = tmpStr[i];
-	}
-	resultStr[j] = '\0';
+    for (i = 0, j = 0; tmpStr[i]; i++) {
+        if (tmpStr[i] != '?')
+            resultStr[j++] = tmpStr[i];
+    }
+    resultStr[j] = '\0';
 
-	g_free(*dialedDigits);
-	g_free(tmpStr);
+    g_free(*dialedDigits);
+    g_free(tmpStr);
 
-	*dialedDigits = resultStr;
+    *dialedDigits = resultStr;
 
-	return;
+    return;
 }
 
 
@@ -2402,223 +2398,223 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 static int
 mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *MGCPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
 
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	mgcp_calls_info_t *tmp_mgcpinfo = NULL;
-	GList *list;
-	GList *listGraph = NULL;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
-	seq_analysis_item_t *gai = NULL;
-	gboolean newcall = FALSE;
-	gboolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
-	gdouble diff_time;
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    mgcp_calls_info_t *tmp_mgcpinfo = NULL;
+    GList *list;
+    GList *listGraph = NULL;
+    gchar *frame_label = NULL;
+    gchar *comment = NULL;
+    seq_analysis_item_t *gai = NULL;
+    gboolean newcall = FALSE;
+    gboolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
+    gdouble diff_time;
 
-	const mgcp_info_t *pi = (const mgcp_info_t *)MGCPinfo;
-
-
-	if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ) {
-		/* check whether we already have a call with this Endpoint and it is active*/
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if ((tmp_listinfo->protocol == VOIP_MGCP) && (tmp_listinfo->call_active_state == VOIP_ACTIVE)) {
-				tmp_mgcpinfo = (mgcp_calls_info_t *)tmp_listinfo->prot_info;
-				if (pi->endpointId != NULL) {
-					if (g_ascii_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0) {
-						/*
-						   check first if it is an ended call. We can still match packets to this Endpoint 2 seconds
-						   after the call has been released
-						*/
-						diff_time = nstime_to_sec(&pinfo->rel_ts) - nstime_to_sec(&tmp_listinfo->stop_rel_ts);
-						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) ||
-						     (tmp_listinfo->call_state == VOIP_COMPLETED)  ||
-						     (tmp_listinfo->call_state == VOIP_REJECTED)) &&
-						       (diff_time > 2) )
-						{
-							tmp_listinfo->call_active_state = VOIP_INACTIVE;
-						} else {
-							callsinfo = (voip_calls_info_t*)(list->data);
-							break;
-						}
-					}
-				}
-			}
-			list = g_list_next (list);
-		}
-
-		/* there is no call with this Endpoint, lets see if this a new call or not */
-		if (callsinfo == NULL) {
-			if ( (strcmp(pi->code, "NTFY") == 0) && isSignal("hd", pi->observedEvents) ) { /* off hook transition */
-				/* this is a new call from the Endpoint */
-				fromEndpoint = TRUE;
-				newcall = TRUE;
-			} else if (strcmp(pi->code, "CRCX") == 0) {
-				/* this is a new call from the MGC */
-				fromEndpoint = FALSE;
-				newcall = TRUE;
-			}
-			if (!newcall) return 0;
-		}
-	} else if ( ((pi->mgcp_type == MGCP_RESPONSE) && pi->request_available) ||
-			((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
-		/* if it is a response OR if it is a duplicated Request, lets look in the Graph to see
-		   if there is a request that matches */
-		if(tapinfo->graph_analysis){
-			listGraph = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-		}
-		while (listGraph)
-		{
-			gai = (seq_analysis_item_t *)listGraph->data;
-			if (gai->fd->num == pi->req_num) {
-				/* there is a request that match, so look the associated call with this call_num */
-				list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-				while (list)
-				{
-					tmp_listinfo=(voip_calls_info_t *)list->data;
-					if (tmp_listinfo->protocol == VOIP_MGCP) {
-						if (tmp_listinfo->call_num == gai->conv_num) {
-							tmp_mgcpinfo = (mgcp_calls_info_t *)tmp_listinfo->prot_info;
-							callsinfo = (voip_calls_info_t*)(list->data);
-							break;
-						}
-					}
-					list = g_list_next (list);
-				}
-				if (callsinfo != NULL) break;
-			}
-			listGraph = g_list_next(listGraph);
-		}
-		/* if there is not a matching request, just return */
-		if (callsinfo == NULL) return 0;
-	} else return 0;
-
-	/* not in the list? then create a new entry */
-	if (callsinfo==NULL) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		callsinfo->call_state = VOIP_CALL_SETUP;
-		if (fromEndpoint) {
-			callsinfo->from_identity=g_strdup(pi->endpointId);
-			callsinfo->to_identity=g_strdup("");
-		} else {
-			callsinfo->from_identity=g_strdup("");
-			callsinfo->to_identity=g_strdup(pi->endpointId);
-		}
-		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-		callsinfo->selected=FALSE;
-		callsinfo->start_fd=pinfo->fd;
-		callsinfo->start_rel_ts=pinfo->rel_ts;
-		callsinfo->protocol=VOIP_MGCP;
-		callsinfo->prot_info=g_malloc(sizeof(mgcp_calls_info_t));
-		callsinfo->free_prot_info = g_free;
-		tmp_mgcpinfo=(mgcp_calls_info_t *)callsinfo->prot_info;
-		tmp_mgcpinfo->endpointId = g_strdup(pi->endpointId);
-		tmp_mgcpinfo->fromEndpoint = fromEndpoint;
-		callsinfo->npackets = 0;
-		callsinfo->call_num = tapinfo->ncalls++;
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	}
-
-	g_assert(tmp_mgcpinfo != NULL);
-
-	/* change call state and add to graph */
-	switch (pi->mgcp_type)
-	{
-	case MGCP_REQUEST:
-		if ( (strcmp(pi->code, "NTFY") == 0) && (pi->observedEvents != NULL) ) {
-			frame_label = g_strdup_printf("%s ObsEvt:%s",pi->code, pi->observedEvents);
-
-			if (tmp_mgcpinfo->fromEndpoint) {
-				/* use the Dialed digits to fill the "To" for the call, but use the first NTFY */
-				if (callsinfo->to_identity[0] == '\0') mgcpDialedDigits(pi->observedEvents, &(callsinfo->to_identity));
-
-			/* from MGC and the user picked up, the call is connected */
-			} else if (isSignal("hd", pi->observedEvents))
-				callsinfo->call_state=VOIP_IN_CALL;
-
-			/* hung up signal */
-			if (isSignal("hu", pi->observedEvents)) {
-				if ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) {
-					callsinfo->call_state = VOIP_CANCELLED;
-				} else {
-					callsinfo->call_state = VOIP_COMPLETED;
-				}
-			}
-
-		} else if (strcmp(pi->code, "RQNT") == 0) {
-			/* for calls from Endpoint: if there is a "no signal" RQNT and the call was RINGING, we assume this is the CONNECT */
-			if ( tmp_mgcpinfo->fromEndpoint && isSignal("", pi->signalReq) && (callsinfo->call_state == VOIP_RINGING) ) {
-					callsinfo->call_state = VOIP_IN_CALL;
-			}
-
-			/* if there is ringback or ring tone, change state to ringing */
-			if ( isSignal("rg", pi->signalReq) || isSignal("rt", pi->signalReq) ) {
-					callsinfo->call_state = VOIP_RINGING;
-			}
-
-			/* if there is a Busy or ReorderTone, and the call was Ringing or Setup the call is Rejected */
-			if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) ) {
-					callsinfo->call_state = VOIP_REJECTED;
-			}
-
-			if (pi->signalReq != NULL)
-				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"", pi->signalReq);
-			else
-				frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
-
-			/* use the CallerID info to fill the "From" for the call */
-			if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(callsinfo->from_identity));
-
-		} else if (strcmp(pi->code, "DLCX") == 0) {
-			/*
-			  if there is a DLCX in a call To an Endpoint and the call was not connected, we use
-			  the DLCX as the end of the call
-			*/
-			if (!tmp_mgcpinfo->fromEndpoint) {
-				if ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) {
-					callsinfo->call_state = VOIP_CANCELLED;
-				}
-			}
-		}
-
-		if (frame_label == NULL) frame_label = g_strdup(pi->code);
-		break;
-	case MGCP_RESPONSE:
-		frame_label = g_strdup_printf("%u (%s)",pi->rspcode, pi->code);
-		break;
-	case MGCP_OTHERS:
-		/* XXX what to do? */
-		break;
-	}
+    const mgcp_info_t *pi = (const mgcp_info_t *)MGCPinfo;
 
 
-	comment = g_strdup_printf("MGCP %s %s%s", tmp_mgcpinfo->endpointId, (pi->mgcp_type == MGCP_REQUEST)?"Request":"Response", pi->is_duplicate?" Duplicate":"");
+    if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ) {
+        /* check whether we already have a call with this Endpoint and it is active*/
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if ((tmp_listinfo->protocol == VOIP_MGCP) && (tmp_listinfo->call_active_state == VOIP_ACTIVE)) {
+                tmp_mgcpinfo = (mgcp_calls_info_t *)tmp_listinfo->prot_info;
+                if (pi->endpointId != NULL) {
+                    if (g_ascii_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0) {
+                        /*
+                           check first if it is an ended call. We can still match packets to this Endpoint 2 seconds
+                           after the call has been released
+                         */
+                        diff_time = nstime_to_sec(&pinfo->rel_ts) - nstime_to_sec(&tmp_listinfo->stop_rel_ts);
+                        if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) ||
+                                    (tmp_listinfo->call_state == VOIP_COMPLETED)  ||
+                                    (tmp_listinfo->call_state == VOIP_REJECTED)) &&
+                                (diff_time > 2) )
+                        {
+                            tmp_listinfo->call_active_state = VOIP_INACTIVE;
+                        } else {
+                            callsinfo = (voip_calls_info_t*)(list->data);
+                            break;
+                        }
+                    }
+                }
+            }
+            list = g_list_next (list);
+        }
 
-	callsinfo->stop_fd = pinfo->fd;
-	callsinfo->stop_rel_ts = pinfo->rel_ts;
-	++(callsinfo->npackets);
-	/* increment the packets counter of all calls */
-	++(tapinfo->npackets);
+        /* there is no call with this Endpoint, lets see if this a new call or not */
+        if (callsinfo == NULL) {
+            if ( (strcmp(pi->code, "NTFY") == 0) && isSignal("hd", pi->observedEvents) ) { /* off hook transition */
+                /* this is a new call from the Endpoint */
+                fromEndpoint = TRUE;
+                newcall = TRUE;
+            } else if (strcmp(pi->code, "CRCX") == 0) {
+                /* this is a new call from the MGC */
+                fromEndpoint = FALSE;
+                newcall = TRUE;
+            }
+            if (!newcall) return 0;
+        }
+    } else if ( ((pi->mgcp_type == MGCP_RESPONSE) && pi->request_available) ||
+            ((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
+        /* if it is a response OR if it is a duplicated Request, lets look in the Graph to see
+           if there is a request that matches */
+        if(tapinfo->graph_analysis){
+            listGraph = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+        }
+        while (listGraph)
+        {
+            gai = (seq_analysis_item_t *)listGraph->data;
+            if (gai->fd->num == pi->req_num) {
+                /* there is a request that match, so look the associated call with this call_num */
+                list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+                while (list)
+                {
+                    tmp_listinfo=(voip_calls_info_t *)list->data;
+                    if (tmp_listinfo->protocol == VOIP_MGCP) {
+                        if (tmp_listinfo->call_num == gai->conv_num) {
+                            tmp_mgcpinfo = (mgcp_calls_info_t *)tmp_listinfo->prot_info;
+                            callsinfo = (voip_calls_info_t*)(list->data);
+                            break;
+                        }
+                    }
+                    list = g_list_next (list);
+                }
+                if (callsinfo != NULL) break;
+            }
+            listGraph = g_list_next(listGraph);
+        }
+        /* if there is not a matching request, just return */
+        if (callsinfo == NULL) return 0;
+    } else return 0;
 
-	/* add to the graph */
-	add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-	g_free(comment);
-	g_free(frame_label);
+    /* not in the list? then create a new entry */
+    if (callsinfo==NULL) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        callsinfo->call_state = VOIP_CALL_SETUP;
+        if (fromEndpoint) {
+            callsinfo->from_identity=g_strdup(pi->endpointId);
+            callsinfo->to_identity=g_strdup("");
+        } else {
+            callsinfo->from_identity=g_strdup("");
+            callsinfo->to_identity=g_strdup(pi->endpointId);
+        }
+        COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+        callsinfo->selected=FALSE;
+        callsinfo->start_fd=pinfo->fd;
+        callsinfo->start_rel_ts=pinfo->rel_ts;
+        callsinfo->protocol=VOIP_MGCP;
+        callsinfo->prot_info=g_malloc(sizeof(mgcp_calls_info_t));
+        callsinfo->free_prot_info = g_free;
+        tmp_mgcpinfo=(mgcp_calls_info_t *)callsinfo->prot_info;
+        tmp_mgcpinfo->endpointId = g_strdup(pi->endpointId);
+        tmp_mgcpinfo->fromEndpoint = fromEndpoint;
+        callsinfo->npackets = 0;
+        callsinfo->call_num = tapinfo->ncalls++;
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    }
 
-	/* add SDP info if apply */
-	if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ) {
-			append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
-			g_free(sdp_summary);
-			sdp_summary = NULL;
-	}
+    g_assert(tmp_mgcpinfo != NULL);
 
-	tapinfo->redraw = TRUE;
+    /* change call state and add to graph */
+    switch (pi->mgcp_type)
+    {
+        case MGCP_REQUEST:
+            if ( (strcmp(pi->code, "NTFY") == 0) && (pi->observedEvents != NULL) ) {
+                frame_label = g_strdup_printf("%s ObsEvt:%s",pi->code, pi->observedEvents);
 
-	return 1;  /* refresh output */
+                if (tmp_mgcpinfo->fromEndpoint) {
+                    /* use the Dialed digits to fill the "To" for the call, but use the first NTFY */
+                    if (callsinfo->to_identity[0] == '\0') mgcpDialedDigits(pi->observedEvents, &(callsinfo->to_identity));
+
+                    /* from MGC and the user picked up, the call is connected */
+                } else if (isSignal("hd", pi->observedEvents))
+                    callsinfo->call_state=VOIP_IN_CALL;
+
+                /* hung up signal */
+                if (isSignal("hu", pi->observedEvents)) {
+                    if ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) {
+                        callsinfo->call_state = VOIP_CANCELLED;
+                    } else {
+                        callsinfo->call_state = VOIP_COMPLETED;
+                    }
+                }
+
+            } else if (strcmp(pi->code, "RQNT") == 0) {
+                /* for calls from Endpoint: if there is a "no signal" RQNT and the call was RINGING, we assume this is the CONNECT */
+                if ( tmp_mgcpinfo->fromEndpoint && isSignal("", pi->signalReq) && (callsinfo->call_state == VOIP_RINGING) ) {
+                    callsinfo->call_state = VOIP_IN_CALL;
+                }
+
+                /* if there is ringback or ring tone, change state to ringing */
+                if ( isSignal("rg", pi->signalReq) || isSignal("rt", pi->signalReq) ) {
+                    callsinfo->call_state = VOIP_RINGING;
+                }
+
+                /* if there is a Busy or ReorderTone, and the call was Ringing or Setup the call is Rejected */
+                if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) ) {
+                    callsinfo->call_state = VOIP_REJECTED;
+                }
+
+                if (pi->signalReq != NULL)
+                    frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"", pi->signalReq);
+                else
+                    frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
+
+                /* use the CallerID info to fill the "From" for the call */
+                if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(callsinfo->from_identity));
+
+            } else if (strcmp(pi->code, "DLCX") == 0) {
+                /*
+                   if there is a DLCX in a call To an Endpoint and the call was not connected, we use
+                   the DLCX as the end of the call
+                 */
+                if (!tmp_mgcpinfo->fromEndpoint) {
+                    if ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) {
+                        callsinfo->call_state = VOIP_CANCELLED;
+                    }
+                }
+            }
+
+            if (frame_label == NULL) frame_label = g_strdup(pi->code);
+            break;
+        case MGCP_RESPONSE:
+            frame_label = g_strdup_printf("%u (%s)",pi->rspcode, pi->code);
+            break;
+        case MGCP_OTHERS:
+            /* XXX what to do? */
+            break;
+    }
+
+
+    comment = g_strdup_printf("MGCP %s %s%s", tmp_mgcpinfo->endpointId, (pi->mgcp_type == MGCP_REQUEST)?"Request":"Response", pi->is_duplicate?" Duplicate":"");
+
+    callsinfo->stop_fd = pinfo->fd;
+    callsinfo->stop_rel_ts = pinfo->rel_ts;
+    ++(callsinfo->npackets);
+    /* increment the packets counter of all calls */
+    ++(tapinfo->npackets);
+
+    /* add to the graph */
+    add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    g_free(comment);
+    g_free(frame_label);
+
+    /* add SDP info if apply */
+    if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ) {
+        append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+        g_free(sdp_summary);
+        sdp_summary = NULL;
+    }
+
+    tapinfo->redraw = TRUE;
+
+    return 1;  /* refresh output */
 }
 
 
@@ -2628,34 +2624,34 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 void
 mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	/*
-	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-	 * in the MGCP dissector; otherwise, the dissector
-	 * doesn't fill in the info passed to the tap's packet
-	 * routine.
-	 */
-	error_string = register_tap_listener("mgcp",
-		tap_base_to_id(tap_id_base, tap_id_offset_mgcp_),
-		NULL,
-		TL_REQUIRES_PROTO_TREE,
-		voip_calls_dlg_reset,
-        mgcp_calls_packet,
-		voip_calls_dlg_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    /*
+     * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+     * in the MGCP dissector; otherwise, the dissector
+     * doesn't fill in the info passed to the tap's packet
+     * routine.
+     */
+    error_string = register_tap_listener("mgcp",
+            tap_base_to_id(tap_id_base, tap_id_offset_mgcp_),
+            NULL,
+            TL_REQUIRES_PROTO_TREE,
+            voip_calls_dlg_reset,
+            mgcp_calls_packet,
+            voip_calls_dlg_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mgcp_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mgcp_));
 }
 
 
@@ -2667,81 +2663,81 @@ remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 static int
 actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *ACTRACEinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
-	const actrace_info_t *pi = (const actrace_info_t *)ACTRACEinfo;
-	GList *list;
-	actrace_cas_calls_info_t *tmp_actrace_cas_info;
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
+    const actrace_info_t *pi = (const actrace_info_t *)ACTRACEinfo;
+    GList *list;
+    actrace_cas_calls_info_t *tmp_actrace_cas_info;
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
 
-	actrace_frame_num = pinfo->fd->num;
-	actrace_trunk = pi->trunk;
-	actrace_direction = pi->direction;
+    actrace_frame_num = pinfo->fd->num;
+    actrace_trunk = pi->trunk;
+    actrace_direction = pi->direction;
 
-	if (pi->type == 1) { /* is CAS protocol */
-		address pstn_add;
-		gchar *comment = NULL;
+    if (pi->type == 1) { /* is CAS protocol */
+        address pstn_add;
+        gchar *comment = NULL;
 
-		callsinfo = NULL;
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-		while (list)
-		{
-			tmp_listinfo=(voip_calls_info_t *)list->data;
-			if ( tmp_listinfo->protocol == VOIP_AC_CAS ) {
-				tmp_actrace_cas_info = (actrace_cas_calls_info_t *)tmp_listinfo->prot_info;
-				/* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
-				if ( (tmp_actrace_cas_info->bchannel == pi->cas_bchannel) && (tmp_actrace_cas_info->trunk == actrace_trunk) ) {
-					callsinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
+        callsinfo = NULL;
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        while (list)
+        {
+            tmp_listinfo=(voip_calls_info_t *)list->data;
+            if ( tmp_listinfo->protocol == VOIP_AC_CAS ) {
+                tmp_actrace_cas_info = (actrace_cas_calls_info_t *)tmp_listinfo->prot_info;
+                /* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
+                if ( (tmp_actrace_cas_info->bchannel == pi->cas_bchannel) && (tmp_actrace_cas_info->trunk == actrace_trunk) ) {
+                    callsinfo = (voip_calls_info_t*)(list->data);
+                    break;
+                }
+            }
+            list = g_list_next (list);
+        }
 
-		SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, "PSTN");
+        SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, "PSTN");
 
-		/* if it is a new call, add it to the list */
-		if (!callsinfo) {
-			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_CALL_SETUP;
-			callsinfo->from_identity=g_strdup("N/A");
-			callsinfo->to_identity=g_strdup("N/A");
-			COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
-			callsinfo->selected=FALSE;
-			callsinfo->start_fd=pinfo->fd;
-			callsinfo->start_rel_ts=pinfo->rel_ts;
-			callsinfo->protocol=VOIP_AC_CAS;
-			callsinfo->prot_info=g_malloc(sizeof(actrace_cas_calls_info_t));
-			callsinfo->free_prot_info = g_free;
+        /* if it is a new call, add it to the list */
+        if (!callsinfo) {
+            callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_CALL_SETUP;
+            callsinfo->from_identity=g_strdup("N/A");
+            callsinfo->to_identity=g_strdup("N/A");
+            COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
+            callsinfo->selected=FALSE;
+            callsinfo->start_fd=pinfo->fd;
+            callsinfo->start_rel_ts=pinfo->rel_ts;
+            callsinfo->protocol=VOIP_AC_CAS;
+            callsinfo->prot_info=g_malloc(sizeof(actrace_cas_calls_info_t));
+            callsinfo->free_prot_info = g_free;
 
-			tmp_actrace_cas_info=(actrace_cas_calls_info_t *)callsinfo->prot_info;
-			tmp_actrace_cas_info->bchannel=pi->cas_bchannel;
-			tmp_actrace_cas_info->trunk=actrace_trunk;
-			callsinfo->npackets = 0;
-			callsinfo->call_num = tapinfo->ncalls++;
-			g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-		}
+            tmp_actrace_cas_info=(actrace_cas_calls_info_t *)callsinfo->prot_info;
+            tmp_actrace_cas_info->bchannel=pi->cas_bchannel;
+            tmp_actrace_cas_info->trunk=actrace_trunk;
+            callsinfo->npackets = 0;
+            callsinfo->call_num = tapinfo->ncalls++;
+            g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+        }
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+        /* increment the packets counter of all calls */
+        ++(tapinfo->npackets);
 
-		comment = g_strdup_printf("AC_CAS  trunk:%u", actrace_trunk);
+        comment = g_strdup_printf("AC_CAS  trunk:%u", actrace_trunk);
 
-		add_to_graph(tapinfo, pinfo, edt, pi->cas_frame_label, comment, callsinfo->call_num,
-				actrace_direction?&pstn_add:&(pinfo->src),
-				actrace_direction?&(pinfo->src):&pstn_add,
-				1 );
+        add_to_graph(tapinfo, pinfo, edt, pi->cas_frame_label, comment, callsinfo->call_num,
+                actrace_direction?&pstn_add:&(pinfo->src),
+                actrace_direction?&(pinfo->src):&pstn_add,
+                1 );
 
-		g_free(comment);
-	}
+        g_free(comment);
+    }
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;  /* refresh output */
+    return 1;  /* refresh output */
 }
 
 
@@ -2751,27 +2747,27 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 void
 actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("actrace", tap_base_to_id(tap_id_base, tap_id_offset_actrace_), NULL,
-		0,
-		voip_calls_dlg_reset,
-		actrace_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("actrace", tap_base_to_id(tap_id_base, tap_id_offset_actrace_), NULL,
+            0,
+            voip_calls_dlg_reset,
+            actrace_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_actrace_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_actrace_));
 }
 
 
@@ -2786,140 +2782,140 @@ remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 
 static int
 h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
-	const gcp_cmd_t *cmd = (const gcp_cmd_t *)prot_info;
-	GList *list;
-	voip_calls_info_t *callsinfo = NULL;
-	address *mgw;
-	address *mgc;
-	gchar mgw_addr[128];
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
+    const gcp_cmd_t *cmd = (const gcp_cmd_t *)prot_info;
+    GList *list;
+    voip_calls_info_t *callsinfo = NULL;
+    address *mgw;
+    address *mgc;
+    gchar mgw_addr[128];
 
-	if (cmd->ctx->id == NULL_CONTEXT || cmd->ctx->id == ALL_CONTEXTS ) {
-		return 0;
-	}
+    if (cmd->ctx->id == NULL_CONTEXT || cmd->ctx->id == ALL_CONTEXTS ) {
+        return 0;
+    }
 
-	if ( gcp_is_req(cmd->type) ) {
-		mgw = &(pinfo->dst);
-		mgc = &(pinfo->src);
-	} else {
-		mgc = &(pinfo->dst);
-		mgw = &(pinfo->src);
-	}
+    if ( gcp_is_req(cmd->type) ) {
+        mgw = &(pinfo->dst);
+        mgc = &(pinfo->src);
+    } else {
+        mgc = &(pinfo->dst);
+        mgw = &(pinfo->src);
+    }
 
-	address_to_str_buf(mgw, mgw_addr, 128);
+    address_to_str_buf(mgw, mgw_addr, 128);
 
-	/* check whether we already have this context in the list */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
+    /* check whether we already have this context in the list */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
 
-		if (tmp_listinfo->protocol == TEL_H248) {
-			if (tmp_listinfo->prot_info == cmd->ctx) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-			}
-		}
-		list = g_list_next (list);
-	}
+        if (tmp_listinfo->protocol == TEL_H248) {
+            if (tmp_listinfo->prot_info == cmd->ctx) {
+                callsinfo = (voip_calls_info_t*)(list->data);
+                break;
+            }
+        }
+        list = g_list_next (list);
+    }
 
-	if (callsinfo==NULL) {
+    if (callsinfo==NULL) {
 
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_state = VOIP_NO_STATE;
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		callsinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, cmd->ctx->id);
-		callsinfo->to_identity = g_strdup("");
-		callsinfo->prot_info = cmd->ctx;
-		callsinfo->free_prot_info = NULL;
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_state = VOIP_NO_STATE;
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        callsinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, cmd->ctx->id);
+        callsinfo->to_identity = g_strdup("");
+        callsinfo->prot_info = cmd->ctx;
+        callsinfo->free_prot_info = NULL;
 
-		callsinfo->npackets = 1;
+        callsinfo->npackets = 1;
 
-		COPY_ADDRESS(&(callsinfo->initial_speaker), mgc);
+        COPY_ADDRESS(&(callsinfo->initial_speaker), mgc);
 
-		callsinfo->protocol = TEL_H248;
-		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_fd = pinfo->fd;
-		callsinfo->start_rel_ts = pinfo->rel_ts;
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
+        callsinfo->protocol = TEL_H248;
+        callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->start_fd = pinfo->fd;
+        callsinfo->start_rel_ts = pinfo->rel_ts;
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-		callsinfo->selected = FALSE;
+        callsinfo->selected = FALSE;
 
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
-	} else {
-		GString *s = g_string_new("");
-		gcp_terms_t *ctx_term;
+    } else {
+        GString *s = g_string_new("");
+        gcp_terms_t *ctx_term;
 
-		g_free(callsinfo->from_identity);
-		callsinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, ((gcp_ctx_t*)callsinfo->prot_info)->id);
+        g_free(callsinfo->from_identity);
+        callsinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, ((gcp_ctx_t*)callsinfo->prot_info)->id);
 
-		g_free(callsinfo->to_identity);
+        g_free(callsinfo->to_identity);
 
-		for (ctx_term = ((gcp_ctx_t*)callsinfo->prot_info)->terms.next;
-			 ctx_term;
-			 ctx_term = ctx_term->next ) {
-			if ( ctx_term->term && ctx_term->term->str) {
-				g_string_append_printf(s," %s",ctx_term->term->str);
-			}
-		}
+        for (ctx_term = ((gcp_ctx_t*)callsinfo->prot_info)->terms.next;
+                ctx_term;
+                ctx_term = ctx_term->next ) {
+            if ( ctx_term->term && ctx_term->term->str) {
+                g_string_append_printf(s," %s",ctx_term->term->str);
+            }
+        }
 
-		callsinfo->to_identity = s->str;
-		g_string_free(s,FALSE);
+        callsinfo->to_identity = s->str;
+        g_string_free(s,FALSE);
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-	}
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+    }
 
-	add_to_graph(tapinfo, pinfo, edt, cmd->str ? cmd->str : "unknown Msg",
-				 ep_strdup_printf("TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
-				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    add_to_graph(tapinfo, pinfo, edt, cmd->str ? cmd->str : "unknown Msg",
+            ep_strdup_printf("TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
+            callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
-	++(tapinfo->npackets);
+    ++(tapinfo->npackets);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;
+    return 1;
 }
 
 void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("megaco", tap_base_to_id(tap_id_base, tap_id_offset_megaco_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		h248_calls_packet,
-		voip_calls_dlg_draw);
+    error_string = register_tap_listener("megaco", tap_base_to_id(tap_id_base, tap_id_offset_megaco_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            h248_calls_packet,
+            voip_calls_dlg_draw);
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 
-	error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		h248_calls_packet,
-		voip_calls_dlg_draw);
+    error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            h248_calls_packet,
+            voip_calls_dlg_draw);
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 void
 remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h248_));
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_megaco_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h248_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_megaco_));
 }
 
 /****************************************************************************/
@@ -2928,168 +2924,168 @@ remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 static const voip_protocol sccp_proto_map[] = {
-	TEL_SCCP,
-	TEL_BSSMAP,
-	TEL_RANAP
+    TEL_SCCP,
+    TEL_BSSMAP,
+    TEL_RANAP
 };
 #define SP2VP(ap) ((ap) < SCCP_PLOAD_NUM_PLOADS ? sccp_proto_map[(ap)] : TEL_SCCP)
 const value_string* sccp_payload_values;
 
 static int
 sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
-	const sccp_msg_info_t* msg = (const sccp_msg_info_t *)prot_info;
-	sccp_assoc_info_t* assoc = msg->data.co.assoc;
-	GList *list;
-	voip_calls_info_t *callsinfo = NULL;
-	const gchar *label = NULL;
-	const gchar *comment = NULL;
-	/* check whether we already have this assoc in the list */
+    const sccp_msg_info_t* msg = (const sccp_msg_info_t *)prot_info;
+    sccp_assoc_info_t* assoc = msg->data.co.assoc;
+    GList *list;
+    voip_calls_info_t *callsinfo = NULL;
+    const gchar *label = NULL;
+    const gchar *comment = NULL;
+    /* check whether we already have this assoc in the list */
 
-	for(list = g_queue_peek_nth_link(tapinfo->callsinfos, 0) ; list ; list = g_list_next (list) ) {
-		if ( ((voip_calls_info_t*)(list->data))->prot_info == assoc ) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-		}
-	}
+    for(list = g_queue_peek_nth_link(tapinfo->callsinfos, 0) ; list ; list = g_list_next (list) ) {
+        if ( ((voip_calls_info_t*)(list->data))->prot_info == assoc ) {
+            callsinfo = (voip_calls_info_t*)(list->data);
+            break;
+        }
+    }
 
-	if (callsinfo==NULL) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_state = VOIP_CALL_SETUP;
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		if ( assoc->calling_party ) {
-			callsinfo->from_identity =  g_strdup(assoc->calling_party);
-		} else {
-			callsinfo->from_identity =  g_strdup("Unknown");
-		}
+    if (callsinfo==NULL) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_state = VOIP_CALL_SETUP;
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        if ( assoc->calling_party ) {
+            callsinfo->from_identity =  g_strdup(assoc->calling_party);
+        } else {
+            callsinfo->from_identity =  g_strdup("Unknown");
+        }
 
-		if ( assoc->called_party ) {
-			callsinfo->to_identity =  g_strdup(assoc->called_party);
-		} else {
-			callsinfo->to_identity =  g_strdup("Unknown");
-		}
+        if ( assoc->called_party ) {
+            callsinfo->to_identity =  g_strdup(assoc->called_party);
+        } else {
+            callsinfo->to_identity =  g_strdup("Unknown");
+        }
 
-		callsinfo->prot_info = (void*)assoc;
-		callsinfo->free_prot_info = NULL;
+        callsinfo->prot_info = (void*)assoc;
+        callsinfo->free_prot_info = NULL;
 
-		callsinfo->npackets = 1;
+        callsinfo->npackets = 1;
 
-		COPY_ADDRESS(&(callsinfo->initial_speaker), &(pinfo->src));
+        COPY_ADDRESS(&(callsinfo->initial_speaker), &(pinfo->src));
 
-		callsinfo->protocol =   SP2VP(assoc->payload);
-		/* Store frame data which holds time and frame number */
-		callsinfo->start_fd = pinfo->fd;
-		callsinfo->start_rel_ts = pinfo->rel_ts;
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
+        callsinfo->protocol =   SP2VP(assoc->payload);
+        /* Store frame data which holds time and frame number */
+        callsinfo->start_fd = pinfo->fd;
+        callsinfo->start_rel_ts = pinfo->rel_ts;
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-		callsinfo->selected = FALSE;
-		callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->selected = FALSE;
+        callsinfo->call_num = tapinfo->ncalls++;
 
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	} else {
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    } else {
 
-		if ( assoc->calling_party ) {
-			g_free(callsinfo->from_identity);
-			callsinfo->from_identity =  g_strdup(assoc->calling_party);
-		}
+        if ( assoc->calling_party ) {
+            g_free(callsinfo->from_identity);
+            callsinfo->from_identity =  g_strdup(assoc->calling_party);
+        }
 
-		if ( assoc->called_party ) {
-			g_free(callsinfo->to_identity);
-			callsinfo->to_identity =  g_strdup(assoc->called_party);
-		}
+        if ( assoc->called_party ) {
+            g_free(callsinfo->to_identity);
+            callsinfo->to_identity =  g_strdup(assoc->called_party);
+        }
 
-		callsinfo->protocol =  SP2VP(assoc->payload);
-		/* Store frame data which holds stop time and frame number */
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
+        callsinfo->protocol =  SP2VP(assoc->payload);
+        /* Store frame data which holds stop time and frame number */
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
 
-		switch (msg->type) {
-			case SCCP_MSG_TYPE_CC:
-				callsinfo->call_state = VOIP_IN_CALL;
-				break;
-			case SCCP_MSG_TYPE_RLC:
-				callsinfo->call_state = VOIP_COMPLETED;
-				callsinfo->call_active_state = VOIP_INACTIVE;
-				break;
-			default:
-				break;
-		}
-	}
+        switch (msg->type) {
+            case SCCP_MSG_TYPE_CC:
+                callsinfo->call_state = VOIP_IN_CALL;
+                break;
+            case SCCP_MSG_TYPE_RLC:
+                callsinfo->call_state = VOIP_COMPLETED;
+                callsinfo->call_active_state = VOIP_INACTIVE;
+                break;
+            default:
+                break;
+        }
+    }
 
-	if (msg->data.co.label) {
-		label = msg->data.co.label;
-	} else {
-		label = val_to_str(msg->type, sccp_payload_values, "Unknown(%d)");
-	}
+    if (msg->data.co.label) {
+        label = msg->data.co.label;
+    } else {
+        label = val_to_str(msg->type, sccp_payload_values, "Unknown(%d)");
+    }
 
-	if (msg->data.co.comment) {
-		comment = msg->data.co.comment;
-	} else {
-		comment = NULL;
-	}
+    if (msg->data.co.comment) {
+        comment = msg->data.co.comment;
+    } else {
+        comment = NULL;
+    }
 
-	add_to_graph(tapinfo, pinfo, edt, label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    add_to_graph(tapinfo, pinfo, edt, label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
-	++(tapinfo->npackets);
+    ++(tapinfo->npackets);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;
+    return 1;
 }
 
 static int sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
-	sccp_payload_values = sccp_message_type_acro_values;
-	return sccp_calls(tapinfo, pinfo, edt, prot_info);
+    sccp_payload_values = sccp_message_type_acro_values;
+    return sccp_calls(tapinfo, pinfo, edt, prot_info);
 }
 
 
 static int sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
-	sccp_payload_values = sua_co_class_type_acro_values;
-	return sccp_calls(tapinfo, pinfo, edt, prot_info);
+    sccp_payload_values = sua_co_class_type_acro_values;
+    return sccp_calls(tapinfo, pinfo, edt, prot_info);
 }
 
 
 void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("sccp", tap_base_to_id(tap_id_base, tap_id_offset_sccp_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		sccp_calls_packet,
-		voip_calls_dlg_draw);
+    error_string = register_tap_listener("sccp", tap_base_to_id(tap_id_base, tap_id_offset_sccp_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            sccp_calls_packet,
+            voip_calls_dlg_draw);
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 
-	error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		sua_calls_packet,
-		voip_calls_dlg_draw);
+    error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            sua_calls_packet,
+            voip_calls_dlg_draw);
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 void
 remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sccp_));
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sua_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sccp_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sua_));
 }
 
 
@@ -3100,465 +3096,465 @@ remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 static int
 unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *unistim_info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *callsinfo = NULL;
-	unistim_info_t *tmp_unistim_info = NULL;
-	GList *list = NULL;
-	GString *g_tmp = NULL;
-	const gchar *frame_label = NULL;
-	gchar *comment = NULL;
-
-	/* Fetch specific packet infos */
-	const unistim_info_t *pi = (const unistim_info_t *)unistim_info;
-
-	/* Init gstring */
-	g_tmp = g_string_new(NULL);
-
-	/* Check to see if this is a dup */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-
-	while(list)
-	{
-		tmp_listinfo = (voip_calls_info_t *)list->data;
-
-		if(tmp_listinfo->protocol == VOIP_UNISTIM) {
-
-			tmp_unistim_info = (unistim_info_t *)tmp_listinfo->prot_info;
-
-			/* Search by termid if possible, otherwise use ni/it ip + port.. */
-			if(pi->termid != 0) {
-				if(tmp_unistim_info->termid == pi->termid) {
-					/* If the call has ended, then we can reuse it.. */
-					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
-						/* Do nothing */
-					} else {
-						callsinfo = (voip_calls_info_t*)(list->data);
-						break;
-					}
-				}
-			} else {
-				/* If no term id use ips / port to find entry */
-				if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->dst) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->src) && (tmp_unistim_info->it_port == pinfo->destport)) {
-					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
-						/* Do nothing previous call */
-					} else {
-						callsinfo = (voip_calls_info_t*)(list->data);
-						break;
-					}
-				}
-				else if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->src) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->dst) && (tmp_unistim_info->it_port == pinfo->srcport)) {
-					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
-						/* Do nothing, it ain't our call.. */
-					} else {
-						callsinfo = (voip_calls_info_t*)(list->data);
-						break;
-					}
-				}
-			}
-		}
-
-		/* Otherwise, go to the next one.. */
-		list = g_list_next(list);
-	}
-
-	if(pi->payload_type == 2 || pi->payload_type == 1) {
-
-		if(pi->key_state == 1 || pi->hook_state == 1) {
-
-			/* If the user hits a button,
-			   Session will be SETUP */
-
-			/* If new add to list */
-			if (callsinfo==NULL) {
-
-				callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-				callsinfo->call_active_state = VOIP_ACTIVE;
-				callsinfo->call_state = VOIP_CALL_SETUP;
-				callsinfo->from_identity=g_strdup_printf("%x",pi->termid);
-				callsinfo->to_identity=g_strdup("UNKNOWN");
-				COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-				callsinfo->selected=FALSE;
-
-				/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
-				/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
-				/* Store frame data which holds time and frame number */
-				callsinfo->start_fd=pinfo->fd;
-				callsinfo->start_rel_ts=pinfo->rel_ts;
-
-				callsinfo->protocol=VOIP_UNISTIM;
-				callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
-
-				tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
-
-				/* Clear tap struct */
-				tmp_unistim_info->rudp_type = 0;
-				tmp_unistim_info->payload_type = 0;
-				tmp_unistim_info->sequence = pi->sequence;
-				tmp_unistim_info->termid = pi->termid;
-				tmp_unistim_info->key_val = -1;
-				tmp_unistim_info->key_state = -1;
-				tmp_unistim_info->hook_state = -1;
-				tmp_unistim_info->stream_connect = -1;
-				tmp_unistim_info->trans_connect = -1;
-				tmp_unistim_info->set_termid = -1;
-				tmp_unistim_info->string_data = NULL;
-				tmp_unistim_info->key_buffer = NULL;
-
-				COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
-				COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
-				tmp_unistim_info->it_port = pi->it_port;
-
-				callsinfo->free_prot_info = g_free;
-				callsinfo->npackets = 0;
-				callsinfo->call_num = tapinfo->ncalls++;
-				g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-
-			} else {
-
-				/* Set up call wide info struct */
-				tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
-				tmp_unistim_info->sequence = pi->sequence;
-			}
-
-			/* Each packet COULD BE OUR LAST!!!! */
-			/* Store frame data which holds time and frame number */
-			callsinfo->stop_fd = pinfo->fd;
-			callsinfo->stop_rel_ts = pinfo->rel_ts;
-
-			/* This is a valid packet so increment counter */
-			++(callsinfo->npackets);
-
-			/* increment the packets counter of all calls */
-			++(tapinfo->npackets);
-
-			/* Key was depressed.. update key buffer.. */
-			if(pi->key_val >= 0 && pi->key_val <= 11) {
-
-				if(tmp_unistim_info->key_buffer != NULL) {
-
-					/* assign to temp variable */
-					g_string_assign(g_tmp,tmp_unistim_info->key_buffer);
-
-					/* Manipulate the data */
-					if(pi->key_val == 10) {
-						tmp_unistim_info->key_buffer = g_strdup_printf("%s*",g_tmp->str);
-					} else if(pi->key_val == 11) {
-						tmp_unistim_info->key_buffer = g_strdup_printf("%s#",g_tmp->str);
-					} else {
-						tmp_unistim_info->key_buffer = g_strdup_printf("%s%d",g_tmp->str,pi->key_val);
-					}
-
-				} else {
-
-					/* Create new string */
-					if(pi->key_val == 10) {
-						tmp_unistim_info->key_buffer = g_strdup("*");
-					} else if(pi->key_val == 11) {
-						tmp_unistim_info->key_buffer = g_strdup("#");
-					} else {
-						tmp_unistim_info->key_buffer = g_strdup_printf("%d",pi->key_val);
-					}
-
-				}
-
-				/* Select for non-digit characters */
-				if(pi->key_val == 10) {
-					comment = g_strdup_printf("Key Input Sent: * (%d)", pi->sequence);
-				} else if(pi->key_val == 11) {
-					comment = g_strdup_printf("Key Input Sent: # (%d)", pi->sequence);
-				} else {
-					comment = g_strdup_printf("Key Input Sent: %d (%d)",pi->key_val, pi->sequence);
-				}
-			} else if(pi->key_val == 12) {
-				/* Set label and comment for graph */
-				comment = g_strdup_printf("Key Input Sent: UP (%d)", pi->sequence);
-			} else if(pi->key_val == 13) {
-				/* Set label and comment for graph */
-				comment = g_strdup_printf("Key Input Sent: DOWN (%d)", pi->sequence);
-			} else if(pi->key_val == 14) {
-				/* Set label and comment for graph */
-				comment = g_strdup_printf("Key Input Sent: RIGHT (%d)", pi->sequence);
-			} else if(pi->key_val == 15) {
-				if(pi->key_buffer != NULL) {
-					/* Get data */
-					g_string_assign(g_tmp,pi->key_buffer);
-
-					/* Manipulate the data */
-					g_string_truncate(g_tmp,g_tmp->len-1);
-
-					/* Insert new data */
-					tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
-				}
-
-				/* Set label and comment for graph */
-				comment = g_strdup_printf("Key Input Sent: LEFT (%d)", pi->sequence);
-			} else if(pi->key_val == 20) {
-				/* User pressed the soft key 0 probably dial */
-				comment = g_strdup_printf("Key Input Sent: S0 (%d)", pi->sequence);
-			} else if(pi->key_val == 21) {
-				/* User pressed the soft key 1 */
-				comment = g_strdup_printf("Key Input Sent: S1 (%d)", pi->sequence);
-			} else if(pi->key_val == 22) {
-				/* User pressed the soft key 2 */
-				/* On cs2k phones, soft key 2 is backspace. */
-				if(pi->key_buffer != NULL) {
-
-					/* Get data */
-					g_string_assign(g_tmp,pi->key_buffer);
-
-					/* Manipulate the data */
-					g_string_truncate(g_tmp,g_tmp->len-1);
-
-					/* Insert new data */
-					tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
-				}
-
-				/* add label and comment */
-				comment = g_strdup_printf("Key Input Sent: S2 (%d)", pi->sequence);
-			} else if(pi->key_val == 28) {
-				/* User pressed something */
-				comment = g_strdup_printf("Key Input Sent: Release (%d)", pi->sequence);
-			} else if(pi->key_val == 23) {
-				/* User pressed the soft key 3 */
-				/* Cancel on cs2k so clear buffer */
-				/* On mcs it's config which will clear the buffer too */
-				tmp_unistim_info->key_buffer = g_strdup("\n");
-
-				/* User pressed something, set labels*/
-				comment = g_strdup_printf("Key Input Sent: S3 (%d)", pi->sequence);
-			} else if(pi->key_val == 27) {
-				/* User pressed something */
-				comment = g_strdup_printf("Key Input Sent: Hold (%d)", pi->sequence);
-			} else if(pi->key_val == 29) {
-				/* User pressed something */
-				comment = g_strdup_printf("Key Input Sent: Mute (%d)", pi->sequence);
-			} else if(pi->key_val == 30) {
-				/* User pressed something */
-				comment = g_strdup_printf("Key Input Sent: Headset (%d)", pi->sequence);
-			} else if(pi->key_val == 31) {
-				/* Handsfree button */
-				comment = g_strdup_printf("Key Input Sent: Handsfree (%d)", pi->sequence);
-			} else if(pi->key_val >= 32 && pi->key_val <= 56) {
-				/* Prog. Key X */
-				comment = g_strdup_printf("Key Input Sent: Prog%d (%d)", (pi->key_val & 31), pi->sequence);
-			}
-
-			if(pi->key_val != -1) {
-
-				frame_label = "KEY INPUT";
-
-				if (comment == NULL)
-					/* Ouch! What do you do!? */
-					/* User pressed something */
-					comment = g_strdup_printf("Key Input Sent: UNKNOWN - %d (%d)", pi->key_val, pi->sequence);
-
-				/* add to the graph */
-				add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-				g_free(comment);
-			}
-
-			if(pi->hook_state == 1) {
-
-				/* Phone is off hook */
-				frame_label = "OFF HOOK";
-				comment = g_strdup_printf("Off Hook (%d)", pi->sequence);
-
-				/* add to the graph */
-				add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-				g_free(comment);
-			} else if(pi->hook_state == 0) {
-
-				/* Phone is on hook */
-				frame_label = "ON HOOK";
-				comment = g_strdup_printf("On Hook (%d)", pi->sequence);
-
-				/* add to the graph */
-				add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-				g_free(comment);
-			}
-		}
-
-		/* Open stream was sent from server */
-		if(pi->stream_connect == 1 && callsinfo != NULL) {
-
-			/* Open stream */
-			/* Signifies the start of the call so set start_sec & start_usec */
-			/* Frame data holds the time info */
-			callsinfo->start_fd=pinfo->fd;
-			callsinfo->start_rel_ts=pinfo->rel_ts;
-			/* Each packet COULD BE OUR LAST!!!! */
-			/* Store frame data which holds time and frame number */
-			callsinfo->stop_fd = pinfo->fd;
-			callsinfo->stop_rel_ts = pinfo->rel_ts;
-
-			/* Local packets too */
-			++(callsinfo->npackets);
-
-			/* increment the packets counter of all calls */
-			++(tapinfo->npackets);
-
-			/* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
-			   Call control protocol, we can only guess at the destination by messing with
-			   key buffers. */
-			if(tmp_unistim_info->key_buffer != NULL) {
-				callsinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
-			}
-
-			/* change sequence number for ACK detection */
-			tmp_unistim_info->sequence = pi->sequence;
-
-			/* State changes too */
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_IN_CALL;
-
-			/* Add graph data */
-			frame_label = "STREAM OPENED";
-			comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
-
-			/* add to the graph */
-			add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-		} else if(pi->stream_connect == 1 && callsinfo == NULL) {
-
-			/* Research indicates some nortel products initiate stream first
-			 * without keypresses. therefore creating this solely on a keypress is
-			 * ineffective.
-			 * Sometimes calls start immediately with open stream.
-			 */
-			callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_CALL_SETUP;
-			callsinfo->from_identity=g_strdup("UNKNOWN");
-			callsinfo->to_identity=g_strdup("UNKNOWN");
-			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->selected=FALSE;
-
-			/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
-			/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
-			callsinfo->start_fd=pinfo->fd;
-			callsinfo->start_rel_ts=pinfo->rel_ts;
-
-			callsinfo->protocol=VOIP_UNISTIM;
-			callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
-
-			tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
-
-			/* Clear tap struct */
-			tmp_unistim_info->rudp_type = 0;
-			tmp_unistim_info->payload_type = 0;
-			tmp_unistim_info->sequence = pi->sequence;
-			tmp_unistim_info->termid = 0;
-			tmp_unistim_info->key_val = -1;
-			tmp_unistim_info->key_state = -1;
-			tmp_unistim_info->hook_state = -1;
-			tmp_unistim_info->stream_connect = -1;
-			tmp_unistim_info->trans_connect = -1;
-			tmp_unistim_info->set_termid = -1;
-			tmp_unistim_info->string_data = NULL;
-			tmp_unistim_info->key_buffer = NULL;
-
-			COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
-			COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
-			tmp_unistim_info->it_port = pi->it_port;
-
-			callsinfo->free_prot_info = g_free;
-			callsinfo->npackets = 0;
-			callsinfo->call_num = tapinfo->ncalls++;
-			g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-
-			/* Open stream */
-			/* Each packet COULD BE OUR LAST!!!! */
-			/* Store frame data which holds time and frame number */
-			callsinfo->stop_fd = pinfo->fd;
-			callsinfo->stop_rel_ts = pinfo->rel_ts;
-			/* Local packets too */
-			++(callsinfo->npackets);
-
-			/* increment the packets counter of all calls */
-			++(tapinfo->npackets);
-
-			/* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
-			   Call control protocol, we can only guess at the destination by messing with
-			   key buffers. */
-			if(tmp_unistim_info->key_buffer != NULL) {
-				callsinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
-			}
-
-			/* change sequence number for ACK detection */
-			tmp_unistim_info->sequence = pi->sequence;
-
-			/* State changes too */
-			callsinfo->call_active_state = VOIP_ACTIVE;
-			callsinfo->call_state = VOIP_IN_CALL;
-
-			/* Add graph data */
-			frame_label = "STREAM OPENED";
-			comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
-
-			/* add to the graph */
-			add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-		} else if(pi->stream_connect == 0 && callsinfo != NULL) {
-			/* Close Stream */
-
-			/* Set stop seconds + usec */
-			/* frame_data holds the time info */
-			callsinfo->stop_fd = pinfo->fd;
-			callsinfo->stop_rel_ts = pinfo->rel_ts;
-
-			tmp_unistim_info->sequence = pi->sequence;
-
-			if(callsinfo->call_state == VOIP_IN_CALL) {
-				callsinfo->call_active_state = VOIP_INACTIVE;
-				callsinfo->call_state = VOIP_COMPLETED;
-			} else {
-				callsinfo->call_state = VOIP_UNKNOWN;
-				callsinfo->call_active_state = VOIP_INACTIVE;
-			}
-
-			frame_label = "STREAM CLOSED";
-			comment = g_strdup_printf("Stream Closed (%d)",pi->sequence);
-
-			/* add to the graph */
-			add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-		} else
-			comment = NULL;
-
-	} else if(pi->rudp_type == 1 && callsinfo != NULL) {
-		/* ACK */
-		/* Only show acks for processed seq #s */
-		if(tmp_unistim_info->sequence == pi->sequence) {
-
-			frame_label = "ACK";
-			comment = g_strdup_printf("ACK for sequence %d",pi->sequence);
-
-			/* add to the graph */
-			add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-		}
-
-	} else if(pi->rudp_type == 0 && callsinfo != NULL) {
-
-		/* NAK */
-		frame_label = "NAK";
-		comment = g_strdup_printf("NAK for sequence %d",pi->sequence);
-
-		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-
-	}
-
-	/* free data */
-	g_free(comment);
-
-	tapinfo->redraw = TRUE;
-
-	return 1;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
+    voip_calls_info_t *tmp_listinfo;
+    voip_calls_info_t *callsinfo = NULL;
+    unistim_info_t *tmp_unistim_info = NULL;
+    GList *list = NULL;
+    GString *g_tmp = NULL;
+    const gchar *frame_label = NULL;
+    gchar *comment = NULL;
+
+    /* Fetch specific packet infos */
+    const unistim_info_t *pi = (const unistim_info_t *)unistim_info;
+
+    /* Init gstring */
+    g_tmp = g_string_new(NULL);
+
+    /* Check to see if this is a dup */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+
+    while(list)
+    {
+        tmp_listinfo = (voip_calls_info_t *)list->data;
+
+        if(tmp_listinfo->protocol == VOIP_UNISTIM) {
+
+            tmp_unistim_info = (unistim_info_t *)tmp_listinfo->prot_info;
+
+            /* Search by termid if possible, otherwise use ni/it ip + port.. */
+            if(pi->termid != 0) {
+                if(tmp_unistim_info->termid == pi->termid) {
+                    /* If the call has ended, then we can reuse it.. */
+                    if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
+                        /* Do nothing */
+                    } else {
+                        callsinfo = (voip_calls_info_t*)(list->data);
+                        break;
+                    }
+                }
+            } else {
+                /* If no term id use ips / port to find entry */
+                if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->dst) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->src) && (tmp_unistim_info->it_port == pinfo->destport)) {
+                    if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
+                        /* Do nothing previous call */
+                    } else {
+                        callsinfo = (voip_calls_info_t*)(list->data);
+                        break;
+                    }
+                }
+                else if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->src) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->dst) && (tmp_unistim_info->it_port == pinfo->srcport)) {
+                    if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
+                        /* Do nothing, it ain't our call.. */
+                    } else {
+                        callsinfo = (voip_calls_info_t*)(list->data);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* Otherwise, go to the next one.. */
+        list = g_list_next(list);
+    }
+
+    if(pi->payload_type == 2 || pi->payload_type == 1) {
+
+        if(pi->key_state == 1 || pi->hook_state == 1) {
+
+            /* If the user hits a button,
+               Session will be SETUP */
+
+            /* If new add to list */
+            if (callsinfo==NULL) {
+
+                callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+                callsinfo->call_active_state = VOIP_ACTIVE;
+                callsinfo->call_state = VOIP_CALL_SETUP;
+                callsinfo->from_identity=g_strdup_printf("%x",pi->termid);
+                callsinfo->to_identity=g_strdup("UNKNOWN");
+                COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+                callsinfo->selected=FALSE;
+
+                /* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
+                /* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
+                /* Store frame data which holds time and frame number */
+                callsinfo->start_fd=pinfo->fd;
+                callsinfo->start_rel_ts=pinfo->rel_ts;
+
+                callsinfo->protocol=VOIP_UNISTIM;
+                callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
+
+                tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
+
+                /* Clear tap struct */
+                tmp_unistim_info->rudp_type = 0;
+                tmp_unistim_info->payload_type = 0;
+                tmp_unistim_info->sequence = pi->sequence;
+                tmp_unistim_info->termid = pi->termid;
+                tmp_unistim_info->key_val = -1;
+                tmp_unistim_info->key_state = -1;
+                tmp_unistim_info->hook_state = -1;
+                tmp_unistim_info->stream_connect = -1;
+                tmp_unistim_info->trans_connect = -1;
+                tmp_unistim_info->set_termid = -1;
+                tmp_unistim_info->string_data = NULL;
+                tmp_unistim_info->key_buffer = NULL;
+
+                COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
+                COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
+                tmp_unistim_info->it_port = pi->it_port;
+
+                callsinfo->free_prot_info = g_free;
+                callsinfo->npackets = 0;
+                callsinfo->call_num = tapinfo->ncalls++;
+                g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+
+            } else {
+
+                /* Set up call wide info struct */
+                tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
+                tmp_unistim_info->sequence = pi->sequence;
+            }
+
+            /* Each packet COULD BE OUR LAST!!!! */
+            /* Store frame data which holds time and frame number */
+            callsinfo->stop_fd = pinfo->fd;
+            callsinfo->stop_rel_ts = pinfo->rel_ts;
+
+            /* This is a valid packet so increment counter */
+            ++(callsinfo->npackets);
+
+            /* increment the packets counter of all calls */
+            ++(tapinfo->npackets);
+
+            /* Key was depressed.. update key buffer.. */
+            if(pi->key_val >= 0 && pi->key_val <= 11) {
+
+                if(tmp_unistim_info->key_buffer != NULL) {
+
+                    /* assign to temp variable */
+                    g_string_assign(g_tmp,tmp_unistim_info->key_buffer);
+
+                    /* Manipulate the data */
+                    if(pi->key_val == 10) {
+                        tmp_unistim_info->key_buffer = g_strdup_printf("%s*",g_tmp->str);
+                    } else if(pi->key_val == 11) {
+                        tmp_unistim_info->key_buffer = g_strdup_printf("%s#",g_tmp->str);
+                    } else {
+                        tmp_unistim_info->key_buffer = g_strdup_printf("%s%d",g_tmp->str,pi->key_val);
+                    }
+
+                } else {
+
+                    /* Create new string */
+                    if(pi->key_val == 10) {
+                        tmp_unistim_info->key_buffer = g_strdup("*");
+                    } else if(pi->key_val == 11) {
+                        tmp_unistim_info->key_buffer = g_strdup("#");
+                    } else {
+                        tmp_unistim_info->key_buffer = g_strdup_printf("%d",pi->key_val);
+                    }
+
+                }
+
+                /* Select for non-digit characters */
+                if(pi->key_val == 10) {
+                    comment = g_strdup_printf("Key Input Sent: * (%d)", pi->sequence);
+                } else if(pi->key_val == 11) {
+                    comment = g_strdup_printf("Key Input Sent: # (%d)", pi->sequence);
+                } else {
+                    comment = g_strdup_printf("Key Input Sent: %d (%d)",pi->key_val, pi->sequence);
+                }
+            } else if(pi->key_val == 12) {
+                /* Set label and comment for graph */
+                comment = g_strdup_printf("Key Input Sent: UP (%d)", pi->sequence);
+            } else if(pi->key_val == 13) {
+                /* Set label and comment for graph */
+                comment = g_strdup_printf("Key Input Sent: DOWN (%d)", pi->sequence);
+            } else if(pi->key_val == 14) {
+                /* Set label and comment for graph */
+                comment = g_strdup_printf("Key Input Sent: RIGHT (%d)", pi->sequence);
+            } else if(pi->key_val == 15) {
+                if(pi->key_buffer != NULL) {
+                    /* Get data */
+                    g_string_assign(g_tmp,pi->key_buffer);
+
+                    /* Manipulate the data */
+                    g_string_truncate(g_tmp,g_tmp->len-1);
+
+                    /* Insert new data */
+                    tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
+                }
+
+                /* Set label and comment for graph */
+                comment = g_strdup_printf("Key Input Sent: LEFT (%d)", pi->sequence);
+            } else if(pi->key_val == 20) {
+                /* User pressed the soft key 0 probably dial */
+                comment = g_strdup_printf("Key Input Sent: S0 (%d)", pi->sequence);
+            } else if(pi->key_val == 21) {
+                /* User pressed the soft key 1 */
+                comment = g_strdup_printf("Key Input Sent: S1 (%d)", pi->sequence);
+            } else if(pi->key_val == 22) {
+                /* User pressed the soft key 2 */
+                /* On cs2k phones, soft key 2 is backspace. */
+                if(pi->key_buffer != NULL) {
+
+                    /* Get data */
+                    g_string_assign(g_tmp,pi->key_buffer);
+
+                    /* Manipulate the data */
+                    g_string_truncate(g_tmp,g_tmp->len-1);
+
+                    /* Insert new data */
+                    tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
+                }
+
+                /* add label and comment */
+                comment = g_strdup_printf("Key Input Sent: S2 (%d)", pi->sequence);
+            } else if(pi->key_val == 28) {
+                /* User pressed something */
+                comment = g_strdup_printf("Key Input Sent: Release (%d)", pi->sequence);
+            } else if(pi->key_val == 23) {
+                /* User pressed the soft key 3 */
+                /* Cancel on cs2k so clear buffer */
+                /* On mcs it's config which will clear the buffer too */
+                tmp_unistim_info->key_buffer = g_strdup("\n");
+
+                /* User pressed something, set labels*/
+                comment = g_strdup_printf("Key Input Sent: S3 (%d)", pi->sequence);
+            } else if(pi->key_val == 27) {
+                /* User pressed something */
+                comment = g_strdup_printf("Key Input Sent: Hold (%d)", pi->sequence);
+            } else if(pi->key_val == 29) {
+                /* User pressed something */
+                comment = g_strdup_printf("Key Input Sent: Mute (%d)", pi->sequence);
+            } else if(pi->key_val == 30) {
+                /* User pressed something */
+                comment = g_strdup_printf("Key Input Sent: Headset (%d)", pi->sequence);
+            } else if(pi->key_val == 31) {
+                /* Handsfree button */
+                comment = g_strdup_printf("Key Input Sent: Handsfree (%d)", pi->sequence);
+            } else if(pi->key_val >= 32 && pi->key_val <= 56) {
+                /* Prog. Key X */
+                comment = g_strdup_printf("Key Input Sent: Prog%d (%d)", (pi->key_val & 31), pi->sequence);
+            }
+
+            if(pi->key_val != -1) {
+
+                frame_label = "KEY INPUT";
+
+                if (comment == NULL)
+                    /* Ouch! What do you do!? */
+                    /* User pressed something */
+                    comment = g_strdup_printf("Key Input Sent: UNKNOWN - %d (%d)", pi->key_val, pi->sequence);
+
+                /* add to the graph */
+                add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+                g_free(comment);
+            }
+
+            if(pi->hook_state == 1) {
+
+                /* Phone is off hook */
+                frame_label = "OFF HOOK";
+                comment = g_strdup_printf("Off Hook (%d)", pi->sequence);
+
+                /* add to the graph */
+                add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+                g_free(comment);
+            } else if(pi->hook_state == 0) {
+
+                /* Phone is on hook */
+                frame_label = "ON HOOK";
+                comment = g_strdup_printf("On Hook (%d)", pi->sequence);
+
+                /* add to the graph */
+                add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+                g_free(comment);
+            }
+        }
+
+        /* Open stream was sent from server */
+        if(pi->stream_connect == 1 && callsinfo != NULL) {
+
+            /* Open stream */
+            /* Signifies the start of the call so set start_sec & start_usec */
+            /* Frame data holds the time info */
+            callsinfo->start_fd=pinfo->fd;
+            callsinfo->start_rel_ts=pinfo->rel_ts;
+            /* Each packet COULD BE OUR LAST!!!! */
+            /* Store frame data which holds time and frame number */
+            callsinfo->stop_fd = pinfo->fd;
+            callsinfo->stop_rel_ts = pinfo->rel_ts;
+
+            /* Local packets too */
+            ++(callsinfo->npackets);
+
+            /* increment the packets counter of all calls */
+            ++(tapinfo->npackets);
+
+            /* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
+               Call control protocol, we can only guess at the destination by messing with
+               key buffers. */
+            if(tmp_unistim_info->key_buffer != NULL) {
+                callsinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
+            }
+
+            /* change sequence number for ACK detection */
+            tmp_unistim_info->sequence = pi->sequence;
+
+            /* State changes too */
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_IN_CALL;
+
+            /* Add graph data */
+            frame_label = "STREAM OPENED";
+            comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
+
+            /* add to the graph */
+            add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+        } else if(pi->stream_connect == 1 && callsinfo == NULL) {
+
+            /* Research indicates some nortel products initiate stream first
+             * without keypresses. therefore creating this solely on a keypress is
+             * ineffective.
+             * Sometimes calls start immediately with open stream.
+             */
+            callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_CALL_SETUP;
+            callsinfo->from_identity=g_strdup("UNKNOWN");
+            callsinfo->to_identity=g_strdup("UNKNOWN");
+            COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+            callsinfo->selected=FALSE;
+
+            /* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
+            /* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
+            callsinfo->start_fd=pinfo->fd;
+            callsinfo->start_rel_ts=pinfo->rel_ts;
+
+            callsinfo->protocol=VOIP_UNISTIM;
+            callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
+
+            tmp_unistim_info = (unistim_info_t *)callsinfo->prot_info;
+
+            /* Clear tap struct */
+            tmp_unistim_info->rudp_type = 0;
+            tmp_unistim_info->payload_type = 0;
+            tmp_unistim_info->sequence = pi->sequence;
+            tmp_unistim_info->termid = 0;
+            tmp_unistim_info->key_val = -1;
+            tmp_unistim_info->key_state = -1;
+            tmp_unistim_info->hook_state = -1;
+            tmp_unistim_info->stream_connect = -1;
+            tmp_unistim_info->trans_connect = -1;
+            tmp_unistim_info->set_termid = -1;
+            tmp_unistim_info->string_data = NULL;
+            tmp_unistim_info->key_buffer = NULL;
+
+            COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
+            COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
+            tmp_unistim_info->it_port = pi->it_port;
+
+            callsinfo->free_prot_info = g_free;
+            callsinfo->npackets = 0;
+            callsinfo->call_num = tapinfo->ncalls++;
+            g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+
+            /* Open stream */
+            /* Each packet COULD BE OUR LAST!!!! */
+            /* Store frame data which holds time and frame number */
+            callsinfo->stop_fd = pinfo->fd;
+            callsinfo->stop_rel_ts = pinfo->rel_ts;
+            /* Local packets too */
+            ++(callsinfo->npackets);
+
+            /* increment the packets counter of all calls */
+            ++(tapinfo->npackets);
+
+            /* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
+               Call control protocol, we can only guess at the destination by messing with
+               key buffers. */
+            if(tmp_unistim_info->key_buffer != NULL) {
+                callsinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
+            }
+
+            /* change sequence number for ACK detection */
+            tmp_unistim_info->sequence = pi->sequence;
+
+            /* State changes too */
+            callsinfo->call_active_state = VOIP_ACTIVE;
+            callsinfo->call_state = VOIP_IN_CALL;
+
+            /* Add graph data */
+            frame_label = "STREAM OPENED";
+            comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
+
+            /* add to the graph */
+            add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+        } else if(pi->stream_connect == 0 && callsinfo != NULL) {
+            /* Close Stream */
+
+            /* Set stop seconds + usec */
+            /* frame_data holds the time info */
+            callsinfo->stop_fd = pinfo->fd;
+            callsinfo->stop_rel_ts = pinfo->rel_ts;
+
+            tmp_unistim_info->sequence = pi->sequence;
+
+            if(callsinfo->call_state == VOIP_IN_CALL) {
+                callsinfo->call_active_state = VOIP_INACTIVE;
+                callsinfo->call_state = VOIP_COMPLETED;
+            } else {
+                callsinfo->call_state = VOIP_UNKNOWN;
+                callsinfo->call_active_state = VOIP_INACTIVE;
+            }
+
+            frame_label = "STREAM CLOSED";
+            comment = g_strdup_printf("Stream Closed (%d)",pi->sequence);
+
+            /* add to the graph */
+            add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+        } else
+            comment = NULL;
+
+    } else if(pi->rudp_type == 1 && callsinfo != NULL) {
+        /* ACK */
+        /* Only show acks for processed seq #s */
+        if(tmp_unistim_info->sequence == pi->sequence) {
+
+            frame_label = "ACK";
+            comment = g_strdup_printf("ACK for sequence %d",pi->sequence);
+
+            /* add to the graph */
+            add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+        }
+
+    } else if(pi->rudp_type == 0 && callsinfo != NULL) {
+
+        /* NAK */
+        frame_label = "NAK";
+        comment = g_strdup_printf("NAK for sequence %d",pi->sequence);
+
+        /* add to the graph */
+        add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+    }
+
+    /* free data */
+    g_free(comment);
+
+    tapinfo->redraw = TRUE;
+
+    return 1;
 }
 
 /****************************************************************************/
@@ -3567,28 +3563,28 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 void
 unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("unistim", tap_base_to_id(tap_id_base, tap_id_offset_unistim_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-		unistim_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("unistim", tap_base_to_id(tap_id_base, tap_id_offset_unistim_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            unistim_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_unistim_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_unistim_));
 }
 
 /****************************************************************************/
@@ -3597,115 +3593,115 @@ remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /* Telecaster to tap-voip call state mapping */
 static const voip_call_state skinny_tap_voip_state[] = {
-	VOIP_NO_STATE,
-	VOIP_CALL_SETUP,
-	VOIP_COMPLETED,
-	VOIP_RINGING,
-	VOIP_RINGING,
-	VOIP_IN_CALL,
-	VOIP_REJECTED,
-	VOIP_REJECTED,
-	VOIP_IN_CALL,
-	VOIP_IN_CALL,
-	VOIP_COMPLETED,
-	VOIP_COMPLETED,
-	VOIP_CALL_SETUP,
-	VOIP_UNKNOWN,
-	VOIP_REJECTED
+    VOIP_NO_STATE,
+    VOIP_CALL_SETUP,
+    VOIP_COMPLETED,
+    VOIP_RINGING,
+    VOIP_RINGING,
+    VOIP_IN_CALL,
+    VOIP_REJECTED,
+    VOIP_REJECTED,
+    VOIP_IN_CALL,
+    VOIP_IN_CALL,
+    VOIP_COMPLETED,
+    VOIP_COMPLETED,
+    VOIP_CALL_SETUP,
+    VOIP_UNKNOWN,
+    VOIP_REJECTED
 };
 
 static int
 skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *skinny_info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_skinny_);
-	GList* list;
-	voip_calls_info_t *callsinfo = NULL;
-	address* phone;
-	const skinny_info_t *si = (const skinny_info_t *)skinny_info;
-	skinny_calls_info_t *tmp_skinnyinfo;
-	gchar *comment;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_skinny_);
+    GList* list;
+    voip_calls_info_t *callsinfo = NULL;
+    address* phone;
+    const skinny_info_t *si = (const skinny_info_t *)skinny_info;
+    skinny_calls_info_t *tmp_skinnyinfo;
+    gchar *comment;
 
-	if (si == NULL || (si->callId == 0 && si->passThruId == 0))
-		return 0;
-	/* check whether we already have this context in the list */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
-		if (tmp_listinfo->protocol == VOIP_SKINNY) {
-			tmp_skinnyinfo = (skinny_calls_info_t *)tmp_listinfo->prot_info;
-			if (tmp_skinnyinfo->callId == si->callId ||
-			    tmp_skinnyinfo->callId == si->passThruId) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-			}
-		}
-		list = g_list_next (list);
-	}
+    if (si == NULL || (si->callId == 0 && si->passThruId == 0))
+        return 0;
+    /* check whether we already have this context in the list */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
+        if (tmp_listinfo->protocol == VOIP_SKINNY) {
+            tmp_skinnyinfo = (skinny_calls_info_t *)tmp_listinfo->prot_info;
+            if (tmp_skinnyinfo->callId == si->callId ||
+                    tmp_skinnyinfo->callId == si->passThruId) {
+                callsinfo = (voip_calls_info_t*)(list->data);
+                break;
+            }
+        }
+        list = g_list_next (list);
+    }
 
-	if (si->messId >= 256)
-		phone = &(pinfo->dst);
-	else
-		phone = &(pinfo->src);
+    if (si->messId >= 256)
+        phone = &(pinfo->dst);
+    else
+        phone = &(pinfo->src);
 
-	if (callsinfo==NULL) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_state = VOIP_NO_STATE;
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		/* callsinfo->from_identity = g_strdup_printf("%s : %.8x", "Skinny", 1); */
-		callsinfo->from_identity = g_strdup("");
-		callsinfo->to_identity = g_strdup("");
-		callsinfo->prot_info = g_malloc(sizeof(skinny_calls_info_t));
-		callsinfo->free_prot_info = g_free;
-		tmp_skinnyinfo = (skinny_calls_info_t *)callsinfo->prot_info;
-		tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThruId;
-		callsinfo->npackets = 1;
+    if (callsinfo==NULL) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_state = VOIP_NO_STATE;
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        /* callsinfo->from_identity = g_strdup_printf("%s : %.8x", "Skinny", 1); */
+        callsinfo->from_identity = g_strdup("");
+        callsinfo->to_identity = g_strdup("");
+        callsinfo->prot_info = g_malloc(sizeof(skinny_calls_info_t));
+        callsinfo->free_prot_info = g_free;
+        tmp_skinnyinfo = (skinny_calls_info_t *)callsinfo->prot_info;
+        tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThruId;
+        callsinfo->npackets = 1;
 
-		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
+        COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
 
-		callsinfo->protocol = VOIP_SKINNY;
-		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_fd = pinfo->fd;
-		callsinfo->start_rel_ts = pinfo->rel_ts;
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
+        callsinfo->protocol = VOIP_SKINNY;
+        callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->start_fd = pinfo->fd;
+        callsinfo->start_rel_ts = pinfo->rel_ts;
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-		callsinfo->selected = FALSE;
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	} else {
-		if (si->callingParty) {
-			g_free(callsinfo->from_identity);
-			callsinfo->from_identity = g_strdup(si->callingParty);
-		}
-		if (si->calledParty) {
-			g_free(callsinfo->to_identity);
-			callsinfo->to_identity =  g_strdup(si->calledParty);
-		}
-		if ((si->callState > 0) && (si->callState < (sizeof(skinny_tap_voip_state)/sizeof(skinny_tap_voip_state[0]))))
-			callsinfo->call_state = skinny_tap_voip_state[si->callState];
+        callsinfo->selected = FALSE;
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    } else {
+        if (si->callingParty) {
+            g_free(callsinfo->from_identity);
+            callsinfo->from_identity = g_strdup(si->callingParty);
+        }
+        if (si->calledParty) {
+            g_free(callsinfo->to_identity);
+            callsinfo->to_identity =  g_strdup(si->calledParty);
+        }
+        if ((si->callState > 0) && (si->callState < (sizeof(skinny_tap_voip_state)/sizeof(skinny_tap_voip_state[0]))))
+            callsinfo->call_state = skinny_tap_voip_state[si->callState];
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-	}
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+    }
 
-	if (si->callId) {
-		if (si->passThruId)
-			comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThruId);
-		else
-			comment = g_strdup_printf("CallId = %u, LineId = %u", si->callId, si->lineId);
-	} else {
-		if (si->passThruId)
-			comment = g_strdup_printf("PTId = %u", si->passThruId);
-		else
-			comment = NULL;
-	}
+    if (si->callId) {
+        if (si->passThruId)
+            comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThruId);
+        else
+            comment = g_strdup_printf("CallId = %u, LineId = %u", si->callId, si->lineId);
+    } else {
+        if (si->passThruId)
+            comment = g_strdup_printf("PTId = %u", si->passThruId);
+        else
+            comment = NULL;
+    }
 
-	add_to_graph(tapinfo, pinfo, edt, si->messageName, comment,
-				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-	g_free(comment);
+    add_to_graph(tapinfo, pinfo, edt, si->messageName, comment,
+            callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    g_free(comment);
 
-	return 1;
+    return 1;
 }
 
 
@@ -3715,34 +3711,34 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 void
 skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	/*
-	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-	 * in the SKINNY dissector; otherwise, the dissector
-	 * doesn't fill in the info passed to the tap's packet
-	 * routine.
-	 */
-	error_string = register_tap_listener("skinny",
-		tap_base_to_id(tap_id_base, tap_id_offset_skinny_),
-		NULL,
-		TL_REQUIRES_PROTO_TREE,
-		voip_calls_dlg_reset,
-		skinny_calls_packet,
-		voip_calls_dlg_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    /*
+     * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+     * in the SKINNY dissector; otherwise, the dissector
+     * doesn't fill in the info passed to the tap's packet
+     * routine.
+     */
+    error_string = register_tap_listener("skinny",
+            tap_base_to_id(tap_id_base, tap_id_offset_skinny_),
+            NULL,
+            TL_REQUIRES_PROTO_TREE,
+            voip_calls_dlg_reset,
+            skinny_calls_packet,
+            voip_calls_dlg_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_skinny_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_skinny_));
 }
 
 /****************************************************************************/
@@ -3750,9 +3746,9 @@ remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 static void free_iax2_info(gpointer p) {
-	iax2_info_t *ii = (iax2_info_t *)p;
+    iax2_info_t *ii = (iax2_info_t *)p;
 
-	g_free(ii);
+    g_free(ii);
 }
 
 
@@ -3761,76 +3757,76 @@ static void free_iax2_info(gpointer p) {
 static int
 iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *iax2_info)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_iax2_);
-	GList* list;
-	voip_calls_info_t *callsinfo = NULL;
-	address* phone;
-	const iax2_info_t *ii = (const iax2_info_t *)iax2_info;
-	iax2_info_t *tmp_iax2info;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_iax2_);
+    GList* list;
+    voip_calls_info_t *callsinfo = NULL;
+    address* phone;
+    const iax2_info_t *ii = (const iax2_info_t *)iax2_info;
+    iax2_info_t *tmp_iax2info;
 
-	if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
-		return 0;
-	/* check whether we already have this context in the list */
-	list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list)
-	{
-		voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
-		if (tmp_listinfo->protocol == VOIP_IAX2) {
-			tmp_iax2info = (iax2_info_t *)tmp_listinfo->prot_info;
-			if (tmp_iax2info->scallno == ii->scallno ||
-			    tmp_iax2info->scallno == ii->dcallno) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-			}
-		}
-		list = g_list_next (list);
-	}
-	phone = &(pinfo->src);
+    if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
+        return 0;
+    /* check whether we already have this context in the list */
+    list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list)
+    {
+        voip_calls_info_t* tmp_listinfo = (voip_calls_info_t *)list->data;
+        if (tmp_listinfo->protocol == VOIP_IAX2) {
+            tmp_iax2info = (iax2_info_t *)tmp_listinfo->prot_info;
+            if (tmp_iax2info->scallno == ii->scallno ||
+                    tmp_iax2info->scallno == ii->dcallno) {
+                callsinfo = (voip_calls_info_t*)(list->data);
+                break;
+            }
+        }
+        list = g_list_next (list);
+    }
+    phone = &(pinfo->src);
 
 
-	if (callsinfo==NULL) {
-		/* We only care about real calls, i.e., no registration stuff */
-		if (ii->ftype != AST_FRAME_IAX ||  ii->csub != IAX_COMMAND_NEW)
-			return 0;
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_state = VOIP_NO_STATE;
-		callsinfo->call_active_state = VOIP_ACTIVE;
-		callsinfo->prot_info=g_malloc(sizeof(iax2_info_t));
-		callsinfo->free_prot_info = free_iax2_info;
-		tmp_iax2info = (iax2_info_t *)callsinfo->prot_info;
+    if (callsinfo==NULL) {
+        /* We only care about real calls, i.e., no registration stuff */
+        if (ii->ftype != AST_FRAME_IAX ||  ii->csub != IAX_COMMAND_NEW)
+            return 0;
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_state = VOIP_NO_STATE;
+        callsinfo->call_active_state = VOIP_ACTIVE;
+        callsinfo->prot_info=g_malloc(sizeof(iax2_info_t));
+        callsinfo->free_prot_info = free_iax2_info;
+        tmp_iax2info = (iax2_info_t *)callsinfo->prot_info;
 
-		tmp_iax2info->scallno = ii->scallno;
-		if (tmp_iax2info->scallno == 0) tmp_iax2info->scallno = ii->dcallno;
-		tmp_iax2info->callState = ii->callState;
+        tmp_iax2info->scallno = ii->scallno;
+        if (tmp_iax2info->scallno == 0) tmp_iax2info->scallno = ii->dcallno;
+        tmp_iax2info->callState = ii->callState;
 
-		callsinfo->npackets = 1;
+        callsinfo->npackets = 1;
 
-		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
-		callsinfo->from_identity = g_strdup(ii->callingParty);
-		callsinfo->to_identity =  g_strdup(ii->calledParty);
+        COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
+        callsinfo->from_identity = g_strdup(ii->callingParty);
+        callsinfo->to_identity =  g_strdup(ii->calledParty);
 
-		callsinfo->protocol = VOIP_IAX2;
-		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_fd=pinfo->fd;
-		callsinfo->start_rel_ts=pinfo->rel_ts;
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
+        callsinfo->protocol = VOIP_IAX2;
+        callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->start_fd=pinfo->fd;
+        callsinfo->start_rel_ts=pinfo->rel_ts;
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
 
-		callsinfo->selected = FALSE;
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+        callsinfo->selected = FALSE;
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
-	} else {
-		callsinfo->call_state = ii->callState;
+    } else {
+        callsinfo->call_state = ii->callState;
 
-		callsinfo->stop_fd = pinfo->fd;
-		callsinfo->stop_rel_ts = pinfo->rel_ts;
-		++(callsinfo->npackets);
-	}
+        callsinfo->stop_fd = pinfo->fd;
+        callsinfo->stop_rel_ts = pinfo->rel_ts;
+        ++(callsinfo->npackets);
+    }
 
-	add_to_graph(tapinfo, pinfo, edt, ii->messageName, "",
-				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    add_to_graph(tapinfo, pinfo, edt, ii->messageName, "",
+            callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
-	return 1;
+    return 1;
 
 }
 
@@ -3841,37 +3837,37 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
 void
 iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	/*
-	 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
-	 * in the IAX2 dissector; otherwise, the dissector
-	 * doesn't fill in the info passed to the tap's packet
-	 * routine.
-	 * XXX - that appears to be true of the MGCP and SKINNY
-	 * dissectors, but, unless I've missed something, it doesn't
-	 * appear to be true of the IAX2 dissector.
-	 */
-	error_string = register_tap_listener("IAX2",
-		tap_base_to_id(tap_id_base, tap_id_offset_iax2_),
-		NULL,
-		TL_REQUIRES_PROTO_TREE,
-		voip_calls_dlg_reset,
-		iax2_calls_packet,
-		voip_calls_dlg_draw
-		);
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-			      error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    /*
+     * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+     * in the IAX2 dissector; otherwise, the dissector
+     * doesn't fill in the info passed to the tap's packet
+     * routine.
+     * XXX - that appears to be true of the MGCP and SKINNY
+     * dissectors, but, unless I've missed something, it doesn't
+     * appear to be true of the IAX2 dissector.
+     */
+    error_string = register_tap_listener("IAX2",
+            tap_base_to_id(tap_id_base, tap_id_offset_iax2_),
+            NULL,
+            TL_REQUIRES_PROTO_TREE,
+            voip_calls_dlg_reset,
+            iax2_calls_packet,
+            voip_calls_dlg_draw
+            );
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 
 /****************************************************************************/
 void
 remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_iax2_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_iax2_));
 }
 
 /****************************************************************************/
@@ -3881,95 +3877,95 @@ remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 static int
 voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *VoIPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
-	voip_calls_info_t *callsinfo = NULL;
-	voip_calls_info_t *tmp_listinfo;
-	GList *list = NULL;
-	const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
+    voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
+    voip_calls_info_t *callsinfo = NULL;
+    voip_calls_info_t *tmp_listinfo;
+    GList *list = NULL;
+    const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
 
-	if (pi->call_id)
-		list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
-	while (list) {
-		tmp_listinfo = (voip_calls_info_t *)list->data;
-		if ( tmp_listinfo->protocol == VOIP_COMMON ) {
-			if (!strcmp(pi->call_id, tmp_listinfo->call_id)) {
-				callsinfo = (voip_calls_info_t*)(list->data);
-				break;
-			}
-		}
-		list = g_list_next(list);
-	}
+    if (pi->call_id)
+        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    while (list) {
+        tmp_listinfo = (voip_calls_info_t *)list->data;
+        if ( tmp_listinfo->protocol == VOIP_COMMON ) {
+            if (!strcmp(pi->call_id, tmp_listinfo->call_id)) {
+                callsinfo = (voip_calls_info_t*)(list->data);
+                break;
+            }
+        }
+        list = g_list_next(list);
+    }
 
-	if (callsinfo == NULL) {
-		callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
-		callsinfo->call_active_state = pi->call_active_state;
-		callsinfo->call_state = pi->call_state;
-		callsinfo->call_id=g_strdup((pi->call_id)?pi->call_id:"");
-		callsinfo->from_identity = g_strdup((pi->from_identity)?pi->from_identity:"");
-		callsinfo->to_identity = g_strdup((pi->to_identity)?pi->to_identity:"");
-		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-		callsinfo->selected=FALSE;
-		callsinfo->start_fd=pinfo->fd;
-		callsinfo->start_rel_ts=pinfo->rel_ts;
-		callsinfo->protocol=VOIP_COMMON;
-		callsinfo->protocol_name=g_strdup((pi->protocol_name)?pi->protocol_name:"");
-		callsinfo->call_comment=g_strdup((pi->call_comment)?pi->call_comment:"");
-		callsinfo->prot_info=NULL;
-		callsinfo->free_prot_info = NULL;
+    if (callsinfo == NULL) {
+        callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
+        callsinfo->call_active_state = pi->call_active_state;
+        callsinfo->call_state = pi->call_state;
+        callsinfo->call_id=g_strdup((pi->call_id)?pi->call_id:"");
+        callsinfo->from_identity = g_strdup((pi->from_identity)?pi->from_identity:"");
+        callsinfo->to_identity = g_strdup((pi->to_identity)?pi->to_identity:"");
+        COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
+        callsinfo->selected=FALSE;
+        callsinfo->start_fd=pinfo->fd;
+        callsinfo->start_rel_ts=pinfo->rel_ts;
+        callsinfo->protocol=VOIP_COMMON;
+        callsinfo->protocol_name=g_strdup((pi->protocol_name)?pi->protocol_name:"");
+        callsinfo->call_comment=g_strdup((pi->call_comment)?pi->call_comment:"");
+        callsinfo->prot_info=NULL;
+        callsinfo->free_prot_info = NULL;
 
-		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->npackets = 0;
+        callsinfo->call_num = tapinfo->ncalls++;
+        callsinfo->npackets = 0;
 
-		g_queue_push_tail(tapinfo->callsinfos, callsinfo);
-	}
+        g_queue_push_tail(tapinfo->callsinfos, callsinfo);
+    }
 
-	callsinfo->call_active_state = pi->call_active_state;
-	if ((callsinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
-		tapinfo->completed_calls++;
-	if (pi->call_state != VOIP_NO_STATE)
-		callsinfo->call_state = pi->call_state;
-	if (pi->call_comment) {
-		g_free(callsinfo->call_comment);
-		callsinfo->call_comment=g_strdup(pi->call_comment);
-	}
-	callsinfo->stop_fd = pinfo->fd;
-	callsinfo->stop_rel_ts = pinfo->rel_ts;
-	++(callsinfo->npackets);
-	++(tapinfo->npackets);
+    callsinfo->call_active_state = pi->call_active_state;
+    if ((callsinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
+        tapinfo->completed_calls++;
+    if (pi->call_state != VOIP_NO_STATE)
+        callsinfo->call_state = pi->call_state;
+    if (pi->call_comment) {
+        g_free(callsinfo->call_comment);
+        callsinfo->call_comment=g_strdup(pi->call_comment);
+    }
+    callsinfo->stop_fd = pinfo->fd;
+    callsinfo->stop_rel_ts = pinfo->rel_ts;
+    ++(callsinfo->npackets);
+    ++(tapinfo->npackets);
 
-	/* add to the graph */
-	add_to_graph(tapinfo, pinfo, edt, (pi->frame_label)?pi->frame_label:"VoIP msg", pi->frame_comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    /* add to the graph */
+    add_to_graph(tapinfo, pinfo, edt, (pi->frame_label)?pi->frame_label:"VoIP msg", pi->frame_comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
-	tapinfo->redraw = TRUE;
+    tapinfo->redraw = TRUE;
 
-	return 1;
+    return 1;
 }
 /****************************************************************************/
 
 void
 VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-	GString *error_string;
+    GString *error_string;
 
-	error_string = register_tap_listener("voip", tap_base_to_id(tap_id_base, tap_id_offset_voip_),
-		NULL,
-		0,
-		voip_calls_dlg_reset,
-        voip_calls_packet,
-		voip_calls_dlg_draw
-		);
+    error_string = register_tap_listener("voip", tap_base_to_id(tap_id_base, tap_id_offset_voip_),
+            NULL,
+            0,
+            voip_calls_dlg_reset,
+            voip_calls_packet,
+            voip_calls_dlg_draw
+            );
 
-	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "%s", error_string->str);
-		g_string_free(error_string, TRUE);
-	}
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
 }
 /****************************************************************************/
 void
 remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_voip_));
+    remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_voip_));
 }
 
 /****************************************************************************/
@@ -3977,12 +3973,12 @@ static flow_show_options flow_show_option=FLOW_ALL;
 
 flow_show_options VoIPcalls_get_flow_show_option(void)
 {
-	return flow_show_option;
+    return flow_show_option;
 }
 
 void VoIPcalls_set_flow_show_option(flow_show_options option)
 {
-	flow_show_option = option;
+    flow_show_option = option;
 }
 
 /****************************************************************************/
@@ -4043,14 +4039,15 @@ remove_tap_listener_prot__calls(voip_calls_tapinfo_t *tap_id_base)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local variables:
- * c-basic-offset: 8
+ * Local Variables:
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
+
