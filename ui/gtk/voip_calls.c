@@ -73,7 +73,6 @@
 #include "ui/gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
-
 #define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)
 #define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
 
@@ -107,6 +106,11 @@ const char *voip_protocol_name[]={
 	"VoIP"
 };
 
+/*
+ * Tap IDs must be unique. Since different taps need to share the
+ * same voip_calls_tapinfo_t *, make it unique by offsetting its
+ * value.
+ */
 enum {
        tap_id_offset_actrace_,
        tap_id_offset_h225_,
@@ -130,6 +134,16 @@ enum {
        tap_id_offset_unistim_,
        tap_id_offset_voip_
 };
+
+static inline void *
+tap_base_to_id(voip_calls_tapinfo_t* tap_base, int offset) {
+	return GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_base) + offset);
+}
+
+static inline voip_calls_tapinfo_t *
+tap_id_to_base(void* tap_id, int offset) {
+	return (voip_calls_tapinfo_t *) GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_id) - offset);
+}
 
 typedef struct {
 	gchar *frame_label;
@@ -469,7 +483,7 @@ rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("rtpevent", tap_id_base + tap_id_offset_rtp_event_,
+	error_string = register_tap_listener("rtpevent", tap_base_to_id(tap_id_base, tap_id_offset_rtp_event_),
 		NULL,
 		0,
 		NULL,
@@ -489,7 +503,7 @@ rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_rtp_event(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_rtp_event_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_rtp_event_));
 }
 
 /****************************************************************************/
@@ -765,7 +779,7 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("rtp", tap_id_base + tap_id_offset_rtp_, NULL,
+	error_string = register_tap_listener("rtp", tap_base_to_id(tap_id_base, tap_id_offset_rtp_), NULL,
 		0,
 		voip_rtp_reset,
 		RTP_packet,
@@ -775,7 +789,6 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -783,7 +796,7 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_rtp_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_rtp_));
 }
 
 /****************************************************************************/
@@ -793,9 +806,9 @@ remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a T38 packet is seen by the tap listener */
 static int
-T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *T38info)
+t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *T38info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
 
 	voip_calls_info_t *callsinfo = NULL;
 	voip_calls_info_t *tmp_listinfo;
@@ -946,17 +959,16 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("t38", tap_id_base + tap_id_offset_t38_, NULL,
+	error_string = register_tap_listener("t38", tap_base_to_id(tap_id_base, tap_id_offset_t38_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		T38_packet,
+		t38_packet,
 		voip_calls_dlg_draw
 		);
 	if (error_string != NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -964,7 +976,7 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_t38(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_t38_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_t38_));
 }
 
 
@@ -987,9 +999,9 @@ static void free_sip_info(gpointer p) {
 /****************************************************************************/
 /* whenever a SIP packet is seen by the tap listener */
 static int
-SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SIPinfo)
+sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SIPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
 	/* we just take note of the ISUP data here; when we receive the MTP3 part everything will
 	   be compared with existing calls */
 
@@ -1184,10 +1196,10 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("sip", tap_id_base + tap_id_offset_sip_, NULL,
+	error_string = register_tap_listener("sip", tap_base_to_id(tap_id_base, tap_id_offset_sip_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		SIPcalls_packet,
+		sip_calls_packet,
 		voip_calls_dlg_draw
 		);
 	if (error_string != NULL) {
@@ -1201,7 +1213,7 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_sip_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sip_));
 }
 
 /****************************************************************************/
@@ -1216,9 +1228,9 @@ static 	guint32		mtp3_frame_num;
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
 static int
-isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *isup_info _U_)
+isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *isup_info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	isup_calls_info_t *tmp_isupinfo;
@@ -1229,7 +1241,6 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
-	/*voip_calls_tapinfo_t *tapinfo = voip_calls_get_info(); unused */
 	const isup_tap_rec_t *pi = (const isup_tap_rec_t *)isup_info;
 
 	/* check if the lower layer is MTP matching the frame number */
@@ -1382,7 +1393,7 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("isup", tap_id_base + tap_id_offset_isup_,
+	error_string = register_tap_listener("isup", tap_base_to_id(tap_id_base, tap_id_offset_isup_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -1394,7 +1405,6 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -1403,7 +1413,7 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_isup_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_isup_));
 }
 
 
@@ -1415,7 +1425,7 @@ remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a mtp3_ packet is seen by the tap listener */
 static int
-mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info _U_)
+mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
 {
 	const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
 
@@ -1437,7 +1447,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 	GString *error_string;
 
 
-	error_string = register_tap_listener("mtp3", tap_id_base + tap_id_offset_mtp3_,
+	error_string = register_tap_listener("mtp3", tap_base_to_id(tap_id_base, tap_id_offset_mtp3_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -1451,7 +1461,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		g_string_free(error_string, TRUE);
 	}
 
-	error_string = register_tap_listener("m3ua", tap_id_base + tap_id_offset_m3ua_,
+	error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -1472,14 +1482,14 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_mtp3_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_mtp3_);
-	remove_tap_listener(tap_id_base + tap_id_offset_m3ua_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mtp3_));
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_m3ua_));
 }
 
 /****************************************************************************/
 /* ***************************TAP for Q931 **********************************/
 /****************************************************************************/
-void h245_add_to_graph(guint32 new_frame_num);
+static void h245_add_to_graph(voip_calls_tapinfo_t *tapinfo, guint32 new_frame_num);
 static const e_guid_t guid_allzero = {0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 /* defines specific H323 data */
 
@@ -1502,10 +1512,10 @@ static gint32 actrace_direction = 0;
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
 static int
-q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info)
+q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info)
 {
 	GList *list,*list2;
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_q931_);
 	h323_calls_info_t *tmp_h323info,*tmp2_h323info;
 	actrace_isdn_calls_info_t *tmp_actrace_isdn_info;
 	voip_calls_info_t *tmp_listinfo;
@@ -1651,7 +1661,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					}
 
 					/* Add the H245 info if exists to the Graph */
-					h245_add_to_graph(pinfo->fd->num);
+					h245_add_to_graph(tapinfo, pinfo->fd->num);
 					break;
 				}
 			}
@@ -1765,7 +1775,7 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("q931", tap_id_base + tap_id_offset_q931_,
+	error_string = register_tap_listener("q931", tap_base_to_id(tap_id_base, tap_id_offset_q931_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -1785,7 +1795,7 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_q931_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_q931_));
 }
 
 /****************************************************************************/
@@ -1823,9 +1833,9 @@ static void free_h225_info(gpointer p) {
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
 static int
-H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H225info)
+h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H225info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	h323_calls_info_t *tmp_h323info = NULL;
@@ -2029,7 +2039,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 
 	/* Add the H245 info if exists to the Graph */
-	h245_add_to_graph(pinfo->fd->num);
+	h245_add_to_graph(tapinfo, pinfo->fd->num);
 
 	g_free(frame_label);
 	g_free(comment);
@@ -2048,10 +2058,10 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("h225", tap_id_base + tap_id_offset_h225_, NULL,
+	error_string = register_tap_listener("h225", tap_base_to_id(tap_id_base, tap_id_offset_h225_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		H225calls_packet,
+        h225_calls_packet,
 		voip_calls_dlg_draw
 		);
 
@@ -2059,7 +2069,6 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -2067,18 +2076,19 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_h225_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h225_));
 }
 
 /* Add the h245 label info to the graph */
-void h245_add_to_graph(guint32 new_frame_num)
+void
+h245_add_to_graph(voip_calls_tapinfo_t *tapinfo, guint32 new_frame_num)
 {
 	gint8 n;
 
 	if (new_frame_num != h245_labels.frame_num) return;
 
 	for (n=0; n<h245_labels.labels_count; n++) {
-		append_to_frame_graph(voip_calls_get_info(), new_frame_num, h245_labels.labels[n].frame_label, h245_labels.labels[n].comment);
+		append_to_frame_graph(tapinfo, new_frame_num, h245_labels.labels[n].frame_label, h245_labels.labels[n].comment);
 		g_free(h245_labels.labels[n].frame_label);
 		h245_labels.labels[n].frame_label = NULL;
 		g_free(h245_labels.labels[n].comment);
@@ -2122,9 +2132,9 @@ static void h245_add_label(guint32 new_frame_num, const gchar *frame_label, cons
 /****************************************************************************/
 /* whenever a H245dg packet is seen by the tap listener (when H245 tunneling is ON) */
 static int
-H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H245info)
+h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H245info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	h323_calls_info_t *tmp_h323info;
@@ -2195,10 +2205,10 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("h245dg", tap_id_base + tap_id_offset_h245dg_, NULL,
+	error_string = register_tap_listener("h245dg", tap_base_to_id(tap_id_base, tap_id_offset_h245dg_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		H245dgcalls_packet,
+        h245dg_calls_packet,
 		voip_calls_dlg_draw
 		);
 
@@ -2206,7 +2216,6 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -2214,7 +2223,7 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_h245dg_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h245dg_));
 }
 
 /****************************************************************************/
@@ -2222,9 +2231,9 @@ remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a SDP packet is seen by the tap listener */
 static int
-SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
+sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
 	const sdp_packet_info *pi = (const sdp_packet_info *)SDPinfo;
 
 	/* There are protocols like MGCP/SIP where the SDP is called before the tap for the
@@ -2251,10 +2260,10 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("sdp", tap_id_base + tap_id_offset_sdp_, NULL,
+	error_string = register_tap_listener("sdp", tap_base_to_id(tap_id_base, tap_id_offset_sdp_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		SDPcalls_packet,
+        sdp_calls_packet,
 		voip_calls_dlg_draw
 		);
 
@@ -2262,7 +2271,6 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
 	}
 }
 
@@ -2270,7 +2278,7 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_sdp_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sdp_));
 }
 
 
@@ -2387,9 +2395,9 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 /****************************************************************************/
 /* whenever a MGCP packet is seen by the tap listener */
 static int
-MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *MGCPinfo)
+mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *MGCPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
 
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
@@ -2624,11 +2632,11 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 	 * routine.
 	 */
 	error_string = register_tap_listener("mgcp",
-		tap_id_base + tap_id_offset_mgcp_,
+		tap_base_to_id(tap_id_base, tap_id_offset_mgcp_),
 		NULL,
 		TL_REQUIRES_PROTO_TREE,
 		voip_calls_dlg_reset,
-		MGCPcalls_packet,
+        mgcp_calls_packet,
 		voip_calls_dlg_draw
 		);
 	if (error_string != NULL) {
@@ -2642,7 +2650,7 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_mgcp_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_mgcp_));
 }
 
 
@@ -2652,15 +2660,14 @@ remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /* whenever a ACTRACE packet is seen by the tap listener */
 static int
-ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ACTRACEinfo)
+actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ACTRACEinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
 	const actrace_info_t *pi = (const actrace_info_t *)ACTRACEinfo;
 	GList *list;
 	actrace_cas_calls_info_t *tmp_actrace_cas_info;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
-
 
 	actrace_frame_num = pinfo->fd->num;
 	actrace_trunk = pi->trunk;
@@ -2741,10 +2748,10 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("actrace", tap_id_base + tap_id_offset_actrace_, NULL,
+	error_string = register_tap_listener("actrace", tap_base_to_id(tap_id_base, tap_id_offset_actrace_), NULL,
 		0,
 		voip_calls_dlg_reset,
-		ACTRACEcalls_packet,
+		actrace_calls_packet,
 		voip_calls_dlg_draw
 		);
 
@@ -2759,7 +2766,7 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_actrace_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_actrace_));
 }
 
 
@@ -2772,8 +2779,9 @@ remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 							type == GCP_CMD_NOTIFY_REQ || type == GCP_CMD_SVCCHG_REQ || type == GCP_CMD_TOPOLOGY_REQ || \
 							type == GCP_CMD_CTX_ATTR_AUDIT_REQ )
 
-static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+static int
+h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 	const gcp_cmd_t *cmd = (const gcp_cmd_t *)prot_info;
 	GList *list;
 	voip_calls_info_t *callsinfo = NULL;
@@ -2875,7 +2883,7 @@ void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("megaco", tap_id_base + tap_id_offset_megaco_,
+	error_string = register_tap_listener("megaco", tap_base_to_id(tap_id_base, tap_id_offset_megaco_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -2888,7 +2896,7 @@ void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		g_string_free(error_string, TRUE);
 	}
 
-	error_string = register_tap_listener("h248", tap_id_base + tap_id_offset_h248_,
+	error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -2905,8 +2913,8 @@ void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_h248_);
-	remove_tap_listener(tap_id_base + tap_id_offset_megaco_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_h248_));
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_megaco_));
 }
 
 /****************************************************************************/
@@ -2922,8 +2930,8 @@ static const voip_protocol sccp_proto_map[] = {
 #define SP2VP(ap) ((ap) < SCCP_PLOAD_NUM_PLOADS ? sccp_proto_map[(ap)] : TEL_SCCP)
 const value_string* sccp_payload_values;
 
-static int sccp_calls(packet_info *pinfo, const void *prot_info) {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+static int
+sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, const void *prot_info) {
 	const sccp_msg_info_t* msg = (const sccp_msg_info_t *)prot_info;
 	sccp_assoc_info_t* assoc = msg->data.co.assoc;
 	GList *list;
@@ -3025,15 +3033,19 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 	return 1;
 }
 
-static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+static int sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
+
 	sccp_payload_values = sccp_message_type_acro_values;
-	return sccp_calls(pinfo, prot_info);
+	return sccp_calls(tapinfo, pinfo, prot_info);
 }
 
 
-static int sua_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+static int sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
+
 	sccp_payload_values = sua_co_class_type_acro_values;
-	return sccp_calls(pinfo, prot_info);
+	return sccp_calls(tapinfo, pinfo, prot_info);
 }
 
 
@@ -3041,7 +3053,7 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("sccp", tap_id_base + tap_id_offset_sccp_,
+	error_string = register_tap_listener("sccp", tap_base_to_id(tap_id_base, tap_id_offset_sccp_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -3054,7 +3066,7 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 		g_string_free(error_string, TRUE);
 	}
 
-	error_string = register_tap_listener("sua", tap_id_base + tap_id_offset_sua_,
+	error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -3071,8 +3083,8 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_sccp_);
-	remove_tap_listener(tap_id_base + tap_id_offset_sua_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sccp_));
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_sua_));
 }
 
 
@@ -3081,9 +3093,9 @@ remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 static int
-unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *unistim_info)
+unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *unistim_info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	unistim_info_t *tmp_unistim_info = NULL;
@@ -3552,7 +3564,7 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 
 	GString *error_string;
 
-	error_string = register_tap_listener("unistim", tap_id_base + tap_id_offset_unistim_,
+	error_string = register_tap_listener("unistim", tap_base_to_id(tap_id_base, tap_id_offset_unistim_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -3571,7 +3583,7 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 void
 remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_unistim_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_unistim_));
 }
 
 /****************************************************************************/
@@ -3598,9 +3610,9 @@ static const voip_call_state skinny_tap_voip_state[] = {
 };
 
 static int
-skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *skinny_info)
+skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *skinny_info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_skinny_);
 	GList* list;
 	voip_calls_info_t *callsinfo = NULL;
 	address* phone;
@@ -3707,7 +3719,7 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 	 * routine.
 	 */
 	error_string = register_tap_listener("skinny",
-		tap_id_base + tap_id_offset_skinny_,
+		tap_base_to_id(tap_id_base, tap_id_offset_skinny_),
 		NULL,
 		TL_REQUIRES_PROTO_TREE,
 		voip_calls_dlg_reset,
@@ -3725,7 +3737,7 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_skinny_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_skinny_));
 }
 
 /****************************************************************************/
@@ -3742,9 +3754,9 @@ static void free_iax2_info(gpointer p) {
 /****************************************************************************/
 /* whenever a IAX2 packet is seen by the tap listener */
 static int
-iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2_info)
+iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2_info)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_iax2_);
 	GList* list;
 	voip_calls_info_t *callsinfo = NULL;
 	address* phone;
@@ -3836,7 +3848,7 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 	 * appear to be true of the IAX2 dissector.
 	 */
 	error_string = register_tap_listener("IAX2",
-		tap_id_base + tap_id_offset_iax2_,
+		tap_base_to_id(tap_id_base, tap_id_offset_iax2_),
 		NULL,
 		TL_REQUIRES_PROTO_TREE,
 		voip_calls_dlg_reset,
@@ -3854,7 +3866,7 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_iax2_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_iax2_));
 }
 
 /****************************************************************************/
@@ -3862,9 +3874,9 @@ remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 static int
-VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *VoIPinfo)
+voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *VoIPinfo)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
 	voip_calls_info_t *callsinfo = NULL;
 	voip_calls_info_t *tmp_listinfo;
 	GList *list = NULL;
@@ -3934,11 +3946,11 @@ VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("voip", tap_id_base + tap_id_offset_voip_,
+	error_string = register_tap_listener("voip", tap_base_to_id(tap_id_base, tap_id_offset_voip_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
-		VoIPcalls_packet,
+        voip_calls_packet,
 		voip_calls_dlg_draw
 		);
 
@@ -3952,7 +3964,7 @@ VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_voip_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_voip_));
 }
 
 /****************************************************************************/
@@ -3976,9 +3988,9 @@ void VoIPcalls_set_flow_show_option(flow_show_options option)
 /* whenever a prot_ packet is seen by the tap listener */
 /*
 static int
-prot_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_)
+prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_)
 {
-	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
+	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
 	if (callsinfo!=NULL) {
 		callsinfo->stop_abs = pinfo->fd->abs_ts;
 		callsinfo->stop_rel = pinfo->rel_ts;
@@ -4000,7 +4012,7 @@ prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
 	GString *error_string;
 
-	error_string = register_tap_listener("prot_", tap_id_base + tap_id_offset_prot_),
+	error_string = register_tap_listener("prot_", tap_base_to_id(tap_id_base, tap_id_offset_prot_),
 		NULL,
 		0,
 		voip_calls_dlg_reset,
@@ -4020,7 +4032,7 @@ prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 void
 remove_tap_listener_prot__calls(voip_calls_tapinfo_t *tap_id_base)
 {
-	remove_tap_listener(tap_id_base + tap_id_offset_prot_);
+	remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_prot_));
 }
 */
 
