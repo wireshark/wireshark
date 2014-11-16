@@ -121,7 +121,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     // We just want a clickable image. Using a QPushButton or QToolButton would require
     // a lot of adjustment.
     comment_label_.setText("<a href><img src=\":/comment/capture_comment_update.png\"></img></a>");
-    comment_label_.setToolTip(tr("Open the Capture Properties dialgo"));
+    comment_label_.setToolTip(tr("Open the Capture Properties dialog"));
     connect(&comment_label_, SIGNAL(linkActivated(QString)), this, SIGNAL(editCaptureComment()));
 
     info_progress_hb->setContentsMargins(0, 0, 0, 0);

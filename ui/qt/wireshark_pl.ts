@@ -2,6 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="pl_PL">
 <context>
+    <name>Abbreviation</name>
+    <message>
+        <source></source>
+        <comment>for &quot;not applicable&quot;</comment>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>AboutDialog</name>
     <message>
         <source>About Wireshark</source>
@@ -47,7 +55,7 @@
     </message>
     <message>
         <source>Show bytes as bits</source>
-        <translation>Pokaż bity</translation>
+        <translation>Pokaż bitowo</translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -215,6 +223,171 @@
     <message>
         <source>unknown</source>
         <translation>nieznany</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilePropertiesDialog</name>
+    <message>
+        <source>Refresh</source>
+        <translation>Odśwież</translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation>Skopiuj do schowka</translation>
+    </message>
+    <message>
+        <source>Save Comments</source>
+        <translation>Zapisz komentarze</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Nieznane</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Plik</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nazwa</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Rozmiar</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation> (skompresowany gzip)</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Encapsulation</source>
+        <translation>Enkapsulacja</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Czas</translation>
+    </message>
+    <message>
+        <source>First packet</source>
+        <translation>Pierwszy pakiet</translation>
+    </message>
+    <message>
+        <source>Last packet</source>
+        <translation>Ostatni pakiet</translation>
+    </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>Minęło</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation>Przechwytuj</translation>
+    </message>
+    <message>
+        <source>Hardware</source>
+        <translation>Sprzęt</translation>
+    </message>
+    <message>
+        <source>OS</source>
+        <translation>OS</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Aplikacja</translation>
+    </message>
+    <message>
+        <source>Interfaces</source>
+        <translation>Interfejsy</translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation>Interfejs</translation>
+    </message>
+    <message>
+        <source>Dropped packets</source>
+        <translation>Porzucone pakiety</translation>
+    </message>
+    <message>
+        <source>Capture filter</source>
+        <translation>Filtr przechwytywania</translation>
+    </message>
+    <message>
+        <source>Link type</source>
+        <translation>Typ łącza</translation>
+    </message>
+    <message>
+        <source>Packet size limit</source>
+        <translation>Limit rozmiaru pakietu</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>brak</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 bajtów</translation>
+    </message>
+    <message>
+        <source>Statistics</source>
+        <translation>Statystyki</translation>
+    </message>
+    <message>
+        <source>Measurement</source>
+        <translation>Pomiary</translation>
+    </message>
+    <message>
+        <source>Captured</source>
+        <translation>Przechwycone</translation>
+    </message>
+    <message>
+        <source>Displayed</source>
+        <translation>Wyświetlane</translation>
+    </message>
+    <message>
+        <source>Marked</source>
+        <translation>Zaznaczone</translation>
+    </message>
+    <message>
+        <source>N/A</source>
+        <translation>N/A</translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation>Pakiety</translation>
+    </message>
+    <message>
+        <source>Time span, s</source>
+        <translation>Okres czasu, s</translation>
+    </message>
+    <message>
+        <source>Average pps</source>
+        <translation>Średni pps</translation>
+    </message>
+    <message>
+        <source>Average packet size, B</source>
+        <translation>Średni rozmiar pakietu, B</translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation>Bajty</translation>
+    </message>
+    <message>
+        <source>Average bytes/s</source>
+        <translation>Średnio bajtów/s</translation>
+    </message>
+    <message>
+        <source>Average bits/s</source>
+        <translation>Średnio bitów/s</translation>
+    </message>
+    <message>
+        <source>Created by Wireshark %1
+
+</source>
+        <translation>Stworzony dzięki Wiresharkowi %1</translation>
     </message>
 </context>
 <context>
@@ -795,6 +968,10 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <source>Endpoint %1 failed to register tap listener</source>
         <translation>Punkt krańcowy %1 nie może się zarejestrować w kanale komunikacyjnym</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation>Błąd mapowania pliku</translation>
     </message>
 </context>
 <context>
@@ -2999,6 +3176,14 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>No Packets</source>
         <translation>Brak pakietów</translation>
     </message>
+    <message>
+        <source>Open the Capture Properties dialgo</source>
+        <translation type="obsolete">Otwórz okno Ustawień Przechwytywania</translation>
+    </message>
+    <message>
+        <source>Open the Capture Properties dialog</source>
+        <translation>Otwórz okno Ustawień Przechwytywania</translation>
+    </message>
 </context>
 <context>
     <name>MainWelcome</name>
@@ -3548,7 +3733,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Export Packet &amp;Bytes...</source>
-        <translation>Eksportuj  bajty pakietu...</translation>
+        <translation>Eksportuj &amp;bajty pakietu...</translation>
     </message>
     <message>
         <source>Ctrl+H</source>
@@ -3972,7 +4157,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Summary</source>
-        <translation>Podsumowanie</translation>
+        <translation type="obsolete">Podsumowanie</translation>
     </message>
     <message>
         <source>Protocol Hierarchy</source>
@@ -4714,6 +4899,62 @@ more about Wireshark</source>
         <source>Bytes</source>
         <translation>Bajty</translation>
     </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation>Rozwiązywanie nazw</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>Podążaj</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation>Preferencje pliku zrzutu</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation>Preferencje pliku zrzutu</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation>Rozwiązuj nazwy adresów fizycznych</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation>Pokazuj nazwy znanych adresów MAC używając lokalnej bazy nazw.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation>Rozwiązuj nazwy adresów sieciowych</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation>Pokazuj nazwy dla znanych serwisów IPv4, IPv6 i IPX. Może to powodować wygenerowanie ruchu sieciowego na niektórych systemach.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation>Rozwiązuj nazwy adresów transportowych</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation>Pokazuj nazwy dla znanych serwisów TCP, UDP i SCTP. Może to powodować wygenerowanie ruchu sieciowego na niektórych systemach.</translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation>Połączenia VoIP</translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation>Wszystkie połączenia VoIP</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation>Przepływy SIP</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation>Przepływy SIP</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -4739,7 +4980,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Filter toolbar style:</source>
-        <translation>Styl paska filtrów:</translation>
+        <translation type="obsolete">Styl paska filtrów:</translation>
     </message>
     <message>
         <source>Language: </source>
@@ -5503,6 +5744,18 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>Average Througput (bits/s)</source>
         <translation>Średnia przepustowość (bit/s)</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Włączone</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Wyłączone</translation>
+    </message>
+    <message>
+        <source>Tunneling: %1  Fast Start: %2</source>
+        <translation>Tunelowanie: %1  Szybki Start: %2</translation>
     </message>
 </context>
 <context>
@@ -6624,6 +6877,10 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Wireshark: Save Graph As...</source>
         <translation>Wireshark: Zapisz obraz jako...</translation>
     </message>
+    <message>
+        <source>No data</source>
+        <translation>Brak danych</translation>
+    </message>
 </context>
 <context>
     <name>SimpleDialog</name>
@@ -6774,55 +7031,55 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <name>SummaryDialog</name>
     <message>
         <source>Wireshark - Summary</source>
-        <translation>Wireshark - Podsumowanie</translation>
+        <translation type="obsolete">Wireshark - Podsumowanie</translation>
     </message>
     <message>
         <source>File capture details</source>
-        <translation>Szczegóły pliku</translation>
+        <translation type="obsolete">Szczegóły pliku</translation>
     </message>
     <message>
         <source>File</source>
-        <translation>Plik</translation>
+        <translation type="obsolete">Plik</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nazwa</translation>
+        <translation type="obsolete">Nazwa</translation>
     </message>
     <message>
         <source>/</source>
-        <translation>/</translation>
+        <translation type="obsolete">/</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation>Rozmiar</translation>
+        <translation type="obsolete">Rozmiar</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation>Format</translation>
+        <translation type="obsolete">Format</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation>Enkapsulacja</translation>
+        <translation type="obsolete">Enkapsulacja</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation>Czas</translation>
+        <translation type="obsolete">Czas</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation>Pierwszy pakiet</translation>
+        <translation type="obsolete">Pierwszy pakiet</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation>Ostatni pakiet</translation>
+        <translation type="obsolete">Ostatni pakiet</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation>Minęło:</translation>
+        <translation type="obsolete">Minęło:</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation>Zrzut</translation>
+        <translation type="obsolete">Zrzut</translation>
     </message>
     <message>
         <source>Capture file comments</source>
@@ -6830,235 +7087,243 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>OS</source>
-        <translation>OS</translation>
+        <translation type="obsolete">OS</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Nieznany</translation>
+        <translation type="obsolete">Nieznany</translation>
     </message>
     <message>
         <source>Capture app</source>
-        <translation>Aplikacja przechwytująca</translation>
+        <translation type="obsolete">Aplikacja przechwytująca</translation>
     </message>
     <message>
         <source>Capture statistics</source>
-        <translation>Statystyki przechwytywania</translation>
+        <translation type="obsolete">Statystyki przechwytywania</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Ruch</translation>
+        <translation type="obsolete">Ruch</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation>Przechwycone</translation>
+        <translation type="obsolete">Przechwycone</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation>Wyświetlane</translation>
+        <translation type="obsolete">Wyświetlane</translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation>Zaznaczone</translation>
+        <translation type="obsolete">Zaznaczone</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interface</translation>
+        <translation type="obsolete">Interface</translation>
     </message>
     <message>
         <source>Dropped packets</source>
-        <translation>Porzucone pakiety</translation>
+        <translation type="obsolete">Porzucone pakiety</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation>Filtr</translation>
+        <translation type="obsolete">Filtr</translation>
     </message>
     <message>
         <source>Link type</source>
-        <translation>Typ łącza</translation>
+        <translation type="obsolete">Typ łącza</translation>
     </message>
     <message>
         <source>Packet size limit</source>
-        <translation>Limit rozmiaru pakiety</translation>
+        <translation type="obsolete">Limit rozmiaru pakiety</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation>Wyświetlany filtr</translation>
+        <translation type="obsolete">Wyświetlany filtr</translation>
     </message>
     <message>
         <source>Ignored packets</source>
-        <translation>Ignorowane pakiety</translation>
+        <translation type="obsolete">Ignorowane pakiety</translation>
     </message>
     <message>
         <source>Comment summary</source>
-        <translation>Komentarze</translation>
+        <translation type="obsolete">Komentarze</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Odśwież</translation>
+        <translation type="obsolete">Odśwież</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation>Skopiuj do schowka</translation>
+        <translation type="obsolete">Skopiuj do schowka</translation>
     </message>
     <message>
         <source>Summary created by Wireshark %1
 
 </source>
-        <translation>Podsumowanie stworzone w Wiresharku %1</translation>
+        <translation type="obsolete">Podsumowanie stworzone w Wiresharku %1</translation>
     </message>
     <message>
         <source>File: 
 </source>
-        <translation>Plik:</translation>
+        <translation type="obsolete">Plik:</translation>
     </message>
     <message>
         <source>Name:		%1
 </source>
-        <translation>Nazwa:		%1</translation>
+        <translation type="obsolete">Nazwa:		%1</translation>
     </message>
     <message>
         <source>Length:		%1 bytes
 </source>
-        <translation>Rozmiar:		%1 bajtów</translation>
+        <translation type="obsolete">Rozmiar:		%1 bajtów</translation>
     </message>
     <message>
         <source>Format:		%1%2
 </source>
-        <translation>Format:		%1%2</translation>
+        <translation type="obsolete">Format:		%1%2</translation>
     </message>
     <message>
         <source> (gzip compressed)</source>
-        <translation> (skompresowany gzip)</translation>
+        <translation type="obsolete"> (skompresowany gzip)</translation>
     </message>
     <message>
         <source>Encapsulation:		%1
 </source>
-        <translation>Enkapsulacja:		%1</translation>
+        <translation type="obsolete">Enkapsulacja:		%1</translation>
     </message>
     <message>
         <source>Time:
 </source>
-        <translation>Czas:</translation>
+        <translation type="obsolete">Czas:</translation>
     </message>
     <message>
         <source>First packet:		%1
 </source>
-        <translation>Pierwszy pakiet:		%1</translation>
+        <translation type="obsolete">Pierwszy pakiet:		%1</translation>
     </message>
     <message>
         <source>Last packet:		%1
 </source>
-        <translation>Ostatni pakiet:		%1</translation>
+        <translation type="obsolete">Ostatni pakiet:		%1</translation>
     </message>
     <message>
         <source>Elapsed:		%1
 </source>
-        <translation>Minęło:		%1</translation>
+        <translation type="obsolete">Minęło:		%1</translation>
     </message>
     <message>
         <source>Capture:
 </source>
-        <translation>Zrzut:</translation>
+        <translation type="obsolete">Zrzut:</translation>
     </message>
     <message>
         <source>OS:	%1
 </source>
-        <translation>OS:	%1</translation>
+        <translation type="obsolete">OS:	%1</translation>
     </message>
     <message>
         <source>Capture application:	%1
 </source>
-        <translation>Aplikacja przechwytująca:	%1</translation>
+        <translation type="obsolete">Aplikacja przechwytująca:	%1</translation>
     </message>
     <message>
         <source>Dropped packets:	%1
 </source>
-        <translation>Porzucone pakiety:	%1</translation>
+        <translation type="obsolete">Porzucone pakiety:	%1</translation>
     </message>
     <message>
         <source>Capture filter:		%1
 </source>
-        <translation>Filtr przechwytywania:		%1</translation>
+        <translation type="obsolete">Filtr przechwytywania:		%1</translation>
     </message>
     <message>
         <source>Link type:		%1
 </source>
-        <translation>Typ łącza:		%1</translation>
+        <translation type="obsolete">Typ łącza:		%1</translation>
     </message>
     <message>
         <source>Packet size limit:	%1
 </source>
-        <translation>Limit wielkości pakietu:	%1</translation>
+        <translation type="obsolete">Limit wielkości pakietu:	%1</translation>
     </message>
     <message>
         <source>Statistics:
 </source>
-        <translation>Statystyki:</translation>
+        <translation type="obsolete">Statystyki:</translation>
     </message>
     <message>
         <source>%1:	%2</source>
-        <translation>%1:	%2</translation>
+        <translation type="obsolete">%1:	%2</translation>
     </message>
     <message>
         <source>Capture File Comments:
 </source>
-        <translation>Komentarze pliku:</translation>
+        <translation type="obsolete">Komentarze pliku:</translation>
     </message>
     <message>
         <source>Not representable</source>
-        <translation>Nie reprezentatywne</translation>
+        <translation type="obsolete">Nie reprezentatywne</translation>
     </message>
     <message>
         <source>%1 bytes (%2 Mbytes)</source>
-        <translation>%1 bajtów (%2 Mbitów)</translation>
+        <translation type="obsolete">%1 bajtów (%2 Mbitów)</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>nieznany</translation>
+        <translation type="obsolete">nieznany</translation>
     </message>
     <message>
         <source>none</source>
-        <translation>brak</translation>
+        <translation type="obsolete">brak</translation>
     </message>
     <message>
         <source>%u bytes</source>
-        <translation>%u bajtów</translation>
+        <translation type="obsolete">%u bajtów</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Pakiety</translation>
+        <translation type="obsolete">Pakiety</translation>
     </message>
     <message>
         <source>Between first and last packet</source>
-        <translation>Pomiędzy pierwszym a ostatnim pakietem</translation>
+        <translation type="obsolete">Pomiędzy pierwszym a ostatnim pakietem</translation>
     </message>
     <message>
         <source>%.3f sec</source>
-        <translation>%.3f sekund</translation>
+        <translation type="obsolete">%.3f sekund</translation>
     </message>
     <message>
         <source>Avg. packets/sec</source>
-        <translation>Średnia pakietów/s</translation>
+        <translation type="obsolete">Średnia pakietów/s</translation>
     </message>
     <message>
         <source>Avg. packet size</source>
-        <translation>Średni rozmiar pakietu</translation>
+        <translation type="obsolete">Średni rozmiar pakietu</translation>
     </message>
     <message>
         <source>%</source>
-        <translation>%</translation>
+        <translation type="obsolete">%</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bajtów</translation>
+        <translation type="obsolete">Bajtów</translation>
     </message>
     <message>
         <source>Avg. bytes/sec</source>
-        <translation>Średnia bajtów/s</translation>
+        <translation type="obsolete">Średnia bajtów/s</translation>
     </message>
     <message>
         <source>Avg. MBit/sec</source>
-        <translation>Średnia Mbit/s</translation>
+        <translation type="obsolete">Średnia Mbit/s</translation>
+    </message>
+    <message>
+        <source>Wireshark - Capture File Properties</source>
+        <translation>Wireshark - Preferencje Pliku Zrzutu</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Szczegóły</translation>
     </message>
 </context>
 <context>
@@ -7660,6 +7925,81 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>Open </source>
         <translation>Otwórz</translation>
+    </message>
+</context>
+<context>
+    <name>VoipCallsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Start Time</source>
+        <translation>Czas start</translation>
+    </message>
+    <message>
+        <source>Stop Time</source>
+        <translation>Czas stop</translation>
+    </message>
+    <message>
+        <source>Initial Speaker</source>
+        <translation>Domyślny Głośnik</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>Od</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>Do</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation>Protokół</translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation>Pakiety</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>Stan</translation>
+    </message>
+    <message>
+        <source>Comments</source>
+        <translation>Komentarze</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;/small&gt;</source>
+        <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Select &amp;All</source>
+        <translation>Zaznacz wszystkie</translation>
+    </message>
+    <message>
+        <source>Select all calls</source>
+        <translation>Zaznacz wszystkie połączenia</translation>
+    </message>
+    <message>
+        <source>Ctrl+A</source>
+        <translation>Ctrl+A</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation>Przygotuj filtr</translation>
+    </message>
+    <message>
+        <source>Flow Sequence</source>
+        <translation>Przepływ sekwencyjny</translation>
+    </message>
+    <message>
+        <source>Play Call</source>
+        <translation>Odtwórz Połączenie</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation>Brak Audio</translation>
     </message>
 </context>
 </TS>
