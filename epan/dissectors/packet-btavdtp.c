@@ -2880,6 +2880,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case CODEC_ATRAC:
             codec_dissector = atrac_handle;
+            break;
         case CODEC_APT_X:
             codec_dissector = aptx_handle;
             break;
