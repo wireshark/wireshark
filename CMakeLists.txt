@@ -1799,6 +1799,8 @@ install(
 		${CMAKE_MODULE_PATH}/FindWireshark.cmake
 		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
+		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
+		${CMAKE_MODULE_PATH}/UseMakeDissectorReg.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 	DESTINATION

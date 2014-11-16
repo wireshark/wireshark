@@ -55,6 +55,7 @@ override_dh_install:
 
 override_dh_fixperms:
 	dh_fixperms
-	chmod 644 debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
+	chmod 644 debian/wireshark-dev/usr/share/pyshared/make-dissector-reg.py \
+		debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
 		debian/wireshark-dev/usr/share/pyshared/wireshark_gen.py
 
