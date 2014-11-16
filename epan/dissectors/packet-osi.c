@@ -44,6 +44,9 @@ void proto_reg_handoff_osi(void);
 void proto_register_osi(void);
 
 int  proto_osi         = -1;
+
+static int hf_osi_nlpid = -1;
+
 static dissector_handle_t osi_handle;
 
 
@@ -479,10 +482,22 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   nlpid = tvb_get_guint8(tvb, 0);
 
-  /* try lookup with the subdissector tables that includes the nlpid */
+  /*
+   * Try the subdissector table for protocols in which the NLPID is
+   * considered part of the PDU; it should be handed a tvbuff that
+   * includes the NLPID, and should put the NLPID into the protocol
+   * tree itself.
+   */
   if (dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
     return;
-  /* try lookup with the subdissector tables that excludes the nlpid */
+
+  /*
+   * Try the subdissector table for protocols in which the NLPID is
+   * *not* considered part of the PDU; it should be handed a tvbuff
+   * that doesn't include the NLPID, and we should put the NLPID into
+   * the protocol tree ourselves.
+   */
+  proto_tree_add_uint(tree, hf_osi_nlpid, tvb, 0, 1, nlpid);
   new_tvb = tvb_new_subset_remaining(tvb, 1);
   if (dissector_try_uint(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
     return;
@@ -555,6 +570,11 @@ proto_reg_handoff_osi(void)
 void
 proto_register_osi(void)
 {
+  static hf_register_info hf[] = {
+    { &hf_osi_nlpid,
+      { "Network Layer Protocol Identifier", "osi.nlpid", FT_UINT8, BASE_HEX,
+        VALS(nlpid_vals), 0x0, NULL, HFILL }},
+  };
   module_t *osi_module;
 
   /* There's no "OSI" protocol *per se*, but we do register a
@@ -573,6 +593,7 @@ proto_register_osi(void)
                                                            "OSI excl NLPID", FT_UINT8, BASE_HEX);
 
   proto_osi = proto_register_protocol("OSI", "OSI", "osi");
+  proto_register_field_array(proto_osi, hf, array_length(hf));
   /* Preferences how OSI protocols should be dissected */
   osi_module = prefs_register_protocol(proto_osi, proto_reg_handoff_osi);
 
