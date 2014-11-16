@@ -4247,6 +4247,8 @@ kofax-svr        2424/tcp # KOFAX-SVR [Steven_Kilby] [Steven_Kilby] 2011-04-25
 kofax-svr        2424/udp # KOFAX-SVR [Steven_Kilby] [Steven_Kilby] 2011-04-25
 fjitsuappmgr     2425/tcp # Fujitsu App Manager [Hiroyuki_Kawabuchi] [Hiroyuki_Kawabuchi]
 fjitsuappmgr     2425/udp # Fujitsu App Manager [Hiroyuki_Kawabuchi] [Hiroyuki_Kawabuchi]
+vcmp             2426/tcp # VeloCloud MultiPath Protocol [VeloCloud_Networks] [Tim_Van_Herck] 2014-11-13 This port was previously removed on 2002-04-29.
+vcmp             2426/udp # VeloCloud MultiPath Protocol [VeloCloud_Networks] [Tim_Van_Herck] 2014-11-13 This port was previously removed on 2002-04-29.
 mgcp-gateway     2427/tcp # Media Gateway Control Protocol Gateway [Christian_Huitema] [Christian_Huitema]
 mgcp-gateway     2427/udp # Media Gateway Control Protocol Gateway [Christian_Huitema] [Christian_Huitema]
 ott              2428/tcp # One Way Trip Time [Greg_Troxel] [Greg_Troxel]
@@ -7984,7 +7986,7 @@ awacs-ice        4488/tcp # Apple Wide Area Connectivity Service ICE Bootstrap [
 awacs-ice        4488/udp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
 ipsec-nat-t      4500/tcp # IPsec NAT-Traversal [RFC3947]
 ipsec-nat-t      4500/udp # IPsec NAT-Traversal [RFC3947]
-a25-fap-fgw      4502/sctp # A25 (FAP-FGW) [ThreeGPP2] [Zhiming_Li] 2012-01-11
+a25-fap-fgw      4502/sctp # A25 (FAP-FGW) [ThreeGPP_2] [Zhiming_Li] 2012-01-11
 armagetronad     4534/udp # Armagetron Advanced Game Server [Manuel_Moos] [Yann_Kaiser] 2012-11-02
 ehs              4535/tcp # Event Heap Server
 ehs              4535/udp # Event Heap Server
@@ -8767,6 +8769,12 @@ quailnet         5464/tcp # Quail Networks Object Broker [Craig_N_Bissell] [Crai
 quailnet         5464/udp # Quail Networks Object Broker [Craig_N_Bissell] [Craig_N_Bissell] 2006-04
 netops-broker    5465/tcp # NETOPS-BROKER [John_R_Deuel] [John_R_Deuel]
 netops-broker    5465/udp # NETOPS-BROKER [John_R_Deuel] [John_R_Deuel]
+apsolab-col      5470/tcp # The Apsolab company's data collection protocol (native api) [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
+apsolab-cols     5471/tcp # The Apsolab company's secure data collection protocol (native api) [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
+apsolab-tag      5472/tcp # The Apsolab company's dynamic tag protocol [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
+apsolab-tags     5473/tcp # The Apsolab company's secure dynamic tag protocol [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
+apsolab-rpc      5474/udp # The Apsolab company's status query protocol [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
+apsolab-data     5475/tcp # The Apsolab company's data retrieval protocol [Apsolab_Inc] [Jean-Francois_Gauthier] 2014-11-10
 fcp-addr-srvr1   5500/tcp # fcp-addr-srvr1 [Ken_Wittmer] [Ken_Wittmer]
 fcp-addr-srvr1   5500/udp # fcp-addr-srvr1 [Ken_Wittmer] [Ken_Wittmer]
 fcp-addr-srvr2   5501/tcp # fcp-addr-srvr2 [Ken_Wittmer] [Ken_Wittmer]
@@ -11134,7 +11142,7 @@ tw-auth-key     27999/udp # Attribute Certificate Services [Alex_Duncan_2] [Alex
 nxlmd           28000/tcp # NX License Manager [Anthony_Greatorex] [Anthony_Greatorex] 2004-11 Unauthorized Use Known on port 28000
 nxlmd           28000/udp # NX License Manager [Anthony_Greatorex] [Anthony_Greatorex] 2004-11
 pqsp            28001/tcp # PQ Service [Peter_Laschtowitz] [Peter_Laschtowitz] 2009-09-15
-a27-ran-ran     28119/udp # A27 cdma2000 RAN Management [ThreeGPP2] [Zhiming_Li] 2012-04-13
+a27-ran-ran     28119/udp # A27 cdma2000 RAN Management [ThreeGPP_2] [Zhiming_Li] 2012-04-13
 voxelstorm      28200/tcp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinson] 2012-11-08
 voxelstorm      28200/udp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinson] 2012-11-08
 siemensgsm      28240/tcp # Siemens GSM [David_Anuszewski] [David_Anuszewski] 2004-11
@@ -11258,6 +11266,7 @@ guttersnex      35356/tcp # Gutters Note Exchange [Squee_Application_Development
 openstack-id    35357/tcp # OpenStack ID Service [Rackspace_Hosting] [Ziad_Sawalha] 2011-08-15
 allpeers        36001/tcp # AllPeers Network [Cedric_Maloux] [Cedric_Maloux] 2007-04
 allpeers        36001/udp # AllPeers Network [Cedric_Maloux] [Cedric_Maloux] 2007-04
+wlcp            36411/udp # Wireless LAN Control plane Protocol (WLCP) [ThreeGPP_3] [Frederic_Firmin] 2014-11-14
 s1-control      36412/sctp # S1-Control Plane (3GPP) [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2009-09-01
 x2-control      36422/sctp # X2-Control Plane (3GPP) [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2009-09-01
 m2ap            36443/sctp # M2 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
@@ -11270,6 +11279,7 @@ kastenxpipe     36865/udp # KastenX Pipe [Guy_Cheng] [Guy_Cheng]
 neckar          37475/tcp # science + computing's Venus Administration Port [Ralf_Allrutz] [Ralf_Allrutz] 2002-02
 neckar          37475/udp # science + computing's Venus Administration Port [Ralf_Allrutz] [Ralf_Allrutz] 2002-02
 gdrive-sync     37483/tcp # Google Drive Sync [Google] [Fil_Zembowicz] 2013-02-01
+eftp            37601/tcp # Epipole File Transfer Protocol [Epipole_Limited] [Colin_Buchanan] 2014-11-13
 unisys-eportal  37654/tcp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
 unisys-eportal  37654/udp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
 ivs-database    38000/tcp # InfoVista Server Database [InfoVista] [Sebastien_Bouchex_Bellomie] 2014-05-23
