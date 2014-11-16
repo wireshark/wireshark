@@ -1221,9 +1221,9 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
             offset += 4;
             break;
         case 1: /* CRC Init */
-            proto_tree_add_item(sub_tree, hf_crc_init, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%04x", tvb_get_letohl(tvb, offset));
-            offset += 4;
+            proto_tree_add_item(sub_tree, hf_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%06x", tvb_get_letoh24(tvb, offset));
+            offset += 3;
             break;
         case 2: /* Hop Interval */
             p_item = proto_tree_add_item(sub_tree, hf_hop_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2039,7 +2039,7 @@ proto_register_ubertooth(void)
         },
         { &hf_crc_init,
             { "CRC Init",                        "ubertooth.crc_init",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+            FT_UINT24, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_hop_interval,
