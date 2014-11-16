@@ -17,8 +17,8 @@
 # It is also recommended to run checkhf.pl and checkAPIs.pl after "Pass 2" is completed.
 #
 # Delimited file field format:
-# <convert proto_tree_add_text_call[0|1|10-13]><add hf or ei variable[0|1|2]><proto_tree var><hf var><tvb var><offset><length><encoding>
-# <[FIELDNAME]><[FIELDTYPE]><[FIELDABBREV]><[FIELDDISPLAY]><[FIELDCONVERT]><[BITMASK]>
+# <convert proto_tree_add_text_call[0|1|10-13]><add hf or ei variable[0|1|2]><proto_tree var><hf var><tvb var><offset><length><encoding|[EXPERT_GROUPS]>
+# <[FIELDNAME]><[FIELDTYPE]|[EXPERT_SEVERITY]><[FIELDABBREV]><[FIELDDISPLAY]><[FIELDCONVERT]><[BITMASK]>
 #
 # convert proto_tree_add_text_call enumerations:
 # 0  - no conversions
