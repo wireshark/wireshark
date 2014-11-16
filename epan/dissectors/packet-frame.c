@@ -170,8 +170,8 @@ call_frame_end_routine(gpointer routine, gpointer dummy _U_)
 	(*func)();
 }
 
-static void
-dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	proto_item  *volatile ti = NULL, *comment_item;
 	guint	     cap_len = 0, frame_len = 0;
@@ -179,8 +179,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree  *comments_tree;
 	proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
+	int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 
 	tree=parent_tree;
+	if (data != NULL) {
+		file_type_subtype = GPOINTER_TO_INT(data);
+	}
 
 	switch (pinfo->phdr->rec_type) {
 
@@ -472,7 +476,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
 		proto_tree_add_text (tree, tvb, 0, 0, "This frame is marked as ignored");
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
@@ -507,12 +511,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 			case REC_TYPE_FT_SPECIFIC_EVENT:
 			case REC_TYPE_FT_SPECIFIC_REPORT:
-				if (!dissector_try_uint(wtap_fts_rec_dissector_table, pinfo->file_type_subtype,
+				if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
 							tvb, pinfo, parent_tree)) {
 
 					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-						     pinfo->file_type_subtype);
+						     file_type_subtype);
 					call_dissector(data_handle,tvb, pinfo, parent_tree);
 				}
 				break;
@@ -620,6 +624,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		g_slist_free(pinfo->frame_end_routines);
 		pinfo->frame_end_routines = NULL;
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -844,7 +850,7 @@ proto_register_frame(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_frame = expert_register_protocol(proto_frame);
 	expert_register_field_array(expert_frame, ei, array_length(ei));
-	register_dissector("frame",dissect_frame,proto_frame);
+	new_register_dissector("frame",dissect_frame,proto_frame);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

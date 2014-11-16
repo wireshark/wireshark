@@ -456,7 +456,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd    = fd;
-	edt->pi.file_type_subtype = file_type_subtype;
 	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type   = AT_NONE;
@@ -493,8 +492,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		 * sub-dissector can throw, dissect_frame() itself may throw
 		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
 		 * in this function. */
-		call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
-
+		call_dissector_with_data(frame_handle, edt->tvb, &edt->pi, edt->tree, GINT_TO_POINTER(file_type_subtype));
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();
@@ -523,7 +521,6 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.current_proto = "<Missing Filetype Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd    = fd;
-	edt->pi.file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN; /* not a capture file, so not relevant */
 	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type   = AT_NONE;
