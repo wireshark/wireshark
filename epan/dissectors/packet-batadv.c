@@ -4128,7 +4128,7 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 		dissect_batadv_tvlv_v15(next_tvb, pinfo,
 					batadv_unicast_tvlv_tree);
-		offset += unicast_tvlv_packeth->tvlv_len;
+		/*offset += unicast_tvlv_packeth->tvlv_len;*/
 	}
 }
 
