@@ -103,9 +103,19 @@ typedef struct _sccp_assoc_info_t {
 
 } sccp_assoc_info_t;
 
-extern void reset_sccp_assoc(void);
-extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type);
+typedef struct _sccp_decode_context_t {
+    guint8 message_type;
+    guint dlr;
+    guint slr;
+    sccp_assoc_info_t* assoc;
+    sccp_msg_info_t*   sccp_msg;
+
+} sccp_decode_context_t;
+
+extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, sccp_decode_context_t* value);
 extern gboolean looks_like_valid_sccp(guint32 frame_num, tvbuff_t *tvb, guint8 my_mtp3_standard);
+
+#define INVALID_LR 0xffffff /* a reserved value */
 
 #define GT_SIGNAL_LENGTH     1
 #define GT_ODD_SIGNAL_MASK   0x0f

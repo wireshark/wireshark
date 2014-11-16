@@ -397,15 +397,15 @@ typedef struct _sua_assoc_info_t {
 } sua_assoc_info_t;
 
 static wmem_tree_t* assocs = NULL;
-sua_assoc_info_t* assoc;
-sua_assoc_info_t no_sua_assoc = {
+static sua_assoc_info_t* assoc;
+static sua_assoc_info_t no_sua_assoc = {
     0,      /* assoc_id */
     0,      /* calling_routing_ind */
     0,      /* called_routing_ind */
     0,      /* calling_dpc */
     0,      /* called_dpc */
-    0,      /* calling_ssn */
-    0,      /* called_ssn */
+    INVALID_SSN,      /* calling_ssn */
+    INVALID_SSN,      /* called_ssn */
     FALSE,  /* has_bw_key */
     FALSE   /* has_fw_key */
 };
@@ -2177,7 +2177,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
        * or with "load sharing"?
        */
       sccp_assoc_info_t* sccp_assoc;
-      reset_sccp_assoc();
+      sccp_decode_context_t sccp_info;
       /* sua assoc */
 
       switch (message_type) {
@@ -2227,7 +2227,13 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 #endif /* 0 */
       }
 
-      sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), srn, drn, message_type);
+      sccp_info.message_type = message_type;
+      sccp_info.dlr = drn;
+      sccp_info.slr = srn;
+      sccp_info.assoc = NULL;
+      sccp_info.sccp_msg = NULL; /* Unused, but initialized */
+
+      sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), &sccp_info);
       if (sccp_assoc && sccp_assoc->curr_msg) {
               pinfo->sccp_info = sccp_assoc->curr_msg;
               tap_queue_packet(sua_tap,pinfo,sccp_assoc->curr_msg);
