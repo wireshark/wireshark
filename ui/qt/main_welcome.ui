@@ -236,6 +236,5 @@ more about Wireshark</string>
    <header>capture_filter_combo.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections/>
 </ui>

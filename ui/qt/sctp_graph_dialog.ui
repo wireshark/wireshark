@@ -130,7 +130,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

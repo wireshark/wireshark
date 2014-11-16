@@ -121,7 +121,6 @@
    <header>elided_label.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

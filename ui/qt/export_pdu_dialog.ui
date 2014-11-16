@@ -69,7 +69,6 @@
    <header>display_filter_edit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
