@@ -46,6 +46,7 @@
 #include <epan/to_str.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+#include <epan/dissectors/packet-h225.h>
 #include <epan/dissectors/packet-h248.h>
 
 #include "../globals.h"
@@ -109,34 +110,43 @@ enum
 
 
 /****************************************************************************/
+/**
+ * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.
+ * The user should not modify the data pointed to.
+ */
+static voip_calls_tapinfo_t*
+voip_calls_get_info(void)
+{
+	/* the one and only global voip_calls_tapinfo_t structure */
+	static voip_calls_tapinfo_t the_tapinfo_struct =
+	{0, NULL, {0}, 0, NULL, 0, 0, 0, NULL, NULL,
+		0, NULL, /* rtp */
+		0, 0, FALSE, /* rtp evt */
+		NULL, 0, /* sdp */
+		0, 0, 0, 0, /* mtp3 */
+		NULL, /* h245 */
+		NULL, NULL, 0, 0, 0, /* q931 */
+		0, 0, H225_OTHER, FALSE, /* h225 */
+		0, 0, 0, /* actrace */
+		FLOW_ALL, /* flow show option */
+		FALSE };
+	if (!the_tapinfo_struct.session) {
+		the_tapinfo_struct.session = cfile.epan;
+	}
+	if (!the_tapinfo_struct.callsinfos) {
+		/* not initialized yet */
+		the_tapinfo_struct.callsinfos = g_queue_new();
+	}
+	return &the_tapinfo_struct;
+}
+
+/****************************************************************************/
 static gboolean have_voip_calls_tap_listeners = FALSE;
 
 static void
-voip_calls_remove_tap_listener(voip_calls_tapinfo_t* tap_id_base)
+voip_calls_dlg_remove_tap_listeners(voip_calls_tapinfo_t* tap_id_base)
 {
-	/* Remove the calls tap listener */
-	remove_tap_listener_actrace_calls(tap_id_base);
-	remove_tap_listener_h225_calls(tap_id_base);
-	remove_tap_listener_h245dg_calls(tap_id_base);
-	remove_tap_listener_h248_calls(tap_id_base);
-	remove_tap_listener_iax2_calls(tap_id_base);
-	remove_tap_listener_isup_calls(tap_id_base);
-	remove_tap_listener_mgcp_calls(tap_id_base);
-	remove_tap_listener_mtp3_calls(tap_id_base);
-	remove_tap_listener_q931_calls(tap_id_base);
-	remove_tap_listener_rtp(tap_id_base);
-	remove_tap_listener_rtp_event(tap_id_base);
-	remove_tap_listener_sccp_calls(tap_id_base);
-	remove_tap_listener_sdp_calls(tap_id_base);
-	remove_tap_listener_sip_calls(tap_id_base);
-	remove_tap_listener_skinny_calls(tap_id_base);
-	remove_tap_listener_t38(tap_id_base);
-	if (find_tap_id("unistim")) { /* The plugin may be missing */
-		remove_tap_listener_unistim_calls(tap_id_base);
-	}
-	if (find_tap_id("voip")) {
-		remove_tap_listener_voip_calls(tap_id_base);
-	}
+	voip_calls_remove_all_tap_listeners(tap_id_base);
 
 	have_voip_calls_tap_listeners = FALSE;
 }
@@ -148,7 +158,7 @@ static void
 voip_calls_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* remove_tap_listeners */
-	voip_calls_remove_tap_listener(voip_calls_get_info());
+	voip_calls_dlg_remove_tap_listeners(voip_calls_get_info());
 
 	/* Clean up memory used by calls tap */
 	voip_calls_dlg_reset(NULL);
@@ -378,7 +388,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 static void
 on_flow_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
-    on_graph_bt_clicked(button,user_data);
+	on_graph_bt_clicked(button,user_data);
 }
 
 /****************************************************************************/
@@ -494,7 +504,7 @@ add_to_list_store(voip_calls_info_t* strinfo)
 			   CALL_COL_DATA,             strinfo,
 			   -1);
 
-        calls_nb += 1;
+	calls_nb += 1;
 }
 
 /****************************************************************************/
@@ -838,6 +848,11 @@ voip_calls_dlg_reset(void *ptr _U_)
 		gtk_list_store_clear(list_store);
 	}
 
+#ifdef HAVE_LIBPORTAUDIO
+	/* reset the RTP player */
+	reset_rtp_player();
+#endif
+
 	/* Clean up memory used by calls tap */
 	voip_calls_reset(voip_calls_get_info());
 
@@ -851,46 +866,28 @@ voip_calls_dlg_reset(void *ptr _U_)
 /****************************************************************************/
 /* init function for tap */
 static void
-voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
+voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 {
 	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
 	tap_id_base->session = cfile.epan;
 
 	if (graph_analysis_data == NULL) {
-		graph_analysis_data_init();
+		graph_analysis_data_init(tap_id_base);
 		/* init the Graph Analysys */
 		graph_analysis_data = graph_analysis_init(voip_calls_get_info()->graph_analysis);
 	}
+
+#ifdef HAVE_LIBPORTAUDIO
+	/* reset the RTP player */
+	reset_rtp_player();
+#endif
 
 	/* Clean up memory used by calls tap */
 	voip_calls_reset(tap_id_base);
 
 	/* Register the tap listeners */
 	if (!have_voip_calls_tap_listeners) {
-		actrace_calls_init_tap(tap_id_base);
-		h225_calls_init_tap(tap_id_base);
-		h245dg_calls_init_tap(tap_id_base);
-		h248_calls_init_tap(tap_id_base);
-		iax2_calls_init_tap(tap_id_base);
-		isup_calls_init_tap(tap_id_base);
-		mgcp_calls_init_tap(tap_id_base);
-		mtp3_calls_init_tap(tap_id_base);
-		q931_calls_init_tap(tap_id_base);
-		rtp_event_init_tap(tap_id_base);
-		rtp_init_tap(tap_id_base);
-		sccp_calls_init_tap(tap_id_base);
-		sdp_calls_init_tap(tap_id_base);
-		sip_calls_init_tap(tap_id_base);
-		skinny_calls_init_tap(tap_id_base);
-		t38_init_tap(tap_id_base);
-		/* We don't register this tap, if we don't have the unistim plugin loaded.*/
-		if (find_tap_id("unistim")) {
-			unistim_calls_init_tap(tap_id_base);
-		}
-		if (find_tap_id("voip")) {
-			VoIPcalls_init_tap(tap_id_base);
-		}
-
+		voip_calls_init_all_taps(tap_id_base);
 		have_voip_calls_tap_listeners = TRUE;
 	}
 
@@ -918,8 +915,8 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 void
 voip_calls_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
-	VoIPcalls_set_flow_show_option(FLOW_ONLY_INVITES);
-	voip_calls_init_tap("", NULL);
+	voip_calls_get_info()->fs_option = FLOW_ONLY_INVITES;
+	voip_calls_dlg_init_taps("", NULL);
 }
 
 /****************************************************************************/
@@ -927,19 +924,19 @@ voip_calls_launch(GtkAction *action _U_, gpointer user_data _U_)
 void
 voip_flows_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
-	VoIPcalls_set_flow_show_option(FLOW_ALL);
-	voip_calls_init_tap("", NULL);
+	voip_calls_get_info()->fs_option = FLOW_ONLY_INVITES;
+	voip_calls_dlg_init_taps("", NULL);
 }
 
 /****************************************************************************/
 static stat_tap_ui voip_calls_ui = {
-    REGISTER_STAT_GROUP_GENERIC,
-    NULL,
-    "voip,calls",
-    voip_calls_init_tap,
-    -1,
-    0,
-    NULL
+	REGISTER_STAT_GROUP_GENERIC,
+	NULL,
+	"voip,calls",
+	voip_calls_dlg_init_taps,
+	-1,
+	0,
+	NULL
 };
 
 void
@@ -947,3 +944,16 @@ register_tap_listener_voip_calls_dlg(void)
 {
 	register_stat_tap_ui(&voip_calls_ui, NULL);
 }
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

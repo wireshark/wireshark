@@ -73,9 +73,6 @@ typedef enum _flow_show_options
     FLOW_ONLY_INVITES
 } flow_show_options;
 
-flow_show_options VoIPcalls_get_flow_show_option(void);
-void VoIPcalls_set_flow_show_option(flow_show_options option);
-
 /** defines specific SIP data */
 
 typedef enum _sip_call_state {
@@ -167,30 +164,49 @@ typedef struct _voip_calls_info {
 /**
  * structure that holds the information about all detected calls */
 /* struct holding all information of the tap */
-
+/*
+ * XXX Most of these are private to voip_calls.c. We might want to
+ * make them private.
+ */
+struct _h245_labels;
 typedef struct _voip_calls_tapinfo {
-    int     ncalls;							/**< number of call */
-    GQueue*  callsinfos;					/**< queue with all calls */
-    GHashTable* callsinfo_hashtable[1];		/**< array of hashes per voip protocol; currently only the one for SIP is used */
-    int     npackets;						/**< total number of packets of all calls */
-    voip_calls_info_t* filter_calls_fwd;	/**< used as filter in some tap modes */
-    guint32 launch_count;					/**< number of times the tap has been run */
+    int ncalls;                             /**< number of call */
+    GQueue* callsinfos;                     /**< queue with all calls */
+    GHashTable* callsinfo_hashtable[1];     /**< array of hashes per voip protocol; currently only the one for SIP is used */
+    int npackets;                           /**< total number of packets of all calls */
+    voip_calls_info_t* filter_calls_fwd;    /**< used as filter in some tap modes */
     int start_packets;
     int completed_calls;
     int rejected_calls;
     seq_analysis_info_t* graph_analysis;
-    epan_t *session;					/**< epan session */
+    epan_t *session;                        /**< epan session */
+    int nrtp_streams;                       /**< number of rtp streams */
+    GList* rtp_stream_list;                 /**< list with the rtp streams */
+    guint32 rtp_evt_frame_num;
+    guint8 rtp_evt;
+    gboolean rtp_evt_end;
+    gchar *sdp_summary;
+    guint32 sdp_frame_num;
+    guint32 mtp3_opc;
+    guint32 mtp3_dpc;
+    guint8 mtp3_ni;
+    guint32 mtp3_frame_num;
+    struct _h245_labels *h245_labels;       /**< H.245 labels */
+    gchar *q931_calling_number;
+    gchar *q931_called_number;
+    guint8 q931_cause_value;
+    gint32 q931_crv;
+    guint32 q931_frame_num;
+    guint32 h225_frame_num;
+    guint16 h225_call_num;
+    int h225_cstype;                        /* XXX actually an enum */
+    gboolean h225_is_faststart;
+    guint32 actrace_frame_num;
+    gint32 actrace_trunk;
+    gint32 actrace_direction;
+    flow_show_options fs_option;
     gboolean redraw;
 } voip_calls_tapinfo_t;
-
-
-
-/* structure that holds the information about all RTP streams associated with the calls */
-/** struct holding all information of the RTP tap */
-typedef struct _voip_rtp_tapinfo {
-    int     nstreams;       /**< number of rtp streams */
-    GList*  list;			/**< list with the rtp streams */
-} voip_rtp_tapinfo_t;
 
 /****************************************************************************/
 /* INTERFACE */
@@ -202,53 +218,13 @@ typedef struct _voip_rtp_tapinfo {
  * So whenever voip_calls.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
  * If not, it will be registered on demand by the voip_calls functions that need it.
  */
-void actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void rtp_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void t38_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
-void VoIPcalls_init_tap(voip_calls_tapinfo_t *tap_id_base);
+void voip_calls_init_all_taps(voip_calls_tapinfo_t *tap_id_base);
 
 /**
  * Removes the voip_calls tap listener (if not already done)
  * From that point on, the voip calls list won't be updated any more.
  */
-void remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_h248_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_mtp3_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_q931_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_rtp_event(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_skinny_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_t38(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_unistim_calls(voip_calls_tapinfo_t *tap_id_base);
-void remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base);
-
-/**
- * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.
- * The user should not modify the data pointed to.
- */
-voip_calls_tapinfo_t* voip_calls_get_info(void);
+void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
 
 /**
  * Cleans up memory of voip calls tap.
@@ -258,7 +234,7 @@ void mtp3_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void q931_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
 
-void graph_analysis_data_init(void);
+void graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo);
 
 #endif /* __VOIP_CALLS_H__ */
 

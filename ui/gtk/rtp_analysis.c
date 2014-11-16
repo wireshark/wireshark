@@ -2060,7 +2060,6 @@ on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 static void
 on_player_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
-	/*rtp_player_init(voip_calls_get_info());*/
 	rtp_player_init(NULL);
 }
 #endif /* HAVE_LIBPORTAUDIO */
