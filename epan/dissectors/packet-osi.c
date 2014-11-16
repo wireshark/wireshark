@@ -526,7 +526,7 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("chdlc.protocol", CHDLCTYPE_OSI, osi_handle);
     dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /*  ISO-TP4 ISO Transport Protocol Class 4 [RFC905,RC77] */
+    dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /* ISO network layer PDUs [RFC 1070] */
 
     osi_juniper_handle = create_dissector_handle(dissect_osi_juniper, proto_osi);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_ISO, osi_juniper_handle);
