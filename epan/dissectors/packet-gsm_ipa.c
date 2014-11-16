@@ -78,7 +78,8 @@ void proto_reg_handoff_gsm_ipa(void);
 #define IPA_UDP_PORTS "3006"
 #define IPA_UDP_PORTS_DEFAULT "0"
 
-static dissector_handle_t ipa_handle;
+static dissector_handle_t ipa_tcp_handle;
+static dissector_handle_t ipa_udp_handle;
 static range_t *global_ipa_tcp_ports = NULL;
 static range_t *global_ipa_udp_ports = NULL;
 static gboolean global_ipa_in_root = FALSE;
@@ -281,7 +282,7 @@ dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree 
 
 /* Code to actually dissect the packets */
 static void
-dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp)
 {
 	gint remaining;
 	gint header_length = 3;
@@ -309,7 +310,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * We attempt to detect this by checking if the length from the
 		 * header + four bytes of the IPA header equals the remaining size.
 		 */
-		if ((pinfo->ipproto == IP_PROTO_UDP) && (len + 4 == remaining)) {
+		if (is_udp && (len + 4 == remaining)) {
 			header_length++;
 		}
 
@@ -370,6 +371,18 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset += len + header_length;
 	}
+}
+
+static void
+dissect_ipa_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ipa(tvb, pinfo, tree, FALSE);
+}
+
+static void
+dissect_ipa_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ipa(tvb, pinfo, tree, TRUE);
 }
 
 void proto_register_ipa(void)
@@ -433,18 +446,12 @@ void proto_register_ipa(void)
 		&ett_ipaccess,
 	};
 
-	proto_ipa =
-	    proto_register_protocol("GSM over IP protocol as used by ip.access",
-				    "GSM over IP", "gsm_ipa");
-	proto_ipaccess =
-	    proto_register_protocol("GSM over IP ip.access CCM sub-protocol",
-				    "IPA", "ipaccess");
+	proto_ipa = proto_register_protocol("GSM over IP protocol as used by ip.access", "GSM over IP", "gsm_ipa");
+	proto_ipaccess = proto_register_protocol("GSM over IP ip.access CCM sub-protocol", "IPA", "ipaccess");
 
 	proto_register_field_array(proto_ipa, hf, array_length(hf));
 	proto_register_field_array(proto_ipaccess, hf_ipa, array_length(hf_ipa));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("gsm_ipa", dissect_ipa, proto_ipa);
 
 	/* Register table for subdissectors */
 	osmo_dissector_table = register_dissector_table("ipa.osmo.protocol",
@@ -488,20 +495,21 @@ void proto_reg_handoff_gsm_ipa(void)
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 		sub_handles[SUB_DATA] = find_dissector("data");
 
-		ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
+		ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
+		ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
 		ipa_initialized = TRUE;
 	} else {
-		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_handle);
+		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);
 		g_free(ipa_tcp_ports);
-		dissector_delete_uint_range("udp.port", ipa_udp_ports, ipa_handle);
+		dissector_delete_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
 		g_free(ipa_udp_ports);
 	}
 
 	ipa_tcp_ports = range_copy(global_ipa_tcp_ports);
 	ipa_udp_ports = range_copy(global_ipa_udp_ports);
 
-	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_handle);
-	dissector_add_uint_range("tcp.port", ipa_tcp_ports, ipa_handle);
+	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_udp_handle);
+	dissector_add_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);
 }
 
 /*

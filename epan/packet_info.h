@@ -60,7 +60,6 @@ typedef struct _packet_info {
   address net_dst;                  /**< network-layer destination address */
   address src;                      /**< source address (net if present, DL otherwise )*/
   address dst;                      /**< destination address (net if present, DL otherwise )*/
-  guint32 ipproto;                  /**< IP protocol, if this is an IP packet */
   circuit_type ctype;               /**< type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;               /**< circuit ID, for protocols with a VC identifier */
   const char *noreassembly_reason;  /**< reason why reassembly wasn't done, if any */

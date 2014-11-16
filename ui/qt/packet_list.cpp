@@ -491,15 +491,14 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
     QAction *action;
-    gboolean is_tcp = FALSE, is_udp = FALSE;
+    gboolean is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
 
     /* walk the list of a available protocols in the packet to see what we have */
     if (cap_file_ != NULL && cap_file_->edt != NULL)
-        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
+        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, &is_sctp, NULL);
 
     action = window()->findChild<QAction *>("actionSCTP");
-    if (cap_file_ != NULL && cap_file_->edt != NULL &&
-            cap_file_->edt->pi.ipproto == IP_PROTO_SCTP)
+    if (cap_file_ != NULL && cap_file_->edt != NULL && is_sctp)
         action->setEnabled(TRUE);
     else
         action->setEnabled(FALSE);

@@ -2598,16 +2598,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Try to add right stuff to pinfo so conversation stuff works... */
                     pinfo->ptype = type_of_port;
-                    switch (type_of_port) {
-                        case PT_UDP:
-                            pinfo->ipproto = IP_PROTO_UDP;
-                            break;
-                        case PT_TCP:
-                            pinfo->ipproto = IP_PROTO_TCP;
-                            break;
-                        default:
-                            pinfo->ipproto = IP_PROTO_NONE;
-                    }
 
                     /* Add addresses & ports into ipprim tree.
                        Also set address info in pinfo for conversations... */
@@ -2763,8 +2753,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Add these SCTPPRIM fields inside an SCTPPRIM subtree */
                     sctpprim_tree = proto_item_add_subtree(ti_local, ett_catapult_dct2000_sctpprim);
-
-                    pinfo->ipproto = IP_PROTO_SCTP;
 
                     /* Destination address */
                     if (dest_addr_offset != 0) {

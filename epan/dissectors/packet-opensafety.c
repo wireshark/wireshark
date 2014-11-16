@@ -2301,6 +2301,15 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
     return result;
 }
 
+static gboolean
+dissect_opensafety_siii_udp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
+{
+    if ( ! global_enable_siii )
+        return FALSE;
+
+    return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0,
+                message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
+}
 
 static gboolean
 dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
@@ -2310,12 +2319,6 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
 
     if ( ! global_enable_siii )
         return result;
-
-    if ( pinfo->ipproto == IP_PROTO_UDP )
-    {
-        return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0,
-                message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
-    }
 
     /* We can assume to have a SercosIII package, as the SercosIII dissector won't detect
      * SercosIII-UDP packages, this is most likely SercosIII-over-ethernet */
@@ -2441,7 +2444,7 @@ apply_prefs ( void )
     /* Sercos III dissector does not handle UDP transport, has to be handled
      *  separately, everything else should be caught by the heuristic dissector
      */
-    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
+    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii_udp"));
 
 }
 
@@ -2849,7 +2852,7 @@ proto_register_opensafety(void)
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
     new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
-    new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety );
+    new_register_dissector("opensafety_siii_udp", dissect_opensafety_siii_udp, proto_opensafety );
     new_register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 

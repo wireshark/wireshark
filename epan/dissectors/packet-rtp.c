@@ -3692,7 +3692,7 @@ proto_reg_handoff_rtp(void)
         classicstun_handle = find_dissector("classicstun");
         classicstun_heur_handle = find_dissector("classicstun-heur");
         stun_heur_handle = find_dissector("stun-heur");
-        t38_handle = find_dissector("t38");
+        t38_handle = find_dissector("t38_udp");
         zrtp_handle = find_dissector("zrtp");
 
         sprt_handle = find_dissector("sprt");

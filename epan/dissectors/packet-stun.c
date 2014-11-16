@@ -498,7 +498,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean heur_check)
+dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean heur_check, gboolean is_udp)
 {
     guint       captured_length;
     guint16     msg_type;
@@ -546,7 +546,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
         /* note that padding is only mandatory over streaming
            protocols */
-        if (pinfo->ipproto == IP_PROTO_UDP) {
+        if (is_udp) {
             if (reported_length != (msg_length + CHANNEL_DATA_HDR_LEN))
                 return 0;
         } else { /* TCP */
@@ -1261,23 +1261,29 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 }
 
 static int
-dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_stun_message(tvb, pinfo, tree, FALSE);
+    return dissect_stun_message(tvb, pinfo, tree, FALSE, TRUE);
+}
+
+static int
+dissect_stun_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_stun_message(tvb, pinfo, tree, FALSE, FALSE);
 }
 
 static int
 dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LEN,
-        get_stun_message_len, dissect_stun, data);
+        get_stun_message_len, dissect_stun_tcp_pdu, data);
     return tvb_reported_length(tvb);
 }
 
 static gboolean
 dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    if (dissect_stun_message(tvb, pinfo, tree, TRUE) == 0) {
+    if (dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) == 0) {
         /*
          * It wasn't a valid STUN message, and wasn't
          * dissected as such.
@@ -1621,7 +1627,7 @@ proto_register_stun(void)
     /* heuristic subdissectors (used for the DATA field) */
     register_heur_dissector_list("stun", &heur_subdissector_list);
 
-    new_register_dissector("stun-udp", dissect_stun, proto_stun);
+    new_register_dissector("stun-udp", dissect_stun_udp, proto_stun);
     new_register_dissector("stun-heur", dissect_stun_heur, proto_stun);
 }
 
@@ -1632,7 +1638,7 @@ proto_reg_handoff_stun(void)
     dissector_handle_t stun_udp_handle;
 
     stun_tcp_handle = new_create_dissector_handle(dissect_stun_tcp, proto_stun);
-    stun_udp_handle = new_create_dissector_handle(dissect_stun, proto_stun);
+    stun_udp_handle = new_create_dissector_handle(dissect_stun_udp, proto_stun);
 
     dissector_add_uint("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);

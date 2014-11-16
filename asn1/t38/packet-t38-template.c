@@ -615,19 +615,6 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void
-dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	if(pinfo->ipproto == IP_PROTO_TCP)
-	{
-		dissect_t38_tcp(tvb, pinfo, tree);
-	}
-	else if(pinfo->ipproto == IP_PROTO_UDP)
-	{
-		dissect_t38_udp(tvb, pinfo, tree);
-	}
-}
-
 /* Look for conversation info and display any setup info found */
 void
 show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
@@ -732,7 +719,7 @@ proto_register_t38(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_t38 = expert_register_protocol(proto_t38);
 	expert_register_field_array(expert_t38, ei, array_length(ei));
-	register_dissector("t38", dissect_t38, proto_t38);
+	register_dissector("t38_udp", dissect_t38_udp, proto_t38);
 
 	/* Init reassemble tables for HDLC */
 	register_init_routine(t38_defragment_init);

@@ -123,6 +123,7 @@ void proto_reg_handoff_ipv6(void);
 
 /* Protocol specific data indices */
 #define IPV6_PROTO_NXT_HDR          0
+#define IPV6_PROTO_VALUE            1
 
 static int ipv6_tap = -1;
 
@@ -342,12 +343,13 @@ static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
 
 static void ipv6_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", pinfo->ipproto);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE)));
 }
 
 static gpointer ipv6_value(packet_info *pinfo)
 {
-    return GUINT_TO_POINTER(pinfo->ipproto);
+    return p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE);
 }
 
 static void ipv6_next_header_prompt(packet_info *pinfo, gchar* result)
@@ -2162,7 +2164,7 @@ again:
     proto_item_set_len (ipv6_item, offset);
 
     /* collect packet info */
-    pinfo->ipproto = nxt;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_VALUE, GUINT_TO_POINTER((guint)nxt));
     tap_queue_packet(ipv6_tap, pinfo, &ipv6);
 
     if (offlg & IP6F_OFF_MASK || (ipv6_reassemble && offlg & IP6F_MORE_FRAG)) {
