@@ -67,6 +67,8 @@ option(ENABLE_CAP        "Build with Posix capabilities support" ON)
 option(ENABLE_CARES      "Build with c-ares support" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	option(ENABLE_NETLINK    "Build with libnl support" ON)
+else()
+	option(ENABLE_NETLINK    "Build with libnl support" OFF)
 endif()
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
