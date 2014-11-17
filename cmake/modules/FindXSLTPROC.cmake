@@ -36,9 +36,11 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_guide}_html_chunked)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl")
+	SET(_modeparams --noout)
     ELSE() # single-page
         SET(_basedir ${_guide}_html)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl")
+	SET(_modeparams --output ${_basedir}/index.html)
     ENDIF()
 
     SET(_outdir ${CMAKE_CURRENT_BINARY_DIR}/${_basedir})
@@ -85,6 +87,7 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
             --stringparam section.label.includes.component.label 1
             --stringparam html.stylesheet ws.css
             --nonet
+            ${_modeparams}
             ${_STYLESHEET}
             ${_source}
         COMMAND chmod
