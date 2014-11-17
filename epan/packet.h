@@ -214,6 +214,10 @@ WS_DLL_PUBLIC ftenum_t get_dissector_table_selector_type(const char *name);
    sub-dissector table, given the table's internal name */
 WS_DLL_PUBLIC int get_dissector_table_base(const char *name);
 
+/* Dump all dissector tables to the standard output (not the entries,
+   just the information about the tables) */
+WS_DLL_PUBLIC void dissector_dump_dissector_tables(void);
+
 /* Add an entry to a uint dissector table. */
 WS_DLL_PUBLIC void dissector_add_uint(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);

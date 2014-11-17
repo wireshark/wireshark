@@ -269,6 +269,7 @@ glossary_option_help(void)
   fprintf(output, "Glossary table reports:\n");
   fprintf(output, "  -G column-formats        dump column format codes and exit\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
+  fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
   fprintf(output, "  -G fields                dump fields glossary and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
   fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
@@ -998,6 +999,8 @@ main(int argc, char *argv[])
         dissector_dump_decodes();
       else if (strcmp(argv[2], "defaultprefs") == 0)
         write_prefs(NULL);
+      else if (strcmp(argv[2], "dissector-tables") == 0)
+        dissector_dump_dissector_tables();
       else if (strcmp(argv[2], "fields") == 0)
         proto_registrar_dump_fields();
       else if (strcmp(argv[2], "ftypes") == 0)

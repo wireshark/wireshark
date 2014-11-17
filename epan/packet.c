@@ -2362,6 +2362,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	pinfo->heur_list_name = saved_heur_list_name;
 
 }
+
 /*
  * Dumps the "layer type"/"decode as" associations to stdout, similar
  * to the proto_registrar_dump_*() routines.
@@ -2417,6 +2418,83 @@ void
 dissector_dump_decodes(void)
 {
 	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
+}
+
+/*
+ * Dumps the "layer type"/"decode as" associations to stdout, similar
+ * to the proto_registrar_dump_*() routines.
+ *
+ * There is one record per line. The fields are tab-delimited.
+ *
+ * Field 1 = layer type, e.g. "tcp.port"
+ * Field 2 = selector in decimal
+ * Field 3 = "decode as" name, e.g. "http"
+ */
+
+
+static void
+dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
+{
+	const char		*table_name = (const char *)key;
+	dissector_table_t	table;
+
+	table = (dissector_table_t)g_hash_table_lookup(dissector_tables, key);
+	printf("%s\t%s\t%s", table_name, table->ui_name, ftype_name(table->type));
+	switch (table->type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		switch(table->base) {
+
+		case BASE_NONE:
+			printf("\tBASE_NONE");
+			break;
+
+		case BASE_DEC:
+			printf("\tBASE_DEC");
+			break;
+
+		case BASE_HEX:
+			printf("\tBASE_HEX");
+			break;
+
+		case BASE_DEC_HEX:
+			printf("\tBASE_DEC_HEX");
+			break;
+
+		case BASE_HEX_DEC:
+			printf("\tBASE_HEX_DEC");
+			break;
+
+		default:
+			printf("\t%d", table->base);
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
+	printf("\n");
+}
+
+static gint
+compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
+{
+  return strcmp((const char*)dissector_a, (const char*)dissector_b);
+}
+
+void
+dissector_dump_dissector_tables(void)
+{
+	GList *list;
+
+	list = g_hash_table_get_keys(dissector_tables);
+	list = g_list_sort(list, compare_dissector_key_name);
+	g_list_foreach(list, dissector_dump_dissector_tables_display, NULL);
+	g_list_free(list);
 }
 
 static GPtrArray* post_dissectors = NULL;
