@@ -15202,23 +15202,19 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     }
     case TAG_SUPPORTED_OPERATING_CLASSES:
     {
-      guint8 current_field;
       guint i;
 
       if (tag_len < 2) {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Operating Classes: Error: Tag length must be at least 2 bytes long");
+        expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 3", tag_len);
         break;
       } else if (tag_len > 32) {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Operating Classes: Error: Tag length must be no more than 32 bytes long");
+        expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be < 32", tag_len);
         break;
       }
 
       offset += 2;
 
-      current_field = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset, 1, current_field);
+      proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset, 1, ENC_NA);
 
       offset += 1;
       /* Partially taken from the ssid section */
