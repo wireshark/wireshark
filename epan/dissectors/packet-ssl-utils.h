@@ -170,6 +170,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE   0x0013
 #define SSL_HND_HELLO_EXT_SERVER_CERT_TYPE   0x0014
 #define SSL_HND_HELLO_EXT_PADDING            0x0015
+#define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE 0x0017
 #define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
 #define SSL_HND_HELLO_EXT_NPN                0x3374
@@ -243,6 +244,10 @@ typedef struct _StringInfo {
 #define SSL_VERSION             (1<<4)
 #define SSL_MASTER_SECRET       (1<<5)
 #define SSL_PRE_MASTER_SECRET   (1<<6)
+#define SSL_CLIENT_EXTENDED_MASTER_SECRET (1<<7)
+#define SSL_SERVER_EXTENDED_MASTER_SECRET (1<<8)
+
+#define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 
 /* SSL Cipher Suite modes */
 typedef enum {
@@ -364,6 +369,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
+    StringInfo handshake_data;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
     guchar _server_data_for_iv[24];
@@ -597,6 +603,9 @@ ssl_is_valid_content_type(guint8 type);
 
 extern gboolean
 ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
+
+extern void
+ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guint32 offset, guint32 length);
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {

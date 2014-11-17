@@ -847,6 +847,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     {
       tvbuff_t* decrypted;
       decrypted = 0;
+
+      ssl_calculate_handshake_hash(ssl, tvb, offset, record_length);
+
       /* try to decrypt handshake record, if possible. Store decrypted
        * record for later usage. The offset is used as 'key' to identify
        * this record into the packet (we can have multiple handshake records
