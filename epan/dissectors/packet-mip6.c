@@ -3708,10 +3708,10 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case MIP6_EMH:
         /* 11 Experimental Mobility Header RFC5096 */
-        /* There are no fields in the message beyond the required fields
-         * in the Mobility Header.
-         */
-        offset = MIP6_DATA_OFF;
+        if (len > 8) {
+            proto_tree_add_item(mip6_tree, hf_mip6_opt_em_data, tvb, offset+MIP6_DATA_OFF, len-MIP6_DATA_OFF, ENC_NA);
+        }
+        offset = len;
         break;
     case MIP6_HAS:
         /* 12 Home Agent Switch */
