@@ -2334,7 +2334,7 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
     word = tvb_get_ntohs(tvb, offset);
     if(word==0x1709){
         /* start the dissection from byte 3 */
-        de_mid(l3_tvb, tree, pinfo, 2, 7, NULL, 0);
+        de_mid(l3_tvb, tree, pinfo, 2, 9, NULL, 0);
         return(len);
     }
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
