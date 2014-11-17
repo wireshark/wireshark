@@ -15188,25 +15188,16 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
     {
-      guint tag_offset;
-
       if (tag_len != 4)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Extended Channel Switch Announcement: Error: Tag length must be exactly 4 bytes long");
+        expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 4", tag_len);
         break;
       }
 
       offset += 2;
-      tag_offset = offset;
 
       offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT);
 
-      if (tag_len > (offset - tag_offset))
-      {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
-        break;
-      }
       break;
     }
     case TAG_SUPPORTED_OPERATING_CLASSES:
