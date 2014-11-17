@@ -1431,7 +1431,7 @@ mtp3_calls_init_tap(void)
 
 	if(have_m3ua_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("m3ua", &(the_tapinfo_struct.mtp3_dummy),
+		error_string = register_tap_listener("m3ua", &(the_tapinfo_struct.m3ua_dummy),
 			NULL,
 			0,
 			voip_calls_dlg_reset,
@@ -3146,6 +3146,7 @@ void
 remove_tap_listener_sccp_calls(void)
 {
 	remove_tap_listener(&(the_tapinfo_struct.sccp_dummy));
+	remove_tap_listener(&(the_tapinfo_struct.sua_dummy));
 
 	have_sccp_tap_listener=FALSE;
 	have_sua_tap_listener=FALSE;
