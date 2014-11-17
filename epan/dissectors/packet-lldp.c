@@ -3263,7 +3263,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					proto_tree_add_item(hytec_data, hf_hytec_request_mac_address, tvb, offset, 6, ENC_NA);
 					offset += 6;
 					proto_tree_add_item(hytec_data, hf_hytec_maximum_depth, tvb, offset, 1, ENC_NA);
-					offset += 1;
+					/*offset += 1;*/
 				}
 				else
 				{ /* unexpected length */
@@ -3282,7 +3282,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					proto_tree_add_item(hytec_data, hf_hytec_answering_mac_address, tvb, offset, 6, ENC_NA);
 					offset += 6;
 					proto_tree_add_item(hytec_data, hf_hytec_actual_depth, tvb, offset, 1, ENC_NA);
-					offset += 1;
+					/*offset += 1;*/
 				}
 				else
 				{ /* unexpected length */
