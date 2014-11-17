@@ -981,26 +981,28 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
     }
     pkg_found = s_pkg->pkg;
     if (reg_action==MERGE_PKG_HIGH) {
-            pkg_high = (h248_package_t *)pkg;
-            pkg_low = pkg_found;
+        pkg_high = (h248_package_t *)pkg;
+        pkg_low = pkg_found;
     };
     if (reg_action==MERGE_PKG_LOW) {
-            pkg_high = pkg_found;
-            pkg_low = (h248_package_t *)pkg;
+        pkg_high = pkg_found;
+        pkg_low = (h248_package_t *)pkg;
     };
-    /* if h248_package_t High Priority value !NULL, replace it in the found tree entry else use current entry */
-    (pkg_high->hfid ? (pkg_found->hfid=pkg_high->hfid) : (pkg_found->hfid=pkg_low->hfid));
-    (pkg_high->ett ? (pkg_found->ett=pkg_high->ett ):( pkg_found->ett=pkg_low->ett));
-    (pkg_high->param_names ? (pkg_found->param_names=pkg_high->param_names ):( pkg_found->param_names=pkg_low->param_names));
-    (pkg_high->signal_names ? (pkg_found->signal_names=pkg_high->signal_names ):( pkg_found->signal_names=pkg_low->signal_names));
-    (pkg_high->event_names ? (pkg_found->event_names=pkg_high->event_names ):( pkg_found->event_names=pkg_low->event_names));
-    (pkg_high->stats_names ? (pkg_found->stats_names=pkg_high->stats_names ):( pkg_found->stats_names=pkg_low->stats_names));
-    (pkg_high->properties ? (pkg_found->properties=pkg_high->properties ):( pkg_found->properties=pkg_low->properties));
-    (pkg_high->signals ? (pkg_found->signals=pkg_high->signals ):( pkg_found->signals=pkg_low->signals));
-    (pkg_high->events ? (pkg_found->events=pkg_high->events ):( pkg_found->events=pkg_low->events));
-    (pkg_high->statistics ? (pkg_found->statistics=pkg_high->statistics ):( pkg_found->statistics=pkg_low->statistics));
-    s_pkg->pkg = pkg_found;
-    s_pkg->is_default = FALSE;
+    if(pkg_high) {
+        /* if h248_package_t High Priority value !NULL, replace it in the found tree entry else use current entry */
+        (pkg_high->hfid ? (pkg_found->hfid=pkg_high->hfid) : (pkg_found->hfid=pkg_low->hfid));
+        (pkg_high->ett ? (pkg_found->ett=pkg_high->ett ):( pkg_found->ett=pkg_low->ett));
+        (pkg_high->param_names ? (pkg_found->param_names=pkg_high->param_names ):( pkg_found->param_names=pkg_low->param_names));
+        (pkg_high->signal_names ? (pkg_found->signal_names=pkg_high->signal_names ):( pkg_found->signal_names=pkg_low->signal_names));
+        (pkg_high->event_names ? (pkg_found->event_names=pkg_high->event_names ):( pkg_found->event_names=pkg_low->event_names));
+        (pkg_high->stats_names ? (pkg_found->stats_names=pkg_high->stats_names ):( pkg_found->stats_names=pkg_low->stats_names));
+        (pkg_high->properties ? (pkg_found->properties=pkg_high->properties ):( pkg_found->properties=pkg_low->properties));
+        (pkg_high->signals ? (pkg_found->signals=pkg_high->signals ):( pkg_found->signals=pkg_low->signals));
+        (pkg_high->events ? (pkg_found->events=pkg_high->events ):( pkg_found->events=pkg_low->events));
+        (pkg_high->statistics ? (pkg_found->statistics=pkg_high->statistics ):( pkg_found->statistics=pkg_low->statistics));
+        s_pkg->pkg = pkg_found;
+        s_pkg->is_default = FALSE;
+    }
 }
 
 
