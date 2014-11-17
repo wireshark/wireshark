@@ -797,6 +797,8 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     }
 
     if (data_tvb == NULL) {
+      if (next_tvb == NULL)
+        goto body_dissected;
       data_tvb = next_tvb;
     } else {
       add_new_data_source(pinfo, data_tvb, "Assembled entity body");
