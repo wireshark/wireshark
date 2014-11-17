@@ -1279,7 +1279,11 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 		bfield_length = DECT_BFIELD_DATA_SIZE;
 
 	if (bfield_length)
+	{
 		tvb_memcpy(tvb, bfield_data, offset, bfield_length);
+		if (bfield_length < DECT_BFIELD_DATA_SIZE)
+			memset(&bfield_data[bfield_length], 0, DECT_BFIELD_DATA_SIZE - bfield_length);
+	}
 	else
 		memset(bfield_data, 0, DECT_BFIELD_DATA_SIZE);
 
