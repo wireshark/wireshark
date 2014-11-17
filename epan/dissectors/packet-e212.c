@@ -2870,12 +2870,12 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
 
     if (long_mnc)
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 2, mnc,
                    "%s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
     else
-        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 1, mnc,
                    "%s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
