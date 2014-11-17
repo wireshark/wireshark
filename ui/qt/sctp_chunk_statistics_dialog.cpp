@@ -33,6 +33,11 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
     cap_file_(cf)
 {
     ui->setupUi(this);
+    Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
+            | Qt::WindowMinimizeButtonHint
+            | Qt::WindowMaximizeButtonHint
+            | Qt::WindowCloseButtonHint;
+    this->setWindowFlags(flags);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     ui->tableWidget->verticalHeader()->setClickable(true);
     ui->tableWidget->verticalHeader()->setMovable(true);
