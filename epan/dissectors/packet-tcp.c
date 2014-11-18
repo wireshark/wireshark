@@ -1040,8 +1040,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * event that the SYN or SYN/ACK packet is not seen
      * (this solves bug 1542)
      */
-    if(tcpd->fwd->base_seq==0) {
+    if(tcpd->fwd->base_seq_set == FALSE) {
         tcpd->fwd->base_seq = (flags & TH_SYN) ? seq : seq-1;
+        tcpd->fwd->base_seq_set = TRUE;
     }
 
     /* Only store reverse sequence if this isn't the SYN
@@ -1055,8 +1056,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * other packets the ISN is unknown, so ack-1 is
      * as good a guess as ack.
      */
-    if( (tcpd->rev->base_seq==0) && (flags & TH_ACK) ) {
+    if( (tcpd->rev->base_seq_set==FALSE) && (flags & TH_ACK) ) {
         tcpd->rev->base_seq = ack-1;
+        tcpd->rev->base_seq_set = TRUE;
     }
 
     if( flags & TH_ACK ) {
@@ -4336,7 +4338,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * mission later.
      */
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
-       (tcpd->fwd->base_seq!=0) &&
+       (tcpd->fwd->base_seq_set == TRUE) &&
        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
         if (!(pinfo->fd->flags.visited)) {
             conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
