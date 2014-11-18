@@ -173,6 +173,12 @@ static int hf_sdp_crypto_lifetime = -1;
 static int hf_sdp_crypto_mki = -1;
 static int hf_sdp_crypto_mki_length = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_sdp_nal_unit_2_string = -1;
+static int hf_sdp_key_and_salt = -1;
+static int hf_sdp_nal_unit_1_string = -1;
+static int hf_sdp_data = -1;
+
 /* trees */
 static int ett_sdp = -1;
 static int ett_sdp_owner = -1;
@@ -193,6 +199,7 @@ static expert_field ei_sdp_invalid_key_param   = EI_INIT;
 static expert_field ei_sdp_invalid_line_equal  = EI_INIT;
 static expert_field ei_sdp_invalid_line_fields = EI_INIT;
 static expert_field ei_sdp_invalid_line_space  = EI_INIT;
+static expert_field ei_sdp_invalid_conversion = EI_INIT;
 
 #define SDP_RTP_PROTO       0x00000001
 #define SDP_SRTP_PROTO      0x00000002
@@ -1109,7 +1116,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   end_offset = offset + tokenlen;
 
 #if 0
-    proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
+    proto_tree_add_debug(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
     tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII));
 #endif
 
@@ -1126,7 +1133,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     tokenlen = next_offset - offset;
     field_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 #if 0
-    proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; MIMEtype '%s'Parameter name: '%s'", mime_type, field_name); */
+    proto_tree_add_debug(tree, tvb, offset, tokenlen, "Debug; MIMEtype '%s'Parameter name: '%s'", mime_type, field_name); */
 #endif
     offset = next_offset;
 
@@ -1193,7 +1200,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
             if (!data_tvb) {
-                proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes", format_specific_parameter);
+                proto_tree_add_expert_format(tree, pinfo, &ei_sdp_invalid_conversion, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes", format_specific_parameter);
                 return;
             }
             length = tvb_length(data_tvb);
@@ -1202,7 +1209,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                     dissect_h264_profile(data_tvb, pinfo, tree);
                 }
             } else {
-                item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
+                item = proto_tree_add_expert_format(tree, pinfo, &ei_sdp_invalid_conversion, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
                 PROTO_ITEM_SET_GENERATED(item);
             }
         } else if (strcmp(field_name, "packetization-mode") == 0) {
@@ -1236,9 +1243,8 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             }
 
             data_p = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-            proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data_p);
+            proto_tree_add_string(tree, hf_sdp_nal_unit_1_string, tvb, offset, tokenlen, data_p);
 
-            /* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s", data_p); */
             data_tvb = base64_to_tvb(tvb, data_p);
             add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
 
@@ -1255,7 +1261,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                     offset   = comma_offset +1;
                     tokenlen = end_offset - offset;
                     data_p   = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-                    proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data_p);
+                    proto_tree_add_string(tree, hf_sdp_nal_unit_2_string, tvb, offset, tokenlen, data_p);
                     data_tvb = base64_to_tvb(tvb, data_p);
                     add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
                     dissect_h264_nal_unit(data_tvb, pinfo, tree);
@@ -1662,13 +1668,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                     key_salt_tvb = base64_to_tvb(tvb, data_p);
                     add_new_data_source(pinfo, key_salt_tvb, "Key_Salt_tvb");
                     if (master_key_length != 0) {
-                        proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
+                        proto_tree_add_item(parameter_tree, hf_sdp_key_and_salt, tvb, offset, tokenlen, ENC_NA);
                         proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key,
                             key_salt_tvb, 0, master_key_length, ENC_NA);
                         proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt,
                             key_salt_tvb, master_key_length, master_salt_length, ENC_NA);
                     } else {
-                        proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
+                        proto_tree_add_item(parameter_tree, hf_sdp_key_and_salt, key_salt_tvb, 0, -1, ENC_NA);
                     }
 
                     /*  ["|" lifetime] ["|" mki] are optional */
@@ -2609,7 +2615,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     datalen = tvb_length_remaining(tvb, offset);
     if (datalen > 0) {
-        proto_tree_add_text(sdp_tree, tvb, offset, datalen, "Data (%d bytes)",  datalen);
+        proto_tree_add_item(sdp_tree, hf_sdp_data, tvb, offset, datalen, ENC_NA);
     }
     /* Report this packet to the tap */
     tap_queue_packet(sdp_tap, pinfo, sdp_pi);
@@ -2969,6 +2975,11 @@ proto_register_sdp(void)
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_sdp_nal_unit_1_string, { "NAL unit 1 string", "sdp.nal_unit_1_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_sdp_nal_unit_2_string, { "NAL unit 2 string", "sdp.nal_unit_2_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_sdp_key_and_salt, { "Key and Salt", "sdp.key_and_salt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_sdp_data, { "Data", "sdp.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_sdp,
@@ -3013,6 +3024,13 @@ proto_register_sdp(void)
             { "sdp.invalid_line.extra_space",
               PI_MALFORMED, PI_ERROR,
               "Invalid SDP whitespace (extra space character)",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_conversion,
+            { "sdp.invalid_conversion",
+              PI_PROTOCOL, PI_WARN,
+              "Invalid conversion",
               EXPFILL
             }
         }

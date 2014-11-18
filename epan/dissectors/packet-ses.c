@@ -148,6 +148,8 @@ static const value_string token_setting_vals[] = {
 	{ 0, NULL }
 };
 
+static const true_false_string tfs_released_kept = { "Released", "Kept" };
+
 static int hf_release_token_setting = -1;
 static int hf_major_activity_token_setting = -1;
 static int hf_synchronize_minor_token_setting = -1;
@@ -177,10 +179,23 @@ static int hf_large_initial_serial_number = -1;
 /* large second initial serial number */
 static int hf_large_second_initial_serial_number = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_ses_reason_code = -1;
+static int hf_ses_transport_implementation_restriction = -1;
+static int hf_ses_transport_no_reason = -1;
+static int hf_ses_parameter_group_inside_parameter_group = -1;
+static int hf_ses_user_data = -1;
+static int hf_ses_parameter_type = -1;
+static int hf_ses_transport_protocol_error = -1;
+static int hf_ses_transport_user_abort = -1;
+static int hf_ses_parameter_length = -1;
+static int hf_ses_transport_connection = -1;
+
 /* clses header fields             */
 static int proto_clses          = -1;
 
 static expert_field ei_ses_bad_length = EI_INIT;
+static expert_field ei_ses_bad_parameter_length = EI_INIT;
 
 #define PROTO_STRING_CLSES "ISO 9548-1 OSI Connectionless Session Protocol"
 
@@ -336,8 +351,7 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		/* No - display as data */
 		if (tree)
 		{
-			proto_tree_add_text(param_tree, tvb, offset, param_len,
-			    "User data");
+			proto_tree_add_item(param_tree, hf_ses_user_data, tvb, offset, param_len, ENC_NA);
 		}
 	}
 	else
@@ -466,21 +480,11 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			guint8       flags8;
 
 			flags8 = tvb_get_guint8(tvb, offset);
-			if(flags8 & transport_connection_is_released )
-			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "transport connection is released");
-			}
-			else
-			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "transport connection is kept");
-			}
+			proto_tree_add_item(param_tree, hf_ses_transport_connection, tvb, offset, 1, ENC_NA);
 
+			proto_tree_add_item(param_tree, hf_ses_transport_user_abort, tvb, offset, 1, ENC_NA);
 			if(flags8 & user_abort )
 			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "user abort");
 				session->abort_type = SESSION_USER_ABORT;
 			}
 			else
@@ -488,23 +492,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 				session->abort_type = SESSION_PROVIDER_ABORT;
 			}
 
-			if(flags8 & protocol_error )
-			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "protocol error");
-			}
 
-			if(flags8 & no_reason )
-			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "no reason");
-			}
-
-			if(flags8 & implementation_restriction )
-			{
-				proto_tree_add_text(param_tree, tvb, offset, 1,
-				    "implementation restriction");
-			}
+			proto_tree_add_item(param_tree, hf_ses_transport_protocol_error, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(param_tree, hf_ses_transport_no_reason, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(param_tree, hf_ses_transport_implementation_restriction, tvb, offset, 1, ENC_NA);
 		}
 		break;
 
@@ -750,15 +741,8 @@ PICS.    */
 			    "Length is %u, should be >= 1", param_len);
 			break;
 		}
-		if (tree)
-		{
-			guint8      reason_code;
 
-			reason_code = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(param_tree, tvb, offset, 1,
-			    "Reason Code: %s",
-			    val_to_str_ext(reason_code, &reason_vals_ext, "Unknown (%u)"));
-		}
+		proto_tree_add_item(param_tree, hf_ses_reason_code, tvb, offset, 1, ENC_NA);
 		offset++;
 		param_len--;
 		if (param_len != 0)
@@ -860,28 +844,23 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			ett_ses_param, &ti,
 			val_to_str_ext(param_type, &param_vals_ext, "Unknown parameter type (0x%02x)"));
 		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
-		proto_tree_add_text(param_tree, tvb, offset, 1,
-		    "Parameter type: %s", param_str);
+		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_NA);
 		offset++;
 		pg_len--;
 		param_len = get_item_len(tvb, offset, &len_len);
 		if (len_len > pg_len) {
 			proto_item_set_len(ti, pg_len + 1);
-			proto_tree_add_text(param_tree, tvb, offset, pg_len,
-			    "Parameter length doesn't fit in parameter");
+			proto_tree_add_expert_format(param_tree, pinfo, &ei_ses_bad_parameter_length, tvb, offset, pg_len, "Parameter length doesn't fit in parameter");
 			return has_user_information;
 		}
 		pg_len -= len_len;
 		if (param_len > pg_len) {
 			proto_item_set_len(ti, pg_len + 1 + len_len);
-			proto_tree_add_text(param_tree, tvb, offset, pg_len,
-			    "Parameter length: %u, should be <= %u",
-			    param_len, pg_len);
+			proto_tree_add_expert_format(param_tree, pinfo, &ei_ses_bad_parameter_length, tvb, offset, pg_len, "Parameter length: %u, should be <= %u", param_len, pg_len);
 			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
-		param_len_item = proto_tree_add_text(param_tree, tvb, offset, len_len,
-		    "Parameter length: %u", param_len);
+		param_len_item = proto_tree_add_uint(param_tree, hf_ses_parameter_length, tvb, offset, len_len, param_len);
 		offset += len_len;
 
 		if (param_str != NULL)
@@ -894,9 +873,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			case Connect_Accept_Item:
 			case Connection_Identifier:
 			case Linking_Information:
-				proto_tree_add_text(param_tree, tvb, offset,
-				    param_len,
-				    "Parameter group inside parameter group");
+				proto_tree_add_item(param_tree, hf_ses_parameter_group_inside_parameter_group, tvb, offset, param_len, ENC_NA);
 				break;
 
 			default:
@@ -937,28 +914,23 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 		    val_to_str_ext(param_type, &param_vals_ext,
 		      "Unknown parameter type (0x%02x)"));
 		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
-		proto_tree_add_text(param_tree, tvb, offset, 1,
-		    "Parameter type: %s", param_str);
+		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_NA);
 		offset++;
 		len--;
 		param_len = get_item_len(tvb, offset, &len_len);
 		if (len_len > len) {
 			proto_item_set_len(ti, len + 1 );
-			proto_tree_add_text(param_tree, tvb, offset, len,
-			    "Parameter length doesn't fit in parameter");
+			proto_tree_add_expert_format(param_tree, pinfo, &ei_ses_bad_parameter_length, tvb, offset, len, "Parameter length doesn't fit in parameter");
 			return has_user_information;
 		}
 		len -= len_len;
 		if (param_len > len) {
 			proto_item_set_len(ti, len + 1 + len_len);
-			proto_tree_add_text(param_tree, tvb, offset, len,
-			    "Parameter length: %u, should be <= %u",
-			    param_len, len);
+			proto_tree_add_expert_format(param_tree, pinfo, &ei_ses_bad_parameter_length, tvb, offset, len, "Parameter length: %u, should be <= %u", param_len, len);
 			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
-		param_len_item = proto_tree_add_text(param_tree, tvb, offset, len_len,
-		    "Parameter length: %u", param_len);
+		param_len_item = proto_tree_add_uint(param_tree, hf_ses_parameter_length, tvb, offset, len_len, param_len);
 		offset += len_len;
 
 		if (param_str != NULL)
@@ -1953,7 +1925,19 @@ proto_register_ses(void)
 		    NULL, 0x00, "This SES packet is reassembled in this frame", HFILL } },
 		{ &hf_ses_reassembled_length,
 		  { "Reassembled SES length", "ses.reassembled.length", FT_UINT32, BASE_DEC,
-		    NULL, 0x00, "The total length of the reassembled payload", HFILL } }
+		    NULL, 0x00, "The total length of the reassembled payload", HFILL } },
+
+          /* Generated from convert_proto_tree_add_text.pl */
+          { &hf_ses_user_data, { "User data", "ses.user_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_ses_transport_connection, { "Transport connection", "ses.transport_flags.connection", FT_BOOLEAN, 8, TFS(&tfs_released_kept), transport_connection_is_released, NULL, HFILL }},
+          { &hf_ses_transport_user_abort, { "User abort", "ses.transport_flags.user_abort", FT_BOOLEAN, 8, TFS(&tfs_yes_no), user_abort, NULL, HFILL }},
+          { &hf_ses_transport_protocol_error, { "Protocol error", "ses.transport_flags.protocol_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no), protocol_error, NULL, HFILL }},
+          { &hf_ses_transport_no_reason, { "No reason", "ses.transport_flags.no_reason", FT_BOOLEAN, 8, TFS(&tfs_yes_no), no_reason, NULL, HFILL }},
+          { &hf_ses_transport_implementation_restriction, { "Implementation restriction", "ses.transport_flags.implementation_restriction", FT_BOOLEAN, 8, TFS(&tfs_yes_no), implementation_restriction, NULL, HFILL }},
+          { &hf_ses_reason_code, { "Reason Code", "ses.reason_code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &reason_vals_ext, 0x0, NULL, HFILL }},
+          { &hf_ses_parameter_type, { "Parameter type", "ses.parameter_type", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &param_vals_ext, 0x0, NULL, HFILL }},
+          { &hf_ses_parameter_length, { "Parameter length", "ses.parameter_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { &hf_ses_parameter_group_inside_parameter_group, { "Parameter group inside parameter group", "ses.parameter_group_inside_parameter_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] =
@@ -1971,6 +1955,7 @@ proto_register_ses(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_ses_bad_length, { "ses.bad_length", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
+		{ &ei_ses_bad_parameter_length, { "ses.bad_parameter_length", PI_MALFORMED, PI_ERROR, "Bad parameter length", EXPFILL }},
 	};
 
 	module_t *ses_module;

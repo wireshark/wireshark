@@ -267,6 +267,10 @@ static int hf_tcp_proc_dst_pid = -1;
 static int hf_tcp_proc_dst_uname = -1;
 static int hf_tcp_proc_dst_cmd = -1;
 static int hf_tcp_segment_data = -1;
+static int hf_tcp_reset_cause = -1;
+static int hf_tcp_fin_retransmission = -1;
+static int hf_tcp_option_rvbd_probe_reserved = -1;
+static int hf_tcp_option_scps_binding_data = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -325,6 +329,7 @@ static expert_field ei_tcp_connection_rst = EI_INIT;
 static expert_field ei_tcp_checksum_ffff = EI_INIT;
 static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
+static expert_field ei_tcp_suboption_malformed = EI_INIT;
 
 /* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
  * from one PDU to the next PDU and require that they are called in sequence.
@@ -2617,8 +2622,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     while (optlen > 0) {
         if (optlen < 4) {
-            proto_tree_add_text(field_tree, tvb, offset,      optlen,
-                                "(suboption would go past end of option)");
+            proto_tree_add_expert(field_tree, pinfo, &ei_tcp_suboption_malformed, tvb, offset, optlen);
             break;
         }
         leftedge = tvb_get_ntohl(tvb, offset)-base_ack;
@@ -2629,8 +2633,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
         optlen -= 4;
         if (optlen < 4) {
-            proto_tree_add_text(field_tree, tvb, offset,      optlen,
-                                "(suboption would go past end of option)");
+            proto_tree_add_expert(field_tree, pinfo, &ei_tcp_suboption_malformed, tvb, offset, optlen);
             break;
         }
         /* XXX - check whether it goes past end of packet */
@@ -3195,10 +3198,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                 /* Step past the binding space and length octets */
                 local_offset += 2;
 
-                proto_tree_add_text(field_tree, tvb, offset + local_offset,
-                                    extended_cap_length,
-                                    "Binding Space Data (%u bytes)",
-                                    extended_cap_length);
+                proto_tree_add_item(field_tree, hf_tcp_option_scps_binding_data, tvb, offset + local_offset, extended_cap_length, ENC_NA);
 
                 tcp_info_append_uint(pinfo, "EXCAP", binding_space);
 
@@ -3268,7 +3268,7 @@ verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
  * Transport Protocol (SCPS-TP)" Section 3.5 for definition of the SNACK option
  */
 static void
-dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
+dissect_tcpopt_snack(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             int offset, guint optlen, packet_info *pinfo,
             proto_tree *opt_tree, void *data _U_)
 {
@@ -3299,16 +3299,11 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                          offset, optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    hidden_item = proto_tree_add_uint(opt_tree, hf_tcp_option_snack_offset,
+    proto_tree_add_uint(opt_tree, hf_tcp_option_snack_offset,
                                       tvb, offset, optlen, relative_hole_offset);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    hidden_item = proto_tree_add_uint(opt_tree, hf_tcp_option_snack_size,
+    proto_tree_add_uint(opt_tree, hf_tcp_option_snack_size,
                                       tvb, offset, optlen, relative_hole_size);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                        "%s: Offset %u, Size %u", optp->name,
-                        relative_hole_offset, relative_hole_size);
 
     ack   = tvb_get_ntohl(tvb, 8);
 
@@ -3338,14 +3333,12 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         hidden_item = proto_tree_add_uint(opt_tree, hf_tcp_option_snack_re,
                                           tvb, offset, optlen, hole_end);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_text(opt_tree, tvb, offset, optlen,
-                            "\tMissing Sequence %u - %u %s",
-                            hole_start, hole_end, modifier);
+
+        proto_tree_add_expert_format(opt_tree, pinfo, &ei_tcp_option_snack_sequence, tvb, offset, optlen,
+                            "SNACK Sequence %u - %u %s", hole_start, hole_end, modifier);
 
         tcp_info_append_uint(pinfo, "SNLE", hole_start);
         tcp_info_append_uint(pinfo, "SNRE", hole_end);
-
-        expert_add_info_format(pinfo, NULL, &ei_tcp_option_snack_sequence, "SNACK Sequence %u - %u %s", hole_start, hole_end, modifier);
     }
 }
 
@@ -3479,8 +3472,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         if (type == PROBE_INTERNAL)
             return;
 
-        proto_tree_add_text(field_tree, tvb, offset + PROBE_V1_RESERVED_OFFSET,
-                            1, "Reserved");
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_reserved, tvb, offset + PROBE_V1_RESERVED_OFFSET, 1, ENC_NA);
 
         ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROBER_OFFSET);
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_prober, tvb,
@@ -4396,12 +4388,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!pinfo->fragmented && !pinfo->flags.in_error_pkt) {
         if (reported_len < tcph->th_hlen) {
-            proto_item *pi;
-            pi = proto_tree_add_text(tcp_tree, tvb, offset, 0,
+            proto_tree_add_expert_format(tcp_tree, pinfo, &ei_tcp_short_segment, tvb, offset, 0,
                                      "Short segment. Segment/fragment does not contain a full TCP header"
                                      " (might be NMAP or someone else deliberately sending unusual packets)");
-            PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info(pinfo, pi, &ei_tcp_short_segment);
             tcph->th_have_seglen = FALSE;
         } else {
             /* Compute the length of data in this segment. */
@@ -4943,8 +4932,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * the final FIN transmitted via a different path).
              * XXX - we need to flag retransmissions a bit better.
              */
-            proto_tree_add_text(tcp_tree, tvb, 0, 0, "Retransmission of FIN from frame %u",
-                                tcpd->fwd->fin);
+            proto_tree_add_uint(tcp_tree, hf_tcp_fin_retransmission, tvb, 0, 0, tcpd->fwd->fin);
         }
     }
 
@@ -4997,9 +4985,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *
              * so for segments with RST we just display the data as text.
              */
-            proto_tree_add_text(tcp_tree, tvb, offset, captured_length_remaining,
-                                "Reset cause: %s",
-                                tvb_format_text(tvb, offset, captured_length_remaining));
+            proto_tree_add_item(tcp_tree, hf_tcp_reset_cause, tvb, offset, captured_length_remaining, ENC_NA|ENC_ASCII);
         } else {
             dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
                                 tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
@@ -5735,7 +5721,23 @@ proto_register_tcp(void)
 
         { &hf_tcp_segment_data,
           { "TCP segment data", "tcp.segment_data", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "A data segment used in reassembly of a lower-level protocol", HFILL}}
+            "A data segment used in reassembly of a lower-level protocol", HFILL}},
+
+        { &hf_tcp_option_scps_binding_data,
+          { "Binding Space Data", "tcp.options.scps.binding.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_reserved,
+          { "Reserved", "tcp.options.rvbd.probe.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_fin_retransmission,
+          { "Retransmission of FIN from frame", "tcp.fin_retransmission", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_reset_cause,
+          { "Reset cause", "tcp.reset_cause", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -5820,7 +5822,8 @@ proto_register_tcp(void)
         { &ei_tcp_connection_rst, { "tcp.connection.rst", PI_SEQUENCE, PI_WARN, "Connection reset (RST)", EXPFILL }},
         { &ei_tcp_checksum_ffff, { "tcp.checksum.ffff", PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)", EXPFILL }},
         { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }}
+        { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
+        { &ei_tcp_suboption_malformed, { "tcp.suboption_malformed", PI_MALFORMED, PI_ERROR, "suboption would go past end of option", EXPFILL }},
     };
 
     static build_valid_func tcp_da_src_values[1] = {tcp_src_value};

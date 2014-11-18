@@ -714,6 +714,10 @@ static int hf_scsi_recv_copy_data_seg_gran = -1;
 static int hf_scsi_recv_copy_inline_data_gran = -1;
 static int hf_scsi_recv_copy_held_data_gran = -1;
 static int hf_scsi_recv_copy_implemented_desc_list_len = -1;
+static int hf_scsi_segment_descriptor_length = -1;
+static int hf_scsi_designator = -1;
+static int hf_scsi_wwn = -1;
+static int hf_scsi_inline_data = -1;
 static int hf_scsi_reserved_8 = -1;
 static int hf_scsi_reserved_16 = -1;
 static int hf_scsi_reserved_24 = -1;
@@ -752,12 +756,14 @@ static gint ett_scsi_xcopy_dev_params = -1;
 static gint ett_scsi_xcopy_segs = -1;
 static gint ett_scsi_xcopy_seg = -1;
 static gint ett_scsi_xcopy_seg_param = -1;
+static gint ett_scsi_cscd_desc = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_scsi_unknown_scsi_exchange = EI_INIT;
 static expert_field ei_scsi_product_data_goes_past_end_of_page = EI_INIT;
 static expert_field ei_scsi_unknown_page = EI_INIT;
 static expert_field ei_scsi_no_dissection_for_service_action = EI_INIT;
+static expert_field ei_scsi_unknown_serv_action = EI_INIT;
 
 static int scsi_tap = -1;
 
@@ -2745,7 +2751,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                             proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
                         }
                     } else if (codeset == CODESET_BINARY && identifier_type == DEVID_TYPE_WWN) {
-                               proto_tree_add_text(evpd_tree, tvb, offset, plen, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
+                               proto_tree_add_string(evpd_tree, hf_scsi_wwn, tvb, offset, plen, tvb_fcwwn_to_str(tvb, offset));
                     } else {
                         /*
                          * XXX - decode this based on the identifier type,
@@ -3313,7 +3319,8 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
         guint8 cscd_desc_type, dev_type, des_len, code_set, des_type, seg_type;
         guint16 cscd_desc_list_len, seg_desc_len;
         guint32 /*param_list_len,*/ seg_desc_list_len, inline_data_len, i;
-        proto_tree *cscds_tree = NULL, *dev_tree = NULL, *cscd_tree = NULL, *segs_tree = NULL, *seg_tree = NULL, *seg_param_tree = NULL;
+        proto_tree *cscds_tree = NULL, *dev_tree = NULL, *cscd_tree = NULL, *segs_tree = NULL,
+                   *seg_tree = NULL, *seg_param_tree = NULL, *cscd_desc_tree;
 
         if (isreq && iscdb) {
                proto_tree_add_item(tree, hf_scsi_spc_xcopy_service, tvb, offset, 1, ENC_NA);
@@ -3377,27 +3384,27 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         offset += 1;
                                         proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_rel_init_port_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
-                                        proto_tree_add_text(cscd_tree, tvb, offset, 24, "CSCD descriptor parameters");
-                                        proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_cscd_desc_code_set, tvb, offset, 1, ENC_NA);
+                                        cscd_desc_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 24, ett_scsi_cscd_desc, NULL, "CSCD descriptor parameters");
+                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_code_set, tvb, offset, 1, ENC_NA);
                                         code_set = tvb_get_guint8(tvb, offset) & 0x0F;
                                         offset += 1;
-                                        proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_cscd_desc_assoc, tvb, offset, 1, ENC_NA);
-                                        proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_cscd_desc_des_type, tvb, offset, 1, ENC_NA);
+                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_assoc, tvb, offset, 1, ENC_NA);
+                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_type, tvb, offset, 1, ENC_NA);
                                         des_type = tvb_get_guint8(tvb, offset) & 0x0F;
                                         offset += 1;
-                                        proto_tree_add_item(cscd_tree, hf_scsi_reserved_8, tvb, offset, 1, ENC_NA);
+                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_reserved_8, tvb, offset, 1, ENC_NA);
                                         offset += 1;
-                                        proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_cscd_desc_des_len, tvb, offset, 1, ENC_NA);
+                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_len, tvb, offset, 1, ENC_NA);
                                         des_len = tvb_get_guint8(tvb, offset);
                                         offset += 1;
-                                        proto_tree_add_text(cscd_tree, tvb, offset, 20, "Designator (20 bytes, zero padded, used length %u)", des_len);
+                                        proto_tree_add_bytes_format(cscd_desc_tree, hf_scsi_designator, tvb, offset, 20, NULL, "Designator (20 bytes, zero padded, used length %u)", des_len);
                                         if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_WWN) { /* des_type 3 = WWN */
-                                                proto_tree_add_text(cscd_tree, tvb, offset, des_len, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
+                                                proto_tree_add_string(cscd_desc_tree, hf_scsi_wwn, tvb, offset, des_len, tvb_fcwwn_to_str(tvb, offset));
                                         }
                                         offset += 20;
                                         dev_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 4, ett_scsi_xcopy_dev_params, NULL, "Device type specific parameters");
                                         if (dev_type == BLOCK_DEV_0 || dev_type == BLOCK_DEV_4 || dev_type == BLOCK_DEV_5 || dev_type == BLOCK_DEV_7 || dev_type == BLOCK_DEV_E) {
-                                                proto_tree_add_text(dev_tree, tvb, offset, 1, "Reserved|PAD|Reserved");
+                                                proto_tree_add_item(dev_tree, hf_scsi_reserved_8, tvb, offset, 1, ENC_NA);
                                                 offset += 1; /*TODO: dissect this byte */
                                                 proto_tree_add_item(dev_tree, hf_scsi_spc_xcopy_disk_block_len, tvb, offset, 3, ENC_BIG_ENDIAN);
                                                 offset += 3;
@@ -3426,7 +3433,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_desc_dc, tvb, offset, 1, ENC_NA);
                                         proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_desc_cat, tvb, offset, 1, ENC_NA);
                                         offset += 1;
-                                        proto_tree_add_text(seg_tree, tvb, offset, 2, "Segment descriptor length (bytes): %u", seg_desc_len);
+                                        proto_tree_add_item(seg_tree, hf_scsi_segment_descriptor_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
                                         proto_tree_add_item(seg_tree, hf_scsi_spc_xcopy_seg_des_src_desc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
@@ -3450,7 +3457,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 }
                         }
                         if (inline_data_len > 0) {
-                                proto_tree_add_text(tree, tvb, offset, inline_data_len, "Inline data (%u bytes)", inline_data_len);
+                                proto_tree_add_item(tree, hf_scsi_inline_data, tvb, offset, inline_data_len, ENC_NA);
                                 /*offset += inline_data_len;*/
                         }
               } else if (serv_action == XCOPY_LID4) {
@@ -3543,7 +3550,7 @@ void dissect_spc_recvcopy(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                                 imp_desc_list_len--;
                         }
                 } else {
-                        proto_tree_add_text(tree, tvb, offset, 0, "Unknown serv_action %u", serv_action);
+                        proto_tree_add_expert_format(tree, pinfo, &ei_scsi_unknown_serv_action, tvb, offset, 0, "Unknown serv_action %u", serv_action);
                 }
         }
 }
@@ -7021,8 +7028,7 @@ proto_register_scsi(void)
       { &hf_scsi_inq_evpd_devid_code_set, { "Code Set", "scsi.inquiry.evpd.devid.code_set", FT_UINT8, BASE_HEX, VALS(scsi_devid_codeset_val), 0x0F, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_association, { "Association", "scsi.inquiry.evpd.devid.association", FT_UINT8, BASE_HEX, VALS(scsi_devid_assoc_val), 0x30, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_type, { "Identifier Type", "scsi.inquiry.evpd.devid.identifier_type", FT_UINT8, BASE_HEX, VALS(scsi_devid_idtype_val), 0x0F, NULL, HFILL }},
-      { &hf_scsi_inq_evpd_identifier_number, { "Identifier Number", "scsi.inquiry.evpd.identifier_number", FT_UINT8, BASE_DEC, NULL,
-0x0, NULL, HFILL }},
+      { &hf_scsi_inq_evpd_identifier_number, { "Identifier Number", "scsi.inquiry.evpd.identifier_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_length, { "Identifier Length", "scsi.inquiry.evpd.devid.identifier_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_str, { "Identifier", "scsi.inquiry.evpd.devid.identifier_str", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_bytes, { "Identifier", "scsi.inquiry.evpd.devid.identifier_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7353,6 +7359,10 @@ proto_register_scsi(void)
       { &hf_scsi_recv_copy_inline_data_gran, { "Inline data granularity", "scsi.recv_copy.inline_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_held_data_gran, { "Held data granularity", "scsi.recv_copy.held_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_implemented_desc_list_len, { "Implemented description list length", "scsi.recv_copy.implemented_desc_list_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_wwn, { "WWN", "scsi.wwn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_designator, { "Designator", "scsi.designator", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_segment_descriptor_length, { "Segment descriptor length (bytes)", "scsi.segment_descriptor_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_inline_data, { "Inline data", "scsi.inline_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_reserved_8, { "Reserved (1 byte)", "scsi.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_reserved_16, { "Reserved (2 bytes)", "scsi.reserved2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_reserved_24, { "Reserved (3 bytes)", "scsi.reserved3", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7395,6 +7405,7 @@ proto_register_scsi(void)
         &ett_scsi_xcopy_seg,
         &ett_scsi_xcopy_seg_param,
         &ett_xcopy_param_byte,
+        &ett_scsi_cscd_desc,
     };
 
     static ei_register_info ei[] = {
@@ -7402,6 +7413,7 @@ proto_register_scsi(void)
         { &ei_scsi_unknown_page, { "scsi.unknown_page", PI_UNDECODED, PI_WARN, "Unknown Page", EXPFILL }},
         { &ei_scsi_no_dissection_for_service_action, { "scsi.no_dissection_for_service_action", PI_UNDECODED, PI_WARN, "No dissection for this service action yet", EXPFILL }},
         { &ei_scsi_unknown_scsi_exchange, { "scsi.unknown_scsi_exchange", PI_PROTOCOL, PI_WARN, "Unknown SCSI exchange, can not decode SCSI data", EXPFILL }},
+        { &ei_scsi_unknown_serv_action, { "scsi.unknown_serv_action", PI_PROTOCOL, PI_WARN, "Unknown serv_action", EXPFILL }},
     };
 
     module_t *scsi_module;

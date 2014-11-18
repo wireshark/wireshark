@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
@@ -346,6 +347,9 @@ static int hf_smb2_transform_reserved = -1;
 static int hf_smb2_encryption_aes128_ccm = -1;
 static int hf_smb2_transform_enc_alg = -1;
 static int hf_smb2_transform_encrypted_data = -1;
+static int hf_smb2_server_component_smb2 = -1;
+static int hf_smb2_server_component_smb2_transform = -1;
+static int hf_smb2_truncated = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -422,6 +426,9 @@ static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
 static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
+
+static expert_field ei_smb2_invalid_length = EI_INIT;
+static expert_field ei_smb2_bad_response = EI_INIT;
 
 static int smb2_tap = -1;
 static int smb2_eo_tap = -1;
@@ -934,7 +941,7 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	tvb_ensure_bytes_exist(tvb, off, len);
 	if (((off+len)<off)
 	|| ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))) {
-		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+		proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
@@ -1009,7 +1016,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	tvb_ensure_bytes_exist(tvb, off, len);
 	if (((off+len)<off)
 	    || ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))) {
-		proto_tree_add_text(parent_tree, tvb, offset, tvb_length_remaining(tvb, offset),
+		proto_tree_add_expert_format(parent_tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
@@ -3007,7 +3014,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -3094,7 +3101,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -3202,7 +3209,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -3262,7 +3269,7 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -3377,7 +3384,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		offset = old_offset+next_offset;
 		if (offset < old_offset) {
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
+			proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 			return;
 		}
@@ -3822,7 +3829,7 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* if we get BUFFER_OVERFLOW there will be truncated data */
 	if (si->status == 0x80000005) {
 		proto_item *item;
-		item = proto_tree_add_text(tree, tvb, old_offset, 0, "Truncated...");
+		item = proto_tree_add_item(tree, hf_smb2_truncated, tvb, old_offset, 0, ENC_NA);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 	return offset;
@@ -5042,10 +5049,10 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-report_create_context_malformed_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, const char *buffer_desc)
+report_create_context_malformed_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const char *buffer_desc)
 {
-	proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, 0),
-			    "%s SHOULD NOT be generated. Malformed packet", buffer_desc);
+	proto_tree_add_expert_format(tree, pinfo, &ei_smb2_bad_response, tvb, 0, -1,
+			    "%s SHOULD NOT be generated", buffer_desc);
 }
 static void
 dissect_smb2_ExtA_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
@@ -6908,8 +6915,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree *tree		  = NULL;
 	proto_item *header_item		  = NULL;
 	proto_tree *header_tree		  = NULL;
-	proto_item *flags_item		  = NULL;
-	proto_tree *flags_tree		  = NULL;
 	int         offset		  = 0;
 	int         chain_offset	  = 0;
 	const char *label		  = smb_header_label;
@@ -6978,7 +6983,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 	if (!smb2_transform_header) {
 		/* SMB2 marker */
-		proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2");
+		proto_tree_add_item(header_tree, hf_smb2_server_component_smb2, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		/* we need the flags before we know how to parse the credits field */
@@ -7020,16 +7025,18 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		/* flags */
 		if (header_tree) {
-			flags_item = proto_tree_add_uint_format(header_tree, hf_smb2_flags,  tvb, offset, 4, si->flags,
-				"Flags: 0x%08x", si->flags);
-			flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
+			static const int * flags[] = {
+				&hf_smb2_flags_response,
+				&hf_smb2_flags_async_cmd,
+				&hf_smb2_flags_chained,
+				&hf_smb2_flags_signature,
+				&hf_smb2_flags_dfs_op,
+				&hf_smb2_flags_replay_operation,
+				NULL
+			};
 
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_response,			tvb, offset, 4, si->flags);
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd,			tvb, offset, 4, si->flags);
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained,			tvb, offset, 4, si->flags);
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature,			tvb, offset, 4, si->flags);
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op,			tvb, offset, 4, si->flags);
-			proto_tree_add_boolean(flags_tree, hf_smb2_flags_replay_operation,	tvb, offset, 4, si->flags);
+			proto_tree_add_bitmask(header_tree, tvb, offset, hf_smb2_flags,
+									ett_smb2_flags, flags, ENC_LITTLE_ENDIAN);
 		}
 
 		offset += 4;
@@ -7169,7 +7176,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		tvbuff_t   *plain_tvb = NULL;
 
 		/* SMB2_TRANSFORM marker */
-		proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2_TRANSFORM");
+		proto_tree_add_item(header_tree, hf_smb2_server_component_smb2_transform, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		offset = dissect_smb2_transform_header(pinfo, header_tree, tvb, offset, sti,
@@ -8345,6 +8352,17 @@ proto_register_smb2(void)
 		  { "Data", "smb2.header.transform.enc_data", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_server_component_smb2,
+		  { "Server Component: SMB2", "smb2.server_component_smb2", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_server_component_smb2_transform,
+		  { "Server Component: SMB2_TRANSFORM", "smb2.server_component_smb2_transform", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_truncated,
+		  { "Truncated...", "smb2.truncated", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -8425,10 +8443,19 @@ proto_register_smb2(void)
 		&ett_smb2_buffercode,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_smb2_invalid_length, { "smb2.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_smb2_bad_response, { "smb2.bad_response", PI_MALFORMED, PI_ERROR, "Bad response", EXPFILL }},
+	};
+
+	expert_module_t* expert_smb2;
+
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
 					     "SMB2", "smb2");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb2, hf, array_length(hf));
+	expert_smb2 = expert_register_protocol(proto_smb2);
+	expert_register_field_array(expert_smb2, ei, array_length(ei));
 
 	smb2_module = prefs_register_protocol(proto_smb2, NULL);
 	prefs_register_bool_preference(smb2_module, "eosmb2_take_name_as_fid",

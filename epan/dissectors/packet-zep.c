@@ -68,6 +68,8 @@ static int hf_zep_lqi = -1;
 static int hf_zep_timestamp = -1;
 static int hf_zep_seqno = -1;
 static int hf_zep_ieee_length = -1;
+static int hf_zep_protocol_id = -1;
+static int hf_zep_reserved_field = -1;
 
 /* Initialize protocol subtrees. */
 static gint ett_zep = -1;
@@ -186,7 +188,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         zep_tree = proto_item_add_subtree(proto_root, ett_zep);
 
         /*  Display the information in the subtree */
-        proto_tree_add_text(zep_tree, tvb, 0, 2, "Protocol ID String: EX");
+        proto_tree_add_item(zep_tree, hf_zep_protocol_id, tvb, 0, 2, ENC_NA|ENC_ASCII);
         if (zep_data.version==1) {
             proto_tree_add_uint(zep_tree, hf_zep_version, tvb, 2, 1, zep_data.version);
             proto_tree_add_uint(zep_tree, hf_zep_channel_id, tvb, 3, 1, zep_data.channel_id);
@@ -195,7 +197,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(!(zep_data.lqi_mode)){
                 proto_tree_add_uint(zep_tree, hf_zep_lqi, tvb, 7, 1, zep_data.lqi);
             }
-            proto_tree_add_text(zep_tree, tvb, 7+((zep_data.lqi_mode)?0:1), 7+((zep_data.lqi_mode)?1:0), "Reserved Fields");
+            proto_tree_add_item(zep_tree, hf_zep_reserved_field, tvb, 7+((zep_data.lqi_mode)?0:1), 7+((zep_data.lqi_mode)?1:0), ENC_NA);
         }
         else {
             proto_tree_add_uint(zep_tree, hf_zep_version, tvb, 2, 1, zep_data.version);
@@ -291,6 +293,14 @@ void proto_register_zep(void)
         { &hf_zep_ieee_length,
         { "Length",              "zep.length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The length (in bytes) of the encapsulated IEEE 802.15.4 MAC frame.", HFILL }},
+
+        { &hf_zep_protocol_id,
+        { "Protocol ID String",            "zep.seqno", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zep_reserved_field,
+        { "Reserved Fields",            "zep.reserved_field", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] = {

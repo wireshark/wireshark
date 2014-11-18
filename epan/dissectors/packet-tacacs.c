@@ -73,8 +73,6 @@ static int hf_tacacs_password = -1;
 
 static gint ett_tacacs = -1;
 
-static expert_field ei_tacplus_packet_len_invalid = EI_INIT;
-
 static gboolean tacplus_preference_desegment = TRUE;
 
 static const char *tacplus_opt_key;
@@ -351,12 +349,23 @@ static int hf_tacplus_body_acct_server_msg_len = -1;
 static int hf_tacplus_body_acct_server_msg = -1;
 static int hf_tacplus_body_acct_data_len = -1;
 static int hf_tacplus_body_acct_data = -1;
+static int hf_tacplus_data = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_tacplus_ascii_length = -1;
+static int hf_tacplus_arap_data_length = -1;
+static int hf_tacplus_mschap_data_length = -1;
+static int hf_tacplus_chap_data_length = -1;
+static int hf_tacplus_password_length = -1;
+static int hf_tacplus_data_length = -1;
 
 static gint ett_tacplus = -1;
 static gint ett_tacplus_body = -1;
 static gint ett_tacplus_body_chap = -1;
 static gint ett_tacplus_flags = -1;
 static gint ett_tacplus_acct_flags = -1;
+
+static expert_field ei_tacplus_packet_len_invalid = EI_INIT;
+static expert_field ei_tacplus_bogus_data = EI_INIT;
 
 typedef struct _tacplus_key_entry {
 	address *s; /* Server address */
@@ -465,20 +474,20 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 	switch ( tvb_get_guint8(tvb, AUTHEN_S_AUTHEN_TYPE_OFF ) ) { /* authen_type */
 
 		case TAC_PLUS_AUTHEN_TYPE_ASCII:
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "Data: %d (not used)", val );
+			proto_tree_add_item(tree, hf_tacplus_ascii_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val )
-				proto_tree_add_text( tree, tvb, var_off, val, "Data" );
+				proto_tree_add_item( tree, hf_tacplus_data, tvb, var_off, val, ENC_NA);
 			break;
 
 		case TAC_PLUS_AUTHEN_TYPE_PAP:
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "Password Length %d", val );
+			proto_tree_add_item(tree, hf_tacplus_password_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val ) {
 				proto_tree_add_item(tree, hf_tacplus_auth_password, tvb, var_off, val, ENC_ASCII|ENC_NA);
 			}
 			break;
 
 		case TAC_PLUS_AUTHEN_TYPE_CHAP:
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "CHAP Data Length %d", val );
+			proto_tree_add_item(tree, hf_tacplus_chap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val ) {
 				proto_tree *pt;
 				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
@@ -491,7 +500,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "MSCHAP Data Length %d", val );
+			proto_tree_add_item(tree, hf_tacplus_mschap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val ) {
 				proto_tree *pt;
 				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
@@ -504,7 +513,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "ARAP Data Length %d", val );
+			proto_tree_add_item(tree, hf_tacplus_arap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val ) {
 				proto_tree *pt;
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "ARAP Data" );
@@ -517,9 +526,9 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			break;
 
 		default: /* Should not be reached */
-			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "Data: %d", val );
+			proto_tree_add_item(tree, hf_tacplus_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
 			if( val ){
-				proto_tree_add_text( tree, tvb, var_off, val, "Data" );
+				proto_tree_add_item( tree, hf_tacplus_data, tvb, var_off, val, ENC_NA);
 			}
 	}
 }
@@ -566,7 +575,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, AUTHEN_C_DATA_LEN_OFF );
 	proto_tree_add_uint(tree, hf_tacplus_body_authen_req_cont_data_length, tvb, AUTHEN_C_DATA_LEN_OFF, 2, val);
 	if( val ){
-		proto_tree_add_text( tree, tvb, var_off, val, "Data" );
+		proto_tree_add_item( tree, hf_tacplus_data, tvb, var_off, val, ENC_NA );
 	}
 
 }
@@ -597,7 +606,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_ntohs(tvb, AUTHEN_R_DATA_LEN_OFF );
 	proto_tree_add_uint(tree, hf_tacplus_body_authen_rep_server_data_len, tvb, AUTHEN_R_DATA_LEN_OFF, 2, val);
 	if( val ){
-		proto_tree_add_text(tree, tvb, var_off, val, "Data" );
+		proto_tree_add_item(tree, hf_tacplus_data, tvb, var_off, val, ENC_NA );
 	}
 }
 
@@ -703,7 +712,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 
 
 static void
-dissect_tacplus_body(tvbuff_t * hdr_tvb, tvbuff_t * tvb, proto_tree * tree )
+dissect_tacplus_body(tvbuff_t * hdr_tvb, packet_info *pinfo, tvbuff_t * tvb, proto_tree * tree )
 {
 	int type = tvb_get_guint8( hdr_tvb, H_TYPE_OFF );
 	int seq_no = tvb_get_guint8( hdr_tvb, H_SEQ_NO_OFF );
@@ -732,7 +741,7 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, tvbuff_t * tvb, proto_tree * tree )
 			dissect_tacplus_body_acct_rep( tvb, tree );
 		break;
 	  default:
-		proto_tree_add_text( tree, tvb, 0, tvb_length( tvb ), "Bogus..");
+		proto_tree_add_expert( tree, pinfo, &ei_tacplus_bogus_data, tvb, 0, -1);
 		break;
 	}
 }
@@ -968,7 +977,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				body_tree = proto_tree_add_subtree_format(tacplus_tree, new_tvb, 0, len,
 							ett_tacplus_body, NULL, "Decrypted %s", request?"Request":"Reply" );
 			}
-			dissect_tacplus_body( tvb, new_tvb, body_tree);
+			dissect_tacplus_body( tvb, pinfo, new_tvb, body_tree);
 		}
 	}
 }
@@ -1223,6 +1232,18 @@ proto_register_tacplus(void)
 	    { "Data", "tacplus.body_acct.data",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      NULL, HFILL }},
+	  { &hf_tacplus_data,
+	    { "Data", "tacplus.data",
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_tacplus_ascii_length, { "ASCII Data Length", "tacplus.ascii_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_tacplus_password_length, { "Password Length", "tacplus.password_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_tacplus_chap_data_length, { "CHAP Data Length", "tacplus.chap_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_tacplus_mschap_data_length, { "MSCHAP Data Length", "tacplus.mschap_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_tacplus_arap_data_length, { "ARAP Data Length", "tacplus.arap_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_tacplus_data_length, { "Data", "tacplus.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_tacplus,
@@ -1234,6 +1255,7 @@ proto_register_tacplus(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_tacplus_packet_len_invalid, { "tacplus.packet_len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+		{ &ei_tacplus_bogus_data, { "tacplus.bogus_data", PI_PROTOCOL, PI_WARN, "Bogus data", EXPFILL }},
 	};
 
 	module_t *tacplus_module;
