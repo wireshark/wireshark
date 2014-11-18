@@ -205,6 +205,11 @@
 #define PROTOCOL_BINARY_DCP_EXPIRATION              0x59
 #define PROTOCOL_BINARY_DCP_FLUSH                   0x5a
 #define PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE       0x5b
+#define PROTOCOL_BINARY_DCP_NOOP                    0x5c
+#define PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT  0x5d
+#define PROTOCOL_BINARY_DCP_CONTROL                 0x5e
+#define PROTOCOL_BINARY_DCP_RESERVED4               0x5f
+
 
  /* vBucket states */
 #define VBUCKET_ACTIVE                              0x01
@@ -375,6 +380,10 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_DCP_EXPIRATION,                 "DCP (Key) Expiration"     },
   { PROTOCOL_BINARY_DCP_FLUSH,                      "DCP Flush"                },
   { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "Set DCP VBucket State"    },
+  { PROTOCOL_BINARY_DCP_NOOP,                       "DCP NOOP"                 },
+  { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknoledgement"},
+  { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
+  { PROTOCOL_BINARY_DCP_RESERVED4,                  "Set Reserved"             },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
