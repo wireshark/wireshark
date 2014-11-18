@@ -195,6 +195,10 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		${LOCAL_CFLAGS}
 		${WARNINGS_CFLAGS}
 	)
+
+	# Set in Makefile.nmake
+	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO")
+
 else()
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
 		if(APPLE)
@@ -432,13 +436,7 @@ else()
 endif()
 
 
-if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	# Set in Makefile.nmake
-	set(WIRESHARK_LD_FLAGS
-		/LARGEADDRESSAWARE
-		/MANIFEST:NO
-	)
-else()
+if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
 		# -flto
