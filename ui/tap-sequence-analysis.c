@@ -362,7 +362,7 @@ static gint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
         if ( CMP_ADDRESS(&(sainfo->nodes[i]), node) == 0 ) return i; /* it is in the array */
     }
 
-    if (i == MAX_NUM_NODES) {
+    if (i >= MAX_NUM_NODES) {
         return  NODE_OVERFLOW;
     } else {
         sainfo->num_nodes++;
@@ -394,7 +394,7 @@ sequence_analysis_get_nodes(seq_analysis_info_t *sainfo)
 {
     struct sainfo_counter sc = {sainfo, 0};
 
-    /* fill the node array */
+    /* Fill the node array */
     g_queue_foreach(sainfo->items, sequence_analysis_get_nodes_item_proc, &sc);
 
     return sc.num_items;

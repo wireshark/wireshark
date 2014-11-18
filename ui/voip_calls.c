@@ -303,24 +303,26 @@ voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
         g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
 
     /* free the graph data items first */
-    if(NULL != tapinfo->graph_analysis) {
-        if (NULL != tapinfo->graph_analysis->ht) {
-            g_hash_table_remove_all(tapinfo->graph_analysis->ht);
-        }
-        list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-        while (list)
-        {
-            graph_item = (seq_analysis_item_t *)list->data;
-            g_free(graph_item->frame_label);
-            g_free(graph_item->comment);
-            g_free((void *)graph_item->src_addr.data);
-            g_free((void *)graph_item->dst_addr.data);
-            g_free(graph_item->time_str);
-            g_free(list->data);
-            list = g_list_next(list);
-        }
-        g_queue_free(tapinfo->graph_analysis->items);
+    if(NULL == tapinfo->graph_analysis) {
+        graph_analysis_data_init(tapinfo);
     }
+
+    if (NULL != tapinfo->graph_analysis->ht) {
+        g_hash_table_remove_all(tapinfo->graph_analysis->ht);
+    }
+    list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+    while (list)
+    {
+        graph_item = (seq_analysis_item_t *)list->data;
+        g_free(graph_item->frame_label);
+        g_free(graph_item->comment);
+        g_free((void *)graph_item->src_addr.data);
+        g_free((void *)graph_item->dst_addr.data);
+        g_free(graph_item->time_str);
+        g_free(list->data);
+        list = g_list_next(list);
+    }
+    g_queue_clear(tapinfo->graph_analysis->items);
 
     /* free the strinfo data items first */
     list = g_list_first(tapinfo->rtp_stream_list);
@@ -339,19 +341,14 @@ voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
         memset(tapinfo->h245_labels, 0, sizeof(h245_labels_t));
     }
 
-    /* memset(tapinfo, 0, sizeof(voip_calls_tapinfo_t)); More trouble than it's worth. */
-
-    graph_analysis_data_init(tapinfo);
-
     return;
 }
 
 /****************************************************************************/
 void
 graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo) {
-    tapinfo->graph_analysis = (seq_analysis_info_t *)g_malloc(sizeof(seq_analysis_info_t));
-    tapinfo->graph_analysis->nconv = 0;
-    tapinfo->graph_analysis->items = g_queue_new();;
+    tapinfo->graph_analysis = (seq_analysis_info_t *) g_new0(seq_analysis_info_t, 1);
+    tapinfo->graph_analysis->items = g_queue_new();
     tapinfo->graph_analysis->ht= g_hash_table_new(g_int_hash, g_int_equal);
 }
 
@@ -363,6 +360,10 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
     seq_analysis_item_t *gai;
     gchar time_str[COL_MAX_LEN];
 
+    if (!tapinfo->graph_analysis) {
+        return;
+    }
+
     gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
     gai->fd = pinfo->fd;
     COPY_ADDRESS(&(gai->src_addr),src_addr);
@@ -370,6 +371,7 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
 
     gai->port_src=pinfo->srcport;
     gai->port_dst=pinfo->destport;
+
     if (frame_label != NULL)
         gai->frame_label = g_strdup(frame_label);
     else
@@ -379,17 +381,15 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
         gai->comment = g_strdup(comment);
     else
         gai->comment = g_strdup("");
+
     gai->conv_num=call_num;
     gai->line_style=line_style;
     set_fd_time(edt->session, gai->fd, time_str);
     gai->time_str = g_strdup(time_str);
     gai->display=FALSE;
 
-    if(tapinfo->graph_analysis){
-        g_queue_push_tail(tapinfo->graph_analysis->items, gai);
-        g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
-    }
-
+    g_queue_push_tail(tapinfo->graph_analysis->items, gai);
+    g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
 }
 
 /****************************************************************************/
@@ -1147,7 +1147,7 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
         }
     }
 
-    if (callsinfo!=NULL) {
+    if (callsinfo != NULL) {
         tmp_sipinfo = (sip_calls_info_t *)callsinfo->prot_info;
 
         /* let's analyze the call state */

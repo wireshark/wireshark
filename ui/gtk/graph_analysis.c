@@ -242,7 +242,7 @@ gtk_save_graph_as_plain_text_file(graph_analysis_data_t *user_data)
 	save_to_file_w = file_selection_new("Wireshark: Save graph to plain text file",
 					    GTK_WINDOW(user_data->dlg.window),
 					    FILE_SELECTION_SAVE);
-        gtk_dialog_set_default_response(GTK_DIALOG(save_to_file_w),
+	gtk_dialog_set_default_response(GTK_DIALOG(save_to_file_w),
        	                                GTK_RESPONSE_ACCEPT);
 
 	pathname = file_selection_run(save_to_file_w);
@@ -365,11 +365,15 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	GtkAllocation draw_area_time_alloc, draw_area_alloc, draw_area_comments_alloc;
 
-	if(!user_data->dlg.needs_redraw) {
+	if (!user_data->dlg.needs_redraw) {
 		return;
 	}
 
 	user_data->dlg.needs_redraw = FALSE;
+
+	if (g_queue_get_length(user_data->graph_info->items) < 1) {
+		return;
+	}
 
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
@@ -1742,7 +1746,7 @@ graph_analysis_data_t *graph_analysis_init(seq_analysis_info_t *sainfo)
 {
 	graph_analysis_data_t *user_data;
 	/* init */
-	user_data = g_new(graph_analysis_data_t,1);
+	user_data = g_new0(graph_analysis_data_t,1);
 	user_data->graph_info = sainfo;
 
 	/* init user_data */
@@ -1816,3 +1820,17 @@ void graph_analysis_redraw(graph_analysis_data_t *user_data)
 	window_present(user_data->dlg.window);
 	return;
 }
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
+

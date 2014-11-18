@@ -356,11 +356,12 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	GList* lista;
 	GList* listb;
 	voip_calls_info_t *listinfo;
+	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
 
-	g_queue_sort(voip_calls_get_info()->graph_analysis->items, graph_analysis_sort_compare, NULL);
+	g_queue_sort(tapinfo->graph_analysis->items, graph_analysis_sort_compare, NULL);
 
 	/* reset the "display" parameter in graph analysis */
-	listb = g_queue_peek_nth_link(voip_calls_get_info()->graph_analysis->items, 0);
+	listb = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
 	while (listb) {
 		gai = (seq_analysis_item_t *)listb->data;
 		gai->display = FALSE;
@@ -368,11 +369,11 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	}
 
 	/* set the display for selected calls */
-	lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
+	lista = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
 	while (lista) {
 		listinfo = (voip_calls_info_t *)lista->data;
 		if (listinfo->selected) {
-			listb = g_queue_peek_nth_link(voip_calls_get_info()->graph_analysis->items, 0);
+			listb = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
 			while (listb) {
 				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
@@ -393,7 +394,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-on_flow_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
+on_flow_bt_clicked(GtkButton *button, gpointer user_data)
 {
 	on_graph_bt_clicked(button,user_data);
 }
@@ -948,7 +949,7 @@ voip_calls_launch(GtkAction *action _U_, gpointer user_data _U_)
 void
 voip_flows_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
-	voip_calls_get_info()->fs_option = FLOW_ONLY_INVITES;
+	voip_calls_get_info()->fs_option = FLOW_ALL;
 	voip_calls_dlg_init_taps("", NULL);
 }
 
