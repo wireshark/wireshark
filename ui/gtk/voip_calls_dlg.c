@@ -911,7 +911,7 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 
 	/* Register the tap listeners */
 	if (!have_voip_calls_tap_listeners) {
-        voip_calls_init_all_taps(tap_id_base);
+		voip_calls_init_all_taps(tap_id_base);
 		have_voip_calls_tap_listeners = TRUE;
 	}
 
