@@ -57,7 +57,8 @@ What's New
    Couchbase, CP "Cooper" 2179, Dynamic Source Routing (RFC 4728), Generic
    Network Virtualization Encapsulation (Geneve), GVSP, IPMI Trace, iSER,
    KNXnetIP, MCPE (Minecraft Pocket Edition), OptoMMP, RakNet games
-   library, S7 Communication, Stateless Transport Tunneling and Elasticsearch
+   library, S7 Communication, Stateless Transport Tunneling and Elasticsearch,
+   Shared Memory Communications - RDMA
 
   Updated Protocol Support
 

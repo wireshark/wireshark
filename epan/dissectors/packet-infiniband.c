@@ -1756,14 +1756,21 @@ skip_lrh:
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_migreq,                       tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_pad_count,                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_transport_header_version,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_transport_header_version,     tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, ENC_BIG_ENDIAN);
-            pinfo->destport = tvb_get_ntoh24(tvb, offset); offset += 3;
+            pinfo->destport = tvb_get_ntoh24(tvb, offset);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "QP=0x%06x ", pinfo->destport);
+            offset += 3;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
             offset += bthSize - 12;
             packetLength -= bthSize; /* Shave bthSize for Base Transport Header */
         }
@@ -2487,7 +2494,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
-            captured_length = tvb_length_remaining(tvb, local_offset+4);
+            captured_length = tvb_captured_length_remaining(tvb, local_offset+4);
             reported_length = tvb_reported_length_remaining(tvb, local_offset+4);
 
             next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length, reported_length);
@@ -2545,7 +2552,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         }
 
-        captured_length = tvb_length_remaining(tvb, local_offset);
+        captured_length = tvb_captured_length_remaining(tvb, local_offset);
         reported_length = tvb_reported_length_remaining(tvb,
                                 local_offset);
 
@@ -2608,7 +2615,7 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
 
     /* (- 2) for VCRC which lives at the end of the packet   */
     ipv6_tvb = tvb_new_subset(tvb, *offset,
-                  tvb_length_remaining(tvb, *offset) - 2,
+                  tvb_captured_length_remaining(tvb, *offset) - 2,
                   tvb_reported_length_remaining(tvb, *offset) - 2);
     call_dissector(ipv6_handle, ipv6_tvb, pinfo, parentTree);
     *offset = tvb_reported_length(tvb) - 2;
@@ -2650,7 +2657,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
 
     /* Get the captured length and reported length of the data
      * after the Ethernet type. */
-    captured_length = tvb_length_remaining(tvb, *offset);
+    captured_length = tvb_captured_length_remaining(tvb, *offset);
     reported_length = tvb_reported_length_remaining(tvb, *offset);
 
     /* Construct a tvbuff for the payload after the Ethernet type,
@@ -2694,7 +2701,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
         return FALSE;
     }
 
-    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_length_remaining(tvb, offset + 4), encap_size - 4);
+    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_captured_length_remaining(tvb, offset + 4), encap_size - 4);
 
     header_item = proto_tree_add_item(tree, hf_infiniband_EOIB, tvb, offset, 4, ENC_NA);
     header_subtree = proto_item_add_subtree(header_item, ett_eoib);

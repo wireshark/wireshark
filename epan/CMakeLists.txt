@@ -1248,6 +1248,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-smb-direct.c
 	dissectors/packet-smb.c
 	dissectors/packet-smb2.c
+	dissectors/packet-smcr.c
 	dissectors/packet-sml.c
 	dissectors/packet-smpp.c
 	dissectors/packet-smtp.c

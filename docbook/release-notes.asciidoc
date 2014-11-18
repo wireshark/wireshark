@@ -87,6 +87,7 @@ Couchbase
 AllJoyn Reliable Datagram Protocol
 HiQnet
 Elasticsearch
+Shared Memory Communications - RDMA
 --sort-and-group--
 
 === Updated Protocol Support

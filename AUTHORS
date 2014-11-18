@@ -3627,14 +3627,19 @@ Raphaël Doursenaud	<rdoursenaud[AT]free.fr> {
 	Harman Pro HiQnet dissector
 }
 
-Ryan Doyle	<ryan[AT]doylenet.net> {
+Ryan Doyle		<ryan[AT]doylenet.net> {
 	Dissector for Elasticsearch
 	Dissector for Performance Co-Pilot
 }
 
-Jesse Gross	<jesse[AT]nicira.com> {
+Jesse Gross		<jesse[AT]nicira.com> {
 	Dissector for Geneve
 }
+
+Joe Fowler		<fowlerja[AT]us.ibm.com> {
+	Dissector for Shared Memory Communication over RDMA (SMC-R)
+}
+
 
 and by:
 

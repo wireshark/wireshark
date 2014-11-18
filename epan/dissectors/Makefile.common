@@ -1160,6 +1160,7 @@ DISSECTOR_SRC = \
 	packet-smb-direct.c	\
 	packet-smb.c		\
 	packet-smb2.c		\
+	packet-smcr.c		\
 	packet-sml.c		\
 	packet-smpp.c		\
 	packet-smtp.c		\
