@@ -151,9 +151,8 @@ struct tcp_multisegment_pdu {
 };
 
 typedef struct _tcp_flow_t {
-	guint32 base_seq;	/* base seq number (used by relative sequence numbers)
-				 * or 0 if not yet known.
-				 */
+	gboolean base_seq_set; /* true if base seq set */
+	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
 	tcp_unacked_t *segments;
 	guint32 fin;		/* frame number of the final FIN */
 	guint32 lastack;	/* last seen ack */
