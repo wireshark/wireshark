@@ -55,6 +55,7 @@ set(COMMON_UI_SRC
 	time_shift.c
 	traffic_table_ui.c
 	util.c
+	voip_calls.c
 )
 
 set(DIRTY_UI_SRC)

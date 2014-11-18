@@ -75,7 +75,8 @@ WIRESHARK_UI_SRC = \
 	text_import.c		\
 	time_shift.c		\
 	traffic_table_ui.c	\
-	util.c
+	util.c			\
+	voip_calls.c
 
 noinst_HEADERS = \
 	alert_box.h		\
@@ -119,4 +120,5 @@ noinst_HEADERS = \
 	traffic_table_ui.h	\
 	ui_util.h		\
 	utf8_entities.h		\
-	util.h
+	util.h			\
+	voip_calls.h

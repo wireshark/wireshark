@@ -68,12 +68,12 @@
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"
+#include "ui/voip_calls.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/voip_calls_dlg.h"
-#include "ui/gtk/voip_calls.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/rtp_player.h"
 #include "ui/gtk/stock_icons.h"

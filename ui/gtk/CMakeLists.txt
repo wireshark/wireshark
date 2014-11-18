@@ -112,7 +112,6 @@ set(WIRESHARK_GTK_SRC
 	text_page_utils.c
 	time_shift_dlg.c
 	uat_gui.c
-	voip_calls.c
 	webbrowser.c
 	${WIRESHARK_CUSTOM_GTK_SRC}
 )

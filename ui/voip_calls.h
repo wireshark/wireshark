@@ -36,9 +36,12 @@
 
 #include <glib.h>
 #include <stdio.h>
-#include <epan/address.h>
-#include <epan/guid-utils.h>
-#include <epan/tap-voip.h>
+
+#include "epan/address.h"
+#include "epan/guid-utils.h"
+#include "epan/tap-voip.h"
+
+#include "ui/tap-sequence-analysis.h"
 
 /****************************************************************************/
 extern const char *voip_call_state_name[8];
@@ -170,6 +173,9 @@ typedef struct _voip_calls_info {
  */
 struct _h245_labels;
 typedef struct _voip_calls_tapinfo {
+    tap_reset_cb tap_reset;                 /**< tap reset callback */
+    tap_packet_cb tap_packet;               /**< tap per-packet callback */
+    tap_draw_cb tap_draw;                   /**< tap draw callback */
     int ncalls;                             /**< number of call */
     GQueue* callsinfos;                     /**< queue with all calls */
     GHashTable* callsinfo_hashtable[1];     /**< array of hashes per voip protocol; currently only the one for SIP is used */
@@ -229,12 +235,7 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
 /**
  * Cleans up memory of voip calls tap.
  */
-void isup_calls_reset(voip_calls_tapinfo_t *tapinfo);
-void mtp3_calls_reset(voip_calls_tapinfo_t *tapinfo);
-void q931_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
-
-void graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo);
 
 #endif /* __VOIP_CALLS_H__ */
 

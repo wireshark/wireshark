@@ -43,8 +43,4 @@
  */
 void voip_calls_dlg_update(GList *list);
 
-/* functions for tap_listeners in voip_calls.c */
-void voip_calls_dlg_draw(void *ptr);
-void voip_calls_dlg_reset(void *ptr);
-
 #endif /* __VOIP_CALLS_DLG_H__ */

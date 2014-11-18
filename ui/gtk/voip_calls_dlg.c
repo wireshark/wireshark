@@ -52,9 +52,10 @@
 #include "../globals.h"
 #include <epan/stat_groups.h>
 
+#include "ui/voip_calls.h"
+
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/voip_calls_dlg.h"
-#include "ui/gtk/voip_calls.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
@@ -108,6 +109,11 @@ enum
 	NUM_COLS /* The number of columns */
 };
 
+/* functions for tap_listeners in voip_calls.c */
+static void voip_calls_dlg_reset(void *ptr);
+static gboolean voip_calls_dlg_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+static void voip_calls_dlg_draw(void *ptr);
+
 
 /****************************************************************************/
 /**
@@ -119,7 +125,8 @@ voip_calls_get_info(void)
 {
 	/* the one and only global voip_calls_tapinfo_t structure */
 	static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, {0}, 0, NULL, 0, 0, 0, NULL, NULL,
+	{voip_calls_dlg_reset, voip_calls_dlg_packet, voip_calls_dlg_draw,
+		0, NULL, {0}, 0, NULL, 0, 0, 0, NULL, NULL,
 		0, NULL, /* rtp */
 		0, 0, FALSE, /* rtp evt */
 		NULL, 0, /* sdp */
@@ -828,6 +835,24 @@ voip_calls_dlg_update(GList *listx)
 }
 
 /****************************************************************************/
+/* per-packet function for tap listeners */
+#ifdef HAVE_LIBPORTAUDIO
+gboolean
+voip_calls_dlg_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data) {
+	/* add this RTP for future listening using the RTP Player*/
+	const struct _rtp_info *rtp_info = (const struct _rtp_info *)data;
+	add_rtp_packet(rtp_info, pinfo);
+	return TRUE;
+}
+#else
+gboolean
+voip_calls_dlg_packet(void *ptr _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data _U_) {
+	/* add this RTP for future listening using the RTP Player*/
+	return FALSE;
+}
+#endif
+
+/****************************************************************************/
 /* draw function for tap listeners to keep the window up to date */
 void
 voip_calls_dlg_draw(void *ptr _U_)
@@ -871,12 +896,6 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
 	tap_id_base->session = cfile.epan;
 
-	if (graph_analysis_data == NULL) {
-		graph_analysis_data_init(tap_id_base);
-		/* init the Graph Analysys */
-		graph_analysis_data = graph_analysis_init(voip_calls_get_info()->graph_analysis);
-	}
-
 #ifdef HAVE_LIBPORTAUDIO
 	/* reset the RTP player */
 	reset_rtp_player();
@@ -885,9 +904,14 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 	/* Clean up memory used by calls tap */
 	voip_calls_reset(tap_id_base);
 
+	if (graph_analysis_data == NULL) {
+		/* init the Graph Analysys */
+		graph_analysis_data = graph_analysis_init(voip_calls_get_info()->graph_analysis);
+	}
+
 	/* Register the tap listeners */
 	if (!have_voip_calls_tap_listeners) {
-		voip_calls_init_all_taps(tap_id_base);
+        voip_calls_init_all_taps(tap_id_base);
 		have_voip_calls_tap_listeners = TRUE;
 	}
 

@@ -133,7 +133,6 @@ WIRESHARK_GTK_SRC = \
 	text_page_utils.c	\
 	time_shift_dlg.c	\
 	uat_gui.c	\
-	voip_calls.c	\
 	webbrowser.c	\
 	extcap_gtk.c	\
 	$(WIRESHARK_CUSTOM_GTK_SRC)
@@ -313,7 +312,6 @@ noinst_HEADERS = \
 	text_page_utils.h	\
 	toolbar_icons.h	\
 	uat_gui.h \
-	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h	\
 	wsiconcap.h \

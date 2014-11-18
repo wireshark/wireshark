@@ -30,7 +30,7 @@ typedef struct _sip_info_value_t
     guint	 response_code;
 	guchar	resend;
 	guint32 setup_time;
-    /* added for VoIP calls analysis, see gtk/voip_calls.c*/
+    /* added for VoIP calls analysis, see ui/voip_calls.c*/
     gchar   *tap_call_id;
     gchar   *tap_from_addr;
     gchar   *tap_to_addr;

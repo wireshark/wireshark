@@ -36,42 +36,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <epan/epan.h>
-#include <epan/epan_dissect.h>
-#include <epan/packet.h>
-#include <epan/tap.h>
-#include <epan/tap-voip.h>
-#include <epan/dissectors/packet-sip.h>
-#include <epan/dissectors/packet-mtp3.h>
-#include <epan/dissectors/packet-isup.h>
-#include <epan/dissectors/packet-h225.h>
-#include <epan/dissectors/packet-h245.h>
-#include <epan/dissectors/packet-q931.h>
-#include <epan/dissectors/packet-sdp.h>
-#include <epan/dissectors/packet-mgcp.h>
-#include <epan/dissectors/packet-actrace.h>
-#include <epan/dissectors/packet-rtp.h>
-#include <epan/dissectors/packet-rtp-events.h>
-#include <epan/dissectors/packet-t38.h>
-#include <epan/dissectors/packet-t30.h>
-#include <epan/dissectors/packet-h248.h>
-#include <epan/dissectors/packet-sccp.h>
-#include <plugins/unistim/packet-unistim.h>
-#include <epan/dissectors/packet-skinny.h>
-#include <epan/dissectors/packet-iax2.h>
-#include <epan/rtp_pt.h>
+#include "epan/epan.h"
+#include "epan/epan_dissect.h"
+#include "epan/packet.h"
+#include "epan/tap.h"
+#include "epan/tap-voip.h"
+#include "epan/dissectors/packet-sip.h"
+#include "epan/dissectors/packet-mtp3.h"
+#include "epan/dissectors/packet-isup.h"
+#include "epan/dissectors/packet-h225.h"
+#include "epan/dissectors/packet-h245.h"
+#include "epan/dissectors/packet-q931.h"
+#include "epan/dissectors/packet-sdp.h"
+#include "epan/dissectors/packet-mgcp.h"
+#include "epan/dissectors/packet-actrace.h"
+#include "epan/dissectors/packet-rtp.h"
+#include "epan/dissectors/packet-rtp-events.h"
+#include "epan/dissectors/packet-t38.h"
+#include "epan/dissectors/packet-t30.h"
+#include "epan/dissectors/packet-h248.h"
+#include "epan/dissectors/packet-sccp.h"
+#include "plugins/unistim/packet-unistim.h"
+#include "epan/dissectors/packet-skinny.h"
+#include "epan/dissectors/packet-iax2.h"
+#include "epan/rtp_pt.h"
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "ui/tap-sequence-analysis.h"
 #include "ui/ui_util.h"
-
-#include "ui/gtk/voip_calls.h"
-#include "ui/gtk/voip_calls_dlg.h"
-
-#ifdef HAVE_LIBPORTAUDIO
-#include "ui/gtk/rtp_player.h"
-#endif /* HAVE_LIBPORTAUDIO */
+#include "ui/voip_calls.h"
 
 #define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)
 #define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
@@ -165,7 +159,7 @@ typedef struct _voip_rtp_stream_info {
     address dest_addr;
     guint16 dest_port;
     guint32 ssrc;
-    guint32  pt;
+    guint32 pt;
     gchar *pt_str;
     gboolean is_srtp;
     guint32 npackets;
@@ -218,7 +212,7 @@ voip_calls_init_all_taps(voip_calls_tapinfo_t *tap_id_base)
     sip_calls_init_tap(tap_id_base);
     skinny_calls_init_tap(tap_id_base);
     t38_init_tap(tap_id_base);
-    /* We don't register this tap, if we don't have the unistim plugin loaded.*/
+    /* We don't register this tap if we don't have the unistim plugin loaded.*/
     if (find_tap_id("unistim")) {
         unistim_calls_init_tap(tap_id_base);
     }
@@ -273,6 +267,8 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base)
     }
 }
 
+static void graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo);
+
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
 void
@@ -281,7 +277,7 @@ voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
     voip_calls_info_t *callsinfo;
     voip_rtp_stream_info_t *strinfo;
     seq_analysis_item_t *graph_item;
-    GList *list;
+    GList *list = NULL;
 
     /* free the data items first */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
@@ -307,21 +303,24 @@ voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
         g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
 
     /* free the graph data items first */
-    if(NULL!=tapinfo->graph_analysis->ht)
-        g_hash_table_remove_all(tapinfo->graph_analysis->ht);
-    list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-    while (list)
-    {
-        graph_item = (seq_analysis_item_t *)list->data;
-        g_free(graph_item->frame_label);
-        g_free(graph_item->comment);
-        g_free((void *)graph_item->src_addr.data);
-        g_free((void *)graph_item->dst_addr.data);
-        g_free(graph_item->time_str);
-        g_free(list->data);
-        list = g_list_next(list);
+    if(NULL != tapinfo->graph_analysis) {
+        if (NULL != tapinfo->graph_analysis->ht) {
+            g_hash_table_remove_all(tapinfo->graph_analysis->ht);
+        }
+        list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
+        while (list)
+        {
+            graph_item = (seq_analysis_item_t *)list->data;
+            g_free(graph_item->frame_label);
+            g_free(graph_item->comment);
+            g_free((void *)graph_item->src_addr.data);
+            g_free((void *)graph_item->dst_addr.data);
+            g_free(graph_item->time_str);
+            g_free(list->data);
+            list = g_list_next(list);
+        }
+        g_queue_free(tapinfo->graph_analysis->items);
     }
-    g_queue_clear(tapinfo->graph_analysis->items);
 
     /* free the strinfo data items first */
     list = g_list_first(tapinfo->rtp_stream_list);
@@ -340,13 +339,16 @@ voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
         memset(tapinfo->h245_labels, 0, sizeof(h245_labels_t));
     }
 
-    memset(tapinfo, 0, sizeof(voip_calls_tapinfo_t));
+    /* memset(tapinfo, 0, sizeof(voip_calls_tapinfo_t)); More trouble than it's worth. */
+
+    graph_analysis_data_init(tapinfo);
 
     return;
 }
 
 /****************************************************************************/
-void graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo) {
+void
+graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo) {
     tapinfo->graph_analysis = (seq_analysis_info_t *)g_malloc(sizeof(seq_analysis_info_t));
     tapinfo->graph_analysis->nconv = 0;
     tapinfo->graph_analysis->items = g_queue_new();;
@@ -609,8 +611,8 @@ voip_rtp_reset(void *tap_offset_ptr)
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-static int
-rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, void const *RTPinfo)
+int
+rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     voip_rtp_stream_info_t *tmp_listinfo;
@@ -618,28 +620,25 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, vo
     GList *list;
     struct _rtp_conversation_info *p_conv_data = NULL;
 
-    const struct _rtp_info *pi = (const struct _rtp_info *)RTPinfo;
+    const struct _rtp_info *rtp_info = (const struct _rtp_info *)rtp_info_ptr;
 
     /* do not consider RTP packets without a setup frame */
-    if (pi->info_setup_frame_num == 0) {
+    if (rtp_info->info_setup_frame_num == 0) {
         return 0;
     }
 
-    /* add this RTP for future listening using the RTP Player*/
-#ifdef HAVE_LIBPORTAUDIO
-    add_rtp_packet(pi, pinfo);
-#endif
+    tapinfo->tap_packet(tapinfo, pinfo, edt, rtp_info_ptr);
 
     /* check whether we already have a RTP stream with this setup frame and ssrc in the list */
     list = g_list_first(tapinfo->rtp_stream_list);
     while (list)
     {
         tmp_listinfo=(voip_rtp_stream_info_t *)list->data;
-        if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num)
-                && (tmp_listinfo->ssrc == pi->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
+        if ( (tmp_listinfo->setup_frame_number == rtp_info->info_setup_frame_num)
+                && (tmp_listinfo->ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
             /* if the payload type has changed, we mark the stream as finished to create a new one
                this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
-            if ( tmp_listinfo->pt != pi->info_payload_type ) {
+            if ( tmp_listinfo->pt != rtp_info->info_payload_type ) {
                 tmp_listinfo->end_stream = TRUE;
             } else {
                 strinfo = (voip_rtp_stream_info_t*)(list->data);
@@ -661,11 +660,11 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, vo
         strinfo->src_port = pinfo->srcport;
         COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
         strinfo->dest_port = pinfo->destport;
-        strinfo->ssrc = pi->info_sync_src;
+        strinfo->ssrc = rtp_info->info_sync_src;
         strinfo->end_stream = FALSE;
-        strinfo->pt = pi->info_payload_type;
+        strinfo->pt = rtp_info->info_payload_type;
         strinfo->pt_str = NULL;
-        strinfo->is_srtp = pi->info_is_srtp;
+        strinfo->is_srtp = rtp_info->info_is_srtp;
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ( (strinfo->pt >= PT_UNDF_96) && (strinfo->pt <= PT_UNDF_127) ) {
             /* Use existing packet info if available */
@@ -681,7 +680,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, vo
         strinfo->npackets = 0;
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_ts = pinfo->rel_ts;
-        strinfo->setup_frame_number = pi->info_setup_frame_num;
+        strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->rtp_event = -1;
         tapinfo->rtp_stream_list = g_list_prepend(tapinfo->rtp_stream_list, strinfo);
     }
@@ -1041,9 +1040,9 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("t38", tap_base_to_id(tap_id_base, tap_id_offset_t38_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             t38_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1260,9 +1259,9 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("sip", tap_base_to_id(tap_id_base, tap_id_offset_sip_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             sip_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1452,9 +1451,9 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("isup", tap_base_to_id(tap_id_base, tap_id_offset_isup_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             isup_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -1506,9 +1505,9 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("mtp3", tap_base_to_id(tap_id_base, tap_id_offset_mtp3_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             mtp3_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -1520,9 +1519,9 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             mtp3_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -1818,9 +1817,9 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("q931", tap_base_to_id(tap_id_base, tap_id_offset_q931_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             q931_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -2100,9 +2099,9 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("h225", tap_base_to_id(tap_id_base, tap_id_offset_h225_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             h225_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -2247,9 +2246,9 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("h245dg", tap_base_to_id(tap_id_base, tap_id_offset_h245dg_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             h245dg_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -2302,9 +2301,9 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("sdp", tap_base_to_id(tap_id_base, tap_id_offset_sdp_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             sdp_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -2330,7 +2329,7 @@ remove_tap_listener_sdp_calls(voip_calls_tapinfo_t *tap_id_base)
    This function will look for a signal/event in the SignalReq/ObsEvent string
    and return true if it is found
 */
-static gboolean isSignal(const gchar *signal_str_p, const gchar *signalStr)
+static gboolean is_mgcp_signal(const gchar *signal_str_p, const gchar *signalStr)
 {
     gint i;
     gchar **resultArray;
@@ -2358,7 +2357,7 @@ static gboolean isSignal(const gchar *signal_str_p, const gchar *signalStr)
    This function will get the Caller ID info and replace the current string
    This is how it looks the caller Id: rg, ci(02/16/08/29, "3035550002","Ale Sipura 2")
 */
-static void mgcpCallerID(gchar *signalStr, gchar **callerId)
+static void mgcp_caller_id(gchar *signalStr, gchar **callerId)
 {
     gchar **arrayStr;
 
@@ -2381,7 +2380,7 @@ static void mgcpCallerID(gchar *signalStr, gchar **callerId)
    This function will get the Dialed Digits and replace the current string
    This is how it looks the dialed digits 5,5,5,0,0,0,2,#,*
 */
-static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
+static void mgcp_dialed_digits(gchar *signalStr, gchar **dialedDigits)
 {
     gchar *tmpStr;
     gchar *resultStr;
@@ -2486,7 +2485,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
         /* there is no call with this Endpoint, lets see if this a new call or not */
         if (callsinfo == NULL) {
-            if ( (strcmp(pi->code, "NTFY") == 0) && isSignal("hd", pi->observedEvents) ) { /* off hook transition */
+            if ( (strcmp(pi->code, "NTFY") == 0) && is_mgcp_signal("hd", pi->observedEvents) ) { /* off hook transition */
                 /* this is a new call from the Endpoint */
                 fromEndpoint = TRUE;
                 newcall = TRUE;
@@ -2568,14 +2567,14 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
                 if (tmp_mgcpinfo->fromEndpoint) {
                     /* use the Dialed digits to fill the "To" for the call, but use the first NTFY */
-                    if (callsinfo->to_identity[0] == '\0') mgcpDialedDigits(pi->observedEvents, &(callsinfo->to_identity));
+                    if (callsinfo->to_identity[0] == '\0') mgcp_dialed_digits(pi->observedEvents, &(callsinfo->to_identity));
 
                     /* from MGC and the user picked up, the call is connected */
-                } else if (isSignal("hd", pi->observedEvents))
+                } else if (is_mgcp_signal("hd", pi->observedEvents))
                     callsinfo->call_state=VOIP_IN_CALL;
 
                 /* hung up signal */
-                if (isSignal("hu", pi->observedEvents)) {
+                if (is_mgcp_signal("hu", pi->observedEvents)) {
                     if ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) {
                         callsinfo->call_state = VOIP_CANCELLED;
                     } else {
@@ -2585,17 +2584,17 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
             } else if (strcmp(pi->code, "RQNT") == 0) {
                 /* for calls from Endpoint: if there is a "no signal" RQNT and the call was RINGING, we assume this is the CONNECT */
-                if ( tmp_mgcpinfo->fromEndpoint && isSignal("", pi->signalReq) && (callsinfo->call_state == VOIP_RINGING) ) {
+                if ( tmp_mgcpinfo->fromEndpoint && is_mgcp_signal("", pi->signalReq) && (callsinfo->call_state == VOIP_RINGING) ) {
                     callsinfo->call_state = VOIP_IN_CALL;
                 }
 
                 /* if there is ringback or ring tone, change state to ringing */
-                if ( isSignal("rg", pi->signalReq) || isSignal("rt", pi->signalReq) ) {
+                if ( is_mgcp_signal("rg", pi->signalReq) || is_mgcp_signal("rt", pi->signalReq) ) {
                     callsinfo->call_state = VOIP_RINGING;
                 }
 
                 /* if there is a Busy or ReorderTone, and the call was Ringing or Setup the call is Rejected */
-                if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) ) {
+                if ( (is_mgcp_signal("ro", pi->signalReq) || is_mgcp_signal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) ) {
                     callsinfo->call_state = VOIP_REJECTED;
                 }
 
@@ -2605,7 +2604,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                     frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
 
                 /* use the CallerID info to fill the "From" for the call */
-                if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(callsinfo->from_identity));
+                if (!tmp_mgcpinfo->fromEndpoint) mgcp_caller_id(pi->signalReq, &(callsinfo->from_identity));
 
             } else if (strcmp(pi->code, "DLCX") == 0) {
                 /*
@@ -2674,9 +2673,9 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             tap_base_to_id(tap_id_base, tap_id_offset_mgcp_),
             NULL,
             TL_REQUIRES_PROTO_TREE,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             mgcp_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -2789,9 +2788,9 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     error_string = register_tap_listener("actrace", tap_base_to_id(tap_id_base, tap_id_offset_actrace_), NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             actrace_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -2925,9 +2924,9 @@ void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("megaco", tap_base_to_id(tap_id_base, tap_id_offset_megaco_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             h248_calls_packet,
-            voip_calls_dlg_draw);
+            tap_id_base->tap_draw);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -2938,9 +2937,9 @@ void h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             h248_calls_packet,
-            voip_calls_dlg_draw);
+            tap_id_base->tap_draw);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3097,9 +3096,9 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("sccp", tap_base_to_id(tap_id_base, tap_id_offset_sccp_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             sccp_calls_packet,
-            voip_calls_dlg_draw);
+            tap_id_base->tap_draw);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3110,9 +3109,9 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             sua_calls_packet,
-            voip_calls_dlg_draw);
+            tap_id_base->tap_draw);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3608,9 +3607,9 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
     error_string = register_tap_listener("unistim", tap_base_to_id(tap_id_base, tap_id_offset_unistim_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             unistim_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -3763,9 +3762,9 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             tap_base_to_id(tap_id_base, tap_id_offset_skinny_),
             NULL,
             TL_REQUIRES_PROTO_TREE,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             skinny_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3892,9 +3891,9 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             tap_base_to_id(tap_id_base, tap_id_offset_iax2_),
             NULL,
             TL_REQUIRES_PROTO_TREE,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             iax2_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
@@ -3990,9 +3989,9 @@ voip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
     error_string = register_tap_listener("voip", tap_base_to_id(tap_id_base, tap_id_offset_voip_),
             NULL,
             0,
-            voip_calls_dlg_reset,
+            tap_id_base->tap_reset,
             voip_calls_packet,
-            voip_calls_dlg_draw
+            tap_id_base->tap_draw
             );
 
     if (error_string != NULL) {
@@ -4044,9 +4043,9 @@ prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 	error_string = register_tap_listener("prot_", tap_base_to_id(tap_id_base, tap_id_offset_prot_),
 		NULL,
 		0,
-		voip_calls_dlg_reset,
+        tap_id_base->tap_reset,
 		prot__calls_packet,
-		voip_calls_dlg_draw
+        tap_id_base->tap_draw
 		);
 
 	if (error_string != NULL) {

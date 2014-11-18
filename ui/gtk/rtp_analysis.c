@@ -86,8 +86,8 @@
 #include "ui/gtk/stock_icons.h"
 
 #ifdef HAVE_LIBPORTAUDIO
+#include "ui/voip_calls.h"
 #include "ui/gtk/graph_analysis.h"
-#include "ui/gtk/voip_calls.h"
 #include "ui/gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
