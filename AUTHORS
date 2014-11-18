@@ -3632,6 +3632,10 @@ Ryan Doyle	<ryan[AT]doylenet.net> {
 	Dissector for Performance Co-Pilot
 }
 
+Jesse Gross	<jesse[AT]nicira.com> {
+	Dissector for Geneve
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

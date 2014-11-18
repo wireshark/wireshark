@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 
 #define UDP_PORT_GENEVE  6081
+#define GENEVE_VER 0
 
 #define VER_SHIFT 6
 #define HDR_OPTS_LEN_MASK 0x3F
@@ -78,6 +79,7 @@ static int ett_geneve_opt_flags = -1;
 static int ett_geneve_options = -1;
 static int ett_geneve_unknown_opt = -1;
 
+static expert_field ei_geneve_ver_unknown = EI_INIT;
 static expert_field ei_geneve_opt_len_invalid = EI_INIT;
 
 static dissector_table_t ethertype_dissector_table;
@@ -226,6 +228,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
     int offset = 0;
     guint8 ver_opt;
+    guint8 ver;
     guint8 flags;
     guint16 proto_type;
     int opts_len;
@@ -233,29 +236,30 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Geneve");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    proto_type = tvb_get_ntohs(tvb, 2);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s",
-                 val_to_str(proto_type, etype_vals, "0x%04x (unknown)"));
-
-    flags = tvb_get_guint8(tvb, 1);
-    ti = proto_tree_add_protocol_format(tree, proto_geneve, tvb, 0, -1,
-                       "Generic Network Virtualization Encapsuation, VNI: 0x%06x"
-                       "%s",
-                       tvb_get_ntoh24(tvb, 4),
-                       flags & FLAG_OAM ? ", OAM" : "");
-
+    ti = proto_tree_add_item(tree, proto_geneve, tvb, offset, -1, ENC_NA);
     geneve_tree = proto_item_add_subtree(ti, ett_geneve);
 
-    /* Version and option length. */
+    /* Version. */
     ver_opt = tvb_get_guint8(tvb, offset);
+    ver = ver_opt >> VER_SHIFT;
     proto_tree_add_uint(geneve_tree, hf_geneve_version, tvb,
-                        offset, 1, ver_opt >> VER_SHIFT);
+                        offset, 1, ver);
+
+    if (ver != GENEVE_VER) {
+        proto_tree_add_expert_format(geneve_tree, pinfo,
+                                     &ei_geneve_ver_unknown, tvb, offset, 1,
+                                     "Unknown version %u", ver);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Geneve version %u", ver);
+    }
+
+    /* Option length. */
     opts_len = (ver_opt & HDR_OPTS_LEN_MASK) * 4;
     proto_tree_add_uint_format_value(geneve_tree, hf_geneve_opt_len, tvb,
                                      offset, 1, opts_len, "%u bytes", opts_len);
     offset += 1;
 
     /* Flags. */
+    flags = tvb_get_guint8(tvb, offset);
     if (tree) {
         flag_item = proto_tree_add_item(geneve_tree, hf_geneve_flags, tvb,
                                        offset, 1, ENC_BIG_ENDIAN);
@@ -275,15 +279,23 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Protocol Type. */
     proto_tree_add_item(geneve_tree, hf_geneve_proto_type, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
+
+    proto_type = tvb_get_ntohs(tvb, offset);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s",
+                 val_to_str(proto_type, etype_vals, "0x%04x (unknown)"));
+
     offset += 2;
 
     /* VNI. */
-    proto_tree_add_item(geneve_tree, hf_geneve_vni, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(geneve_tree, hf_geneve_vni, tvb, offset, 3,
+                        ENC_BIG_ENDIAN);
+    proto_item_append_text(ti, ", VNI: 0x%06x%s", tvb_get_ntoh24(tvb, offset),
+                           flags & FLAG_OAM ? ", OAM" : "");
     offset += 3;
 
     /* Reserved. */
-    rsvd_item = proto_tree_add_item(geneve_tree, hf_geneve_reserved, tvb, offset,
-                                    1, ENC_BIG_ENDIAN);
+    rsvd_item = proto_tree_add_item(geneve_tree, hf_geneve_reserved, tvb,
+                                    offset, 1, ENC_BIG_ENDIAN);
     if (!tvb_get_guint8(tvb, offset)) {
         PROTO_ITEM_SET_HIDDEN(rsvd_item);
     }
@@ -408,8 +420,10 @@ proto_register_geneve(void)
     };
 
     static ei_register_info ei[] = {
+       { &ei_geneve_ver_unknown, { "geneve.version.unknown",
+         PI_PROTOCOL, PI_WARN, "Unknown version", EXPFILL }},
        { &ei_geneve_opt_len_invalid, { "geneve.option.length.invalid",
-         PI_SEQUENCE, PI_NOTE, "Invalid length for option", EXPFILL }},
+         PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
     };
 
     expert_module_t *expert_geneve;
