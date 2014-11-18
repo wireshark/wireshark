@@ -53,7 +53,7 @@
 #define PSNAME "Couchbase"
 #define PFNAME "couchbase"
 
-#define COUCHBASE_DEFAULT_PORT        "11210"
+#define COUCHBASE_DEFAULT_PORT        "11209,11210"
 #define COUCHBASE_HEADER_LEN   24
 
  /* Magic Byte */
@@ -72,6 +72,8 @@
 #define PROTOCOL_BINARY_RESPONSE_AUTH_ERROR         0x20
 #define PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE      0x21
 #define PROTOCOL_BINARY_RESPONSE_ERANGE             0x22
+#define PROTOCOL_BINARY_RESPONSE_ROLLBACK           0x23
+#define PROTOCOL_BINARY_RESPONSE_EACCESS            0x24
 #define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND    0x81
 #define PROTOCOL_BINARY_RESPONSE_ENOMEM             0x82
 #define PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED      0x83
@@ -111,11 +113,16 @@
 #define PROTOCOL_BINARY_CMD_TOUCH                   0x1c
 #define PROTOCOL_BINARY_CMD_GAT                     0x1d
 #define PROTOCOL_BINARY_CMD_GATQ                    0x1e
+#define PROTOCOL_BINARY_CMD_HELLO                   0x1f
 
  /* SASL operations */
 #define PROTOCOL_BINARY_CMD_SASL_LIST_MECHS         0x20
 #define PROTOCOL_BINARY_CMD_SASL_AUTH               0x21
 #define PROTOCOL_BINARY_CMD_SASL_STEP               0x22
+
+/* Control */
+#define PROTOCOL_BINARY_CMD_IOCTL_GET               0x23
+#define PROTOCOL_BINARY_CMD_IOCTL_SET               0x24
 
  /* Range operations.
   * These commands are used for range operations and exist within
@@ -186,6 +193,16 @@
 #define PROTOCOL_BINARY_CMD_ADDQ_WITH_META          0xa5
 #define PROTOCOL_BINARY_CMD_SNAPSHOT_VB_STATES      0xa6
 #define PROTOCOL_BINARY_CMD_VBUCKET_BATCH_COUNT     0xa7
+#define PROTOCOL_BINARY_CMD_DEL_WITH_META           0xa8
+#define PROTOCOL_BINARY_CMD_DELQ_WITH_META          0xa9
+#define PROTOCOL_BINARY_CMD_CREATE_CHECKPOINT       0xaa
+#define PROTOCOL_BINARY_CMD_NOTIFY_VBUCKET_UPDATE   0xac
+#define PROTOCOL_BINARY_CMD_ENABLE_TRAFFIC          0xad
+#define PROTOCOL_BINARY_CMD_DISABLE_TRAFFIC         0xae
+#define PROTOCOL_BINARY_CMD_CHANGE_VB_FILTER        0xb0
+#define PROTOCOL_BINARY_CMD_CHECKPOINT_PERSISTENCE  0xb1
+#define PROTOCOL_BINARY_CMD_RETURN_META             0xb2
+#define PROTOCOL_BINARY_CMD_COMPACT_DB              0xb3
 
 
 #define PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG      0xb4
@@ -210,6 +227,14 @@
 #define PROTOCOL_BINARY_DCP_CONTROL                 0x5e
 #define PROTOCOL_BINARY_DCP_RESERVED4               0x5f
 
+#define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
+#define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
+#define PROTOCOL_BINARY_CMD_SCRUB                   0xf0
+#define PROTOCOL_BINARY_CMD_ISASL_REFRESH           0xf1
+#define PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH       0xf2
+#define PROTOCOL_BINARY_CMD_GET_CMD_TIMER           0xf3
+#define PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN          0xf4
+#define PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN          0xf5
 
  /* vBucket states */
 #define VBUCKET_ACTIVE                              0x01
@@ -247,6 +272,18 @@ static int hf_extras_flags_takeover_vbuckets = -1;
 static int hf_extras_flags_support_ack = -1;
 static int hf_extras_flags_request_keys_only = -1;
 static int hf_extras_flags_checkpoint = -1;
+static int hf_extras_flags_dcp_connection_type = -1;
+static int hf_extras_flags_dcp_add_stream_takeover = -1;
+static int hf_extras_flags_dcp_add_stream_diskonly = -1;
+static int hf_extras_flags_dcp_add_stream_latest = -1;
+static int hf_extras_seqno = -1;
+static int hf_extras_opaque = -1;
+static int hf_extras_reserved = -1;
+static int hf_extras_start_seqno = -1;
+static int hf_extras_end_seqno = -1;
+static int hf_extras_vbucket_uuid = -1;
+static int hf_extras_snap_start_seqno = -1;
+static int hf_extras_snap_end_seqno = -1;
 static int hf_extras_expiration = -1;
 static int hf_extras_delta = -1;
 static int hf_extras_initial = -1;
@@ -260,6 +297,11 @@ static int hf_observe_keylength = -1;
 static int hf_observe_key = -1;
 static int hf_observe_status = -1;
 static int hf_observe_cas = -1;
+
+static int hf_failover_log = -1;
+static int hf_failover_log_size = -1;
+static int hf_failover_log_vbucket_uuid = -1;
+static int hf_failover_log_vbucket_seqno = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
@@ -278,13 +320,13 @@ static gint ett_couchbase = -1;
 static gint ett_extras = -1;
 static gint ett_extras_flags = -1;
 static gint ett_observe = -1;
+static gint ett_failover_log = -1;
 
 static const value_string magic_vals[] = {
-
-   { MAGIC_REQUEST,     "Request"  },
-   { MAGIC_RESPONSE,    "Response" },
-   { 0, NULL }
- };
+  { MAGIC_REQUEST,     "Request"  },
+  { MAGIC_RESPONSE,    "Response" },
+  { 0, NULL }
+};
 
 static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_SUCCESS,           "Success"                 },
@@ -298,6 +340,8 @@ static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_AUTH_ERROR,        "Authentication error"    },
   { PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE,     "Authentication continue" },
   { PROTOCOL_BINARY_RESPONSE_ERANGE,            "Range error"             },
+  { PROTOCOL_BINARY_RESPONSE_ROLLBACK,          "Rollback"                },
+  { PROTOCOL_BINARY_RESPONSE_EACCESS,           "Access error"            },
   { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND,   "Unknown command"         },
   { PROTOCOL_BINARY_RESPONSE_ENOMEM,            "Out of memory"           },
   { PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED,     "Command isn't supported" },
@@ -341,9 +385,12 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_TOUCH,                      "Touch"                    },
   { PROTOCOL_BINARY_CMD_GAT,                        "Get and Touch"            },
   { PROTOCOL_BINARY_CMD_GATQ,                       "Gat and Touch Quietly"    },
+  { PROTOCOL_BINARY_CMD_HELLO,                      "Hello"                    },
   { PROTOCOL_BINARY_CMD_SASL_LIST_MECHS,            "List SASL Mechanisms"     },
   { PROTOCOL_BINARY_CMD_SASL_AUTH,                  "SASL Authenticate"        },
   { PROTOCOL_BINARY_CMD_SASL_STEP,                  "SASL Step"                },
+  { PROTOCOL_BINARY_CMD_IOCTL_GET,                  "IOCTL Get"                },
+  { PROTOCOL_BINARY_CMD_IOCTL_SET,                  "IOCTL Set"                },
   { PROTOCOL_BINARY_CMD_RGET,                       "Range Get"                },
   { PROTOCOL_BINARY_CMD_RSET,                       "Range Set"                },
   { PROTOCOL_BINARY_CMD_RSETQ,                      "Range Set Quietly"        },
@@ -368,22 +415,30 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET,            "TAP VBucket Set"          },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
-  { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "Open DCP Connection"      },
-  { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "Add DCP Stream"           },
-  { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "Close DCP Stream"         },
+  { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "DCP Open Connection"      },
+  { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "DCP Add Stream"           },
+  { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "DCP Close Stream"         },
   { PROTOCOL_BINARY_DCP_STREAM_REQUEST,             "DCP Stream Request"       },
-  { PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST,       "Get DCP Failover Log"     },
+  { PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST,       "DCP Get Failover Log"     },
   { PROTOCOL_BINARY_DCP_STREAM_END,                 "DCP Stream End"           },
   { PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER,            "DCP Snapshot Marker"      },
   { PROTOCOL_BINARY_DCP_MUTATION,                   "DCP (Key) Mutation"       },
   { PROTOCOL_BINARY_DCP_DELETION,                   "DCP (Key) Deletion"       },
   { PROTOCOL_BINARY_DCP_EXPIRATION,                 "DCP (Key) Expiration"     },
   { PROTOCOL_BINARY_DCP_FLUSH,                      "DCP Flush"                },
-  { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "Set DCP VBucket State"    },
+  { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "DCP Set VBucket State"    },
   { PROTOCOL_BINARY_DCP_NOOP,                       "DCP NOOP"                 },
-  { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknoledgement"},
+  { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknowledgement"},
   { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
-  { PROTOCOL_BINARY_DCP_RESERVED4,                  "Set Reserved"             },
+  { PROTOCOL_BINARY_DCP_RESERVED4,                  "DCP Set Reserved"         },
+  { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
+  { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
+  { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
+  { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
+  { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
+  { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
+  { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -417,6 +472,16 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_ADDQ_WITH_META,             "Add with Meta Quietly"    },
   { PROTOCOL_BINARY_CMD_SNAPSHOT_VB_STATES,         "Snapshot VBuckets States" },
   { PROTOCOL_BINARY_CMD_VBUCKET_BATCH_COUNT,        "VBucket Batch Count"      },
+  { PROTOCOL_BINARY_CMD_DEL_WITH_META,              "Delete with Meta"         },
+  { PROTOCOL_BINARY_CMD_DELQ_WITH_META,             "Delete with Meta Quietly" },
+  { PROTOCOL_BINARY_CMD_CREATE_CHECKPOINT,          "Create Checkpoint"        },
+  { PROTOCOL_BINARY_CMD_NOTIFY_VBUCKET_UPDATE,      "Notify VBucket Update"    },
+  { PROTOCOL_BINARY_CMD_ENABLE_TRAFFIC,             "Enable Traffic"           },
+  { PROTOCOL_BINARY_CMD_DISABLE_TRAFFIC,            "Disable Traffic"          },
+  { PROTOCOL_BINARY_CMD_CHANGE_VB_FILTER,           "Change VBucket Filter"    },
+  { PROTOCOL_BINARY_CMD_CHECKPOINT_PERSISTENCE,     "Checkpoint Persistence"   },
+  { PROTOCOL_BINARY_CMD_RETURN_META,                "Return Meta"              },
+  { PROTOCOL_BINARY_CMD_COMPACT_DB,                 "Compact Database"         },
   { PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
   /* Internally defined values not valid here */
@@ -425,8 +490,15 @@ static const value_string opcode_vals[] = {
 
 static value_string_ext opcode_vals_ext = VALUE_STRING_EXT_INIT(opcode_vals);
 
+const value_string dcp_connection_type_vals[] = {
+  {0, "Consumer"},
+  {1, "Producer"},
+  {2, "Notifier"},
+  {0, NULL}
+};
+
 static const value_string datatype_vals[] = {
-  { DT_RAW_BYTES,          "Raw bytes"          },
+  { DT_RAW_BYTES, "Raw bytes"},
   { 0, NULL }
 };
 
@@ -612,24 +684,83 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case PROTOCOL_BINARY_CMD_TAP_MUTATION:
-    break;
-
   case PROTOCOL_BINARY_CMD_TAP_DELETE:
-    break;
-
   case PROTOCOL_BINARY_CMD_TAP_FLUSH:
-    break;
-
   case PROTOCOL_BINARY_CMD_TAP_OPAQUE:
-    break;
-
   case PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET:
-    break;
-
   case PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START:
+  case PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END:
     break;
 
-  case PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END:
+  case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
+    if (extlen) {
+      if (request) {
+        static const int * extra_flags[] = {
+          &hf_extras_flags_dcp_connection_type,
+          NULL
+        };
+
+        proto_tree_add_item(extras_tree, hf_extras_seqno, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else {
+        /* Response must not have extras (response is in Value) */
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+
+  case PROTOCOL_BINARY_DCP_ADD_STREAM:
+    if (extlen) {
+      if (request) {
+        static const int * extra_flags[] = {
+          &hf_extras_flags_dcp_add_stream_takeover,
+          &hf_extras_flags_dcp_add_stream_diskonly,
+          &hf_extras_flags_dcp_add_stream_latest,
+          NULL
+        };
+
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else {
+        proto_tree_add_item(extras_tree, hf_extras_opaque, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+      }
+    } else {
+      missing = TRUE;
+    }
+    break;
+
+  case PROTOCOL_BINARY_DCP_STREAM_REQUEST:
+    if (extlen) {
+      if (request) {
+        static const int * extra_flags[] = {
+          NULL
+        };
+
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(extras_tree, hf_extras_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(extras_tree, hf_extras_start_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_end_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_snap_start_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_snap_end_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
     break;
 
   default:
@@ -675,71 +806,75 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* inSanity check */
   if (keylen) {
-    if ((opcode == PROTOCOL_BINARY_CMD_QUIT) ||
-        (opcode == PROTOCOL_BINARY_CMD_QUITQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_NOOP) ||
-        (opcode == PROTOCOL_BINARY_CMD_VERSION) ||
-        (opcode == PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST)
-        ) {
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_QUIT:
+    case PROTOCOL_BINARY_CMD_QUITQ:
+    case PROTOCOL_BINARY_CMD_NOOP:
+    case PROTOCOL_BINARY_CMD_VERSION:
+    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
       /* Request and Response must not have key */
       illegal = TRUE;
-    }
-    if ((opcode == PROTOCOL_BINARY_CMD_SET) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADD) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACE) ||
-        (opcode == PROTOCOL_BINARY_CMD_DELETE) ||
-        (opcode == PROTOCOL_BINARY_CMD_SETQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADDQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_DELETEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_FLUSH) ||
-        (opcode == PROTOCOL_BINARY_CMD_APPEND) ||
-        (opcode == PROTOCOL_BINARY_CMD_PREPEND) ||
-        (opcode == PROTOCOL_BINARY_CMD_FLUSHQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_APPENDQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_PREPENDQ)) {
+      break;
+
+    case PROTOCOL_BINARY_CMD_SET:
+    case PROTOCOL_BINARY_CMD_ADD:
+    case PROTOCOL_BINARY_CMD_REPLACE:
+    case PROTOCOL_BINARY_CMD_DELETE:
+    case PROTOCOL_BINARY_CMD_SETQ:
+    case PROTOCOL_BINARY_CMD_ADDQ:
+    case PROTOCOL_BINARY_CMD_REPLACEQ:
+    case PROTOCOL_BINARY_CMD_DELETEQ:
+    case PROTOCOL_BINARY_CMD_FLUSH:
+    case PROTOCOL_BINARY_CMD_APPEND:
+    case PROTOCOL_BINARY_CMD_PREPEND:
+    case PROTOCOL_BINARY_CMD_FLUSHQ:
+    case PROTOCOL_BINARY_CMD_APPENDQ:
+    case PROTOCOL_BINARY_CMD_PREPENDQ:
       /* Response must not have a key */
       if (!request) {
         illegal = TRUE;
       }
-    }
-    if ((opcode == PROTOCOL_BINARY_DCP_ADD_STREAM) ||
-        (opcode == PROTOCOL_BINARY_DCP_CLOSE_STREAM) ||
-        (opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) ||
-        (opcode == PROTOCOL_BINARY_DCP_STREAM_END) ||
-        (opcode == PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER) ||
-        (opcode == PROTOCOL_BINARY_DCP_FLUSH) ||
-        (opcode == PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE)) {
+      break;
+
+    case PROTOCOL_BINARY_DCP_ADD_STREAM:
+    case PROTOCOL_BINARY_DCP_CLOSE_STREAM:
+    case PROTOCOL_BINARY_DCP_STREAM_END:
+    case PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER:
+    case PROTOCOL_BINARY_DCP_FLUSH:
+    case PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE:
       /* Request must not have a key */
       if (request) {
         illegal = TRUE;
       }
+      break;
     }
   } else {
-    if ((opcode == PROTOCOL_BINARY_CMD_GET) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETK) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETKQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_SET) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADD) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACE) ||
-        (opcode == PROTOCOL_BINARY_CMD_DELETE) ||
-        (opcode == PROTOCOL_BINARY_CMD_SETQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADDQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_DELETEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_INCREMENT) ||
-        (opcode == PROTOCOL_BINARY_CMD_DECREMENT) ||
-        (opcode == PROTOCOL_BINARY_CMD_INCREMENTQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_DECREMENTQ) ||
-        (opcode == PROTOCOL_BINARY_DCP_OPEN_CONNECTION)||
-        (opcode == PROTOCOL_BINARY_DCP_MUTATION) ||
-        (opcode == PROTOCOL_BINARY_DCP_DELETION) ||
-        (opcode == PROTOCOL_BINARY_DCP_EXPIRATION)) {
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_GET:
+    case PROTOCOL_BINARY_CMD_GETQ:
+    case PROTOCOL_BINARY_CMD_GETK:
+    case PROTOCOL_BINARY_CMD_GETKQ:
+    case PROTOCOL_BINARY_CMD_SET:
+    case PROTOCOL_BINARY_CMD_ADD:
+    case PROTOCOL_BINARY_CMD_REPLACE:
+    case PROTOCOL_BINARY_CMD_DELETE:
+    case PROTOCOL_BINARY_CMD_SETQ:
+    case PROTOCOL_BINARY_CMD_ADDQ:
+    case PROTOCOL_BINARY_CMD_REPLACEQ:
+    case PROTOCOL_BINARY_CMD_DELETEQ:
+    case PROTOCOL_BINARY_CMD_INCREMENT:
+    case PROTOCOL_BINARY_CMD_DECREMENT:
+    case PROTOCOL_BINARY_CMD_INCREMENTQ:
+    case PROTOCOL_BINARY_CMD_DECREMENTQ:
+    case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
+    case PROTOCOL_BINARY_DCP_MUTATION:
+    case PROTOCOL_BINARY_DCP_DELETION:
+    case PROTOCOL_BINARY_DCP_EXPIRATION:
       /* Request must have key */
       if (request) {
         missing = TRUE;
       }
+      break;
     }
   }
 
@@ -760,12 +895,12 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               gint offset, guint32 value_len, guint8 opcode, gboolean request)
 {
   proto_item *ti = NULL;
-  proto_tree *observe_tree;
   gboolean    illegal = FALSE;  /* Set when value shall not be present */
   gboolean    missing = FALSE;  /* Set when value is missing */
 
   if (value_len > 0) {
     if (opcode == PROTOCOL_BINARY_CMD_OBSERVE) {
+      proto_tree *observe_tree;
       gint oo = offset, end = offset + value_len;
       ti = proto_tree_add_item(tree, hf_observe, tvb, offset, value_len, ENC_ASCII|ENC_NA);
       observe_tree = proto_item_add_subtree(ti, ett_observe);
@@ -785,12 +920,29 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           oo += 8;
         }
       }
-    } else if (!request && ((opcode == PROTOCOL_BINARY_CMD_INCREMENT) || (opcode == PROTOCOL_BINARY_CMD_DECREMENT))) {
+    } else if (!request && opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) {
+      if (value_len % 16 != 0) {
+        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failouver log length");
+      } else {
+        proto_tree *failover_log_tree;
+        gint cur = offset, end = offset + value_len;
+        ti = proto_tree_add_item(tree, hf_failover_log, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        failover_log_tree = proto_item_add_subtree(ti, ett_failover_log);
+        ti = proto_tree_add_uint(failover_log_tree, hf_failover_log_size, tvb, offset, 0, (end - cur) / 16);
+        PROTO_ITEM_SET_GENERATED(ti);
+        while (cur < end) {
+          proto_tree_add_item(failover_log_tree, hf_failover_log_vbucket_uuid, tvb, cur, 8, ENC_BIG_ENDIAN);
+          cur += 8;
+          proto_tree_add_item(failover_log_tree, hf_failover_log_vbucket_seqno, tvb, cur, 8, ENC_BIG_ENDIAN);
+          cur += 8;
+        }
+      }
+    } else if (!request && (opcode == PROTOCOL_BINARY_CMD_INCREMENT || opcode == PROTOCOL_BINARY_CMD_DECREMENT)) {
       ti = proto_tree_add_item(tree, hf_uint64_response, tvb, offset, 8, ENC_BIG_ENDIAN);
       if (value_len != 8) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
       }
-    } else if (!request && opcode == PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG) {
+    } else if (!request && (opcode == PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG)) {
       tvbuff_t *json_tvb;
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
       json_tvb = tvb_new_subset(tvb, offset, value_len, value_len);
@@ -798,65 +950,69 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
     }
-}
+  }
 
   /* Sanity check */
   if (value_len) {
-    if ((opcode == PROTOCOL_BINARY_CMD_GET) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETK) ||
-        (opcode == PROTOCOL_BINARY_CMD_GETKQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_INCREMENT) ||
-        (opcode == PROTOCOL_BINARY_CMD_DECREMENT) ||
-        (opcode == PROTOCOL_BINARY_CMD_VERSION) ||
-        (opcode == PROTOCOL_BINARY_CMD_INCREMENTQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_DECREMENTQ) ||
-        (opcode == PROTOCOL_BINARY_DCP_OPEN_CONNECTION) ||
-        (opcode == PROTOCOL_BINARY_DCP_ADD_STREAM) ||
-        (opcode == PROTOCOL_BINARY_DCP_CLOSE_STREAM) ||
-        (opcode == PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST) ||
-        (opcode == PROTOCOL_BINARY_DCP_STREAM_END) ||
-        (opcode == PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER) ||
-        (opcode == PROTOCOL_BINARY_DCP_DELETION) ||
-        (opcode == PROTOCOL_BINARY_DCP_EXPIRATION) ||
-        (opcode == PROTOCOL_BINARY_DCP_FLUSH) ||
-        (opcode == PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE)) {
+    switch (opcode) {
+    case PROTOCOL_BINARY_CMD_GET:
+    case PROTOCOL_BINARY_CMD_GETQ:
+    case PROTOCOL_BINARY_CMD_GETK:
+    case PROTOCOL_BINARY_CMD_GETKQ:
+    case PROTOCOL_BINARY_CMD_INCREMENT:
+    case PROTOCOL_BINARY_CMD_DECREMENT:
+    case PROTOCOL_BINARY_CMD_VERSION:
+    case PROTOCOL_BINARY_CMD_INCREMENTQ:
+    case PROTOCOL_BINARY_CMD_DECREMENTQ:
+    case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
+    case PROTOCOL_BINARY_DCP_ADD_STREAM:
+    case PROTOCOL_BINARY_DCP_CLOSE_STREAM:
+    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
+    case PROTOCOL_BINARY_DCP_STREAM_END:
+    case PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER:
+    case PROTOCOL_BINARY_DCP_DELETION:
+    case PROTOCOL_BINARY_DCP_EXPIRATION:
+    case PROTOCOL_BINARY_DCP_FLUSH:
+    case PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE:
       /* Request must not have value */
       if (request) {
         illegal = TRUE;
       }
-    }
-    if ((opcode == PROTOCOL_BINARY_CMD_DELETE) ||
-        (opcode == PROTOCOL_BINARY_CMD_QUIT) ||
-        (opcode == PROTOCOL_BINARY_CMD_FLUSH) ||
-        (opcode == PROTOCOL_BINARY_CMD_NOOP) ||
-        (opcode == PROTOCOL_BINARY_CMD_DELETEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_QUITQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_FLUSHQ)) {
+      break;
+    case PROTOCOL_BINARY_CMD_DELETE:
+    case PROTOCOL_BINARY_CMD_QUIT:
+    case PROTOCOL_BINARY_CMD_FLUSH:
+    case PROTOCOL_BINARY_CMD_NOOP:
+    case PROTOCOL_BINARY_CMD_DELETEQ:
+    case PROTOCOL_BINARY_CMD_QUITQ:
+    case PROTOCOL_BINARY_CMD_FLUSHQ:
       /* Request and Response must not have value */
       illegal = TRUE;
-    }
-    if ((opcode == PROTOCOL_BINARY_CMD_SET) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADD) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACE) ||
-        (opcode == PROTOCOL_BINARY_CMD_SETQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_ADDQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_REPLACEQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_APPEND) ||
-        (opcode == PROTOCOL_BINARY_CMD_PREPEND) ||
-        (opcode == PROTOCOL_BINARY_CMD_APPENDQ) ||
-        (opcode == PROTOCOL_BINARY_CMD_PREPENDQ)) {
+      break;
+    case PROTOCOL_BINARY_CMD_SET:
+    case PROTOCOL_BINARY_CMD_ADD:
+    case PROTOCOL_BINARY_CMD_REPLACE:
+    case PROTOCOL_BINARY_CMD_SETQ:
+    case PROTOCOL_BINARY_CMD_ADDQ:
+    case PROTOCOL_BINARY_CMD_REPLACEQ:
+    case PROTOCOL_BINARY_CMD_APPEND:
+    case PROTOCOL_BINARY_CMD_PREPEND:
+    case PROTOCOL_BINARY_CMD_APPENDQ:
+    case PROTOCOL_BINARY_CMD_PREPENDQ:
       /* Response must not have value */
       if (!request) {
         illegal = TRUE;
       }
+      break;
     }
   } else {
-    if (opcode == PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST) {
+    switch (opcode) {
+    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
       /* Successful response must have value */
       if (!request) {
         missing = TRUE;
       }
+      break;
     }
   }
 
@@ -976,8 +1132,13 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += keylen;
 
     dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, opcode, request);
-} else if (bodylen) {
+  } else if (bodylen) {
     proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen, ENC_ASCII | ENC_NA);
+    if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET) {
+      tvbuff_t *json_tvb;
+      json_tvb = tvb_new_subset(tvb, offset, bodylen, bodylen);
+      call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
+    }
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                     val_to_str_ext(status, &status_vals_ext, "Unknown status: 0x%x"));
   } else {
@@ -1021,7 +1182,7 @@ proto_register_couchbase(void)
     { &hf_keylength, { "Key Length", "couchbase.key.length", FT_UINT16, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_value_length, { "Value Length", "couchbase.value.length", FT_UINT32, BASE_DEC, NULL, 0x0, "Length in bytes of the value that follows the key", HFILL } },
     { &hf_datatype, { "Data Type", "couchbase.datatype", FT_UINT8, BASE_HEX, VALS(datatype_vals), 0x0, NULL, HFILL } },
-    { &hf_vbucket, { "VBucket", "couchbase.vbucket", FT_UINT16, BASE_HEX, NULL, 0x0, "VBucket ID", HFILL } },
+    { &hf_vbucket, { "VBucket", "couchbase.vbucket", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, "VBucket ID", HFILL } },
     { &hf_status, { "Status", "couchbase.status", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &status_vals_ext, 0x0, "Status of the response", HFILL } },
     { &hf_total_bodylength, { "Total Body Length", "couchbase.total_bodylength", FT_UINT32, BASE_DEC, NULL, 0x0, "Length in bytes of extra + key + value", HFILL } },
     { &hf_opaque, { "Opaque", "couchbase.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -1037,6 +1198,26 @@ proto_register_couchbase(void)
     { &hf_extras_flags_support_ack, { "Support ACK", "couchbase.extras.flags.support_ack", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, NULL, HFILL } },
     { &hf_extras_flags_request_keys_only, { "Request Keys Only", "couchbase.extras.flags.request_keys_only", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, NULL, HFILL } },
     { &hf_extras_flags_checkpoint, { "Checkpoint", "couchbase.extras.flags.checkpoint", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x40, NULL, HFILL } },
+
+    /* DCP flags */
+    { &hf_extras_flags_dcp_connection_type, {"Connection Type", "couchbase.extras.flags.dcp_connection_type", FT_UINT32, BASE_HEX, VALS(dcp_connection_type_vals), 0x03, NULL, HFILL } },
+    { &hf_extras_flags_dcp_add_stream_takeover, {"Take Over", "couchbase.extras.flags.dcp_add_stream_takeover", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL } },
+    { &hf_extras_flags_dcp_add_stream_diskonly, {"Disk Only", "couchbase.extras.flags.dcp_add_stream_diskonly", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL } },
+    { &hf_extras_flags_dcp_add_stream_latest, {"Latest", "couchbase.extras.flags.dcp_add_stream_latest", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL } },
+    { &hf_extras_seqno, { "Sequence number", "couchbase.extras.seqno", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_opaque, { "Opaque (vBucket identifier)", "couchbase.extras.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_reserved, { "Reserved", "couchbase.extras.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_start_seqno, { "Start Sequence Number", "couchbase.extras.start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_end_seqno, { "End Sequence Number", "couchbase.extras.start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_vbucket_uuid, { "VBucket UUID", "couchbase.extras.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_snap_start_seqno, { "Snapshot Start Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_snap_end_seqno, { "Snapshot End Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_failover_log, { "Failover Log", "couchbase.dcp.failover_log", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_failover_log_size, { "Size", "couchbase.dcp.failover_log.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_failover_log_vbucket_uuid, { "VBucket UUID", "couchbase.dcp.failover_log.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_failover_log_vbucket_seqno, { "Sequence Number", "couchbase.dcp.failover_log.seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
     { &hf_extras_expiration, { "Expiration", "couchbase.extras.expiration", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_delta, { "Amount to Add", "couchbase.extras.delta", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_initial, { "Initial Value", "couchbase.extras.initial", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -1070,7 +1251,8 @@ proto_register_couchbase(void)
     &ett_couchbase,
     &ett_extras,
     &ett_extras_flags,
-    &ett_observe
+    &ett_observe,
+    &ett_failover_log
   };
 
   module_t *couchbase_module;
