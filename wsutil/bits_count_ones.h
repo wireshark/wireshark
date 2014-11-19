@@ -39,7 +39,7 @@
 static inline int
 ws_count_ones(const guint64 x)
 {
-	unsigned long long bits = x;
+	guint64 bits = x;
 
 	bits = bits - ((bits >> 1) & G_GUINT64_CONSTANT(0x5555555555555555));
 	bits = (bits & G_GUINT64_CONSTANT(0x3333333333333333)) + ((bits >> 2) & G_GUINT64_CONSTANT(0x3333333333333333));

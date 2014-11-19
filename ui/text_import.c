@@ -142,7 +142,7 @@ static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static int hdr_ip = FALSE;
-static long hdr_ip_proto = 0;
+static guint hdr_ip_proto = 0;
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
