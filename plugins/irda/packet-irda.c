@@ -746,6 +746,9 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         string = tvb_get_string(wmem_packet_scope(), tvb, offset + 9, n);
                         g_snprintf(buf, 300, ", \"%s\"", string);
                         break;
+                    default:
+                        buf[0] = '\0';
+                        break;
                 }
                 col_append_str(pinfo->cinfo, COL_INFO, buf);
                 if (tvb_get_ntohs(tvb, offset + 2) > 1)
