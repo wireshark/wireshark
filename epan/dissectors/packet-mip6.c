@@ -1141,13 +1141,19 @@ static int hf_mip6_opt_mng_sub_type = -1;
 static int hf_mip6_opt_mng_reserved = -1;
 static int hf_mip6_opt_mng_mng_id = -1;
 
+static int hf_mip6_opt_acc_net_id_sub = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_len = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_e_bit = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_net_name_len = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_net_name = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_net_name_data = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_ap_name_len = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt_ap_name = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_geo_latitude_degrees = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_geo_longitude_degrees = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_op_id_type = -1;
+static int hf_mip6_opt_acc_net_id_sub_opt_op_id = -1;
 
 static int hf_pmip6_opt_lila_lla = -1;
 
@@ -1204,9 +1210,10 @@ static gint ett_mip6_opt_alt_ip4 = -1;
 static gint ett_mip6_opt_mng = -1;
 static gint ett_mip6_opt_mag_ipv6 = -1;
 static gint ett_mip6_opt_acc_net_id = -1;
+static gint ett_mip6_sub_opt_acc_net_id = -1;
 
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
-
+static expert_field ei_mip6_ani_type_not_dissected = EI_INIT;
 
 typedef struct mip6_opt {
   int           optcode;            /**< code for option */
@@ -3092,28 +3099,48 @@ static const true_false_string mip6_opt_acc_net_id_sub_opt_e_bit_value = {
     "Encoding is undefined"
 };
 
+static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
+    {  0,    "Reserved"},
+    {  1,    "Private Enterprise Number (PEN)"},
+    {  2,    "Realm of the operator"},
+    {  0,    NULL}
+};
+
 static void
 dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
+    proto_item *ti;
+    proto_tree *subopt_tree;
     gint16 length, sub_opt_len;
     guint8 sub_opt, e_bit, net_name_len, ap_name_len;
+    gint offset_end;
 
     /* offset points to tag(opt) */
     offset++;
-    length = tvb_get_guint8(tvb,offset);
+
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    length = tvb_get_guint8(tvb,offset);
+    offset_end = offset + length;
     offset++;
 
-    while(length > 0){
+
+    while(offset < offset_end) {
+        ti = proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub, tvb, offset, 2, ENC_NA);
+        subopt_tree = proto_item_add_subtree(ti, ett_mip6_sub_opt_acc_net_id);
+
+        proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
         sub_opt = tvb_get_guint8(tvb,offset);
-        proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        length--;
+
+
+        proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         sub_opt_len = tvb_get_guint8(tvb,offset);
-        proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        length--;
+
+        proto_item_append_text(ti, ": %s (t=%d,l=%d)", val_to_str(sub_opt, mmip6_opt_acc_net_id_sub_opt_vals, "Unknown ANI Type (%02d)"), sub_opt, sub_opt_len);
+        proto_item_set_len(ti, sub_opt_len+2);
+
         switch(sub_opt){
         case 1: /* Network-Identifier */
             /*
@@ -3128,30 +3155,68 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
                +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             */
             e_bit = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_e_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_e_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
+
             net_name_len = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             if(e_bit == 0x80){
-                proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+                proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+                proto_item_append_text(ti, " Network Name: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, net_name_len, ENC_UTF_8));
             }else{
-                proto_tree_add_text(opt_tree, tvb, offset, net_name_len, "Network Name");
+                proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_data, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
             };
             offset = offset+net_name_len;
 
             ap_name_len = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            proto_tree_add_item(opt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
-            offset = offset+ap_name_len;
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name, tvb, offset, ap_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+            proto_item_append_text(ti, " AP Name: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ap_name_len, ENC_UTF_8));
 
+            offset = offset+ap_name_len;
+            break;
+
+        case 2: /* Geo-Location */
+            /*
+                0                   1                   2                   3
+                0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               |  ANI Type=2   | ANI Length=6  |       Latitude Degrees
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                               |              Longitude Degrees                |
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            */
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_geo_latitude_degrees, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset +=3;
+
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_geo_longitude_degrees, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset +=3;
+            break;
+
+        case 3: /* Operator-Identifier */
+            /*
+                0                   1                   2                   3
+                0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               | ANI Type=3    |    ANI Length   |   Op-ID Type  |
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                        Operator-Identifier                    ~
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            */
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_op_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_op_id, tvb, offset, sub_opt_len, ENC_NA);
+            offset = offset + sub_opt_len - 1;
+
+            break;
         default:
-            proto_tree_add_text(opt_tree, tvb, offset, sub_opt_len, "Data not dissected yet");
+            proto_tree_add_expert(subopt_tree, pinfo, &ei_mip6_ani_type_not_dissected, tvb, offset, sub_opt_len);
             offset = offset + sub_opt_len;
-            length = length - sub_opt_len;
             break;
         }
     }
@@ -4765,6 +4830,13 @@ proto_register_mip6(void)
         NULL, HFILL }
     },
 
+    { &hf_mip6_opt_acc_net_id_sub,
+      { "ANI", "mip6.acc_net_id",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+
     { &hf_mip6_opt_acc_net_id_sub_opt,
       { "ANI Type", "mip6.acc_net_id.ani",
         FT_UINT8, BASE_DEC, VALS(mmip6_opt_acc_net_id_sub_opt_vals), 0x0,
@@ -4791,8 +4863,14 @@ proto_register_mip6(void)
 
     { &hf_mip6_opt_acc_net_id_sub_opt_net_name,
       { "Network Name", "mip6.acc_net_id.net_name",
-        FT_STRING, FT_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_net_name_data,
+      { "Network Name", "mip6.acc_net_id.net_name_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Network Name with undefined format", HFILL }
     },
 
     { &hf_mip6_opt_acc_net_id_sub_opt_ap_name_len,
@@ -4803,9 +4881,34 @@ proto_register_mip6(void)
 
     { &hf_mip6_opt_acc_net_id_sub_opt_ap_name,
       { "Access-Point Name", "mip6.acc_net_id.ap_name",
-        FT_STRING, FT_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_geo_latitude_degrees,
+      { "Latitude Degrees", "mip6.acc_net_id.geo.latitude_degrees",
+        FT_INT24, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_geo_longitude_degrees,
+      { "Longitude Degrees", "mip6.acc_net_id.geo.longitude_degrees",
+        FT_INT24, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_op_id_type,
+      { "Op-ID Type", "mip6.acc_net_id.op_id.type",
+        FT_UINT8, BASE_DEC, VALS(mip6_opt_acc_net_id_sub_opt_op_id_type), 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_acc_net_id_sub_opt_op_id,
+      { "Op-ID", "mip6.acc_net_id.op_id",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
 };
 
     /* Setup protocol subtree array */
@@ -4862,10 +4965,12 @@ proto_register_mip6(void)
         &ett_mip6_opt_mng,
         &ett_mip6_opt_mag_ipv6,
         &ett_mip6_opt_acc_net_id,
+        &ett_mip6_sub_opt_acc_net_id,
     };
 
     static ei_register_info ei[] = {
         { &ei_mip6_ie_not_dissected, { "mip6.ie_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
+        { &ei_mip6_ani_type_not_dissected, { "mip6.acc_net_id.ani.unknown", PI_UNDECODED, PI_NOTE, "ANI Type not dissect yet", EXPFILL }},
     };
 
     expert_module_t* expert_mip6;
