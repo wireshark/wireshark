@@ -358,6 +358,9 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	voip_calls_info_t *listinfo;
 	voip_calls_tapinfo_t *tapinfo = voip_calls_get_info();
 
+	if(!tapinfo->graph_analysis){
+		return;
+	}
 	g_queue_sort(tapinfo->graph_analysis->items, graph_analysis_sort_compare, NULL);
 
 	/* reset the "display" parameter in graph analysis */
