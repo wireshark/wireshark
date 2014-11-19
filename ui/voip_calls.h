@@ -235,7 +235,7 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
 /**
  * Cleans up memory of voip calls tap.
  */
-void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
+void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
 
 #endif /* __VOIP_CALLS_H__ */
 

@@ -880,7 +880,7 @@ voip_calls_dlg_reset(void *ptr _U_)
 #endif
 
 	/* Clean up memory used by calls tap */
-	voip_calls_reset(voip_calls_get_info());
+	voip_calls_reset_all_taps(voip_calls_get_info());
 
 	/* close the graph window if open */
 	if (graph_analysis_data && graph_analysis_data->dlg.window != NULL) {
@@ -903,7 +903,7 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 #endif
 
 	/* Clean up memory used by calls tap */
-	voip_calls_reset(tap_id_base);
+	voip_calls_reset_all_taps(tap_id_base);
 
 	if (graph_analysis_data == NULL) {
 		/* init the Graph Analysys */
