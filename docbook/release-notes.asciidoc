@@ -34,6 +34,7 @@ reassembled packets.
 description to be shown in the status bar.
 ** An Italian translation has been added.
 ** The Summary dialog has been updated and renamed to Capture File Properties.
+** The VoIP Calls and SIP Flows dialogs have been added.
 
 The following features are new (or have been significantly updated)
 since version 1.12.0:

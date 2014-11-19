@@ -75,15 +75,16 @@ StockIcon::StockIcon(const char *icon_name) :
 #endif
         return;
     } else {
-        QStringList types = QStringList() << "16x16" << "24x24";
+        QStringList types = QStringList() << "12x12" << "16x16" << "24x24";
         foreach (QString type, types) {
-            // Along with each name check for "<name>.on" to use for the on (checked) state.
-            // XXX Add checks for each combination of QIcon::Mode + QIcon::State
             QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
-            QString icon_path_on = path_pfx_ + QString("%1/%2.on.png").arg(type).arg(icon_name);
             if (QFile::exists(icon_path)) {
                 addFile(icon_path);
             }
+
+            // Along with each name check for "<name>.on" to use for the on (checked) state.
+            // XXX Add checks for each combination of QIcon::Mode + QIcon::State
+            QString icon_path_on = path_pfx_ + QString("%1/%2.on.png").arg(type).arg(icon_name);
             if (QFile::exists(icon_path_on)) {
                 addFile(icon_path_on, QSize(), QIcon::Normal, QIcon::On);
             }

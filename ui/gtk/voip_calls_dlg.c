@@ -41,7 +41,6 @@
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include "wsutil/filesystem.h"
-#include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/to_str.h>
 #include <epan/address.h>
@@ -125,7 +124,8 @@ voip_calls_get_info(void)
 {
 	/* the one and only global voip_calls_tapinfo_t structure */
 	static voip_calls_tapinfo_t the_tapinfo_struct =
-	{voip_calls_dlg_reset, voip_calls_dlg_packet, voip_calls_dlg_draw,
+	{
+		voip_calls_dlg_reset, voip_calls_dlg_packet, voip_calls_dlg_draw, NULL,
 		0, NULL, {0}, 0, NULL, 0, 0, 0, NULL, NULL,
 		0, NULL, /* rtp */
 		0, 0, FALSE, /* rtp evt */
@@ -332,22 +332,6 @@ voip_calls_on_select_all(GtkButton *button _U_, gpointer user_data _U_)
 	gtk_tree_selection_select_all(selection);
 }
 
-/* compare two list entries by packet no */
-static gint
-graph_analysis_sort_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
-{
-	const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
-	const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
-
-	if(entry_a->fd->num < entry_b->fd->num)
-		return -1;
-
-	if(entry_a->fd->num > entry_b->fd->num)
-		return 1;
-
-	return 0;
-}
-
 /****************************************************************************/
 static void
 on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
@@ -361,7 +345,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	if(!tapinfo->graph_analysis){
 		return;
 	}
-	g_queue_sort(tapinfo->graph_analysis->items, graph_analysis_sort_compare, NULL);
+	sequence_analysis_list_sort(tapinfo->graph_analysis);
 
 	/* reset the "display" parameter in graph analysis */
 	listb = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);

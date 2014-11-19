@@ -64,7 +64,7 @@ public:
     seq_analysis_item_t *itemForPosY(int ypos);
 
     // reimplemented virtual methods:
-    virtual void clearData() {}
+    virtual void clearData() { data_->clear(); }
     virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
 
 public slots:

@@ -529,7 +529,12 @@ if(BUILD_wireshark)
 			set( QT5_DLL_PATH "${QT5_BASE_PATH}/bin" )
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
-		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
+		set(PACKAGELIST ${PACKAGELIST}
+			Qt5LinguistTools
+			Qt5MultimediaWidgets
+			Qt5PrintSupport
+			Qt5Widgets
+		)
 		if (APPLE)
 			set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
 		endif()
@@ -732,6 +737,11 @@ if (Qt5Widgets_FOUND)
 	endif()
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
+	if(Qt5MultimediaWidgets_FOUND)
+		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES})
+		# That's the name autofoo uses
+		set(QT_MULTIMEDIAWIDGETS_LIB 1)
+	endif()
 	if(Qt5MacExtras_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
 		# That's the name autofoo uses

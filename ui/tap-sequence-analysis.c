@@ -256,8 +256,6 @@ sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo)
     case SEQ_ANALYSIS_VOIP:
     default:
         return;
-        break;
-
     }
 
     cf_retap_packets(cf);
@@ -276,6 +274,31 @@ static void sequence_analysis_item_free(gpointer data)
     g_free((void *)seq_item->src_addr.data);
     g_free((void *)seq_item->dst_addr.data);
     g_free(data);
+}
+
+
+/* compare two list entries by packet no */
+static gint
+sequence_analysis_sort_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+{
+    const seq_analysis_item_t *entry_a = (const seq_analysis_item_t *)a;
+    const seq_analysis_item_t *entry_b = (const seq_analysis_item_t *)b;
+
+    if(entry_a->fd->num < entry_b->fd->num)
+        return -1;
+
+    if(entry_a->fd->num > entry_b->fd->num)
+        return 1;
+
+    return 0;
+}
+
+
+void
+sequence_analysis_list_sort(seq_analysis_info_t *sainfo)
+{
+    if (!sainfo) return;
+    g_queue_sort(sainfo->items, sequence_analysis_sort_compare, NULL);
 }
 
 void
@@ -380,7 +403,7 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
  * and Return -2 if the array is full
  */
 /****************************************************************************/
-static gint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
+static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
     guint i;
 
     if (node->type == AT_NONE) return NODE_OVERFLOW;
@@ -409,8 +432,8 @@ static void sequence_analysis_get_nodes_item_proc(gpointer data, gpointer user_d
     struct sainfo_counter *sc = (struct sainfo_counter *)user_data;
     if (gai->display) {
         (sc->num_items)++;
-        gai->src_node = (guint16)add_or_get_node(sc->sainfo, &(gai->src_addr));
-        gai->dst_node = (guint16)add_or_get_node(sc->sainfo, &(gai->dst_addr));
+        gai->src_node = add_or_get_node(sc->sainfo, &(gai->src_addr));
+        gai->dst_node = add_or_get_node(sc->sainfo, &(gai->dst_addr));
     }
 }
 

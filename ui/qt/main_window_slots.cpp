@@ -96,6 +96,7 @@
 #include "stats_tree_dialog.h"
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
+#include "voip_calls_dialog.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
@@ -2342,6 +2343,23 @@ void MainWindow::on_actionStatisticsSametime_triggered()
 
 // Telephony Menu
 
+void MainWindow::openVoipCallsDialog(bool all_flows)
+{
+    VoipCallsDialog *voip_calls_dialog = new VoipCallsDialog(this, cap_file_, all_flows);
+    connect(voip_calls_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(voip_calls_dialog, SIGNAL(updateFilter(QString&, bool)),
+            this, SLOT(filterPackets(QString&, bool)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            voip_calls_dialog, SLOT(setCaptureFile(capture_file*)));
+    voip_calls_dialog->show();
+}
+
+void MainWindow::on_actionTelephonyVoipCalls_triggered()
+{
+    openVoipCallsDialog();
+}
+
 void MainWindow::on_actionTelephonyISUPMessages_triggered()
 {
     openStatisticsTreeDialog("isup_msg");
@@ -2360,6 +2378,11 @@ void MainWindow::on_actionTelephonySMPPOperations_triggered()
 void MainWindow::on_actionTelephonyUCPMessages_triggered()
 {
     openStatisticsTreeDialog("ucp_messages");
+}
+
+void MainWindow::on_actionTelephonySipFlows_triggered()
+{
+    openVoipCallsDialog(true);
 }
 
 // Help Menu

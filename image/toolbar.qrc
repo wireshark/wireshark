@@ -9,6 +9,8 @@
         <file>copy-8.png</file>
     </qresource>
     <qresource prefix="/icons">
+        <file>toolbar/12x12/media-playback-start.png</file>
+        <file>toolbar/12x12/media-playback-start@2x.png</file>
         <file>toolbar/16x16/edit-find.png</file>
         <file>toolbar/16x16/edit-find@2x.png</file>
         <file>toolbar/16x16/go-first.png</file>

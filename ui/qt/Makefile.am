@@ -214,6 +214,8 @@ traffic_table_dialog.cpp traffic_table_dialog.h: ui_traffic_table_dialog.h
 
 uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
 
+voip_calls_dialog.cpp voip_calls_dialog.h: ui_voip_calls_dialog.h
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg

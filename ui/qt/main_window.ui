@@ -435,10 +435,12 @@
      </property>
      <addaction name="actionTelephonyRTSPPacketCounter"/>
     </widget>
+    <addaction name="actionTelephonyVoipCalls"/>
     <addaction name="actionTelephonyISUPMessages"/>
     <addaction name="menuRTSP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
+    <addaction name="actionTelephonySipFlows"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -2134,6 +2136,22 @@
   <action name="actionBytes">
    <property name="text">
     <string>Bytes</string>
+   </property>
+  </action>
+  <action name="actionTelephonyVoipCalls">
+   <property name="text">
+    <string>&amp;VoIP Calls</string>
+   </property>
+   <property name="toolTip">
+    <string>All VoIP Calls</string>
+   </property>
+  </action>
+  <action name="actionTelephonySipFlows">
+   <property name="text">
+    <string>SIP &amp;Flows</string>
+   </property>
+   <property name="toolTip">
+    <string>SIP Flows</string>
    </property>
   </action>
  </widget>

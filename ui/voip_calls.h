@@ -34,11 +34,22 @@
 #ifndef __VOIP_CALLS_H__
 #define __VOIP_CALLS_H__
 
+/** @file
+ *  "VoIP Calls" dialog box common routines.
+ *  @ingroup main_ui_group
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 #include <stdio.h>
 
 #include "epan/address.h"
+#include "epan/packet.h"
 #include "epan/guid-utils.h"
+#include "epan/tap.h"
 #include "epan/tap-voip.h"
 
 #include "ui/tap-sequence-analysis.h"
@@ -160,7 +171,7 @@ typedef struct _voip_calls_info {
     nstime_t start_rel_ts;
     frame_data *stop_fd;
     nstime_t stop_rel_ts;
-    gboolean selected;
+    gboolean selected; /* GTK+ only */
 
 } voip_calls_info_t;
 
@@ -176,6 +187,7 @@ typedef struct _voip_calls_tapinfo {
     tap_reset_cb tap_reset;                 /**< tap reset callback */
     tap_packet_cb tap_packet;               /**< tap per-packet callback */
     tap_draw_cb tap_draw;                   /**< tap draw callback */
+    void *tap_data;                         /**< data for tap callbacks */
     int ncalls;                             /**< number of call */
     GQueue* callsinfos;                     /**< queue with all calls */
     GHashTable* callsinfo_hashtable[1];     /**< array of hashes per voip protocol; currently only the one for SIP is used */
@@ -236,6 +248,10 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
  * Cleans up memory of voip calls tap.
  */
 void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __VOIP_CALLS_H__ */
 

@@ -26,7 +26,7 @@
 isEqual(QT_MAJOR_VERSION, 4) {
     QT += core gui
 } else {
-    QT += core widgets printsupport
+    QT += core widgets printsupport multimediawidgets
 }
 
 isEqual(QT_MAJOR_VERSION, 5): greaterThan(QT_MINOR_VERSION, 1): win32 {
@@ -252,7 +252,8 @@ FORMS += \
     tcp_stream_dialog.ui \
     time_shift_dialog.ui \
     traffic_table_dialog.ui \
-    uat_dialog.ui
+    uat_dialog.ui \
+    voip_calls_dialog.ui
 
 
 HEADERS += $$HEADERS_WS_C \
@@ -302,7 +303,8 @@ HEADERS += $$HEADERS_WS_C \
     tango_colors.h \
     tcp_stream_dialog.h \
     traffic_table_dialog.h \
-    uat_dialog.h
+    uat_dialog.h \
+    voip_calls_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -423,7 +425,7 @@ win32 {
             EXTRA_DLLS = QtCored4 QtGuid4
         } else: lessThan(QT_MINOR_VERSION, 3) {
             # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd
+            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd Qt5MultimediaWidgetsd
             EXTRA_PLATFORM_DLLS = qwindowsd
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
@@ -433,7 +435,7 @@ win32 {
             EXTRA_DLLS = QtCore4 QtGui4
         } else: lessThan(QT_MINOR_VERSION, 3) {
             # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport
+            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5MultimediaWidgets
             EXTRA_PLATFORM_DLLS = qwindows
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
@@ -667,4 +669,5 @@ SOURCES += \
     time_shift_dialog.cpp \
     traffic_table_dialog.cpp \
     uat_dialog.cpp \
+    voip_calls_dialog.cpp \
     wireshark_application.cpp

@@ -368,6 +368,9 @@
 /* Define if we are using version of of the Portaudio library API */
 #cmakedefine PORTAUDIO_API_1 1
 
+/* Define if we have QtMultimediaWidgets */
+#cmakedefine QT_MULTIMEDIAWIDGETS_LIB 1
+
 /* Define if we have QtMacExtras */
 #cmakedefine QT_MACEXTRAS_LIB 1
 

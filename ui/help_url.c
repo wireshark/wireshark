@@ -333,6 +333,9 @@ topic_action_url(topic_action_e action)
     case(HELP_FILTER_SAVE_DIALOG):
         url = user_guide_url("ChWorkFilterSaveSection.html");
         break;
+    case(HELP_TELEPHONY_VOIP_CALLS_DIALOG):
+        url = user_guide_url("ChTelVoipCalls.html");
+        break;
 
     case(TOPIC_ACTION_NONE):
     default:

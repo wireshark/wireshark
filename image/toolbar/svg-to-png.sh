@@ -43,10 +43,6 @@ set_source_svgs() {
     if [ ! -f ${TWO_X_SVG} ] ; then
         TWO_X_SVG=$ONE_X_SVG
     fi
-    if [ ! -f ${ONE_X_SVG} ] ; then
-        >&2 echo "Can't find ${ONE_X_SVG}"
-        exit 1
-    fi
 }
 
 ICONS="
@@ -56,6 +52,7 @@ ICONS="
     go-last
     go-next
     go-previous
+    media-playback-start
     x-capture-file-close
     x-capture-file-save
     x-capture-file-reload
@@ -75,7 +72,7 @@ ICONS="
 QRC_FILES=""
 
 # XXX Add support for 16 pixel icons.
-for SIZE in 16 24 ; do
+for SIZE in 12 16 24 ; do
     SIZE_DIR=${SIZE}x${SIZE}
 
     TWO_X_SIZE=`expr $SIZE \* 2`
@@ -86,6 +83,11 @@ for SIZE in 16 24 ; do
 
     for ICON in $ICONS ; do
         set_source_svgs $ICON
+
+        if [ ! -f ${ONE_X_SVG} ] ; then
+            >&2 echo "Skipping ${ONE_X_SVG}"
+            continue
+        fi
 
         ONE_X_PNG=${ICON}.png
         TWO_X_PNG=${ICON}@2x.png
@@ -100,15 +102,15 @@ for SIZE in 16 24 ; do
                 --file=$TWO_X_SVG --export-png=$TWO_X_PNG || exit 1
         fi
 
-        QRC_FILES="${QRC_FILES} ${ONE_X_PNG} ${TWO_X_PNG}"
+        QRC_FILES="${QRC_FILES} ${SIZE_DIR}/${ONE_X_PNG} ${SIZE_DIR}/${TWO_X_PNG}"
     done
 
     cd ..
-    
+
 done
 
 for QRC_FILE in $QRC_FILES ; do
-    echo "        <file>toolbar/${SIZE_DIR}/${QRC_FILE}</file>"
+    echo "        <file>toolbar/${QRC_FILE}</file>"
 done
 
 #

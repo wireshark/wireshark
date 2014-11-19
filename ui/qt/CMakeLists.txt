@@ -97,6 +97,7 @@ set(WIRESHARK_QT_HEADERS
 	time_shift_dialog.h
 	traffic_table_dialog.h
 	uat_dialog.h
+	voip_calls_dialog.h
 	wireshark_application.h
 )
 
@@ -194,6 +195,7 @@ set(WIRESHARK_QT_SRC
 	time_shift_dialog.cpp
 	traffic_table_dialog.cpp
 	uat_dialog.cpp
+	voip_calls_dialog.cpp
 	wireshark_application.cpp
 )
 
@@ -267,6 +269,7 @@ set(WIRESHARK_QT_UI
 	time_shift_dialog.ui
 	traffic_table_dialog.ui
 	uat_dialog.ui
+	voip_calls_dialog.ui
 )
 
 if(HAVE_PCAP_REMOTE)

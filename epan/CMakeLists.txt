@@ -1720,7 +1720,7 @@ endif()
 
 ABICHECK(libwireshark)
 
-file(GLOB COLUMN_INFO_HEADER column-info.h)
+file(GLOB EPAN_HEADERS *.h)
 file(GLOB CRYPT_HEADERS crypt/*.h)
 file(GLOB COMPRESS_HEADERS compress/*.h)
 file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)

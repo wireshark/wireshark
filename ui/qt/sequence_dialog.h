@@ -30,7 +30,9 @@
 
 #include "epan/packet.h"
 
-#include "sequence_diagram.h"
+#include "ui/tap-sequence-analysis.h"
+
+#include "qcustomplot.h"
 
 #include <QDialog>
 #include <QMenu>
@@ -39,14 +41,14 @@ namespace Ui {
 class SequenceDialog;
 }
 
+class SequenceDiagram;
+
 class SequenceDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    enum SequenceType { any, tcp, voip };
-
-    explicit SequenceDialog(QWidget *parent = 0, capture_file *cf = NULL, SequenceType type = any);
+    explicit SequenceDialog(QWidget *parent = 0, capture_file *cf = NULL, seq_analysis_info_t *sainfo = NULL);
     ~SequenceDialog();
 
 signals:
@@ -90,7 +92,7 @@ private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;
     capture_file *cap_file_;
-    seq_analysis_info_t seq_analysis_;
+    seq_analysis_info_t *sainfo_;
     int num_items_;
     guint32 packet_num_;
     double one_em_;

@@ -607,7 +607,6 @@ void FollowStreamDialog::setCaptureFile(capture_file *cf)
 // / (slash), Ctrl-F - Focus and highlight the search box
 // Ctrl-G, Ctrl-N, F3 - Find next
 // Should we make it so that typing any text starts searching?
-#include <QDebug>
 bool FollowStreamDialog::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);

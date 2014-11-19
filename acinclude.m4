@@ -2122,6 +2122,13 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1)
 
 		#
+		# Qt 5.0 added multimedia widgets in the Qt
+		# MultimediaWidgets module.
+		#
+		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1,
+			AC_DEFINE(QT_MULTIMEDIAWIDGETS_LIB, 1, [Define if we have QtMultimediaWidgets]))
+
+		#
 		# While we're at it, look for QtMacExtras.  (Presumably
 		# if we're not building for OS X, it won't be present.)
 		#
