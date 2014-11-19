@@ -4138,10 +4138,13 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pi
 static void
 dissect_unknown_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, guint8 chunk_type, proto_tree *chunk_tree, proto_item *chunk_item)
 {
+  guint16 value_length;
+
   if (chunk_tree) {
-    if (chunk_length > CHUNK_HEADER_LENGTH)
-      proto_tree_add_item(chunk_tree, hf_chunk_value, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, ENC_NA);
-    proto_item_append_text(chunk_item, " (Type: %u, value length: %u byte%s)", chunk_type, chunk_length, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
+    value_length = chunk_length - CHUNK_HEADER_LENGTH;
+    if (value_length > 0)
+      proto_tree_add_item(chunk_tree, hf_chunk_value, chunk_tvb, CHUNK_VALUE_OFFSET, value_length, ENC_NA);
+    proto_item_append_text(chunk_item, " (Type: %u, value length: %u byte%s)", chunk_type, value_length, plurality(value_length, "", "s"));
   }
 }
 
