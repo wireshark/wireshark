@@ -113,7 +113,6 @@ codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
 
     sbc->endian = SBC_BE;
 
-    framelen = 0;
     *outputSizeBytes = 0;
     while (xframe_pos < inputSizeBytes) {
         framelen = sbc_decode(sbc, data_in, size_in, data_out, size_out, &len);
