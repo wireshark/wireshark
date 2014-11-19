@@ -497,13 +497,27 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const vo
     }
 }
 
-gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) {
+static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, const char** err) {
     if (len > 0) {
         char* str = ep_strndup(strptr,len);
-        long i = strtol(str,&str,10);
+        char* strn;
+        long i;
 
-        if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
+        errno = 0;
+        i = strtol(str,&strn,base);
+
+        if (((i == G_MAXLONG || i == G_MINLONG) && errno == ERANGE)
+            || (errno != 0 && i == 0)) {
             *err = g_strerror(errno);
+            return FALSE;
+        }
+        if ((*strn != '\0') && (*strn != ' ')) {
+            *err = "Invalid value";
+            return FALSE;
+        }
+        /* Allow only 32bit values */
+        if ((sizeof(long) > 4) && ((i < G_MININT) || (i > G_MAXINT))) {
+            *err = "Value too large";
             return FALSE;
         }
     }
@@ -512,19 +526,12 @@ gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, guint len, const 
     return TRUE;
 }
 
+gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) {
+    return uat_fld_chk_num(10, strptr, len, err);
+}
+
 gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) {
-    if (len > 0) {
-        char* str = ep_strndup(strptr,len);
-        long i = strtol(str,&str,16);
-
-        if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
-            *err = g_strerror(errno);
-            return FALSE;
-        }
-    }
-
-    *err = NULL;
-    return TRUE;
+    return uat_fld_chk_num(16, strptr, len, err);
 }
 
 gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, const char** err) {
