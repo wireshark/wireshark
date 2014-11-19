@@ -103,7 +103,7 @@ Heuristic Code Example
 ----------------------
 You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
-returns 150 files (March 2014).
+returns 163 files (November 2014).
 
 For the above example criteria, the following code example might do the work
 (combine this with the dissector skeleton in README.developer):
@@ -112,43 +112,68 @@ XXX - please note: The following code examples were not tried in reality,
 please report problems to the dev-list!
 
 --------------------------------------------------------------------------------------------
-static dissector_handle_t PROTOABBREV_handle;
 
-static void
-dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    /* Dissection ... */
+static dissector_handle_t PROTOABBREV_tcp_handle;
+static dissector_handle_t PROTOABBREV_pdu_handle;
 
-    return;
-}
-
-
+/* Heuristics test */
 static gboolean
-dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+test_PROTOABBREV(tvbuff_t *tvb)
 {
-...
     /* 0) Verify needed bytes available in tvb so tvb_get...() doesn't cause exception.
-    if (tvb_length(tvb) < 5)
+    if (tvb_captured_length(tvb) < 5)
         return FALSE;
 
     /* 1) first byte must be 0x42 */
     if ( tvb_get_guint8(tvb, 0) != 0x42 )
-        return (FALSE);
+        return FALSE;
 
     /* 2) second byte is a type field and only can contain values between 0x20-0x33 */
     if ( tvb_get_guint8(tvb, 1) < 0x20 || tvb_get_guint8(tvb, 1) > 0x33 )
-        return (FALSE);
+        return FALSE;
 
     /* 3) third byte is a flag field, where the lower 4 bits always contain the value 0 */
     if ( tvb_get_guint8(tvb, 2) & 0x0f )
-        return (FALSE);
+        return FALSE;
 
     /* 4) fourth and fifth bytes contains a 16 bit length field, where the value can't be longer than 10000 bytes */
     /* Assumes network byte order */
     if ( tvb_get_ntohs(tvb, 3) > 10000 )
-        return (FALSE);
+        return FALSE;
 
     /* Assume it's your packet ... */
+    return TRUE;
+}
+
+/* Dissect the complete PROTOABBREV pdu */
+static int
+dissect_PROTOABBREV_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    /* Dissection ... */
+
+    return tvb_reported_length(tvb);
+}
+
+/* For tcp_dissect_pdus() */
+static guint
+get_PROTOABBREV_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    return (guint) tvb_get_ntohs(tvb, offset+3);
+}
+
+static int
+dissect_PROTOABBREV_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 5,
+                     get_PROTOABBREV_len, dissect_PROTOABBREV_pdu, data);
+    return tvb_reported_length(tvb);
+}
+
+static gboolean
+dissect_PROTOABBREV_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!test_PROTOABBREV(tvb))
+        return FALSE;
 
     /* specify that dissect_PROTOABBREV is to be called directly from now on for
      * packets for this "connection" ... but only do this if your heuristic sits directly
@@ -157,29 +182,52 @@ dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
      * otherwise you'll be overriding the dissector that called your heuristic dissector.
      */
     conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, PROTOABBREV_handle);
+    conversation_set_dissector(conversation, PROTOABBREV_tcp_handle);
 
     /*   and do the dissection */
-    dissect_PROTOABBREV(tvb, pinfo, tree, data);
+    dissect_PROTOABBREV_tcp(tvb, pinfo, tree, data);
 
     return (TRUE);
 }
 
+static gboolean
+dissect_PROTOABBREV_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+...
+    If (!test_PROTOABBREV(tvb))
+        return FALSE;
+
+    /* specify that dissect_PROTOABBREV is to be called directly from now on for
+     * packets for this "connection" ... but only do this if your heuristic sits directly
+     * on top of (was called by) a dissector which established a conversation for the
+     * protocol "port type". In other words: only directly over TCP, UDP, DCCP, ...
+     * otherwise you'll be overriding the dissector that called your heuristic dissector.
+     */
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, PROTOABBREV_pdu_handle);
+
+    /*   and do the dissection */
+    dissect_PROTOABBREV_pdu(tvb, pinfo, tree, data);
+
+    return (TRUE);
+}
 
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
-                                                 proto_PROTOABBREV);
+    PROTOABBREV_tcp_handle = new_create_dissector_handle(dissect_PROTOABBREV_tcp,
+                                                         proto_PROTOABBREV);
+    PROTOABBREV_pdu_handle = new_create_dissector_handle(dissect_PROTOABBREV_pdu,
+                                                     proto_PROTOABBREV);
 
     /* register as heuristic dissector for both TCP and UDP */
-    heur_dissector_add("tcp", dissect_PROTOABBREV_heur, proto_PROTOABBREV);
-    heur_dissector_add("udp", dissect_PROTOABBREV_heur, proto_PROTOABBREV);
+    heur_dissector_add("tcp", dissect_PROTOABBREV_tcp_heur, proto_PROTOABBREV);
+    heur_dissector_add("udp", dissect_PROTOABBREV_udp_heur, proto_PROTOABBREV);
 
 #ifdef OPTIONAL
     /* It's possible to write a dissector to be a dual heuristic/normal dissector */
     /*  by also registering the dissector "normally".                             */
-    dissector_add_uint("ip.proto", IP_PROTO_PROTOABBREV, PROTOABBREV_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_PROTOABBREV, PROTOABBREV_pdu_handle);
 #endif
 }
 
@@ -189,8 +237,8 @@ small variety of protocols. In most cases a heuristic is not needed, and
 adding the support would only add unused code to the dissector.
 
 TCP and UDP are prominent examples that support HDs, as there seems to be a
-tendency to reuse known port numbers for new protocols. But TCP and UDP are
+tendency to re-use known port numbers for new protocols. But TCP and UDP are
 not the only dissectors that provide support for HDs.  You can find more
 examples by searching the Wireshark sources as follows:
 grep -l register_heur_dissector_list epan/dissectors/packet-*.c
-returns 43 files (March 2014).
+returns 45 files (November 2014).
