@@ -231,6 +231,8 @@ static int hf_pktdrop_chunk_truncated_length = -1;
 static int hf_pktdrop_chunk_reserved = -1;
 static int hf_pktdrop_chunk_data_field = -1;
 
+static int hf_pad_chunk_padding_data = -1;
+
 static int hf_sctp_reassembled_in = -1;
 static int hf_sctp_duplicate = -1;
 static int hf_sctp_fragments = -1;
@@ -4136,6 +4138,18 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pi
 }
 
 static void
+dissect_pad_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item)
+{
+  guint16 value_length;
+
+  if (chunk_tree) {
+    value_length = chunk_length - CHUNK_HEADER_LENGTH;
+    proto_tree_add_item(chunk_tree, hf_pad_chunk_padding_data, chunk_tvb, CHUNK_VALUE_OFFSET, value_length, ENC_NA);
+    proto_item_append_text(chunk_item, " (Padding data length: %u byte%s)", value_length, plurality(value_length, "", "s"));
+  }
+}
+
+static void
 dissect_unknown_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, guint8 chunk_type, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   guint16 value_length;
@@ -4298,6 +4312,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     col_set_writable(pinfo->cinfo, FALSE);
     dissect_pktdrop_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item, flags_item);
     col_set_writable(pinfo->cinfo, TRUE);
+    break;
+  case SCTP_PAD_CHUNK_ID:
+    dissect_pad_chunk(chunk_tvb, length, chunk_tree, chunk_item);
     break;
   default:
     dissect_unknown_chunk(chunk_tvb, length, type, chunk_tree, chunk_item);
@@ -4737,6 +4754,7 @@ proto_register_sctp(void)
     { &hf_pktdrop_chunk_truncated_length,           { "Truncated length",                               "sctp.pktdrop_truncated_length",                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_pktdrop_chunk_reserved,                   { "Reserved",                                       "sctp.pktdrop_reserved",                                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_pktdrop_chunk_data_field,                 { "Data field",                                     "sctp.pktdrop_datafield",                               FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_pad_chunk_padding_data,                   { "Padding data",                                   "sctp.padding_data",                                    FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
 
     { &hf_sctp_fragment,                            { "SCTP Fragment",                                  "sctp.fragment",                                        FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
     { &hf_sctp_fragments,                           { "Reassembled SCTP Fragments",                     "sctp.fragments",                                       FT_NONE,    BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
