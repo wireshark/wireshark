@@ -536,6 +536,10 @@ draw_hostlist_table_data(hostlist_table *hl)
             idx = new_idx;
             new_idx++;
         }
+        if(!hl->hash.conv_array){ /* Already check on while loop but for avoid Clang Analyzer warnings */
+            continue;
+        }
+
         host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
         if (!host->modified) {
