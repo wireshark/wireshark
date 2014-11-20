@@ -534,7 +534,7 @@ static const value_string a21_element_type_vals[] = {
 };
 
 
-void
+static void
 dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, gint offset,  guint8 message_type)
 {
 	guint8 ie_type, length_len;
