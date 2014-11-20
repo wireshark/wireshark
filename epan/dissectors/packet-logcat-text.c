@@ -27,18 +27,9 @@
 #include "epan/packet.h"
 #include "epan/expert.h"
 #include "wiretap/wtap.h"
+#include "wiretap/logcat_text.h"
 
 #include <stdio.h>
-
-/* Basically the same regexes are present in wiretap/logcat_text.c */
-#define SPECIAL_STRING "[-]+ (beginning of \\/?.+)"
-#define BRIEF_STRING "([IVDWEF])/(.*?)\\( *(\\d+)\\): (.*)"
-#define TAG_STRING "([IVDWEF])/(.*?): (.*)"
-#define TIME_STRING "(\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) ([IVDWEF])/(.*?)\\( *(\\d+)\\): (.*)"
-#define THREAD_STRING "([IVDWEF])\\( *(\\d+): *(\\d+)\\) (.*)"
-#define PROCESS_STRING "([IVDWEF])\\( *(\\d+)\\) (.*)"
-#define THREADTIME_STRING "(\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) +(\\d+) +(\\d+) ([IVDWEF]) (.*?): (.*)"
-#define LONG_STRING "\\[ (\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) +(\\d+): +(\\d+) ([IVDWEF])/(.+) ]\\R(.*)"
 
 extern const value_string priority_vals[];
 
