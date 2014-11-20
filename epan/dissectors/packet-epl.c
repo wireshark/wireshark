@@ -1331,7 +1331,7 @@ epl_duplication_equal(gconstpointer k1, gconstpointer k2)
 }
 
 /* free the permanent key */
-void
+static void
 free_key(gpointer ptr)
 {
 	duplication_key *key = (duplication_key *)ptr;
@@ -1341,7 +1341,7 @@ free_key(gpointer ptr)
 }
 
 /* removes the table entries of a specific transfer */
-void
+static void
 epl_duplication_remove(GHashTable* table, guint8 src, guint8 dest)
 {
 	GHashTableIter iter;
@@ -1363,7 +1363,7 @@ epl_duplication_remove(GHashTable* table, guint8 src, guint8 dest)
 }
 
 /* insert function */
-void
+static void
 epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 {
 	duplication_data *data = NULL;
@@ -1395,7 +1395,7 @@ epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 }
 
 /* create a key*/
-gpointer
+static gpointer
 epl_duplication_key(guint8 src, guint8 dest, guint8 seq_recv, guint8 seq_send)
 {
 	duplication_key *key = g_slice_new(duplication_key);
@@ -1409,7 +1409,7 @@ epl_duplication_key(guint8 src, guint8 dest, guint8 seq_recv, guint8 seq_send)
 }
 
 /* get the saved data */
-guint32
+static guint32
 epl_duplication_get(GHashTable* table, gpointer ptr)
 {
 	duplication_data *data = NULL;
