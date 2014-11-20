@@ -31,7 +31,7 @@
 #include "logcat.h"
 
 /* Basically the same regexes are present in epan/packet-logcat-text.c */
-#define SPECIAL_STRING "[-]+ beginning of \\/"
+#define SPECIAL_STRING "[-]+ beginning of \\/?"
 #define BRIEF_STRING "[IVDWEF]/.*\\( *\\d*\\): .*"
 #define TAG_STRING "[IVDWEF]/.*: .*"
 #define TIME_STRING "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} [IVDWEF]/.*\\( *\\d*\\): .*"
