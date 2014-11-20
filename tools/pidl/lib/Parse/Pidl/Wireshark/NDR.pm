@@ -452,7 +452,6 @@ sub Element($$$$$$)
 		if (not defined($switch_raw_type)) {
 			die("Unknown type[$type]\n");
 		}
-
 		my $switch_type = "g${switch_raw_type}";
 
 		$moreparam = ", $switch_type *".$name;
@@ -1141,12 +1140,12 @@ sub Parse($$$$$)
 	my $h_basename = basename($h_filename);
 
 	$self->{res}->{headers} .= "#include \"$h_basename\"\n";
-
 	$self->pidl_code("");
 
 	if (defined($self->{conformance}->{ett})) {
 		register_ett($self,$_) foreach(@{$self->{conformance}->{ett}})
 	}
+
 	# Wireshark protocol registration
 
 	foreach (@$ndr) {
