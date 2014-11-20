@@ -2468,7 +2468,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
      * as they might not be L2TP packets even though they happen
      * to be coming from or going to the L2TP port.
      */
-    if (tvb_length(tvb) < 2)
+    if (tvb_captured_length(tvb) < 2)
         return 0;       /* not enough information to check */
     control = tvb_get_ntohs(tvb, 0);
     switch (L2TP_VERSION(control)) {
@@ -2520,7 +2520,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Call to process l2tp v3 data message */
             process_l2tpv3_data_udp(tvb, pinfo, tree, l2tp_conv);
         }
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
 
     if (LENGTH_BIT(control)) {              /* length field included ? */
@@ -2662,13 +2662,13 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             next_tvb = tvb_new_subset_remaining(tvb, idx);
             call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
         }
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
 
     if (LENGTH_BIT(control))
         process_control_avps(tvb, pinfo, l2tp_tree, idx, length, -1, NULL);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 

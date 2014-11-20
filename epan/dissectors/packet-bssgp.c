@@ -6395,7 +6395,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Save pinfo */
     g_rim_application_identity = 0;
     gparent_tree = tree;
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSGP");
 

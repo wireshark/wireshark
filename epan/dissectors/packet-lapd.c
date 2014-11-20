@@ -283,7 +283,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Consume tvb bytes */
-	available = tvb_length_remaining(tvb, offset);
+	available = tvb_reported_length_remaining(tvb, offset);
 	while (offset < available) {
 		byte = tvb_get_guint8(tvb,offset);
 		offset++;
@@ -539,11 +539,11 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	if (has_crc) {
 
 		/* check checksum */
-		checksum_offset = tvb_length(tvb) - 2;
+		checksum_offset = tvb_reported_length(tvb) - 2;
 		checksum = tvb_get_guint8(tvb, checksum_offset); /* high byte */
 		checksum <<= 8;
 		checksum |= tvb_get_guint8(tvb, checksum_offset+1) & 0x00FF; /* low byte */
-		checksum_calculated = crc16_ccitt_tvb(tvb, tvb_length(tvb) - 2);
+		checksum_calculated = crc16_ccitt_tvb(tvb, tvb_reported_length(tvb) - 2);
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
 		if (checksum == checksum_calculated) {
@@ -560,7 +560,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 			expert_add_info(pinfo, pi, &ei_lapd_checksum_bad);
 		}
 
-		next_tvb = tvb_new_subset_length(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2);
+		next_tvb = tvb_new_subset_length(tvb, lapd_header_len, tvb_reported_length_remaining(tvb,lapd_header_len) - 2);
 
 	} else
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);

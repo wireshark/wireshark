@@ -3656,7 +3656,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     gint        bit_offset;
     gint        length;
     guint64     ma_length;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -3747,7 +3747,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 {
     guint32 curr_bit_offset;
     guint8  i;
-    guint8  tvb_len = tvb_length(tvb);
+    guint8  tvb_len = tvb_reported_length(tvb);
 
     curr_bit_offset = offset<<3;
 
@@ -3770,7 +3770,7 @@ static guint16
 de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_bit_offset;
-    guint8  tvb_len = tvb_length(tvb);
+    guint8  tvb_len = tvb_reported_length(tvb);
 
     curr_bit_offset = offset<<3;
 
@@ -4228,7 +4228,7 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     proto_item *item2;
     guint32     curr_offset, value;
     gint        bit_offset, bit_offset_sav;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -4294,7 +4294,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     proto_item *item2;
     guint32     curr_offset;
     gint        bit_offset;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -4355,7 +4355,7 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     proto_item *item2;
     guint32     curr_offset;
     gint        bit_offset;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -4827,7 +4827,7 @@ de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 {
     guint32 curr_offset;
     gint    bit_offset;
-    guint8  tvb_len = tvb_length(tvb);
+    guint8  tvb_len = tvb_reported_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4941,7 +4941,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
     proto_item *item2;
     guint32     curr_offset;
     gint        bit_offset, bit_offset_sav;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -6670,7 +6670,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
     guint32      curr_offset;
     gint         bit_offset, bit_offset_sav, idx;
     guint8       value;
-    guint8       tvb_len = tvb_length(tvb);
+    guint8       tvb_len = tvb_reported_length(tvb);
     guint16      bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -7142,7 +7142,7 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     guint32  curr_offset;
     gint     bit_offset;
     gboolean gprs_indicator;
-    guint8   tvb_len = tvb_length(tvb);
+    guint8   tvb_len = tvb_reported_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -7215,7 +7215,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     proto_item *item2, *item3;
     guint32     curr_offset;
     gint        bit_offset, bit_offset_sav;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -7354,7 +7354,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     guint32     curr_offset;
     gint        bit_offset, bit_offset_sav;
     guint8      value;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -7829,7 +7829,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
     proto_tree *subtree2;
     proto_item *item2;
     guint       bit_offset, bit_offset_sav;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
     bit_offset          = offset << 3;
 
@@ -9413,7 +9413,7 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* 7C Starting Time                         10.5.2.38       O TV 3  */
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IA Rest Octets                           10.5.2.16       M V 0-11 */
-    if(tvb_length_remaining(tvb,curr_offset) > 0)
+    if(tvb_reported_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT, NULL);
 
 }
@@ -9452,7 +9452,7 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 7C Starting Time                                         10.5.2.38       O TV 3  */
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IAX Rest Octets                                          10.5.2.18       M V 0-4 */
-    if(tvb_length_remaining(tvb,curr_offset) > 0)
+    if(tvb_reported_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAX_REST_OCT, NULL);
 
 }
@@ -9491,7 +9491,7 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Wait Indication 4        Wait Indication                 10.5.2.43       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 4");
     /* IAR Rest Octets                          10.5.2.19       M V 3 */
-    if(tvb_length_remaining(tvb,curr_offset) > 0)
+    if(tvb_reported_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAR_REST_OCT, NULL);
 
 }
@@ -10090,7 +10090,7 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     guint32     curr_offset;
     gint        bit_offset, bit_offset_sav, bit_offset_sav2;
     guint8      value, idx;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
@@ -10440,7 +10440,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     proto_item *item;
     guint32     curr_offset;
     guint       bit_offset, bit_offset_sav;
-    guint8      tvb_len = tvb_length(tvb);
+    guint8      tvb_len = tvb_reported_length(tvb);
     guint16     bit_len = tvb_len << 3;
     guint8      idx;
 
@@ -10686,7 +10686,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                     hf_idx;
     gboolean                nsd;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     if (len < 3){
         /*
@@ -10898,7 +10898,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                    ett_tree;
     int                     hf_idx;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     col_append_str(pinfo->cinfo, COL_INFO, "(SACCH) ");
 
