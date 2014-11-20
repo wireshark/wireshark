@@ -326,6 +326,7 @@ static gboolean selfm_desegment = TRUE;
 static gboolean selfm_telnet_clean = TRUE;
 static guint global_selfm_tcp_port = PORT_SELFM; /* Port 0, by default */
 static gboolean selfm_crc16 = FALSE;             /* Default CRC16 valdiation to false */
+static const char *selfm_ser_list = NULL;
 
 /***************************************************************************************/
 /* Fast Meter Message structs */
@@ -384,12 +385,23 @@ typedef struct {
 } fastser_dataregion;
 
 /**************************************************************************************/
+/* Fast Unsolicited SER Index Lookup */
+/**************************************************************************************/
+/* Holds user-configurable naming information for Unsolicited Fast SER word bits      */
+/* that will later be present in an 0xA546 with only an index position reference      */
+typedef struct {
+    gchar    *name;                     /* Name of Word Bit, 8 chars, null-terminated */
+} fastser_uns_wordbit;
+
+
+/**************************************************************************************/
 /* Fast Message Conversation struct */
 /**************************************************************************************/
 typedef struct {
     wmem_list_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
     wmem_list_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
     wmem_tree_t *fastser_dataregions;   /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
+    wmem_tree_t *fastser_uns_wordbits;  /* Tree contains a fastser_uns_wordbit struct for each comma-separated entry in the 'SER List' User Preference */
 } fm_conversation;
 
 
@@ -955,6 +967,57 @@ region_lookup(packet_info *pinfo, guint32 base_addr)
 
     /* If we couldn't identify the region using the current base address, return a default string */
     return "Unknown Region";
+}
+
+/***********************************************************************************************************/
+/* Create Fast SER Unsolicited Word Bit item.  Return item to calling function.  'index' parameter         */
+/* will be used to store 'name' parameter in lookup tree.  Index 254 and 255 are special (hardcoded) cases */
+/***********************************************************************************************************/
+static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 index, const char *name)
+{
+    fastser_uns_wordbit *wordbit_item;
+
+    /* get a new wordbit_item and initialize it */
+    wordbit_item = wmem_new(wmem_file_scope(), fastser_uns_wordbit);
+
+    if (index <= 253) {
+        wordbit_item->name = wmem_strdup(wmem_file_scope(), name);
+    }
+
+    if (index == 254) {
+        wordbit_item->name = wmem_strdup(wmem_file_scope(), "POWER_UP");
+    }
+
+    if (index == 255) {
+        wordbit_item->name = wmem_strdup(wmem_file_scope(), "SET_CHNG");
+    }
+
+    return wordbit_item;
+
+}
+
+/***************************************************************************************************************/
+/* Lookup uns wordbit name using current index position & saved conversation data.  Return ptr to gchar string */
+/***************************************************************************************************************/
+static const gchar*
+fastser_uns_wordbit_lookup(packet_info *pinfo, guint8 index)
+{
+    fm_conversation    *conv;
+    fastser_uns_wordbit *wordbit = NULL;
+
+    conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
+
+    if (conv) {
+        wordbit = (fastser_uns_wordbit*)wmem_tree_lookup32(conv->fastser_uns_wordbits, index);
+    }
+
+    if (wordbit) {
+        return wordbit->name;
+    }
+
+    /* If we couldn't identify the bit using the index, return a default string */
+    return "Unknown";
+
 }
 
 /******************************************************************************************************/
@@ -1995,7 +2058,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
                 /* Build the tree */
                 fastser_element_tree = proto_tree_add_subtree_format(fastser_elementlist_tree, tvb, offset, 4, ett_selfm_fastser_element, NULL,
-                    "Reported Event %d (Index: %d, New State: %s)", cnt+1, elmt_idx, val_to_str_const(elmt_status, selfm_ser_status_vals, "Unknown"));
+                    "Reported Event %d (Index: %d [%s], New State: %s)", cnt+1, elmt_idx, fastser_uns_wordbit_lookup(pinfo, elmt_idx),
+                                                                         val_to_str_const(elmt_status, selfm_ser_status_vals, "Unknown"));
 
                 /* Add Index Number and Timestamp offset to tree */
                 proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2292,6 +2356,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint32       base_addr;
     guint16       msg_type, len, num_items;
     guint8        seq, seq_cnt;
+    gchar         **uns_ser_split_str;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Fast Msg");
@@ -2316,7 +2381,21 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             fm_conv_data->fm_config_frames = wmem_list_new(wmem_file_scope());
             fm_conv_data->fastser_dataitems = wmem_list_new(wmem_file_scope());
             fm_conv_data->fastser_dataregions = wmem_tree_new(wmem_file_scope());
+            fm_conv_data->fastser_uns_wordbits = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
+
+            uns_ser_split_str = wmem_strsplit(wmem_packet_scope(), selfm_ser_list, ",", -1);
+
+            for (cnt = 0; (uns_ser_split_str[cnt] != NULL); cnt++) {
+                fastser_uns_wordbit *wordbit_ptr = fastser_uns_wordbit_save(cnt, uns_ser_split_str[cnt]);
+                wmem_tree_insert32(fm_conv_data->fastser_uns_wordbits, cnt, wordbit_ptr);
+            }
+
+            /* Power Up (254) and Settings Changed (255) Indexes */
+            for (cnt = 254; (cnt <= 255); cnt++) {
+                fastser_uns_wordbit *wordbit_ptr = fastser_uns_wordbit_save(cnt, "unused");
+                wmem_tree_insert32(fm_conv_data->fastser_uns_wordbits, cnt, wordbit_ptr);
+            }
         }
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0, fm_conv_data);
@@ -2414,7 +2493,6 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                 offset += 18;
             }
         }
-
 
      } /* if (!visited) */
 
@@ -2925,25 +3003,28 @@ proto_register_selfm(void)
 
     /*  SEL Protocol - Desegmentmentation; defaults to TRUE for TCP desegmentation*/
     prefs_register_bool_preference(selfm_module, "desegment",
-                                  "Desegment all SEL Fast Message Protocol packets spanning multiple TCP segments",
+                                  "Desegment packets spanning multiple TCP segments",
                                   "Whether the SEL Protocol dissector should desegment all messages spanning multiple TCP segments",
                                   &selfm_desegment);
 
     /* SEL Protocol - Telnet protocol IAC (0xFF) processing; defaults to TRUE to allow Telnet Encapsulated Data */
     prefs_register_bool_preference(selfm_module, "telnetclean",
-                                  "Enable Automatic pre-processing of Telnet-encapsulated data to remove extra 0xFF (IAC) bytes",
-                                  "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove IAC bytes",
+                                  "Remove extra 0xFF (Telnet IAC) bytes",
+                                  "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove duplicate 0xFF IAC bytes",
                                   &selfm_telnet_clean);
 
     /* SEL Protocol Preference - Default TCP Port, allows for "user" port either than 0. */
     prefs_register_uint_preference(selfm_module, "tcp.port", "SEL Protocol Port",
-                       "Set the TCP port for SEL FM Protocol packets (if other"
-                       " than the default of 0)",
+                       "Set the TCP port for SEL FM Protocol packets (if other than the default of 0)",
                        10, &global_selfm_tcp_port);
+
     /* SEL Protocol Preference - Disable/Enable CRC verification, */
     prefs_register_bool_preference(selfm_module, "crc_verification", "Validate Fast SER CRC16",
                                   "Perform CRC16 validation on Fast SER Messages",
                                   &selfm_crc16);
+
+    prefs_register_string_preference(selfm_module, "ser_list",
+                                   "SER Index List", "List of word bits contained in SER equations (Comma-separated, no Quotes or Checksums)", &selfm_ser_list);
 
 
 }
