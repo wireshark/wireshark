@@ -88,8 +88,9 @@ static GtkWidget    *status_pane_left, *status_pane_right;
 static GtkWidget    *info_bar, *info_bar_event, *packets_bar, *profile_bar, *profile_bar_event;
 static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
 static GtkWidget    *expert_info_chat, *expert_info_comment, *expert_info_none;
+static GtkWidget    *expert_info_placeholder;
 
-static GtkWidget    *capture_comment_none, *capture_comment;
+static GtkWidget    *capture_comment_none, *capture_comment, *capture_comment_placeholder;
 
 static guint         main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
 static guint         status_levels[NUM_STATUS_LEVELS];
@@ -305,6 +306,12 @@ statusbar_new(void)
     status_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(status_hbox), 0);
 
+    /* expert info indicator */
+    status_expert_new();
+
+    /* Capture comments indicator */
+    status_capture_comment_new();
+
     /* info (main) statusbar */
     info_bar_new();
 
@@ -313,12 +320,6 @@ statusbar_new(void)
 
     /* profile statusbar */
     profile_bar_new();
-
-    /* expert info indicator */
-    status_expert_new();
-
-    /* Capture comments indicator */
-    status_capture_comment_new();
 
     /* Pane for the statusbar */
     status_pane_left = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
@@ -370,8 +371,10 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
     g_object_ref(G_OBJECT(expert_info_chat));
     g_object_ref(G_OBJECT(expert_info_comment));
     g_object_ref(G_OBJECT(expert_info_none));
+    g_object_ref(G_OBJECT(expert_info_placeholder));
     g_object_ref(G_OBJECT(capture_comment));
     g_object_ref(G_OBJECT(capture_comment_none));
+    g_object_ref(G_OBJECT(capture_comment_placeholder));
 
 
     /* empty all containers participating */
@@ -389,8 +392,10 @@ statusbar_widgets_pack(GtkWidget *statusbar)
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_comment, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_placeholder, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), capture_comment, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), capture_comment_none, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), capture_comment_placeholder, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), status_pane_left, TRUE, TRUE, 0);
     gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar_event, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
@@ -610,10 +615,18 @@ status_expert_new(void)
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
     g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
+
+    expert_image = pixbuf_to_widget(expert_none_pb_data);
+    gtk_widget_show(expert_image);
+    expert_info_placeholder = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_placeholder), expert_image);
+    gtk_widget_set_sensitive(expert_info_placeholder, FALSE);
+
+    gtk_widget_show(expert_info_placeholder);
 }
 
 static void
-status_expert_hide(void)
+status_expert_hide(gboolean show_placeholder)
 {
     /* reset expert info indicator */
     gtk_widget_hide(expert_info_error);
@@ -622,12 +635,17 @@ status_expert_hide(void)
     gtk_widget_hide(expert_info_chat);
     gtk_widget_hide(expert_info_comment);
     gtk_widget_hide(expert_info_none);
+
+    if (show_placeholder)
+        gtk_widget_show(expert_info_placeholder);
+    else
+        gtk_widget_hide(expert_info_placeholder);
 }
 
 void
 status_expert_update(void)
 {
-    status_expert_hide();
+    status_expert_hide(FALSE);
 
     switch(expert_get_highest_severity()) {
     case(PI_ERROR):
@@ -670,18 +688,30 @@ status_capture_comment_new(void)
     gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
     g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
 
+    comment_image = pixbuf_to_widget(capture_comment_add_pb_data);
+    gtk_widget_show(comment_image);
+    capture_comment_placeholder = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(capture_comment_placeholder), comment_image);
+    gtk_widget_set_sensitive(capture_comment_placeholder, FALSE);
+
+    gtk_widget_show(capture_comment_placeholder);
     /* comment_image = pixbuf_to_widget(capture_comment_disabled_pb_data); ... */
 
 }
 
 static void
-status_capture_comment_hide(void)
+status_capture_comment_hide(gboolean show_placeholder)
 {
     edit_capture_comment_dlg_hide();
 
     /* reset capture coment info indicator */
     gtk_widget_hide(capture_comment);
     gtk_widget_hide(capture_comment_none);
+
+    if (show_placeholder)
+        gtk_widget_show(capture_comment_placeholder);
+    else
+        gtk_widget_hide(capture_comment_placeholder);
 }
 
 void
@@ -689,7 +719,7 @@ status_capture_comment_update(void)
 {
     const gchar *comment_str;
 
-    status_capture_comment_hide();
+    status_capture_comment_hide(FALSE);
 
     comment_str = cf_read_shb_comment(&cfile);
 
@@ -731,7 +761,7 @@ statusbar_cf_file_closing_cb(capture_file *cf _U_)
     statusbar_pop_file_msg();
 
     /* reset expert info indicator */
-    status_expert_hide();
+    status_expert_hide(FALSE);
     gtk_widget_show(expert_info_none);
 }
 
@@ -741,10 +771,10 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 {
     /* go back to "No packets" */
     packets_bar_update();
-    /* Remove comments icon */
-    status_capture_comment_hide();
-    /* Remove experts icon */
-    status_expert_hide();
+    /* Disable the comments icon */
+    status_capture_comment_hide(TRUE);
+    /* Disable the experts icon */
+    status_expert_hide(TRUE);
 }
 
 
