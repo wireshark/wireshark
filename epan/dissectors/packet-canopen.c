@@ -73,14 +73,14 @@ static gint ett_canopen = -1;
 #define FC_NMT_ERR_CONTROL      0xE
 
 static const value_string CAN_open_bcast_msg_type_vals[] = {
-    { FC_NMT,              "EMERGENCY"},
+    { FC_NMT,              "NMT"},
     { FC_SYNC,             "Sync"},
     { FC_TIME_STAMP,       "TIME STAMP"},
     { 0, NULL}
 };
 
 static const value_string CAN_open_p2p_msg_type_vals[] = {
-    { FC_EMERGENCY,        "EMERGENCY"},
+    { FC_EMERGENCY,        "EMCY"},
     { FC_PDO1_TX,          "PDO1 (tx)"},
     { FC_PDO1_RX,          "PDO1 (rx)"},
     { FC_PDO2_TX,          "PDO2 (tx)"},
@@ -103,7 +103,7 @@ static const value_string CAN_open_p2p_msg_type_vals[] = {
 #define MT_EMERGENCY                     4
 #define MT_PDO                           5
 #define MT_SDO                           6
-#define MT_NMT_GUARD                     7
+#define MT_NMT_ERR_CTRL                  7
 
 /* TIME STAMP conversion defines */
 #define TS_DAYS_BETWEEN_1970_AND_1984   5113
@@ -122,10 +122,7 @@ static const value_string nmt_ctrl_cs[] = {
 
 /* NMT states */
 static const value_string nmt_guard_state[] = {
-    { 0x00, "Initialising"},
-    { 0x01, "Disconnected"},
-    { 0x02, "Connecting"},
-    { 0x03, "Preparing"},
+    { 0x00, "Boot-up"},
     { 0x04, "Stopped"},
     { 0x05, "Operational"},
     { 0x7F, "Pre-operational"},
@@ -180,7 +177,7 @@ canopen_detect_msg_type(guint function_code, guint node_id)
             return MT_SDO;
             break;
         case FC_NMT_ERR_CONTROL:
-            return MT_NMT_GUARD;
+            return MT_NMT_ERR_CTRL;
             break;
         default:
             return MT_UNKNOWN;
@@ -237,7 +234,8 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         proto_tree *canopen_cob_tree;
         proto_tree *canopen_type_tree;
 
-        ti = proto_tree_add_item(tree, proto_canopen, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_canopen, tvb, 0,
+            (msg_type_id == MT_SYNC) || (msg_type_id == MT_NMT_ERR_CTRL) ? 0 : -1, ENC_NA);
         canopen_tree = proto_item_add_subtree(ti, ett_canopen);
 
         /* add COB-ID with function code and node id */
@@ -255,28 +253,30 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         /* add CANopen frame type */
 
         canopen_type_tree = proto_tree_add_subtree_format(canopen_tree, tvb, 0,
-                                      (msg_type_id != MT_SYNC) ? -1 : 0,
+                                      (msg_type_id == MT_SYNC) || (msg_type_id == MT_NMT_ERR_CTRL) ? 0 : -1,
                                       ett_canopen, NULL, "Type: %s", function_code_str);
         switch(msg_type_id)
         {
         case MT_NMT_CTRL:
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_nmt_ctrl_cs, tvb, offset, 1, ENC_BIG_ENDIAN);
+                hf_canopen_nmt_ctrl_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_nmt_ctrl_node_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                hf_canopen_nmt_ctrl_node_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             break;
-        case MT_NMT_GUARD:
-            proto_tree_add_item(canopen_type_tree,
-                hf_canopen_nmt_guard_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+        case MT_NMT_ERR_CTRL:
+            if (tvb_reported_length(tvb) > 0) {
+                proto_tree_add_item(canopen_type_tree,
+                    hf_canopen_nmt_guard_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            }
             break;
         case MT_SYNC:
             break;
         case MT_TIME_STAMP:
             /* calculate the real time stamp */
             time_stamp_msec = tvb_get_letohl(tvb, offset);
-            time_stamp_days = tvb_get_ntohs(tvb, offset + 4);
+            time_stamp_days = tvb_get_letohs(tvb, offset + 4);
             time_stamp.secs = (time_stamp_days + TS_DAYS_BETWEEN_1970_AND_1984)
                 * TS_SECONDS_IN_PER_DAY + (time_stamp_msec / 1000);
             time_stamp.nsecs = (time_stamp_msec % 1000) * TS_NANOSEC_PER_MSEC;
@@ -286,7 +286,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             proto_tree_add_uint(canopen_type_tree,
                 hf_canopen_time_stamp_ms, tvb, offset, 4, time_stamp_msec);
-            offset += 2;
+            offset += 4;
 
             proto_tree_add_uint(canopen_type_tree,
                 hf_canopen_time_stamp_days, tvb, offset, 2, time_stamp_days);
@@ -294,11 +294,11 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             break;
         case MT_EMERGENCY:
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_em_err_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                hf_canopen_em_err_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_em_err_reg, tvb, offset, 1, ENC_BIG_ENDIAN);
+                hf_canopen_em_err_reg, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             proto_tree_add_item(canopen_type_tree,
@@ -316,15 +316,15 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             break;
         case MT_SDO:
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
+                hf_canopen_sdo_cmd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_main_idx, tvb, offset, 2, ENC_BIG_ENDIAN);
+                hf_canopen_sdo_main_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(canopen_type_tree,
-                hf_canopen_sdo_sub_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
+                hf_canopen_sdo_sub_idx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             proto_tree_add_item(canopen_type_tree,
@@ -333,7 +333,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
@@ -413,7 +413,7 @@ proto_register_canopen(void)
             NULL, HFILL }
         },
         { &hf_canopen_nmt_guard_state,
-          { "Node-ID", "canopen.nmt_guard.state",
+          { "State", "canopen.nmt_guard.state",
             FT_UINT8, BASE_HEX, VALS(nmt_guard_state), 0x7F,
             NULL, HFILL }
         },
