@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 
 #include "packet-e212.h"
+#include "packet-a21.h"
 
 void proto_register_a21(void);
 void proto_reg_handoff_a21(void);
@@ -535,7 +536,7 @@ static const value_string a21_element_type_vals[] = {
 
 
 void
-dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, gint offset,  guint8 message_type)
+dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, gint offset, guint8 message_type)
 {
 	guint8 ie_type, length_len;
 	guint16 length = 0;
