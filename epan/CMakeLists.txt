@@ -1788,23 +1788,37 @@ endif()
 
 add_executable(wmem_test wmem/wmem_test.c ${WMEM_FILES})
 target_link_libraries(wmem_test ${GLIB2_LIBRARIES})
-set_target_properties(wmem_test PROPERTIES FOLDER "Tests")
+set_target_properties(wmem_test PROPERTIES
+	FOLDER "Tests"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
 
 add_executable(exntest exntest.c except.c)
 target_link_libraries(exntest ${GLIB2_LIBRARIES})
-set_target_properties(exntest PROPERTIES FOLDER "Tests")
+set_target_properties(exntest PROPERTIES
+	FOLDER "Tests"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
 
 add_executable(oids_test oids_test.c)
 target_link_libraries(oids_test epan)
-set_target_properties(oids_test PROPERTIES FOLDER "Tests")
+set_target_properties(oids_test PROPERTIES
+	FOLDER "Tests"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
 
 add_executable(reassemble_test reassemble_test.c)
 target_link_libraries(reassemble_test epan)
-set_target_properties(reassemble_test PROPERTIES FOLDER "Tests")
+set_target_properties(reassemble_test PROPERTIES
+	FOLDER "Tests"
+)
 
 add_executable(tvbtest tvbtest.c)
 target_link_libraries(tvbtest epan)
-set_target_properties(tvbtest PROPERTIES FOLDER "Tests")
+set_target_properties(tvbtest PROPERTIES
+	FOLDER "Tests"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
