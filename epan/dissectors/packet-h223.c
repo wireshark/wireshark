@@ -979,7 +979,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
             end_of_mux_sdu = raw_hdr & 1;
             offset++;
             /* closing flag is one byte long for h223 level 0, two for level 1 */
-            len = mpl = tvb_length_remaining(tvb, offset)-(call_info->h223_level+1);
+            len = mpl = tvb_reported_length_remaining(tvb, offset)-(call_info->h223_level+1);
 
             /* XXX should ignore pdus with incorrect HECs */
             break;
@@ -988,7 +988,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
             raw_hdr = tvb_get_letoh24(tvb,0);
             errors = golay_errors(raw_hdr);
             offset += 3;
-            len = tvb_length_remaining(tvb,offset)-2;
+            len = tvb_reported_length_remaining(tvb,offset)-2;
 
             if(errors != -1) {
                 correct_hdr = raw_hdr ^ (guint32)errors;
@@ -1398,7 +1398,7 @@ dissect_h223_bitswapped_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8 *datax;
     guint len;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     datax = (guint8 *) tvb_memdup(pinfo->pool, tvb, 0, len);
     bitswap_buf_inplace(datax, len);
 

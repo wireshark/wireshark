@@ -885,7 +885,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
   /* calculate padding and total length */
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
   parameter_tree = proto_tree_add_subtree(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,

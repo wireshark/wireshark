@@ -476,7 +476,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 hdr_len, type, sub_type, timeslot, subslot;
 	guint16 arfcn;
 
-	len = tvb_length(tvb);
+	len = tvb_reported_length(tvb);
 
 	hdr_len = tvb_get_guint8(tvb, offset + 1) <<2;
 	type = tvb_get_guint8(tvb, offset + 2);

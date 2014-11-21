@@ -50,14 +50,14 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
     heur_dtbl_entry_t *hdtbl_entry;
 
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, data)) {
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
 
     /* Add media type to the INFO column if it is visible */
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", (pinfo->match_string) ? pinfo->match_string : "");
 
     if (tree) {
-        if ( (bytes = tvb_length(tvb)) > 0 )
+        if ( (bytes = tvb_reported_length(tvb)) > 0 )
         {
             ti = proto_tree_add_item(tree, proto_media, tvb, 0, -1, ENC_NA);
             media_tree = proto_item_add_subtree(ti, ett_media);
@@ -78,7 +78,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void

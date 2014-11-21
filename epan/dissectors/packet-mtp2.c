@@ -135,7 +135,7 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 static guint16
 mtp2_fcs16(tvbuff_t * tvbuff)
 {
-  guint len = tvb_length(tvbuff)-2;
+  guint len = tvb_reported_length(tvbuff)-2;
 
   /* Check for Invalid Length */
   if (len == 0)
@@ -160,7 +160,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
   /*
    * Do we have the entire packet, and does it include a 2-byte FCS?
    */
-  len = tvb_length_remaining(tvb, proto_offset);
+  len = tvb_reported_length_remaining(tvb, proto_offset);
   reported_len = tvb_reported_length_remaining(tvb, proto_offset);
   if (reported_len < 2 || len < 0) {
     /*
@@ -280,10 +280,10 @@ dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pr
   col_set_str(pinfo->cinfo, COL_INFO, "MSU ");
 
   if (use_extended_sequence_numbers) {
-    sif_sio_length = tvb_length(su_tvb) - EXTENDED_HEADER_LENGTH;
+    sif_sio_length = tvb_reported_length(su_tvb) - EXTENDED_HEADER_LENGTH;
     sif_sio_tvb = tvb_new_subset_length(su_tvb, EXTENDED_SIO_OFFSET, sif_sio_length);
   } else {
-    sif_sio_length = tvb_length(su_tvb) - HEADER_LENGTH;
+    sif_sio_length = tvb_reported_length(su_tvb) - HEADER_LENGTH;
     sif_sio_tvb = tvb_new_subset_length(su_tvb, SIO_OFFSET, sif_sio_length);
   }
   call_dissector(mtp3_handle, sif_sio_tvb, pinfo, tree);
