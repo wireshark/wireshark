@@ -221,6 +221,13 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
     if (!module) return;
 
+    /* Show the preference's description at the top of the page */
+    QFont font;
+    font.setBold(TRUE);
+    QLabel *label = new QLabel(module->description);
+    label->setFont(font);
+    ui->verticalLayout->addWidget(label);
+
     /* Add items for each of the preferences */
     prefs_pref_foreach(module, pref_show, (gpointer) ui->verticalLayout);
 
