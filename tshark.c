@@ -3596,7 +3596,7 @@ write_preamble(capture_file *cf)
     if (print_details)
       write_pdml_preamble(stdout, cf ? cf->filename : NULL);
     else
-      write_psml_preamble(stdout);
+      write_psml_preamble(cf, stdout);
     return !ferror(stdout);
 
   case WRITE_FIELDS:

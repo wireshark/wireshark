@@ -87,8 +87,6 @@ struct _output_fields {
 
 GHashTable *output_only_tables = NULL;
 
-static gboolean write_headers = FALSE;
-
 static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
@@ -587,33 +585,28 @@ write_pdml_finale(FILE *fh)
 }
 
 void
-write_psml_preamble(FILE *fh)
+write_psml_preamble(capture_file *cf, FILE *fh)
 {
+    gint i;
+
     fputs("<?xml version=\"1.0\"?>\n", fh);
     fputs("<psml version=\"" PSML_VERSION "\" ", fh);
     fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
-    write_headers = TRUE;
+    fprintf(fh, "<structure>\n");
+
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+        fprintf(fh, "<section>");
+        print_escaped_xml(fh, cf->cinfo.col_title[i]);
+        fprintf(fh, "</section>\n");
+    }
+
+    fprintf(fh, "</structure>\n\n");
 }
 
 void
 proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
 {
     gint i;
-
-    /* if this is the first packet, we have to create the PSML structure output */
-    if (write_headers) {
-        fprintf(fh, "<structure>\n");
-
-        for (i = 0; i < edt->pi.cinfo->num_cols; i++) {
-            fprintf(fh, "<section>");
-            print_escaped_xml(fh, edt->pi.cinfo->col_title[i]);
-            fprintf(fh, "</section>\n");
-        }
-
-        fprintf(fh, "</structure>\n\n");
-
-        write_headers = FALSE;
-    }
 
     fprintf(fh, "<packet>\n");
 
@@ -630,12 +623,6 @@ void
 write_psml_finale(FILE *fh)
 {
     fputs("</psml>\n", fh);
-}
-
-void
-write_csv_preamble(FILE *fh _U_)
-{
-    write_headers = TRUE;
 }
 
 static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
@@ -671,17 +658,19 @@ static void csv_write_str(const char *str, char sep, FILE *fh)
 }
 
 void
-proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
+write_csv_preamble(capture_file *cf, FILE *fh)
 {
     gint i;
 
-    /* if this is the first packet, we have to write the CSV header */
-    if (write_headers) {
-        for (i = 0; i < edt->pi.cinfo->num_cols - 1; i++)
-            csv_write_str(edt->pi.cinfo->col_title[i], ',', fh);
-        csv_write_str(edt->pi.cinfo->col_title[i], '\n', fh);
-        write_headers = FALSE;
-    }
+    for (i = 0; i < cf->cinfo.num_cols - 1; i++)
+        csv_write_str(cf->cinfo.col_title[i], ',', fh);
+    csv_write_str(cf->cinfo.col_title[i], '\n', fh);
+}
+
+void
+proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
+{
+    gint i;
 
     for (i = 0; i < edt->pi.cinfo->num_cols - 1; i++)
         csv_write_str(edt->pi.cinfo->col_data[i], ',', fh);

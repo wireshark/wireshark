@@ -111,11 +111,11 @@ WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
 WS_DLL_PUBLIC void proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
-WS_DLL_PUBLIC void write_psml_preamble(FILE *fh);
+WS_DLL_PUBLIC void write_psml_preamble(capture_file *cf, FILE *fh);
 WS_DLL_PUBLIC void proto_tree_write_psml(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_psml_finale(FILE *fh);
 
-WS_DLL_PUBLIC void write_csv_preamble(FILE *fh);
+WS_DLL_PUBLIC void write_csv_preamble(capture_file *cf, FILE *fh);
 WS_DLL_PUBLIC void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_csv_finale(FILE *fh);
 

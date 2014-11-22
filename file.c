@@ -2821,7 +2821,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_psml_preamble(fh);
+  write_psml_preamble(cf, fh);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
@@ -2902,7 +2902,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_csv_preamble(fh);
+  write_csv_preamble(cf, fh);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
