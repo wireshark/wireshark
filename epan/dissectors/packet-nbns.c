@@ -1381,7 +1381,6 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8        error_code;
     tvbuff_t     *next_tvb;
     const char   *saved_proto;
-    void         *pd_save;
     static const int * nbss_flags[] = {
         &hf_nbss_flags_e,
         NULL
@@ -1479,16 +1478,10 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * data.
          */
         saved_proto = pinfo->current_proto;
-        pd_save = pinfo->private_data;
         TRY {
             dissect_netbios_payload(next_tvb, pinfo, tree);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
             pinfo->current_proto = saved_proto;
         }

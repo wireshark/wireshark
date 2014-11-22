@@ -6640,7 +6640,6 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint         length;
     volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
     tvbuff_t *volatile next_tvb;
-    void *pd_save;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -6789,16 +6788,10 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * stop dissecting PDUs within this frame or chunk of reassembled
          * data.
          */
-        pd_save = pinfo->private_data;
         TRY {
             dissect_bgp_pdu(next_tvb, pinfo, tree, first);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;

@@ -77,7 +77,6 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ti, *cwids_tree;
 	volatile int offset = 0;
 	guint16 capturelen;
-	void *pd_save;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
 	col_set_str(pinfo->cinfo, COL_INFO, "Cwids: ");
@@ -107,17 +106,11 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		wlan_tvb = tvb_new_subset_length(tvb, offset, capturelen);
 		/* Continue after ieee80211 dissection errors */
-		pd_save = pinfo->private_data;
 		TRY {
 			call_dissector(ieee80211_handle, wlan_tvb, pinfo, tree);
 		} CATCH_BOUNDS_ERRORS {
 			show_exception(wlan_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
-			/*  Restore the private_data structure in case one of the
-			 *  called dissectors modified it (and, due to the exception,
-			 *  was unable to restore it).
-			 */
-			pinfo->private_data = pd_save;
 			expert_add_info(pinfo, ti, &ie_ieee80211_subpacket);
 		} ENDTRY;
 

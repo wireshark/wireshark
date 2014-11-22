@@ -2565,14 +2565,11 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
     guint32      header_len;
     asn1_ctx_t   asn1_ctx;
     tvbuff_t    *SS_tvb        = NULL;
-    void        *save_private_data;
     static gint  comp_type_tag;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    save_private_data= pinfo->private_data;
     saved_offset = offset;
-    pinfo->private_data = NULL;
     col_append_str(pinfo->cinfo, COL_PROTOCOL,"/");
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
     while (fac_len > (offset - saved_offset)) {
@@ -2593,7 +2590,6 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
         call_dissector(gsm_map_handle, SS_tvb, pinfo, tree);
         offset = offset + component_len;
     }
-    pinfo->private_data = save_private_data;
     return (fac_len);
 }
 /*

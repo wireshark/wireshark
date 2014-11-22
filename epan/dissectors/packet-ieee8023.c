@@ -47,7 +47,6 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   tvbuff_t   *trailer_tvb = NULL;
   const char *saved_proto;
   gint        captured_length, reported_length;
-  void       *pd_save;
 
   length_it = proto_tree_add_uint(fh_tree, length_id, tvb,
                                   offset_after_length - 2, 2, length);
@@ -81,7 +80,6 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
      exception was thrown, we can still put in an item for
      the trailer. */
   saved_proto = pinfo->current_proto;
-  pd_save = pinfo->private_data;
   TRY {
     if (is_802_2)
       call_dissector(llc_handle, next_tvb, pinfo, tree);
@@ -104,17 +102,13 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
        Just show the exception and then drive on to show the trailer,
        after noting that a dissector was found and restoring the
        protocol value that was in effect before we called the subdissector. */
-    pinfo->private_data = pd_save;
-
     show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   }
   ENDTRY;
 
   /* Restore the protocol value, so that any exception thrown by
      tvb_new_subset_remaining() refers to the protocol for which
-     this is a trailer, and restore the private_data structure in
-     case one of the called dissectors modified it. */
-  pinfo->private_data = pd_save;
+     this is a trailer. */
   pinfo->current_proto = saved_proto;
 
   /* Construct a tvbuff for the trailer; if the trailer is past the

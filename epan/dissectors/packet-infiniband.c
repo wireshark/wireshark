@@ -2490,7 +2490,6 @@ static void parse_PAYLOAD(proto_tree *parentTree,
          * call the appropriate dissector. If not we call the "data" dissector.
          */
         if (!dissector_found && pref_identify_iba_payload && (reserved == 0)) {
-            void *pd_save;
 
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
@@ -2504,7 +2503,6 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                was reduced by some dissector before an exception was thrown,
                we can still put in an item for the trailer. */
             saved_proto = pinfo->current_proto;
-            pd_save = pinfo->private_data;
 
             TRY {
                 dissector_found = dissector_try_uint(ethertype_dissector_table,
@@ -2521,11 +2519,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                    the trailer, after noting that a dissector was found
                    and restoring the protocol value that was in effect
                    before we called the subdissector.
-
-                   Restore the private_data structure in case one of the
-                   called dissectors modified it (and, due to the exception,
-                   was unable to restore it). */
-                pinfo->private_data = pd_save;
+                */
 
                 show_exception(next_tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
                 dissector_found = TRUE;

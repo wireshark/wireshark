@@ -632,7 +632,6 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     gboolean          save_writable;
     gboolean          save_in_error_pkt;
     address           save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
-    void             *pd_save;
 
     version = tvb_get_ntohl(tvb, 0);
     header_proto = tvb_get_ntohl(tvb, offset);
@@ -695,7 +694,6 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     save_net_dst = pinfo->net_dst;
     save_src = pinfo->src;
     save_dst = pinfo->dst;
-    pd_save = pinfo->private_data;
 
     TRY
     {
@@ -707,11 +705,6 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     CATCH_BOUNDS_ERRORS {
-        /*  Restore the private_data structure in case one of the
-         *  called dissectors modified it (and, due to the exception,
-         *  was unable to restore it).
-         */
-        pinfo->private_data = pd_save;
     }
     ENDTRY;
 

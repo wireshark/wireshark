@@ -3104,8 +3104,6 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     guint16             plen;
     int                 length;
     tvbuff_t *volatile  next_tvb;
-    void               *pd_save;
-
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
         length_remaining = tvb_length_remaining(tvb, offset);
 
@@ -3220,16 +3218,10 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          * stop dissecting PDUs within this frame or chunk of reassembled
          * data.
          */
-        pd_save = pinfo->private_data;
         TRY {
             dissect_ldp_pdu(next_tvb, pinfo, tree);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;

@@ -3328,10 +3328,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   if (call_subdissector) {
     /* This isn't a fragment or reassembly is off and it's the first fragment */
 
-    void *pd_save;
     volatile gboolean retval = FALSE;
 
-    pd_save = pinfo->private_data;
     TRY {
       wmem_list_frame_t *cur;
       guint proto_id;
@@ -3356,12 +3354,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        * protocol or info columns.
        *
        * Just show the exception and then continue dissecting chunks.
-       *
-       * Restore the private_data structure in case one of the
-       * called dissectors modified it (and, due to the exception,
-       * was unable to restore it).
        */
-      pinfo->private_data = pd_save;
       show_exception(payload_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;

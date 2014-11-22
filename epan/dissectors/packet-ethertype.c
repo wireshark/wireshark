@@ -253,7 +253,6 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	gint		   captured_length, reported_length;
 	volatile gboolean  dissector_found = FALSE;
 	const char	  *volatile saved_proto;
-	void		  *pd_save;
 	ethertype_data_t  *ethertype_data;
 
 	/* Reject the packet if data is NULL */
@@ -298,7 +297,6 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	   was reduced by some dissector before an exception was thrown,
 	   we can still put in an item for the trailer. */
 	saved_proto = pinfo->current_proto;
-	pd_save = pinfo->private_data;
 	TRY {
 		dissector_found = dissector_try_uint(ethertype_dissector_table,
 						     ethertype_data->etype, next_tvb, pinfo, tree);
@@ -316,11 +314,6 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		   before we called the subdissector. */
 		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
-		/*  Restore the private_data structure in case one of the
-		 *  called dissectors modified it (and, due to the exception,
-		 *  was unable to restore it).
-		 */
-		pinfo->private_data = pd_save;
 		dissector_found = TRUE;
 		pinfo->current_proto = saved_proto;
 	}

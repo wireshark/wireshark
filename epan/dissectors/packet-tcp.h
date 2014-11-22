@@ -77,8 +77,7 @@ typedef struct tcpheader {
 } tcp_info_t;
 
 /*
- * Private data passed from the TCP dissector to subdissectors. Passed to the
- * subdissectors in pinfo->private_data
+ * Private data passed from the TCP dissector to subdissectors.
  */
 struct tcpinfo {
 	guint32 seq;             /* Sequence number of first byte in the data */

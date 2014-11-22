@@ -198,7 +198,6 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gssapi_frag_info_t *fi;
 	tvbuff_t *volatile gss_tvb=NULL;
 	asn1_ctx_t asn1_ctx;
-	void *pd_save;
 
 	start_offset=0;
 	offset=0;
@@ -243,7 +242,6 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * in the packet after our blob to see, so we just re-throw the
 	 * exception.
 	 */
-	pd_save = pinfo->private_data;
 	TRY {
 		gss_tvb=tvb;
 
@@ -515,12 +513,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * the trailer, after noting that a dissector was found
 		 * and restoring the protocol value that was in effect
 		 * before we called the subdissector.
-		 *
-		 * Restore the private_data structure in case one of the
-		 * called dissectors modified it (and, due to the exception,
-		 * was unable to restore it).
 		 */
-		pinfo->private_data = pd_save;
 		show_exception(gss_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 

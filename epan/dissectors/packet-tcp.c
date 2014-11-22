@@ -2271,7 +2271,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *next_tvb;
     proto_item *item=NULL;
     const char *saved_proto;
-    void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
@@ -2416,7 +2415,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * data.
          */
         saved_proto = pinfo->current_proto;
-        pd_save = pinfo->private_data;
         TRY {
             (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
         }
@@ -2425,7 +2423,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              *  called dissectors modified it (and, due to the exception,
              *  was unable to restore it).
              */
-            pinfo->private_data = pd_save;
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
             /*

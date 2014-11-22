@@ -208,10 +208,8 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     } else {
       const gchar  *saved_match_string = pinfo->match_string;
-      void *save_private_data = pinfo->private_data;
 
       pinfo->match_string = NULL;
-      pinfo->private_data = NULL;
       switch (pref_text_type) {
       case WEBSOCKET_TEXT:
           call_dissector(text_lines_handle, payload_tvb, pinfo, pl_tree);
@@ -229,7 +227,6 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
           break;
       }
       pinfo->match_string = saved_match_string;
-      pinfo->private_data = save_private_data;
     }
     offset += payload_length;
     break;

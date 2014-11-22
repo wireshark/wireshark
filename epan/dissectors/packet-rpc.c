@@ -3004,11 +3004,9 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 {
 	const char *saved_proto;
 	volatile gboolean rpc_succeeded;
-	void *pd_save;
 
 	saved_proto = pinfo->current_proto;
 	rpc_succeeded = FALSE;
-	pd_save = pinfo->private_data;
 	TRY {
 		rpc_succeeded = (*dissector)(rec_tvb, pinfo, tree,
 		    frag_tvb, ipfd_head, TRUE, rpc_rm, first_pdu);
@@ -3025,12 +3023,6 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 		 */
 		show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		pinfo->current_proto = saved_proto;
-
-		/*  Restore the private_data structure in case one of the
-		 *  called dissectors modified it (and, due to the exception,
-		 *  was unable to restore it).
-		 */
-		pinfo->private_data = pd_save;
 
 		/*
 		 * We treat this as a "successful" dissection of

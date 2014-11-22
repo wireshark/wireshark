@@ -1205,7 +1205,6 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
     gboolean header_parsed = FALSE;
     guint32 header_buf = 0, tail_buf = 0;
     guint32 pdu_minlen = 0;
-    void *pd_save;
 
 
 #ifdef DEBUG_H223_FRAGMENTATION
@@ -1272,16 +1271,10 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
      * stop dissecting PDUs within this frame or chunk of reassembled
      * data.
      */
-    pd_save = pinfo->private_data;
     TRY {
         dissect_mux_pdu( next_tvb, pinfo, start_offset, h223_tree, call_info, ctype, circuit_id);
     }
     CATCH_NONFATAL_ERRORS {
-        /*  Restore the private_data structure in case one of the
-         *  called dissectors modified it (and, due to the exception,
-         *  was unable to restore it).
-         */
-        pinfo->private_data = pd_save;
         show_exception(tvb, pinfo, h223_tree, EXCEPT_CODE, GET_MESSAGE);
     }
 

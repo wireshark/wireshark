@@ -2444,7 +2444,6 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *volatile next_tvb;
     proto_item *tds_item = NULL;
     proto_tree *tds_tree = NULL;
-    void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
         length_remaining = tvb_ensure_length_remaining(tvb, offset);
@@ -2571,16 +2570,10 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * we should stop dissecting Netlib buffers within this frame
          * or chunk of reassembled data.
          */
-        pd_save = pinfo->private_data;
         TRY {
             dissect_netlib_buffer(next_tvb, pinfo, tree);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
 
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }

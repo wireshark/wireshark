@@ -1957,7 +1957,6 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   guint32               ntlm_magic_size     = 4;
   guint32               ntlm_signature_size = 8;
   guint32               ntlm_seq_size       = 4;
-  void                 *pd_save;
 
   length = tvb_length (tvb);
   /* signature + seq + real payload */
@@ -1991,7 +1990,6 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
-  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
@@ -2010,11 +2008,6 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     offset += 12;
   } CATCH_NONFATAL_ERRORS {
-    /*  Restore the private_data structure in case one of the
-     *  called dissectors modified it (and, due to the exception,
-     *  was unable to restore it).
-     */
-    pinfo->private_data = pd_save;
     show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
@@ -2137,7 +2130,6 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *volatile  ntlmssp_tree = NULL;
   proto_item           *tf, *type_item;
   ntlmssp_header_t     *ntlmssph;
-  void                 *pd_save;
 
   ntlmssph = wmem_new(wmem_packet_scope(), ntlmssp_header_t);
   ntlmssph->type = 0;
@@ -2165,7 +2157,6 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
-  pd_save = pinfo->private_data;
   TRY {
     /* NTLMSSP constant */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
@@ -2204,11 +2195,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   } CATCH_NONFATAL_ERRORS {
-    /*  Restore the private_data structure in case one of the
-     *  called dissectors modified it (and, due to the exception,
-     *  was unable to restore it).
-     */
-    pinfo->private_data = pd_save;
+
     show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
@@ -2400,7 +2387,6 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
   guint32               encrypted_block_length;
-  void                 *pd_save;
 
   /* the magic ntlm is the identifier of a NTLMSSP packet that's 00 00 00 01
    */
@@ -2430,7 +2416,6 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
-  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
 
@@ -2439,11 +2424,7 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
     /* let's try to hook ourselves here */
 
   } CATCH_NONFATAL_ERRORS {
-    /*  Restore the private_data structure in case one of the
-     *  called dissectors modified it (and, due to the exception,
-     *  was unable to restore it).
-     */
-    pinfo->private_data = pd_save;
+
     show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
@@ -2461,7 +2442,6 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_item           *tf           = NULL;
   guint32               verifier_length;
   guint32               encrypted_block_length;
-  void                 *pd_save;
 
   verifier_length = tvb_length (tvb);
   encrypted_block_length = verifier_length - 4;
@@ -2494,7 +2474,6 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
-  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
@@ -2512,11 +2491,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset += 12;
     offset += encrypted_block_length;
   } CATCH_NONFATAL_ERRORS {
-    /*  Restore the private_data structure in case one of the
-     *  called dissectors modified it (and, due to the exception,
-     *  was unable to restore it).
-     */
-    pinfo->private_data = pd_save;
+
     show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 

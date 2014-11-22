@@ -219,7 +219,6 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
     guint8 string[4];
-    void *pd_save;
 
     /*
      * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
@@ -334,17 +333,11 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * we should stop dissecting TPKT messages within this frame
          * or chunk of reassembled data.
          */
-        pd_save = pinfo->private_data;
         TRY {
             call_dissector(subdissector_handle, next_tvb, pinfo,
                        tree);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
 
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
@@ -372,7 +365,6 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     volatile int length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
-    void *pd_save;
 
     /*
      * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
@@ -546,18 +538,11 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * messages within this frame or chunk of reassembled
          * data.
          */
-        pd_save = pinfo->private_data;
         TRY {
             call_dissector(subdissector_handle, next_tvb, pinfo,
                 tree);
         }
         CATCH_NONFATAL_ERRORS {
-            /*  Restore the private_data structure in case one of the
-             *  called dissectors modified it (and, due to the exception,
-             *  was unable to restore it).
-             */
-            pinfo->private_data = pd_save;
-
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
