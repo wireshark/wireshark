@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
     char                 badopt;
     guint                go_to_packet = 0;
 
-    QString              dfilter;
+    QString              dfilter, read_filter;
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -583,7 +583,6 @@ int main(int argc, char *argv[])
 
     QString locale;
     QString cf_name;
-    QString display_filter;
     int optind_initial;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
@@ -1021,7 +1020,7 @@ int main(int argc, char *argv[])
             cf_name = optarg;
             break;
         case 'R':        /* Read file filter */
-            /* Not supported yet */
+            read_filter = QString(optarg);
             break;
         case 't':        /* Time stamp type */
             if (strcmp(optarg, "r") == 0)
@@ -1348,7 +1347,7 @@ int main(int argc, char *argv[])
         start_requested_stats();
 
         // XXX The GTK+ UI does error checking here.
-        main_w->openCaptureFile(cf_name, display_filter, in_file_type);
+        main_w->openCaptureFile(cf_name, read_filter, in_file_type);
         if (!dfilter.isEmpty())
             main_w->filterPackets(dfilter, false);
         if(go_to_packet != 0) {

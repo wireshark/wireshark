@@ -109,18 +109,22 @@
 
 const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
-void MainWindow::openCaptureFile(QString& cf_path, QString& display_filter, unsigned int type)
+void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigned int type)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
     int err;
+    gboolean name_param;
+
+    // was a file name given as function parameter?
+    name_param = !cf_path.isEmpty();
 
     testCaptureFileClose(false);
 
     for (;;) {
 
         if (cf_path.isEmpty()) {
-            CaptureFileDialog open_dlg(this, cap_file_, display_filter);
+            CaptureFileDialog open_dlg(this, cap_file_, read_filter);
 
             switch (prefs.gui_fileopen_style) {
 
@@ -143,23 +147,30 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& display_filter, unsi
             }
 
             if (open_dlg.open(file_name, type)) {
-                if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
-                    cf_set_rfcode(&cfile, rfcode);
-                } else {
-                    /* Not valid.  Tell the user, and go back and run the file
-                       selection box again once they dismiss the alert. */
-                    //bad_dfilter_alert_box(top_level, display_filter->str);
-                    QMessageBox::warning(this, tr("Invalid Display Filter"),
-                                         QString("The filter expression ") +
-                                         display_filter +
-                                         QString(" isn't a valid display filter. (") +
-                                         dfilter_error_msg + QString(")."),
-                                         QMessageBox::Ok);
-                    continue;
-                }
                 cf_path = file_name;
             } else {
                 return;
+            }
+        }
+
+        if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode)) {
+            cf_set_rfcode(&cfile, rfcode);
+        } else {
+            /* Not valid.  Tell the user, and go back and run the file
+               selection box again once they dismiss the alert. */
+            //bad_dfilter_alert_box(top_level, read_filter->str);
+            QMessageBox::warning(this, tr("Invalid Display Filter"),
+                    QString("The filter expression ") +
+                    read_filter +
+                    QString(" isn't a valid display filter. (") +
+                    dfilter_error_msg + QString(")."),
+                    QMessageBox::Ok);
+
+            if (!name_param) {
+                // go back to the selection dialogue only if the file
+                // was selected from this dialogue
+                cf_path.clear();
+                continue;
             }
         }
 
@@ -198,10 +209,6 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& display_filter, unsi
     }
     // get_dirname overwrites its path. Hopefully this isn't a problem.
     wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
-    if(display_filter != NULL)
-    {
-        df_combo_box_->setEditText(display_filter);
-    }
 
     main_ui_->statusBar->showExpert();
 }
