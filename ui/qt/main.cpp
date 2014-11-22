@@ -502,6 +502,8 @@ int main(int argc, char *argv[])
     char                 badopt;
     guint                go_to_packet = 0;
 
+    QString              dfilter;
+
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
 #ifdef _WIN32
@@ -1073,7 +1075,7 @@ int main(int argc, char *argv[])
             /* ext ops were already processed just ignore them this time*/
             break;
         case 'Y':
-            /* Not supported yet */
+            dfilter = QString(optarg);
             break;
         case 'z':
             /* We won't call the init function for the stat this soon
@@ -1347,6 +1349,8 @@ int main(int argc, char *argv[])
 
         // XXX The GTK+ UI does error checking here.
         main_w->openCaptureFile(cf_name, display_filter, in_file_type);
+        if (!dfilter.isEmpty())
+            main_w->filterPackets(dfilter, false);
         if(go_to_packet != 0) {
             /* Jump to the specified frame number, kept for backward
                compatibility. */
