@@ -193,7 +193,6 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ENC_ASCII|ENC_NA);
     offset += len;
     channel = str_to_val(strptr, chan_vals, CH_EINVAL);
-    pinfo->private_data = strptr;
     switch (channel) {
         case CH_DIONAEA_CAPTURE:
         case CH_DIONAEA_DCE:
@@ -204,7 +203,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case CH_GLASTOPF_EVENTS:
         case CH_GEOLOC_EVENTS:
             json_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(json_hdl, json_tvb, pinfo, tree);
+            call_dissector_with_data(json_hdl, json_tvb, pinfo, tree, strptr);
         break;
         default:
             proto_tree_add_item(tree, hf_hpfeeds_payload, tvb, offset, -1,
