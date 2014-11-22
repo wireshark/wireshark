@@ -741,7 +741,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
             if (! dissected) {
                 const char *save_match_string = pinfo->match_string;
                 pinfo->match_string = content_type_str;
-                call_dissector(media_handle, tmp_tvb, pinfo, subtree);
+                call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, parameters);
                 pinfo->match_string = save_match_string;
             }
             pinfo->private_data = save_private_data;

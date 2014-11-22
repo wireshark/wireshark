@@ -751,6 +751,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     gboolean private_data_changed = FALSE;
     gboolean is_single_chunk = FALSE;
     gboolean have_entire_body;
+    char *media_str = NULL;
 
     /*
      * Create a tvbuff for the payload.
@@ -908,6 +909,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
 
       if (si->content_type_parameters) {
         pinfo->private_data = wmem_strdup(wmem_packet_scope(), si->content_type_parameters);
+        media_str = (char*)pinfo->private_data;
       } else {
         pinfo->private_data = NULL;
       }
@@ -934,7 +936,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        * Calling the default media handle if there is a content-type that
        * wasn't handled above.
        */
-      call_dissector(media_handle, next_tvb, pinfo, spdy_tree);
+      call_dissector_with_data(media_handle, next_tvb, pinfo, spdy_tree, media_str);
     } else {
       /* Call the default data dissector */
       call_dissector(data_handle, next_tvb, pinfo, spdy_tree);

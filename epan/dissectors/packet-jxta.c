@@ -2050,10 +2050,12 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
         void * save_private_data = pinfo->private_data;
+        char *media_str = NULL;
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
             pinfo->private_data = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
+            media_str = (char*)pinfo->private_data;
             *parms_at = '\0';
         } else {
             pinfo->private_data = NULL;
@@ -2094,7 +2096,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         }
 
         if (0 == dissected) {
-            dissected = call_dissector(media_handle, tvb, pinfo, tree);
+            dissected = call_dissector_with_data(media_handle, tvb, pinfo, tree, media_str);
         }
 
         pinfo->match_string = save_match_string;

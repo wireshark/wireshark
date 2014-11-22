@@ -5035,12 +5035,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
-                        pinfo->private_data = NULL; /* TODO: parameters */
-                        call_dissector(media_handle, tmp_tvb, pinfo, tree);
-                        pinfo->private_data = save_private_data;
+                        call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
                         if (tree) /* Only display if needed */
                             add_post_data (wsp_tree, tmp_tvb,
@@ -5128,12 +5125,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
-                        pinfo->private_data = NULL; /* TODO: parameters */
-                        call_dissector(media_handle, tmp_tvb, pinfo, tree);
-                        pinfo->private_data = save_private_data;
+                        call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
                         if (tree) / * Only display if needed * /
                             proto_tree_add_item (wsp_tree,
@@ -5212,12 +5206,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
-                        pinfo->private_data = NULL; /* TODO: parameters */
-                        call_dissector(media_handle, tmp_tvb, pinfo, tree);
-                        pinfo->private_data = save_private_data;
+                        call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
                         if (tree) /* Only display if needed */
                             proto_tree_add_item (wsp_tree,
@@ -5809,12 +5800,9 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         if (! found_match) {
             if (! dissector_try_heuristic(heur_subdissector_list,
                         tmp_tvb, pinfo, mpart_tree, &hdtbl_entry, NULL)) {
-                guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                 pinfo->match_string = contentTypeStr;
-                pinfo->private_data = NULL; /* TODO: parameters */
-                call_dissector(media_handle, tmp_tvb, pinfo, mpart_tree);
-                pinfo->private_data = save_private_data;
+                call_dissector_with_data(media_handle, tmp_tvb, pinfo, mpart_tree, NULL /* TODO: parameters */);
 #if 0
                 if (tree) /* Only display if needed */
                     proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,

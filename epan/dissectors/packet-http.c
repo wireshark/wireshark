@@ -1270,6 +1270,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		void *save_private_data = NULL;
 		gboolean private_data_changed = FALSE;
 		gint chunks_decoded = 0;
+		char *media_str = NULL;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -1436,8 +1437,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			save_private_data = pinfo->private_data;
 			private_data_changed = TRUE;
 
-			if (headers.content_type_parameters)
+			if (headers.content_type_parameters) {
 				pinfo->private_data = wmem_strdup(wmem_packet_scope(), headers.content_type_parameters);
+				media_str = (char*)pinfo->private_data;
+			}
 			else
 				pinfo->private_data = NULL;
 			/*
@@ -1502,7 +1505,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * Calling the default media handle if there is a content-type that
 				 * wasn't handled above.
 				 */
-				call_dissector(media_handle, next_tvb, pinfo, tree);
+				call_dissector_with_data(media_handle, next_tvb, pinfo, tree, media_str);
 			} else {
 				/* Call the default data dissector */
 				call_dissector(data_handle, next_tvb, pinfo, http_tree);
