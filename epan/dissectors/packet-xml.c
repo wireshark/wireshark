@@ -182,12 +182,13 @@ static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child)
     parent->last_child = new_child;
 }
 
-static void
-dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tvbparse_t       *tt;
     static GPtrArray *stack;
     xml_frame_t      *current_frame;
+    xml_frame_t      **ret_frame = (xml_frame_t**)data;
     const char       *colinfo_str;
 
     if (stack != NULL)
@@ -230,13 +231,16 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     while(tvbparse_get(tt, want)) ;
 
-    pinfo->private_data = current_frame;  /* pass XML structure to the dissector calling XML */
+    if (ret_frame != NULL)
+        *ret_frame = current_frame;  /* pass XML structure to the dissector calling XML */
+
+    return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvbparse_peek(tvbparse_init(tvb, 0, -1, NULL, want_ignore), want_heur)) {
-        dissect_xml(tvb, pinfo, tree);
+        dissect_xml(tvb, pinfo, tree, data);
         return TRUE;
     } else if (pref_heuristic_unicode) {
         /* XXX - UCS-2, or UTF-16? */
@@ -245,7 +249,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         tvb_set_free_cb(unicode_tvb, g_free);
         if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
-            dissect_xml(unicode_tvb, pinfo, tree);
+            dissect_xml(unicode_tvb, pinfo, tree, data);
             return TRUE;
         }
     }
@@ -1481,7 +1485,7 @@ proto_register_xml(void)
 
     g_array_free(ett_arr, TRUE);
 
-    register_dissector("xml", dissect_xml, xml_ns.hf_tag);
+    new_register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
     init_xml_parser();
 

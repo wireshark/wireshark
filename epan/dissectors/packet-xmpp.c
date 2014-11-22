@@ -377,6 +377,7 @@ static void
 dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     xml_frame_t *xml_frame;
+    xml_frame_t *xml_dissector_frame = NULL;
     gboolean     out_packet;
 
     conversation_t   *conversation;
@@ -447,7 +448,8 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     xmpp_item = proto_tree_add_item(tree, proto_xmpp, tvb, 0, -1, ENC_NA);
     xmpp_tree = proto_item_add_subtree(xmpp_item, ett_xmpp);
 
-    call_dissector(xml_handle, tvb, pinfo, xmpp_tree);
+    /* Have XML dissector "return" it's xml_frame_t data */
+    call_dissector_with_data(xml_handle, tvb, pinfo, xmpp_tree, &xml_dissector_frame);
 
     /* If XML dissector is disabled, we can't do much */
     if (!proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(xml_handle))))
@@ -465,11 +467,11 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         return;
     }
 
-    if(!pinfo->private_data)
+    if(xml_dissector_frame == NULL)
         return;
 
     /*data from XML dissector*/
-    xml_frame = ((xml_frame_t*)pinfo->private_data)->first_child;
+    xml_frame = xml_dissector_frame->first_child;
 
     if(!xml_frame)
         return;
