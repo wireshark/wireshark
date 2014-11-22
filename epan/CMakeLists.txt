@@ -1586,6 +1586,7 @@ set(LIBWIRESHARK_FILES
 	packet-range.c
 	packet.c
 	print.c
+	print_stream.c
 	prefs.c
 	proto.c
 	ps.c

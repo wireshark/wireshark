@@ -74,6 +74,7 @@ LIBWIRESHARK_SRC =		\
 	packet.c		\
 	prefs.c			\
 	print.c			\
+	print_stream.c		\
 	proto.c			\
 	range.c			\
 	reassemble.c		\
@@ -226,6 +227,7 @@ LIBWIRESHARK_INCLUDES =		\
 	params.h		\
 	ppptypes.h		\
 	print.h			\
+	print_stream.h		\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\
