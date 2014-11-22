@@ -1,5 +1,5 @@
-/* print.c
- * Routines for printing packet analysis trees.
+/* print_stream.c
+ * Routines for print streams.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *

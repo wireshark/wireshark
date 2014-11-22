@@ -1,5 +1,5 @@
-/* print.h
- * Definitions for printing packet analysis trees.
+/* print_stream.h
+ * Definitions for print streams.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
