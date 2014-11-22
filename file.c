@@ -2495,7 +2495,7 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
 
     /* Print the information in that tree. */
-    if (!proto_tree_print(args->print_args, &args->edt, args->print_args->stream))
+    if (!proto_tree_print(args->print_args, &args->edt, NULL, args->print_args->stream))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */

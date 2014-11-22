@@ -172,6 +172,8 @@ static void failure_message_cont(const char *msg_format, va_list ap);
 
 capture_file cfile;
 
+static GHashTable *output_only_tables = NULL;
+
 #if 0
 struct string_elem {
   const char *sstr;   /* The short string */
@@ -2476,7 +2478,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       print_args.print_hex = print_hex;
       print_args.print_dissections = print_details ? print_dissections_expanded : print_dissections_none;
 
-      if (!proto_tree_print(&print_args, edt, print_stream))
+      if (!proto_tree_print(&print_args, edt, output_only_tables, print_stream))
         return FALSE;
       if (!print_hex) {
         if (!print_line(print_stream, 0, separator))

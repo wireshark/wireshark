@@ -59,6 +59,7 @@ typedef struct {
     gboolean             print_hex_for_data;
     packet_char_enc      encoding;
     epan_dissect_t      *edt;
+    GHashTable          *output_only_tables; /* output only these protocols */
 } print_data;
 
 typedef struct {
@@ -85,8 +86,6 @@ struct _output_fields {
     gboolean     includes_col_fields;
 };
 
-GHashTable *output_only_tables = NULL;
-
 static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
@@ -102,7 +101,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
 gboolean
 proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-                 print_stream_t *stream)
+                 GHashTable *output_only_tables, print_stream_t *stream)
 {
     print_data data;
 
@@ -117,6 +116,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
        print uninterpreted data fields in hex as well. */
     data.print_hex_for_data = !print_args->print_hex;
     data.edt                = edt;
+    data.output_only_tables = output_only_tables;
 
     proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
     return data.success;
@@ -170,8 +170,8 @@ proto_tree_print_node(proto_node *node, gpointer data)
      * subitems whose abbreviation doesn't match the protocol--for example
      * text items (whose abbreviation is simply "text").
      */
-    if ((output_only_tables != NULL) && (pdata->level == 0)
-        && (g_hash_table_lookup(output_only_tables, fi->hfinfo->abbrev) == NULL)) {
+    if ((pdata->output_only_tables != NULL) && (pdata->level == 0)
+        && (g_hash_table_lookup(pdata->output_only_tables, fi->hfinfo->abbrev) == NULL)) {
         return;
     }
 

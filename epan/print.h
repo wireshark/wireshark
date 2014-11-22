@@ -95,16 +95,13 @@ WS_DLL_PUBLIC void output_fields_list_options(FILE *fh);
 WS_DLL_PUBLIC gboolean output_fields_has_cols(output_fields_t* info);
 
 /*
- * Output only these protocols
- */
-WS_DLL_PUBLIC GHashTable *output_only_tables;
-
-/*
  * Higher-level packet-printing code.
  */
 
-WS_DLL_PUBLIC gboolean proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-     print_stream_t *stream);
+WS_DLL_PUBLIC gboolean proto_tree_print(print_args_t *print_args,
+                                        epan_dissect_t *edt,
+                                        GHashTable *output_only_tables,
+                                        print_stream_t *stream);
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
