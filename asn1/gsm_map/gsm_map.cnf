@@ -2,7 +2,7 @@
 -b
 #-d satcom
 #-s packet-gsm_map-tmp
--k
+#-k
 -o gsm_map
 #.END
 
@@ -315,7 +315,8 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 2);
-			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
+					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,ENC_BIG_ENDIAN);
@@ -770,7 +771,8 @@ if (!actx->value_ptr)
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
+					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
@@ -783,7 +785,8 @@ if (!actx->value_ptr)
 		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
+					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
@@ -850,7 +853,8 @@ if (!actx->value_ptr)
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
+					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
@@ -863,7 +867,8 @@ if (!actx->value_ptr)
 		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
+					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */

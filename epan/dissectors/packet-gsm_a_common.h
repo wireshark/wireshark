@@ -151,7 +151,6 @@ extern value_string_ext gmr1_ie_rr_strings_ext;
 extern elem_fcn gmr1_ie_rr_func[];
 extern gint ett_gmr1_ie_rr[];
 
-extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
@@ -634,10 +633,6 @@ typedef struct _gsm_a_tap_rec_t {
     guint8      message_type;
     gsm_a_pd_str_e  protocol_disc;
 } gsm_a_tap_rec_t;
-
-void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo);
 void bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo);

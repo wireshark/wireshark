@@ -2290,9 +2290,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, scc
   struct _sccp_msg_info_t* sccp_info = NULL;
 
   if ((trace_sccp) && (assoc && assoc != &no_assoc)) {
-    pinfo->sccp_info = sccp_info = assoc->curr_msg;
-  } else {
-    pinfo->sccp_info = NULL;
+    sccp_info = assoc->curr_msg;
   }
 
   if (assoc) {
@@ -2938,7 +2936,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_UDT:
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_CLASS, offset,
@@ -2965,7 +2963,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     gboolean save_in_error_pkt = pinfo->flags.in_error_pkt;
     pinfo->flags.in_error_pkt = TRUE;
 
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_RETURN_CAUSE, offset,
@@ -3069,7 +3067,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_XUDT:
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_CLASS, offset,
                                      PROTOCOL_CLASS_LENGTH, &sccp_info);
@@ -3161,7 +3159,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     gboolean save_in_error_pkt = pinfo->flags.in_error_pkt;
     pinfo->flags.in_error_pkt = TRUE;
 
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_RETURN_CAUSE, offset,
                                      RETURN_CAUSE_LENGTH, &sccp_info);
@@ -3247,7 +3245,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
   }
   case SCCP_MSG_TYPE_LUDT:
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_CLASS, offset,
@@ -3274,7 +3272,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_LUDTS:
-    pinfo->sccp_info = sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
+    sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_RETURN_CAUSE, offset,
                                      RETURN_CAUSE_LENGTH, &sccp_info);
@@ -4156,7 +4154,7 @@ proto_reg_handoff_sccp(void)
     tcap_handle   = find_dissector("tcap");
     ranap_handle  = find_dissector("ranap");
     bssap_handle  = find_dissector("bssap");
-    gsmmap_handle = find_dissector("gsm_map");
+    gsmmap_handle = find_dissector("gsm_map_sccp");
     camel_handle  = find_dissector("camel");
     inap_handle   = find_dissector("inap");
 

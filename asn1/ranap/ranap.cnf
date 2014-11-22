@@ -188,7 +188,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY IMSI
   tvbuff_t* imsi_tvb;
   const char	*digit_str;
-
+  sccp_msg_info_t *sccp_info;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, FALSE, &imsi_tvb);
 
@@ -198,11 +198,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	digit_str = dissect_e212_imsi(imsi_tvb, actx->pinfo, tree,  0, tvb_reported_length(imsi_tvb), FALSE);
 
-	if ( actx->pinfo->sccp_info
-		 && actx->pinfo->sccp_info->data.co.assoc
-		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
+	sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, actx->pinfo->curr_layer_num);
 
-		actx->pinfo->sccp_info->data.co.assoc->calling_party =
+	if ( sccp_info
+		 && sccp_info->data.co.assoc
+		 && ! sccp_info->data.co.assoc->calling_party ) {
+
+		sccp_info->data.co.assoc->calling_party =
 			wmem_strdup_printf(wmem_file_scope(), "IMSI: %%s", digit_str );
 	}
 

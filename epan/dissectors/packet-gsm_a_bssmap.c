@@ -7056,8 +7056,8 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 };
 #define NUM_BSSMAP_MSG_FCNS     (int)(sizeof(bssmap_msg_fcn)/sizeof(bssmap_msg_fcn[0]))
 
-void
-dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int
+dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     static gsm_a_tap_rec_t  tap_rec[4];
     static gsm_a_tap_rec_t  *tap_p;
@@ -7069,9 +7069,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item       *bssmap_item = NULL;
     proto_tree       *bssmap_tree = NULL;
     const gchar      *str;
-    sccp_msg_info_t*  sccp_msg_p;
-
-    sccp_msg_p = pinfo->sccp_info;
+    sccp_msg_info_t*  sccp_msg_p = (sccp_msg_info_t*)data;
 
     if (!(sccp_msg_p && sccp_msg_p->data.co.assoc)) {
         sccp_msg_p = NULL;
@@ -7150,9 +7148,9 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
-    if (str == NULL) return;
+    if (str == NULL) return len;
 
-    if ((len - offset) <= 0) return;
+    if ((len - offset) <= 0) return len;
 
     /*
      * decode elements
@@ -7172,6 +7170,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     g_tree = NULL;
+    return len;
 }
 
 /* Register the protocol with Wireshark */
@@ -7989,7 +7988,7 @@ proto_register_gsm_a_bssmap(void)
     expert_gsm_a_bssmap = expert_register_protocol(proto_a_bssmap);
     expert_register_field_array(expert_gsm_a_bssmap, ei, array_length(ei));
 
-    register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
+    new_register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }
 
 

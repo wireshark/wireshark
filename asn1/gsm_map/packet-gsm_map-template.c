@@ -191,6 +191,7 @@ static dissector_handle_t       data_handle;
 static dissector_handle_t       ranap_handle;
 static dissector_handle_t       dtap_handle;
 static dissector_handle_t       map_handle;
+static dissector_handle_t       bssap_handle;
 static dissector_table_t        map_prop_arg_opcode_table; /* prorietary operation codes */
 static dissector_table_t        map_prop_res_opcode_table; /* prorietary operation codes */
 static dissector_table_t        map_prop_err_opcode_table; /* prorietary operation codes */
@@ -2153,6 +2154,44 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
+{
+    proto_item  *item=NULL;
+    proto_tree  *tree=NULL;
+    /* Used for gsm_map TAP */
+    static      gsm_map_tap_rec_t tap_rec;
+    gint        op_idx;
+    asn1_ctx_t asn1_ctx;
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
+
+    top_tree = parent_tree;
+
+    /* create display subtree for the protocol */
+    item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_gsm_map);
+
+    /* Save the sccp_msg_info_t data (if present) because it can't be passed
+       through function calls */
+    p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, pinfo->curr_layer_num, data);
+
+    dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, NULL);
+    try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
+
+    if (op_idx != -1) {
+        tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
+        tap_rec.opr_code_idx = op_idx;
+        tap_rec.size = gsm_map_pdu_size;
+
+        tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
 const value_string ssCode_vals[] = {
   { 0x00, "allSS - all SS" },
   { 0x10 ,"allLineIdentificationSS - all line identification SS" },
@@ -2445,6 +2484,7 @@ void proto_reg_handoff_gsm_map(void) {
     ranap_handle = find_dissector("ranap");
     dtap_handle = find_dissector("gsm_a_dtap");
     gsm_sms_handle = find_dissector("gsm_sms");
+    bssap_handle = find_dissector("gsm_a_bssmap");
 
     map_handle = find_dissector("gsm_map");
     oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
@@ -2913,6 +2953,7 @@ void proto_register_gsm_map(void) {
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   new_register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  new_register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));

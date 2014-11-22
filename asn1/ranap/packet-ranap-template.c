@@ -221,11 +221,12 @@ dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   return (dissector_try_uint_new(ranap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
-static void
-dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	proto_item	*ranap_item = NULL;
 	proto_tree	*ranap_tree = NULL;
+	sccp_msg_info_t *sccp_msg_lcl = (sccp_msg_info_t *)data;
 
 	pdu_type = 0;
 	ProtocolIE_ID = 0;
@@ -237,9 +238,12 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, ENC_NA);
 	ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
+	/* Save the sccp_msg_info_t data (if present) because it can't be passed
+	   through function calls */
+	p_add_proto_data(pinfo->pool, pinfo, proto_ranap, pinfo->curr_layer_num, data);
+
 	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree, NULL);
-	if (pinfo->sccp_info) {
-		sccp_msg_info_t* sccp_msg_lcl = pinfo->sccp_info;
+	if (sccp_msg_lcl) {
 
 		if (sccp_msg_lcl->data.co.assoc)
 			sccp_msg_lcl->data.co.assoc->payload = SCCP_PLOAD_RANAP;
@@ -249,11 +253,13 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			sccp_msg_lcl->data.co.label = wmem_strdup(wmem_file_scope(), str);
 		}
 	}
+
+	return tvb_reported_length(tvb);
 }
 
 #define RANAP_MSG_MIN_LENGTH 7
 static gboolean
-dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint8 temp;
 	guint16 word;
@@ -290,7 +296,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if(word > 0x1ff){
         return FALSE;
     }
-    dissect_ranap(tvb, pinfo, tree);
+    dissect_ranap(tvb, pinfo, tree, data);
 
     return TRUE;
 }
@@ -335,7 +341,7 @@ void proto_register_ranap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("ranap", dissect_ranap, proto_ranap);
+  new_register_dissector("ranap", dissect_ranap, proto_ranap);
 
   /* Register dissector tables */
   ranap_ies_dissector_table = register_dissector_table("ranap.ies", "RANAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);

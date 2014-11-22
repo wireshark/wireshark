@@ -5805,8 +5805,8 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 /* GENERIC DISSECTOR FUNCTIONS */
 
-static void
-dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     static gsm_a_tap_rec_t  tap_rec[4];
     static gsm_a_tap_rec_t *tap_p;
@@ -5829,6 +5829,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint          ti;
     int       hf_idx;
     gboolean      nsd;
+    sccp_msg_info_t* sccp_msg = (sccp_msg_info_t*)data;
 
 
     len = tvb_reported_length(tvb);
@@ -5839,7 +5840,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * too short to be DTAP
          */
         call_dissector(data_handle, tvb, pinfo, tree);
-        return;
+        return len;
     }
 
     col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
@@ -5964,10 +5965,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
         /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
-        return;
+        return len;
     }
-
-    sccp_msg = pinfo->sccp_info;
 
     if (sccp_msg && sccp_msg->data.co.assoc) {
         sccp_assoc = sccp_msg->data.co.assoc;
@@ -6077,9 +6076,9 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
-    if (msg_str == NULL) return;
+    if (msg_str == NULL) return len;
 
-    if (offset >= len) return;
+    if (offset >= len) return len;
 
     /*
      * decode elements
@@ -6094,6 +6093,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         (*dtap_msg_fcn)(tvb, dtap_tree, pinfo, offset, len - offset);
     }
+
+    return len;
 }
 
 
@@ -7141,7 +7142,7 @@ proto_register_gsm_a_dtap(void)
 
 
     /* subdissector code */
-    register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
+    new_register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
 }
 
 void

@@ -737,7 +737,6 @@ static expert_field ei_gsm_a_unknown_element = EI_INIT;
 
 static char a_bigbuf[1024];
 
-sccp_msg_info_t* sccp_msg;
 sccp_assoc_info_t* sccp_assoc;
 
 #define NUM_GSM_COMMON_ELEM (sizeof(gsm_common_elem_strings)/sizeof(value_string))

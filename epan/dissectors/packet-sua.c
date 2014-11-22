@@ -2145,6 +2145,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   guint8 source_ssn = INVALID_SSN;
   guint8 dest_ssn = INVALID_SSN;
   proto_item *assoc_item;
+  struct _sccp_msg_info_t* sccp_info = NULL;
 
   message_class = 0;
   message_type = 0;
@@ -2177,7 +2178,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
        * or with "load sharing"?
        */
       sccp_assoc_info_t* sccp_assoc;
-      sccp_decode_context_t sccp_info;
+      sccp_decode_context_t sccp_decode;
       /* sua assoc */
 
       switch (message_type) {
@@ -2227,21 +2228,17 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 #endif /* 0 */
       }
 
-      sccp_info.message_type = message_type;
-      sccp_info.dlr = drn;
-      sccp_info.slr = srn;
-      sccp_info.assoc = NULL;
-      sccp_info.sccp_msg = NULL; /* Unused, but initialized */
+      sccp_decode.message_type = message_type;
+      sccp_decode.dlr = drn;
+      sccp_decode.slr = srn;
+      sccp_decode.assoc = NULL;
+      sccp_decode.sccp_msg = NULL; /* Unused, but initialized */
 
-      sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), &sccp_info);
+      sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), &sccp_decode);
       if (sccp_assoc && sccp_assoc->curr_msg) {
-              pinfo->sccp_info = sccp_assoc->curr_msg;
+              sccp_info = sccp_assoc->curr_msg;
               tap_queue_packet(sua_tap,pinfo,sccp_assoc->curr_msg);
-      } else {
-               pinfo->sccp_info = NULL;
       }
-  } else {
-      pinfo->sccp_info = NULL;
   }
 
   if (set_addresses) {
@@ -2261,12 +2258,12 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   {
     /* Try subdissectors (if we found a valid SSN on the current message) */
     if ((dest_ssn == INVALID_SSN ||
-       !dissector_try_uint(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
+       !dissector_try_uint_new(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree, TRUE, sccp_info))
        && (source_ssn == INVALID_SSN ||
-       !dissector_try_uint(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
+       !dissector_try_uint_new(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree, TRUE, sccp_info)))
     {
       /* try heuristic subdissector list to see if there are any takers */
-      if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+      if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, &hdtbl_entry, sccp_info)) {
         return;
       }
       /* No sub-dissection occurred, treat it as raw data */
