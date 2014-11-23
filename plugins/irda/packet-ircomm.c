@@ -126,6 +126,8 @@ static gint ett_ircomm_ctrl = -1;
 static gint ett_param[MAX_IAP_ENTRIES * MAX_PARAMETERS];
 
 static dissector_handle_t data_handle;
+static dissector_handle_t ircomm_raw_handle;
+static dissector_handle_t ircomm_cooked_handle;
 
 static int proto_ircomm = -1;
 static int hf_ircomm_param = -1;
@@ -160,16 +162,17 @@ ias_attr_dissector_t irlpt_attr_dissector[] = {
 /*
  * Dissect the cooked IrCOMM protocol
  */
-static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
+static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
+    proto_item *ti;
+    proto_tree *ircomm_tree, *ctrl_tree;
     guint offset = 0;
     guint clen;
-    char        buf[128];
-    guint    len;
+    guint    len = tvb_length(tvb);
 
 
-    if (tvb_length(tvb) == 0)
-        return;
+    if (len == 0)
+        return len;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
@@ -177,64 +180,54 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
     clen = tvb_get_guint8(tvb, offset);
     len = tvb_length(tvb) - 1 - clen;
 
-
-
     if (len > 0)
-        g_snprintf(buf, 128, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
     else
-        g_snprintf(buf, 128, "Clen=%d", clen);
-    col_add_str(pinfo->cinfo, COL_INFO, buf);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Clen=%d", clen);
 
-    if (root)
-    {
-        /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, ENC_NA);
-        proto_tree* tree = proto_item_add_subtree(ti, ett_ircomm);
+    /* create display subtree for the protocol */
+    ti   = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
+    ircomm_tree = proto_item_add_subtree(ti, ett_ircomm);
 
-        proto_tree* ctrl_tree;
+    ti        = proto_tree_add_item(ircomm_tree, hf_control, tvb, 0, clen + 1, ENC_NA);
+    ctrl_tree = proto_item_add_subtree(ti, ett_ircomm_ctrl);
+    proto_tree_add_item(ctrl_tree, hf_control_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
+    call_dissector(data_handle, tvb_new_subset_length(tvb, offset, clen), pinfo, ctrl_tree);
+    offset += clen;
 
-        ti        = proto_tree_add_item(tree, hf_control, tvb, 0, clen + 1, ENC_NA);
-        ctrl_tree = proto_item_add_subtree(ti, ett_ircomm_ctrl);
-        proto_tree_add_item(ctrl_tree, hf_control_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        {
-            tvbuff_t *cvalue = tvb_new_subset_length(tvb, offset, clen);
-            call_dissector(data_handle, cvalue, pinfo, ctrl_tree);
-            offset += clen;
-        }
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, ircomm_tree);
 
-        tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, tvb, pinfo, tree);
-    }
+    return len;
 }
 
 
 /*
  * Dissect the raw IrCOMM/IrLPT protocol
  */
-static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
+static int dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     guint len = tvb_length(tvb);
-    char    buf[128];
 
     if (len == 0)
-        return;
+        return 0;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
-    g_snprintf(buf, 128, "User Data: %d byte%s", len, (len > 1)? "s": "");
-    col_add_str(pinfo->cinfo, COL_INFO, buf);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "User Data: %d byte%s", len, (len > 1)? "s": "");
 
-    if (root)
+    if (tree)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, ENC_NA);
-        proto_tree* tree = proto_item_add_subtree(ti, ett_ircomm);
+        proto_item* ti   = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
+        proto_tree* ircomm_tree = proto_item_add_subtree(ti, ett_ircomm);
 
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_dissector(data_handle, tvb, pinfo, ircomm_tree);
     }
+
+    return len;
 }
 
 
@@ -340,7 +333,7 @@ static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info
     if ((dlsap = check_iap_lsap_result(tvb, tree, offset, "IrDA:TinyTP:LsapSel", attr_type)) == 0)
         return FALSE;
 
-    add_lmp_conversation(pinfo, dlsap, TRUE, dissect_cooked_ircomm, circuit_id);
+    add_lmp_conversation(pinfo, dlsap, TRUE, ircomm_cooked_handle, circuit_id);
 
     return FALSE;
 }
@@ -358,7 +351,7 @@ static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info
     if ((dlsap = check_iap_lsap_result(tvb, tree, offset, "IrDA:IrLMP:LsapSel", attr_type)) == 0)
         return FALSE;
 
-    add_lmp_conversation(pinfo, dlsap, FALSE, dissect_raw_ircomm, circuit_id);
+    add_lmp_conversation(pinfo, dlsap, FALSE, ircomm_raw_handle, circuit_id);
 
     return FALSE;
 }
@@ -412,6 +405,8 @@ void proto_register_ircomm(void)
 
     /* Register protocol names and descriptions */
     proto_ircomm = proto_register_protocol("IrCOMM Protocol", "IrCOMM", "ircomm");
+    new_register_dissector("ircomm_raw", dissect_raw_ircomm, proto_ircomm);
+    new_register_dissector("ircomm_cooked", dissect_cooked_ircomm, proto_ircomm);
 
     /* Required function calls to register the header fields */
     proto_register_field_array(proto_ircomm, hf_ircomm, array_length(hf_ircomm));
@@ -429,6 +424,8 @@ void proto_register_ircomm(void)
 void
 proto_reg_handoff_ircomm(void) {
     data_handle = find_dissector("data");
+    ircomm_raw_handle = find_dissector("ircomm_raw");
+    ircomm_cooked_handle = find_dissector("ircomm_cooked");
 }
 
 /*

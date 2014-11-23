@@ -265,7 +265,7 @@ typedef struct lmp_conversation {
     struct lmp_conversation*    pnext;
     guint32                     iap_result_frame;
     gboolean                    ttp;
-    dissector_t                 proto_dissector;
+    dissector_handle_t          dissector;
 } lmp_conversation_t;
 
 static const true_false_string lap_cr_vals = {
@@ -626,10 +626,10 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
         switch (op)
         {
             case GET_VALUE_BY_CLASS:
-                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                 offset += 1 + clen;
 
-                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                 offset += 1 + alen;
                 break;
         }
@@ -841,7 +841,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 if (!iap_conv || !iap_conv->pattr_dissector ||
                                     !iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, entry_tree,
                                                                                 n, type, circuit_id))
-                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, ENC_ASCII|ENC_NA);
+                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                                 break;
                         }
                         offset += attr_len;
@@ -1018,9 +1018,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
             tvb = tvb_new_subset_remaining(tvb, offset);
         }
 
-        pinfo->private_data = (void *)pdu_type;
-
-        lmp_conv->proto_dissector(tvb, pinfo, root);
+        call_dissector_with_data(lmp_conv->dissector, tvb, pinfo, root, GUINT_TO_POINTER(pdu_type));
     }
     else
         call_dissector(data_handle, tvb, pinfo, root);
@@ -1198,7 +1196,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
 /*
  * Add LMP conversation
  */
-void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissector_t proto_dissector, guint8 circuit_id)
+void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissector_handle_t dissector, guint8 circuit_id)
 {
     guint8              dest;
     address             srcaddr;
@@ -1246,7 +1244,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conv->pnext            = NULL;
     lmp_conv->iap_result_frame = pinfo->fd->num;
     lmp_conv->ttp              = ttp;
-    lmp_conv->proto_dissector  = proto_dissector;
+    lmp_conv->dissector        = dissector;
 
 /*g_message("%p\n", lmp_conv); */
 }

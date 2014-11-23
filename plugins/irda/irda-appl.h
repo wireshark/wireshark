@@ -67,7 +67,7 @@ extern gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, guint of
 extern guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
                                     const char* attr_name, guint8 attr_type);
 
-extern void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissector_t proto_dissector, guint8 circuit_id);
+extern void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissector_handle_t dissector, guint8 circuit_id);
 
 extern unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, guint offset);
 
