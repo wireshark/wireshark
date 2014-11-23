@@ -1009,15 +1009,13 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
 static gboolean
 dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    void *data _U_)
+    void *data)
 {
-    guint16     u16FrameID;
+    /* the tvb will NOT contain the frame_id here, so get it from dissection data! */
+    guint16     u16FrameID = GPOINTER_TO_UINT(data);
     proto_item *item;
     proto_tree *dcp_tree;
 
-
-    /* the tvb will NOT contain the frame_id here, so get it from our private data! */
-    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     /* frame id must be in valid range (acyclic Real-Time, DCP) */
     if (u16FrameID < FRAME_ID_DCP_HELLO || u16FrameID > FRAME_ID_DCP_IDENT_RES) {

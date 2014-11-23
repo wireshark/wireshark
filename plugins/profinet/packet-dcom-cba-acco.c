@@ -3148,15 +3148,13 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 static gboolean
 dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    void *data _U_)
+    void *data)
 {
     guint8       u8Version;
     guint8       u8Flags;
-    guint16      u16FrameID;
-    cba_frame_t *frame;
-
     /* the tvb will NOT contain the frame_id here! */
-    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
+    guint16      u16FrameID = GPOINTER_TO_UINT(data);
+    cba_frame_t *frame;
 
     /* frame id must be in valid range (cyclic Real-Time, class=1 or class=2) */
     if (u16FrameID < 0x8000 || u16FrameID >= 0xfb00) {

@@ -774,17 +774,15 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
 static gboolean
-dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint16     u16FrameID;
+    /* the tvb will NOT contain the frame_id here, so get it from dissector data! */
+    guint16     u16FrameID = GPOINTER_TO_UINT(data);
     proto_item *item;
     proto_tree *ptcp_tree;
     int         offset = 0;
     guint32     u32SubStart;
 
-
-    /* the tvb will NOT contain the frame_id here, so get it from our private data! */
-    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     /* frame id must be in valid range (acyclic Real-Time, PTCP) */
     /* 0x0000 - 0x007F: RTSyncPDU (with follow up) */

@@ -9415,12 +9415,13 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 /* possibly dissect a PN-IO related PN-RT packet */
 static gboolean
 dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    void *data _U_)
+    void *data)
 {
     guint8   drep_data = 0;
     guint8  *drep      = &drep_data;
     guint8   u8CBAVersion;
-    guint16  u16FrameID;
+    /* the sub tvb will NOT contain the frame_id here! */
+    guint16  u16FrameID = GPOINTER_TO_UINT(data);
     heur_dtbl_entry_t *hdtbl_entry;
 
     /*
@@ -9430,9 +9431,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
         return TRUE;
-
-    /* the sub tvb will NOT contain the frame_id here! */
-    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     u8CBAVersion = tvb_get_guint8 (tvb, 0);
 
