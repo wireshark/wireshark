@@ -2,7 +2,7 @@
  * Routines for text-based media dissection.
  *
  * NOTE - The media type is either found in pinfo->match_string,
- *        pinfo->private_data, or passed into the dissector (preferred)
+ *        or passed into the dissector
  *
  * (C) Olivier Biot, 2004.
  *
@@ -71,7 +71,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	if(length > 38){
 		if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0){
 			call_dissector(xml_handle, tvb, pinfo, tree);
-			return tvb_length(tvb);
+			return length;
 		}
 	}
 
@@ -85,13 +85,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			/*
 			 * No information from dissector data
 			 */
-			data_name = (char *)(pinfo->private_data);
-			if (! (data_name && data_name[0])) {
-				/*
-				 * No information from "private_data"
-				 */
-				data_name = NULL;
-			}
+			data_name = NULL;
 		}
 	}
 
@@ -109,7 +103,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
 			/*
 			 * XXX - we need to be passed the parameters
-			 * of the content type via "pinfo->private_data",
+			 * of the content type via data parameter,
 			 * so that we know the character set.  We'd
 			 * have to handle that character set, which
 			 * might be a multibyte character set such
@@ -131,7 +125,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		}
 	}
 
-	return tvb_length(tvb);
+	return length;
 }
 
 void

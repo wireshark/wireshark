@@ -129,13 +129,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/*
 			 * No information from dissector data
 			 */
-			data_name = (char *)(pinfo->private_data);
-			if (! (data_name && data_name[0])) {
-				/*
-				 * No information from "private_data"
-				 */
-				data_name = NULL;
-			}
+			data_name = NULL;
 		}
 	}
 
@@ -164,15 +158,11 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	/* if we have some unparsed data, pass to data-text-lines dissector (?) */
 	if (tvb_length_remaining(tvb, offset) > 0) {
-		int datalen, reported_datalen;
 		tvbuff_t *next_tvb;
 
-		datalen = tvb_length_remaining(tvb, offset);
-		reported_datalen = tvb_reported_length_remaining(tvb, offset);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-		next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
-
-		call_dissector(text_lines_handle, next_tvb, pinfo, tree);
+		call_dissector_with_data(text_lines_handle, next_tvb, pinfo, tree, data);
 	} else if (data_name) {
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)", data_name);
 	}
