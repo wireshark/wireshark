@@ -185,7 +185,9 @@ static expert_field ei_invalid_entry_size                             = EI_INIT;
 static gint ett_elf = -1;
 static gint ett_elf_header = -1;
 static gint ett_elf_program_header = -1;
+static gint ett_elf_program_header_entry = -1;
 static gint ett_elf_section_header = -1;
+static gint ett_elf_section_header_entry = -1;
 static gint ett_elf_segment = -1;
 static gint ett_elf_cie = -1;
 static gint ett_elf_fde = -1;
@@ -1294,15 +1296,18 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         p_type = (machine_encoding == ENC_BIG_ENDIAN) ?
                 tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
         if (p_type >= 0x60000000 && p_type <= 0x6FFFFFFF) {
-            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree,
+                     tvb, offset, phentsize, ett_elf_program_header_entry, NULL,
                     "Entry #%d: Operating System Specific (0x%08x)", phnum - i_16 - 1, p_type);
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type_operating_system_specific, tvb, offset, 4, machine_encoding);
         } else if (p_type >= 0x70000000 && p_type <= 0x7FFFFFFF) {
-            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree,
+                     tvb, offset, phentsize, ett_elf_program_header_entry, NULL,
                     "Entry #%d: Processor Specific (0x%08x)", phnum - i_16 - 1, p_type);
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type_processor_specific, tvb, offset, 4, machine_encoding);
         } else {
-            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree, tvb, offset, phentsize, ett_elf_program_header, NULL,
+            ph_entry_tree = proto_tree_add_subtree_format(program_header_tree,
+                     tvb, offset, phentsize, ett_elf_program_header_entry, NULL,
                     "Entry #%d: %s", phnum - i_16 - 1,
                     val_to_str_const(p_type, p_type_vals, "Unknown"));
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type, tvb, offset, 4, machine_encoding);
@@ -1453,7 +1458,8 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     i_16 = shnum;
     while (i_16-- > 0) {
         sh_entry_tree = proto_tree_add_subtree_format(section_header_tree, tvb, offset, shentsize,
-                ett_elf_section_header, &sh_entry_item, "Entry #%d: ", shnum - i_16 - 1);
+                ett_elf_section_header_entry, &sh_entry_item,
+                "Entry #%d: ", shnum - i_16 - 1);
 
         proto_tree_add_item(sh_entry_tree, hf_elf_sh_name, tvb, offset, 4, machine_encoding);
         sh_name = (machine_encoding == ENC_BIG_ENDIAN) ?
@@ -2372,7 +2378,9 @@ proto_register_elf(void)
         &ett_elf,
         &ett_elf_header,
         &ett_elf_program_header,
+        &ett_elf_program_header_entry,
         &ett_elf_section_header,
+        &ett_elf_section_header_entry,
         &ett_elf_segment,
         &ett_elf_cie,
         &ett_elf_fde,
