@@ -746,9 +746,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     tvbuff_t *next_tvb = NULL;
     tvbuff_t    *data_tvb = NULL;
     spdy_stream_info_t *si = NULL;
-    void *save_private_data = NULL;
     guint8 *copied_data;
-    gboolean private_data_changed = FALSE;
     gboolean is_single_chunk = FALSE;
     gboolean have_entire_body;
     char *media_str = NULL;
@@ -904,14 +902,8 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        * Content-Type value.  Is there any subdissector
        * for that content type?
        */
-      save_private_data = pinfo->private_data;
-      private_data_changed = TRUE;
-
       if (si->content_type_parameters) {
-        pinfo->private_data = wmem_strdup(wmem_packet_scope(), si->content_type_parameters);
-        media_str = (char*)pinfo->private_data;
-      } else {
-        pinfo->private_data = NULL;
+        media_str = wmem_strdup(wmem_packet_scope(), si->content_type_parameters);
       }
       /*
        * Calling the string handle for the media type
@@ -926,7 +918,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       /*
        * We have a subdissector - call it.
        */
-      dissected = call_dissector(handle, data_tvb, pinfo, spdy_tree);
+      dissected = call_dissector_with_data(handle, data_tvb, pinfo, spdy_tree, media_str);
     } else {
       dissected = FALSE;
     }
@@ -944,17 +936,11 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
 
 body_dissected:
     /*
-     * Do *not* attempt at freeing the private data;
-     * it may be in use by subdissectors.
-     */
-    if (private_data_changed) { /*restore even NULL value*/
-      pinfo->private_data = save_private_data;
-    }
-    /*
      * We've processed frame->length bytes worth of data
      * (which may be no data at all); advance the
      * offset past whatever data we've processed.
      */
+    ;
   }
   return frame->length;
 }

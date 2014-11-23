@@ -10684,7 +10684,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
@@ -10694,8 +10694,8 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   gchar      *content_type_parameter_str;
   guint8      itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
-  if (pinfo->private_data) {
-    content_type_parameter_str = ascii_strdown_inplace((gchar *)pinfo->private_data);
+  if (data) {
+    content_type_parameter_str = ascii_strdown_inplace((gchar *)data);
     if (strstr(content_type_parameter_str, "ansi")) {
       isup_standard = ANSI_STANDARD;
       col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");

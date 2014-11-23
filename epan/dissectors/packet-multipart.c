@@ -395,7 +395,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
  * leading hyphens. (quote from rfc2046)
  */
 static multipart_info_t *
-get_multipart_info(packet_info *pinfo)
+get_multipart_info(packet_info *pinfo, const char *str)
 {
     const char *start;
     int len = 0;
@@ -404,7 +404,7 @@ get_multipart_info(packet_info *pinfo)
     char *parameters;
     gint dummy;
 
-    if ((type == NULL) || (pinfo->private_data == NULL)) {
+    if ((type == NULL) || (str == NULL)) {
         /*
          * We need both a content type AND parameters
          * for multipart dissection.
@@ -413,7 +413,7 @@ get_multipart_info(packet_info *pinfo)
     }
 
     /* Clean up the parameters */
-    parameters = unfold_and_compact_mime_header((const char *)pinfo->private_data, &dummy);
+    parameters = unfold_and_compact_mime_header(str, &dummy);
 
     start = find_parameter(parameters, "boundary=", &len);
 
@@ -709,7 +709,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
             /*
              * subdissection
              */
-            void *save_private_data = pinfo->private_data;
             gboolean dissected;
 
             /*
@@ -725,18 +724,17 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
             }
 
-            pinfo->private_data = parameters;
             /*
              * First try the dedicated multipart dissector table
              */
             dissected = dissector_try_string(multipart_media_subdissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, NULL);
+                        content_type_str, tmp_tvb, pinfo, subtree, parameters);
             if (! dissected) {
                 /*
                  * Fall back to the default media dissector table
                  */
                 dissected = dissector_try_string(media_type_dissector_table,
-                        content_type_str, tmp_tvb, pinfo, subtree, NULL);
+                        content_type_str, tmp_tvb, pinfo, subtree, parameters);
             }
             if (! dissected) {
                 const char *save_match_string = pinfo->match_string;
@@ -744,7 +742,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                 call_dissector_with_data(media_handle, tmp_tvb, pinfo, subtree, parameters);
                 pinfo->match_string = save_match_string;
             }
-            pinfo->private_data = save_private_data;
             parameters = NULL; /* Shares same memory as content_type_str */
         } else {
             call_dissector(data_handle, tmp_tvb, pinfo, subtree);
@@ -772,12 +769,12 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
  * Call this method to actually dissect the multipart body.
  * NOTE - Only do so if a boundary string has been found!
  */
-static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *subtree;
     proto_item *ti;
     proto_item *type_ti;
-    multipart_info_t *m_info = get_multipart_info(pinfo);
+    multipart_info_t *m_info = get_multipart_info(pinfo, (const char*)data);
     gint header_start = 0;
     guint8 *boundary;
     gint boundary_len;

@@ -3727,9 +3727,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
         /* give the content type parameters to sub dissectors */
         if ( media_type_str_lower_case != NULL ) {
-            void *save_private_data = pinfo->private_data;
-            pinfo->private_data = content_type_parameter_str;
-
             /* SDP needs a transport layer to determine request/response */
             if (!strcmp(media_type_str_lower_case, "application/sdp")) {
                 /* Resends don't count */
@@ -3777,7 +3774,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             found_match = dissector_try_string(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
-                                               message_body_tree, NULL);
+                                               message_body_tree, content_type_parameter_str);
             DENDENT();
             DPRINT(("done calling dissector_try_string() with found_match=%s",
                     found_match?"TRUE":"FALSE"));
@@ -3790,12 +3787,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 found_match = dissector_try_string(media_type_dissector_table,
                                                    "multipart/",
                                                    next_tvb, pinfo,
-                                                   message_body_tree, NULL);
+                                                   message_body_tree, content_type_parameter_str);
                 DENDENT();
                 DPRINT(("done calling dissector_try_string() with found_match=%s",
                         found_match?"TRUE":"FALSE"));
             }
-            pinfo->private_data = save_private_data;
             /* If no match dump as text */
         }
         if ( found_match != TRUE )

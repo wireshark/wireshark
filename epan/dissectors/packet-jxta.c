@@ -2049,16 +2049,12 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         gchar *mediatype = wmem_strdup(wmem_packet_scope(), fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
-        void * save_private_data = pinfo->private_data;
         char *media_str = NULL;
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
-            pinfo->private_data = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
-            media_str = (char*)pinfo->private_data;
+            media_str = wmem_strdup( wmem_packet_scope(), parms_at + 1 );
             *parms_at = '\0';
-        } else {
-            pinfo->private_data = NULL;
         }
 
         /* Set the version that goes to packet-media.c before converting case */
@@ -2088,7 +2084,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 }
             }
         } else {
-            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, NULL) ? tvb_length(tvb) : 0;
+            dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree, media_str) ? tvb_length(tvb) : 0;
 
             if( dissected != (int) tvb_length(tvb) ) {
                 /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_length(tvb), dissected ); */
@@ -2100,12 +2096,11 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         }
 
         pinfo->match_string = save_match_string;
-        pinfo->private_data = save_private_data;
     }
 
     if(0 == dissected) {
         /* display it as raw data */
-        dissected = call_dissector_only(data_handle, tvb, pinfo, tree, NULL);
+        dissected = call_dissector(data_handle, tvb, pinfo, tree);
     }
 
     return dissected;

@@ -1267,8 +1267,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * There's stuff left over; process it.
 		 */
 		tvbuff_t *next_tvb;
-		void *save_private_data = NULL;
-		gboolean private_data_changed = FALSE;
 		gint chunks_decoded = 0;
 		char *media_str = NULL;
 
@@ -1434,15 +1432,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Content-Type value.  Is there any subdissector
 			 * for that content type?
 			 */
-			save_private_data = pinfo->private_data;
-			private_data_changed = TRUE;
+			if (headers.content_type_parameters)
+				media_str = wmem_strdup(wmem_packet_scope(), headers.content_type_parameters);
 
-			if (headers.content_type_parameters) {
-				pinfo->private_data = wmem_strdup(wmem_packet_scope(), headers.content_type_parameters);
-				media_str = (char*)pinfo->private_data;
-			}
-			else
-				pinfo->private_data = NULL;
 			/*
 			 * Calling the string handle for the media type
 			 * dissector table will set pinfo->match_string
@@ -1477,7 +1469,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * We have a subdissector - call it.
 			 */
-			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, NULL);
+			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, media_str);
 			if (!dissected)
 				expert_add_info(pinfo, http_tree, &ei_http_subdissector_failed);
 		}
@@ -1513,12 +1505,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 	body_dissected:
-		/*
-		 * Do *not* attempt at freeing the private data;
-		 * it may be in use by subdissectors.
-		 */
-		if (private_data_changed) /*restore even NULL value*/
-			pinfo->private_data = save_private_data;
 		/*
 		 * We've processed "datalen" bytes worth of data
 		 * (which may be no data at all); advance the
