@@ -11284,6 +11284,8 @@ unisys-eportal  37654/tcp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 200
 unisys-eportal  37654/udp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
 ivs-database    38000/tcp # InfoVista Server Database [InfoVista] [Sebastien_Bouchex_Bellomie] 2014-05-23
 ivs-insertion   38001/tcp # InfoVista Server Insertion [InfoVista] [Sebastien_Bouchex_Bellomie] 2014-05-23
+cresco-control  38002/tcp # Cresco Controller [UofK] [Cody_Bumgardner] 2014-11-21
+crescoctrl-disc 38002/udp # Cresco Controller Discovery [UofK] [Cody_Bumgardner] 2014-11-21
 galaxy7-data    38201/tcp # Galaxy7 Data Tunnel [Tatham_Oddie] [Tatham_Oddie] 2002-09
 galaxy7-data    38201/udp # Galaxy7 Data Tunnel [Tatham_Oddie] [Tatham_Oddie] 2002-09
 fairview        38202/tcp # Fairview Message Service [Jim_Lyle] [Jim_Lyle] 2005-11 Defined TXT keys: DevID=<device id>, DevType=<device type>, DevStat=<device status>
