@@ -48,6 +48,27 @@
 #define CONV_TIME_HEADER_LENGTH 16
 #define TIME_HEADER_LENGTH 10
 
+seq_analysis_info_t *
+sequence_analysis_info_new(void)
+{
+    seq_analysis_info_t *sainfo = g_new0(seq_analysis_info_t, 1);
+    sainfo->items = g_queue_new();
+    sainfo->ht= g_hash_table_new(g_int_hash, g_int_equal);
+    return sainfo;
+}
+
+void sequence_analysis_info_free(seq_analysis_info_t *sainfo)
+{
+    if (!sainfo) return;
+
+    sequence_analysis_list_free(sainfo);
+
+    g_queue_free(sainfo->items);
+    g_hash_table_destroy(sainfo->ht);
+
+    g_free(sainfo);
+}
+
 /****************************************************************************/
 /* whenever a frame packet is seen by the tap listener */
 /* Add a new frame into the graph */
@@ -246,13 +267,15 @@ sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo)
     g_queue_foreach(sainfo->items, sequence_analysis_item_set_timestamp, cf->epan);
 }
 
-
 static void sequence_analysis_item_free(gpointer data)
 {
     seq_analysis_item_t *seq_item = (seq_analysis_item_t *)data;
     g_free(seq_item->frame_label);
     g_free(seq_item->time_str);
     g_free(seq_item->comment);
+    g_free((void *)seq_item->src_addr.data);
+    g_free((void *)seq_item->dst_addr.data);
+    g_free(data);
 }
 
 void
@@ -263,8 +286,10 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     if (!sainfo) return;
 
     /* free the graph data items */
+
 #if GLIB_CHECK_VERSION (2, 32, 0)
        g_queue_free_full(sainfo->items, sequence_analysis_item_free);
+       sainfo->items = g_queue_new();
 #else
     {
         GList *list = g_queue_peek_nth_link(sainfo->items, 0);
@@ -273,12 +298,14 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
             sequence_analysis_item_free(list->data);
             list = g_list_next(list);
         }
-        g_queue_free(sainfo->items);
+        g_queue_clear(sainfo->items);
     }
 #endif
 
+    if (NULL != sainfo->ht) {
+        g_hash_table_remove_all(sainfo->ht);
+    }
     sainfo->nconv = 0;
-    sainfo->items = g_queue_new();
 
     for (i=0; i<MAX_NUM_NODES; i++) {
         sainfo->nodes[i].type = AT_NONE;

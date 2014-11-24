@@ -77,6 +77,16 @@ typedef struct _seq_analysis_info {
     guint32 num_nodes;       /**< actual number of nodes */
 } seq_analysis_info_t;
 
+/** Create and initialize a seq_analysis_info_t struct
+ * @return A pointer to a newly allocated seq_analysis_info_t struct.
+ */
+seq_analysis_info_t *sequence_analysis_info_new(void);
+
+/** Free a seq_analysis_info_t struct.
+ * @param sainfo A pointer to the seq_analysis_info_t struct to be freed.
+ */
+void sequence_analysis_info_free(seq_analysis_info_t * sainfo);
+
 /** Fill in the segment list for sequence analysis
  *
  * @param cf Capture file to scan

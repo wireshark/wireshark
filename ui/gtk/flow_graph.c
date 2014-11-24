@@ -64,10 +64,9 @@ static GtkWidget *net_src_dst_rb;
 /****************************************************************************/
 static void
 flow_graph_data_init(void) {
-	graph_analysis = (seq_analysis_info_t *)g_malloc0(sizeof(seq_analysis_info_t));
+	graph_analysis = sequence_analysis_info_new();
 	graph_analysis->type = SEQ_ANALYSIS_ANY;
 	graph_analysis->all_packets = TRUE;
-	graph_analysis->items = g_queue_new();
 }
 
 
@@ -77,13 +76,11 @@ flow_graph_data_init(void) {
 static void
 flow_graph_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
-	/* Clean up memory used by tap */
-	sequence_analysis_list_free(graph_analysis);
-
 	g_assert(graph_analysis != NULL);
 	g_assert(graph_analysis_data != NULL);
 
-	g_free(graph_analysis);
+	/* Clean up memory used by tap */
+	sequence_analysis_info_free(graph_analysis);
 	graph_analysis = NULL;
 
 	g_free(graph_analysis_data);

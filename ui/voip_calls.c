@@ -267,8 +267,6 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base)
     }
 }
 
-static void graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo);
-
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
 void
@@ -276,7 +274,6 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
 {
     voip_calls_info_t *callsinfo;
     voip_rtp_stream_info_t *strinfo;
-    seq_analysis_item_t *graph_item;
     GList *list = NULL;
 
     /* free the data items first */
@@ -304,25 +301,10 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
 
     /* free the graph data items first */
     if(NULL == tapinfo->graph_analysis) {
-        graph_analysis_data_init(tapinfo);
+        tapinfo->graph_analysis = sequence_analysis_info_new();
     }
 
-    if (NULL != tapinfo->graph_analysis->ht) {
-        g_hash_table_remove_all(tapinfo->graph_analysis->ht);
-    }
-    list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-    while (list)
-    {
-        graph_item = (seq_analysis_item_t *)list->data;
-        g_free(graph_item->frame_label);
-        g_free(graph_item->comment);
-        g_free((void *)graph_item->src_addr.data);
-        g_free((void *)graph_item->dst_addr.data);
-        g_free(graph_item->time_str);
-        g_free(list->data);
-        list = g_list_next(list);
-    }
-    g_queue_clear(tapinfo->graph_analysis->items);
+    sequence_analysis_list_free(tapinfo->graph_analysis);
 
     /* free the strinfo data items first */
     list = g_list_first(tapinfo->rtp_stream_list);
@@ -342,14 +324,6 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     }
 
     return;
-}
-
-/****************************************************************************/
-void
-graph_analysis_data_init(voip_calls_tapinfo_t *tapinfo) {
-    tapinfo->graph_analysis = (seq_analysis_info_t *) g_new0(seq_analysis_info_t, 1);
-    tapinfo->graph_analysis->items = g_queue_new();
-    tapinfo->graph_analysis->ht= g_hash_table_new(g_int_hash, g_int_equal);
 }
 
 /****************************************************************************/

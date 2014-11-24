@@ -60,14 +60,10 @@ static lbm_uimflow_dialog_t dialog_data = { FALSE, -1, NULL, NULL, NULL, select_
 
 static void lbmc_uim_flow_graph_data_init(void)
 {
-    dialog_data.graph_analysis = (seq_analysis_info_t *)g_malloc0(sizeof(seq_analysis_info_t));
+    dialog_data.graph_analysis = sequence_analysis_info_new();
     dialog_data.graph_analysis->type = SEQ_ANALYSIS_ANY;
     dialog_data.graph_analysis->all_packets = TRUE;
     dialog_data.graph_analysis->any_addr = TRUE;
-    dialog_data.graph_analysis->nconv = 0;
-    dialog_data.graph_analysis->items = g_queue_new();
-    dialog_data.graph_analysis->ht = NULL;
-    dialog_data.graph_analysis->num_nodes = 0;
 }
 
 static void lbmc_uim_flow_toggle_select_all_cb(GtkWidget * widget _U_, gpointer user_data _U_)
@@ -90,24 +86,10 @@ static void lbmc_uim_flow_toggle_select_displayed_cb(GtkWidget * widget _U_, gpo
 
 static void lbmc_uim_flow_tap_reset(void * tap_data _U_)
 {
-    seq_analysis_item_t * graph_item;
-    GList * list;
-
     if (dialog_data.graph_analysis != NULL)
     {
         /* free the graph data items */
-        list = g_queue_peek_nth_link(dialog_data.graph_analysis->items, 0);
-        while (list)
-        {
-            graph_item = (seq_analysis_item_t *)list->data;
-            g_free(graph_item->frame_label);
-            g_free(graph_item->time_str);
-            g_free(graph_item->comment);
-            g_free(list->data);
-            list = g_list_next(list);
-        }
-        g_queue_clear(dialog_data.graph_analysis->items);
-        dialog_data.graph_analysis->nconv = 0;
+        sequence_analysis_list_free(dialog_data.graph_analysis);
     }
 }
 
@@ -310,7 +292,7 @@ static void lbmc_uim_flow_graph_on_destroy_cb(GtkWidget * widget _U_, gpointer u
     g_assert(dialog_data.graph_analysis != NULL);
     g_assert(dialog_data.graph_analysis_data != NULL);
 
-    g_free(dialog_data.graph_analysis);
+    sequence_analysis_info_free(dialog_data.graph_analysis);
     dialog_data.graph_analysis = NULL;
 
     g_free(dialog_data.graph_analysis_data);
