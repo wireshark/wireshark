@@ -54,6 +54,8 @@ data_file_url(const gchar *filename)
     if((strlen(filename) > 1) && (filename[0] == '/')) {
       file_path = g_strdup(filename);
 #endif
+    } else if(running_in_build_directory()) {
+        file_path = g_strdup_printf("%s/doc/%s", get_datafile_dir(), filename);
     } else {
         file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
     }
