@@ -449,7 +449,7 @@ endif
 # Unfortunately that check is done by automake and not configure.
 # We do the following to try to avoid using c++ to link Wireshark at
 # all times.
-nodist_noinst_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
+nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
 wireshark_cxx_SOURCES =
 
 if ENABLE_STATIC
