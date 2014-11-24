@@ -123,7 +123,6 @@ silently accept being set (though nothing happens) Blech!!
     test("Pinfo.curr_proto-set-1",not pcall(setPinfo,pinfo,"curr_proto",0))
     test("Pinfo.columns-set-1",not pcall(setPinfo,pinfo,"columns",0))
     test("Pinfo.cols-set-1",not pcall(setPinfo,pinfo,"cols",0))
-    test("Pinfo.private_data-set-1",not pcall(setPinfo,pinfo,"private_data",0))
     test("Pinfo.private-set-1",not pcall(setPinfo,pinfo,"private",0))
     test("Pinfo.fragmented-set-1",not pcall(setPinfo,pinfo,"fragmented",0))
     test("Pinfo.in_error_pkt-set-1",not pcall(setPinfo,pinfo,"in_error_pkt",0))
@@ -188,7 +187,6 @@ again, these *should* pass, but Pinfo silently allows it!
     test("Pinfo.columns-get-2",typeof(pinfo.columns) == "Columns")
     test("Pinfo.cols-get-1",tostring(pinfo.cols) == "Columns")
     test("Pinfo.cols-get-2",typeof(pinfo.cols) == "Columns")
-    test("Pinfo.private_data-get-1",type(pinfo.private_data) == "userdata")
     test("Pinfo.private-get-1",type(pinfo.private) == "userdata")
     test("Pinfo.fragmented-get-1",pinfo.fragmented == false)
 

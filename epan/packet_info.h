@@ -148,7 +148,6 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
 
-  void    *private_data;        /**< pointer to data passed from one dissector to another */
   GHashTable *private_table;    /**< a hash table passed from one dissector to another */
 
   wmem_list_t *layers;      /**< layers of each protocol */

@@ -4685,8 +4685,6 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
 
 /*
  * DCERPC dissector for connection oriented calls.
- * We use transport type to later multiplex between what kind of
- * pinfo->private_data structure to expect.
  */
 static gboolean
 dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,

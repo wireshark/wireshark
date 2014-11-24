@@ -968,9 +968,6 @@ PINFO_NUMBER_SETTER(desegment_len,guint32);
 PINFO_NUMBER_GETTER(desegment_offset);
 PINFO_NUMBER_SETTER(desegment_offset,int);
 
-/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data. */
-WSLUA_ATTRIBUTE_GET(Pinfo,private_data, {lua_pushlightuserdata(L,(void *)(obj->ws_pinfo->private_data));});
-
 /* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment. */
 PINFO_NAMED_BOOLEAN_GETTER(fragmented,fragmented);
 
@@ -1178,7 +1175,6 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(Pinfo,can_desegment),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,desegment_len),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,desegment_offset),
-    WSLUA_ATTRIBUTE_ROREG(Pinfo,private_data),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,private),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,fragmented),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,in_error_pkt),

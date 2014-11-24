@@ -542,7 +542,6 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
 
 cba_ldev_t *
 cba_ldev_find(packet_info *pinfo, const void *ip, e_uuid_t *ipid) {
-    /*dcerpc_info *info = (dcerpc_info *)pinfo->private_data;*/
     dcom_interface_t *interf;
     cba_ldev_t       *ldev;
 
