@@ -67,7 +67,7 @@ static const value_string openflow_version_values[] = {
     { 0x02, "1.1" },
     { 0x03, "1.2" },
     { 0x04, "1.3" },
-    { 0x04, "1.4" },
+    { 0x05, "1.4" },
     { 0, NULL }
 };
 
