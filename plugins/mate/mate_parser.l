@@ -117,7 +117,7 @@ basic_tree_kw		BasicTree
 true_kw				[Tt][Rr][Uu][Ee]
 false_kw			[Ff][Aa][Ll][Ss][Ee]
 proto_kw			Proto
-payload_kw          Payload
+payload_kw			Payload
 transport_kw		Transport
 criteria_kw			Criteria
 accept_kw			Accept
@@ -128,10 +128,10 @@ drop_unassigned_kw  DropUnassigned
 discard_pdu_data_kw DiscardPduData
 last_pdu_kw			LastPdu
 done_kw				Done
-filename_kw         Filename
-debug_kw            Debug
-level_kw            Level
-default_kw          Default
+filename_kw			Filename
+debug_kw			Debug
+level_kw			Level
+default_kw			Default
 
 
 open_parens			"("
@@ -347,5 +347,5 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
  */
 
 int yywrap(void) {
-    return 1;
+	return 1;
 }
