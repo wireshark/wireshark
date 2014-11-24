@@ -116,14 +116,6 @@ ProtocolIE-Field/value ie_field_value
 
 	}
 
-        if (ProcedureCode != 0)
-	{
-
-		_pro_code.code = ProcedureCode;
-
-		actx->pinfo->private_data = &_pro_code;
-
-	}
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue

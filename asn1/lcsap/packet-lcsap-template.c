@@ -61,10 +61,6 @@ static dissector_handle_t lppa_handle;
 
 #define SCTP_PORT_LCSAP 9082
 #include "packet-lcsap-val.h"
-/* Strcture to hold ProcedureCode */
-struct pro_code {
-        guint8 code;
-} _pro_code;
 
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
