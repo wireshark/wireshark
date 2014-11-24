@@ -5375,7 +5375,7 @@ proto_register_dns(void)
                                   DEFAULT_DNS_PORT_RANGE ")",
                                   &global_dns_tcp_port_range, MAX_TCP_PORT);
 
-  prefs_register_range_preference(dns_module, "udp.ports", "DNS UDP Ports",
+  prefs_register_range_preference(dns_module, "udp.ports", "DNS UDP ports",
                                   "UDP ports to be decoded as DNS (default: "
                                   DEFAULT_DNS_PORT_RANGE ")",
                                   &global_dns_udp_port_range, MAX_UDP_PORT);
