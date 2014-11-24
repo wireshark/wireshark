@@ -621,14 +621,15 @@ add_conversation_table_data_with_conv_id(
     } else {
         /* try to find it among the existing known conversations */
         conv_key_t existing_key;
+        gpointer conversation_idx_hash_val;
 
         existing_key.addr1 = *addr1;
         existing_key.addr2 = *addr2;
         existing_key.port1 = port1;
         existing_key.port2 = port2;
         existing_key.conv_id = conv_id;
-        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, (gpointer *) &conversation_idx)) {
-            conv_item = &g_array_index(ch->conv_array, conv_item_t, conversation_idx);
+        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &conversation_idx_hash_val)) {
+            conv_item = &g_array_index(ch->conv_array, conv_item_t, GPOINTER_TO_UINT(conversation_idx_hash_val));
         }
     }
 
@@ -748,12 +749,13 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
     else {
         /* try to find it among the existing known conversations */
         host_key_t existing_key;
+        gpointer talker_idx_hash_val;
 
         existing_key.myaddress = *addr;
         existing_key.port = port;
 
-        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, (gpointer *) &talker_idx)) {
-            talker = &g_array_index(ch->conv_array, hostlist_talker_t, talker_idx);
+        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &talker_idx_hash_val)) {
+            talker = &g_array_index(ch->conv_array, hostlist_talker_t, GPOINTER_TO_UINT(talker_idx_hash_val));
         }
     }
 
