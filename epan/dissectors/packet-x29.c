@@ -34,6 +34,17 @@ static int hf_msg_code = -1;
 static int hf_error_type = -1;
 static int hf_inv_msg_code = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_x29_pad_message_data = -1;
+static int hf_x29_type_reference_value = -1;
+static int hf_x29_type_reference = -1;
+static int hf_x29_data = -1;
+static int hf_x29_type_of_aspect = -1;
+static int hf_x29_reselection_message_data = -1;
+static int hf_x29_break_value = -1;
+static int hf_x29_parameter = -1;
+static int hf_x29_value = -1;
+
 static gint ett_x29 = -1;
 
 /*
@@ -70,6 +81,12 @@ static const value_string error_type_vals[] = {
 	{ 0x08, "Received Parameter Indication PAD message was unsolicited" },
 	{ 0x0A, "Received PAD message was too long" },
 	{ 0x0C, "Unauthorized reselection PAD message" },
+	{ 0,    NULL },
+};
+
+static const value_string reference_type_vals[] = {
+	{ 0x01, "Change in PAD Aspect" },
+	{ 0x08, "Break" },
 	{ 0,    NULL },
 };
 
@@ -120,11 +137,10 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			 * XXX - dissect the references as per X.3.
 			 */
 			while (tvb_reported_length_remaining(tvb, offset) > 0) {
-				proto_tree_add_text(x29_tree, tvb, offset, 2,
-				    "Parameter %u, value %u",
-				    tvb_get_guint8(tvb, offset),
-				    tvb_get_guint8(tvb, offset + 1));
-				offset += 2;
+				proto_tree_add_item(x29_tree, hf_x29_parameter, tvb, offset, 1, ENC_NA);
+				offset++;
+				proto_tree_add_item(x29_tree, hf_x29_value, tvb, offset, 1, ENC_NA);
+				offset++;
 			}
 			break;
 
@@ -148,39 +164,25 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		case BREAK_IND_MSG:
 			if (tvb_reported_length_remaining(tvb, offset) > 0) {
 				type_ref = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_NA);
+				offset++;
 				switch (type_ref) {
 
 				case 0x01:	/* change in PAD Aspect */
 					/*
 					 * XXX - dissect as per X.28.
 					 */
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Type reference: Change in PAD Aspect");
-					offset++;
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Type of aspect: 0x%02x",
-					    type_ref);
+					proto_tree_add_item(x29_tree, hf_x29_type_of_aspect, tvb, offset, 1, ENC_NA);
 					offset++;
 					break;
 
 				case 0x08:	/* break */
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Type reference: Break");
-					offset++;
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Break value: 0x%02x",
-					    type_ref);
+					proto_tree_add_item(x29_tree, hf_x29_break_value, tvb, offset, 1, ENC_NA);
 					offset++;
 					break;
 
 				default:
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Unknown type reference (0x%02x)",
-					    type_ref);
-					offset++;
-					proto_tree_add_text(x29_tree, tvb,
-					    offset, 1, "Type value: 0x%02x",
-					    type_ref);
+					proto_tree_add_item(x29_tree, hf_x29_type_reference_value, tvb, offset, 1, ENC_NA);
 					offset++;
 					break;
 				}
@@ -191,21 +193,18 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/*
 			 * XXX - dissect me.
 			 */
-			proto_tree_add_text(x29_tree, tvb, offset, -1,
-			    "Reselection message data");
+			proto_tree_add_item(x29_tree, hf_x29_reselection_message_data, tvb, offset, -1, ENC_NA);
 			break;
 
 		case RESEL_WITH_TOA_NPI_MSG:
 			/*
 			 * XXX - dissect me.
 			 */
-			proto_tree_add_text(x29_tree, tvb, offset, -1,
-			    "Reselection message data");
+			proto_tree_add_item(x29_tree, hf_x29_reselection_message_data, tvb, offset, -1, ENC_NA);
 			break;
 
 		default:
-			proto_tree_add_text(x29_tree, tvb, offset, -1,
-			    "PAD message data");
+			proto_tree_add_item(x29_tree, hf_x29_pad_message_data, tvb, offset, -1, ENC_NA);
 			break;
 		}
 	} else {
@@ -229,9 +228,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				 */
 				linelen = next_offset - offset;
 
-				proto_tree_add_text(x29_tree, tvb, offset,
-				    linelen, "Data: %s",
-				    tvb_format_text(tvb, offset, linelen));
+				proto_tree_add_item(x29_tree, hf_x29_data, tvb, offset, linelen, ENC_NA|ENC_ASCII);
 				offset = next_offset;
 			}
 		}
@@ -256,6 +253,17 @@ proto_register_x29(void)
 		{ "Invalid message code", "x29.inv_msg_code", FT_UINT8, BASE_HEX,
 		  VALS(message_code_vals), 0x0, "X.29 Error PAD message invalid message code",
 		  HFILL }},
+
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_x29_type_reference, { "Type reference", "x29.type_reference", FT_UINT8, BASE_DEC, VALS(reference_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_x29_type_of_aspect, { "Type of aspect", "x29.type_of_aspect", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_break_value, { "Break value", "x29.break_value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_type_reference_value, { "Type value", "x29.type_reference.value", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_reselection_message_data, { "Reselection message data", "x29.reselection_message_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_pad_message_data, { "PAD message data", "x29.pad_message_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_data, { "Data", "x29.data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_parameter, { "Parameter", "x29.parameter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_x29_value, { "Value", "x29.value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_x29,

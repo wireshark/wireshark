@@ -188,6 +188,7 @@ static int hf_capabilities_encoding_length = -1;
 static int hf_capabilities_encoding_bytes = -1;
 static int hf_capabilities_encoding_number = -1;
 static int hf_cablelabs_ipv6_server = -1;
+static int hf_cablelabs_docsis_version_number = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -196,6 +197,11 @@ static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
 static gint ett_dhcpv6_netserver_option = -1;
 static gint ett_dhcpv6_tlv5_type = -1;
+static gint ett_dhcpv6_sip_server_domain_search_list_option = -1;
+static gint ett_dhcpv6_dns_domain_search_list_option = -1;
+static gint ett_dhcpv6_nis_domain_name_option = -1;
+static gint ett_dhcpv6_nisp_domain_name_option = -1;
+static gint ett_dhcpv6_bcmcs_servers_domain_search_list_option = -1;
 
 static expert_field ei_dhcpv6_bogus_length = EI_INIT;
 static expert_field ei_dhcpv6_malformed_option = EI_INIT;
@@ -1188,15 +1194,9 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                         tagLen = tvb_get_guint8(tvb, sub_off);
                         sub_off++;
                         if ((tag == CL_OPTION_DOCS_CMTS_TLV_VERS_NUM) && (tagLen == 2)) {
-                            int major = 0;
-                            int minor = 0;
-                            major = tvb_get_guint8(tvb, sub_off);
-                            sub_off++;
-                            minor = tvb_get_guint8(tvb, sub_off);
-                            sub_off++;
-                            proto_tree_add_text(subtree, tvb, sub_off-2,
-                                2, "DOCSIS Version Number %d.%d",
-                                                major, minor);
+                            proto_tree_add_item(subtree, hf_cablelabs_docsis_version_number, tvb, sub_off,
+                                2, ENC_BIG_ENDIAN);
+                            sub_off += 2;
                         }
                         else
                             sub_off += tagLen;
@@ -1205,7 +1205,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     }
                 }
                 else
-                    proto_tree_add_text(subtree, tvb, sub_off, 0, "empty");
+                    proto_item_append_text(ti, " (empty)");
                 break;
             case CL_CM_MAC_ADDR:
                 opt_len = tlv_len;
@@ -1269,6 +1269,13 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
         expert_add_info_format(pinfo, v_item, &ei_dhcpv6_bogus_length, "Bogus length: %d", len);
     }
 }
+
+static void
+cablelabs_fmt_docsis_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+}
+
 
 /* Returns the number of bytes consumed by this option. */
 static int
@@ -1614,8 +1621,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_SIP_SERVER_D:
         if (optlen > 0) {
-            ti = proto_tree_add_text(subtree, tvb, off, optlen, "SIP Servers Domain Search List");
-            dhcpv6_domain(subtree, ti, pinfo, hf_sip_server_domain_search_fqdn, tvb, off, optlen);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_sip_server_domain_search_list_option, &ti, "SIP Servers Domain Search List");
+            dhcpv6_domain(subtree_2, ti, pinfo, hf_sip_server_domain_search_fqdn, tvb, off, optlen);
         }
         break;
     case OPTION_SIP_SERVER_A:
@@ -1641,8 +1648,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
     case OPTION_DOMAIN_LIST:
         if (optlen > 0) {
-            ti = proto_tree_add_text(subtree, tvb, off, optlen, "DNS Domain Search List");
-            dhcpv6_domain(subtree, ti, pinfo, hf_domain_search_list_fqdn, tvb, off, optlen);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_dns_domain_search_list_option, &ti, "DNS Domain Search List");
+            dhcpv6_domain(subtree_2, ti, pinfo, hf_domain_search_list_fqdn, tvb, off, optlen);
         }
         break;
 
@@ -1665,14 +1672,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_NIS_DOMAIN_NAME:
         if (optlen > 0) {
-            ti = proto_tree_add_text(subtree, tvb, off, optlen, "nis-domain-name");
-            dhcpv6_domain(subtree, ti, pinfo, hf_nis_fqdn, tvb, off, optlen);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_nis_domain_name_option, &ti, "nis-domain-name");
+            dhcpv6_domain(subtree_2, ti, pinfo, hf_nis_fqdn, tvb, off, optlen);
         }
         break;
     case OPTION_NISP_DOMAIN_NAME:
         if (optlen > 0) {
-            ti = proto_tree_add_text(subtree, tvb, off, optlen, "nisp-domain-name");
-            dhcpv6_domain(subtree, ti, pinfo, hf_nisp_fqdn, tvb, off, optlen);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_nisp_domain_name_option, &ti, "nisp-domain-name");
+            dhcpv6_domain(subtree_2, ti, pinfo, hf_nisp_fqdn, tvb, off, optlen);
         }
         break;
 
@@ -1697,8 +1704,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     /* BCMCS...: RFC 4280 */
     case OPTION_BCMCS_SERVER_D:
         if (optlen > 0) {
-            ti = proto_tree_add_text(subtree, tvb, off, optlen, "BCMCS Servers Domain Search List");
-            dhcpv6_domain(subtree, ti, pinfo, hf_bcmcs_servers_fqdn, tvb, off, optlen);
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_bcmcs_servers_domain_search_list_option, &ti, "BCMCS Servers Domain Search List");
+            dhcpv6_domain(subtree_2, ti, pinfo, hf_bcmcs_servers_fqdn, tvb, off, optlen);
         }
         break;
     case OPTION_BCMCS_SERVER_A:
@@ -2303,6 +2310,8 @@ proto_register_dhcpv6(void)
           { "Suboption", "dhcpv6.cablelabs.opt", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cl_vendor_subopt_values_ext, 0, NULL, HFILL }},
         { &hf_cablelabs_ipv6_server,
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_cablelabs_docsis_version_number,
+          { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, cablelabs_fmt_docsis_version, 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -2312,7 +2321,12 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_vendor_option,
         &ett_dhcpv6_pkt_option,
         &ett_dhcpv6_netserver_option,
-        &ett_dhcpv6_tlv5_type
+        &ett_dhcpv6_tlv5_type,
+        &ett_dhcpv6_sip_server_domain_search_list_option,
+        &ett_dhcpv6_dns_domain_search_list_option,
+        &ett_dhcpv6_nis_domain_name_option,
+        &ett_dhcpv6_nisp_domain_name_option,
+        &ett_dhcpv6_bcmcs_servers_domain_search_list_option,
     };
 
     static ei_register_info ei[] = {

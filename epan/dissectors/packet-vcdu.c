@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
@@ -63,6 +64,15 @@ static int hf_vcdu_vc_id = -1;
 static int hf_vcdu_seq = -1;
 static int hf_vcdu_replay = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_vcdu_data = -1;
+static int hf_vcdu_ground_receipt_time = -1;
+static int hf_vcdu_ccsds_all_fill = -1;
+static int hf_vcdu_bitream_all_fill = -1;
+static int hf_vcdu_bitream_all_data = -1;
+static int hf_vcdu_bitream_all_data_anomaly = -1;
+static int hf_vcdu_ccsds_continuation_packet = -1;
+
 /* although technically not part of the vcdu header, the
  * first header pointer (for ccsds), and the last bit
  * pointer (for bitstream), are more easily processed by
@@ -80,6 +90,8 @@ static dissector_handle_t ccsds_handle;
 static gint ett_vcdu  = -1;
 static gint ett_smex  = -1;
 static gint ett_vcduh = -1;
+
+static expert_field ei_vcdu_fhp_too_close_to_end_of_vcdu = EI_INIT;
 
 /*
  * Bits in the first 16-bit header word
@@ -322,7 +334,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* format ground receipt time into human readable time format for display */
         time_string = smex_time_to_string(pb5_days, pb5_seconds, pb5_milliseconds);
-        proto_tree_add_text(smex_tree, tvb, offset-6, 6, "%s = Ground Receipt Time", time_string);
+        proto_tree_add_string(smex_tree, hf_vcdu_ground_receipt_time, tvb, offset-6, 6, time_string);
 
         proto_item_set_end(smex_header, tvb, offset);
 
@@ -358,15 +370,15 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch (new_ptr)
             {
             case LBP_ALL_DATA:
-                proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Bitream ALL Data");
+                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data, tvb, 0, -1, ENC_NA);
                 break;
 
             case LBP_ALL_DATA_ANOMALY:
-                proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Bitream ALL Data (Anomaly)");
+                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data_anomaly, tvb, 0, -1, ENC_NA);
                 break;
 
             case LBP_ALL_FILL:
-                proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Bitream ALL Fill");
+                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_fill, tvb, 0, -1, ENC_NA);
                 break;
 
             default:
@@ -386,12 +398,12 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* process special cases of first header pointer */
             if (FHP_ALL_FILL == new_ptr)
             {
-                proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Ccsds ALL Fill");
+                proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_all_fill, tvb, 0, -1, ENC_NA);
             }
 
             else if (FHP_CONTINUATION == new_ptr)
             {
-                proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Ccsds Continuation Packet");
+                proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_continuation_packet, tvb, 0, -1, ENC_NA);
             }
 
             /* process as many ccsds packet headers as we can using the ccsds packet dissector */
@@ -417,9 +429,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 if (! ccsds_tree_added)
                 {
-                    proto_tree_add_text(vcdu_tree, tvb, 0, -1,
-                                        "FHP too close to end of VCDU.  Incomplete Hdr Info Available"
-                                        " - Unable to format CCSDS Hdr(s)." );
+                    proto_tree_add_expert(vcdu_tree, pinfo, &ei_vcdu_fhp_too_close_to_end_of_vcdu, tvb, 0, -1);
                 }
             }
 
@@ -436,7 +446,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (! ccsds_tree_added)
         {
             /* add "Data" section if ccsds parsing did not do so already */
-            proto_tree_add_text(vcdu_tree, tvb, offset, -1, "Data");
+            proto_tree_add_item(vcdu_tree, hf_vcdu_data, tvb, offset, -1, ENC_NA);
         }
     }
 }
@@ -575,6 +585,15 @@ proto_register_vcdu(void)
             "VCDU Replay Flag", HFILL }
         },
 
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_vcdu_ground_receipt_time, { "Ground Receipt Time", "vcdu.ground_receipt_time", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_bitream_all_data, { "Bitream ALL Data", "vcdu.bitream.all_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_bitream_all_data_anomaly, { "Bitream ALL Data (Anomaly)", "vcdu.bitream.all_data_anomaly", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_bitream_all_fill, { "Bitream ALL Fill", "vcdu.bitream.all_fill", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_ccsds_all_fill, { "Ccsds ALL Fill", "vcdu.ccsds.all_fill", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_ccsds_continuation_packet, { "Ccsds Continuation Packet", "vcdu.ccsds_continuation_packet", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_data, { "Data", "vcdu.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         /* not really part of the vcdu header, but it's easier this way */
         { &hf_vcdu_fhp,
           { "First Header Pointer",  "vcdu.fhp",
@@ -600,12 +619,20 @@ proto_register_vcdu(void)
         &ett_vcduh,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_vcdu_fhp_too_close_to_end_of_vcdu, { "vcdu.fhp_too_close_to_end_of_vcdu", PI_PROTOCOL, PI_WARN, "FHP too close to end of VCDU. Incomplete Hdr Info Available - Unable to format CCSDS Hdr(s).", EXPFILL }},
+    };
+
+    expert_module_t* expert_vcdu;
+
     /* Register the protocol name and description */
     proto_vcdu = proto_register_protocol("VCDU", "VCDU", "vcdu");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_vcdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_vcdu = expert_register_protocol(proto_vcdu);
+    expert_register_field_array(expert_vcdu, ei, array_length(ei));
 
     /* XX: Does this dissector need to be publicly registered ?? */
     vcdu_handle = register_dissector("vcdu", dissect_vcdu, proto_vcdu);

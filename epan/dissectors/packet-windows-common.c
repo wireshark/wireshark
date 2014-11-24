@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
@@ -81,6 +82,16 @@ static int hf_nt_security_information_dacl = -1;
 static int hf_nt_security_information_group = -1;
 static int hf_nt_security_information_owner = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_nt_security_information = -1;
+static int hf_nt_sec_desc_type = -1;
+static int hf_nt_offset_to_dacl = -1;
+static int hf_nt_offset_to_owner_sid = -1;
+static int hf_nt_ace_flags_object = -1;
+static int hf_nt_offset_to_group_sid = -1;
+static int hf_nt_ace_flags = -1;
+static int hf_nt_offset_to_sacl = -1;
+
 static gint ett_nt_sec_desc = -1;
 static gint ett_nt_sec_desc_type = -1;
 static gint ett_nt_sid = -1;
@@ -90,6 +101,14 @@ static gint ett_nt_ace_flags = -1;
 static gint ett_nt_ace_object = -1;
 static gint ett_nt_ace_object_flags = -1;
 static gint ett_nt_security_information = -1;
+
+static expert_field ei_nt_owner_sid_beyond_reassembled_data = EI_INIT;
+static expert_field ei_nt_ace_extends_beyond_reassembled_data = EI_INIT;
+static expert_field ei_nt_ace_extends_beyond_capture = EI_INIT;
+static expert_field ei_nt_group_sid_beyond_reassembled_data = EI_INIT;
+static expert_field ei_nt_group_sid_beyond_captured_data = EI_INIT;
+static expert_field ei_nt_owner_sid_beyond_captured_data = EI_INIT;
+
 
 /* WERR error codes */
 
@@ -1188,25 +1207,27 @@ dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_dat
 		filetime_low = tvb_get_letohl(tvb, offset);
 		filetime_high = tvb_get_letohl(tvb, offset + 4);
 		if (filetime_low == 0 && filetime_high == 0) {
-			item = proto_tree_add_text(tree, tvb, offset, 8,
-			    "%s: No time specified (0)",
-			    proto_registrar_get_name(hf_date));
+			ts.secs = 0;
+			ts.nsecs = 0;
+			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+			    &ts, "No time specified (0)");
 		} else if(filetime_low==0 && filetime_high==0x80000000){
-			item = proto_tree_add_text(tree, tvb, offset, 8,
-			    "%s: Infinity (relative time)",
-			    proto_registrar_get_name(hf_date));
+			ts.secs = filetime_low;
+			ts.nsecs = filetime_high;
+			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+			    &ts, "Infinity (relative time)");
 		} else if(filetime_low==0xffffffff && filetime_high==0x7fffffff){
-			item = proto_tree_add_text(tree, tvb, offset, 8,
-			    "%s: Infinity (absolute time)",
-			    proto_registrar_get_name(hf_date));
+			ts.secs = filetime_low;
+			ts.nsecs = filetime_high;
+			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+			    &ts, "Infinity (absolute time)");
 		} else {
 			if (nt_time_to_nstime(filetime_high, filetime_low, &ts, onesec_resolution)) {
 				proto_tree_add_time(tree, hf_date, tvb,
 				    offset, 8, &ts);
 			} else {
-				item = proto_tree_add_text(tree, tvb, offset, 8,
-				    "%s: Time can't be converted",
-				    proto_registrar_get_name(hf_date));
+				item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+				    &ts, "Time can't be converted");
 			}
 		}
 		if (createdItem != NULL)
@@ -1740,12 +1761,9 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Generic access rights */
 
-	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Generic rights: 0x%08x",
+	generic_tree = proto_tree_add_subtree_format(subtree, tvb, offset - 4, 4,
+				   ett_nt_access_mask_generic, NULL, "Generic rights: 0x%08x",
 				   access & GENERIC_RIGHTS_MASK);
-
-	generic_tree = proto_item_add_subtree(
-		item, ett_nt_access_mask_generic);
 
 	proto_tree_add_boolean(
 		generic_tree, hf_access_generic_read, tvb, offset - 4, 4,
@@ -1777,12 +1795,9 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Standard access rights */
 
-	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Standard rights: 0x%08x",
+	standard_tree = proto_tree_add_subtree_format(subtree, tvb, offset - 4, 4,
+				   ett_nt_access_mask_standard, NULL, "Standard rights: 0x%08x",
 				   access & STANDARD_RIGHTS_MASK);
-
-	standard_tree = proto_item_add_subtree(
-		item, ett_nt_access_mask_standard);
 
 	proto_tree_add_boolean(
 		standard_tree, hf_access_standard_synchronise, tvb,
@@ -1809,17 +1824,14 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	   boring fashion. */
 
 	if (ami && ami->specific_rights_name)
-		item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-					   "%s specific rights: 0x%08x",
+		specific_tree = proto_tree_add_subtree_format(subtree, tvb, offset - 4, 4,
+					   ett_nt_access_mask_specific, &item, "%s specific rights: 0x%08x",
 					   ami->specific_rights_name,
 					   access & SPECIFIC_RIGHTS_MASK);
 	else
-		item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-					   "Specific rights: 0x%08x",
+		specific_tree = proto_tree_add_subtree_format(subtree, tvb, offset - 4, 4,
+					   ett_nt_access_mask_specific, &item, "Specific rights: 0x%08x",
 					   access & SPECIFIC_RIGHTS_MASK);
-
-	specific_tree = proto_item_add_subtree(
-		item, ett_nt_access_mask_specific);
 
 	if (ami && ami->specific_rights_fn) {
 		guint32 mapped_access = access;
@@ -2022,26 +2034,24 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	proto_item *item;
 	proto_tree *tree;
 	proto_item *flags_item;
-	proto_tree *flags_tree;
 	guint32 flags;
 	int old_offset=offset;
 	const char *sep = " ";
+	static const int * ace_flags[] = {
+		&hf_nt_ace_flags_object_type_present,
+		&hf_nt_ace_flags_inherited_object_type_present,
+		NULL
+	};
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
 					   ett_nt_ace_object, &item, "ACE Object");
 
 	/* flags */
 	flags=tvb_get_letohl(tvb, offset);
-	flags_item = proto_tree_add_text(tree, tvb, offset, 4,
-					   "ACE Object Flags (0x%08x)", flags);
-	flags_tree = proto_item_add_subtree(flags_item, ett_nt_ace_object_flags);
+	flags_item = proto_tree_add_bitmask(tree, tvb, offset, hf_nt_ace_flags_object,
+					   ett_nt_ace_object_flags, ace_flags, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean(flags_tree, hf_nt_ace_flags_object_type_present,
-		       tvb, offset, 4, flags);
 	APPEND_ACE_TEXT(flags&0x00000001, flags_item, "%sObject Type Present");
-
-	proto_tree_add_boolean(flags_tree, hf_nt_ace_flags_inherited_object_type_present,
-		       tvb, offset, 4, flags);
 	APPEND_ACE_TEXT(flags&0x00000002, flags_item, "%sInherited Object Type Present");
 	offset+=4;
 
@@ -2067,48 +2077,33 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			guint8 *data)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
 	guint8 mask;
 	const char *sep = " ";
+	static const int * ace_flags[] = {
+		&hf_nt_ace_flags_failed_access,
+		&hf_nt_ace_flags_successful_access,
+		&hf_nt_ace_flags_inherited_ace,
+		&hf_nt_ace_flags_inherit_only,
+		&hf_nt_ace_flags_non_propagate_inherit,
+		&hf_nt_ace_flags_container_inherit,
+		&hf_nt_ace_flags_object_inherit,
+		NULL
+	};
 
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (data)
 		*data = mask;
 
+	item = proto_tree_add_bitmask(parent_tree, tvb, offset, hf_nt_ace_flags,
+					   ett_nt_ace_flags, ace_flags, ENC_NA);
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-					   "NT ACE Flags: 0x%02x", mask);
-		tree = proto_item_add_subtree(item, ett_nt_ace_flags);
-	}
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_failed_access,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x80, item, "%sFailed Access");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_successful_access,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x40, item, "%sSuccessful Access");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_inherited_ace,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x10, item, "%sInherited ACE");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_inherit_only,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x08, item, "%sInherit Only");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_non_propagate_inherit,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x04, item, "%sNo Propagate Inherit");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_container_inherit,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x02, item, "%sContainer Inherit");
-
-	proto_tree_add_boolean(tree, hf_nt_ace_flags_object_inherit,
-		       tvb, offset, 1, mask);
 	APPEND_ACE_TEXT(mask&0x01, item, "%sObject Inherit");
 
 
@@ -2291,12 +2286,12 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		}
 
 		CATCH(BoundsError) {
-			proto_tree_add_text(tree, tvb, offset_v, 0, "ACE Extends beyond end of captured data");
+			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_capture, tvb, offset_v, 0);
 			missing_data = TRUE;
 		}
 
 		CATCH(ReportedBoundsError) {
-			proto_tree_add_text(tree, tvb, offset_v, 0, "ACE Extends beyond end of reassembled data");
+			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_reassembled_data, tvb, offset_v, 0);
 			missing_data = TRUE;
 		}
 
@@ -2377,50 +2372,28 @@ static const true_false_string tfs_sec_desc_type_self_relative = {
 static int
 dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	guint16 mask;
+	static const int * flags[] = {
+		&hf_nt_sec_desc_type_self_relative,
+		&hf_nt_sec_desc_type_rm_control_valid,
+		&hf_nt_sec_desc_type_sacl_protected,
+		&hf_nt_sec_desc_type_dacl_protected,
+		&hf_nt_sec_desc_type_sacl_auto_inherited,
+		&hf_nt_sec_desc_type_dacl_auto_inherited,
+		&hf_nt_sec_desc_type_sacl_auto_inherit_req,
+		&hf_nt_sec_desc_type_dacl_auto_inherit_req,
+		&hf_nt_sec_desc_type_server_security,
+		&hf_nt_sec_desc_type_dacl_trusted,
+		&hf_nt_sec_desc_type_sacl_defaulted,
+		&hf_nt_sec_desc_type_sacl_present,
+		&hf_nt_sec_desc_type_dacl_defaulted,
+		&hf_nt_sec_desc_type_dacl_present,
+		&hf_nt_sec_desc_type_group_defaulted,
+		&hf_nt_sec_desc_type_owner_defaulted,
+		NULL
+	};
 
-	mask = tvb_get_letohs(tvb, offset);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-					   "Type: 0x%04x", mask);
-		tree = proto_item_add_subtree(item, ett_nt_sec_desc_type);
-	}
-
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_self_relative,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_rm_control_valid,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_protected,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_protected,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_auto_inherited,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_auto_inherited,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_auto_inherit_req,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_auto_inherit_req,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_server_security,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_trusted,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_defaulted,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_sacl_present,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_defaulted,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_dacl_present,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree,hf_nt_sec_desc_type_group_defaulted,
-			       tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_nt_sec_desc_type_owner_defaulted,
-			       tvb, offset, 2, mask);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_nt_sec_desc_type,
+					   ett_nt_sec_desc_type, flags, ENC_LITTLE_ENDIAN);
 
 	offset += 2;
 	return offset;
@@ -2430,33 +2403,28 @@ int
 dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
 	guint32 mask;
+	static const int * flags[] = {
+		&hf_nt_security_information_sacl,
+		&hf_nt_security_information_dacl,
+		&hf_nt_security_information_group,
+		&hf_nt_security_information_owner,
+		NULL
+	};
 
 	mask = tvb_get_letohl(tvb, offset);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-					   "SEC INFO: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_nt_security_information);
-	}
+	item = proto_tree_add_bitmask(parent_tree, tvb, offset, hf_nt_security_information,
+					   ett_nt_security_information, flags, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean(tree,hf_nt_security_information_sacl,
-			       tvb, offset, 4, mask);
 	if (mask & 0x00000008) {
 		proto_item_append_text(item, " SACL");
 	}
-	proto_tree_add_boolean(tree,hf_nt_security_information_dacl,
-			       tvb, offset, 4, mask);
 	if (mask & 0x00000004) {
 		proto_item_append_text(item, " DACL");
 	}
-	proto_tree_add_boolean(tree,hf_nt_security_information_group,
-			       tvb, offset, 4, mask);
 	if (mask & 0x00000002) {
 		proto_item_append_text(item, " GROUP");
 	}
-	proto_tree_add_boolean(tree,hf_nt_security_information_owner,
-			       tvb, offset, 4, mask);
 	if (mask & 0x00000001) {
 		proto_item_append_text(item, " OWNER");
 	}
@@ -2502,40 +2470,40 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	  owner_sid_offset = tvb_get_letohl(tvb, offset_v);
 	  if(owner_sid_offset != 0 && owner_sid_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to owner SID: %u (bogus, must be >= 20)", owner_sid_offset);
+	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_owner_sid, tvb, offset_v, 4, owner_sid_offset, "%u (bogus, must be >= 20)", owner_sid_offset);
 	    owner_sid_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to owner SID: %u", owner_sid_offset);
+	    proto_tree_add_item(tree, hf_nt_offset_to_owner_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to group sid */
 	  group_sid_offset = tvb_get_letohl(tvb, offset_v);
 	  if(group_sid_offset != 0 && group_sid_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to group SID: %u (bogus, must be >= 20)", group_sid_offset);
+	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_group_sid, tvb, offset_v, 4, group_sid_offset, "%u (bogus, must be >= 20)", group_sid_offset);
 	    group_sid_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to group SID: %u", group_sid_offset);
+	    proto_tree_add_item(tree, hf_nt_offset_to_group_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to sacl */
 	  sacl_offset = tvb_get_letohl(tvb, offset_v);
 	  if(sacl_offset != 0 && sacl_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to SACL: %u (bogus, must be >= 20)", sacl_offset);
+	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_sacl, tvb, offset_v, 4, sacl_offset, "%u (bogus, must be >= 20)", sacl_offset);
 	    sacl_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to SACL: %u", sacl_offset);
+	    proto_tree_add_item(tree, hf_nt_offset_to_sacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to dacl */
 	  dacl_offset = tvb_get_letohl(tvb, offset_v);
 	  if(dacl_offset != 0 && dacl_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to DACL: %u (bogus, must be >= 20)", dacl_offset);
+	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_dacl, tvb, offset_v, 4, dacl_offset, "%u (bogus, must be >= 20)", dacl_offset);
 	    dacl_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to DACL: %u", dacl_offset);
+	    proto_tree_add_item(tree, hf_nt_offset_to_dacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  end_offset = offset_v;
@@ -2556,11 +2524,11 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    }
 
 	    CATCH(BoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of captured data");
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_captured_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of reassembled data");
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_owner_sid_beyond_reassembled_data, tvb, item_offset, 0);
 	    }
 
 	    ENDTRY;
@@ -2582,11 +2550,11 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    }
 
 	    CATCH(BoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of captured data");
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_captured_data, tvb, item_offset, 0);
 	    }
 
 	    CATCH(ReportedBoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of reassembled data");
+	      proto_tree_add_expert(tree, pinfo, &ei_nt_group_sid_beyond_reassembled_data, tvb, item_offset, 0);
 	    }
 
 	    ENDTRY;
@@ -2988,6 +2956,15 @@ proto_do_register_windows_common(int proto_smb)
 		  { "Owner", "nt.sec_info.owner", FT_BOOLEAN, 32,
 		    TFS(&flags_sec_info_owner), 0x00000001, NULL, HFILL }},
 
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_nt_ace_flags_object, { "ACE Object Flags", "nt.ace.object.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_ace_flags, { "NT ACE Flags", "nt.ace.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_sec_desc_type, { "Type", "nt.sec_desc.type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_security_information, { "SEC INFO", "nt.sec_info", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_offset_to_owner_sid, { "Offset to owner SID", "nt.offset_to_owner_sid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_offset_to_group_sid, { "Offset to group SID", "nt.offset_to_group_sid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_offset_to_sacl, { "Offset to SACL", "nt.offset_to_sacl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_nt_offset_to_dacl, { "Offset to DACL", "nt.offset_to_dacl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -3006,8 +2983,21 @@ proto_do_register_windows_common(int proto_smb)
 		&ett_nt_security_information,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_nt_ace_extends_beyond_capture, { "nt.ace_extends_beyond_capture", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of captured data", EXPFILL }},
+		{ &ei_nt_ace_extends_beyond_reassembled_data, { "nt.ace_extends_beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "ACE Extends beyond end of reassembled data", EXPFILL }},
+		{ &ei_nt_owner_sid_beyond_captured_data, { "nt.owner_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_owner_sid_beyond_reassembled_data, { "nt.owner_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of reassembled data", EXPFILL }},
+		{ &ei_nt_group_sid_beyond_captured_data, { "nt.group_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of captured data", EXPFILL }},
+		{ &ei_nt_group_sid_beyond_reassembled_data, { "nt.group_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of reassembled data", EXPFILL }},
+	};
+
+	expert_module_t* expert_nt;
+
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
+	expert_nt = expert_register_protocol(proto_smb);
+	expert_register_field_array(expert_nt, ei, array_length(ei));
 }
 
 /*

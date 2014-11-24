@@ -67,6 +67,15 @@ static int hf_trmac_physical_drop_number = -1;
 static int hf_trmac_authorized_function_classes = -1;
 static int hf_trmac_local_ring_number = -1;
 static int hf_trmac_functional_addresses = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_trmac_unknown_subvector = -1;
+static int hf_trmac_response_code48 = -1;
+static int hf_trmac_product_instance_id = -1;
+static int hf_trmac_ring_station_version_number = -1;
+static int hf_trmac_wrap_data = -1;
+static int hf_trmac_ring_station_status = -1;
+static int hf_trmac_frame_forward = -1;
+static int hf_trmac_response_code32 = -1;
 
 static gint ett_tr_mac = -1;
 static gint ett_tr_sv = -1;
@@ -307,19 +316,17 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 			if (sv_length == 4) {
-				proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-					"Response Code: 0x%04X 0x%02X 0x%02x",
-					tvb_get_ntohs(tvb, svoff+2),
-					tvb_get_guint8(tvb, svoff+4),
-					tvb_get_guint8(tvb, svoff+5));
+				proto_tree_add_uint_format_value(sv_tree, hf_trmac_response_code32, tvb, svoff+2, sv_length-2,
+					tvb_get_ntohl(tvb, svoff+2), "0x%04X 0x%02X 0x%02x",
+					tvb_get_ntohs(tvb, svoff+2), tvb_get_guint8(tvb, svoff+4), tvb_get_guint8(tvb, svoff+5));
 				proto_item_append_text(sv_item,
 					": 0x%04X 0x%02X 0x%02x",
 					tvb_get_ntohs(tvb, svoff+2),
 					tvb_get_guint8(tvb, svoff+4),
 					tvb_get_guint8(tvb, svoff+5));
 			} else {
-				proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-					"Response Code: 0x%04X 0x%02X 0x%06X",
+				proto_tree_add_uint64_format_value(sv_tree, hf_trmac_response_code48, tvb, svoff+2, sv_length-2,
+					tvb_get_ntoh48(tvb, svoff+2), "0x%04X 0x%02X 0x%06X",
 					tvb_get_ntohs(tvb, svoff+2),
 					tvb_get_guint8(tvb, svoff+4),
 					tvb_get_ntoh24(tvb, svoff+5));
@@ -343,23 +350,19 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case 0x22: /* Product Instance ID */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Product Instance ID: ...");
+			proto_tree_add_item(sv_tree, hf_trmac_product_instance_id, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 
 		case 0x23: /* Ring Station Version Number */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Ring Station Version Number: ...");
+			proto_tree_add_item(sv_tree, hf_trmac_ring_station_version_number, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 
 		case 0x26: /* Wrap data */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Wrap Data: ... (%u bytes)", sv_length - 2);
+			proto_tree_add_item(sv_tree, hf_trmac_wrap_data, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 
 		case 0x27: /* Frame Forward */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Frame Forward: ... (%d bytes)", sv_length - 2);
+			proto_tree_add_item(sv_tree, hf_trmac_frame_forward, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 
 		case 0x28: /* Station Identifier */
@@ -375,8 +378,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case 0x29: /* Ring Station Status */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Ring Station Status: ...");
+			proto_tree_add_item(sv_tree, hf_trmac_ring_station_status, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 
 		case 0x2A: /* Transmit Status Code */
@@ -468,8 +470,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default: /* Unknown */
-			proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
-				"Unknown Subvector");
+			proto_tree_add_item(sv_tree, hf_trmac_unknown_subvector, tvb, svoff+2, sv_length-2, ENC_NA);
 			break;
 	}
 	return sv_length;
@@ -661,6 +662,17 @@ proto_register_trmac(void)
 		{ &hf_trmac_error_code,
 		{ "Error Code",				"trmac.error_code", FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
+
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_trmac_response_code32, { "Response Code", "trmac.response_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_response_code48, { "Response Code", "trmac.response_code", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_product_instance_id, { "Product Instance ID", "trmac.product_instance_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_ring_station_version_number, { "Ring Station Version Number", "trmac.ring_station_version_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_wrap_data, { "Wrap Data", "trmac.wrap_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_frame_forward, { "Frame Forward", "trmac.frame_forward", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_ring_station_status, { "Ring Station Status", "trmac.ring_station_status", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_unknown_subvector, { "Unknown Subvector", "trmac.unknown_subvector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_tr_mac,

@@ -44,6 +44,7 @@ int hf_nt_cs_size = -1;
 static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
 static int hf_nt_data_blob_len = -1;
+static int hf_nt_data_blob_data = -1;
 static int hf_nt_midl_blob_len = -1;
 static int hf_nt_midl_fill_bytes = -1;
 static int hf_nt_midl_version = -1;
@@ -98,7 +99,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, subtree, di, drep,
 				    hf_nt_data_blob_len, &len);
 	}
-	proto_tree_add_text(subtree, tvb, offset, (int)len, "Blob data");
+	proto_tree_add_item(subtree, hf_nt_data_blob_data, tvb, offset, (int)len, ENC_NA);
 	offset += (int)len;
 	return offset;
 }
@@ -1988,6 +1989,10 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_nt_data_blob_len,
 		  { "Blob size", "dcerpc.nt.blob.size",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_data_blob_data,
+		  { "Blob data", "dcerpc.nt.blob.data",
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_nt_midl_blob_len, {
 		  "Blob Length", "nt.midl_blob_len", FT_UINT64, BASE_DEC,

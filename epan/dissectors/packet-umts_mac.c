@@ -65,6 +65,7 @@ static int hf_mac_trch_id = -1;
 /* static int hf_mac_edch_type2_flag = -1; */
 static int hf_mac_edch_type2_tsn = -1;
 static int hf_mac_edch_type2_ss = -1;
+static int hf_mac_edch_type2_ss_interpretation = -1;
 static int hf_mac_edch_type2_sdu = -1;
 static int hf_mac_edch_type2_sdu_data = -1;
 static int hf_mac_is_fraglink = -1;
@@ -86,6 +87,14 @@ static expert_field ei_mac_rach_tctf_unknown = EI_INIT;
 static expert_field ei_mac_unknown_content = EI_INIT;
 static expert_field ei_mac_per_frame_info_missing = EI_INIT;
 static expert_field ei_mac_fach_content_type_unknown = EI_INIT;
+static expert_field ei_mac_no_logical_channel = EI_INIT;
+static expert_field ei_mac_faked_logical_channel_id = EI_INIT;
+static expert_field ei_mac_macis_sdu_reassembled = EI_INIT;
+static expert_field ei_mac_macis_sdu_first = EI_INIT;
+static expert_field ei_mac_macis_sdu_middle = EI_INIT;
+static expert_field ei_mac_macis_sdu_last = EI_INIT;
+static expert_field ei_mac_macis_sdu_complete = EI_INIT;
+
 
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;
@@ -535,17 +544,15 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             proto_item_append_text(ti, " (DCCH)");
 
             /*Show logical channel id*/
+            channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             if(macinf->lchid[pos]!= 255){
-                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
 
                 if(macinf->fake_chid[pos]){
-                    channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
-                    PROTO_ITEM_SET_GENERATED(channel_type);
+                    expert_add_info(pinfo, channel_type, &ei_mac_faked_logical_channel_id);
                 }
             }else{
-                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
 
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
@@ -559,12 +566,11 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case MAC_CONTENT_PS_DTCH:
             proto_item_append_text(ti, " (PS DTCH)");
              /*Show logical channel id*/
-            if(macinf->lchid[pos]!= 255){
-                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
-            }else{
-                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+            channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
+
+            if(macinf->lchid[pos]== 255){
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
 
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
@@ -574,16 +580,14 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case MAC_CONTENT_CS_DTCH:
             proto_item_append_text(ti, " (CS DTCH)");
             /*Show logical channel id*/
+            channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             if(macinf->lchid[pos]!= 255){
-                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
                 if(macinf->fake_chid[pos]){
-                    channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
-                    PROTO_ITEM_SET_GENERATED(channel_type);
+                    expert_add_info(pinfo, channel_type, &ei_mac_faked_logical_channel_id);
                 }
             }else{
-                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
 
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
@@ -714,7 +718,7 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         guint counter = 0;
         new_tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
         add_new_data_source(pinfo, new_tvb, "Reassembled MAC-is SDU");
-        proto_tree_add_text(tree, new_tvb, 0, -1, "[Reassembled MAC-is SDU]");
+        proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_reassembled, new_tvb, 0, -1);
 
         while (f) {
             proto_tree_add_uint_format_value(tree, hf_mac_is_fraglink, new_tvb,
@@ -730,13 +734,13 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
         switch (type) {
             case MAC_IS_HEAD:
-                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the first segment of a MAC-d PDU or MAC-c PDU.]");
+                proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_first, new_tvb, 0, -1);
                 break;
             case MAC_IS_MIDDLE:
-                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU.]");
+                proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_middle, new_tvb, 0, -1);
                 break;
             case MAC_IS_TAIL:
-                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU.]");
+                proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_last, new_tvb, 0, -1);
                 break;
         }
         proto_tree_add_uint(tree, hf_mac_is_reasmin, new_tvb, 0, 0, sdu->frame_num);
@@ -843,7 +847,7 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
             return tvb_new_subset(tvb, offset, maclength, -1);
         }
     /* If clicking on a packet. */
-    } else if (tree) {
+    } else {
         tvbuff_t * new_tvb = NULL;
         /* Middle segment */
         if (no_sdus == 1 && ss == 3) {
@@ -867,7 +871,7 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
             }
         } else {
             new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
-            proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is a complete MAC-d PDU or MAC-c PDU]");
+            proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_complete, new_tvb, 0, -1);
             proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
             return new_tvb;
         }
@@ -880,30 +884,38 @@ static void ss_interpretation(tvbuff_t * tvb, proto_tree * tree, guint8 ss, guin
     switch (ss) {
         case 0:
             if (number_of_mac_is_sdus > 1) {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
             } else {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
             }
             break;
         case 1:
             if (number_of_mac_is_sdus > 1) {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
             } else {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
             }
             break;
         case 2:
             if (number_of_mac_is_sdus > 1) {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
             } else {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
             }
             break;
         case 3:
             if (number_of_mac_is_sdus > 1) {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU and the last MAC-is SDU of MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU and the last MAC-is SDU of MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
             } else {
-                proto_tree_add_text(tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU.");
+                proto_tree_add_uint_format_value(tree, hf_mac_edch_type2_ss_interpretation, tvb, offset, 1, ss,
+                    "The MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU.");
             }
             break;
     }
@@ -1181,16 +1193,14 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         case MAC_CONTENT_CCCH:
             proto_item_append_text(ti, " (CCCH)");
             /*Set the logical channel id if it exists */
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             if(macinf->lchid[pos] != 255){
-                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
                 if(macinf->fake_chid[pos]){
-                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
-                    PROTO_ITEM_SET_GENERATED(channel_type);
+                    expert_add_info(pinfo, channel_type, &ei_mac_faked_logical_channel_id);
                 }
             }else{
-                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
             /*Set the type of channel*/
             channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
@@ -1206,22 +1216,17 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
           /*  channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel_hsdsch, tvb, 0, 0, MAC_DCCH);
             PROTO_ITEM_SET_GENERATED(channel_type)*/
             /*Set the logical channel id if it exists */
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             if(macinf->lchid[pos] != 255){
-                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
                 if(macinf->fake_chid[pos]){
-                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
-                    PROTO_ITEM_SET_GENERATED(channel_type);
+                    expert_add_info(pinfo, channel_type, &ei_mac_faked_logical_channel_id);
                 }
             }else{
-                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
 
             /*Set the type of channel*/
-            /*channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Logcial Channel Type: PS DTCH");
-            PROTO_ITEM_SET_GENERATED(channel_type);
-            */
             channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
 
             PROTO_ITEM_SET_GENERATED(channel_type);
@@ -1235,16 +1240,14 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_item_append_text(ti, " (PS DTCH)");
 
             /*Set the logical channel id if it exists */
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             if(macinf->lchid[pos] != 255){
-                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-                PROTO_ITEM_SET_GENERATED(channel_type);
-                    if(macinf->fake_chid[pos]){
-                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
-                    PROTO_ITEM_SET_GENERATED(channel_type);
+                if(macinf->fake_chid[pos]){
+                    expert_add_info(pinfo, channel_type, &ei_mac_faked_logical_channel_id);
                 }
             }else{
-                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
-                PROTO_ITEM_SET_GENERATED(channel_type);
+                expert_add_info(pinfo, channel_type, &ei_mac_no_logical_channel);
             }
 
             /*Sets the channel type*/
@@ -1398,6 +1401,12 @@ proto_register_umts_mac(void)
             "Segmentation Status", HFILL
           }
         },
+        { &hf_mac_edch_type2_ss_interpretation,
+          { "SS interpretation",
+            "mac.edch.type2.ss_interpretation", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL
+          }
+        },
         { &hf_mac_edch_type2_tsn,
           { "TSN",
             "mac.edch.type2.tsn", FT_UINT16, BASE_DEC, NULL, 0,
@@ -1440,6 +1449,13 @@ proto_register_umts_mac(void)
         { &ei_mac_rach_tctf_unknown, { "mac.rach_tctf.unknown", PI_MALFORMED, PI_ERROR, "Unknown RACH TCTF", EXPFILL }},
         { &ei_mac_cs_dtch_not_implemented, { "mac.cs_dtch.not_implemented", PI_DEBUG, PI_ERROR, "CS DTCH Is not implemented", EXPFILL }},
         { &ei_mac_fach_content_type_unknown, { "mac.fach_content_type.unknown", PI_UNDECODED, PI_WARN, " Unimplemented FACH Content type!", EXPFILL }},
+        { &ei_mac_no_logical_channel, { "mac.no_logical_channel", PI_PROTOCOL, PI_WARN, "Frame is missing logical channel", EXPFILL }},
+        { &ei_mac_faked_logical_channel_id, { "mac.faked_logical_channel_id", PI_PROTOCOL, PI_WARN, "This is a faked logical channel id!", EXPFILL }},
+        { &ei_mac_macis_sdu_reassembled, { "mac.macis_sdu.reassembled", PI_REASSEMBLE, PI_CHAT, "Reassembled MAC-is SDU", EXPFILL }},
+        { &ei_mac_macis_sdu_first, { "mac.macis_sdu.first", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is the first segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
+        { &ei_mac_macis_sdu_middle, { "mac.macis_sdu.middle", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
+        { &ei_mac_macis_sdu_last, { "mac.macis_sdu.last", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
+        { &ei_mac_macis_sdu_complete, { "mac.macis_sdu.complete", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a complete MAC-d PDU or MAC-c PDU", EXPFILL }},
     };
 
     expert_module_t* expert_umts_mac;

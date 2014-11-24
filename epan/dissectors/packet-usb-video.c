@@ -247,6 +247,7 @@ static int hf_usb_vid_cam_objective_focal_len_max = -1;
 static int hf_usb_vid_cam_ocular_focal_len = -1;
 static int hf_usb_vid_bControlSize = -1;
 static int hf_usb_vid_bmControl = -1;
+static int hf_usb_vid_bmControl_bytes = -1;
 static int hf_usb_vid_control_default = -1;
 static int hf_usb_vid_control_min = -1;
 static int hf_usb_vid_control_max = -1;
@@ -280,6 +281,7 @@ static int hf_usb_vid_format_bits_per_pixel = -1;
 static int hf_usb_vid_default_frame_index = -1;
 static int hf_usb_vid_aspect_ratio_x = -1;
 static int hf_usb_vid_aspect_ratio_y = -1;
+static int hf_usb_vid_interlace_flags = -1;
 static int hf_usb_vid_is_interlaced = -1;
 static int hf_usb_vid_interlaced_fields = -1;
 static int hf_usb_vid_field_1_first = -1;
@@ -328,6 +330,11 @@ static int hf_usb_vid_iExtension = -1;
 static int hf_usb_vid_iSelector = -1;
 static int hf_usb_vid_proc_standards = -1;
 static int hf_usb_vid_request_error = -1;
+static int hf_usb_vid_descriptor_data = -1;
+static int hf_usb_vid_control_data = -1;
+static int hf_usb_vid_control_value = -1;
+static int hf_usb_vid_value_data = -1;
+
 
 /* Subtrees */
 static gint ett_usb_vid = -1;
@@ -867,7 +874,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
             /* @todo Display as FT_BYTES with a big-endian disclaimer?
              * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7933
              */
-            proto_tree_add_text(tree, tvb, offset, control_size, "bmControl");
+            proto_tree_add_bytes_format(tree, hf_usb_vid_bmControl_bytes, tvb, offset, control_size, NULL, "bmControl");
         }
         offset += control_size;
     }
@@ -1012,7 +1019,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     /* Soak up descriptor bytes beyond those we know how to dissect */
     if (offset < descriptor_len)
     {
-        proto_tree_add_text(tree, tvb, offset, descriptor_len-offset, "Descriptor data");
+        proto_tree_add_item(tree, hf_usb_vid_descriptor_data, tvb, offset, descriptor_len-offset, ENC_NA);
         /* offset = descriptor_len; */
     }
 
@@ -1199,12 +1206,11 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
 #if 0
     /* @todo Display "N/A" if Camera Terminal does not support scanning mode control */
     if (something)
-        proto_tree_add_text(tree, tvb, offset, 1, "bmInterlaceFlags: Not applicable");
+        proto_tree_add_uint_format_value(tree, hf_usb_vid_interlace_flags, tvb, offset, 1, tvb_get_guint8(tvb, offset), "Not applicable");
 #endif
 
-    proto_tree_add_bitmask_text(tree, tvb, offset, 1, "bmInterlaceFlags", NULL,
-                                ett_interlace_flags, interlace_bits, ENC_NA,
-                                BMT_NO_APPEND);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_interlace_flags,
+                                ett_interlace_flags, interlace_bits, ENC_NA);
     offset++;
 
     proto_tree_add_item(tree, hf_usb_vid_copy_protect, tvb, offset, 1, ENC_NA);
@@ -1391,7 +1397,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
 
     /* Soak up descriptor bytes beyond those we know how to dissect */
     if (offset < descriptor_len)
-        proto_tree_add_text(tree, tvb, offset, descriptor_len-offset, "Descriptor data");
+        proto_tree_add_item(tree, hf_usb_vid_descriptor_data, tvb, offset, descriptor_len-offset, ENC_NA);
 
     return descriptor_len;
 }
@@ -1440,7 +1446,7 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
 
     /* Soak up descriptor bytes beyond those we know how to dissect */
     if (offset < descriptor_len)
-        proto_tree_add_text(tree, tvb, offset, descriptor_len-offset, "Descriptor data");
+        proto_tree_add_item(tree, hf_usb_vid_descriptor_data, tvb, offset, descriptor_len-offset, ENC_NA);
 
     return descriptor_len;
 }
@@ -1762,7 +1768,7 @@ dissect_usb_vid_control_value(proto_tree *tree, tvbuff_t *tvb, int offset, guint
         /* @todo Display as FT_BYTES with a big-endian disclaimer?
          * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7933
          */
-        proto_tree_add_text(tree, tvb, offset, value_size, "%s", fallback_name);
+        proto_tree_add_bytes_format(tree, hf_usb_vid_control_value, tvb, offset, value_size, NULL, "%s", fallback_name);
     }
 }
 
@@ -1906,7 +1912,7 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
             if (value_size > 0)
             {
-                proto_tree_add_text(tree, tvb, offset, -1, "Control data");
+                proto_tree_add_item(tree, hf_usb_vid_control_data, tvb, offset, -1, ENC_NA);
                 offset += value_size;
             }
         }
@@ -2103,7 +2109,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     break;
 
                 default:
-                    proto_tree_add_text(tree, tvb, offset, -1, "Value data");
+                    proto_tree_add_item(tree, hf_usb_vid_value_data, tvb, offset, -1, ENC_NA);
                     offset += tvb_reported_length_remaining(tvb, offset);
                     break;
             }
@@ -2839,6 +2845,12 @@ proto_register_usb_vid(void)
                             "Y dimension of picture aspect ratio", HFILL }
             },
 
+            { &hf_usb_vid_interlace_flags,
+                    { "bmInterlaceFlags", "usbvideo.format.interlace",
+                            FT_UINT8, BASE_HEX, NULL, 0x0,
+                            NULL, HFILL }
+            },
+
             { &hf_usb_vid_is_interlaced,
                     { "Interlaced stream", "usbvideo.format.interlace.D0",
                             FT_BOOLEAN, 8, TFS(&is_interlaced_meaning), (1<<0),
@@ -3164,6 +3176,12 @@ proto_register_usb_vid(void)
                             "Available controls", HFILL }
             },
 
+            { &hf_usb_vid_bmControl_bytes,
+                    { "bmControl", "usbvideo.availableControls.bytes",
+                            FT_BYTES, BASE_NONE, NULL, 0,
+                            "Available controls", HFILL }
+            },
+
             { &hf_usb_vid_control_ifdesc_src_id,
                     { "bSourceID", "usbvideo.sourceID", FT_UINT8, BASE_DEC, NULL, 0x0,
                             "Entity to which this terminal/unit is connected", HFILL }
@@ -3183,6 +3201,26 @@ proto_register_usb_vid(void)
                             FT_UINT8, BASE_DEC | BASE_EXT_STRING,
                             &vs_if_descriptor_subtypes_ext, 0,
                             "Descriptor Subtype", HFILL }
+            },
+
+            { &hf_usb_vid_descriptor_data,
+                    { "Descriptor data", "usbvideo.descriptor_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+                            NULL, HFILL }
+            },
+
+            { &hf_usb_vid_control_data,
+                    { "Control data", "usbvideo.control_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+                            NULL, HFILL }
+            },
+
+            { &hf_usb_vid_control_value,
+                    { "Control value", "usbvideo.control_value", FT_BYTES, BASE_NONE, NULL, 0x0,
+                            NULL, HFILL }
+            },
+
+            { &hf_usb_vid_value_data,
+                    { "Value data", "usbvideo.value_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+                            NULL, HFILL }
             },
     };
 

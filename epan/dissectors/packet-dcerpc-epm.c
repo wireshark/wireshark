@@ -47,6 +47,7 @@ static int hf_epm_hnd = -1;
 static int hf_epm_max_ents = -1;
 static int hf_epm_num_ents = -1;
 static int hf_epm_uuid = -1;
+static int hf_epm_uuid_version = -1;
 static int hf_epm_tower_length = -1;
 /* static int hf_epm_tower_data = -1; */
 static int hf_epm_max_towers = -1;
@@ -367,7 +368,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                               uuid.Data4[4], uuid.Data4[5],
                               uuid.Data4[6], uuid.Data4[7]);
             }
-            proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+18));
+            proto_tree_add_item(tr, hf_epm_uuid_version, tvb, offset+17, 2, ENC_BIG_ENDIAN); /* Major/minor bytes treated as big endian */
 
             {
                 guint16 version = tvb_get_ntohs(tvb, offset+17);
@@ -455,6 +456,12 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         proto_item_set_len(it, offset-old_offset);
     }
     return offset;
+}
+
+static void
+epm_fmt_uuid_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 /* typedef struct {
@@ -706,6 +713,8 @@ proto_register_epm (void)
           { "Num entries", "epm.num_ents", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_epm_uuid,
           { "UUID", "epm.uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_epm_uuid_version,
+          { "Version", "epm.uuid_version", FT_UINT16, BASE_CUSTOM, epm_fmt_uuid_version, 0x0, NULL, HFILL }},
         { &hf_epm_annotation,
           { "Annotation", "epm.annotation", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_epm_proto_named_pipes,
