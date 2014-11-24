@@ -3106,6 +3106,21 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
     {  0,    NULL}
 };
 
+
+static void
+degrees_base_custom(gchar *result, guint32 degrees)
+{
+
+  if (degrees & 0x800000) {
+    /* Negative Number. */
+    g_snprintf(result, ITEM_LABEL_LENGTH, "-%u.%u", (degrees & 0x7F8000)>>15, degrees & 0x007FFF);
+  }
+  else {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", (degrees & 0x7F8000)>>15, degrees & 0x007FFF);
+  }
+}
+
+
 static void
 dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
@@ -3210,7 +3225,7 @@ dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_op_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_op_id, tvb, offset, sub_opt_len, ENC_NA);
+            proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_op_id, tvb, offset, sub_opt_len - 1, ENC_NA);
             offset = offset + sub_opt_len - 1;
 
             break;
@@ -4887,13 +4902,13 @@ proto_register_mip6(void)
 
     { &hf_mip6_opt_acc_net_id_sub_opt_geo_latitude_degrees,
       { "Latitude Degrees", "mip6.acc_net_id.geo.latitude_degrees",
-        FT_INT24, BASE_DEC, NULL, 0x0,
+        FT_INT24, BASE_CUSTOM, degrees_base_custom, 0x0,
         NULL, HFILL }
     },
 
     { &hf_mip6_opt_acc_net_id_sub_opt_geo_longitude_degrees,
       { "Longitude Degrees", "mip6.acc_net_id.geo.longitude_degrees",
-        FT_INT24, BASE_DEC, NULL, 0x0,
+        FT_INT24, BASE_CUSTOM, degrees_base_custom, 0x0,
         NULL, HFILL }
     },
 
