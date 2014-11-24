@@ -265,7 +265,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
    * If the magic number or protocol version is unknown, don't treat this
    * frame as a CPHA frame.
    */
-  if (tvb_length(tvb) < 4) {
+  if (tvb_reported_length(tvb) < 4) {
     /* Not enough data for the magic number or protocol version */
     return 0;
   }
@@ -341,7 +341,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
   }
 
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static int dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
