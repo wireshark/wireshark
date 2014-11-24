@@ -1233,6 +1233,15 @@ uri_host_end_found:
     return uri_offsets->name_addr_end;
 }
 
+void
+dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset, guint parameter_len)
+{
+    proto_item *pi;
+
+    pi = proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset, parameter_len, ENC_UTF_8|ENC_NA);
+    PROTO_ITEM_SET_GENERATED(pi);
+}
+
 static proto_item *
 sip_proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gint value_offset, gint value_len)
 {

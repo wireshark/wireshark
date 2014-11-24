@@ -38,6 +38,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
+#include "packet-sip.h"
 
 void proto_register_diameter_3gpp(void);
 void proto_reg_handoff_diameter_3gpp(void);
@@ -285,6 +286,25 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 
     return length;
+}
+
+/* AVP Code: 601 Public-Identity
+ * TGPP.xml
+ * 6.3.2 Public-Identity AVP
+ * The Public-Identity AVP is of type UTF8String. This AVP contains the public identity of a user in the IMS. The syntax
+ * of this AVP corresponds either to a SIP URL (with the format defined in IETF RFC 3261 [3] and IETF RFC 2396 [4])
+ * or a TEL URL (with the format defined in IETF RFC 3966 [8]). Both SIP URL and TEL URL shall be in canonical
+ * form, as described in 3GPP TS 23.003 [13].
+ */
+static int
+dissect_diameter_3gpp_public_identity(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
+
+    dfilter_store_sip_from_addr(tvb, tree, 0, length);
+
+    return length;
+
 }
 
 /* AVP Code: 629 Feature-List-id
@@ -994,6 +1014,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 600 Visited-Network-Identifier */
     dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
+
+    /* AVP Code: 601 Public-Identity */
+    dissector_add_uint("diameter.3gpp", 601, new_create_dissector_handle(dissect_diameter_3gpp_public_identity, proto_diameter_3gpp));
 
     /* AVP Code: 606 User-Data */
     dissector_add_uint("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
