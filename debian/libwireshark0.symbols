@@ -1070,7 +1070,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_stat_tap_ui@Base 1.99.1
  register_tap@Base 1.9.1
  register_tap_listener@Base 1.9.1
- register_tap_ui@Base 1.99.1
  rel_oid_encoded2string@Base 1.12.0~rc1
  rel_oid_resolved_from_encoded@Base 1.12.0~rc1
  rel_oid_str_to_bytes@Base 1.12.0~rc1

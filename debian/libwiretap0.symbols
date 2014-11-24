@@ -72,6 +72,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
  wtap_phdr@Base 1.9.1
  wtap_read@Base 1.9.1
+ wtap_read_bytes@Base 1.99.1
+ wtap_read_bytes_or_eof@Base 1.99.1
  wtap_read_packet_bytes@Base 1.12.0~rc1
  wtap_read_so_far@Base 1.9.1
  wtap_register_encap_type@Base 1.9.1
