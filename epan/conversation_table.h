@@ -123,7 +123,7 @@ typedef struct _conversation_item_t {
 
     nstime_t            start_time;     /**< relative start time for the conversation */
     nstime_t            stop_time;      /**< relative stop time for the conversation */
-	nstime_t            start_abs_time; /**< absolute start time for the conversation */
+    nstime_t            start_abs_time; /**< absolute start time for the conversation */
 
     gboolean            modified;       /**< new to redraw the row (only used in GTK+) */
 } conv_item_t;
@@ -131,16 +131,16 @@ typedef struct _conversation_item_t {
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
     hostlist_dissector_info_t *dissector_info; /**< conversation information provided by dissector */
-	address myaddress;      /**< address */
-	port_type  ptype;       /**< port_type (e.g. PT_TCP) */
-	guint32 port;           /**< port */
+    address myaddress;      /**< address */
+    port_type  ptype;       /**< port_type (e.g. PT_TCP) */
+    guint32 port;           /**< port */
 
-	guint64 rx_frames;      /**< number of received packets */
-	guint64 tx_frames;      /**< number of transmitted packets */
-	guint64 rx_bytes;       /**< number of received bytes */
-	guint64 tx_bytes;       /**< number of transmitted bytes */
+    guint64 rx_frames;      /**< number of received packets */
+    guint64 tx_frames;      /**< number of transmitted packets */
+    guint64 rx_bytes;       /**< number of received bytes */
+    guint64 tx_bytes;       /**< number of transmitted bytes */
 
-	gboolean modified;      /**< new to redraw the row */
+    gboolean modified;      /**< new to redraw the row */
 
 } hostlist_talker_t;
 
@@ -349,3 +349,16 @@ void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
 #endif /* __cplusplus */
 
 #endif /* __CONVERSATION_TABLE_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
