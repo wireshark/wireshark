@@ -338,6 +338,8 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  * @param sender TRUE, if this is a sender
  * @param num_frames number of packets
  * @param num_bytes number of bytes
+ * @param host_info conversation information provided by dissector
+ * @param port_type_val the port type (e.g. PT_TCP)
  */
 void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
