@@ -52,6 +52,8 @@ static int hf_canopen_time_stamp_days = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_canopen = -1;
+static gint ett_canopen_cob = -1;
+static gint ett_canopen_type = -1;
 
 /* broadcast messages */
 #define FC_NMT                  0x0
@@ -240,7 +242,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         /* add COB-ID with function code and node id */
         cob_ti = proto_tree_add_uint(canopen_tree, hf_canopen_cob_id, tvb, 0, 0, can_id.id);
-        canopen_cob_tree = proto_item_add_subtree(cob_ti, ett_canopen);
+        canopen_cob_tree = proto_item_add_subtree(cob_ti, ett_canopen_cob);
 
         /* add function code */
         ti = proto_tree_add_uint(canopen_cob_tree, hf_canopen_function_code, tvb, 0, 0, can_id.id);
@@ -254,7 +256,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         canopen_type_tree = proto_tree_add_subtree_format(canopen_tree, tvb, 0,
                                       (msg_type_id == MT_SYNC) || (msg_type_id == MT_NMT_ERR_CTRL) ? 0 : -1,
-                                      ett_canopen, NULL, "Type: %s", function_code_str);
+                                      ett_canopen_type, NULL, "Type: %s", function_code_str);
         switch(msg_type_id)
         {
         case MT_NMT_CTRL:
@@ -435,7 +437,9 @@ proto_register_canopen(void)
     };
 
     static gint *ett[] = {
-        &ett_canopen
+        &ett_canopen,
+        &ett_canopen_cob,
+        &ett_canopen_type
     };
 
     proto_canopen = proto_register_protocol("CANopen",
