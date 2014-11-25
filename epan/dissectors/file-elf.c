@@ -917,7 +917,8 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
         }
     }
 
-    proto_tree_add_item(segment_tree, hf_elf_eh_frame_hdr_fde_count, tvb, offset, fde_count_length, machine_encoding);
+    proto_tree_add_item(segment_tree, hf_elf_eh_frame_hdr_fde_count, tvb, offset,
+                        fde_count_length, machine_encoding);
     offset += fde_count_length;
 
     if (table_entry_length == LENGTH_ULEB128) {
@@ -2227,8 +2228,8 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf_eh_frame_hdr_fde_count,
-            { "FDE Count",                                 "elf.eh_frame_hdr.fde_count",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            { "Number of FDE entries",                     "elf.eh_frame_hdr.fde_count",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_elf_eh_frame_hdr_binary_search_table_entry_initial_location,
