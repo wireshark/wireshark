@@ -452,6 +452,11 @@ endif
 nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
 wireshark_cxx_SOURCES =
 
+dummy.cpp:
+	echo 'static void dummy();' > $@
+# Generate the dummy.cpp for above so that "make tags" will still work.
+# ("make clean" will remove it.)
+
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
 else
@@ -691,6 +696,7 @@ services:
 CLEANFILES =		\
 	*~		\
 	doxygen-core.tag	\
+	dummy.cpp	\
 	vgcore.*
 
 #

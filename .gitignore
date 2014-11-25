@@ -209,6 +209,7 @@ ui/qt/config.pri
 *~
 .DS_Store
 cscope.*
+dummy.cpp
 tags
 TAGS
 macosx-support-libs
