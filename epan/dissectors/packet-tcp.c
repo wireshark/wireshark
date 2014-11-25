@@ -4733,24 +4733,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     tcph->num_sack_ranges = 0;
-    if(!pinfo->fd->flags.visited) {
-        if((tcph->th_flags & TH_SYN)==TH_SYN) {
-            /* Check the validity of the window scale value
-             */
-            verify_tcp_window_scaling((tcph->th_flags&TH_ACK)==TH_ACK,tcpd);
-        }
-
-        if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-            /* If the SYN or the SYN+ACK offered SCPS capabilities,
-             * validate the flow's bidirectional scps capabilities.
-             * The or protects against broken implementations offering
-             * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
-             */
-            if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
-                verify_scps(pinfo, tf_syn, tcpd);
-            }
-        }
-    }
 
     /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
     if(tcp_analyze_seq) {
@@ -4777,6 +4759,25 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                TCPOPT_EOL, &TCP_OPT_TYPES,
                                &ei_tcp_opt_len_invalid, pinfo, options_tree,
                                options_item, tcph);
+    }
+
+    if(!pinfo->fd->flags.visited) {
+        if((tcph->th_flags & TH_SYN)==TH_SYN) {
+            /* Check the validity of the window scale value
+             */
+            verify_tcp_window_scaling((tcph->th_flags&TH_ACK)==TH_ACK,tcpd);
+        }
+
+        if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
+            /* If the SYN or the SYN+ACK offered SCPS capabilities,
+             * validate the flow's bidirectional scps capabilities.
+             * The or protects against broken implementations offering
+             * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
+             */
+            if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
+                verify_scps(pinfo, tf_syn, tcpd);
+            }
+        }
     }
 
     /* Skip over header + options */
