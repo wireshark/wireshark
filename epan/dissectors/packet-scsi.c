@@ -1492,16 +1492,26 @@ static const value_string scsi_persresvin_svcaction_val[] = {
     {0, NULL},
 };
 
+#define SCSI_PR_REGISTER 0
+#define SCSI_PR_RESERVE 1
+#define SCSI_PR_RELEASE 2
+#define SCSI_PR_CLEAR 3
+#define SCSI_PR_PREEMPT 4
+#define SCSI_PR_PREEM_ABORT 5
+#define SCSI_PR_REG_IGNORE 6
+#define SCSI_PR_REG_MOVE 7
+#define SCSI_PR_REPLACE_LOST 8
+
 static const value_string scsi_persresvout_svcaction_val[] = {
-    {0, "Register"},
-    {1, "Reserve"},
-    {2, "Release"},
-    {3, "Clear"},
-    {4, "Preempt"},
-    {5, "Preempt & Abort"},
-    {6, "Register & Ignore Existing Key"},
-    {7, "Register & Move"},
-    {8, "Replace Lost Reservation"},
+    {SCSI_PR_REGISTER, "Register"},
+    {SCSI_PR_RESERVE, "Reserve"},
+    {SCSI_PR_RELEASE, "Release"},
+    {SCSI_PR_CLEAR, "Clear"},
+    {SCSI_PR_PREEMPT, "Preempt"},
+    {SCSI_PR_PREEM_ABORT, "Preempt & Abort"},
+    {SCSI_PR_REG_IGNORE, "Register & Ignore Existing Key"},
+    {SCSI_PR_REG_MOVE, "Register & Move"},
+    {SCSI_PR_REPLACE_LOST, "Replace Lost Reservation"},
     {0, NULL},
 };
 
@@ -4861,13 +4871,19 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                                  guint offset, gboolean isreq, gboolean iscdb,
                                  guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
+    guint8 svcaction;
+
     if (!tree)
         return;
 
     if (isreq && iscdb) {
+        svcaction = tvb_get_guint8(tvb, offset) & 0x1F;
         proto_tree_add_item(tree, hf_scsi_persresvout_svcaction, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        /* type and scope are ignored for REGISTER, REGISTER AND IGNORE EXISTING KEY, CLEAR service actions */
+        if (svcaction != SCSI_PR_REGISTER && svcaction != SCSI_PR_REG_IGNORE && svcaction != SCSI_PR_CLEAR) {
+            proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        }
         proto_tree_add_item(tree, hf_scsi_paramlen16, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
