@@ -27,13 +27,12 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
-#include <epan/packet.h>
 
 void proto_register_openflow_v4(void);
-void proto_reg_handoff_openflow_v4(void);
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -795,6 +794,7 @@ static const value_string openflow_v4_type_values[] = {
     { OFPT_METER_MOD,                "OFPT_METER_MOD" },
     { 0,                             NULL }
 };
+static value_string_ext openflow_v4_type_values_ext = VALUE_STRING_EXT_INIT(openflow_v4_type_values);
 
 static int
 dissect_openflow_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
@@ -946,6 +946,7 @@ static const value_string openflow_v4_oxm_basic_field_values[] = {
     { 39, "OFPXMT_OFB_IPV6_EXTHDR" },
     {  0, NULL }
 };
+static value_string_ext openflow_v4_oxm_basic_field_values_ext = VALUE_STRING_EXT_INIT(openflow_v4_oxm_basic_field_values);
 
 #define OXM_FIELD_MASK   0xfe
 #define OXM_FIELD_OFFSET 1
@@ -4557,7 +4558,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     length = tvb_get_ntohs(tvb, 2);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_v4_type_values, "Unknown message type"));
+                  val_to_str_ext_const(type, &openflow_v4_type_values_ext, "Unknown message type"));
 
     /* Create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
@@ -4676,7 +4677,7 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_type,
             { "Type", "openflow_v4.type",
-               FT_UINT8, BASE_DEC, VALS(openflow_v4_type_values), 0x0,
+               FT_UINT8, BASE_DEC | BASE_EXT_STRING, &openflow_v4_type_values_ext, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_xid,
@@ -4701,7 +4702,7 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_oxm_field_basic,
             { "Field", "openflow_v4.oxm.field",
-               FT_UINT8, BASE_DEC, VALS(openflow_v4_oxm_basic_field_values), 0x0,
+               FT_UINT8, BASE_DEC | BASE_EXT_STRING, &openflow_v4_oxm_basic_field_values_ext, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_hm,

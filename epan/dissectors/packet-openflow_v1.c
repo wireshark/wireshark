@@ -32,7 +32,6 @@
 #include <epan/expert.h>
 
 void proto_register_openflow_v1(void);
-void proto_reg_handoff_openflow_v1(void);
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -192,19 +191,17 @@ static const value_string openflow_version_values[] = {
 
 static const value_string openflow_1_0_type_values[] = {
 /* Immutable messages. */
-
-/* Immutable messages. */
-    { 0, "OFPT_HELLO" },              /* Symmetric message */
-    { 1, "OFPT_ERROR" },              /* Symmetric message */
-    { 2, "OFPT_ECHO_REQUEST" },       /* Symmetric message */
-    { 3, "OFPT_ECHO_REPLY" },         /* Symmetric message */
-    { 4, "OFPT_VENDOR" },             /* Symmetric message */
+    { 0, "OFPT_HELLO" },                     /* Symmetric message */
+    { 1, "OFPT_ERROR" },                     /* Symmetric message */
+    { 2, "OFPT_ECHO_REQUEST" },              /* Symmetric message */
+    { 3, "OFPT_ECHO_REPLY" },                /* Symmetric message */
+    { 4, "OFPT_VENDOR" },                    /* Symmetric message */
 /* Switch configuration messages. */
-    { 5, "OFPT_FEATURES_REQUEST" },   /* Controller/switch message */
-    { 6, "OFPT_FEATURES_REPLY" },     /* Controller/switch message */
-    { 7, "OFPT_GET_CONFIG_REQUEST" }, /* Controller/switch message */
-    { 8, "OFPT_GET_CONFIG_REPLY" },   /* Controller/switch message */
-    { 9, "OFPT_SET_CONFIG" },         /* Controller/switch message */
+    { 5, "OFPT_FEATURES_REQUEST" },          /* Controller/switch message */
+    { 6, "OFPT_FEATURES_REPLY" },            /* Controller/switch message */
+    { 7, "OFPT_GET_CONFIG_REQUEST" },        /* Controller/switch message */
+    { 8, "OFPT_GET_CONFIG_REPLY" },          /* Controller/switch message */
+    { 9, "OFPT_SET_CONFIG" },                /* Controller/switch message */
 /* Asynchronous messages. */
     { 10, "OFPT_PACKET_IN" },                /* Async message */
     { 11, "OFPT_FLOW_REMOVED" },             /* Async message */
@@ -224,7 +221,7 @@ static const value_string openflow_1_0_type_values[] = {
     { 21, "OFPT_QUEUE_GET_CONFIG_REPLY" },   /* Controller/switch message */
     { 0, NULL }
 };
-
+static value_string_ext openflow_1_0_type_values_ext = VALUE_STRING_EXT_INIT(openflow_1_0_type_values);
 
 #define OFPC_FLOW_STATS   1<<0  /* Flow statistics. */
 #define OFPC_TABLE_STATS  1<<1  /* Table statistics. */
@@ -265,16 +262,16 @@ static const value_string openflow_1_0_type_values[] = {
 #define OFPPS_STP_MASK     3<<8 /* Bit mask for OFPPS_STP_* values. */
 
 
-#define OFPPF_10MB_HD      1<<0 /* 10 Mb half-duplex rate support. */
-#define OFPPF_10MB_FD      1<<1 /* 10 Mb full-duplex rate support. */
-#define OFPPF_100MB_HD     1<<2 /* 100 Mb half-duplex rate support. */
-#define OFPPF_100MB_FD     1<<3 /* 100 Mb full-duplex rate support. */
-#define OFPPF_1GB_HD       1<<4 /* 1 Gb half-duplex rate support. */
-#define OFPPF_1GB_FD       1<<5 /* 1 Gb full-duplex rate support. */
-#define OFPPF_10GB_FD      1<<6 /* 10 Gb full-duplex rate support. */
-#define OFPPF_COPPER       1<<7 /* Copper medium. */
-#define OFPPF_FIBER        1<<8 /* Fiber medium. */
-#define OFPPF_AUTONEG      1<<9 /* Auto-negotiation. */
+#define OFPPF_10MB_HD      1<<0  /* 10 Mb half-duplex rate support. */
+#define OFPPF_10MB_FD      1<<1  /* 10 Mb full-duplex rate support. */
+#define OFPPF_100MB_HD     1<<2  /* 100 Mb half-duplex rate support. */
+#define OFPPF_100MB_FD     1<<3  /* 100 Mb full-duplex rate support. */
+#define OFPPF_1GB_HD       1<<4  /* 1 Gb half-duplex rate support. */
+#define OFPPF_1GB_FD       1<<5  /* 1 Gb full-duplex rate support. */
+#define OFPPF_10GB_FD      1<<6  /* 10 Gb full-duplex rate support. */
+#define OFPPF_COPPER       1<<7  /* Copper medium. */
+#define OFPPF_FIBER        1<<8  /* Fiber medium. */
+#define OFPPF_AUTONEG      1<<9  /* Auto-negotiation. */
 #define OFPPF_PAUSE        1<<10 /* Pause. */
 #define OFPPF_PAUSE_ASYM   1<<11 /* Asymmetric pause. */
 
@@ -549,7 +546,7 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if(length_remaining > 0){
         guint16 num_ports = length_remaining/48;
         int i;
-        if ((length_remaining&0x003f) != 0){
+        if((length_remaining&0x003f) != 0){
             /* protocol_error */
         }
         for(i=0; i<num_ports ;i++){
@@ -715,7 +712,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     type    = tvb_get_guint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_1_0_type_values, "Unknown message type"));
+                  val_to_str_ext_const(type, &openflow_1_0_type_values_ext, "Unknown message type"));
 
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_1_0_PACKET_IN) || (type == OFPT_1_0_PACKET_OUT)){
@@ -804,7 +801,7 @@ proto_register_openflow_v1(void)
         },
         { &hf_openflow_1_0_type,
             { "Type", "openflow_1_0.type",
-               FT_UINT8, BASE_DEC, VALS(openflow_1_0_type_values), 0x0,
+               FT_UINT8, BASE_DEC | BASE_EXT_STRING, &openflow_1_0_type_values_ext, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_xid,
