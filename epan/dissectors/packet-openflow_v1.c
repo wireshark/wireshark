@@ -969,7 +969,7 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
         { &hf_openflow_port_name,
-            { "Name", "openflow.hw_add",
+            { "Port Name", "openflow.port_name",
                FT_STRING, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -1019,7 +1019,7 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
         { &hf_openflow_no_recv_stp,
-            { "Drop received 802.1D STP packets", "openflow.no_recv",
+            { "Drop received 802.1D STP packets", "openflow.no_recv_stp",
                FT_BOOLEAN, 32, NULL, OFPPC_NO_RECV_STP,
                NULL, HFILL }
         },
@@ -1153,7 +1153,7 @@ proto_register_openflow_v1(void)
         },
 #if 0
         { &hf_openflow_cookie_mask,
-            { "Cookie mask", "openflow.cookie",
+            { "Cookie mask", "openflow.cookie_mask",
                FT_UINT64, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
@@ -1204,7 +1204,7 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
         { &hf_openflow_eth_dst,
-            { "Ethernet destination address", "openflow.eth_src",
+            { "Ethernet destination address", "openflow.eth_dst",
                FT_ETHER, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },

@@ -6079,17 +6079,17 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_oxm_mask_etheraddr,
-            { "Mask", "openflow_v5.oxm.value",
+            { "Mask", "openflow_v5.oxm.ether_mask",
                FT_ETHER, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v5_oxm_mask_ipv4addr,
-            { "Mask", "openflow_v5.oxm.value",
+            { "Mask", "openflow_v5.oxm.ipv4_mask",
                FT_IPv4, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v5_oxm_mask_ipv6addr,
-            { "Mask", "openflow_v5.oxm.value",
+            { "Mask", "openflow_v5.oxm.ipv6_mask",
                FT_IPv6, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7134,7 +7134,7 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_packet_in_reason,
-            { "Reason", "openflow_v5.packet_in.buffer_id",
+            { "Reason", "openflow_v5.packet_in.reason",
                FT_UINT8, BASE_DEC, VALS(openflow_v5_packet_in_reason_values), 0x0,
                NULL, HFILL }
         },
