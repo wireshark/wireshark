@@ -181,6 +181,8 @@ static int hf_dwarf_format = -1;
 
 static expert_field ei_invalid_segment_size                           = EI_INIT;
 static expert_field ei_invalid_entry_size                             = EI_INIT;
+static expert_field ei_cfi_extraneous_data                            = EI_INIT;
+static expert_field ei_invalid_cie_length                             = EI_INIT;
 
 static gint ett_elf = -1;
 static gint ett_elf_header = -1;
@@ -189,9 +191,10 @@ static gint ett_elf_program_header_entry = -1;
 static gint ett_elf_section_header = -1;
 static gint ett_elf_section_header_entry = -1;
 static gint ett_elf_segment = -1;
-static gint ett_elf_cie = -1;
-static gint ett_elf_fde = -1;
-static gint ett_elf_entry = -1;
+static gint ett_elf_cfi_record = -1;
+static gint ett_elf_cie_entry = -1;
+static gint ett_elf_fde_entry = -1;
+static gint ett_elf_cie_terminator = -1;
 static gint ett_elf_info = -1;
 static gint ett_elf_black_holes = -1;
 static gint ett_elf_overlapping = -1;
@@ -957,141 +960,158 @@ static gint
 dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree,
         gint offset, gint segment_size _U_, gint register_size _U_, guint machine_encoding)
 {
-    proto_tree    *record_tree;
+    proto_tree    *cfi_tree = NULL;
+    proto_item    *cfi_tree_item = NULL;
     proto_tree    *entry_tree;
+    proto_item    *pi;
     guint64        length;
-    guint64        length_remaining;
+    guint          lengths_size;
+    gboolean       is_cie;
+    guint          entry_size, entry_end;
+    guint          cfi_size = 0;
     guint64        unsigned_value;
     gint64         signed_value;
     gint           size;
-    gint           augmentation_string_length;
-    const guint8  *augmentation_string;
-    gboolean       is_extended_length = FALSE;
+    const gchar   *augmentation_string = "";
+    gboolean       is_extended_length;
     gint           start_offset = offset;
-    gint           entry_number;
+    guint          cfi_number = 0;
+    gint           entry_number = 0;
 
-    length = (machine_encoding == ENC_BIG_ENDIAN) ?
-             tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-    if (length == 0xFFFFFFFF) {
-        is_extended_length = TRUE;
-        length = (machine_encoding == ENC_BIG_ENDIAN) ?
-                tvb_get_ntoh64(tvb, offset + 4) : tvb_get_letoh64(tvb, offset + 4);
-    }
-
-    length_remaining = length;
-
-    record_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)),
-            ett_elf_cie, NULL, "Common Information Entry");
-
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_length, tvb, offset, 4, machine_encoding);
-    offset += 4;
-
-    if (is_extended_length) {
-        proto_tree_add_item(record_tree, hf_elf_eh_frame_extended_length, tvb, offset, 8, machine_encoding);
-        offset += 8;
-    }
-
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_cie_id, tvb, offset, 4, machine_encoding);
-    length_remaining -= 4;
-    offset += 4;
-
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_version, tvb, offset, 1, machine_encoding);
-    length_remaining -= 1;
-    offset += 1;
-
-    augmentation_string = tvb_get_const_stringz(tvb, offset, &augmentation_string_length);
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_augmentation_string, tvb, offset, augmentation_string_length, machine_encoding);
-    length_remaining -= augmentation_string_length;
-    offset += augmentation_string_length;
-
-    size = dissect_uleb128(tvb, offset, &unsigned_value);
-    proto_tree_add_uint64(record_tree, hf_elf_eh_frame_code_alignment_factor, tvb, offset, size, unsigned_value);
-    length_remaining -= size;
-    offset += size;
-
-    size = dissect_leb128(tvb, offset, &signed_value);
-    proto_tree_add_int64(record_tree, hf_elf_eh_frame_data_alignment_factor, tvb, offset, size, signed_value);
-    length_remaining -= size;
-    offset += size;
-
-    /* according to DWARF v4 this is uLEB128 */
-    size = dissect_uleb128(tvb, offset, &unsigned_value);
-    proto_tree_add_uint64(record_tree, hf_elf_eh_frame_return_address_register, tvb, offset, size, unsigned_value);
-    length_remaining -= size;
-    offset += size;
-
-    if (strchr(augmentation_string, 'z')) {
-        size = dissect_uleb128(tvb, offset, &unsigned_value);
-        proto_tree_add_uint64(record_tree, hf_elf_eh_frame_augmentation_length, tvb, offset, size, unsigned_value);
-        length_remaining -= size;
-        offset += size;
-
-        proto_tree_add_item(record_tree, hf_elf_eh_frame_augmentation_data, tvb, offset, value_guard(unsigned_value), machine_encoding);
-        length_remaining -= unsigned_value;
-        offset += value_guard(unsigned_value);
-    }
-
-    proto_tree_add_item(record_tree, hf_elf_eh_frame_initial_instructions, tvb, offset, value_guard(length_remaining), machine_encoding);
-    offset += value_guard(length_remaining);
-
-    record_tree = proto_tree_add_subtree(segment_tree, tvb, offset, value_guard(segment_size - length - 4),
-            ett_elf_fde, NULL, "Frame Description Entries");
-
-    is_extended_length = FALSE;
-    entry_number = 1;
-
-    while (segment_size - (offset - start_offset)) {
+    while (offset - start_offset < segment_size) {
         length = (machine_encoding == ENC_BIG_ENDIAN) ?
                 tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-        if (length == 0xFFFFFFFF) {
-            is_extended_length = TRUE;
+        is_extended_length = length == 0xFFFFFFFF;
+        if (is_extended_length) {
             length = (machine_encoding == ENC_BIG_ENDIAN) ?
-                    tvb_get_ntoh64(tvb, offset + 4) : tvb_get_letoh64(tvb, offset + 4);
+                        tvb_get_ntoh64(tvb, offset + 4) :
+                        tvb_get_letoh64(tvb, offset + 4);
+        }
+        /* CIE ID/pointer is located after Length (4 bytes), or Length (4 bytes)
+         * + Extended Length (8 bytes). Entry is CIE when field is 0. */
+        lengths_size = is_extended_length ? 12 : 4;
+        is_cie = length == 0 || tvb_get_ntohl(tvb, offset + lengths_size) == 0;
+        entry_size = value_guard(length + lengths_size);
+        entry_end = offset + entry_size;
+
+        if (length == 0) {
+            /* CIE Terminator, add it directly under the Segment tree as we stop
+             * processing after this item. */
+            entry_tree = proto_tree_add_subtree(segment_tree,
+                    tvb, offset, entry_size,
+                    ett_elf_cie_terminator, NULL, "CIE Terminator");
+        } else if (cfi_number == 0 || is_cie) {
+            /* New CIE, so create a new CFI subtree and reset FDE Entry. */
+            ++cfi_number;
+            cfi_tree = proto_tree_add_subtree_format(segment_tree,
+                    tvb, offset, entry_size, ett_elf_cfi_record, &cfi_tree_item,
+                    "Call Frame Information Entry %i", cfi_number);
+            entry_tree = proto_tree_add_subtree(cfi_tree, tvb, offset,
+                    entry_size, ett_elf_cie_entry, NULL, "Common Information Entry");
+            cfi_size = entry_size;
+            entry_number = 0;
+        } else {
+            /* FDE, add it in the CFI subtree. */
+            ++entry_number;
+            cfi_size += entry_size;
+            proto_item_set_len(cfi_tree_item, cfi_size);
+            entry_tree = proto_tree_add_subtree_format(cfi_tree,
+                    tvb, offset, entry_size, ett_elf_fde_entry, NULL,
+                    "Frame Description Entry %i", entry_number);
         }
 
-        entry_tree = proto_tree_add_subtree_format(record_tree, tvb, offset, value_guard(length + (is_extended_length ? 4 + 8 : 4)),
-                            ett_elf_entry, NULL, "Entry %i", entry_number);
-
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_length, tvb, offset, 4, machine_encoding);
+        pi = proto_tree_add_item(entry_tree, is_cie ?
+                                    hf_elf_eh_frame_length :
+                                    hf_elf_eh_frame_fde_length,
+                                 tvb, offset, 4, machine_encoding);
         offset += 4;
 
         if (is_extended_length) {
-            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_extended_length, tvb, offset, 8, machine_encoding);
+            pi = proto_tree_add_item(entry_tree, is_cie ?
+                                        hf_elf_eh_frame_extended_length :
+                                        hf_elf_eh_frame_fde_extended_length,
+                                     tvb, offset, 8, machine_encoding);
             offset += 8;
         }
 
-        if (length == 0) break;
+        /* CIE terminator */
+        if (length == 0)
+            break;
 
-        length_remaining = length;
+        /* CIE ID (8) + Augment. Str (1) + CAF+DAF+Aug.Len (3) = 12 (min. length) */
+        if (length < 12 || entry_end - start_offset > (guint64)segment_size) {
+            expert_add_info(pinfo, pi, &ei_invalid_cie_length);
+            return offset;
+        }
 
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_cie_pointer, tvb, offset, 4, machine_encoding);
-        length_remaining -= 4;
+        proto_tree_add_item(entry_tree, is_cie ?
+                            hf_elf_eh_frame_cie_id :
+                            hf_elf_eh_frame_fde_cie_pointer,
+                            tvb, offset, 4, machine_encoding);
         offset += 4;
+        if (is_cie) {
+            proto_tree_add_item(entry_tree, hf_elf_eh_frame_version,
+                                tvb, offset, 1, machine_encoding);
+            offset += 1;
 
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_pc_begin, tvb, offset, 4, machine_encoding);
-        length_remaining -= 4;
-        offset += 4;
-
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_pc_range, tvb, offset, 4, machine_encoding);
-        length_remaining -= 4;
-        offset += 4;
-
-        if (strchr(augmentation_string, 'z')) {
-            size = dissect_uleb128(tvb, offset, &unsigned_value);
-            proto_tree_add_uint64(entry_tree, hf_elf_eh_frame_fde_augmentation_length, tvb, offset, size, unsigned_value);
-            length_remaining -= size;
+            augmentation_string = tvb_get_const_stringz(tvb, offset, &size);
+            proto_tree_add_item(entry_tree, hf_elf_eh_frame_augmentation_string,
+                                tvb, offset, size, machine_encoding);
             offset += size;
 
-            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_augmentation_data, tvb, offset, value_guard(unsigned_value), machine_encoding);
-            length_remaining -= unsigned_value;
+            size = dissect_uleb128(tvb, offset, &unsigned_value);
+            proto_tree_add_uint64(entry_tree, hf_elf_eh_frame_code_alignment_factor,
+                                  tvb, offset, size, unsigned_value);
+            offset += size;
+
+            size = dissect_leb128(tvb, offset, &signed_value);
+            proto_tree_add_int64(entry_tree, hf_elf_eh_frame_data_alignment_factor,
+                                 tvb, offset, size, signed_value);
+            offset += size;
+
+            /* according to DWARF v4 this is uLEB128 */
+            size = dissect_uleb128(tvb, offset, &unsigned_value);
+            proto_tree_add_uint64(entry_tree, hf_elf_eh_frame_return_address_register,
+                                  tvb, offset, size, unsigned_value);
+            offset += size;
+        } else {
+            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_pc_begin, tvb,
+                                offset, 4, machine_encoding);
+            offset += 4;
+
+            proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_pc_range, tvb,
+                                offset, 4, machine_encoding);
+            offset += 4;
+        }
+
+        /* "A 'z' may be present as the first character of the string. If
+         * present, the Augmentation Data field shall be present." (LSB 4.1) */
+        if (augmentation_string[0] == 'z') {
+            size = dissect_uleb128(tvb, offset, &unsigned_value);
+            proto_tree_add_uint64(entry_tree, is_cie ?
+                                    hf_elf_eh_frame_augmentation_length :
+                                    hf_elf_eh_frame_fde_augmentation_length,
+                                  tvb, offset, size, unsigned_value);
+            offset += size;
+
+            proto_tree_add_item(entry_tree, is_cie ?
+                                    hf_elf_eh_frame_augmentation_data :
+                                    hf_elf_eh_frame_fde_augmentation_data,
+                                tvb, offset, value_guard(unsigned_value),
+                                machine_encoding);
             offset += value_guard(unsigned_value);
         }
 
-        proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_call_frame_instructions, tvb, offset, value_guard(length_remaining), machine_encoding);
-        offset += value_guard(length_remaining);
-
-        entry_number += 1;
+        proto_tree_add_item(entry_tree, is_cie ?
+                                hf_elf_eh_frame_initial_instructions :
+                                hf_elf_eh_frame_fde_call_frame_instructions,
+                            tvb, offset, value_guard(entry_end - offset),
+                            machine_encoding);
+        offset = value_guard(entry_end);
     }
+
+    if (entry_end - start_offset != (guint64)segment_size)
+        expert_add_info(pinfo, pi, &ei_cfi_extraneous_data);
 
     return offset;
 }
@@ -2106,12 +2126,13 @@ proto_register_elf(void)
         { &hf_elf_eh_frame_length,
             { "Length",                                    "elf.eh_frame.length",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
-            "A 4 byte unsigned value indicating the length in bytes of the CIE structure, not including the Length field itself. If Length contains the value 0xffffffff, then the length is contained in the Extended Length field. If Length contains the value 0, then this CIE shall be considered a terminator and processing shall end.", HFILL }
+            "Length of CIE. Zero indicates a terminator, 0xffffffff means that "
+            "the Extended Length field contains the actual length.", HFILL }
         },
         { &hf_elf_eh_frame_extended_length,
-            { "Length",                                    "elf.eh_frame.length",
+            { "Extended Length",                           "elf.eh_frame.extended_length",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
-            "A 4 byte unsigned value indicating the length in bytes of the CIE structure, not including the Length field itself. If Length contains the value 0xffffffff, then the length is contained in the Extended Length field. If Length contains the value 0, then this CIE shall be considered a terminator and processing shall end.", HFILL }
+            "Extended Length of CIE.", HFILL }
         },
         { &hf_elf_eh_frame_cie_id,
             { "CIE ID",                                    "elf.eh_frame.cie_id",
@@ -2162,12 +2183,13 @@ proto_register_elf(void)
         { &hf_elf_eh_frame_fde_length,
             { "Length",                                    "elf.eh_frame.fde.length",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
-            "A 4 byte unsigned value indicating the length in bytes of the CIE structure, not including the Length field itself. If Length contains the value 0xffffffff, then the length is contained in the Extended Length field. If Length contains the value 0, then this CIE shall be considered a terminator and processing shall end.", HFILL }
+            "Length of FDE. Zero indicates a terminator, 0xffffffff means that "
+            "the Extended Length field contains the actual length.", HFILL }
         },
         { &hf_elf_eh_frame_fde_extended_length,
-            { "Length",                                    "elf.eh_frame.fde.length",
+            { "Extended Length",                           "elf.eh_frame.fde.extended_length",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
-            "A 4 byte unsigned value indicating the length in bytes of the CIE structure, not including the Length field itself. If Length contains the value 0xffffffff, then the length is contained in the Extended Length field. If Length contains the value 0, then this CIE shall be considered a terminator and processing shall end.", HFILL }
+            "Extended Length of FDE.", HFILL }
         },
         { &hf_elf_eh_frame_fde_cie_pointer,
             { "CIE Pointer",                               "elf.eh_frame.fde.cie_pointer",
@@ -2187,12 +2209,12 @@ proto_register_elf(void)
         { &hf_elf_eh_frame_fde_augmentation_length,
             { "Augmentation Length",                       "elf.eh_frame.fde.augmentation_length",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "An unsigned LEB128 encoded value indicating the length in bytes of the Augmentation Data. This field is only present if the Augmentation String in the associated CIE contains the character 'z'.", HFILL }
+            "An unsigned LEB128 encoded value indicating the length in bytes of the Augmentation Data.", HFILL }
         },
         { &hf_elf_eh_frame_fde_augmentation_data,
             { "Augmentation Data",                         "elf.eh_frame.fde.augmentation_data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
-            "A block of data whose contents are defined by the contents of the Augmentation String in the associated CIE as described above. This field is only present if the Augmentation String in the associated CIE contains the character 'z'. The size of this data is given by the Augentation Length.", HFILL }
+            "Data as described by the Augmentation String in the CIE.", HFILL }
         },
         { &hf_elf_eh_frame_fde_call_frame_instructions,
             { "Call Frame Instructions",                   "elf.eh_frame.fde.call_frame_instructions",
@@ -2206,7 +2228,7 @@ proto_register_elf(void)
             "Version of the .eh_frame_hdr format. This value shall be 1.", HFILL }
         },
         { &hf_elf_eh_frame_hdr_exception_frame_pointer_encoding,
-            { "Exeption Frame Pointer Encoding",           "elf.eh_frame_hdr.eh_frame_ptr_enc",
+            { "Exception Frame Pointer Encoding",           "elf.eh_frame_hdr.eh_frame_ptr_enc",
             FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
             "The encoding format of the eh_frame_ptr field.", HFILL }
         },
@@ -2223,9 +2245,9 @@ proto_register_elf(void)
 
 
         { &hf_elf_eh_frame_hdr_eh_frame_ptr,
-            { "Exeption Frame Pointer",                    "elf.eh_frame_hdr.eh_frame_ptr",
+            { "Exception Frame Pointer",                    "elf.eh_frame_hdr.eh_frame_ptr",
             FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
+            "Start of .eh_frame pointer", HFILL }
         },
         { &hf_elf_eh_frame_hdr_fde_count,
             { "Number of FDE entries",                     "elf.eh_frame_hdr.fde_count",
@@ -2373,6 +2395,8 @@ proto_register_elf(void)
     static ei_register_info ei[] = {
         { &ei_invalid_segment_size, { "elf.invalid_segment_size", PI_PROTOCOL, PI_WARN, "Segment size is different then currently parsed bytes", EXPFILL }},
         { &ei_invalid_entry_size,   { "elf.invalid_entry_size", PI_PROTOCOL, PI_WARN, "Entry size is different then currently parsed bytes", EXPFILL }},
+        { &ei_cfi_extraneous_data,  { "elf.cfi_extraneous_data", PI_PROTOCOL, PI_WARN, "Segment size is larger than CFI records combined", EXPFILL }},
+        { &ei_invalid_cie_length,   { "elf.invalid_cie_length", PI_PROTOCOL, PI_ERROR, "CIE length is too small or larger than segment size", EXPFILL }},
     };
 
     static gint *ett[] = {
@@ -2383,9 +2407,10 @@ proto_register_elf(void)
         &ett_elf_section_header,
         &ett_elf_section_header_entry,
         &ett_elf_segment,
-        &ett_elf_cie,
-        &ett_elf_fde,
-        &ett_elf_entry,
+        &ett_elf_cfi_record,
+        &ett_elf_cie_entry,
+        &ett_elf_fde_entry,
+        &ett_elf_cie_terminator,
         &ett_elf_info,
         &ett_elf_black_holes,
         &ett_elf_overlapping,
