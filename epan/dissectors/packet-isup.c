@@ -11731,7 +11731,7 @@ proto_register_isup(void)
 
 
     { &hf_BAT_ASE_Comp_Report_ident,
-      { "Bearer control tunneling",  "bat_ase.bearer_control_tunneling",
+      { "Compatibility report ident",  "bat_ase.Comp_Report_ident",
         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bat_ase_list_of_Identifiers_vals_ext, 0x0,
         NULL, HFILL }},
 

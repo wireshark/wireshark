@@ -5357,7 +5357,7 @@ proto_register_17221(void)
       },
 
       { &hf_aecp_avb_info_msrp_mappings_count,
-         {"MSRP Mappings Count", "ieee17221.msrp_mappings",
+         {"MSRP Mappings Count", "ieee17221.msrp_mappings_count",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 

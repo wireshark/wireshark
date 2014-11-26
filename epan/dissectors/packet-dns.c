@@ -3204,7 +3204,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
 
       proto_tree_add_item(rr_tree, hf_dns_eui64, tvb, cur_offset, 8, ENC_NA);
-      /*cur_offset += 6;*/
+      /*cur_offset += 8;*/
 
     }
     break;
@@ -4407,7 +4407,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_eui64,
-      { "EUI48 Address", "dns.eui48",
+      { "EUI64 Address", "dns.eui64",
         FT_EUI64, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

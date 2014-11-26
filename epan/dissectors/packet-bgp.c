@@ -6911,7 +6911,7 @@ proto_register_bgp(void)
         { "Withdrawn Routes Length", "bgp.update.withdrawn_routes.length", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_withdrawn_routes,
-        { "Withdrawn Routes", "bgp.update.withdrawn_routes.length", FT_NONE, BASE_NONE,
+        { "Withdrawn Routes", "bgp.update.withdrawn_routes", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
 
       { &hf_bgp_update_path_attribute_aggregator_as,

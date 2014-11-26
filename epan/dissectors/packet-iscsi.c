@@ -2780,7 +2780,7 @@ proto_register_iscsi(void)
         },
 /* #ifdef DRAFT08 */
         { &hf_iscsi_ISID8,
-          { "ISID", "iscsi.isid",
+          { "ISID", "iscsi.isid8",
             FT_UINT16, BASE_HEX, NULL, 0,
             "Initiator part of session identifier", HFILL }
         },

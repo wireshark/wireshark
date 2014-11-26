@@ -276,7 +276,7 @@ proto_register_mpeg1(void)
 			&hf_rtp_mpg_e,
 			{
 				"End-of-slice",
-				"rtp.payload_mpeg_an",
+				"rtp.payload_mpeg_e",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,

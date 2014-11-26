@@ -331,7 +331,7 @@ static header_field_info hfi_msg_block_time BITCOIN_HFI_INIT =
   { "Block timestamp", "bitcoin.block.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_block_bits BITCOIN_HFI_INIT =
-  { "Bits", "bitcoin.block.merkle_root", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
+  { "Bits", "bitcoin.block.bits", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_block_nonce BITCOIN_HFI_INIT =
   { "Nonce", "bitcoin.block.nonce", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };

@@ -1429,7 +1429,7 @@ void proto_register_idrp(void)
                 HFILL}},
         {&hf_idrp_update_path_attr_multi_exit_disc,
             {"Path Attribute Value Multi Exit Disc",
-                "idrp.update.path-attr.dist-list-excl.rdi", FT_UINT8, BASE_DEC,
+                "idrp.update.path-attr.multi-exit-disc", FT_UINT8, BASE_DEC,
                 NULL, 0, "Number of exit points to an adjacent domain" ,
                 HFILL}},
         {&hf_idrp_update_path_attr_transit_delay,
