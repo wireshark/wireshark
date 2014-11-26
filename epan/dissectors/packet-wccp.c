@@ -507,7 +507,7 @@ static void dissect_timer_scale_capability(tvbuff_t *tvb, int curr_offset,
 
 static void
 find_wccp_address_table(tvbuff_t *tvb, int offset,
-                        packet_info *pinfo _U_, proto_tree *wccp_tree _U_)
+                        packet_info *pinfo, proto_tree *wccp_tree _U_)
 {
   guint16 type;
   guint16 item_length;
@@ -549,7 +549,7 @@ find_wccp_address_table(tvbuff_t *tvb, int offset,
 
     if (type == WCCP2r1_ADDRESS_TABLE)
       {
-        dissect_wccp2r1_address_table_info(tvb, offset+4, item_length, NULL, NULL);
+        dissect_wccp2r1_address_table_info(tvb, offset+4, item_length, pinfo, NULL);
         /* no need to decode the rest */
         return;
       }
@@ -1900,7 +1900,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 1:
     if (wccp_wccp_address_table.table_ipv4 == NULL)
       wccp_wccp_address_table.table_ipv4 = (guint32 *)
-        wmem_alloc(wmem_packet_scope(), wccp_wccp_address_table.table_length * 4);
+        wmem_alloc(pinfo->pool, wccp_wccp_address_table.table_length * 4);
     if ((address_length != 4) && (pinfo && info_tree)) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 4, but I found  %d for IPv4 addresses. Correcting this.",
@@ -1911,7 +1911,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 2:
     if (wccp_wccp_address_table.table_ipv6 == NULL)
       wccp_wccp_address_table.table_ipv6 = (struct e_in6_addr *)
-        wmem_alloc(wmem_packet_scope(), wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
+        wmem_alloc(pinfo->pool, wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
     if ((address_length != 16) && (pinfo && info_tree)) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 16, but I found %d for IPv6 addresses.  Correcting this",
