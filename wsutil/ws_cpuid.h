@@ -22,7 +22,8 @@
 
 /*
  * Get CPU info on platforms where the cpuid instruction can be used skip 32 bit versions for GCC
- * 	http://www.intel.com/content/dam/www/public/us/en/documents/application-notes/processor-identification-cpuid-instruction-note.pdf
+ * Intel has documented the CPUID instruction in the "Intel(r) 64 and IA-32
+ * Architectures Developer's Manual" at http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
  * the ws_cpuid() routine will return 0 if cpuinfo isn't available.
  */
 
