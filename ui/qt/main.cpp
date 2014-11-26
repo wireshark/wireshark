@@ -601,6 +601,8 @@ int main(int argc, char *argv[])
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"read-file", required_argument, NULL, 'r' },
+        {(char *)"read-filter", required_argument, NULL, 'R' },
+        {(char *)"display-filter", required_argument, NULL, 'Y' },
         {(char *)"version", no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
