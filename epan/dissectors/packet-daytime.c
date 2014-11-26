@@ -46,7 +46,7 @@ static header_field_info hfi_daytime_string DAYTIME_HFI_INIT =
   "String containing time and date", HFILL };
 
 static header_field_info hfi_response_request DAYTIME_HFI_INIT =
-{ "Type", "daytime.string",
+{ "Type", "daytime.response_request",
   FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
   NULL, HFILL };
 

@@ -5950,7 +5950,7 @@ void proto_register_lbmr(void)
         { &hf_lbmr_pser_opt_ctxinst_type,
             { "Type", "lbmr.pser.opt.ctxinst.type", FT_UINT8, BASE_DEC_HEX, VALS(lbmr_pser_option_type), 0x0, NULL, HFILL } },
         { &hf_lbmr_pser_opt_ctxinst_ctxinst,
-            { "Context Instance", "lbmr.pser.opt.ctxinst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Context Instance", "lbmr.pser.opt.ctxinst.ctxinst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_qqr,
             { "QQRs", "lbmr.qqr", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_qqr_name,

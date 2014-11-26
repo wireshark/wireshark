@@ -6468,7 +6468,7 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_set_sms_configuration_sc_address,
-            { "Service Center Address", "mbim.control.set_sms_configuration.sc_address.size",
+            { "Service Center Address", "mbim.control.set_sms_configuration.sc_address",
                FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },

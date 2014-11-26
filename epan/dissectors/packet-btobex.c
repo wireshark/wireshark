@@ -2007,7 +2007,7 @@ proto_register_btobex(void)
             NULL, HFILL}
         },
         { &hf_pbap_application_parameter_data_search_value,
-          { "Search Value", "btobex.parameter.value.order",
+          { "Search Value", "btobex.parameter.value.search_value",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },

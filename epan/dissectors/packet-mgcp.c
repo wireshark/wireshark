@@ -2192,7 +2192,7 @@ void proto_register_mgcp(void)
 			  { "Unknown parameter", "mgcp.unknown_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
 			    NULL, HFILL }},
 			{ &hf_mgcp_malformed_parameter,
-			  { "Malformed parameter", "mgcp.rsp.dup.frame", FT_STRING, BASE_NONE, NULL, 0x0,
+			  { "Malformed parameter", "mgcp.rsp.malformed_parameter", FT_STRING, BASE_NONE, NULL, 0x0,
 			    NULL, HFILL }},
 		};
 

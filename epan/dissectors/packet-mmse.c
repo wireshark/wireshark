@@ -1626,7 +1626,7 @@ proto_register_mmse(void)
             }
         },
         {   &hf_mmse_header_uint,
-            {   "Header Uint Value", "mmse.previously_sent_date.date",
+            {   "Header Uint Value", "mmse.header.uint",
                 FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
             }
         },

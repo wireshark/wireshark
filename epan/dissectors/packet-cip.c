@@ -6489,7 +6489,7 @@ proto_register_cip(void)
       { &hf_cip_sc_set_member_data, { "Data", "cip.setmember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_insert_member_data, { "Data", "cip.insertmember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_remove_member_data, { "Data", "cip.removemember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_group_sync_is_sync, { "IsSynchronized", "cip.group_sync.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_sc_group_sync_is_sync, { "IsSynchronized", "cip.group_sync.is_sync", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_group_sync_data, { "Data", "cip.group_sync.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_data, { "Data", "cip.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 

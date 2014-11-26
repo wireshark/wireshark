@@ -3888,7 +3888,7 @@ proto_register_artnet(void) {
 
     { &hf_artnet_tod_control_address,
       { "Address",
-        "artnet.tod_request.address",
+        "artnet.tod_control.address",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
