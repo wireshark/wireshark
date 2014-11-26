@@ -143,6 +143,7 @@ $INCLUDE dictionary.alcatel-lucent.aaa
 $INCLUDE dictionary.alteon
 $INCLUDE dictionary.alvarion
 $INCLUDE dictionary.apc
+$INCLUDE dictionary.arbor
 $INCLUDE dictionary.aruba
 $INCLUDE dictionary.azaire
 $INCLUDE dictionary.ascend
@@ -210,6 +211,7 @@ $INCLUDE dictionary.livingston
 $INCLUDE dictionary.localweb
 $INCLUDE dictionary.lucent
 $INCLUDE dictionary.manzara
+$INCLUDE dictionary.meinberg
 $INCLUDE dictionary.merit
 $INCLUDE dictionary.meru
 $INCLUDE dictionary.microsoft

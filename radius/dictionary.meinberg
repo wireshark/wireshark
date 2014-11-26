@@ -1,0 +1,17 @@
+# -*- text -*-
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#	Meinberg
+#
+#	$Id: 29364648e694338150f71f124cd62d9730f2366a $
+#
+##############################################################################
+
+VENDOR		Meinberg			5597
+
+BEGIN-VENDOR	Meinberg
+
+ATTRIBUTE	MBG-Management-Privilege-Level		1	integer
+
+END-VENDOR     Meinberg

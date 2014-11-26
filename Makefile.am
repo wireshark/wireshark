@@ -139,6 +139,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.alvarion.wimax.v2_2  \
 	radius/dictionary.apc \
 	radius/dictionary.aptis  \
+	radius/dictionary.arbor  \
 	radius/dictionary.aruba  \
 	radius/dictionary.ascend  \
 	radius/dictionary.asn \
@@ -213,6 +214,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.localweb  \
 	radius/dictionary.lucent \
 	radius/dictionary.manzara \
+	radius/dictionary.meinberg \
 	radius/dictionary.merit  \
 	radius/dictionary.meru  \
 	radius/dictionary.microsoft  \
