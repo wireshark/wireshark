@@ -352,12 +352,13 @@ dnet_ntoa(const guint8 *data)
 }
 
 static void
-set_dnet_address(address *paddr_src, address *paddr_tgt)
+set_dnet_address(packet_info *pinfo, address *paddr_src, address *paddr_tgt)
 {
     if (paddr_tgt->type != AT_STRINGZ && paddr_src->type == AT_ETHER) {
         char *addr = dnet_ntoa((const guint8 *)paddr_src->data);
         if (addr != NULL)
-            SET_ADDRESS(paddr_tgt, AT_STRINGZ, 1, addr);
+            SET_ADDRESS(paddr_tgt, AT_STRINGZ, 1,
+                    wmem_strdup(pinfo->pool, addr));
     }
 }
 
@@ -378,10 +379,10 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC DNA");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    set_dnet_address(&pinfo->dl_src, &pinfo->net_src);
-    set_dnet_address(&pinfo->dl_src, &pinfo->src);
-    set_dnet_address(&pinfo->dl_dst, &pinfo->net_dst);
-    set_dnet_address(&pinfo->dl_dst, &pinfo->dst);
+    set_dnet_address(pinfo, &pinfo->dl_src, &pinfo->net_src);
+    set_dnet_address(pinfo, &pinfo->dl_src, &pinfo->src);
+    set_dnet_address(pinfo, &pinfo->dl_dst, &pinfo->net_dst);
+    set_dnet_address(pinfo, &pinfo->dl_dst, &pinfo->dst);
 
     offset += 2;
     msg_flags = tvb_get_guint8(tvb, offset);
