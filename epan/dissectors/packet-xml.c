@@ -183,12 +183,11 @@ static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child)
 }
 
 static int
-dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbparse_t       *tt;
     static GPtrArray *stack;
     xml_frame_t      *current_frame;
-    xml_frame_t      **ret_frame = (xml_frame_t**)data;
     const char       *colinfo_str;
 
     if (stack != NULL)
@@ -231,8 +230,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     while(tvbparse_get(tt, want)) ;
 
-    if (ret_frame != NULL)
-        *ret_frame = current_frame;  /* pass XML structure to the dissector calling XML */
+    /* Save XML structure in case it is useful for the caller (only XMPP for now) */
+    p_add_proto_data(pinfo->pool, pinfo, xml_ns.hf_tag, 0, current_frame);
 
     return tvb_captured_length(tvb);
 }

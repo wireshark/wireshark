@@ -377,7 +377,7 @@ static void
 dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     xml_frame_t *xml_frame;
-    xml_frame_t *xml_dissector_frame = NULL;
+    xml_frame_t *xml_dissector_frame;
     gboolean     out_packet;
 
     conversation_t   *conversation;
@@ -388,6 +388,8 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *outin_item;
 
     xmpp_element_t *packet = NULL;
+
+    int proto_xml = dissector_handle_get_protocol_index(xml_handle);
 
     /*check if desegment
      * now it checks that last char is '>',
@@ -448,11 +450,10 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     xmpp_item = proto_tree_add_item(tree, proto_xmpp, tvb, 0, -1, ENC_NA);
     xmpp_tree = proto_item_add_subtree(xmpp_item, ett_xmpp);
 
-    /* Have XML dissector "return" it's xml_frame_t data */
-    call_dissector_with_data(xml_handle, tvb, pinfo, xmpp_tree, &xml_dissector_frame);
+    call_dissector_with_data(xml_handle, tvb, pinfo, xmpp_tree, NULL);
 
     /* If XML dissector is disabled, we can't do much */
-    if (!proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(xml_handle))))
+    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_xml)))
     {
         col_append_str(pinfo->cinfo, COL_INFO, "(XML dissector disabled, can't dissect XMPP)");
         expert_add_info(pinfo, xmpp_item, &ei_xmpp_xml_disabled);
@@ -467,6 +468,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         return;
     }
 
+    xml_dissector_frame = (xml_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_xml, 0);
     if(xml_dissector_frame == NULL)
         return;
 
