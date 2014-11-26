@@ -356,7 +356,8 @@ set_dnet_address(address *paddr_src, address *paddr_tgt)
     if (paddr_tgt->type != AT_STRINGZ && paddr_src->type == AT_ETHER) {
         char *addr = dnet_ntoa(paddr_src->data);
         if (addr != NULL)
-            SET_ADDRESS(paddr_tgt, AT_STRINGZ, 1, addr);
+            SET_ADDRESS(paddr_tgt, AT_STRINGZ, 1,
+                    se_strdup(addr));
     }
 }
 
