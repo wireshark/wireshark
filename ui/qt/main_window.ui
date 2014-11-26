@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -321,6 +321,14 @@
      <addaction name="actionSCTPAnalyseThisAssociation"/>
      <addaction name="actionSCTPShowAllAssociations"/>
     </widget>
+    <widget class="QMenu" name="menuFollow">
+     <property name="title">
+      <string>Follow</string>
+     </property>
+     <addaction name="actionAnalyzeFollowTCPStream"/>
+     <addaction name="actionAnalyzeFollowUDPStream"/>
+     <addaction name="actionAnalyzeFollowSSLStream"/>
+    </widget>
     <addaction name="actionAnalyzeDisplayFilters"/>
     <addaction name="actionAnalyzeDisplayFilterMacros"/>
     <addaction name="separator"/>
@@ -331,9 +339,7 @@
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="separator"/>
     <addaction name="menuSCTP"/>
-    <addaction name="actionAnalyzeFollowTCPStream"/>
-    <addaction name="actionAnalyzeFollowUDPStream"/>
-    <addaction name="actionAnalyzeFollowSSLStream"/>
+    <addaction name="menuFollow"/>
    </widget>
    <widget class="QMenu" name="menuStatistics">
     <property name="enabled">
