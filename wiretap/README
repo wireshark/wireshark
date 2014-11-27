@@ -1,3 +1,8 @@
+NOTE: this documents the original intent behind libwiretap.  Currently,
+it is being developed solely as a library for reading capture files,
+rather than packet capture.  The list of file formats is also
+out-of-date.
+
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
 is great in that it is very platform independent and has a wonderful
