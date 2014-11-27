@@ -189,7 +189,7 @@ void EndpointDialog::createMap()
     gchar *err_str;
     gchar *map_path = create_endpoint_geoip_map(cur_tree->trafficTreeHash()->conv_array, &err_str);
     if (!map_path) {
-        QMessageBox::warning(this, "Map file error", err_str);
+        QMessageBox::warning(this, tr("Map file error"), err_str);
         g_free(err_str);
         return;
     }
