@@ -139,7 +139,7 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
 void
 vsimple_error_message_box(const char *msg_format, va_list ap)
 {
-    SimpleDialog sd(NULL, ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
+    SimpleDialog sd(gbl_cur_main_window_, ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
     sd.exec();
 }
 
