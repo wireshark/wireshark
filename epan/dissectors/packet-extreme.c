@@ -1421,7 +1421,7 @@ proto_register_edp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_edp_elsm_subtype,
-		{ "Subtype",	"edp.elsm.unknown", FT_UINT8, BASE_DEC, VALS(elsm_subtype_vals),
+		{ "Subtype",	"edp.elsm.subtype", FT_UINT8, BASE_DEC, VALS(elsm_subtype_vals),
 			0x0, NULL, HFILL }},
 
 		{ &hf_edp_elsm_magic,

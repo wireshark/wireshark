@@ -2348,7 +2348,7 @@ proto_register_bundle(void)
           FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_creation_timestamp,
-         {"Creation Timestamp", "bundle.primary.timestamp",
+         {"Creation Timestamp", "bundle.primary.creation_timestamp",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_lifetime,
@@ -2392,7 +2392,7 @@ proto_register_bundle(void)
           FT_UINT8, BASE_DEC, VALS(admin_record_type_vals), 0xF0, NULL, HFILL}
         },
         {&hf_bundle_admin_record_fragment,
-         {"Administrative Record Type", "bundle.admin.record_type",
+         {"Administrative Record Fragment", "bundle.admin.record_fragment",
           FT_BOOLEAN, 8, TFS(&tfs_yes_no), ADMIN_REC_FLAGS_FRAGMENT, NULL, HFILL}
         },
         {&hf_bundle_admin_statflags,

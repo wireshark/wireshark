@@ -2123,7 +2123,7 @@ proto_register_elf(void)
             "A 1 byte value that identifies the version number of the frame information structure. This value shall be 1.", HFILL }
         },
         { &hf_elf_eh_frame_augmentation_string,
-            { "Augmentation String",                       "elf.eh_frame.version",
+            { "Augmentation String",                       "elf.eh_frame.augmentation_string",
             FT_STRINGZ, BASE_NONE, NULL, 0x00,
             "This value is a NUL terminated string that identifies the augmentation to the CIE or to the FDEs associated with this CIE. A zero length string indicates that no augmentation data is present. The augmentation string is case sensitive.", HFILL }
         },

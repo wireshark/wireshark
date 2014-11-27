@@ -4003,7 +4003,7 @@ proto_register_unistim(void){
          BASE_HEX,VALS(expansion_phone_msgs),0x0,NULL,HFILL}
       },
       { &hf_module_key_number,
-        {"Module Key Number","unistim.expansion.phone",FT_INT32,
+        {"Module Key Number","unistim.module.key.number",FT_INT32,
          BASE_DEC,NULL,0x0,NULL,HFILL}
       },
       { &hf_expansion_softlabel_number,

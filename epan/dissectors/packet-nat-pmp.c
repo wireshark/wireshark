@@ -706,7 +706,7 @@ void proto_register_nat_pmp(void)
       { "Option", "portcontrol.option", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_code,
-      { "Option", "portcontrol.option", FT_UINT8, BASE_DEC,
+      { "Option", "portcontrol.option.code", FT_UINT8, BASE_DEC,
         VALS(pcp_option_vals), 0x0, NULL, HFILL } },
     { &hf_option_reserved,
       { "Reserved", "portcontrol.option.reserved", FT_UINT8, BASE_DEC,

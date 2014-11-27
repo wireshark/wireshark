@@ -1039,7 +1039,7 @@ void proto_register_h248_annex_c(void) {
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    "Jitter Buffer Size (ms)", HFILL }},
 		{ &hf_h248_pkg_annexc_propdelay,
-		  { "Propagation Delay", "h248.annexc.encrypt_type",
+		  { "Propagation Delay", "h248.annexc.propdelay",
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    "Propagation Delay (ms)", HFILL }},
 		{ &hf_h248_pkg_annexc_rtp_payload,

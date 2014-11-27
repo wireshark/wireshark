@@ -2067,7 +2067,7 @@ void proto_register_pn532(void)
          {"Register Value", "pn532.register.value", FT_UINT8, BASE_HEX,
           NULL, 0x00, NULL, HFILL}},
         {&hf_pn532_field,
-         {"Field", "pn532.register.value", FT_BOOLEAN, BASE_NONE,
+         {"Field", "pn532.field", FT_BOOLEAN, BASE_NONE,
           TFS(&tfs_present_not_present), 0x00, "Field indicates if an external RF field is present and detected by the PN532", HFILL}},
         {&hf_pn532_brrx,
          {"Baudrate Rx", "pn532.brrx", FT_UINT8, BASE_HEX,
