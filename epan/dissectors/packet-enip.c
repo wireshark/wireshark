@@ -3425,17 +3425,17 @@ proto_register_enip(void)
       },
       /* Link_Status/Neighbor_Status Status */
       { &hf_dlr_lnknbrstatus,
-        { "Link/Neighbor Status", "enip.dlr.lnknbrstatus",
+        { "Link/Neighbor Status", "enip.dlr.lnknbrstatus.status",
           FT_UINT8, BASE_HEX, NULL, 0,
           "Link_Status/Neighbor_Status Status", HFILL }
       },
       { &hf_dlr_lnknbrstatus_port1,
-        { "Port 1 Active", "enip.dlr.lnknbrstatus",
+        { "Port 1 Active", "enip.dlr.lnknbrstatus.port1",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
           NULL, HFILL }
       },
       { &hf_dlr_lnknbrstatus_port2,
-        { "Port 2 Active", "enip.dlr.lnknbrstatus",
+        { "Port 2 Active", "enip.dlr.lnknbrstatus.port2",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
           NULL, HFILL }
       },
@@ -3445,7 +3445,7 @@ proto_register_enip(void)
           NULL, HFILL }
       },
       { &hf_dlr_lnknbrstatus_frame_type,
-        { "Link/Neighbor Status Flag", "enip.dlr.lnknbrstatus",
+        { "Link/Neighbor Status Frame Type", "enip.dlr.lnknbrstatus.frame_type",
           FT_BOOLEAN, 8, TFS(&dlr_lnknbrstatus_frame_type_vals), 0x80,
           NULL, HFILL }
       },

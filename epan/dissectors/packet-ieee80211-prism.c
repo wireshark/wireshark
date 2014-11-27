@@ -503,7 +503,7 @@ static hf_register_info hf_prism[] = {
       NULL, HFILL }},
 
     { &hf_ieee80211_prism_did,
-     {"DID", "prism.did.type", FT_NONE, BASE_NONE, NULL, 0x0,
+     {"DID", "prism.did", FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     { &hf_ieee80211_prism_did_type,

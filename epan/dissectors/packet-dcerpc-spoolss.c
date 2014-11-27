@@ -7902,7 +7902,7 @@ proto_register_dcerpc_spoolss(void)
 		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_options_flags_refresh,
-		  { "Refresh", "spoolss.notify_options.flags", FT_BOOLEAN, 32,
+		  { "Refresh", "spoolss.notify_options.flags.refresh", FT_BOOLEAN, 32,
 		    TFS(&tfs_notify_options_flags_refresh),
 		    PRINTER_NOTIFY_OPTIONS_REFRESH, NULL, HFILL }},
 

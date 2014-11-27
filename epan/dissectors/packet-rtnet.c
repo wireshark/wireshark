@@ -1306,7 +1306,7 @@ proto_register_rtcfg(void) {
 
     { &hf_rtcfg_client_hw_address,
       { "Client Hardware Address",
-        "rtcfg.client_ip_address",
+        "rtcfg.client_hw_address",
         FT_BYTES, BASE_NONE, NULL, 0x00,
         "RTcfg Client Hardware Address", HFILL }}
   };
