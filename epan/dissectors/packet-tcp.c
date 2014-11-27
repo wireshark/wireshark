@@ -584,9 +584,29 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     return 1;
 }
 
-static const char* tcp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+static const char* tcp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-    return tcp_conv_get_filter_type(NULL, filter);
+    if (filter == CONV_FT_SRC_PORT)
+        return "tcp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "tcp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "tcp.port";
+
+    if(!host) {
+        return CONV_FILTER_INVALID;
+    }
+
+    if (filter == CONV_FT_SRC_ADDRESS || filter == CONV_FT_DST_ADDRESS || filter == CONV_FT_ANY_ADDRESS) {
+        if (host->myaddress.type == AT_IPv4)
+            return "ip.src";
+        if (host->myaddress.type == AT_IPv6)
+            return "ipv6.src";
+    }
+
+    return CONV_FILTER_INVALID;
 }
 
 static hostlist_dissector_info_t tcp_host_dissector_info = {&tcp_host_get_filter_type};
