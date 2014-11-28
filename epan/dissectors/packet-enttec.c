@@ -326,13 +326,6 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static gint
-dissect_enttec_config(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
-{
-
-	return offset;
-}
-
-static gint
 dissect_enttec_reset(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 {
 
@@ -340,16 +333,40 @@ dissect_enttec_reset(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 }
 
 static int
-dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint offset = 0;
 	guint32 head = 0;
 	proto_tree *ti,*enttec_tree=NULL;
 
-	/* Set the protocol column */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENTTEC");
+	/*
+	 * If not enough bytes for the header word, not an ENTTEC packet.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 4))
+		return 0;
 
 	head = tvb_get_ntohl(tvb, offset);
+	switch (head) {
+
+	case ENTTEC_HEAD_ESPR:
+	case ENTTEC_HEAD_ESPP:
+	case ENTTEC_HEAD_ESAP:
+	case ENTTEC_HEAD_ESDD:
+	case ENTTEC_HEAD_ESZZ:
+		/*
+		 * Valid packet type.
+		 */
+		break;
+
+	default:
+		/*
+		 * Not a known DMX-over-UDP packet type, so probably not ENTTEC.
+		 */
+		return 0;
+	}
+
+	/* Set the protocol column */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENTTEC");
 
 	/* Clear out stuff in the info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
@@ -382,10 +399,6 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset = dissect_enttec_dmx_data( tvb, offset, enttec_tree);
 				break;
 
-			case ENTTEC_HEAD_ESNC:
-				offset = dissect_enttec_config( tvb, offset, enttec_tree);
-				break;
-
 			case ENTTEC_HEAD_ESZZ:
 				offset = dissect_enttec_reset( tvb, offset, enttec_tree);
 				break;
@@ -393,6 +406,52 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	}
 	return offset;
+}
+
+static int
+dissect_enttec_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	gint offset = 0;
+	guint32 head = 0;
+	proto_tree *ti,*enttec_tree=NULL;
+
+	/*
+	 * If not enough bytes for the header word, don't try to
+	 * reassemble to get 4 bytes of header word, as we don't
+	 * know whether this will be an ENTTEC Config packet.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 4))
+		return 0;
+
+	head = tvb_get_ntohl(tvb, offset);
+	if (head != ENTTEC_HEAD_ESNC) {
+		/*
+		 * Not a config packet, so probably not ENTTEC.
+		 */
+		return 0;
+	}
+
+	/* XXX - reassemble to end of connection? */
+
+	/* Set the protocol column */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENTTEC");
+
+	/* Clear out stuff in the info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
+		enttec_tree = proto_item_add_subtree(ti, ett_enttec);
+	}
+
+	if (enttec_tree) {
+		proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
+					offset, 4, ENC_BIG_ENDIAN );
+
+		/* XXX - dissect the rest of the packet */
+	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -537,23 +596,24 @@ proto_register_enttec(void)
 void
 proto_reg_handoff_enttec(void) {
 	static gboolean enttec_initialized = FALSE;
-	static dissector_handle_t enttec_handle;
+	static dissector_handle_t enttec_udp_handle, enttec_tcp_handle;
 	static guint udp_port_enttec;
 	static guint tcp_port_enttec;
 
 	if(!enttec_initialized) {
-		enttec_handle = new_create_dissector_handle(dissect_enttec,proto_enttec);
+		enttec_udp_handle = new_create_dissector_handle(dissect_enttec_udp,proto_enttec);
+		enttec_tcp_handle = new_create_dissector_handle(dissect_enttec_tcp,proto_enttec);
 		enttec_initialized = TRUE;
 	} else {
-		dissector_delete_uint("udp.port",udp_port_enttec,enttec_handle);
-		dissector_delete_uint("tcp.port",tcp_port_enttec,enttec_handle);
+		dissector_delete_uint("udp.port",udp_port_enttec,enttec_udp_handle);
+		dissector_delete_uint("tcp.port",tcp_port_enttec,enttec_tcp_handle);
 	}
 
 	udp_port_enttec = global_udp_port_enttec;
 	tcp_port_enttec = global_tcp_port_enttec;
 
-	dissector_add_uint("udp.port",global_udp_port_enttec,enttec_handle);
-	dissector_add_uint("tcp.port",global_tcp_port_enttec,enttec_handle);
+	dissector_add_uint("udp.port",global_udp_port_enttec,enttec_udp_handle);
+	dissector_add_uint("tcp.port",global_tcp_port_enttec,enttec_tcp_handle);
 }
 
 /*
