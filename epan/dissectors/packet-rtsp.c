@@ -135,6 +135,7 @@ static int hf_rtsp_X_Vig_Msisdn = -1;
 static int hf_rtsp_magic = -1;
 static int hf_rtsp_channel = -1;
 static int hf_rtsp_length = -1;
+static int hf_rtsp_data = -1;
 
 static int voip_tap = -1;
 
@@ -391,8 +392,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         (dissector = data->interleaved[rf_chan].dissector)) {
         call_dissector(dissector, next_tvb, pinfo, tree);
     } else {
-        proto_tree_add_text(rtspframe_tree, tvb, offset, rf_len,
-            "Data (%u bytes)", rf_len);
+        proto_tree_add_item(rtspframe_tree, hf_rtsp_data, tvb, offset, rf_len, ENC_NA);
     }
 
     offset += rf_len;
@@ -1230,8 +1230,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  */
                 datalen = 0;
             } else {
-                proto_tree_add_text(rtsp_tree, tvb, offset,
-                    datalen, "Data (%d bytes)",
+                proto_tree_add_bytes_format(rtsp_tree, hf_rtsp_data, tvb, offset,
+                    datalen, NULL, "Data (%d bytes)",
                     reported_datalen);
             }
         }
@@ -1423,6 +1423,9 @@ proto_register_rtsp(void)
             NULL, HFILL }},
         { &hf_rtsp_length,
             { "Length", "rtsp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_rtsp_data,
+            { "Data", "rtsp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     };
     module_t *rtsp_module;

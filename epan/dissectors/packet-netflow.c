@@ -1116,6 +1116,8 @@ static int      hf_cflow_samplerate     = -1;
 
 static int      hf_cflow_unknown_field_type        = -1;
 static int      hf_cflow_padding        = -1;
+static int      hf_cflow_reserved       = -1;
+static int      hf_cflow_extra_packets  = -1;
 
 /*
  * cflow version specific info
@@ -1187,6 +1189,7 @@ static int      hf_cflow_srcport                                    = -1;
 static int      hf_cflow_dstport                                    = -1;
 static int      hf_cflow_prot                                       = -1;
 static int      hf_cflow_tos                                        = -1;
+static int      hf_cflow_marked_tos                                 = -1;
 static int      hf_cflow_flags                                      = -1;
 static int      hf_cflow_tcpflags                                   = -1;
 static int      hf_cflow_tcpflags16                                 = -1;
@@ -1821,12 +1824,18 @@ static int      flow_process_aspair(proto_tree *pdutree, tvbuff_t *tvb,
                                     int offset);
 static int      flow_process_sizecount(proto_tree *pdutree, tvbuff_t *tvb,
                                        int offset);
-static int      flow_process_textfield(proto_tree *pdutree, tvbuff_t *tvb,
-                                       int offset, int bytes,
-                                       const char *text);
 
 static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_info *pinfo, guint32 src_id, guint16 tmplt_id);
 
+
+static int
+flow_process_textfield(proto_tree *pdutree, tvbuff_t *tvb, int offset, int bytes, int hf)
+{
+    proto_tree_add_item(pdutree, hf, tvb, offset, bytes, ENC_NA);
+    offset += bytes;
+
+    return offset;
+}
 
 
 static int
@@ -2068,7 +2077,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                             tvb, offset++, 1, ENC_BIG_ENDIAN);
     }
     if (ver == 7 || ver == 8)
-        offset = flow_process_textfield(netflow_tree, tvb, offset, 4, "reserved");
+        offset = flow_process_textfield(netflow_tree, tvb, offset, 4, hf_cflow_reserved);
     else if (ver == 5) {
         proto_tree_add_item(netflow_tree, hf_cflow_samplingmode,
                             tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2222,15 +2231,6 @@ flow_process_sizecount(proto_tree *pdutree, tvbuff_t *tvb, int offset)
 }
 
 static int
-flow_process_textfield(proto_tree *pdutree, tvbuff_t *tvb, int offset, int bytes, const char *text)
-{
-    proto_tree_add_text(pdutree, tvb, offset, bytes, "%s", text);
-    offset += bytes;
-
-    return offset;
-}
-
-static int
 dissect_v8_flowpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree, int offset,
                    hdrinfo_t *hdrinfo_p)
 {
@@ -2271,14 +2271,14 @@ dissect_v8_flowpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutre
     proto_tree_add_item(pdutree, hf_cflow_tos, tvb, offset++, 1, ENC_BIG_ENDIAN);
     if (verspec == V8PDU_FULL_METHOD)
         proto_tree_add_item(pdutree, hf_cflow_prot, tvb, offset++, 1, ENC_BIG_ENDIAN);
-    offset = flow_process_textfield(pdutree, tvb, offset, 1, "marked tos");
+    offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_marked_tos);
 
     if (verspec == V8PDU_SRCDEST_METHOD)
-        offset = flow_process_textfield(pdutree, tvb, offset, 2, "reserved");
+        offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
     else if (verspec == V8PDU_FULL_METHOD)
-        offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
+        offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
 
-    offset = flow_process_textfield(pdutree, tvb, offset, 4, "extra packets");
+    offset = flow_process_textfield(pdutree, tvb, offset, 4, hf_cflow_extra_packets);
 
     proto_tree_add_item(pdutree, hf_cflow_routersc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -2318,8 +2318,8 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
         if (verspec == V8PDU_TOSAS_METHOD) {
             proto_tree_add_item(pdutree, hf_cflow_tos, tvb,
                                 offset++, 1, ENC_BIG_ENDIAN);
-            offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
-            offset = flow_process_textfield(pdutree, tvb, offset, 2, "reserved");
+            offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
+            offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
         }
         /* ACF - Seen in the wild and documented here...
            http://www.caida.org/tools/measurement/cflowd/configuration/configuration-9.html#ss9.1
@@ -2332,11 +2332,11 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
         proto_tree_add_item(pdutree, hf_cflow_prot, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
         if (verspec == V8PDU_PROTO_METHOD)
-            offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
+            offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
         else if (verspec == V8PDU_TOSPROTOPORT_METHOD)
             proto_tree_add_item(pdutree, hf_cflow_tos, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-        offset = flow_process_textfield(pdutree, tvb, offset, 2, "reserved");
+        offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
         offset = flow_process_ports(pdutree, tvb, offset);
 
         if (verspec == V8PDU_TOSPROTOPORT_METHOD)
@@ -2373,7 +2373,7 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
         proto_tree_add_item(pdutree, local_cflow_mask, tvb, offset++, 1, ENC_NA);
 
         if ((verspec == V8PDU_SPREFIX_METHOD) || (verspec == V8PDU_DPREFIX_METHOD))
-            offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
+            offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
 
         else if ((verspec == V8PDU_TOSSRCPREFIX_METHOD) || (verspec == V8PDU_TOSDSTPREFIX_METHOD))
             proto_tree_add_item(pdutree, hf_cflow_tos, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -2384,7 +2384,7 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
         proto_tree_add_item(pdutree, local_cflow_int, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        offset = flow_process_textfield(pdutree, tvb, offset, 2, "reserved");
+        offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
         break;
 
     case V8PDU_MATRIX_METHOD:
@@ -2404,12 +2404,12 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
             (verspec == V8PDU_PREPORTPROTOCOL_METHOD)) {
             proto_tree_add_item(pdutree, hf_cflow_tos, tvb, offset++, 1, ENC_BIG_ENDIAN);
             if (verspec == V8PDU_TOSMATRIX_METHOD) {
-                offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
+                offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
             } else if (verspec == V8PDU_PREPORTPROTOCOL_METHOD) {
                 proto_tree_add_item(pdutree, hf_cflow_prot, tvb, offset++, 1, ENC_BIG_ENDIAN);
             }
         } else {
-            offset = flow_process_textfield(pdutree, tvb, offset, 2, "reserved");
+            offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_reserved);
         }
 
         if ((verspec == V8PDU_MATRIX_METHOD)
@@ -5997,7 +5997,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         remaining -= offset - orig_offset;
     }
     if (remaining > 0)
-        flow_process_textfield(pdutree, tvb, offset, remaining, "[Padding]");
+        flow_process_textfield(pdutree, tvb, offset, remaining, hf_cflow_padding);
 
     return length;
 }
@@ -6082,7 +6082,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         remaining -= offset - orig_offset;
     }
     if (remaining > 0)
-        flow_process_textfield(pdutree, tvb, offset, remaining, "[Padding]");
+        flow_process_textfield(pdutree, tvb, offset, remaining, hf_cflow_padding);
 
     return length;
 }
@@ -6172,7 +6172,7 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
     ver = hdrinfo_p->vspec;
 
     if (ver == 1) {
-        offset = flow_process_textfield(pdutree, tvb, offset, 2, "padding");
+        offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_padding);
 
         proto_tree_add_item(pdutree, hf_cflow_prot, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
@@ -6180,12 +6180,12 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
 
         proto_tree_add_item(pdutree, hf_cflow_tcpflags, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-        offset = flow_process_textfield(pdutree, tvb, offset, 3, "padding");
+        offset = flow_process_textfield(pdutree, tvb, offset, 3, hf_cflow_padding);
 
-        offset = flow_process_textfield(pdutree, tvb, offset, 4, "reserved");
+        offset = flow_process_textfield(pdutree, tvb, offset, 4, hf_cflow_reserved);
     } else {
         if (ver == 5)
-            offset = flow_process_textfield(pdutree, tvb, offset, 1, "padding");
+            offset = flow_process_textfield(pdutree, tvb, offset, 1, hf_cflow_padding);
         else {
             proto_tree_add_item(pdutree, hf_cflow_flags, tvb, offset++, 1, ENC_BIG_ENDIAN);
         }
@@ -6212,7 +6212,7 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
                                          mask, getprefix(&dstaddr, mask),
                                          mask != 0 ? mask : 32);
 
-        offset = flow_process_textfield(pdutree, tvb, offset, 2, "padding");
+        offset = flow_process_textfield(pdutree, tvb, offset, 2, hf_cflow_padding);
 
         if (ver == 7) {
             proto_tree_add_item(pdutree, hf_cflow_routersc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6542,6 +6542,11 @@ proto_register_netflow(void)
          {"IP ToS", "cflow.tos",
           FT_UINT8, BASE_HEX, NULL, 0x0,
           "IP Type of Service", HFILL}
+        },
+        {&hf_cflow_marked_tos,
+         {"Marked ToS", "cflow.marked_tos",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
         },
         {&hf_cflow_flags,
          {"Export Flags", "cflow.flags",
@@ -8322,6 +8327,18 @@ proto_register_netflow(void)
 
         {&hf_cflow_padding,
          {"Padding", "cflow.padding",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        {&hf_cflow_reserved,
+         {"Reserved", "cflow.reserved",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        {&hf_cflow_extra_packets,
+         {"Extra packets", "cflow.extra_packets",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },

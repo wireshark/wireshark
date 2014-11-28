@@ -52,6 +52,8 @@ static int hf_rmi_outputmessage  = -1;
 static int hf_rmi_epid_length    = -1;
 static int hf_rmi_epid_hostname  = -1;
 static int hf_rmi_epid_port      = -1;
+static int hf_rmi_serialization_data = -1;
+static int hf_rmi_unique_identifier = -1;
 
 static int hf_ser_magic          = -1;
 static int hf_ser_version        = -1;
@@ -65,6 +67,7 @@ static gint ett_rmi_outputmessage = -1;
 static gint ett_rmi_epid_length   = -1;
 static gint ett_rmi_epid_hostname = -1;
 static gint ett_rmi_epid_port     = -1;
+static gint ett_rmi_endpoint_identifier = -1;
 
 static gint ett_ser               = -1;
 
@@ -112,7 +115,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvbuff_t   *next_tvb;
 
-    gint        offset;
+    gint        offset = 0;
     gint        next_offset;
     int         datalen;
 
@@ -120,11 +123,6 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8      message, proto;
 
     rmi_type    rmitype;
-
-    const char *epid_hostname;
-    guint       epid_len;
-
-    offset     = 0;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
@@ -188,28 +186,27 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(rmi_tree, hf_rmi_inputmessage,
                                 tvb, offset, 1, message);
             if(message == RMI_INPUTSTREAM_MESSAGE_ACK) {
-                proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
-                                    "EndPointIdentifier");
+                proto_tree* endpoint_tree = proto_tree_add_subtree(rmi_tree, tvb, offset + 1, -1,
+                                    ett_rmi_endpoint_identifier, NULL, "EndPointIdentifier");
                 /* MESSAGE_ACK should include EndpointIdentifier */
                 len = tvb_get_ntohs(tvb, 1);
-                proto_tree_add_uint(rmi_tree, hf_rmi_epid_length,
+                proto_tree_add_uint(endpoint_tree, hf_rmi_epid_length,
                                     tvb, offset + 1, 2, len);
-                epid_len = len < ITEM_LABEL_LENGTH ? len : ITEM_LABEL_LENGTH;
-                if (epid_len > 0) {
-                    epid_hostname = tvb_format_text(tvb, offset + 3, epid_len);
+                if (len > 0) {
+                    proto_tree_add_item(endpoint_tree, hf_rmi_epid_hostname,
+                                      tvb, offset + 3, len, ENC_ASCII|ENC_NA);
                 } else {
-                    epid_hostname = "[Empty]";
+                    proto_tree_add_string(endpoint_tree, hf_rmi_epid_hostname,
+                                      tvb, offset + 3, len, "[Empty]");
                 }
-                proto_tree_add_string(rmi_tree, hf_rmi_epid_hostname,
-                                      tvb, offset + 3, len, epid_hostname);
 
                 port = tvb_get_ntohs(tvb, offset + len + 5);
-                proto_tree_add_uint(rmi_tree, hf_rmi_epid_port,
+                proto_tree_add_uint(endpoint_tree, hf_rmi_epid_port,
                                     tvb, offset + len + 5, 2, port);
             }
             if(message == RMI_INPUTSTREAM_MESSAGE_RETURNDATA) {
-                proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
-                                    "Serialization Data");
+                proto_tree_add_bytes_format(rmi_tree, hf_rmi_serialization_data, tvb, offset + 1, -1,
+                                    NULL, "Serialization Data");
                 next_tvb = tvb_new_subset_remaining(tvb, offset + 1);
                 dissect_ser(next_tvb, tree);
             }
@@ -219,15 +216,14 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(rmi_tree, hf_rmi_outputmessage,
                                 tvb, offset, 1, message);
             if(message == RMI_OUTPUTSTREAM_MESSAGE_CALL) {
-                proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
-                                    "Serialization Data");
+                proto_tree_add_bytes_format(rmi_tree, hf_rmi_serialization_data, tvb, offset + 1, -1,
+                                    NULL, "Serialization Data");
                 /* XXX */
                 next_tvb = tvb_new_subset_remaining(tvb, offset + 1);
                 dissect_ser(next_tvb, tree);
             }
             if(message == RMI_OUTPUTSTREAM_MESSAGE_DGCACK) {
-                proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
-                                    "UniqueIdentifier");
+                proto_tree_add_item(rmi_tree, hf_rmi_unique_identifier, tvb, offset + 1, -1, ENC_NA);
             }
             break;
         case SERIALIZATION_DATA:
@@ -334,6 +330,14 @@ proto_register_rmi(void)
           { "Port", "rmi.endpoint_id.port",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "RMI Endpointindentifier Port", HFILL }},
+        { &hf_rmi_serialization_data,
+          { "Serialization Data", "rmi.serialization_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_rmi_unique_identifier,
+          { "UniqueIdentifier", "rmi.unique_identifier",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ser_magic,
           { "Magic",   "rmi.ser.magic",
@@ -355,6 +359,7 @@ proto_register_rmi(void)
         &ett_rmi_epid_hostname,
         &ett_rmi_epid_port,
         &ett_ser,
+        &ett_rmi_endpoint_identifier,
     };
 
     proto_rmi = proto_register_protocol("Java RMI", "RMI", "rmi");

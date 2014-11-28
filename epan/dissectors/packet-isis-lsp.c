@@ -261,11 +261,15 @@ static int hf_isis_lsp_ip_reachability_expense_metric_ie = -1;
 static int hf_isis_lsp_rt_capable_router_id =-1;
 static int hf_isis_lsp_rt_capable_flag_s =-1;
 static int hf_isis_lsp_rt_capable_flag_d =-1;
-static int isis_lsp_clv_te_node_cap_b_bit = -1;
-static int isis_lsp_clv_te_node_cap_e_bit = -1;
-static int isis_lsp_clv_te_node_cap_m_bit = -1;
-static int isis_lsp_clv_te_node_cap_g_bit = -1;
-static int isis_lsp_clv_te_node_cap_p_bit = -1;
+static int hf_isis_lsp_clv_te_node_cap_b_bit = -1;
+static int hf_isis_lsp_clv_te_node_cap_e_bit = -1;
+static int hf_isis_lsp_clv_te_node_cap_m_bit = -1;
+static int hf_isis_lsp_clv_te_node_cap_g_bit = -1;
+static int hf_isis_lsp_clv_te_node_cap_p_bit = -1;
+static int hf_isis_lsp_area_address = -1;
+static int hf_isis_lsp_clv_nlpid = -1;
+static int hf_isis_lsp_ip_authentication = -1;
+static int hf_isis_lsp_authentication = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -323,6 +327,8 @@ static expert_field ei_isis_lsp_short_packet = EI_INIT;
 static expert_field ei_isis_lsp_long_packet = EI_INIT;
 static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
+static expert_field ei_isis_lsp_clv_mt = EI_INIT;
+
 
 static const value_string isis_lsp_istype_vals[] = {
     { ISIS_LSP_TYPE_UNUSED0,    "Unused 0x0 (invalid)"},
@@ -891,11 +897,11 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
          *    5-7      Unassigned                              [RFC5073]
          */
 
-        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_b_bit, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_e_bit, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_m_bit, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_g_bit, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(cap_tree, isis_lsp_clv_te_node_cap_p_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_b_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_e_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_m_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_g_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_p_bit, tvb, offset, 1, ENC_NA);
         return(0);
     case TRILL_VERSION:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
@@ -1198,7 +1204,7 @@ static void
 dissect_lsp_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_nlpid_clv(tvb, tree, offset, length);
+    isis_dissect_nlpid_clv(tvb, tree, hf_isis_lsp_clv_nlpid, offset, length);
 }
 
 /*
@@ -1219,10 +1225,10 @@ dissect_lsp_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, i
  *    void, will modify proto_tree if not null.
  */
 static void
-dissect_lsp_mt_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+dissect_lsp_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_mt_clv(tvb, tree, offset, length, hf_isis_lsp_clv_mt );
+    isis_dissect_mt_clv(tvb, pinfo, tree, offset, length, hf_isis_lsp_clv_mt, &ei_isis_lsp_clv_mt );
 }
 
 /*
@@ -1630,7 +1636,7 @@ static void
 dissect_lsp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_authentication_clv(tree, pinfo, tvb, &ei_isis_lsp_authentication, offset, length);
+    isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_lsp_authentication, &ei_isis_lsp_authentication, offset, length);
 }
 
 /*
@@ -1654,7 +1660,9 @@ static void
 dissect_lsp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+    if ( length != 0 ) {
+       proto_tree_add_item(tree, hf_isis_lsp_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
+    }
 }
 
 /*
@@ -1678,7 +1686,7 @@ static void
 dissect_lsp_area_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length);
+    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, hf_isis_lsp_area_address, offset, length);
 }
 
 /*
@@ -3530,29 +3538,49 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 8, NULL, 0x02,
               NULL, HFILL }
         },
-        { &isis_lsp_clv_te_node_cap_b_bit,
+        { &hf_isis_lsp_clv_te_node_cap_b_bit,
             { "B bit: P2MP Branch LSR capability", "isis.lsp.te_node_cap.b_bit",
               FT_BOOLEAN, 8, NULL, 0x80,
               NULL, HFILL }
         },
-        { &isis_lsp_clv_te_node_cap_e_bit,
+        { &hf_isis_lsp_clv_te_node_cap_e_bit,
             { "E bit: P2MP Bud LSR capability", "isis.lsp.te_node_cap.e_bit",
               FT_BOOLEAN, 8, NULL, 0x40,
               NULL, HFILL }
         },
-        { &isis_lsp_clv_te_node_cap_m_bit,
+        { &hf_isis_lsp_clv_te_node_cap_m_bit,
             { "M bit: MPLS-TE support", "isis.lsp.te_node_cap.m_bit",
               FT_BOOLEAN, 8, NULL, 0x20,
               NULL, HFILL }
         },
-        { &isis_lsp_clv_te_node_cap_g_bit,
+        { &hf_isis_lsp_clv_te_node_cap_g_bit,
             { "G bit: GMPLS support", "isis.lsp.te_node_cap.g_bit",
               FT_BOOLEAN, 8, NULL, 0x10,
               NULL, HFILL }
         },
-        { &isis_lsp_clv_te_node_cap_p_bit,
+        { &hf_isis_lsp_clv_te_node_cap_p_bit,
             { "P bit: P2MP RSVP-TE support", "isis.lsp.te_node_cap.p_bit",
               FT_BOOLEAN, 8, NULL, 0x08,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_area_address,
+            { "Area address", "isis.lsp.area_address",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_nlpid,
+            { "NLPID", "isis.lsp.clv_nlpid",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ip_authentication,
+            { "IP Authentication", "isis.lsp.ip_authentication",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_authentication,
+            { "Authentication", "isis.lsp.authentication",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
     };
@@ -3615,6 +3643,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_long_packet, { "isis.lsp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
         { &ei_isis_lsp_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
+        { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
     };
 
     expert_module_t* expert_isis_lsp;

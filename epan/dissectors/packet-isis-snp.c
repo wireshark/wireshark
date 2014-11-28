@@ -55,6 +55,8 @@ static int hf_isis_csnp_lsp_checksum = -1;
 static int hf_isis_csnp_checksum = -1;
 static int hf_isis_csnp_clv_type = -1;
 static int hf_isis_csnp_clv_length = -1;
+static int hf_isis_csnp_ip_authentication = -1;
+static int hf_isis_csnp_authentication = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_clv_lsp_entries = -1;
 static gint ett_isis_csnp_lsp_entry = -1;
@@ -72,6 +74,7 @@ static int hf_isis_psnp_pdu_length = -1;
 static int hf_isis_psnp_source_id = -1;
 static int hf_isis_psnp_clv_type = -1;
 static int hf_isis_psnp_clv_length = -1;
+static int hf_isis_psnp_ip_authentication = -1;
 static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_clv_lsp_entries = -1;
 static gint ett_isis_psnp_lsp_entry = -1;
@@ -87,14 +90,25 @@ static void
 dissect_snp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_authentication_clv(tree, pinfo, tvb, &ei_isis_csnp_authentication, offset, length);
+    isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_csnp_authentication, &ei_isis_csnp_authentication, offset, length);
 }
 
 static void
-dissect_snp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+dissect_csnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+    if ( length != 0 ) {
+       proto_tree_add_item(tree, hf_isis_csnp_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
+    }
+}
+
+static void
+dissect_psnp_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+    int id_length _U_, int length)
+{
+    if ( length != 0 ) {
+       proto_tree_add_item(tree, hf_isis_psnp_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
+    }
 }
 
 /*
@@ -202,7 +216,7 @@ static const isis_clv_handle_t clv_l1_csnp_opts[] = {
         ISIS_CLV_IP_AUTHENTICATION,
         "IP Authentication",
         &ett_isis_csnp_clv_ip_authentication,
-        dissect_snp_ip_authentication_clv
+        dissect_csnp_ip_authentication_clv
     },
     {
         ISIS_CLV_CHECKSUM,
@@ -232,7 +246,7 @@ static const isis_clv_handle_t clv_l2_csnp_opts[] = {
         ISIS_CLV_IP_AUTHENTICATION,
         "IP Authentication",
         &ett_isis_csnp_clv_ip_authentication,
-        dissect_snp_ip_authentication_clv
+        dissect_csnp_ip_authentication_clv
     },
     {
         ISIS_CLV_CHECKSUM,
@@ -262,7 +276,7 @@ static const isis_clv_handle_t clv_l1_psnp_opts[] = {
         ISIS_CLV_IP_AUTHENTICATION,
         "IP Authentication",
         &ett_isis_psnp_clv_ip_authentication,
-        dissect_snp_ip_authentication_clv
+        dissect_psnp_ip_authentication_clv
     },
     {
         ISIS_CLV_CHECKSUM,
@@ -292,7 +306,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
         ISIS_CLV_IP_AUTHENTICATION,
         "IP Authentication",
         &ett_isis_psnp_clv_ip_authentication,
-        dissect_snp_ip_authentication_clv
+        dissect_psnp_ip_authentication_clv
     },
     {
         ISIS_CLV_CHECKSUM,
@@ -458,6 +472,12 @@ proto_register_isis_csnp(void)
         { &hf_isis_csnp_clv_length,
         { "Length",        "isis.csnp.clv.length", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_ip_authentication,
+        { "IP Authentication",        "isis.csnp.ip_authentication", FT_STRING,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_authentication,
+        { "Authentication",        "isis.csnp.authentication", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -509,6 +529,9 @@ proto_register_isis_psnp(void)
         { &hf_isis_psnp_clv_length,
         { "Length",        "isis.psnp.clv.length", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_psnp_ip_authentication,
+        { "IP Authentication",        "isis.csnp.ip_authentication", FT_STRING,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {

@@ -96,23 +96,21 @@ extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
         int unknown_tree_id,  int tree_type, int tree_length);
 
 extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree,
-        int offset, int length);
+        int hf_nlpid, int offset, int length);
 extern void isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
         int offset, int length, int tree_id);
 extern void isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
         int offset, int length, int tree_id);
 extern void isis_dissect_ip_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
         int offset, int length, int tree_id);
-extern void isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree,
-        int offset, int length, int tree_id);
+extern void isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
+        int offset, int length, int tree_id, expert_field* mtid_expert);
 extern void isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree,
         int offset, int length, int tree_id);
 extern void isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        expert_field* auth_expert, int offset, int length);
-extern void isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree,
-        int offset, int length);
+        int hf_auth_bytes, expert_field* auth_expert, int offset, int length);
 extern void isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        expert_field* expert, int offset, int length);
+        expert_field* expert, int hf_area, int offset, int length);
 
 extern void isis_dissect_metric(tvbuff_t *tvb, proto_tree *tree, int offset,
         guint8 value, char *pstr, int force_supported);

@@ -69,7 +69,8 @@ static int hf_nsip_transaction_id = -1;
 static int hf_nsip_ip_element_udp_port = -1;
 static int hf_nsip_ip_element_signalling_weight = -1;
 static int hf_nsip_ip_element_data_weight = -1;
-
+static int hf_nsip_ns_pdu = -1;
+static int hf_nsip_ns_sdu = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_nsip = -1;
@@ -289,7 +290,7 @@ check_correct_iei(nsip_ie_t *ie, build_info_t *bi) {
 
 #if NSIP_DEBUG
   if (fetched_iei != ie->iei) {
-    proto_tree_add_text(bi->nsip_tree, bi->tvb, bi->offset, 1,
+    proto_tree_add_debug(bi->nsip_tree, bi->tvb, bi->offset, 1,
                         "Tried IEI %s (%#02x), found IEI %s (%#02x)",
                         val_to_str_const(ie->iei, tab_nsip_ieis, "Unknown"),
                         ie->iei,
@@ -338,8 +339,8 @@ static void
 decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   tvbuff_t * next_tvb;
 
-  proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                      ie->total_length,
+  proto_tree_add_bytes_format(bi->nsip_tree, hf_nsip_ns_pdu, bi->tvb, ie_start_offset,
+                      ie->total_length, NULL,
                       "NS PDU (%u bytes)", ie->value_length);
   next_tvb = tvb_new_subset(bi->tvb, bi->offset, ie->value_length, -1);
   if (nsip_handle) {
@@ -721,8 +722,8 @@ decode_pdu_ns_unitdata(build_info_t *bi) {
   }
   else {
     sdu_length = tvb_length_remaining(bi->tvb, bi->offset);
-    proto_tree_add_text(bi->nsip_tree, bi->tvb, bi->offset, sdu_length,
-                        "NS SDU (%u bytes)", sdu_length);
+    proto_tree_add_bytes_format(bi->nsip_tree, hf_nsip_ns_sdu, bi->tvb, bi->offset, sdu_length,
+                        NULL, "NS SDU (%u bytes)", sdu_length);
   }
 }
 
@@ -1124,6 +1125,16 @@ proto_register_nsip(void)
     { &hf_nsip_ip_element_data_weight,
       { "Data Weight", "nsip.ip_element.data_weight",
         FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nsip_ns_pdu,
+      { "NS PDU", "nsip.ns_pdu",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nsip_ns_sdu,
+      { "NS SDU", "nsip.ns_sdu",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
   };

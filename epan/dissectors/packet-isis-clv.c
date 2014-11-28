@@ -50,7 +50,7 @@
  */
 void
 isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        expert_field* expert, int offset, int length)
+        expert_field* expert, int hf_area, int offset, int length)
 {
     int        arealen,area_idx;
 
@@ -72,14 +72,8 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
         if ( tree ) {
             proto_item *ti;
 
-            /*
-             * Throw an exception rather than putting in a
-             * partial address.
-             */
-            tvb_ensure_bytes_exist ( tvb, offset, arealen + 1 );
-
-            ti = proto_tree_add_text ( tree, tvb, offset, arealen + 1,
-                "Area address (%d): ", arealen );
+            ti = proto_tree_add_bytes_format( tree, hf_area, tvb, offset, arealen + 1,
+                NULL, "Area address (%d): ", arealen );
 
             /*
              * Lets turn the area address into "standard"
@@ -124,11 +118,10 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
  */
 void
 isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        expert_field* auth_expert, int offset, int length)
+        int hf_auth_bytes, expert_field* auth_expert, int offset, int length)
 {
     guchar pw_type;
     int auth_unsupported;
-    proto_item *ti;
 
     if ( length <= 0 ) {
         return;
@@ -141,76 +134,34 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
 
     switch (pw_type) {
     case 1:
-        ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
-            "clear text (1), password (length %d) = ", length);
         if ( length > 0 ) {
-          proto_item_append_text(ti, "%s",
-            tvb_format_text(tvb, offset, length));
-                } else {
-          proto_item_append_text(ti, "no clear-text password found!!!");
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "clear text (1), password (length %d) = %s", length, tvb_format_text(tvb, offset, length));
+        } else {
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "clear text (1), no clear-text password found!!!");
         }
         break;
     case 54:
-        ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
-            "hmac-md5 (54), password (length %d) = ", length);
-
         if ( length == 16 ) {
-          proto_item_append_text(ti, "0x%02x", tvb_get_guint8(tvb, offset));
-          offset += 1;
-          length--;
-          while (length > 0) {
-            proto_item_append_text(ti, "%02x", tvb_get_guint8(tvb, offset));
-            offset += 1;
-            length--;
-          }
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "hmac-md5 (54), password (length %d) = %s", length, tvb_bytes_to_ep_str(tvb, offset, length));
         } else {
-          proto_item_append_text(ti,
-              "illegal hmac-md5 digest format (must be 16 bytes)");
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "hmac-md5 (54), illegal hmac-md5 digest format (must be 16 bytes)");
         }
         break;
     default:
-        proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
-            "type 0x%02x (0x%02x): ", pw_type, length );
+        proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "type 0x%02x (0x%02x)", pw_type, length);
         auth_unsupported=TRUE;
         break;
     }
 
-        if ( auth_unsupported ) {
-            proto_tree_add_expert(tree, pinfo, auth_expert, tvb, offset, -1);
+    if ( auth_unsupported ) {
+        proto_tree_add_expert(tree, pinfo, auth_expert, tvb, offset, -1);
     }
 }
-
-/*
- * Name: isis_ip_authentication_clv()
- *
- * Description:
- *      dump the IP authentication information found in TLV 133
- *      the CLV is standardized in rf1195, however all major
- *      implementations use TLV #10
- * Input:
- *      tvbuff_t * : tvbuffer for packet data
- *      proto_tree * : protocol display tree to fill out.  May be NULL
- *      int : offset into packet data where we are.
- *      int : length of clv we are decoding
- *
- * Output:
- *      void, but we will add to proto tree if !NULL.
- */
-
-
-void
-isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-    int length)
-{
-        if ( !tree ) return;            /* nothing to do! */
-
-        if ( length != 0 ) {
-                proto_tree_add_text ( tree, tvb, offset, length,
-                        "IP Authentication: %.*s", length,
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII));
-        }
-}
-
 
 /*
  * Name: isis_dissect_hostname_clv()
@@ -235,25 +186,18 @@ void
 isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
     int length, int tree_id)
 {
-        if ( !tree ) return;            /* nothing to do! */
-
-        if ( length == 0 ) {
-                proto_tree_add_text ( tree, tvb, offset, length,
-                        "Hostname: --none--" );
-        } else {
-        const char* value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-                proto_tree_add_string_format ( tree, tree_id,
-            tvb, offset, length,
-                        value, "Hostname: %.*s", length, value);
-        }
+    proto_item* ti = proto_tree_add_item( tree, tree_id, tvb, offset, length, ENC_ASCII|ENC_NA);
+    if ( length == 0 ) {
+        proto_item_append_text(ti, "--none--" );
+    }
 }
 
 
 
 
 void
-isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
-    int tree_id)
+isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int length,
+    int tree_id, expert_field* mtid_expert)
 {
     guint16 mt_block;
     const char *mt_desc;
@@ -294,8 +238,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
                       (mt_block&0x8000) ? "" : "no ",
                       (mt_block&0x4000) ? ", ATT bit set" : "" );
         } else {
-        proto_tree_add_text ( tree, tvb, offset, 1,
-            "malformed MT-ID");
+        proto_tree_add_expert( tree, pinfo, mtid_expert, tvb, offset, 1);
         break;
         }
         length -= 2;
@@ -443,29 +386,19 @@ isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
  * Output:
  *    void, but we will add to proto tree if !NULL.
  */
-
-#define TRUNCATED_TEXT " [truncated]"
 void
-isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset, int length)
 {
     gboolean first;
     proto_item *ti;
 
     if ( !tree ) return;        /* nothing to do! */
 
-    /*
-     * Throw an exception rather than putting in a
-     * partial address.
-     */
-    tvb_ensure_bytes_exist ( tvb, offset, length );
-
     if (length <= 0) {
-        proto_tree_add_text (tree, tvb, offset, length,
-            "NLPID(s): --none--");
+        proto_tree_add_bytes_format_value(tree, hf_nlpid, tvb, offset, length, NULL, "--none--");
     } else {
         first = TRUE;
-        ti = proto_tree_add_text (tree, tvb, offset, length,
-            "NLPID(s): ");
+        ti = proto_tree_add_bytes_format(tree, hf_nlpid, tvb, offset, length, NULL, "NLPID(s): ");
         while (length-- > 0 ) {
             if (!first) {
                 proto_item_append_text(ti, ", ");

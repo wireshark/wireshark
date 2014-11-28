@@ -100,6 +100,18 @@ static int hf_isis_hello_extended_local_circuit_id = -1;
 static int hf_isis_hello_adjacency_state = -1;
 static int hf_isis_hello_neighbor_systemid = -1;
 static int hf_isis_hello_digest = -1;
+static int hf_isis_hello_digest_v = -1;
+static int hf_isis_hello_digest_a = -1;
+static int hf_isis_hello_digest_d = -1;
+static int hf_isis_hello_ect = -1;
+static int hf_isis_hello_bvid = -1;
+static int hf_isis_hello_bvid_u = -1;
+static int hf_isis_hello_bvid_m = -1;
+static int hf_isis_hello_area_address = -1;
+static int hf_isis_hello_clv_nlpid = -1;
+static int hf_isis_hello_clv_ip_authentication = -1;
+static int hf_isis_hello_authentication = -1;
+
 static int hf_isis_hello_aux_mcid = -1;
 static int hf_isis_hello_mcid = -1;
 static int hf_isis_hello_is_neighbor = -1;
@@ -163,8 +175,10 @@ static gint ett_isis_hello_clv_checksum = -1;
 
 static expert_field ei_isis_hello_short_packet = EI_INIT;
 static expert_field ei_isis_hello_long_packet = EI_INIT;
-static expert_field ei_isis_hello_subtlv = EI_INIT;
 static expert_field ei_isis_hello_authentication = EI_INIT;
+static expert_field ei_isis_hello_subtlv = EI_INIT;
+static expert_field ei_isis_hello_clv_mt = EI_INIT;
+
 
 static const value_string isis_hello_circuit_type_vals[] = {
     { ISIS_HELLO_TYPE_RESERVED,    "Reserved 0 (discard PDU)"},
@@ -215,16 +229,13 @@ dissect_hello_mt_port_cap_spb_digest_clv(tvbuff_t *tvb, packet_info* pinfo,
     }
     else {
         proto_tree *subtree;
-        const guint8 vad     = tvb_get_guint8(tvb, offset);
 
         subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_spb_digest, NULL,
                                   "SPB Digest: Type: 0x%02x, Length: %d", subtype, sublen);
 
-        proto_tree_add_text( subtree, tvb, offset, 1,
-                             "V: %d, A: %d, D: %d",
-                             (vad >> 4) & 0x1,
-                             (vad >> 2) & 0x3,
-                             (vad >> 0) & 0x3);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_v, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_a, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_d, tvb, offset, 1, ENC_NA);
         ++offset;
 
         /* Digest: */
@@ -250,21 +261,11 @@ dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvbuff_t *tvb, packet_info* pinfo,
             return;
         }
         else {
-            const guint8 *ect_tlv = tvb_get_ptr(tvb, subofs, 6);
-            guint16 word = (ect_tlv[4] << 8) | ect_tlv[5];
-            guint16 bvid = (word >> 4) & 0xfff;
-            int u_bit = (ect_tlv[5] & 8) ? 1 : 0;
-            int m_bit = (ect_tlv[5] & 4) ? 1 : 0;
-            proto_tree_add_text( subtree, tvb, subofs, 6,
-                                 "ECT: %02x-%02x-%02x-%02x, BVID: 0x%03x (%d),%s U: %d, M: %d",
-                                 ect_tlv[0], ect_tlv[1], ect_tlv[2], ect_tlv[3],
-                                 bvid, bvid,
-                                 (  bvid < 10   ? "   "
-                                  : bvid < 100  ? "  "
-                                  : bvid < 1000 ? " "
-                                  : ""),
-                                 u_bit,
-                                 m_bit);
+            proto_tree_add_bytes_format_value(subtree, hf_isis_hello_ect, tvb, subofs, 4, NULL,
+                "%s", tvb_bytes_to_ep_str_punct(tvb, subofs, 4, '-'));
+            proto_tree_add_item( subtree, hf_isis_hello_bvid, tvb, subofs+4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( subtree, hf_isis_hello_bvid_u, tvb, subofs+4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( subtree, hf_isis_hello_bvid_m, tvb, subofs+4, 2, ENC_BIG_ENDIAN);
         }
         sublen -= 6;
         subofs += 6;
@@ -586,7 +587,7 @@ static void
 dissect_hello_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_nlpid_clv(tvb, tree, offset, length);
+    isis_dissect_nlpid_clv(tvb, tree, hf_isis_hello_clv_nlpid, offset, length);
 }
 
 /*
@@ -608,11 +609,11 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  */
 
 static void
-dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+dissect_hello_mt_clv(tvbuff_t *tvb, packet_info* pinfo,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_mt_clv(tvb, tree, offset, length,
-        hf_isis_hello_clv_mt );
+    isis_dissect_mt_clv(tvb, pinfo, tree, offset, length,
+        hf_isis_hello_clv_mt, &ei_isis_hello_clv_mt);
 }
 
 /*
@@ -686,7 +687,7 @@ static void
 dissect_hello_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_authentication_clv(tree, pinfo, tvb, &ei_isis_hello_authentication, offset, length);
+    isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_hello_authentication, &ei_isis_hello_authentication, offset, length);
 }
 
 /*
@@ -710,7 +711,9 @@ static void
 dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_ip_authentication_clv(tvb, tree, offset, length);
+    if ( length != 0 ) {
+       proto_tree_add_item( tree, hf_isis_hello_clv_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
+    }
 }
 
 /*
@@ -774,45 +777,43 @@ dissect_hello_checksum_clv(tvbuff_t *tvb, packet_info* pinfo,
 
     guint16 pdu_length,checksum, cacl_checksum=0;
 
-    if (tree) {
-        if ( length != 2 ) {
-            proto_tree_add_text ( tree, tvb, offset, length,
-                                    "incorrect checksum length (%u), should be (2)", length );
-            return;
-        }
+    if ( length != 2 ) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_short_packet, tvb, offset, length,
+                                "incorrect checksum length (%u), should be (2)", length );
+        return;
+    }
 
-        checksum = tvb_get_ntohs(tvb, offset);
+    checksum = tvb_get_ntohs(tvb, offset);
 
-        /* the check_and_get_checksum() function needs to know how big
-         * the packet is. we can either pass through the pdu-len through several layers
-         * of dissectors and wrappers or extract the PDU length field from the PDU specific header
-         * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
-        pdu_length = tvb_get_ntohs(tvb, 17);
+    /* the check_and_get_checksum() function needs to know how big
+        * the packet is. we can either pass through the pdu-len through several layers
+        * of dissectors and wrappers or extract the PDU length field from the PDU specific header
+        * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
+    pdu_length = tvb_get_ntohs(tvb, 17);
 
-        /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
-        switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
-        {
-            case NO_CKSUM :
-                proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                                "0x%04x [unused]", checksum);
-            break;
-            case DATA_MISSING :
-                proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_long_packet, tvb, offset, -1,
-                        "Packet length %d went beyond packet", tvb_length(tvb) );
-            break;
-            case CKSUM_NOT_OK :
-                proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                                "0x%04x [incorrect, should be 0x%04x]",
-                                                checksum,
-                                                cacl_checksum);
-            break;
-            case CKSUM_OK :
-                proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
-                                                "0x%04x [correct]", checksum);
-            break;
-            default :
-                g_message("'check_and_get_checksum' returned an invalid value");
-        }
+    /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
+    switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
+    {
+        case NO_CKSUM :
+            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
+                                            "0x%04x [unused]", checksum);
+        break;
+        case DATA_MISSING :
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_hello_long_packet, tvb, offset, -1,
+                    "Packet length %d went beyond packet", tvb_length(tvb) );
+        break;
+        case CKSUM_NOT_OK :
+            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
+                                            "0x%04x [incorrect, should be 0x%04x]",
+                                            checksum,
+                                            cacl_checksum);
+        break;
+        case CKSUM_OK :
+            proto_tree_add_uint_format_value( tree, hf_isis_hello_checksum, tvb, offset, length, checksum,
+                                            "0x%04x [correct]", checksum);
+        break;
+        default :
+            g_message("'check_and_get_checksum' returned an invalid value");
     }
 }
 
@@ -839,7 +840,7 @@ static void
 dissect_hello_area_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_hello_short_packet, offset, length);
+    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_hello_short_packet, hf_isis_hello_area_address, offset, length);
 }
 
 static const value_string adj_state_vals[] = {
@@ -1389,6 +1390,17 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_mcid, { "MCID", "isis.hello.mcid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_aux_mcid, { "Aux MCID", "isis.hello.aux_mcid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_digest, { "Digest", "isis.hello.digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_digest_v, { "V", "isis.hello.digest.v", FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+      { &hf_isis_hello_digest_a, { "A", "isis.hello.digest.a", FT_UINT8, BASE_DEC, NULL, 0x0c, NULL, HFILL }},
+      { &hf_isis_hello_digest_d, { "D", "isis.hello.digest.d", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
+      { &hf_isis_hello_ect, { "ECT", "isis.hello.ect", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_bvid, { "BVID", "isis.hello.bvid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0FFF, NULL, HFILL }},
+      { &hf_isis_hello_bvid_u, { "U", "isis.hello.bvid.u", FT_UINT16, BASE_HEX_DEC, NULL, 0x0008, NULL, HFILL }},
+      { &hf_isis_hello_bvid_m, { "M", "isis.hello.bvid.m", FT_UINT16, BASE_HEX_DEC, NULL, 0x0004, NULL, HFILL }},
+      { &hf_isis_hello_area_address, { "Srea address", "isis.hello.area_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_clv_nlpid, { "NLPID", "isis.hello.clv_nlpid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_clv_ip_authentication, { "NLPID", "isis.hello.clv_ip_authentication", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_authentication, { "Authentication", "isis.hello.clv_authentication", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_mtid, { "Topology ID", "isis.hello.mtid", FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0xfff, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_sf, { "Smallest flag", "isis.hello.trill_neighbor.sf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_lf, { "Largest flag", "isis.hello.trill_neighbor.lf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
@@ -1459,6 +1471,7 @@ proto_register_isis_hello(void)
         { &ei_isis_hello_long_packet, { "isis.hello.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
         { &ei_isis_hello_subtlv, { "isis.hello.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown Sub-TLV", EXPFILL }},
         { &ei_isis_hello_authentication, { "isis.hello.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
+        { &ei_isis_hello_clv_mt, { "isis.hello.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
     };
 
     expert_module_t* expert_isis_hello;

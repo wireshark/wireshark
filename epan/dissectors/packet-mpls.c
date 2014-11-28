@@ -51,6 +51,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
@@ -227,6 +228,11 @@ static int hf_mpls_pw_mcw_flags = -1;
 static int hf_mpls_pw_mcw_length = -1;
 static int hf_mpls_pw_mcw_sequence_number = -1;
 
+static expert_field ei_mpls_pw_ach_error_processing_message = EI_INIT;
+static expert_field ei_mpls_pw_ach_res = EI_INIT;
+static expert_field ei_mpls_pw_mcw_error_processing_message = EI_INIT;
+static expert_field ei_mpls_invalid_label = EI_INIT;
+
 #if 0 /*not used yet*/
 /*
  * MPLS PW types
@@ -360,7 +366,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint       channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+        proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_ach_error_processing_message, tvb, 0, -1);
         return;
     }
 
@@ -382,10 +388,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_uint(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
                                         tvb, 1, 1, res);
         if (res != 0)
-            proto_tree_add_text(mpls_pw_ach_tree, tvb, 1, 1,
-                "Error: this byte is reserved and must be 0");
-        else
-            PROTO_ITEM_SET_HIDDEN(ti);
+            expert_add_info(pinfo, ti, &ei_mpls_pw_ach_res);
 
         proto_tree_add_uint_format_value(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                          tvb, 2, 2, channel_type,
@@ -442,7 +445,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+        proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_mcw_error_processing_message, tvb, 0, -1);
         return;
     }
 
@@ -540,7 +543,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 4;
 
         if ((label == MPLS_LABEL_GACH) && !bos) {
-            proto_tree_add_text(tree, tvb, 0, -1, "Invalid Label");
+            proto_tree_add_expert(tree, pinfo, &ei_mpls_invalid_label, tvb, 0, -1);
         }
 
         if ((label == MPLS_LABEL_GACH) && bos) {
@@ -720,6 +723,13 @@ proto_register_mpls(void)
         &ett_mpls_pw_mcw,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mpls_pw_ach_error_processing_message, { "pwach.error_processing_message", PI_MALFORMED, PI_ERROR, "Error processing Message", EXPFILL }},
+        { &ei_mpls_pw_ach_error_processing_message, { "pwmcw.error_processing_message", PI_MALFORMED, PI_ERROR, "Error processing Message", EXPFILL }},
+        { &ei_mpls_pw_ach_res, { "pwach.res.not_zero", PI_PROTOCOL, PI_WARN, "Error: this byte is reserved and must be 0", EXPFILL }},
+        { &ei_mpls_invalid_label, { "mpls.invalid_label", PI_PROTOCOL, PI_WARN, "Invalid Label", EXPFILL }},
+    };
+
     /* Decode As handling */
     static build_valid_func mpls_da_build_value[1] = {mpls_value};
     static decode_as_value_t mpls_da_values = {mpls_prompt, 1, mpls_da_build_value};
@@ -731,6 +741,7 @@ proto_register_mpls(void)
     static decode_as_t pw_ach_da = {"pwach", "PW Associated Channel", "pwach.channel_type", 1, 0, &pw_ach_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
+    expert_module_t* expert_mpls;
     module_t * module_mpls;
 
     /* FF: mpls subdissector table is indexed by label */
@@ -746,6 +757,9 @@ proto_register_mpls(void)
 
     proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mpls = expert_register_protocol(proto_mpls);
+    expert_register_field_array(expert_mpls, ei, array_length(ei));
+
     register_dissector("mpls", dissect_mpls, proto_mpls);
     register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
 
