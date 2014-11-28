@@ -121,6 +121,7 @@ static int hf_http_next_response_in = -1;
 static int hf_http_prev_request_in = -1;
 static int hf_http_prev_response_in = -1;
 static int hf_http_time = -1;
+static int hf_http_chunked_trailer_part = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -290,8 +291,8 @@ typedef struct {
 static int is_http_request_or_reply(const gchar *data, int linelen,
 				    http_type_t *type, ReqRespDissector
 				    *reqresp_dissector, http_conv_t *conv_data);
-static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
-				      proto_tree *tree, int offset);
+static guint chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
+					proto_tree *tree, int offset);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
@@ -1233,7 +1234,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvbuff_t *next_tvb;
 		void *save_private_data = NULL;
 		gboolean private_data_changed = FALSE;
-		gint chunks_decoded = 0;
+		guint chunked_datalen = 0;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -1261,10 +1262,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    (g_ascii_strncasecmp(headers.transfer_encoding, "chunked", 7)
 			    == 0)) {
 
-				chunks_decoded = chunked_encoding_dissector(
+				chunked_datalen = chunked_encoding_dissector(
 				    &next_tvb, pinfo, http_tree, 0);
 
-				if (chunks_decoded <= 0) {
+				if (chunked_datalen == 0) {
 					/*
 					 * The chunks weren't reassembled,
 					 * or there was a single zero
@@ -1282,6 +1283,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 #endif
 					add_new_data_source(pinfo, next_tvb,
 						"De-chunked entity body");
+					/* chunked-body might be smaller than
+					 * datalen. */
+					datalen = chunked_datalen;
 				}
 			} else {
 				/*
@@ -1794,16 +1798,16 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 /*
  * Dissect the http data chunks and add them to the tree.
  */
-static int
+static guint
 chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			   proto_tree *tree, int offset)
 {
 	tvbuff_t	*tvb;
 	guint32		 datalen;
 	guint32		 orig_datalen;
-	gint		 chunks_decoded;
 	gint		 chunked_data_size;
 	proto_tree	*subtree;
+	proto_item	*pi_chunked = NULL;
 	guint8		*raw_data;
 	gint		 raw_len;
 
@@ -1817,17 +1821,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 	subtree = NULL;
 	if (tree) {
-		proto_item *ti;
-		ti = proto_tree_add_text(tree, tvb, offset, datalen,
-					 "HTTP chunked response");
-		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
+		pi_chunked = proto_tree_add_text(tree, tvb, offset, datalen,
+					         "HTTP chunked response");
+		subtree = proto_item_add_subtree(pi_chunked, ett_http_chunked_response);
 	}
 
 	/* Dechunk the "chunked response" to a new memory buffer */
 	orig_datalen      = datalen;
 	raw_data	      = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 	raw_len		      = 0;
-	chunks_decoded	  = 0;
 	chunked_data_size = 0;
 
 	while (datalen > 0) {
@@ -1901,40 +1903,72 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			    chunk_offset - offset, "Chunk size: %u octets",
 			    chunk_size);
 
-			data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, datalen);
+			/* last-chunk does not have chunk-data CRLF. */
+			if (chunk_size > 0) {
+				data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, datalen);
 
-			/*
-			 * XXX - just use "proto_tree_add_text()"?
-			 * This means that, in TShark, you get
-			 * the entire chunk dumped out in hex,
-			 * in addition to whatever dissection is
-			 * done on the reassembled data.
-			 */
-			call_dissector(data_handle, data_tvb, pinfo,
-				    chunk_subtree);
+				/*
+				 * XXX - just use "proto_tree_add_text()"?
+				 * This means that, in TShark, you get
+				 * the entire chunk dumped out in hex,
+				 * in addition to whatever dissection is
+				 * done on the reassembled data.
+				 */
+				call_dissector(data_handle, data_tvb, pinfo,
+					    chunk_subtree);
 
-			proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
-			    chunk_size, 2, "Chunk boundary");
+				proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
+				    chunk_size, 2, "Chunk boundary");
+			}
 		}
 
-		chunks_decoded++;
-		offset  = chunk_offset + 2 + chunk_size;  /* beginning of next chunk */
+		offset  = chunk_offset + chunk_size;  /* beginning of next chunk */
+		if (chunk_size > 0) offset += 2; /* CRLF of chunk */
 		datalen = tvb_reported_length_remaining(tvb, offset);
+
+		/* This is the last chunk */
+		if (chunk_size == 0) {
+			/* Check for: trailer-part CRLF.
+			 * trailer-part   = *( header-field CRLF ) */
+			gint trailer_offset = offset, trailer_len;
+			gint header_field_len;
+			/* Skip all header-fields. */
+			do {
+				trailer_len = trailer_offset - offset;
+				header_field_len = tvb_find_line_end(tvb,
+					trailer_offset,
+					datalen - trailer_len,
+					&trailer_offset, TRUE);
+			} while (header_field_len > 0);
+			if (trailer_len > 0) {
+				proto_tree_add_item(subtree,
+					hf_http_chunked_trailer_part,
+					tvb, offset, trailer_len, ENC_ASCII|ENC_NA);
+				offset += trailer_len;
+				datalen -= trailer_len;
+			}
+
+			/* last CRLF of chunked-body is found. */
+			if (header_field_len == 0) {
+				proto_tree_add_format_text(subtree, tvb, offset,
+					trailer_offset - offset);
+				datalen -= trailer_offset - offset;
+			}
+			break;
+		}
 	}
 
-	if (chunked_data_size > 0) {
+	/* datalen is the remaining bytes that are available for consumption. If
+	 * smaller than orig_datalen, then bytes were consumed. */
+	if (datalen < orig_datalen) {
 		tvbuff_t *new_tvb;
+		proto_item_set_len(pi_chunked, orig_datalen - datalen);
 		new_tvb = tvb_new_child_real_data(tvb, raw_data, chunked_data_size, chunked_data_size);
 		*tvb_ptr = new_tvb;
-	} else {
-		/*
-		 * There was no actual chunk data, so don't allow sub dissectors
-		 * try to decode the non-existent entity body.
-		 */
-		chunks_decoded = -1;
 	}
 
-	return chunks_decoded;
+	/* Size of chunked-body or 0 if none was found. */
+	return orig_datalen - datalen;
 }
 #endif
 
@@ -3054,6 +3088,10 @@ proto_register_http(void)
 	      { "Time since request", "http.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
 		"Time since the request was send", HFILL }},
+	    { &hf_http_chunked_trailer_part,
+	      { "trailer-part", "http.chunked_trailer_part",
+		FT_STRING, BASE_NONE, NULL, 0,
+		"Optional trailer in a chunked body", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
