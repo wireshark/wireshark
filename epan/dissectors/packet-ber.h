@@ -118,7 +118,7 @@ extern int dissect_ber_constrained_integer(gboolean implicit_tag, asn1_ctx_t *ac
 WS_DLL_PUBLIC int dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
 WS_DLL_PUBLIC int dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value);
-extern int dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, double *value);
+WS_DLL_PUBLIC int dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, double *value);
 
 extern int dissect_ber_external_type(gboolean implicit_tag, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func);
 WS_DLL_PUBLIC int dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func);

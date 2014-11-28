@@ -118,6 +118,7 @@ static gint hf_ber_unknown_UTCTime = -1;
 static gint hf_ber_unknown_UTF8String = -1;
 static gint hf_ber_unknown_GeneralizedTime = -1;
 static gint hf_ber_unknown_INTEGER = -1;
+static gint hf_ber_unknown_REAL = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
 static gint hf_ber_error = -1;
@@ -901,6 +902,9 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                 break;
             case BER_UNI_TAG_INTEGER:
                 offset = dissect_ber_integer(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
+                break;
+            case BER_UNI_TAG_REAL:
+                offset = dissect_ber_real(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_REAL, NULL);
                 break;
             case BER_UNI_TAG_BITSTRING:
                 offset = dissect_ber_bitstring(FALSE, &asn1_ctx, tree, tvb, start_offset, NULL, hf_ber_unknown_BITSTRING, -1, NULL);
@@ -2065,35 +2069,53 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
 
 /* 8.5  Encoding of a real value */
-/* NOT Tested*/
+/* Somewhat tested */
 int
 dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id _U_, double *value)
 {
     gint8    ber_class;
     gboolean pc;
     gint32   tag;
-    guint32  val_length = 0, end_offset;
+    guint32  val_length = 0, len_remain, end_offset;
     double   val        = 0;
+    proto_item *cause;
 
     if (!implicit_tag) {
         offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &val_length, NULL);
+
+        end_offset = offset + val_length;
     } else {
-        /* 8.5.1    The encoding of a real value shall be primitive. */
-        DISSECTOR_ASSERT_NOT_REACHED();
+        /* implicit tag so get from last tag/length */
+        get_last_ber_identifier(&ber_class, &pc, &tag);
+        get_last_ber_length(&val_length, NULL);
+
+        end_offset = offset + val_length;
+
+        /* Check is buffer has (at least) the expected length */
+        len_remain = (guint32)tvb_reported_length_remaining(tvb, offset);
+        if (len_remain < val_length) {
+            /* error - this item runs past the end of the item containing it */
+            cause = proto_tree_add_string_format_value(
+                tree, hf_ber_error, tvb, offset, val_length, "illegal_length",
+                "length:%u longer than tvb_reported_length_remaining:%d",
+                val_length,
+                len_remain);
+            expert_add_info(actx->pinfo, cause, &ei_ber_error_length);
+            return end_offset;
+        }
     }
-    /* 8.5.2    If the real value is the value zero,
-     *          there shall be no contents octets in the encoding.
-     */
-    if (val_length == 0) {
-        if (value)
-            *value = 0;
-        return offset;
+    /* 8.5.1    The encoding of a real value shall be primitive. */
+    if(pc) {
+      /*  Constructed (not primitive) */
+      cause = proto_tree_add_string_format_value(
+          tree, hf_ber_error, tvb, offset - 2, 1, "wrong_tag",
+          "REAL class must be encoded as primitive");
+      expert_add_info(actx->pinfo, cause, &ei_ber_error_length);
     }
-    end_offset = offset + val_length;
 
     val = asn1_get_real(tvb_get_ptr(tvb, offset, val_length), val_length);
-    actx->created_item = proto_tree_add_double(tree, hf_id, tvb, offset, val_length, val);
+    actx->created_item = proto_tree_add_double(tree, hf_id, tvb, end_offset - val_length, val_length, val);
 
     if (value)
         *value = val;
@@ -4302,6 +4324,9 @@ proto_register_ber(void)
         { &hf_ber_unknown_INTEGER, {
                 "INTEGER", "ber.unknown.INTEGER", FT_INT64, BASE_DEC,
                 NULL, 0, "This is an unknown INTEGER", HFILL }},
+        { &hf_ber_unknown_REAL, {
+                "REAL", "ber.unknown.REAL", FT_DOUBLE, BASE_NONE,
+                NULL, 0, "This is an unknown REAL", HFILL }},
         { &hf_ber_unknown_BITSTRING, {
                 "BITSTRING", "ber.unknown.BITSTRING", FT_BYTES, BASE_NONE,
                 NULL, 0, "This is an unknown BITSTRING", HFILL }},

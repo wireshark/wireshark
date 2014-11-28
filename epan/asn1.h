@@ -199,7 +199,7 @@ WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
 WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
-extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
+extern double asn1_get_real(const guint8 *real_ptr, gint len);
 
 /* flags */
 #define ASN1_EXT_ROOT 0x01
