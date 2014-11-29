@@ -973,22 +973,22 @@ region_lookup(packet_info *pinfo, guint32 base_addr)
 /* Create Fast SER Unsolicited Word Bit item.  Return item to calling function.  'index' parameter         */
 /* will be used to store 'name' parameter in lookup tree.  Index 254 and 255 are special (hardcoded) cases */
 /***********************************************************************************************************/
-static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 index, const char *name)
+static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 idx, const char *name)
 {
     fastser_uns_wordbit *wordbit_item;
 
     /* get a new wordbit_item and initialize it */
     wordbit_item = wmem_new(wmem_file_scope(), fastser_uns_wordbit);
 
-    if (index <= 253) {
+    if (idx <= 253) {
         wordbit_item->name = wmem_strdup(wmem_file_scope(), name);
     }
 
-    if (index == 254) {
+    if (idx == 254) {
         wordbit_item->name = wmem_strdup(wmem_file_scope(), "POWER_UP");
     }
 
-    if (index == 255) {
+    if (idx == 255) {
         wordbit_item->name = wmem_strdup(wmem_file_scope(), "SET_CHNG");
     }
 
@@ -1000,7 +1000,7 @@ static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 index, const char *n
 /* Lookup uns wordbit name using current index position & saved conversation data.  Return ptr to gchar string */
 /***************************************************************************************************************/
 static const gchar*
-fastser_uns_wordbit_lookup(packet_info *pinfo, guint8 index)
+fastser_uns_wordbit_lookup(packet_info *pinfo, guint8 idx)
 {
     fm_conversation    *conv;
     fastser_uns_wordbit *wordbit = NULL;
@@ -1008,7 +1008,7 @@ fastser_uns_wordbit_lookup(packet_info *pinfo, guint8 index)
     conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
 
     if (conv) {
-        wordbit = (fastser_uns_wordbit*)wmem_tree_lookup32(conv->fastser_uns_wordbits, index);
+        wordbit = (fastser_uns_wordbit*)wmem_tree_lookup32(conv->fastser_uns_wordbits, idx);
     }
 
     if (wordbit) {
