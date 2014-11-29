@@ -154,11 +154,13 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
         return;
     }
 
+    QByteArray filter_utf8;
     const char *filter = NULL;
     if (checked) {
         filter = cap_file_->dfilter;
     } else if (!filter_.isEmpty()) {
-        filter = filter_.toUtf8().constData();
+        filter_utf8 = filter_.toUtf8();
+        filter = filter_utf8.constData();
     }
 
     for (int i = 0; i < ui->trafficTableTabWidget->count(); i++) {

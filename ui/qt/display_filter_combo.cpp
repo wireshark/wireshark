@@ -90,12 +90,11 @@ extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
 
 void DisplayFilterCombo::writeRecent(FILE *rf) {
     int i;
-    const char *filter_str;
 
     for (i = 0; i < count(); i++) {
-        filter_str = itemText(i).toUtf8().constData();
-        if(filter_str && strlen(filter_str) > 0) {
-            fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
+        const QByteArray& filter = itemText(i).toUtf8();
+        if (!filter.isEmpty()) {
+            fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter.constData());
         }
     }
 }

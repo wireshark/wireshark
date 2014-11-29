@@ -162,11 +162,13 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
             conv_tree, SLOT(setNameResolutionEnabled(bool)));
 
     // XXX Move to ConversationTreeWidget ctor?
+    QByteArray filter_utf8;
     const char *filter = NULL;
     if (displayFilterCheckBox()->isChecked()) {
         filter = cap_file_->dfilter;
     } else if (!filter_.isEmpty()) {
-        filter = filter_.toUtf8().constData();
+        filter_utf8 = filter_.toUtf8();
+        filter = filter_utf8.constData();
     }
 
     conv_tree->trafficTreeHash()->user_data = conv_tree;
@@ -289,11 +291,13 @@ void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
         return;
     }
 
+    QByteArray filter_utf8;
     const char *filter = NULL;
     if (checked) {
         filter = cap_file_->dfilter;
     } else if (!filter_.isEmpty()) {
-        filter = filter_.toUtf8().constData();
+        filter_utf8 = filter_.toUtf8();
+        filter = filter_utf8.constData();
     }
 
     for (int i = 0; i < trafficTableTabWidget()->count(); i++) {

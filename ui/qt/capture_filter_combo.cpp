@@ -92,12 +92,11 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
 
 void CaptureFilterCombo::writeRecent(FILE *rf) {
     int i;
-    const char *filter_str;
 
     for (i = 0; i < count(); i++) {
-        filter_str = itemText(i).toUtf8().constData();
-        if(filter_str && strlen(filter_str) > 0) {
-            fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
+        const QByteArray& filter = itemText(i).toUtf8();
+        if (!filter.isEmpty()) {
+            fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter.constData());
         }
     }
 }

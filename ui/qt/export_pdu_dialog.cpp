@@ -47,16 +47,14 @@ ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
 }
 void ExportPDUDialog::on_buttonBox_accepted()
 {
-    const char *filter;
-    QString    tap_name;
     exp_pdu_t  exp_pdu_data;
 
     exp_pdu_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    filter = ui->displayFilterLineEdit->text().toUtf8().constData();
-    tap_name = ui->comboBox->currentText();
+    const QByteArray& filter = ui->displayFilterLineEdit->text().toUtf8();
+    const QByteArray& tap_name = ui->comboBox->currentText().toUtf8();
 
-    do_export_pdu(filter, (gchar *)tap_name.toUtf8().constData(), &exp_pdu_data);
+    do_export_pdu(filter.constData(), (gchar *)tap_name.constData(), &exp_pdu_data);
 }
 ExportPDUDialog::~ExportPDUDialog()
 {

@@ -146,11 +146,13 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
             endp_tree, SLOT(setNameResolutionEnabled(bool)));
 
     // XXX Move to ConversationTreeWidget ctor?
+    QByteArray filter_utf8;
     const char *filter = NULL;
     if (displayFilterCheckBox()->isChecked()) {
         filter = cap_file_->dfilter;
     } else if (!filter_.isEmpty()) {
-        filter = filter_.toUtf8().constData();
+        filter_utf8 = filter_.toUtf8();
+        filter = filter_utf8.constData();
     }
 
     endp_tree->trafficTreeHash()->user_data = endp_tree;
