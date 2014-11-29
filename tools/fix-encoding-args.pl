@@ -214,6 +214,7 @@ my @findAllFunctionList =
          proto_tree_add_bits_item
          proto_tree_add_bits_ret_val
          proto_tree_add_bitmask
+         proto_tree_add_bitmask_with_flags
          tvb_get_bits
          tvb_get_bits16
          tvb_get_bits24
@@ -317,6 +318,7 @@ while (my $fileName = $ARGV[0]) {
         # Find and replace: alters <fcn_name>() encoding arg in $fileContents
         $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "proto_tree_add_bits_(?:item|ret_val)",      \$fileContents, $fileName);
         $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "proto_tree_add_bitmask",                    \$fileContents, $fileName);
+        $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "proto_tree_add_bitmask_with_flags",         \$fileContents, $fileName);
         $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "tvb_get_bits(?:16|24|32|64)?",              \$fileContents, $fileName);
         $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "tvb_get_(?:ephemeral_)?unicode_string[z]?", \$fileContents, $fileName);
 

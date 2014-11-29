@@ -7603,6 +7603,30 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	return item;
 }
 
+/* The same as proto_tree_add_bitmask(), but uses user-supplied flags to determine
+ * what data is appended to the header.
+ */
+proto_item *
+proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
+		const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags)
+{
+	proto_item        *item = NULL;
+	header_field_info *hf;
+	int                len;
+
+	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
+	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+	len = ftype_length(hf->type);
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
+		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
+					    flags, FALSE);
+	}
+
+	return item;
+}
+
 /* The same as proto_tree_add_bitmask(), but using a caller-supplied length.
  * This is intended to support bitmask fields whose lengths can vary, perhaps
  * as the underlying standard evolves over time.
