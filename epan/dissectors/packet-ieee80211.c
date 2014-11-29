@@ -18905,7 +18905,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_control_reserved,
-     {"Reserved", "wlan.ba.control.cbitmap",
+     {"Reserved", "wlan.ba.control.reserved",
       FT_UINT16, BASE_HEX, NULL, 0x0ff8,
       NULL, HFILL }},
 
@@ -20649,12 +20649,12 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_ssc_fragment,
-     {"Fragment", "wlan_mgt.fixed.fragment",
+     {"Fragment", "wlan_mgt.fixed.ssc.fragment",
       FT_UINT16, BASE_DEC, 0, 0x000f,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_ssc_sequence,
-     {"Starting Sequence Number", "wlan_mgt.fixed.sequence",
+     {"Starting Sequence Number", "wlan_mgt.fixed.ssc.sequence",
       FT_UINT16, BASE_DEC, 0, 0xfff0,
       NULL, HFILL }},
 
@@ -20729,7 +20729,7 @@ proto_register_ieee80211 (void)
       "QoS Ack", HFILL }},
 
     {&hf_ieee80211_ff_qos_info_ap_queue_req,
-     {"Queue Request", "wlan_mgt.fixed.qosinfo.ap",
+     {"Queue Request", "wlan_mgt.fixed.qosinfo.ap.queue_req",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20,
       NULL, HFILL }},
 
@@ -22260,17 +22260,17 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_src_mac_addr,
-     {"Source address", "wlan_mgt.tclas.type",
+     {"Source address", "wlan_mgt.tclas.src_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0,
       "Classifier Parameters Ethernet Type", HFILL }},
 
     {&hf_ieee80211_tclas_dst_mac_addr,
-     {"Destination address", "wlan_mgt.tclas.type",
+     {"Destination address", "wlan_mgt.tclas.dat_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tclas_ether_type,
-     {"Ethernet Type", "wlan_mgt.tclas.type",
+     {"Ethernet Type", "wlan_mgt.tclas.ether_type",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -23229,67 +23229,67 @@ proto_register_ieee80211 (void)
       "HT Additional Capability information", HFILL }},
 
     {&hf_ieee80211_hta_ext_chan_offset,
-     {"Extension Channel Offset", "wlan_mgt.hta.capabilities.extchan",
+     {"Extension Channel Offset", "wlan_mgt.hta.capabilities.ext_chan_offset",
       FT_UINT16, BASE_HEX, VALS(hta_ext_chan_offset_flag), 0x0003,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_rec_tx_width,
-     {"Recommended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
+     {"Recommended Tx Channel Width", "wlan_mgt.hta.capabilities.rec_tx_width",
       FT_BOOLEAN, 16, TFS (&hta_rec_tx_width_flag), 0x0004,
       "Recommended Transmit Channel Width", HFILL }},
 
     {&hf_ieee80211_hta_rifs_mode,
-     {"Reduced Interframe Spacing (RIFS) Mode", "wlan_mgt.hta.capabilities.rifsmode",
+     {"Reduced Interframe Spacing (RIFS) Mode", "wlan_mgt.hta.capabilities.rifs_mode",
       FT_BOOLEAN, 16, TFS (&hta_rifs_mode_flag), 0x0008,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_controlled_access,
-     {"Controlled Access Only", "wlan_mgt.hta.capabilities.controlledaccess",
+     {"Controlled Access Only", "wlan_mgt.hta.capabilities.controlled_access",
       FT_BOOLEAN, 16, TFS (&hta_controlled_access_flag), 0x0010,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_service_interval,
-     {"Service Interval Granularity", "wlan_mgt.hta.capabilities.serviceinterval",
+     {"Service Interval Granularity", "wlan_mgt.hta.capabilities.service_interval",
       FT_UINT16, BASE_HEX, VALS(hta_service_interval_flag), 0x00E0,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_operating_mode,
-     {"Operating Mode", "wlan_mgt.hta.capabilities.operatingmode",
+     {"Operating Mode", "wlan_mgt.hta.capabilities.operating_mode",
       FT_UINT16, BASE_HEX, VALS(hta_operating_mode_flag), 0x0003,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_non_gf_devices,
-     {"Non Greenfield (GF) devices Present", "wlan_mgt.hta.capabilities.nongfdevices",
+     {"Non Greenfield (GF) devices Present", "wlan_mgt.hta.capabilities.non_gf_devices",
       FT_BOOLEAN, 16, TFS (&hta_non_gf_devices_flag), 0x0004,
       "on Greenfield (GF) devices Present", HFILL }},
 
     {&hf_ieee80211_hta_basic_stbc_mcs,
-     {"Basic STB Modulation and Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.",
+     {"Basic STB Modulation and Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.basic_stbc_mcs",
       FT_UINT16, BASE_HEX, NULL , 0x007f,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_dual_stbc_protection,
-     {"Dual Clear To Send (CTS) Protection", "wlan_mgt.hta.capabilities.",
+     {"Dual Clear To Send (CTS) Protection", "wlan_mgt.hta.capabilities.dual_stbc_protection",
       FT_BOOLEAN, 16, TFS (&hta_dual_stbc_protection_flag), 0x0080,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_secondary_beacon,
-     {"Secondary Beacon", "wlan_mgt.hta.capabilities.",
+     {"Secondary Beacon", "wlan_mgt.hta.capabilities.secondary_beacon",
       FT_BOOLEAN, 16, TFS (&hta_secondary_beacon_flag), 0x0100,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_lsig_txop_protection,
-     {"L-SIG TXOP Protection Support", "wlan_mgt.hta.capabilities.",
+     {"L-SIG TXOP Protection Support", "wlan_mgt.hta.capabilities.lsig_txop_protection",
       FT_BOOLEAN, 16, TFS (&hta_lsig_txop_protection_flag), 0x0200,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_pco_active,
-     {"Phased Coexistence Operation (PCO) Active", "wlan_mgt.hta.capabilities.",
+     {"Phased Coexistence Operation (PCO) Active", "wlan_mgt.hta.capabilities.pco_active",
       FT_BOOLEAN, 16, TFS (&hta_pco_active_flag), 0x0400,
       NULL, HFILL }},
 
     {&hf_ieee80211_hta_pco_phase,
-     {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.hta.capabilities.",
+     {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.hta.capabilities.pco_phase",
       FT_BOOLEAN, 16, TFS (&hta_pco_phase_flag), 0x0800,
       NULL, HFILL }},
 
@@ -24872,7 +24872,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_acm,
-     {"Admission Control Mandatory", "wlan_mgt.wfa.ie.wme.acp.aci",
+     {"Admission Control Mandatory", "wlan_mgt.wfa.ie.wme.acp.acm",
       FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
       NULL, HFILL }},
 
