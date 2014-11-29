@@ -1124,7 +1124,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* Ethertype */
 			&hf_cst_pkt_class_rule_etype,
-			{"Ethertype", "wmx.cst.pkt_class_rule.ethertype", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Ethertype", "wmx.cst.pkt_class_rule.etype", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Eprot1 */
 			&hf_cst_pkt_class_rule_eprot1,
