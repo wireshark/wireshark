@@ -58,6 +58,13 @@ static int hf_mp4_full_box_flags_media_data_location = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
+static int hf_mp4_mvhd_creat_time = -1;
+static int hf_mp4_mvhd_mod_time = -1;
+static int hf_mp4_mvhd_timescale = -1;
+static int hf_mp4_mvhd_duration = -1;
+static int hf_mp4_mvhd_rate = -1;
+static int hf_mp4_mvhd_vol = -1;
+static int hf_mp4_mvhd_next_tid = -1;
 static int hf_mp4_mfhd_seq_num = -1;
 static int hf_mp4_tkhd_creat_time = -1;
 static int hf_mp4_tkhd_mod_time = -1;
@@ -71,6 +78,7 @@ static int hf_mp4_dref_entry_cnt = -1;
 static int hf_mp4_stsd_entry_cnt = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
+static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 
 /* a box must at least have a 32bit len field and a 32bit type */
 #define MIN_BOX_SIZE 8
@@ -167,17 +175,66 @@ make_fract(guint x)
 
 static gint
 dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree)
 {
-    gint offset_start;
+    gint        offset_start;
+    guint8      version;
+    guint8      time_len;
+    double      rate, vol;
+    guint16     fract_dec;
+    guint32     next_tid;
+    proto_item *next_tid_it;
 
     offset_start = offset;
+
+    version = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_mp4_full_box_flags,
             tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
+
+    time_len = (version==0) ? 4 : 8;
+    proto_tree_add_item(tree, hf_mp4_mvhd_creat_time,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+    proto_tree_add_item(tree, hf_mp4_mvhd_mod_time,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+    proto_tree_add_item(tree, hf_mp4_mvhd_timescale,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mp4_mvhd_duration,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+
+    rate = tvb_get_ntohs(tvb, offset);
+    fract_dec = tvb_get_ntohs(tvb, offset+2);
+    rate += make_fract(fract_dec);
+    proto_tree_add_double_format_value(tree, hf_mp4_mvhd_rate,
+            tvb, offset, 4, rate, "%f", rate);
+    offset += 4;
+
+    vol = tvb_get_guint8(tvb, offset);
+    fract_dec = tvb_get_guint8(tvb, offset+1);
+    rate += make_fract(fract_dec);
+    proto_tree_add_double_format_value(tree, hf_mp4_mvhd_vol,
+            tvb, offset, 4, vol, "%f", vol);
+    offset += 2;
+
+    offset += 2;   /* 16 bits reserved */
+    offset += 2*4; /* 2 * uint32 reserved */
+
+    offset += 9*4; /* XXX - unity matrix */
+    offset += 6*4; /* 6 * 32 bits predefined = 0 */
+
+    next_tid = tvb_get_ntohl(tvb, offset);
+    next_tid_it = proto_tree_add_item(tree, hf_mp4_mvhd_next_tid,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    if (next_tid == G_MAXUINT32)
+        expert_add_info(pinfo, next_tid_it, &ei_mp4_mvhd_next_tid_unknown);
+    offset += 4;
 
     return offset-offset_start;
 }
@@ -616,6 +673,27 @@ proto_register_mp4(void)
         { &hf_mp4_ftyp_add_brand,
             { "Additional brand", "mp4.ftyp.additional_brand", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_creat_time,
+            { "Creation time", "mp4.mvhd.creation_time", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_mod_time,
+            { "Modification time", "mp4.mvhd.modification_time", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_timescale,
+            { "Timescale", "mp4.mvhd.timescale", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_duration,
+            { "Duration", "mp4.mvhd.duration", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_rate,
+            { "Rate", "mp4.mvhd.rate", FT_DOUBLE,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_vol,
+            { "Volume", "mp4.mvhd.volume", FT_DOUBLE,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_mvhd_next_tid,
+            { "Next Track ID", "mp4.mvhd.next_track_id", FT_UINT32,
+                BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_mp4_mfhd_seq_num,
             { "Sequence number", "mp4.mfhd.sequence_number", FT_UINT32,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -659,7 +737,10 @@ proto_register_mp4(void)
     static ei_register_info ei[] = {
         { &ei_mp4_box_too_large,
             { "mp4.box_too_large", PI_PROTOCOL, PI_WARN,
-                "box size too large, dissection of this box is not supported", EXPFILL }}
+                "box size too large, dissection of this box is not supported", EXPFILL }},
+        { &ei_mp4_mvhd_next_tid_unknown,
+            { "mp4.mvhd.next_tid_unknown", PI_PROTOCOL, PI_CHAT,
+                "Next track ID is unknown. Search for an unused track ID if you want to insert a new track.", EXPFILL }}
     };
 
     expert_module_t *expert_mp4;
