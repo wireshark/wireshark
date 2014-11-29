@@ -376,7 +376,7 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
 //    mono_bold_font_.setBold(true);
 
     g_free(prefs.gui_qt_font_name);
-    prefs.gui_qt_font_name = g_strdup(mono_font_.toString().toUtf8().constData());
+    prefs.gui_qt_font_name = qstring_strdup(mono_font_.toString());
 }
 
 int WiresharkApplication::monospaceTextSize(const char *str)

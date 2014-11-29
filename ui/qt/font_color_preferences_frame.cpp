@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "qt_ui_utils.h"
+
 #include "font_color_preferences_frame.h"
 #include "ui_font_color_preferences_frame.h"
 #include "color_utils.h"
@@ -195,7 +197,7 @@ void FontColorPreferencesFrame::on_fontPushButton_clicked()
     QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, tr("Wireshark: Font"));
     if (ok) {
         g_free(pref_qt_gui_font_name_->stashed_val.string);
-        pref_qt_gui_font_name_->stashed_val.string = g_strdup(new_font.toString().toUtf8().constData());
+        pref_qt_gui_font_name_->stashed_val.string = qstring_strdup(new_font.toString());
         cur_font_ = new_font;
         updateWidgets();
     }

@@ -24,6 +24,7 @@
 #include "config.h"
 #ifdef HAVE_PCAP_REMOTE
 #include <glib.h>
+#include "qt_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "remote_capture_dialog.h"
 #include "ui_remote_capture_dialog.h"
@@ -103,18 +104,18 @@ void RemoteCaptureDialog::apply_remote()
 
     QString host = ui->hostCombo->currentText();
     global_remote_opts.src_type = CAPTURE_IFREMOTE;
-    global_remote_opts.remote_host_opts.remote_host = g_strdup((gchar *)host.toUtf8().constData());
+    global_remote_opts.remote_host_opts.remote_host = qstring_strdup(host);
     QString port = ui->portText->text();
-    global_remote_opts.remote_host_opts.remote_port = g_strdup((gchar *)port.toUtf8().constData());
+    global_remote_opts.remote_host_opts.remote_port = qstring_strdup(port);
     if (ui->pwAuth->isChecked()) {
         global_remote_opts.remote_host_opts.auth_type = CAPTURE_AUTH_PWD;
     } else {
         global_remote_opts.remote_host_opts.auth_type = CAPTURE_AUTH_NULL;
     }
     QString user = ui->userText->text();
-    global_remote_opts.remote_host_opts.auth_username = g_strdup((gchar *)user.toUtf8().constData());
+    global_remote_opts.remote_host_opts.auth_username = qstring_strdup(user);
     QString pw = ui->pwText->text();
-    global_remote_opts.remote_host_opts.auth_password = g_strdup((gchar *)pw.toUtf8().constData());
+    global_remote_opts.remote_host_opts.auth_password = qstring_strdup(pw);
     GList *rlist = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
                                               global_remote_opts.remote_host_opts.remote_port,
                                               global_remote_opts.remote_host_opts.auth_type,
@@ -138,8 +139,8 @@ void RemoteCaptureDialog::apply_remote()
     struct remote_host *rh = recent_get_remote_host(host.toUtf8().constData());
     if (!rh) {
         rh = (struct remote_host *)g_malloc (sizeof (*rh));
-        rh->r_host = g_strdup((gchar *)host.toUtf8().constData());
-        rh->remote_port = g_strdup((gchar *)port.toUtf8().constData());
+        rh->r_host = qstring_strdup(host);
+        rh->remote_port = qstring_strdup(port);
         rh->auth_type = global_remote_opts.remote_host_opts.auth_type;
         rh->auth_password = g_strdup("");
         rh->auth_username = g_strdup("");

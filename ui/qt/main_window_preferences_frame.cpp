@@ -178,7 +178,7 @@ void MainWindowPreferencesFrame::on_foStyleSpecifiedRadioButton_toggled(bool che
 void MainWindowPreferencesFrame::on_foStyleSpecifiedLineEdit_textEdited(const QString &new_dir)
 {
     g_free(pref_fileopen_dir_->stashed_val.string);
-    pref_fileopen_dir_->stashed_val.string = g_strdup(new_dir.toUtf8().constData());
+    pref_fileopen_dir_->stashed_val.string = qstring_strdup(new_dir);
     pref_fileopen_style_->stashed_val.enumval = FO_STYLE_SPECIFIED;
     updateWidgets();
 }
@@ -191,7 +191,7 @@ void MainWindowPreferencesFrame::on_foStyleSpecifiedPushButton_clicked()
 
     ui->foStyleSpecifiedLineEdit->setText(specified_dir);
     g_free(pref_fileopen_dir_->stashed_val.string);
-    pref_fileopen_dir_->stashed_val.string = g_strdup(specified_dir.toUtf8().constData());
+    pref_fileopen_dir_->stashed_val.string = qstring_strdup(specified_dir);
     pref_fileopen_style_->stashed_val.enumval = FO_STYLE_SPECIFIED;
     updateWidgets();
 }

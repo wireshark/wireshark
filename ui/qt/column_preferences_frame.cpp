@@ -32,6 +32,7 @@
 
 #include <ui/preference_utils.h>
 
+#include "qt_ui_utils.h"
 #include "column_preferences_frame.h"
 #include "ui_column_preferences_frame.h"
 #include "syntax_line_edit.h"
@@ -85,7 +86,7 @@ void ColumnPreferencesFrame::unstash()
     while (*it) {
         fmt_data *cfmt = g_new0(fmt_data, 1);
 
-        cfmt->title = g_strdup((*it)->text(title_col_).toUtf8().constData());
+        cfmt->title = qstring_strdup((*it)->text(title_col_));
         cfmt->fmt = (*it)->data(type_col_, Qt::UserRole).value<int>();
         cfmt->visible = (*it)->checkState(visible_col_) == Qt::Checked ? TRUE : FALSE;
         cfmt->resolved = TRUE;
@@ -93,7 +94,7 @@ void ColumnPreferencesFrame::unstash()
         if (cfmt->fmt == COL_CUSTOM) {
             bool ok;
             int occurrence = (*it)->text(custom_occurrence_col_).toInt(&ok);
-            cfmt->custom_field = g_strdup((*it)->text(custom_field_col_).toUtf8().constData());
+            cfmt->custom_field = qstring_strdup((*it)->text(custom_field_col_));
             cfmt->custom_occurrence = ok ? occurrence : 0;
         }
 
