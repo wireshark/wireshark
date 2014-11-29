@@ -58,6 +58,9 @@ static int hf_mp4_full_box_flags_media_data_location = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
+static int hf_mp4_stsz_sample_size = -1;
+static int hf_mp4_stsz_sample_count = -1;
+static int hf_mp4_stsz_entry_size = -1;
 static int hf_mp4_mvhd_creat_time = -1;
 static int hf_mp4_mvhd_mod_time = -1;
 static int hf_mp4_mvhd_timescale = -1;
@@ -351,6 +354,39 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
 
 
 static gint
+dissect_mp4_stsz_body(tvbuff_t *tvb, gint offset, gint len _U_,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset_start;
+    guint32  sample_size, sample_count, i;
+
+    offset_start = offset;
+    sample_size = tvb_get_ntohl(tvb, offset);
+
+    proto_tree_add_item(tree, hf_mp4_stsz_sample_size,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    /* XXX - expert info for sample size == 0 */
+    offset += 4;
+
+    sample_count = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_mp4_stsz_sample_count,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (sample_size != 0)
+        return offset - offset_start;
+
+    for (i=0; i<sample_count; i++) {
+        proto_tree_add_item(tree, hf_mp4_stsz_entry_size,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset - offset_start;
+}
+
+ 
+static gint
 dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -569,6 +605,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_TKHD:
             dissect_mp4_tkhd_body(tvb, offset, body_size, pinfo, box_tree);
             break;
+        case BOX_TYPE_STSZ:
+            dissect_mp4_stsz_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
         case BOX_TYPE_HDLR:
             dissect_mp4_hdlr_body(tvb, offset, body_size, pinfo, box_tree);
             break;
@@ -675,6 +714,15 @@ proto_register_mp4(void)
         { &hf_mp4_ftyp_add_brand,
             { "Additional brand", "mp4.ftyp.additional_brand", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsz_sample_size,
+            { "Sample size", "mp4.stsz.sample_size", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsz_sample_count,
+            { "Sample count", "mp4.stsz.sample_count", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_stsz_entry_size,
+            { "Entry size", "mp4.stsz.entry_size", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_mp4_mvhd_creat_time,
             { "Creation time", "mp4.mvhd.creation_time", FT_UINT64,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
