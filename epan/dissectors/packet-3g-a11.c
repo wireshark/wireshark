@@ -547,6 +547,17 @@ static const value_string a11_ses_msid_type_vals[] =
     { 0, NULL },
 };
 
+static const int * a11_flags[] = {
+    &hf_a11_s,
+    &hf_a11_b,
+    &hf_a11_d,
+    &hf_a11_m,
+    &hf_a11_g,
+    &hf_a11_v,
+    &hf_a11_t,
+    NULL
+};
+
 static void
 decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint ext_len, proto_item *ext_len_item)
 {
@@ -1538,10 +1549,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *a11_tree = NULL;
-    proto_item *tf;
-    proto_tree *flags_tree;
     guint8      type;
-    guint8      flags;
     guint       offset   = 0;
 
     if (!tvb_bytes_exist(tvb, offset, 1))
@@ -1579,17 +1587,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 1;
 
             /* flags */
-            flags = tvb_get_guint8(tvb, offset);
-            tf = proto_tree_add_uint(a11_tree, hf_a11_flags, tvb,
-                                     offset, 1, flags);
-            flags_tree = proto_item_add_subtree(tf, ett_a11_flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_s, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_b, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_d, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_m, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_g, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_v, tvb, offset, 1, flags);
-            proto_tree_add_boolean(flags_tree, hf_a11_t, tvb, offset, 1, flags);
+            proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
+			                ett_a11_flags, a11_flags, ENC_NA);
             offset += 1;
 
             /* lifetime */
@@ -1908,17 +1907,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                offset += 1;
 
                /* flags */
-               flags = tvb_get_guint8(tvb, offset);
-               tf = proto_tree_add_uint(a11_tree, hf_a11_flags, tvb,
-                                        offset, 1, flags);
-               flags_tree = proto_item_add_subtree(tf, ett_a11_flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_s, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_b, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_d, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_m, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_g, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_v, tvb, offset, 1, flags);
-               proto_tree_add_boolean(flags_tree, hf_a11_t, tvb, offset, 1, flags);
+               proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
+			                ett_a11_flags, a11_flags, ENC_NA);
                offset += 1;
 
                /* lifetime */

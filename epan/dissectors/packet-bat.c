@@ -232,12 +232,17 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto
 
 static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf, *tgw;
-	proto_tree *bat_batman_tree = NULL, *flag_tree;
+	proto_item *tgw;
+	proto_tree *bat_batman_tree = NULL;
 	struct batman_packet_v5 *batman_packeth;
 	const guint8  *old_orig_addr, *orig_addr;
 	guint32 old_orig, orig;
 	gint i;
+	static const int * batman_flags[] = {
+		&hf_bat_batman_flags_unidirectional,
+		&hf_bat_batman_flags_directlink,
+		NULL
+	};
 
 	tvbuff_t *next_tvb;
 
@@ -279,12 +284,8 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_tree_add_item(bat_batman_tree, hf_bat_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(bat_batman_tree, hf_bat_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_bat_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_unidirectional, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(bat_batman_tree, tvb, offset, hf_bat_batman_flags,
+					ett_bat_batman_flags, batman_flags, ENC_NA);
 	offset += 1;
 
 	proto_tree_add_item(bat_batman_tree, hf_bat_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);

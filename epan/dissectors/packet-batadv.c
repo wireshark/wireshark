@@ -690,6 +690,45 @@ static const value_string tvlv_tt_typenames[] = {
 	{0, NULL}
 };
 
+static const int * batman_v5_flags[] = {
+	&hf_batadv_batman_flags_directlink,
+	&hf_batadv_batman_flags_vis_server,
+	NULL
+};
+
+static const int * batman_v9_flags[] = {
+	&hf_batadv_batman_flags_directlink,
+	&hf_batadv_batman_flags_vis_server,
+	&hf_batadv_batman_flags_primaries_first_hop,
+	NULL
+};
+
+static const int * batman_v14_flags[] = {
+	&hf_batadv_batman_flags_directlink,
+	&hf_batadv_batman_flags_vis_server,
+	&hf_batadv_batman_flags_primaries_first_hop,
+	&hf_batadv_batman_flags_not_best_next_hop,
+	NULL
+};
+
+static const int * unicast_frag_flags[] = {
+	&hf_batadv_unicast_frag_flags_head,
+	&hf_batadv_unicast_frag_flags_largetail,
+	NULL
+};
+
+static const int * tt_query_flags[] = {
+	&hf_batadv_tt_query_flags_type,
+	&hf_batadv_tt_query_flags_full_table,
+	NULL
+};
+
+static const int * tt_entry_flags[] = {
+	&hf_batadv_tt_entry_flags_change_del,
+	&hf_batadv_tt_entry_flags_client_roam,
+	NULL
+};
+
 static const fragment_items msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_msg_fragment,
@@ -994,8 +1033,8 @@ static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, pr
 
 static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf, *tgw;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_item *tgw;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v5 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1050,12 +1089,8 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v5_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1104,8 +1139,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v7 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1158,12 +1192,8 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v5_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1205,8 +1235,8 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf, *tgw;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_item *tgw;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v9 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1260,13 +1290,8 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v9_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1315,8 +1340,8 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf, *tgw;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_item *tgw;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v10 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1370,13 +1395,8 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v9_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1425,8 +1445,7 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v11 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1479,13 +1498,8 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v9_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_tq, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1527,8 +1541,8 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf, *tgw;
-	proto_tree *batadv_batman_tree = NULL, *flag_tree;
+	proto_item *tgw;
+	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v14 *batman_packeth;
 	const guint8  *prev_sender_addr, *orig_addr;
@@ -1588,14 +1602,8 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_not_best_next_hop, tvb, offset, 1, batman_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_batman_tree, tvb, offset, hf_batadv_batman_flags,
+					ett_batadv_batman_flags, batman_v14_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2818,12 +2826,11 @@ static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf;
 	struct unicast_frag_packet_v12 *unicast_frag_packeth;
 	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
-	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
+	proto_tree *batadv_unicast_frag_tree = NULL;
 
 	tvbuff_t *new_tvb;
 	int offset = 0;
@@ -2875,12 +2882,8 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_head, tvb, offset, 1, unicast_frag_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_largetail, tvb, offset, 1, unicast_frag_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_unicast_frag_tree, tvb, offset, hf_batadv_unicast_frag_flags,
+					ett_batadv_batman_flags, unicast_frag_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, orig_addr);
@@ -2924,12 +2927,11 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 
 static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tf;
 	struct unicast_frag_packet_v14 *unicast_frag_packeth;
 	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
-	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
+	proto_tree *batadv_unicast_frag_tree = NULL;
 
 	tvbuff_t *new_tvb;
 	int offset = 0;
@@ -2986,12 +2988,8 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, dest_addr);
 	offset += 6;
 
-	tf = proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_head, tvb, offset, 1, unicast_frag_packeth->flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_largetail, tvb, offset, 1, unicast_frag_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_unicast_frag_tree, tvb, offset, hf_batadv_unicast_frag_flags,
+					ett_batadv_batman_flags, unicast_frag_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Skip 1 byte of padding. */
@@ -3608,8 +3606,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 {
 	struct tt_query_packet_v14 *tt_query_packeth;
 	const guint8  *dst_addr, *src_addr;
-	proto_item *tf;
-	proto_tree *batadv_tt_query_tree = NULL, *flag_tree;
+	proto_tree *batadv_tt_query_tree = NULL;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3669,12 +3666,8 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	proto_tree_add_item(batadv_tt_query_tree, hf_batadv_tt_query_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(batadv_tt_query_tree, hf_batadv_tt_query_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_tt_query_flags);
-	proto_tree_add_uint(flag_tree, hf_batadv_tt_query_flags_type, tvb, offset, 1, tt_type);
-	proto_tree_add_boolean(flag_tree, hf_batadv_tt_query_flags_full_table, tvb, offset, 1, tt_query_packeth->flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_tt_query_tree, tvb, offset, hf_batadv_tt_query_flags,
+					ett_batadv_tt_query_flags, tt_query_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_ether(batadv_tt_query_tree, hf_batadv_tt_query_dst, tvb, offset, 6, dst_addr);
@@ -3734,11 +3727,8 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static void dissect_tt_entry_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	const guint8  *entry;
-	guint8  flags;
-	proto_item *tf;
-	proto_tree *batadv_tt_entry_tree = NULL, *flag_tree;
+	proto_tree *batadv_tt_entry_tree = NULL;
 
-	flags = tvb_get_guint8(tvb, 0);
 	entry = tvb_get_ptr(tvb, 1, 6);
 
 	if (tree) {
@@ -3754,12 +3744,8 @@ static void dissect_tt_entry_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		batadv_tt_entry_tree = proto_item_add_subtree(ti, ett_batadv_tt_entry);
 	}
 
-	tf = proto_tree_add_item(batadv_tt_entry_tree, hf_batadv_tt_entry_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
-	/* <flags> */
-	flag_tree =  proto_item_add_subtree(tf, ett_batadv_tt_entry_flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_tt_entry_flags_change_del, tvb, 0, 1, flags);
-	proto_tree_add_boolean(flag_tree, hf_batadv_tt_entry_flags_client_roam, tvb, 0, 1, flags);
-	/* </flags> */
+	proto_tree_add_bitmask(batadv_tt_entry_tree, tvb, 0, hf_batadv_tt_entry_flags,
+					ett_batadv_tt_entry_flags, tt_entry_flags, ENC_BIG_ENDIAN);
 	proto_tree_add_ether(batadv_tt_entry_tree, hf_batadv_tt_entry, tvb, 1, 6, entry);
 }
 

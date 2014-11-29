@@ -5139,7 +5139,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree   *bp_tree;
 	proto_item   *bp_ti, *ti;
-	proto_tree   *flag_tree;
 	proto_item   *fi, *hidden_item;
 	guint8	      op;
 	guint8	      htype, hlen;
@@ -5151,6 +5150,12 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16	      flags, secs;
 	int	      offset_delta;
 	guint8	      overload				     = 0; /* DHCP option overload */
+	static const int * bootp_flags[] = {
+		&hf_bootp_flags_broadcast,
+		&hf_bootp_flags_reserved,
+		NULL
+	};
+
 	rfc3396_dns_domain_search_list.total_number_of_block = 0;
 	rfc3396_dns_domain_search_list.tvb_composite	     = NULL;
 	rfc3396_sip_server.total_number_of_block	     = 0;
@@ -5266,15 +5271,11 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    8, 2, ENC_BIG_ENDIAN);
 	}
 	flags = tvb_get_ntohs(tvb, 10);
-	fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
-			    10, 2, flags);
+	fi = proto_tree_add_bitmask(bp_tree, tvb, 10, hf_bootp_flags,
+			       ett_bootp_flags, bootp_flags, ENC_NA);
 	proto_item_append_text(fi, " (%s)",
 	    (flags & BOOTP_BC) ? "Broadcast" : "Unicast");
-	flag_tree = proto_item_add_subtree(fi, ett_bootp_flags);
-	proto_tree_add_boolean(flag_tree, hf_bootp_flags_broadcast, tvb,
-			    10, 2, flags);
-	proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
-			    10, 2, flags);
+
 	proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb,
 			    12, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb,

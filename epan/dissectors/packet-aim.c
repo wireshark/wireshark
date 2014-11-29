@@ -646,17 +646,6 @@ dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo,
 	return dissect_aim_tlv_list(tvb, pinfo, offset, tree, aim_onlinebuddy_tlvs);
 }
 
-static int
-dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti,
-		       guint16 flags)
-{
-	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_fnac_flags);
-	proto_tree_add_boolean(entry, hf_aim_fnac_flag_next_is_related, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_fnac_flag_contains_version, tvb, offset, len, flags);
-
-	return offset + len;
-}
-
 static void
 dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		 proto_tree *aim_tree, proto_tree *root_tree)
@@ -665,7 +654,6 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	guint16 subtype_id;
 	guint16 flags;
 	guint32 id;
-	proto_item *ti1;
 	proto_tree *aim_tree_fnac = NULL;
 	tvbuff_t *subtvb;
 	int orig_offset;
@@ -687,6 +675,12 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if( aim_tree && subtype != NULL )
 	{
+		static const int * fnac_flags[] = {
+			&hf_aim_fnac_flag_next_is_related,
+			&hf_aim_fnac_flag_contains_version,
+			NULL
+		};
+
 		offset = orig_offset;
 		aim_tree_fnac = proto_tree_add_subtree_format(aim_tree, tvb, 6, 10, ett_aim_fnac, NULL,
 					  "FNAC: Family: %s (0x%04x), Subtype: %s (0x%04x)",
@@ -704,10 +698,9 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		offset += 2;
 
-		ti1 = proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_flags, tvb, offset,
-					  2, flags);
-
-		offset = dissect_aim_fnac_flags(tvb, offset, 2, ti1, flags);
+		proto_tree_add_bitmask(aim_tree_fnac, tvb, offset, hf_aim_fnac_flags,
+			       ett_aim_fnac_flags, fnac_flags, ENC_BIG_ENDIAN);
+		offset += 2;
 
 		proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_id, tvb, offset,
 				    4, id);

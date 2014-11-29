@@ -482,22 +482,19 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_p
 static int
 dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 {
-	guint8 /*message_type,*/message_flags;
 	int offset = 0;
-	proto_item *ti_flags;
-	proto_tree *flags_entry;
 	guint16 text_length;
 	guint8* text;
+	static const int * flags[] = {
+		&hf_aim_rendezvous_extended_data_message_flags_normal,
+		&hf_aim_rendezvous_extended_data_message_flags_auto,
+		&hf_aim_rendezvous_extended_data_message_flags_multi,
+		NULL
+	};
 
-	/* TODO: parse and present message_type */
-	/* message_type = tvb_get_guint8(tvb, offset); */
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
-	message_flags = tvb_get_guint8(tvb, offset);
-	ti_flags = proto_tree_add_uint(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags);
-	flags_entry = proto_item_add_subtree(ti_flags, ett_aim_extended_data_message_flags);
-	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_normal, tvb, offset, 1, message_flags);
-	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_auto, tvb, offset, 1, message_flags);
-	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_multi, tvb, offset, 1, message_flags);
+	proto_tree_add_bitmask(msg_tree, tvb, offset, hf_aim_rendezvous_extended_data_message_flags,
+			       ett_aim_extended_data_message_flags, flags, ENC_NA);
 	offset+=1;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;

@@ -171,9 +171,7 @@ static void
 dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_item *ct;
 	proto_tree *bacnet_tree;
-	proto_tree *control_tree;
 
 	gint offset;
 	guint8 bacnet_version;
@@ -187,6 +185,17 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 i;
 	tvbuff_t *next_tvb;
 	guint32 vendor_id;
+	static const int * control_flags[] = {
+		&hf_bacnet_control_net,
+		&hf_bacnet_control_res1,
+		&hf_bacnet_control_dest,
+		&hf_bacnet_control_res2,
+		&hf_bacnet_control_src,
+		&hf_bacnet_control_expect,
+		&hf_bacnet_control_prio_high,
+		&hf_bacnet_control_prio_low,
+		NULL
+	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 
@@ -206,25 +215,8 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 bacnet_version,"0x%02x (%s)",bacnet_version,
 					 (bacnet_version == 0x01)?"ASHRAE 135-1995":"unknown");
 	offset ++;
-	ct = proto_tree_add_uint(bacnet_tree, hf_bacnet_control,
-		tvb, offset, 1, bacnet_control);
-	control_tree = proto_item_add_subtree(ct, ett_bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_net,
-		tvb, offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_res1, tvb,
-		offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_dest, tvb,
-		offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_res2, tvb,
-		offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_src, tvb,
-		offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_expect, tvb,
-		offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_high,
-		tvb, offset, 1, bacnet_control);
-	proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_low,
-		tvb, offset, 1, bacnet_control);
+	proto_tree_add_bitmask(bacnet_tree, tvb, offset, hf_bacnet_control,
+					ett_bacnet_control, control_flags, ENC_NA);
 	offset ++;
 	if (bacnet_control & BAC_CONTROL_DEST) { /* DNET, DLEN, DADR */
 		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,

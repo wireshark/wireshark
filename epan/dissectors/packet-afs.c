@@ -674,50 +674,38 @@ static const fragment_items afs_frag_items = {
 		tree = save; \
 	}
 
+static const int * status_mask_flags[] = {
+	&hf_afs_fs_status_mask_setmodtime,
+	&hf_afs_fs_status_mask_setowner,
+	&hf_afs_fs_status_mask_setgroup,
+	&hf_afs_fs_status_mask_setmode,
+	&hf_afs_fs_status_mask_setsegsize,
+	&hf_afs_fs_status_mask_fsync,
+	NULL
+};
+
 /* Output a Status mask */
 #define OUT_FS_STATUSMASK() \
-	{ 	proto_tree *save_ofsm, *ti_ofsm; \
-		guint32 mask_ofsm; \
-		mask_ofsm = tvb_get_ntohl(tvb, offset); \
-		ti_ofsm = proto_tree_add_uint(tree, hf_afs_fs_status_mask, tvb, offset, \
-			4, mask_ofsm); \
-		save_ofsm = tree; \
-		tree = proto_item_add_subtree(ti_ofsm, ett_afs_status_mask); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmodtime, \
-			tvb,offset,4, mask_ofsm); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setowner, \
-			tvb,offset,4, mask_ofsm); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setgroup, \
-			tvb,offset,4, mask_ofsm); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmode, \
-			tvb,offset,4, mask_ofsm); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setsegsize, \
-			tvb,offset,4, mask_ofsm); \
-		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_fsync, \
-			tvb,offset,4, mask_ofsm); \
+	{ \
+		proto_tree_add_bitmask(tree, tvb, offset, hf_afs_fs_status_mask,	\
+					ett_afs_status_mask, status_mask_flags, ENC_BIG_ENDIAN);	\
 		offset += 4; \
-		tree = save_ofsm; \
 	}
+
+static const int * vldb_flags[] = {
+	&hf_afs_vldb_flags_rwexists,
+	&hf_afs_vldb_flags_roexists,
+	&hf_afs_vldb_flags_bkexists,
+	&hf_afs_vldb_flags_dfsfileset,
+	NULL
+};
 
 /* Output vldb flags */
 #define OUT_VLDB_Flags() \
-	{ 	proto_tree *save, *ti; \
-		guint32 flags; \
-		flags = tvb_get_ntohl(tvb, offset); \
-		ti = proto_tree_add_uint(tree, hf_afs_vldb_flags, tvb, offset, \
-			4, flags); \
-		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_vldb_flags); \
-		proto_tree_add_boolean(tree, hf_afs_vldb_flags_rwexists, \
-			tvb,offset,4, flags); \
-		proto_tree_add_boolean(tree, hf_afs_vldb_flags_roexists, \
-			tvb,offset,4, flags); \
-		proto_tree_add_boolean(tree, hf_afs_vldb_flags_bkexists, \
-			tvb,offset,4, flags); \
-		proto_tree_add_boolean(tree, hf_afs_vldb_flags_dfsfileset, \
-			tvb,offset,4, flags); \
+	{ \
+		proto_tree_add_bitmask(tree, tvb, offset, hf_afs_vldb_flags,	\
+					ett_afs_vldb_flags, vldb_flags, ENC_BIG_ENDIAN);	\
 		offset += 4; \
-		tree = save; \
 	}
 
 
@@ -834,7 +822,7 @@ static const fragment_items afs_frag_items = {
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \
-	{ 	proto_tree *save, *ti; \
+	{ 	proto_tree *save; \
 		int tmpoffset; \
 		int acllen; \
 		char tmp[10]; \
@@ -846,11 +834,10 @@ static const fragment_items afs_frag_items = {
 		if ( acl & PRSFS_WRITE ) g_strlcat(tmp, "w", 10);	\
 		if ( acl & PRSFS_LOCK ) g_strlcat(tmp, "k", 10);	\
 		if ( acl & PRSFS_ADMINISTER ) g_strlcat(tmp, "a", 10);  \
-		ti = proto_tree_add_text(tree, tvb, offset, bytes, \
-			"ACL:  %s %s%s", \
-			who, tmp, positive ? "" : " (negative)"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_acl); \
+		tree = proto_tree_add_subtree_format(tree, tvb, offset, bytes, \
+			ett_afs_acl, NULL, "ACL:  %s %s%s", \
+			who, tmp, positive ? "" : " (negative)"); \
 		proto_tree_add_string(tree,hf_afs_fs_acl_entity, tvb,offset,(int)strlen(who), who);\
 		tmpoffset = offset + (int)strlen(who) + 1; \
 		acllen = bytes - (int)strlen(who) - 1; \
@@ -993,8 +980,8 @@ static const fragment_items afs_frag_items = {
 		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
 			4,&ts); \
 		else \
-			proto_tree_add_text(tree, tvb, offset-8, \
-			4,"Epoch: 0"); \
+			proto_tree_add_time_format_value(tree, hf_afs_ubik_version_epoch, tvb, offset-8, \
+			4, &ts, "0"); \
 		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, tvb,offset-4, \
 			4,counter); \
 		tree = save; \

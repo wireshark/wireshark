@@ -43,7 +43,7 @@ static int proto_agentx = -1;
 
 static int hf_version = -1;
 static int hf_type   = -1;
-/* static int hf_flags  = -1; */
+static int hf_flags  = -1;
 static int hf_flags_register  = -1;
 static int hf_flags_newindex  = -1;
 static int hf_flags_anyindex  = -1;
@@ -789,7 +789,7 @@ static int
 dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	proto_tree* agentx_tree, *pdu_hdr_tree, *flags_tree;
+	proto_tree* agentx_tree, *pdu_hdr_tree;
 	proto_item *t_item;
 	guint8 version;
 	guint8 type;
@@ -798,6 +798,14 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint32 trans_id;
 	guint32 packet_id;
 	guint32 payload_len;
+	static const int * pdu_flags[] = {
+		&hf_flags_register,
+		&hf_flags_newindex,
+		&hf_flags_anyindex,
+		&hf_flags_context,
+		&hf_flags_byteorder,
+		NULL
+	};
 
 	version = tvb_get_guint8(tvb, 0); offset+=1;
 	type = tvb_get_guint8(tvb, 1); offset+=1;
@@ -818,7 +826,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 
 	if(!tree)
-		return 0;
+		return tvb_captured_length(tvb);
 
 	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, ENC_NA);*/
 	t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
@@ -833,13 +841,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 	proto_tree_add_uint(pdu_hdr_tree, hf_version, tvb, 0, 1, version);
 	proto_tree_add_uint(pdu_hdr_tree, hf_type, tvb, 1, 1, type);
-
-	flags_tree = proto_tree_add_subtree_format(pdu_hdr_tree, tvb, 2, 1, ett_flags, NULL, "Flags: 0x%02x", flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_register,	tvb, 2, 1, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_newindex,	tvb, 2, 1, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_anyindex,	tvb, 2, 1, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_context,	tvb, 2, 1, flags);
-	proto_tree_add_boolean(flags_tree, hf_flags_byteorder,	tvb, 2, 1, flags);
+	proto_tree_add_bitmask(pdu_hdr_tree, tvb, 2, hf_flags, ett_flags, pdu_flags, ENC_NA);
 
 	proto_tree_add_uint(pdu_hdr_tree, hf_session_id, tvb, 4, 4, session_id);
 	proto_tree_add_uint(pdu_hdr_tree, hf_trans_id, tvb, 8, 4, trans_id);
@@ -941,11 +943,9 @@ proto_register_agentx(void)
 		  { "Type", "agentx.type", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &type_values_ext, 0x0,
 		    "header type", HFILL }},
 
-#if 0
 		{ &hf_flags,
 		  { "Flags", "agentx.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "header type", HFILL }},
-#endif
 
 		{ &hf_flags_register,
 		  { "Register", "agentx.flags.register", FT_BOOLEAN, 8, TFS(&tfs_yes_no),

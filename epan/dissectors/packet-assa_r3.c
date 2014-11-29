@@ -1090,7 +1090,38 @@ static gint hf_r3_configitemdata_16 = -1;
 static gint hf_r3_configitemdata_32 = -1;
 static gint hf_r3_configitemdata_string = -1;
 
-static gint hf_r3_timezonearray [32];
+static gint hf_r3_timezonearray0 = -1;
+static gint hf_r3_timezonearray1 = -1;
+static gint hf_r3_timezonearray2 = -1;
+static gint hf_r3_timezonearray3 = -1;
+static gint hf_r3_timezonearray4 = -1;
+static gint hf_r3_timezonearray5 = -1;
+static gint hf_r3_timezonearray6 = -1;
+static gint hf_r3_timezonearray7 = -1;
+static gint hf_r3_timezonearray8 = -1;
+static gint hf_r3_timezonearray9 = -1;
+static gint hf_r3_timezonearray10 = -1;
+static gint hf_r3_timezonearray11 = -1;
+static gint hf_r3_timezonearray12 = -1;
+static gint hf_r3_timezonearray13 = -1;
+static gint hf_r3_timezonearray14 = -1;
+static gint hf_r3_timezonearray15 = -1;
+static gint hf_r3_timezonearray16 = -1;
+static gint hf_r3_timezonearray17 = -1;
+static gint hf_r3_timezonearray18 = -1;
+static gint hf_r3_timezonearray19 = -1;
+static gint hf_r3_timezonearray20 = -1;
+static gint hf_r3_timezonearray21 = -1;
+static gint hf_r3_timezonearray22 = -1;
+static gint hf_r3_timezonearray23 = -1;
+static gint hf_r3_timezonearray24 = -1;
+static gint hf_r3_timezonearray25 = -1;
+static gint hf_r3_timezonearray26 = -1;
+static gint hf_r3_timezonearray27 = -1;
+static gint hf_r3_timezonearray28 = -1;
+static gint hf_r3_timezonearray29 = -1;
+static gint hf_r3_timezonearray30 = -1;
+static gint hf_r3_timezonearray31 = -1;
 
 static gint hf_r3_expireon_year = -1;
 static gint hf_r3_expireon_month = -1;
@@ -1171,7 +1202,14 @@ static gint hf_r3_definetimezone_starttime_hours = -1;
 static gint hf_r3_definetimezone_starttime_minutes = -1;
 static gint hf_r3_definetimezone_endtime_hours = -1;
 static gint hf_r3_definetimezone_endtime_minutes = -1;
-static gint hf_r3_definetimezone_daymap [7];
+static gint hf_r3_definetimezone_daymap = -1;
+static gint hf_r3_definetimezone_daymap0 = -1;
+static gint hf_r3_definetimezone_daymap1 = -1;
+static gint hf_r3_definetimezone_daymap2 = -1;
+static gint hf_r3_definetimezone_daymap3 = -1;
+static gint hf_r3_definetimezone_daymap4 = -1;
+static gint hf_r3_definetimezone_daymap5 = -1;
+static gint hf_r3_definetimezone_daymap6 = -1;
 static gint hf_r3_definetimezone_exceptiongroup = -1;
 static gint hf_r3_definetimezone_mode = -1;
 static gint hf_r3_definetimezone_calendar = -1;
@@ -1213,7 +1251,23 @@ static gint hf_r3_alarmlogdump_endtime_day = -1;
 static gint hf_r3_alarmlogdump_endtime_hours = -1;
 static gint hf_r3_alarmlogdump_endtime_minutes = -1;
 
-static gint hf_r3_nvramclearoptions [16];
+static gint hf_r3_nvramclearoptions = -1;
+static gint hf_r3_nvramclearoptions0 = -1;
+static gint hf_r3_nvramclearoptions1 = -1;
+static gint hf_r3_nvramclearoptions2 = -1;
+static gint hf_r3_nvramclearoptions3 = -1;
+static gint hf_r3_nvramclearoptions4 = -1;
+static gint hf_r3_nvramclearoptions5 = -1;
+static gint hf_r3_nvramclearoptions6 = -1;
+static gint hf_r3_nvramclearoptions7 = -1;
+static gint hf_r3_nvramclearoptions8 = -1;
+static gint hf_r3_nvramclearoptions9 = -1;
+static gint hf_r3_nvramclearoptions10 = -1;
+static gint hf_r3_nvramclearoptions11 = -1;
+static gint hf_r3_nvramclearoptions12 = -1;
+static gint hf_r3_nvramclearoptions13 = -1;
+static gint hf_r3_nvramclearoptions14 = -1;
+static gint hf_r3_nvramclearoptions15 = -1;
 
 static gint hf_r3_writeeventlog_user = -1;
 static gint hf_r3_writeeventlog_event = -1;
@@ -1312,6 +1366,7 @@ static gint hf_r3_capabilities_length = -1;
 static gint hf_r3_capabilities_type = -1;
 static gint hf_r3_capabilities_value = -1;
 
+static gint hf_r3_lockstate = -1;
 static gint hf_r3_lockstate_passage = -1;
 static gint hf_r3_lockstate_panic = -1;
 static gint hf_r3_lockstate_lockout = -1;
@@ -2953,6 +3008,73 @@ static const string_string r3_snmortisenames [] =
   { NULL, NULL }
 };
 
+static const int * r3_timezonearray[] = {
+  &hf_r3_timezonearray0,
+  &hf_r3_timezonearray1,
+  &hf_r3_timezonearray2,
+  &hf_r3_timezonearray3,
+  &hf_r3_timezonearray4,
+  &hf_r3_timezonearray5,
+  &hf_r3_timezonearray6,
+  &hf_r3_timezonearray7,
+  &hf_r3_timezonearray8,
+  &hf_r3_timezonearray9,
+  &hf_r3_timezonearray10,
+  &hf_r3_timezonearray11,
+  &hf_r3_timezonearray12,
+  &hf_r3_timezonearray13,
+  &hf_r3_timezonearray14,
+  &hf_r3_timezonearray15,
+  &hf_r3_timezonearray16,
+  &hf_r3_timezonearray17,
+  &hf_r3_timezonearray18,
+  &hf_r3_timezonearray19,
+  &hf_r3_timezonearray20,
+  &hf_r3_timezonearray21,
+  &hf_r3_timezonearray22,
+  &hf_r3_timezonearray23,
+  &hf_r3_timezonearray24,
+  &hf_r3_timezonearray25,
+  &hf_r3_timezonearray26,
+  &hf_r3_timezonearray27,
+  &hf_r3_timezonearray28,
+  &hf_r3_timezonearray29,
+  &hf_r3_timezonearray30,
+  &hf_r3_timezonearray31,
+  NULL
+};
+
+static const int * r3_definetimezone_daymap[] = {
+  &hf_r3_definetimezone_daymap0,
+  &hf_r3_definetimezone_daymap1,
+  &hf_r3_definetimezone_daymap2,
+  &hf_r3_definetimezone_daymap3,
+  &hf_r3_definetimezone_daymap4,
+  &hf_r3_definetimezone_daymap5,
+  &hf_r3_definetimezone_daymap6,
+  NULL
+};
+
+static const int * r3_nvramclearoptions[] = {
+  &hf_r3_nvramclearoptions0,
+  &hf_r3_nvramclearoptions1,
+  &hf_r3_nvramclearoptions2,
+  &hf_r3_nvramclearoptions3,
+  &hf_r3_nvramclearoptions4,
+  &hf_r3_nvramclearoptions5,
+  &hf_r3_nvramclearoptions6,
+  &hf_r3_nvramclearoptions7,
+  &hf_r3_nvramclearoptions8,
+  &hf_r3_nvramclearoptions9,
+  &hf_r3_nvramclearoptions10,
+  &hf_r3_nvramclearoptions11,
+  &hf_r3_nvramclearoptions12,
+  &hf_r3_nvramclearoptions13,
+  &hf_r3_nvramclearoptions14,
+  &hf_r3_nvramclearoptions15,
+  NULL
+};
+
 /*
  *  Mapping table so dissect_r3_cmd_setconfig() knows what the configuration item type is
  */
@@ -3728,20 +3850,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
           }
           else
           {
-            proto_item *timezone_item;
-            proto_tree *timezone_tree;
-            guint32 i;
-            guint32 tz;
-
-            if (!upstreamfield_tree)
-              break;
-
-            tz = tvb_get_letohl (tvb, offset);
-            timezone_item = proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            timezone_tree = proto_item_add_subtree (timezone_item, ett_r3timezone);
-
-            for (i = 0; i < 32; i++)
-              proto_tree_add_boolean (timezone_tree, hf_r3_timezonearray [i], tvb, offset, 4, tz);
+            proto_tree_add_bitmask(upstreamfield_tree, tvb, offset, hf_r3_upstreamfieldarray[fieldType], ett_r3timezone, r3_timezonearray, ENC_LITTLE_ENDIAN);
           }
         }
         break;
@@ -4624,39 +4733,35 @@ dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint
 static void
 dissect_r3_upstreammfgfield_lockstate (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree *ls_tree;
-  guint       ls;
+static const int * r3_lockstate_flags[] = {
+  &hf_r3_lockstate_passage,
+  &hf_r3_lockstate_panic,
+  &hf_r3_lockstate_lockout,
+  &hf_r3_lockstate_relock,
+  &hf_r3_lockstate_autoopen,
+  &hf_r3_lockstate_nextauto,
+  &hf_r3_lockstate_lockstate,
+  &hf_r3_lockstate_wantstate,
+  &hf_r3_lockstate_remote,
+  &hf_r3_lockstate_update,
+  &hf_r3_lockstate_exceptionspresent,
+  &hf_r3_lockstate_exceptionsactive,
+  &hf_r3_lockstate_timezonespresent,
+  &hf_r3_lockstate_timezonesactive,
+  &hf_r3_lockstate_autounlockspresent,
+  &hf_r3_lockstate_autounlocksactive,
+  &hf_r3_lockstate_uapmspresent,
+  &hf_r3_lockstate_uapmsactive,
+  &hf_r3_lockstate_uapmrelockspresent,
+  &hf_r3_lockstate_uapmreslocksactive,
+  &hf_r3_lockstate_nvramprotect,
+  &hf_r3_lockstate_nvramchecksum,
+  NULL
+};
 
-  if (!tree)
-    return;
+ DISSECTOR_ASSERT(start_offset == 0);
 
-  DISSECTOR_ASSERT(start_offset == 0);
-
-  ls      = tvb_get_letoh24 (tvb, 0);
-  ls_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_r3lockstate, NULL, "Lock State (0x%06x)", ls);
-
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_passage,            tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_panic,              tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_lockout,            tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_relock,             tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_autoopen,           tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_nextauto,           tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_lockstate,          tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_wantstate,          tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_remote,             tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_update,             tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_exceptionspresent,  tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_exceptionsactive,   tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_timezonespresent,   tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_timezonesactive,    tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_autounlockspresent, tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_autounlocksactive,  tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_uapmspresent,       tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_uapmsactive,        tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_uapmrelockspresent, tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_uapmreslocksactive, tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_nvramprotect,       tvb, 0, 3, ls);
-  proto_tree_add_boolean (ls_tree, hf_r3_lockstate_nvramchecksum,      tvb, 0, 3, ls);
+ proto_tree_add_bitmask(tree, tvb, start_offset, hf_r3_lockstate, ett_r3lockstate, r3_lockstate_flags, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -5361,20 +5466,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
           }
           else
           {
-            proto_item *timezone_item;
-            proto_tree *timezone_tree;
-            guint32     i;
-            guint32     tz;
-
-            if (!tree)
-              break;
-
-            tz = tvb_get_letohl (payload_tvb, offset);
-            timezone_item = proto_tree_add_item (mu_tree, hf_r3_upstreamfieldarray [paramType], payload_tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            timezone_tree = proto_item_add_subtree (timezone_item, ett_r3timezone);
-
-            for (i = 0; i < 32; i++)
-              proto_tree_add_boolean (timezone_tree, hf_r3_timezonearray [i], payload_tvb, offset, 4, tz);
+            proto_tree_add_bitmask(mu_tree, payload_tvb, offset, hf_r3_upstreamfieldarray[paramType], ett_r3timezone, r3_timezonearray, ENC_LITTLE_ENDIAN);
           }
         }
         break;
@@ -5526,10 +5618,8 @@ dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 leng
 {
   proto_tree *starttime_tree;
   proto_tree *endtime_tree;
-  proto_tree *daymap_tree;
   guint8      cmdLen;
   tvbuff_t   *payload_tvb;
-  guint32     i;
   guint8      tzmode;
 
   if (!tree)
@@ -5559,12 +5649,7 @@ dissect_r3_cmd_definetimezone (tvbuff_t *tvb, guint32 start_offset, guint32 leng
   proto_tree_add_item (endtime_tree, hf_r3_definetimezone_endtime_hours,   payload_tvb, 3, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (endtime_tree, hf_r3_definetimezone_endtime_minutes, payload_tvb, 4, 1, ENC_LITTLE_ENDIAN);
 
-  daymap_tree = proto_tree_add_subtree_format(tree, payload_tvb, 5, 1, ett_r3definetimezonedaymap, NULL,
-                "Day Map (0x%02x)", tvb_get_guint8 (payload_tvb, 5));
-
-  for (i = 0; i < 7; i++)
-    proto_tree_add_boolean (daymap_tree, hf_r3_definetimezone_daymap [i], payload_tvb, 5, 1,
-                            tvb_get_guint8 (payload_tvb, 5));
+  proto_tree_add_bitmask(tree, payload_tvb, 5, hf_r3_definetimezone_daymap, ett_r3definetimezonedaymap, r3_definetimezone_daymap, ENC_NA);
 
   proto_tree_add_item (tree, hf_r3_definetimezone_exceptiongroup, payload_tvb, 6, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_uint (tree, hf_r3_definetimezone_mode, payload_tvb, 7, 1,
@@ -5954,28 +6039,10 @@ dissect_r3_cmd_powertableselection (tvbuff_t *tvb, guint32 start_offset, guint32
 static void
 dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree *nvram_tree;
-  guint8      cmdLen;
-  tvbuff_t   *payload_tvb;
-  guint32     nvramclearoptions;
-  guint32     i;
-
-  if (!tree)
-    return;
-
-  cmdLen            = tvb_get_guint8 (tvb, start_offset + 0);
-  payload_tvb       = tvb_new_subset_length (tvb, start_offset + 2, cmdLen - 2);
-
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-  nvramclearoptions = tvb_get_letohs (payload_tvb, 0);
-
-  nvram_tree = proto_tree_add_subtree_format(tree, payload_tvb, 0, 2, ett_r3clearnvram, NULL,
-                                                "NVRAM Clean Options (0x%04x)", nvramclearoptions);
-
-  for (i = 0; i < 16; i++)
-    proto_tree_add_boolean (nvram_tree, hf_r3_nvramclearoptions [i], payload_tvb, 0, 2, nvramclearoptions);
+  proto_tree_add_bitmask(tree, tvb, start_offset + 2, hf_r3_nvramclearoptions,
+			       ett_r3clearnvram, r3_nvramclearoptions, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -7093,162 +7160,162 @@ void proto_register_r3 (void)
           NULL, HFILL }
       },
 
-      { &hf_r3_timezonearray [ 0],
+      { &hf_r3_timezonearray0,
         { "Timezone  0", "r3.timezone.0",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000001,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 1],
+      { &hf_r3_timezonearray1,
         { "Timezone  1", "r3.timezone.1",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000002,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 2],
+      { &hf_r3_timezonearray2,
         { "Timezone  2", "r3.timezone.2",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000004,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 3],
+      { &hf_r3_timezonearray3,
         { "Timezone  3", "r3.timezone.3",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000008,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 4],
+      { &hf_r3_timezonearray4,
         { "Timezone  4", "r3.timezone.4",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000010,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 5],
+      { &hf_r3_timezonearray5,
         { "Timezone  5", "r3.timezone.5",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000020,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 6],
+      { &hf_r3_timezonearray6,
         { "Timezone  6", "r3.timezone.6",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000040,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 7],
+      { &hf_r3_timezonearray7,
         { "Timezone  7", "r3.timezone.7",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000080,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 8],
+      { &hf_r3_timezonearray8,
         { "Timezone  8", "r3.timezone.8",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000100,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [ 9],
+      { &hf_r3_timezonearray9,
         { "Timezone  9", "r3.timezone.9",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000200,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [10],
+      { &hf_r3_timezonearray10,
         { "Timezone 10", "r3.timezone.10",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000400,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [11],
+      { &hf_r3_timezonearray11,
         { "Timezone 11", "r3.timezone.11",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000800,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [12],
+      { &hf_r3_timezonearray12,
         { "Timezone 12", "r3.timezone.12",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00001000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [13],
+      { &hf_r3_timezonearray13,
         { "Timezone 13", "r3.timezone.13",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00002000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [14],
+      { &hf_r3_timezonearray14,
         { "Timezone 14", "r3.timezone.14",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00004000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [15],
+      { &hf_r3_timezonearray15,
         { "Timezone 15", "r3.timezone.15",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00008000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [16],
+      { &hf_r3_timezonearray16,
         { "Timezone 16", "r3.timezone.16",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00010000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [17],
+      { &hf_r3_timezonearray17,
         { "Timezone 17", "r3.timezone.17",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00020000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [18],
+      { &hf_r3_timezonearray18,
         { "Timezone 18", "r3.timezone.18",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00040000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [19],
+      { &hf_r3_timezonearray19,
         { "Timezone 19", "r3.timezone.19",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00080000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [20],
+      { &hf_r3_timezonearray20,
         { "Timezone 20", "r3.timezone.20",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00100000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [21],
+      { &hf_r3_timezonearray21,
         { "Timezone 21", "r3.timezone.21",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00200000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [22],
+      { &hf_r3_timezonearray22,
         { "Timezone 22", "r3.timezone.22",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00400000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [23],
+      { &hf_r3_timezonearray23,
         { "Timezone 23", "r3.timezone.23",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00800000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [24],
+      { &hf_r3_timezonearray24,
         { "Timezone 24", "r3.timezone.24",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x01000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [25],
+      { &hf_r3_timezonearray25,
         { "Timezone 25", "r3.timezone.25",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x02000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [26],
+      { &hf_r3_timezonearray26,
         { "Timezone 26", "r3.timezone.26",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x04000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [27],
+      { &hf_r3_timezonearray27,
         { "Timezone 27", "r3.timezone.27",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x08000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [28],
+      { &hf_r3_timezonearray28,
         { "Timezone 28", "r3.timezone.28",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x10000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [29],
+      { &hf_r3_timezonearray29,
         { "Timezone 29", "r3.timezone.29",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x20000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [30],
+      { &hf_r3_timezonearray30,
         { "Timezone 30", "r3.timezone.30",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x40000000,
           NULL, HFILL }
       },
-      { &hf_r3_timezonearray [31],
+      { &hf_r3_timezonearray31,
         { "Timezone 31", "r3.timezone.31",
           FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x80000000,
           NULL, HFILL }
@@ -7605,37 +7672,42 @@ void proto_register_r3 (void)
           FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [0],
+      { &hf_r3_definetimezone_daymap,
+        { "Day Map", "r3.definetimezone.daymap",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_definetimezone_daymap0,
         { "Sunday", "r3.definetimezone.daymap.sunday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000001,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [1],
+      { &hf_r3_definetimezone_daymap1,
         { "Monday", "r3.definetimezone.daymap.monday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000002,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [2],
+      { &hf_r3_definetimezone_daymap2,
         { "Tuesday", "r3.definetimezone.daymap.tuesday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000004,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [3],
+      { &hf_r3_definetimezone_daymap3,
         { "Wednesday", "r3.definetimezone.daymap.wednesday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000008,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [4],
+      { &hf_r3_definetimezone_daymap4,
         { "Thursday", "r3.definetimezone.daymap.thursday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000010,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [5],
+      { &hf_r3_definetimezone_daymap5,
         { "Friday", "r3.definetimezone.daymap.friday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000020,
           NULL, HFILL }
       },
-      { &hf_r3_definetimezone_daymap [6],
+      { &hf_r3_definetimezone_daymap6,
         { "Saturday", "r3.definetimezone.daymap.saturday",
           FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x00000040,
           NULL, HFILL }
@@ -7825,82 +7897,87 @@ void proto_register_r3 (void)
           NULL, HFILL }
       },
 
-      { &hf_r3_nvramclearoptions [ 0],
+      { &hf_r3_nvramclearoptions,
+        { "NVRAM Clean Options", "r3.nvramclear",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_r3_nvramclearoptions0,
         { "NVRAMCLEAROPTIONS_CFGINSTALLER", "r3.nvramclear.cfginstaller",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000001,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 1],
+      { &hf_r3_nvramclearoptions1,
         { "NVRAMCLEAROPTIONS_CFGADMIN", "r3.nvramclear.cfgadmin",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000002,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 2],
+      { &hf_r3_nvramclearoptions2,
         { "NVRAMCLEAROPTIONS_EXCEPTIONS", "r3.nvramclear.exceptions",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000004,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 3],
+      { &hf_r3_nvramclearoptions3,
         { "NVRAMCLEAROPTIONS_EXCEPTIONGROUPS", "r3.nvramclear.exceptiongroups",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000008,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 4],
+      { &hf_r3_nvramclearoptions4,
         { "NVRAMCLEAROPTIONS_CALENDARS", "r3.nvramclear.calendars",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000010,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 5],
+      { &hf_r3_nvramclearoptions5,
         { "NVRAMCLEAROPTIONS_TIMEZONES", "r3.nvramclear.timezones",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000020,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 6],
+      { &hf_r3_nvramclearoptions6,
         { "NVRAMCLEAROPTIONS_FILTERS", "r3.nvramclear.filters",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000040,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 7],
+      { &hf_r3_nvramclearoptions7,
         { "NVRAMCLEAROPTIONS_EVENTLOG", "r3.nvramclear.eventlog",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000080,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 8],
+      { &hf_r3_nvramclearoptions8,
         { "NVRAMCLEAROPTIONS_USERDATA", "r3.nvramclear.userdata",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000100,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [ 9],
+      { &hf_r3_nvramclearoptions9,
         { "NVRAMCLEAROPTIONS_DECLINEDLOG", "r3.nvramclear.declinedlog",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000200,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [10],
+      { &hf_r3_nvramclearoptions10,
         { "NVRAMCLEAROPTIONS_ALARMLOG", "r3.nvramclear.alarmlog",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000400,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [11],
+      { &hf_r3_nvramclearoptions11,
         { "NVRAMCLEAROPTIONS_LRUCACHE", "r3.nvramclear.lrucache",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000800,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [12],
+      { &hf_r3_nvramclearoptions12,
         { "NVRAMCLEAROPTIONS_DBHASH", "r3.nvramclear.dbhash",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00001000,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [13],
+      { &hf_r3_nvramclearoptions13,
         { "NVRAMCLEAROPTIONS_CFGSYSTEM", "r3.nvramclear.cfgsystem",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00002000,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [14],
+      { &hf_r3_nvramclearoptions14,
         { "NVRAMCLEAROPTIONS_UNUSED", "r3.nvramclear.unused",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00004000,
           NULL, HFILL }
       },
-      { &hf_r3_nvramclearoptions [15],
+      { &hf_r3_nvramclearoptions15,
         { "NVRAMCLEAROPTIONS_USEBACKUP", "r3.nvramclear.usebackup",
           FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00008000,
           NULL, HFILL }
@@ -8347,6 +8424,12 @@ void proto_register_r3 (void)
       { &hf_r3_capabilities_value,
         { "Value", "r3.capabilities.value",
           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+
+      { &hf_r3_lockstate,
+        { "Lock State", "r3.lockstate",
+          FT_UINT24, BASE_HEX, NULL, 0x0,
           NULL, HFILL }
       },
 

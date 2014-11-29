@@ -48,6 +48,7 @@ void proto_reg_handoff_ccsds(void);
 static int proto_ccsds = -1;
 
 /* primary ccsds header */
+static int hf_ccsds_header_flags = -1;
 static int hf_ccsds_apid = -1;
 static int hf_ccsds_version = -1;
 static int hf_ccsds_secheader = -1;
@@ -87,6 +88,7 @@ static int hf_ccsds_checkword_good = -1;
 static int hf_ccsds_checkword_bad = -1;
 
 /* Initialize the subtree pointers */
+static gint ett_ccsds_primary_header_flags = -1;
 static gint ett_ccsds = -1;
 static gint ett_ccsds_primary_header = -1;
 static gint ett_ccsds_secondary_header = -1;
@@ -322,7 +324,13 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16      checkword_field = 0;
     guint16      checkword_sum   = 0;
     tvbuff_t    *next_tvb;
-
+    static const int * header_flags[] = {
+        &hf_ccsds_version,
+        &hf_ccsds_type,
+        &hf_ccsds_secheader,
+        &hf_ccsds_apid,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS");
     col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Packet");
@@ -352,10 +360,8 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     primary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_PRIMARY_HEADER_LENGTH,
                             ett_ccsds_primary_header, &primary_header, "Primary CCSDS Header");
 
-    proto_tree_add_uint(primary_header_tree, hf_ccsds_version, tvb, offset, 2, first_word);
-    proto_tree_add_uint(primary_header_tree, hf_ccsds_type, tvb, offset, 2, first_word);
-    proto_tree_add_boolean(primary_header_tree, hf_ccsds_secheader, tvb, offset, 2, first_word);
-    proto_tree_add_uint(primary_header_tree, hf_ccsds_apid, tvb, offset, 2, first_word);
+    proto_tree_add_bitmask(primary_header_tree, tvb, offset, hf_ccsds_header_flags,
+                    ett_ccsds_primary_header_flags, header_flags, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(primary_header_tree, hf_ccsds_seqflag, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -508,6 +514,11 @@ proto_register_ccsds(void)
     static hf_register_info hf[] = {
 
             /* primary ccsds header flags */
+        { &hf_ccsds_header_flags,
+            { "Header Flags",           "ccsds.header_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_ccsds_version,
             { "Version",           "ccsds.version",
             FT_UINT16, BASE_DEC, NULL, HDR_VERSION,
@@ -672,6 +683,7 @@ proto_register_ccsds(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
+        &ett_ccsds_primary_header_flags,
         &ett_ccsds,
         &ett_ccsds_primary_header,
         &ett_ccsds_secondary_header,

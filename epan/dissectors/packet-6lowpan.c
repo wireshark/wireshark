@@ -198,6 +198,7 @@ static int hf_6lowpan_pattern = -1;
 static int hf_6lowpan_nhc_pattern = -1;
 
 /* Header compression fields. */
+static int hf_6lowpan_hc1_encoding = -1;
 static int hf_6lowpan_hc1_source_prefix = -1;
 static int hf_6lowpan_hc1_source_ifc = -1;
 static int hf_6lowpan_hc1_dest_prefix = -1;
@@ -205,6 +206,7 @@ static int hf_6lowpan_hc1_dest_ifc = -1;
 static int hf_6lowpan_hc1_class = -1;
 static int hf_6lowpan_hc1_next = -1;
 static int hf_6lowpan_hc1_more = -1;
+static int hf_6lowpan_hc2_udp_encoding = -1;
 static int hf_6lowpan_hc2_udp_src = -1;
 static int hf_6lowpan_hc2_udp_dst = -1;
 static int hf_6lowpan_hc2_udp_len = -1;
@@ -275,6 +277,7 @@ static int hf_6lowpan_frag_dgram_offset = -1;
 /* Protocol tree handles.  */
 static gint ett_6lowpan = -1;
 static gint ett_6lowpan_hc1 = -1;
+static gint ett_6lowpan_hc1_encoding = -1;
 static gint ett_6lowpan_hc2_udp = -1;
 static gint ett_6lowpan_iphc = -1;
 static gint ett_6lowpan_nhc_ext = -1;
@@ -1047,6 +1050,22 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     guint8              ipv6_class;
     struct ip6_hdr      ipv6;
     struct lowpan_nhdr *nhdr_list;
+    static const int * hc1_encodings[] = {
+        &hf_6lowpan_hc1_source_prefix,
+        &hf_6lowpan_hc1_source_ifc,
+        &hf_6lowpan_hc1_dest_prefix,
+        &hf_6lowpan_hc1_dest_ifc,
+        &hf_6lowpan_hc1_class,
+        &hf_6lowpan_hc1_next,
+        &hf_6lowpan_hc1_more,
+        NULL
+    };
+    static const int * hc2_encodings[] = {
+        &hf_6lowpan_hc2_udp_src,
+        &hf_6lowpan_hc2_udp_dst,
+        &hf_6lowpan_hc2_udp_len,
+        NULL
+    };
 
     /*=====================================================
      * Parse HC Encoding Flags
@@ -1062,27 +1081,16 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     /* Get and display the HC1 encoding bits. */
     hc1_encoding = tvb_get_guint8(tvb, offset);
     next_header = ((hc1_encoding & LOWPAN_HC1_NEXT) >> 1);
-    if (tree) {
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_source_prefix, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_SOURCE_PREFIX);
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_source_ifc, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_SOURCE_IFC);
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_dest_prefix, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_DEST_PREFIX);
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_dest_ifc, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_DEST_IFC);
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_class, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_TRAFFIC_CLASS);
-        proto_tree_add_uint(hc_tree, hf_6lowpan_hc1_next, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_NEXT);
-        proto_tree_add_boolean(hc_tree, hf_6lowpan_hc1_more, tvb, offset, 1, hc1_encoding & LOWPAN_HC1_MORE);
-    }
+    proto_tree_add_bitmask(hc_tree, tvb, offset, hf_6lowpan_hc1_encoding,
+                   ett_6lowpan_hc1_encoding, hc1_encodings, ENC_NA);
     offset += 1;
 
     /* Get and display the HC2 encoding bits, if present. */
     if (hc1_encoding & LOWPAN_HC1_MORE) {
         if (next_header == LOWPAN_HC1_NEXT_UDP) {
             hc_udp_encoding = tvb_get_guint8(tvb, offset);
-            if (tree) {
-                hc_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_6lowpan_hc2_udp, NULL, "HC_UDP Encoding");
-                proto_tree_add_boolean(hc_tree, hf_6lowpan_hc2_udp_src, tvb, offset, 1, hc_udp_encoding & LOWPAN_HC2_UDP_SRCPORT);
-                proto_tree_add_boolean(hc_tree, hf_6lowpan_hc2_udp_dst, tvb, offset, 1, hc_udp_encoding & LOWPAN_HC2_UDP_DSTPORT);
-                proto_tree_add_boolean(hc_tree, hf_6lowpan_hc2_udp_len, tvb, offset, 1, hc_udp_encoding & LOWPAN_HC2_UDP_LENGTH);
-            }
+            proto_tree_add_bitmask(tree, tvb, offset, hf_6lowpan_hc2_udp_encoding,
+                   ett_6lowpan_hc2_udp, hc2_encodings, ENC_NA);
             offset += 1;
         }
         else {
@@ -2505,6 +2513,9 @@ proto_register_6lowpan(void)
             FT_UINT8, BASE_HEX, VALS(lowpan_nhc_patterns), 0x0, NULL, HFILL }},
 
         /* HC1 header fields. */
+        { &hf_6lowpan_hc1_encoding,
+          { "HC1 Encoding",                  "6lowpan.hc1.encoding",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_hc1_source_prefix,
           { "Source prefix",                  "6lowpan.hc1.src_prefix",
             FT_BOOLEAN, 8, TFS(&lowpan_compression), LOWPAN_HC1_SOURCE_PREFIX, NULL, HFILL }},
@@ -2528,6 +2539,9 @@ proto_register_6lowpan(void)
             FT_BOOLEAN, 8, NULL, LOWPAN_HC1_MORE, NULL, HFILL }},
 
         /* HC_UDP header fields. */
+        { &hf_6lowpan_hc2_udp_encoding,
+          { "HC_UDP Encoding",                    "6lowpan.hc2.udp.encoding",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_hc2_udp_src,
           { "Source port",                    "6lowpan.hc2.udp.src",
             FT_BOOLEAN, 8, TFS(&lowpan_compression), LOWPAN_HC2_UDP_SRCPORT, NULL, HFILL }},
@@ -2730,6 +2744,7 @@ proto_register_6lowpan(void)
     static gint *ett[] = {
         &ett_6lowpan,
         &ett_6lowpan_hc1,
+        &ett_6lowpan_hc1_encoding,
         &ett_6lowpan_hc2_udp,
         &ett_6lowpan_iphc,
         &ett_6lowpan_nhc_ext,

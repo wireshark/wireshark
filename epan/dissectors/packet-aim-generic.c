@@ -356,14 +356,14 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 
 static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
-    int offset = 0;
-    guint32 flags = tvb_get_ntoh24(tvb, offset);
-    proto_item *ti = proto_tree_add_uint(gen_tree, hf_generic_priv_flags, tvb, offset, 4, flags);
-    proto_tree *entry = proto_item_add_subtree(ti, ett_generic_priv_flags);
-    proto_tree_add_boolean(entry, hf_generic_allow_idle_see, tvb, offset, 4, flags);
-    proto_tree_add_boolean(entry, hf_generic_allow_member_see, tvb, offset, 4, flags);
-    offset+=4;
-    return offset;
+    static const int * flags[] = {
+        &hf_generic_allow_idle_see,
+        &hf_generic_allow_member_see,
+        NULL
+    };
+
+    proto_tree_add_bitmask(gen_tree, tvb, 0, hf_generic_priv_flags, ett_generic_priv_flags, flags, ENC_BIG_ENDIAN);
+    return 4;
 }
 
 static int dissect_aim_generic_selfinfo_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)

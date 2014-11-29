@@ -977,12 +977,18 @@ static expert_field ei_9P_msgtype = EI_INIT;
 
 static GHashTable *_9p_hashtable = NULL;
 
-static void dissect_9P_mode(tvbuff_t *tvb,  proto_item *tree, int offset);
 static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *tree, int offset, int iscreate);
 static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset);
 static void dissect_9P_lflags(tvbuff_t *tvb, proto_tree *tree, int offset);
 static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
 static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
+
+static const int * _9P_modes[] = {
+	&hf_9P_mode_c,
+	&hf_9P_mode_t,
+	&hf_9P_mode_rwx,
+	NULL
+};
 
 struct _9p_hashkey {
 	guint32 conv_index;
@@ -1462,8 +1468,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", conv_get_fid(pinfo, fid));
 		offset += 4;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		dissect_9P_mode(tvb, ti, offset);
+		proto_tree_add_bitmask(ninep_tree, tvb, offset, hf_9P_mode, ett_9P_omode, _9P_modes, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);
@@ -1491,8 +1496,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		dissect_9P_dm(tvb, ti, offset, 1);
 		offset += 4;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		dissect_9P_mode(tvb, ti, offset);
+		proto_tree_add_bitmask(ninep_tree, tvb, offset, hf_9P_mode, ett_9P_omode, _9P_modes, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		if (_9p_version == _9P2000_u) {
@@ -2167,21 +2171,6 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
 			get_9P_message_len, dissect_9P_message, data);
 	return tvb_captured_length(tvb);
-}
-
-/* dissect 9P open mode flags */
-static void dissect_9P_mode(tvbuff_t *tvb,  proto_item *item, int offset)
-{
-	proto_item *mode_tree;
-	guint8 mode;
-
-	mode = tvb_get_guint8(tvb, offset);
-	mode_tree = proto_item_add_subtree(item, ett_9P_omode);
-	if(!mode_tree)
-		return;
-	proto_tree_add_boolean(mode_tree, hf_9P_mode_c, tvb, offset, 1, mode);
-	proto_tree_add_boolean(mode_tree, hf_9P_mode_t, tvb, offset, 1, mode);
-	proto_tree_add_uint(mode_tree, hf_9P_mode_rwx, tvb, offset, 1, mode);
 }
 
 /* dissect 9P Qid */
