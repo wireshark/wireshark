@@ -2726,7 +2726,7 @@ write_pdml_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
-  proto_tree_write_pdml(&args->edt, args->fh);
+  write_pdml_proto_tree(&args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 
@@ -2796,12 +2796,13 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
+  /* Fill in the column information */
   col_custom_prime_edt(&args->edt, &cf->cinfo);
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
-  /* Write out the information in that tree. */
-  proto_tree_write_psml(&args->edt, args->fh);
+  /* Write out the column information. */
+  write_psml_columns(&args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 
@@ -2821,7 +2822,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_psml_preamble(cf, fh);
+  write_psml_preamble(&cf->cinfo, fh);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
@@ -2882,8 +2883,8 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
-  /* Write out the information in that tree. */
-  proto_tree_write_csv(&args->edt, args->fh);
+  /* Write out the column information. */
+  write_csv_columns(&args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 
@@ -2902,7 +2903,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_csv_preamble(cf, fh);
+  write_csv_column_titles(&cf->cinfo, fh);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
@@ -2938,12 +2939,6 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
-  write_csv_finale(fh);
-  if (ferror(fh)) {
-    fclose(fh);
-    return CF_PRINT_WRITE_ERROR;
-  }
-
   /* XXX - check for an error */
   fclose(fh);
 
@@ -2951,14 +2946,14 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 }
 
 static gboolean
-write_carrays_packet(capture_file *cf, frame_data *fdata,
+carrays_write_packet(capture_file *cf, frame_data *fdata,
              struct wtap_pkthdr *phdr,
              const guint8 *pd, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
-  proto_tree_write_carrays(fdata->num, args->fh, &args->edt);
+  write_carrays_hex_data(fdata->num, args->fh, &args->edt);
   epan_dissect_reset(&args->edt);
 
   return !ferror(args->fh);
@@ -2976,8 +2971,6 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_carrays_preamble(fh);
-
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
@@ -2991,7 +2984,7 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   ret = process_specified_records(cf, &print_args->range,
                   "Writing C Arrays",
                   "selected packets", TRUE,
-                                  write_carrays_packet, &callback_args);
+                                  carrays_write_packet, &callback_args);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -3004,13 +2997,6 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
     break;
   case PSP_FAILED:
     /* Error while printing. */
-    fclose(fh);
-    return CF_PRINT_WRITE_ERROR;
-  }
-
-  write_carrays_finale(fh);
-
-  if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
   }

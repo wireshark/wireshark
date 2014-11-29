@@ -2182,7 +2182,7 @@ main(int argc, char *argv[])
       print_packet_counts = TRUE;
 
     if (print_packet_info) {
-      if (!write_preamble(NULL)) {
+      if (!write_preamble(&cfile)) {
         show_print_file_io_error(errno);
         return 2;
       }
@@ -3592,13 +3592,13 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf ? cf->filename : NULL, get_ws_vcs_version_info());
+    return print_preamble(print_stream, cf->filename, get_ws_vcs_version_info());
 
   case WRITE_XML:
     if (print_details)
-      write_pdml_preamble(stdout, cf ? cf->filename : NULL);
+      write_pdml_preamble(stdout, cf->filename);
     else
-      write_psml_preamble(cf, stdout);
+      write_psml_preamble(&cf->cinfo, stdout);
     return !ferror(stdout);
 
   case WRITE_FIELDS:
@@ -3903,7 +3903,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         break;
 
       case WRITE_XML:
-        proto_tree_write_psml(edt, stdout);
+        write_psml_columns(edt, stdout);
         return !ferror(stdout);
       case WRITE_FIELDS: /*No non-verbose "fields" format */
         g_assert_not_reached();
@@ -3937,11 +3937,11 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      proto_tree_write_pdml(edt, stdout);
+      write_pdml_proto_tree(edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:
-      proto_tree_write_fields(output_fields, edt, &cf->cinfo, stdout);
+      write_fields_proto_tree(output_fields, edt, &cf->cinfo, stdout);
       printf("\n");
       return !ferror(stdout);
     }

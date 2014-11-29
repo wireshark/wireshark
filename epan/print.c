@@ -90,7 +90,7 @@ static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
-static void write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi);
+static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
                                       guint length, packet_char_enc encoding);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
@@ -230,7 +230,7 @@ write_pdml_preamble(FILE *fh, const gchar *filename)
 }
 
 void
-proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh)
+write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh)
 {
     write_pdml_data data;
 
@@ -313,7 +313,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 
         if (fi->length > 0) {
             fputs("\" value=\"", pdata->fh);
-            write_pdml_field_hex_value(pdata, fi);
+            pdml_write_field_hex_value(pdata, fi);
         }
 
         if (node->first_child != NULL) {
@@ -330,7 +330,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 
         /* Write out field with data */
         fputs("<field name=\"data\" value=\"", pdata->fh);
-        write_pdml_field_hex_value(pdata, fi);
+        pdml_write_field_hex_value(pdata, fi);
         fputs("\">\n", pdata->fh);
     }
     /* Normal protocols and fields */
@@ -434,10 +434,10 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                             g_assert_not_reached();
                     }
                     fputs("\" unmaskedvalue=\"", pdata->fh);
-                    write_pdml_field_hex_value(pdata, fi);
+                    pdml_write_field_hex_value(pdata, fi);
                 }
                 else {
-                    write_pdml_field_hex_value(pdata, fi);
+                    pdml_write_field_hex_value(pdata, fi);
                 }
             }
         }
@@ -585,7 +585,7 @@ write_pdml_finale(FILE *fh)
 }
 
 void
-write_psml_preamble(capture_file *cf, FILE *fh)
+write_psml_preamble(column_info *cinfo, FILE *fh)
 {
     gint i;
 
@@ -594,9 +594,9 @@ write_psml_preamble(capture_file *cf, FILE *fh)
     fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
     fprintf(fh, "<structure>\n");
 
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
+    for (i = 0; i < cinfo->num_cols; i++) {
         fprintf(fh, "<section>");
-        print_escaped_xml(fh, cf->cinfo.col_title[i]);
+        print_escaped_xml(fh, cinfo->col_title[i]);
         fprintf(fh, "</section>\n");
     }
 
@@ -604,7 +604,7 @@ write_psml_preamble(capture_file *cf, FILE *fh)
 }
 
 void
-proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
+write_psml_columns(epan_dissect_t *edt, FILE *fh)
 {
     gint i;
 
@@ -658,17 +658,17 @@ static void csv_write_str(const char *str, char sep, FILE *fh)
 }
 
 void
-write_csv_preamble(capture_file *cf, FILE *fh)
+write_csv_column_titles(column_info *cinfo, FILE *fh)
 {
     gint i;
 
-    for (i = 0; i < cf->cinfo.num_cols - 1; i++)
-        csv_write_str(cf->cinfo.col_title[i], ',', fh);
-    csv_write_str(cf->cinfo.col_title[i], '\n', fh);
+    for (i = 0; i < cinfo->num_cols - 1; i++)
+        csv_write_str(cinfo->col_title[i], ',', fh);
+    csv_write_str(cinfo->col_title[i], '\n', fh);
 }
 
 void
-proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
+write_csv_columns(epan_dissect_t *edt, FILE *fh)
 {
     gint i;
 
@@ -678,19 +678,7 @@ proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
 }
 
 void
-write_csv_finale(FILE *fh _U_)
-{
-
-}
-
-void
-write_carrays_preamble(FILE *fh _U_)
-{
-
-}
-
-void
-proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
+write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
 {
     guint32       i = 0, src_num = 0;
     GSList       *src_le;
@@ -748,12 +736,6 @@ proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
             }
         }
     }
-}
-
-void
-write_carrays_finale(FILE *fh _U_)
-{
-
 }
 
 /*
@@ -840,7 +822,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 }
 
 static void
-write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi)
+pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
 {
     int           i;
     const guint8 *pd;
@@ -1316,7 +1298,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     }
 }
 
-void proto_tree_write_fields(output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
+void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
     gsize     i;
     gint      col;

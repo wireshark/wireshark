@@ -105,23 +105,20 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_args_t *print_args,
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_pdml_proto_tree(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
-WS_DLL_PUBLIC void write_psml_preamble(capture_file *cf, FILE *fh);
-WS_DLL_PUBLIC void proto_tree_write_psml(epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
+WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh);
 WS_DLL_PUBLIC void write_psml_finale(FILE *fh);
 
-WS_DLL_PUBLIC void write_csv_preamble(capture_file *cf, FILE *fh);
-WS_DLL_PUBLIC void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
-WS_DLL_PUBLIC void write_csv_finale(FILE *fh);
+WS_DLL_PUBLIC void write_csv_column_titles(column_info *cinfo, FILE *fh);
+WS_DLL_PUBLIC void write_csv_columns(epan_dissect_t *edt, FILE *fh);
 
-WS_DLL_PUBLIC void write_carrays_preamble(FILE *fh);
-WS_DLL_PUBLIC void proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt);
-WS_DLL_PUBLIC void write_carrays_finale(FILE *fh);
+WS_DLL_PUBLIC void write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_fields_preamble(output_fields_t* fields, FILE *fh);
-WS_DLL_PUBLIC void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh);
+WS_DLL_PUBLIC void write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh);
 WS_DLL_PUBLIC void write_fields_finale(output_fields_t* fields, FILE *fh);
 
 WS_DLL_PUBLIC gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
