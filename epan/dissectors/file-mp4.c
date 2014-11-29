@@ -108,6 +108,7 @@ static expert_field ei_mp4_mvhd_next_tid_unknown = EI_INIT;
 #define BOX_TYPE_CTTS  MAKE_TYPE_VAL('c', 't', 't', 's')
 #define BOX_TYPE_STSD  MAKE_TYPE_VAL('s', 't', 's', 'd')
 #define BOX_TYPE_STSZ  MAKE_TYPE_VAL('s', 't', 's', 'z')
+#define BOX_TYPE_STZ2  MAKE_TYPE_VAL('s', 't', 'z', '2')
 #define BOX_TYPE_STSC  MAKE_TYPE_VAL('s', 't', 's', 'c')
 #define BOX_TYPE_STCO  MAKE_TYPE_VAL('s', 't', 'c', 'o')
 #define BOX_TYPE_STSS  MAKE_TYPE_VAL('s', 't', 's', 's')
@@ -146,6 +147,7 @@ static const value_string box_types[] = {
     { BOX_TYPE_CTTS, "Composition Time To Sample Box" },
     { BOX_TYPE_STSD, "Sample Description Box" },
     { BOX_TYPE_STSZ, "Sample Size Box" },
+    { BOX_TYPE_STZ2, "Compact Sample Size Box" },
     { BOX_TYPE_STSC, "Sample To Chunk Box" },
     { BOX_TYPE_STCO, "Chunk Offset Box" },
     { BOX_TYPE_STSS, "Sync Sample Table" },
