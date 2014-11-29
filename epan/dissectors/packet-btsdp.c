@@ -4884,7 +4884,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_wap_homepage_url,
-            { "Homepage URL",                    "btsdp.wap.network_address",
+            { "Homepage URL",                    "btsdp.wap.homepage_url",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
@@ -4899,7 +4899,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_hdp_support_procedure_reserved_5_7,
-            { "Support: Reserved",               "btsdp.hdp.support.reserved",
+            { "Support: Reserved_5_7",           "btsdp.hdp.support.reserved_5_7",
             FT_UINT8, BASE_HEX, NULL, 0xE0,
             NULL, HFILL }
         },

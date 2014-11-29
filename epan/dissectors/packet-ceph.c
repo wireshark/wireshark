@@ -7210,12 +7210,12 @@ proto_register_ceph(void)
 			"The port of the client as seen by the server.", HFILL
 		} },
 		{ &hf_addr_ipv4, {
-			"IPv4 Address", "ceph.client.ip",
+			"IPv4 Address", "ceph.client.ip4",
 			FT_IPv4, BASE_NONE, NULL, 0,
 			"The IP address of the client as seen by the server.", HFILL
 		} },
 		{ &hf_addr_ipv6, {
-			"IPv6 Address", "ceph.client.ip",
+			"IPv6 Address", "ceph.client.ipv6",
 			FT_IPv6, BASE_NONE, NULL, 0,
 			"The IP address of the client as seen by the server.", HFILL
 		} },
@@ -7721,7 +7721,7 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_pg_stat_lastepochclean, {
-			"Last Clean", "ceph.pg_stat.lastclean",
+			"Last Epoch Clean", "ceph.pg_stat.lastepochclean",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
@@ -8750,7 +8750,7 @@ proto_register_ceph(void)
 			"Instructions to pass to the new target.", HFILL
 		} },
 		{ &hf_osd_redirect_osdinstr_data, {
-			"Data", "ceph.osd_redirect.osd_instructions",
+			"Data", "ceph.osd_redirect.osd_instructions_data",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
@@ -9012,7 +9012,7 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_paxos_ver, {
-			"Paxos Version", "ceph.data",
+			"Paxos Version", "ceph.paxos.ver",
 			FT_UINT64, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
@@ -9497,7 +9497,7 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_msg_osd_op_mtime, {
-			"Modification Time", "ceph.msg.osd_op",
+			"Modification Time", "ceph.msg.osd_op.mtime",
 			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 			NULL, HFILL
 		} },
@@ -9597,7 +9597,7 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_msg_osd_opreply_redirect, {
-			"Redirect", "ceph.msg.osd_opreply.user_ver",
+			"Redirect", "ceph.msg.osd_opreply.redirect",
 			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
@@ -9703,7 +9703,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_msg_poolop_crush_rule, {
 			"Crush Rule", "ceph.msg.poolop.crush_rule",
-			FT_INT16, BASE_DEC, NULL, 0,
+			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_msg_poolop_crush_rule8, {

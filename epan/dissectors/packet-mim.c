@@ -302,7 +302,7 @@ proto_register_mim(void)
         0, "Destination Hierarchical MAC", HFILL }},
 
     { &hf_d_hmac_mc,
-      { "MC Destination", "cfp.d_hmac",
+      { "MC Destination", "cfp.d_hmac_mc",
         FT_ETHER, BASE_NONE, NULL,
         0, "Multicast Destination Address", HFILL }},
 
