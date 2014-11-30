@@ -244,6 +244,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_IDispatch_GetTypeInfo_rqst@Base 1.9.1
  dissect_IDispatch_Invoke_resp@Base 1.9.1
  dissect_IDispatch_Invoke_rqst@Base 1.9.1
+ dissect_a21_ie_common@Base 1.99.1
  dissect_ber_EmbeddedPDV_Type@Base 1.9.1
  dissect_ber_GeneralizedTime@Base 1.9.1
  dissect_ber_UTCTime@Base 1.9.1
@@ -1008,11 +1009,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_print@Base 1.12.0~rc1
  proto_tree_set_appendix@Base 1.9.1
  proto_tree_set_visible@Base 1.9.1
- proto_tree_write_carrays@Base 1.12.0~rc1
- proto_tree_write_csv@Base 1.12.0~rc1
- proto_tree_write_fields@Base 1.12.0~rc1
- proto_tree_write_pdml@Base 1.12.0~rc1
- proto_tree_write_psml@Base 1.12.0~rc1
  proto_unregister_field@Base 1.9.1
  protocols_module@Base 1.9.1
  ptvcursor_add@Base 1.9.1
@@ -1522,15 +1518,17 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_tree_new@Base 1.12.0~rc1
  wmem_tree_new_autoreset@Base 1.12.0~rc1
  wmem_unregister_callback@Base 1.12.0~rc1
- write_carrays_finale@Base 1.12.0~rc1
- write_carrays_preamble@Base 1.12.0~rc1
- write_csv_finale@Base 1.12.0~rc1
- write_csv_preamble@Base 1.12.0~rc1
+ write_carrays_hex_data@Base 1.99.1
+ write_csv_column_titles@Base 1.99.1
+ write_csv_columns@Base 1.99.1
  write_fields_finale@Base 1.12.0~rc1
  write_fields_preamble@Base 1.12.0~rc1
+ write_fields_proto_tree@Base 1.99.1
  write_pdml_finale@Base 1.12.0~rc1
  write_pdml_preamble@Base 1.12.0~rc1
+ write_pdml_proto_tree@Base 1.99.1
  write_prefs@Base 1.9.1
+ write_psml_columns@Base 1.99.1
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
  ws_strdup_escape_char@Base 1.9.1
