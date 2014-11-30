@@ -6781,6 +6781,7 @@ magaya-network   3691/tcp # Magaya Network Port [Jesus_David_Rodrigue] [Jesus_Da
 magaya-network   3691/udp # Magaya Network Port [Jesus_David_Rodrigue] [Jesus_David_Rodrigue] 2003-02
 intelsync        3692/tcp # Brimstone IntelSync [Davey_Taylor] [Davey_Taylor] 2003-02
 intelsync        3692/udp # Brimstone IntelSync [Davey_Taylor] [Davey_Taylor] 2003-02
+easl             3693/tcp # Emergency Automatic Structure Lockdown System [Mele_Associates] [Greg_Hansen][Randy_Yates] 2014-11-26 This port was previously removed on 2007-04-05.
 bmc-data-coll    3695/tcp # BMC Data Collection [Portnoy_Boxman] [Portnoy_Boxman] 2003-02
 bmc-data-coll    3695/udp # BMC Data Collection [Portnoy_Boxman] [Portnoy_Boxman] 2003-02
 telnetcpcd       3696/tcp # Telnet Com Port Control [Thomas_J_Pinkl] [Thomas_J_Pinkl] 2003-02
