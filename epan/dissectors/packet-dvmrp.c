@@ -320,7 +320,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint8 code,count;
+	guint8 code;
 
 	/* version */
 	proto_tree_add_uint(parent_tree, hf_version, tvb, 0, 0, 3);
@@ -347,20 +347,18 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	/* PROBE and NEIGHBORS 2 packets have capabilities flags, unused
 	   for other packets */
 	if (code==DVMRP_V3_PROBE || code==DVMRP_V3_NEIGHBORS_2) {
-		proto_tree *tree;
-		proto_item *item;
+		static const int * capabilities[] = {
+			&hf_cap_netmask,
+			&hf_cap_snmp,
+			&hf_cap_mtrace,
+			&hf_cap_genid,
+			&hf_cap_prune,
+			&hf_cap_leaf,
+			NULL
+		};
 
-		item = proto_tree_add_item(parent_tree, hf_capabilities,
-				tvb, offset, 1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_capabilities);
-
-		count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_boolean(tree, hf_cap_netmask, tvb, offset, 1, count);
-		proto_tree_add_boolean(tree, hf_cap_snmp, tvb, offset, 1, count);
-		proto_tree_add_boolean(tree, hf_cap_mtrace, tvb, offset, 1, count);
-		proto_tree_add_boolean(tree, hf_cap_genid, tvb, offset, 1, count);
-		proto_tree_add_boolean(tree, hf_cap_prune, tvb, offset, 1, count);
-		proto_tree_add_boolean(tree, hf_cap_leaf, tvb, offset, 1, count);
+		proto_tree_add_bitmask(parent_tree, tvb, offset, hf_capabilities,
+			       ett_capabilities, capabilities, ENC_NA);
 	}
 	offset += 1;
 

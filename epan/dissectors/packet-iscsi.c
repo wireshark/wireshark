@@ -940,20 +940,22 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         guint32 ahsLen = tvb_get_guint8(tvb, offset + 4) * 4;
         {
             gint b = tvb_get_guint8(tvb, offset + 1);
+            static const int * flags[] = {
+                &hf_iscsi_SCSICommand_F,
+                &hf_iscsi_SCSICommand_R,
+                &hf_iscsi_SCSICommand_W,
+                &hf_iscsi_SCSICommand_Attr,
+                NULL
+            };
 
-            proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-            proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+            proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
 
-            proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_F, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_R, tvb, offset + 1, 1, b);
             if(b&0x40){
                 cdata->itlq.task_flags|=SCSI_DATA_READ;
             }
-            proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
             if(b&0x20){
                 cdata->itlq.task_flags|=SCSI_DATA_WRITE;
             }
-            proto_tree_add_uint(tt, hf_iscsi_SCSICommand_Attr, tvb, offset + 1, 1, b);
         }
         if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
             proto_tree_add_item(ti, hf_iscsi_SCSICommand_CRN, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
@@ -1017,16 +1019,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         immediate_data_length=offset-immediate_data_offset;
     } else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         /* SCSI Response */
-        {
-            gint b = tvb_get_guint8(tvb, offset + 1);
-            proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-            proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+        static const int * flags[] = {
+            &hf_iscsi_SCSIResponse_o,
+            &hf_iscsi_SCSIResponse_u,
+            &hf_iscsi_SCSIResponse_O,
+            &hf_iscsi_SCSIResponse_U,
+            NULL
+        };
 
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_o, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_u, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_O, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_U, tvb, offset + 1, 1, b);
-        }
+        proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
         proto_tree_add_item(ti, hf_iscsi_SCSIResponse_Response, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ti, hf_iscsi_SCSIResponse_Status, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1273,13 +1274,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         offset = handleDataSegmentAsTextKeys(iscsi_session, pinfo, ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_OUT) {
         /* SCSI Data Out (write) */
-        {
-            gint b = tvb_get_guint8(tvb, offset + 1);
-            proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-            proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+        static const int * flags[] = {
+            &hf_iscsi_SCSIData_F,
+            NULL
+        };
 
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
-        }
+        proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
+
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
             proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         }

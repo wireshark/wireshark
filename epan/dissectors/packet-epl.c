@@ -1041,11 +1041,13 @@ static gint hf_epl_node          = -1;
 static gint hf_epl_dest          = -1;
 static gint hf_epl_src           = -1;
 
+static gint hf_epl_soc           = -1;
 static gint hf_epl_soc_mc        = -1;
 static gint hf_epl_soc_ps        = -1;
 static gint hf_epl_soc_nettime   = -1;
 static gint hf_epl_soc_relativetime = -1;
 
+static gint hf_epl_preq          = -1;
 static gint hf_epl_preq_ms       = -1;
 static gint hf_epl_preq_ea       = -1;
 static gint hf_epl_preq_rd       = -1;
@@ -1054,6 +1056,7 @@ static gint hf_epl_preq_size     = -1;
 
 static gint hf_epl_pres_stat_ms  = -1;
 static gint hf_epl_pres_stat_cs  = -1;
+static gint hf_epl_pres          = -1;
 static gint hf_epl_pres_ms       = -1;
 static gint hf_epl_pres_en       = -1;
 static gint hf_epl_pres_rd       = -1;
@@ -1275,6 +1278,9 @@ static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_epl                 = -1;
+static gint ett_epl_soc             = -1;
+static gint ett_epl_preq            = -1;
+static gint ett_epl_pres            = -1;
 static gint ett_epl_feat            = -1;
 static gint ett_epl_seb             = -1;
 static gint ett_epl_el              = -1;
@@ -1689,12 +1695,17 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 {
 	nstime_t nettime;
 	guint8  flags;
+	static const int * soc_flags[] = {
+		&hf_epl_soc_mc,
+		&hf_epl_soc_ps,
+		NULL
+	};
 
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_boolean(epl_tree, hf_epl_soc_mc, tvb, offset, 1, flags);
-	proto_tree_add_boolean(epl_tree, hf_epl_soc_ps, tvb, offset, 1, flags);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_soc, ett_epl_soc, soc_flags, ENC_NA);
+
 	offset += 2;
 
 	if (show_soc_flags)
@@ -1721,13 +1732,17 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	guint16 len;
 	guint8  pdoversion;
 	guint8  flags;
+	static const int * req_flags[] = {
+		&hf_epl_preq_ms,
+		&hf_epl_preq_ea,
+		&hf_epl_preq_rd,
+		NULL
+	};
 
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_boolean(epl_tree, hf_epl_preq_ms, tvb, offset, 1, flags);
-	proto_tree_add_boolean(epl_tree, hf_epl_preq_ea, tvb, offset, 1, flags);
-	proto_tree_add_boolean(epl_tree, hf_epl_preq_rd, tvb, offset, 1, flags);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_preq, ett_epl_preq, req_flags, ENC_NA);
 	offset += 2;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
@@ -1755,6 +1770,12 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 	guint16  len;
 	guint8  pdoversion;
 	guint8  flags;
+	static const int * res_flags[] = {
+		&hf_epl_pres_ms,
+		&hf_epl_pres_en,
+		&hf_epl_pres_rd,
+		NULL
+	};
 
 	if (epl_src != EPL_MN_NODEID)   /* check if the sender is CN or MN */
 	{
@@ -1767,9 +1788,7 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 	offset += 1;
 
 	flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_boolean(epl_tree, hf_epl_pres_ms, tvb, offset, 1, flags);
-	proto_tree_add_boolean(epl_tree, hf_epl_pres_en, tvb, offset, 1, flags);
-	proto_tree_add_boolean(epl_tree, hf_epl_pres_rd, tvb, offset, 1, flags);
+	proto_tree_add_bitmask(epl_tree, tvb, offset, hf_epl_pres, ett_epl_pres, res_flags, ENC_NA);
 	offset += 1;
 
 	proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3197,6 +3216,10 @@ proto_register_epl(void)
 		},
 
 		/* SoC data fields*/
+		{ &hf_epl_soc,
+			{ "Flags", "epl.soc",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_epl_soc_mc,
 			{ "MC (Multiplexed Cycle Completed)", "epl.soc.mc",
 				FT_BOOLEAN, 8, NULL, EPL_SOC_MC_MASK, NULL, HFILL }
@@ -3215,6 +3238,10 @@ proto_register_epl(void)
 		},
 
 		/* PReq data fields*/
+		{ &hf_epl_preq,
+			{ "Flags", "epl.preq",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_epl_preq_ms,
 			{ "MS (Multiplexed Slot)", "epl.preq.ms",
 				FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
@@ -3244,6 +3271,10 @@ proto_register_epl(void)
 		{ &hf_epl_pres_stat_cs,
 			{ "NMTStatus", "epl.pres.stat",
 				FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_pres,
+			{ "Flags", "epl.pres",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_epl_pres_ms,
 			{ "MS (Multiplexed Slot)", "epl.pres.ms",
@@ -3915,6 +3946,9 @@ proto_register_epl(void)
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_epl,
+		&ett_epl_soc,
+		&ett_epl_preq,
+		&ett_epl_pres,
 		&ett_epl_feat,
 		&ett_epl_seb,
 		&ett_epl_el,

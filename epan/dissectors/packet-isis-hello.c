@@ -519,22 +519,20 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int id_length, int length)
 {
     int restart_options=0;
-    proto_tree *flags_tree;
     proto_item *restart_flags_item;
     proto_item *hold_time_item;
     const char *sep;
 
     if (length >= 1) {
+        static const int * flags[] = {
+            &hf_isis_hello_clv_restart_flags_sa,
+            &hf_isis_hello_clv_restart_flags_ra,
+            &hf_isis_hello_clv_restart_flags_rr,
+            NULL
+        };
+
         restart_options = tvb_get_guint8(tvb, offset);
-        restart_flags_item = proto_tree_add_uint ( tree, hf_isis_hello_clv_restart_flags,
-            tvb, offset, 1, restart_options);
-        flags_tree = proto_item_add_subtree(restart_flags_item, ett_isis_hello_clv_restart_flags);
-        proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_sa,
-            tvb, offset, 1, restart_options );
-        proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_ra,
-            tvb, offset, 1, restart_options );
-        proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_rr,
-            tvb, offset, 1, restart_options );
+        restart_flags_item = proto_tree_add_bitmask(tree, tvb, offset, hf_isis_hello_clv_restart_flags, ett_isis_hello_clv_restart_flags, flags, ENC_NA);
 
         /* Append an indication of which flags are set in the restart
          * options
@@ -545,7 +543,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_RR(restart_options), restart_flags_item, "%sRR");
         if (sep != initial_sep)
         {
-        proto_item_append_text (restart_flags_item, ")");
+            proto_item_append_text (restart_flags_item, ")");
         }
 
     }

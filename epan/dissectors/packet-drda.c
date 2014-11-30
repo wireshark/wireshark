@@ -270,10 +270,10 @@ static gboolean drda_desegment = TRUE;
 #define DRDA_CP_SRVLST        0x244E
 #define DRDA_CP_SQLATTR       0x2450
 
-#define DRDA_DSSFMT_SAME_CORR 0x01
-#define DRDA_DSSFMT_CONTINUE  0x02
-#define DRDA_DSSFMT_CHAINED   0x04
-#define DRDA_DSSFMT_RESERVED  0x08
+#define DRDA_DSSFMT_SAME_CORR 0x10
+#define DRDA_DSSFMT_CONTINUE  0x20
+#define DRDA_DSSFMT_CHAINED   0x40
+#define DRDA_DSSFMT_RESERVED  0x80
 
 #define DRDA_DSSFMT_RQSDSS    0x01
 #define DRDA_DSSFMT_RPYDSS    0x02
@@ -678,12 +678,17 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint16 iLength;
     guint16 iCommandEnd = 0;
 
-    guint8 iFormatFlags;
-    guint8 iDSSType;
-    guint8 iDSSFlags;
-
     guint16 iParameterCP;
     gint iLengthParam;
+
+    static const int * format_flags[] = {
+        &hf_drda_ddm_fmt_reserved,
+        &hf_drda_ddm_fmt_chained,
+        &hf_drda_ddm_fmt_errcont,
+        &hf_drda_ddm_fmt_samecorr,
+        &hf_drda_ddm_fmt_dsstyp,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
     /* This is a trick to know whether this is the first PDU in this packet or not */
@@ -726,19 +731,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
-            iFormatFlags = tvb_get_guint8(tvb, offset + 3);
-            iDSSType = iFormatFlags & 0x0F;
-            iDSSFlags = iFormatFlags >> 4;
-
-            ti = proto_tree_add_item(drda_tree, hf_drda_ddm_format, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-            drda_tree_sub = proto_item_add_subtree(ti, ett_drda_ddm_format);
-
-            proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_reserved, tvb, offset + 3, 1, iDSSFlags);
-            proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_chained, tvb, offset + 3, 1, iDSSFlags);
-            proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_errcont, tvb, offset + 3, 1, iDSSFlags);
-            proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_samecorr, tvb, offset + 3, 1, iDSSFlags);
-            proto_tree_add_uint(drda_tree_sub, hf_drda_ddm_fmt_dsstyp, tvb, offset + 3, 1, iDSSType);
-
+            proto_tree_add_bitmask(drda_tree, tvb, offset + 3, hf_drda_ddm_format, ett_drda_ddm_format, format_flags, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(drda_tree, hf_drda_ddm_codepoint, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
@@ -851,27 +844,27 @@ proto_register_drda(void)
 
         { &hf_drda_ddm_fmt_reserved,
           { "Reserved", "drda.ddm.fmt.bit0",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_RESERVED,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), DRDA_DSSFMT_RESERVED,
             "DSSFMT reserved", HFILL }},
 
         { &hf_drda_ddm_fmt_chained,
           { "Chained", "drda.ddm.fmt.bit1",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_CHAINED,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), DRDA_DSSFMT_CHAINED,
             "DSSFMT chained", HFILL }},
 
         { &hf_drda_ddm_fmt_errcont,
           { "Continue", "drda.ddm.fmt.bit2",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_CONTINUE,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), DRDA_DSSFMT_CONTINUE,
             "DSSFMT continue on error", HFILL }},
 
         { &hf_drda_ddm_fmt_samecorr,
           { "Same correlation", "drda.ddm.fmt.bit3",
-            FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_SAME_CORR,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), DRDA_DSSFMT_SAME_CORR,
             "DSSFMT same correlation", HFILL }},
 
         { &hf_drda_ddm_fmt_dsstyp,
           { "DSS type", "drda.ddm.fmt.dsstyp",
-            FT_UINT8, BASE_DEC, VALS(drda_dsstyp_abbr), 0x0,
+            FT_UINT8, BASE_DEC, VALS(drda_dsstyp_abbr), 0x0F,
             "DSSFMT type", HFILL }},
 
         { &hf_drda_ddm_rc,

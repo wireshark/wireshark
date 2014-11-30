@@ -1306,8 +1306,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 		}
 	}
 
-	if (tree)
-		proto_tree_add_boolean(tree, hf_nfs_fh_endianness, tvb,	0, fhlen, little_endian);
+	proto_tree_add_boolean(tree, hf_nfs_fh_endianness, tvb,	0, fhlen, little_endian);
 
 	/* We are fairly sure, that when found == FALSE, the following code will
 	throw an exception. */
@@ -1844,7 +1843,30 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		guint32     spinfile_uid;
 		guint8      utility;
 		guint8      volcnt;
-		guint32	    offset = 0;
+		guint32     offset = 0;
+		static const int * fh_flags[] = {
+			&hf_nfs3_gxfh_sfhflags_resv1,
+			&hf_nfs3_gxfh_sfhflags_resv2,
+			&hf_nfs3_gxfh_sfhflags_ontapGX,
+			&hf_nfs3_gxfh_sfhflags_striped,
+			&hf_nfs3_gxfh_sfhflags_empty,
+			&hf_nfs3_gxfh_sfhflags_snapdirent,
+			&hf_nfs3_gxfh_sfhflags_snapdir,
+			&hf_nfs3_gxfh_sfhflags_streamdir,
+			NULL
+		};
+
+		static const int * fh_flags_ontap[] = {
+			&hf_nfs3_gxfh_sfhflags_resv1,
+			&hf_nfs3_gxfh_sfhflags_resv2,
+			&hf_nfs3_gxfh_sfhflags_ontap7G,
+			&hf_nfs3_gxfh_sfhflags_striped,
+			&hf_nfs3_gxfh_sfhflags_empty,
+			&hf_nfs3_gxfh_sfhflags_snapdirent,
+			&hf_nfs3_gxfh_sfhflags_snapdir,
+			&hf_nfs3_gxfh_sfhflags_streamdir,
+			NULL
+		};
 
 		/* = utility = */
 		utility = tvb_get_guint8(tvb, offset);
@@ -1890,33 +1912,13 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_cid, tvb, offset+8, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_resv, tvb, offset+10, 1, ENC_BIG_ENDIAN);
 
-		tf = proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_sfhflags, tvb,
-						offset+11, 1, utility,
-						" flags: 0x%02x", flags);
-		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_sfhflags);
-		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_resv1, tvb,
-				    offset+11, 1, flags);
-		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_resv2, tvb,
-				    offset+11, 1, flags);
-
 		if (flags & SPINNP_FH_FLAG_ONTAP_MASK) {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_ontap7G, tvb,
-					    offset+11, 1, flags);
+			proto_tree_add_bitmask(field_tree, tvb, offset+11, hf_nfs3_gxfh_sfhflags, ett_nfs3_gxfh_sfhflags, fh_flags_ontap, ENC_NA);
 		}
 		else {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_ontapGX, tvb,
-					    offset+11, 1, flags);
+			proto_tree_add_bitmask(field_tree, tvb, offset+11, hf_nfs3_gxfh_sfhflags, ett_nfs3_gxfh_sfhflags, fh_flags, ENC_NA);
 		}
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_striped, tvb,
-				       offset+11, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_empty, tvb,
-				       offset+11, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_snapdirent, tvb,
-				       offset+11, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_snapdir, tvb,
-				       offset+11, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_streamdir, tvb,
-				       offset+11, 1, flags);
+
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
 					   offset+12, 4, spinfile_id);
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
@@ -1934,33 +1936,13 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_cid, tvb, offset+24, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(field_tree, hf_nfs3_gxfh_resv, tvb, offset+26, 1, ENC_BIG_ENDIAN);
 
-		tf = proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_sfhflags, tvb,
-						offset+27, 1, utility,
-						" flags: 0x%02x", flags);
-		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_sfhflags);
-		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_resv1, tvb,
-				    offset+27, 1, flags);
-		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_resv2, tvb,
-				    offset+27, 1, flags);
-
 		if (flags & SPINNP_FH_FLAG_ONTAP_MASK) {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_ontap7G, tvb,
-					    offset+27, 1, flags);
+			proto_tree_add_bitmask(field_tree, tvb, offset+27, hf_nfs3_gxfh_sfhflags, ett_nfs3_gxfh_sfhflags, fh_flags_ontap, ENC_NA);
 		}
 		else {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_sfhflags_ontapGX, tvb,
-					    offset+27, 1, flags);
+			proto_tree_add_bitmask(field_tree, tvb, offset+27, hf_nfs3_gxfh_sfhflags, ett_nfs3_gxfh_sfhflags, fh_flags, ENC_NA);
 		}
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_striped, tvb,
-				       offset+27, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_empty, tvb,
-				       offset+27, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_snapdirent, tvb,
-				       offset+27, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_snapdir, tvb,
-				       offset+27, 1, flags);
-		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_streamdir, tvb,
-				       offset+27, 1, flags);
+
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
 					   offset+28, 4, spinfile_id);
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
@@ -7780,8 +7762,7 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			entry_tree = proto_item_add_subtree(eitem, ett_nfs4_dir_entry);
 
 			/* Value Follows: <Yes|No> */
-			if (entry_tree)
-				proto_tree_add_boolean(entry_tree, hf_nfs4_value_follows, tvb, offset, 4, val_follows);
+			proto_tree_add_boolean(entry_tree, hf_nfs4_value_follows, tvb, offset, 4, val_follows);
 			offset += 4;
 
 			/* Directory entry cookie */

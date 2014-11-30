@@ -49,6 +49,7 @@ static gint ett_lwapp_control = -1;
 
 static gint hf_lwapp_version = -1;
 static gint hf_lwapp_slotid = -1;
+static gint hf_lwapp_flags = -1;
 static gint hf_lwapp_flags_type = -1;
 static gint hf_lwapp_flags_fragment = -1;
 static gint hf_lwapp_flags_fragment_type = -1;
@@ -356,10 +357,15 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     guint8       slotId;
     guint8       version;
     proto_tree  *lwapp_tree;
-    proto_tree  *flags_tree;
     tvbuff_t    *next_client;
     guint8       dest_mac[6];
     guint8       have_destmac=0;
+    static const int * flags[] = {
+        &hf_lwapp_flags_type,
+        &hf_lwapp_flags_fragment,
+        &hf_lwapp_flags_fragment_type,
+        NULL
+    };
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
@@ -419,13 +425,7 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_uint(lwapp_tree, hf_lwapp_slotid,
                                tvb, offset, 1, slotId);
 
-        flags_tree = proto_item_add_subtree(lwapp_tree, ett_lwapp_flags);
-        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_type,
-                               tvb, offset, 1, header.flags);
-        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment,
-                               tvb, offset, 1, header.flags);
-        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment_type,
-                               tvb, offset, 1, header.flags);
+        proto_tree_add_bitmask(lwapp_tree, tvb, offset, hf_lwapp_flags, ett_lwapp_flags, flags, ENC_NA);
         offset++;
 
         proto_tree_add_uint(lwapp_tree, hf_lwapp_fragment_id,
@@ -468,6 +468,9 @@ proto_register_lwapp(void)
         { &hf_lwapp_slotid,
           { "slotId","lwapp.slotId", FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_lwapp_flags,
+          { "Flags", "lwapp.flags", FT_UINT8, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
         { &hf_lwapp_flags_type,
           { "Type", "lwapp.flags.type", FT_BOOLEAN, 8,
             TFS(&lwapp_flags_type), LWAPP_FLAGS_T, NULL, HFILL }},

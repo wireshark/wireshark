@@ -410,8 +410,19 @@ static int
 dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint32 pc_mask;
-	proto_item *lock_item;
-	proto_tree *lock_tree;
+	static const int * flags[] = {
+		&hf_mount_pathconf_error_all,
+		&hf_mount_pathconf_error_link_max,
+		&hf_mount_pathconf_error_max_canon,
+		&hf_mount_pathconf_error_max_input,
+		&hf_mount_pathconf_error_name_max,
+		&hf_mount_pathconf_error_path_max,
+		&hf_mount_pathconf_error_pipe_buf,
+		&hf_mount_pathconf_chown_restricted,
+		&hf_mount_pathconf_no_trunc,
+		&hf_mount_pathconf_error_vdisable,
+		NULL
+	};
 
 	/*
 	 * Extract the mask first, so we know which other fields the
@@ -419,96 +430,55 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	 */
 	pc_mask = tvb_get_ntohl(tvb, offset+OFFS_MASK) & 0xffff;
 	if (!(pc_mask & (PC_ERROR_LINK_MAX|PC_ERROR_ALL))) {
-		if (tree) {
-			dissect_rpc_uint32(tvb,tree,hf_mount_pathconf_link_max,offset);
-		}
+		dissect_rpc_uint32(tvb,tree,hf_mount_pathconf_link_max,offset);
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_MAX_CANON|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_max_canon,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_MAX_INPUT|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_max_input,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_NAME_MAX|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_name_max,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_PATH_MAX|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_path_max,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_PIPE_BUF|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_pipe_buf,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
 	offset += 4;	/* skip "pc_xxx" pad field */
 
 	if (!(pc_mask & (PC_ERROR_VDISABLE|PC_ERROR_ALL))) {
-		if (tree) {
-			proto_tree_add_item(tree,
+		proto_tree_add_item(tree,
 				hf_mount_pathconf_vdisable,tvb,offset+3,1,
 				tvb_get_ntohs(tvb,offset)&0xffff);
-		}
 	}
 	offset += 4;
 
-
-	if (tree) {
-		lock_item = proto_tree_add_item(tree, hf_mount_pathconf_mask, tvb,
-					offset+2, 2, ENC_BIG_ENDIAN);
-
-		lock_tree = proto_item_add_subtree(lock_item, ett_mount_pathconf_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_all, tvb,
-		    offset + 2, 2, pc_mask);
-
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_link_max, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_max_canon, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_max_input, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_name_max, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_path_max, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_pipe_buf, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_chown_restricted, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_no_trunc, tvb,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_vdisable, tvb,
-		    offset + 2, 2, pc_mask);
-	}
+	proto_tree_add_bitmask(tree, tvb, offset+2, hf_mount_pathconf_mask, ett_mount_pathconf_mask, flags, ENC_BIG_ENDIAN);
 
 	offset += 8;
 	return offset;
@@ -654,89 +624,54 @@ static const true_false_string tos_st_local = {
 static int
 dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	proto_item *flag_item;
-	proto_tree *flag_tree;
- 	guint32 statvfs_flags;
+	static const int * flags[] = {
+		&hf_mount_statvfs_flag_rdonly,
+		&hf_mount_statvfs_flag_nosuid,
+		&hf_mount_statvfs_flag_notrunc,
+		&hf_mount_statvfs_flag_nodev,
+		&hf_mount_statvfs_flag_grpid,
+		&hf_mount_statvfs_flag_local,
+		NULL
+	};
 
-	statvfs_flags = tvb_get_ntohl(tvb, offset+52);
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bsize, offset);
-	}
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bsize, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_frsize, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_frsize, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_blocks, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_blocks, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bfree, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bfree, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bavail, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bavail, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_files, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_files, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_ffree, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_ffree, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_favail, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_favail, offset);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_basetype, offset,
+
+	dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_basetype, offset,
 			16, TRUE, NULL);
-	}
 	offset += 16;
-	if (tree) {
-		dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_fstr, offset,
-			32, FALSE, NULL);
-	}
+
+	dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_fstr, offset, 32, FALSE, NULL);
 	offset += 32;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_fsid, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_fsid, offset);
 	offset += 4;
 
-	if (tree) {
-		flag_item = proto_tree_add_item(tree, hf_mount_statvfs_flag,
-				tvb, offset, 4, ENC_BIG_ENDIAN);
-		if (flag_item) {
-			flag_tree = proto_item_add_subtree(flag_item,
-					ett_mount_statvfs_flag);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_rdonly, tvb, offset, 4,
-				statvfs_flags);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_nosuid, tvb, offset, 4,
-				statvfs_flags);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_notrunc, tvb, offset, 4,
-				statvfs_flags);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_nodev, tvb, offset, 4,
-				statvfs_flags);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_grpid, tvb, offset, 4,
-				statvfs_flags);
-			proto_tree_add_boolean(flag_tree,
-				hf_mount_statvfs_flag_local, tvb, offset, 4,
-				statvfs_flags);
-		}
-	}
-
+	proto_tree_add_bitmask(tree, tvb, offset, hf_mount_statvfs_flag, ett_mount_statvfs_flag, flags, ENC_BIG_ENDIAN);
 	offset += 4;
-	if (tree) {
-		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_namemax, offset);
-	}
+
+	dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_namemax, offset);
 	offset += 4;
 
 	return offset;

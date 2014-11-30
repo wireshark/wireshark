@@ -781,7 +781,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	case S_FORMAT:
 		nu = ctrl_fld_ui_s = tvb_get_ntohs(tvb, offset);
-		offset +=2;
 		epm = ctrl_fld_ui_s & 0x3;
 		nu = (nu >>2)&0x01FF;
 
@@ -791,24 +790,21 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tree)
 		{
-			ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset-2, 2,
-							      ett_llcgprs_sframe, NULL, "Supervisory format: %s: N(R) = %u",
-							      val_to_str(epm, cr_formats_ipluss, "Unknown (%d)"), nu);
-
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_S_fmt, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
-			proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_As, tvb, offset-2,
-					       2, ctrl_fld_ui_s);
-
+			static const int * s_formats[] = {
+				&hf_llcgprs_S_fmt,
+				&hf_llcgprs_As,
 			/* MLT CHANGES - added spare bits */
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sspare, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
+				&hf_llcgprs_sspare,
 			/* END MLT CHANGES */
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NR, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sjsd, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
+				&hf_llcgprs_NR,
+				&hf_llcgprs_sjsd,
+				NULL
+			};
+
+			proto_tree_add_bitmask_text(llcgprs_tree, tvb, offset, 2,
+							      "Supervisory format: ", NULL, ett_llcgprs_sframe, s_formats, ENC_BIG_ENDIAN, 0);
 		}
+		offset +=2;
 		/* MLT CHANGES - additional parsing code to handle SACK */
 		if ((ctrl_fld_ui_s & 0x03) == 0x03)
 			/* It is a SACK frame */
@@ -913,20 +909,17 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tree)
 		{
-			ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset-2,
-							      2, ett_llcgprs_ctrlf, NULL,
-							      "Unconfirmed Information format - UI, N(U) = %u", nu);
+			static const int * i_formats[] = {
+				&hf_llcgprs_U_fmt,
+				&hf_llcgprs_sp_bits,
+				&hf_llcgprs_NU,
+				&hf_llcgprs_E_bit,
+				&hf_llcgprs_PM_bit,
+				NULL
+			};
 
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_U_fmt, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sp_bits, tvb, offset-2,
-					    2, ctrl_fld_ui_s);
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NU, tvb, offset-2, 2,
-					    ctrl_fld_ui_s);
-			proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_E_bit, tvb, offset-2,
-					       2, ctrl_fld_ui_s);
-			proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_PM_bit, tvb, offset-2,
-					       2, ctrl_fld_ui_s);
+			proto_tree_add_bitmask_text(llcgprs_tree, tvb, offset-2, 2,
+							      "Unconfirmed Information format - UI: ", NULL, ett_llcgprs_ctrlf, i_formats, ENC_BIG_ENDIAN, 0);
 		}
 
 		/* MLT CHANGES - TOM parsing added */

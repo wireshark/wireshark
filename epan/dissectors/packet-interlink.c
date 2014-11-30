@@ -102,19 +102,14 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (ilh_tree) {
-		proto_item	*flags_item;
-		proto_tree	*flags_tree;
+		static const int * flags[] = {
+			&hf_interlink_flags_req_ack,
+			&hf_interlink_flags_inc_ack_port,
+			NULL
+		};
 
-		flags_item = proto_tree_add_item(ilh_tree, hf_interlink_flags,
-			tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		flags_tree = proto_item_add_subtree(flags_item, ett_interlink_flags);
+		proto_tree_add_bitmask(ilh_tree, tvb, offset, hf_interlink_flags, ett_interlink_flags, flags, ENC_LITTLE_ENDIAN);
 
-		if (flags_tree) {
-			guint16		il_flags;
-			il_flags = tvb_get_letohs(tvb, offset);
-			proto_tree_add_boolean(flags_tree, hf_interlink_flags_req_ack, tvb, offset, 2, il_flags);
-			proto_tree_add_boolean(flags_tree, hf_interlink_flags_inc_ack_port, tvb, offset, 2, il_flags);
-		}
 	}
 	offset += 2;
 

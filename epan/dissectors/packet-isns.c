@@ -940,25 +940,21 @@ dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *paren
 static guint
 dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    if(parent_tree){
-        proto_item *item;
-        proto_tree *tree;
-        guint32 psb = tvb_get_ntohl(tvb, offset + 8);
+    static const int * flags[] = {
+        &hf_isns_psb_tunnel_mode,
+        &hf_isns_psb_transport_mode,
+        &hf_isns_psb_pfs,
+        &hf_isns_psb_aggressive_mode,
+        &hf_isns_psb_main_mode,
+        &hf_isns_psb_ike_ipsec,
+        &hf_isns_psb_bitmap,
+        NULL
+    };
 
-        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    proto_tree_add_bitmask(parent_tree, tvb, offset+8, hf_index, ett_isns_attribute, flags, ENC_BIG_ENDIAN);
 
-        proto_tree_add_boolean(tree, hf_isns_psb_tunnel_mode,     tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_transport_mode,  tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_pfs,             tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_aggressive_mode, tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_main_mode,       tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_ike_ipsec,       tvb, offset+8, 4, psb);
-        proto_tree_add_boolean(tree, hf_isns_psb_bitmap,          tvb, offset+8, 4, psb);
-
-        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
-        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
-    }
+    proto_tree_add_uint(parent_tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+    proto_tree_add_uint(parent_tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
     return offset+8+len;
 }
@@ -968,36 +964,32 @@ dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree
 static guint
 dissect_isns_attr_scn_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    if(parent_tree){
-        proto_item *item;
-        proto_tree *tree;
-        guint32 scn_bitmap = tvb_get_ntohl(tvb, offset + 8);
+    /*
+        24              INITIATOR AND SELF INFORMATION ONLY
+        25              TARGET AND SELF INFORMATION ONLY
+        26              MANAGEMENT REGISTRATION/SCN
+        27              OBJECT REMOVED
+        28              OBJECT ADDED
+        29              OBJECT UPDATED
+        30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
+        31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
+    */
+    static const int * flags[] = {
+        &hf_isns_scn_bitmap_initiator_and_self_information_only,
+        &hf_isns_scn_bitmap_target_and_self_information_only,
+        &hf_isns_scn_bitmap_management_registration_scn,
+        &hf_isns_scn_bitmap_object_removed,
+        &hf_isns_scn_bitmap_object_added,
+        &hf_isns_scn_bitmap_object_updated,
+        &hf_isns_scn_bitmap_dd_dds_member_removed,
+        &hf_isns_scn_bitmap_dd_dds_member_added,
+        NULL
+    };
 
-        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_isns_attribute);
+    proto_tree_add_bitmask(parent_tree, tvb, offset+8, hf_index, ett_isns_attribute, flags, ENC_BIG_ENDIAN);
 
-        /*
-          24              INITIATOR AND SELF INFORMATION ONLY
-          25              TARGET AND SELF INFORMATION ONLY
-          26              MANAGEMENT REGISTRATION/SCN
-          27              OBJECT REMOVED
-          28              OBJECT ADDED
-          29              OBJECT UPDATED
-          30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
-          31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
-        */
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_initiator_and_self_information_only, tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_target_and_self_information_only,    tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_management_registration_scn,         tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_removed,                      tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_added,                        tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_updated,                      tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_removed,               tvb, offset+8, 4, scn_bitmap);
-        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_added,                 tvb, offset+8, 4, scn_bitmap);
-
-        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
-        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
-    }
+    proto_tree_add_uint(parent_tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+    proto_tree_add_uint(parent_tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
     return offset+8+len;
 }

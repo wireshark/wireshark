@@ -462,34 +462,30 @@ static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    guint32 flags;
-    proto_item *flags_item;
-    proto_tree *flags_tree;
-
-    flags = tvb_get_letohl(tvb, offset+4);
+    static const int * flags[] = {
+        &hf_dplay_flags_no_sess_desc_changes,
+        &hf_dplay_flags_acqire_voice,
+        &hf_dplay_flags_optimize_latency,
+        &hf_dplay_flags_preserve_order,
+        &hf_dplay_flags_reliable,
+        &hf_dplay_flags_server_player_only,
+        &hf_dplay_flags_route,
+        &hf_dplay_flags_password_req,
+        &hf_dplay_flags_private_session,
+        &hf_dplay_flags_use_auth,
+        &hf_dplay_flags_no_player_updates,
+        &hf_dplay_flags_use_ping,
+        &hf_dplay_flags_can_join,
+        &hf_dplay_flags_ignored,
+        &hf_dplay_flags_short_player_msg,
+        &hf_dplay_flags_migrate_host,
+        &hf_dplay_flags_0002,
+        &hf_dplay_flags_no_create_players,
+        NULL
+    };
 
     proto_tree_add_item(tree, hf_dplay_sess_desc_length, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    flags_item = proto_tree_add_item(tree, hf_dplay_sess_desc_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    flags_tree = proto_item_add_subtree(flags_item, ett_dplay_sess_desc_flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_no_sess_desc_changes, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_acqire_voice, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_optimize_latency, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_preserve_order, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_reliable, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_server_player_only, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_route, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_password_req, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_private_session, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_use_auth, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_no_player_updates, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_use_ping, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_can_join, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_ignored, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_short_player_msg, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_migrate_host, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_0002, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_flags_no_create_players, tvb, offset, 4, flags);
-    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_dplay_sess_desc_flags, ett_dplay_sess_desc_flags, flags, ENC_LITTLE_ENDIAN); offset += 4;
 
     proto_tree_add_item(tree, hf_dplay_instance_guid, tvb, offset, 16, ENC_BIG_ENDIAN); offset += 16;
     proto_tree_add_item(tree, hf_dplay_game_guid, tvb, offset, 16, ENC_BIG_ENDIAN); offset += 16;
@@ -509,23 +505,20 @@ static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_tree *flags_tree;
-    proto_item *flags_item;
-    guint32 flags, sn_len, ln_len, sd_len, pd_len, num_players, i;
+    guint32 sn_len, ln_len, sd_len, pd_len, num_players, i;
     gint size;
+    static const int * flags[] = {
+        &hf_dplay_pp_flag_sending,
+        &hf_dplay_pp_flag_in_group,
+        &hf_dplay_pp_flag_nameserver,
+        &hf_dplay_pp_flag_sysplayer,
+        NULL
+    };
 
     size = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_pp_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
 
-    flags = tvb_get_letohl(tvb, offset);
-    flags_item = proto_tree_add_item(tree, hf_dplay_pp_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    flags_tree = proto_item_add_subtree(flags_item, ett_dplay_pp_flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_pp_flag_sending, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_pp_flag_in_group, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_pp_flag_nameserver, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_pp_flag_sysplayer, tvb, offset, 4, flags);
-    offset += 4;
-
+    proto_tree_add_bitmask(tree, tvb, offset, hf_dplay_pp_flags, ett_dplay_pp_flags, flags, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_pp_id, tvb, offset, 4, ENC_NA); offset += 4;
 
     sn_len = tvb_get_letohl(tvb, offset);
@@ -600,21 +593,22 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     guint32 have_short_name, have_long_name, sp_length_type, pd_length_type;
     guint32 player_count_type, have_parent_id, shortcut_count_type;
     guint32 player_data_length, sp_data_length, player_count, shortcut_count;
-    proto_item *flags_item = NULL, *im_item = NULL;
-    proto_tree *flags_tree = NULL, *im_tree = NULL;
+    proto_item *im_item = NULL;
+    proto_tree *im_tree = NULL;
     gint len;
+    static const int * ssp_flags[] = {
+        &hf_dplay_spp_flags_sending,
+        &hf_dplay_spp_flags_in_group,
+        &hf_dplay_spp_flags_nameserver,
+        &hf_dplay_spp_flags_sysplayer,
+        NULL
+    };
 
     proto_tree_add_item(tree, hf_dplay_spp_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
 
     flags = tvb_get_letohl(tvb, offset);
     is_sysplayer = flags & 0x00000001;
-    flags_item = proto_tree_add_item(tree, hf_dplay_spp_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    flags_tree = proto_item_add_subtree(flags_item, ett_dplay_spp_flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_sending, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_in_group, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_nameserver, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_sysplayer, tvb, offset, 4, flags);
-    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_dplay_spp_flags, ett_dplay_spp_flags, ssp_flags, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_spp_id, tvb, offset, 4, ENC_NA); offset += 4;
 
     info_mask = tvb_get_letohl(tvb, offset);
@@ -745,22 +739,18 @@ static gint dissect_type01_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 passwd_offset;
-    guint32 flags;
-    proto_item *flags_item;
-    proto_tree *flags_tree;
+    static const int * flags[] = {
+        &hf_enum_sess_flag_passwd,
+        &hf_enum_sess_flag_all,
+        &hf_enum_sess_flag_join,
+        NULL
+    };
 
     passwd_offset = tvb_get_letohl(tvb, offset + 16);
-    flags = tvb_get_letohl(tvb, offset + 20);
 
     proto_tree_add_item(tree, hf_dplay_type_02_game_guid, tvb, offset, 16, ENC_BIG_ENDIAN); offset += 16;
     proto_tree_add_item(tree, hf_dplay_type_02_password_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-
-    flags_item = proto_tree_add_item(tree, hf_dplay_type_02_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    flags_tree = proto_item_add_subtree(flags_item, ett_dplay_type02_flags);
-    proto_tree_add_boolean(flags_tree, hf_enum_sess_flag_passwd, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_enum_sess_flag_all, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flags_tree, hf_enum_sess_flag_join, tvb, offset, 4, flags);
-    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_dplay_type_02_flags, ett_dplay_type02_flags, flags, ENC_LITTLE_ENDIAN); offset += 4;
 
     if (passwd_offset != 0) {
         offset = display_unicode_string(tree, hf_dplay_type_02_password, tvb, offset);
@@ -770,18 +760,16 @@ static gint dissect_type02_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_type05_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_item *flag_item;
-    proto_item *flag_tree;
-    guint32 flags;
+    static const int * flags[] = {
+        &hf_dplay_type_05_secure,
+        &hf_dplay_type_05_unknown,
+        &hf_dplay_type_05_local,
+        &hf_dplay_type_05_name_server,
+        &hf_dplay_type_05_system_player,
+        NULL
+    };
 
-    flags = tvb_get_letohl(tvb, offset);
-    flag_item = proto_tree_add_item(tree, hf_dplay_type_05_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    flag_tree = proto_item_add_subtree(flag_item, ett_dplay_type05_flags);
-    proto_tree_add_boolean(flag_tree, hf_dplay_type_05_secure, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flag_tree, hf_dplay_type_05_unknown, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flag_tree, hf_dplay_type_05_local, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flag_tree, hf_dplay_type_05_name_server, tvb, offset, 4, flags);
-    proto_tree_add_boolean(flag_tree, hf_dplay_type_05_system_player, tvb, offset, 4, flags);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_dplay_type_05_flags, ett_dplay_type05_flags, flags, ENC_LITTLE_ENDIAN);
     offset += 4;
     return offset;
 }

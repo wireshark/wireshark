@@ -59,6 +59,7 @@ static int hf_nsip_ip_address_ipv4 = -1;
 static int hf_nsip_ip_address_ipv6 = -1;
 static int hf_nsip_end_flag = -1;
 static int hf_nsip_end_flag_spare = -1;
+static int hf_nsip_control_bits = -1;
 static int hf_nsip_control_bits_r = -1;
 static int hf_nsip_control_bits_c = -1;
 static int hf_nsip_control_bits_spare = -1;
@@ -594,27 +595,18 @@ decode_iei_end_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 }
 
 static void
-decode_iei_control_bits(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_control_bits(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
   guint8 control_bits;
-  proto_tree *field_tree;
+  static const int * flags[] = {
+    &hf_nsip_control_bits_r,
+    &hf_nsip_control_bits_c,
+    &hf_nsip_control_bits_spare,
+    NULL
+  };
 
   control_bits = tvb_get_guint8(bi->tvb, bi->offset);
-
-  if (bi->nsip_tree) {
-    field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
-                             ie->total_length, ett_nsip_control_bits, NULL,
-                             "NS SDU Control bits: %#02x", control_bits);
-
-    proto_tree_add_boolean(field_tree, hf_nsip_control_bits_r, bi->tvb,
-                           bi->offset, 1,
-                           control_bits & NSIP_MASK_CONTROL_BITS_R);
-    proto_tree_add_boolean(field_tree, hf_nsip_control_bits_c, bi->tvb,
-                           bi->offset, 1,
-                           control_bits & NSIP_MASK_CONTROL_BITS_C);
-    proto_tree_add_uint(field_tree, hf_nsip_control_bits_spare,
-                           bi->tvb, bi->offset, 1,
-                           control_bits & NSIP_MASK_CONTROL_BITS_SPARE);
-  }
+  proto_tree_add_bitmask(bi->nsip_tree, bi->tvb, ie_start_offset, hf_nsip_control_bits,
+			       ett_nsip_control_bits, flags, ENC_NA);
   bi->offset++;
 
   if (control_bits & NSIP_MASK_CONTROL_BITS_R) {
@@ -1078,6 +1070,11 @@ proto_register_nsip(void)
     { &hf_nsip_end_flag_spare,
       { "End flag spare bits", "nsip.end_flag.spare",
         FT_UINT8, BASE_HEX, NULL, NSIP_MASK_END_FLAG_SPARE,
+        NULL, HFILL }
+    },
+    { &hf_nsip_control_bits,
+      { "NS SDU Control bits", "nsip.control_bits",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nsip_control_bits_r,

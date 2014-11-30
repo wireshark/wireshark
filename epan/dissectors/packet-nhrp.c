@@ -575,7 +575,6 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     gint     offset  = *pOffset;
     gint     mandEnd = offset + mandLen;
     guint8   ssl, shl;
-    guint16  flags;
     guint    dstLen;
     gboolean isReq   = FALSE;
     gboolean isErr   = FALSE;
@@ -613,34 +612,56 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     offset += 1;
 
     if (!isInd) {
-        proto_item *flag_item;
-        proto_tree *flag_tree;
-        flags = tvb_get_ntohs(tvb, offset);
-        flag_item = proto_tree_add_uint(nhrp_tree, hf_nhrp_flags, tvb, offset, 2, flags);
-        flag_tree = proto_item_add_subtree(flag_item, ett_nhrp_mand_flag);
-
         switch (hdr->ar_op_type)
         {
         case NHRP_RESOLUTION_REQ:
         case NHRP_RESOLUTION_REPLY:
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_Q, tvb, offset, 2, flags);
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_A, tvb, offset, 2, flags);
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_D, tvb, offset, 2, flags);
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_U1, tvb, offset, 2, flags);
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_S, tvb, offset, 2, flags);
+            {
+            static const int * flags[] = {
+                &hf_nhrp_flag_Q,
+                &hf_nhrp_flag_A,
+                &hf_nhrp_flag_D,
+                &hf_nhrp_flag_U1,
+                &hf_nhrp_flag_S,
+                &hf_nhrp_flag_NAT,
+                NULL
+            };
+            proto_tree_add_bitmask(nhrp_tree, tvb, offset, hf_nhrp_flags, ett_nhrp_mand_flag, flags, ENC_BIG_ENDIAN);
+            }
             break;
         case NHRP_REGISTRATION_REQ:
         case NHRP_REGISTRATION_REPLY:
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_U2, tvb, offset, 2, flags);
+            {
+            static const int * flags[] = {
+                &hf_nhrp_flag_U2,
+                &hf_nhrp_flag_NAT,
+                NULL
+            };
+            proto_tree_add_bitmask(nhrp_tree, tvb, offset, hf_nhrp_flags, ett_nhrp_mand_flag, flags, ENC_BIG_ENDIAN);
+            }
             break;
 
         case NHRP_PURGE_REQ:
         case NHRP_PURGE_REPLY:
-            proto_tree_add_boolean(flag_tree, hf_nhrp_flag_N, tvb, offset, 2, flags);
+            {
+            static const int * flags[] = {
+                &hf_nhrp_flag_N,
+                &hf_nhrp_flag_NAT,
+                NULL
+            };
+            proto_tree_add_bitmask(nhrp_tree, tvb, offset, hf_nhrp_flags, ett_nhrp_mand_flag, flags, ENC_BIG_ENDIAN);
+            }
+            break;
+        default:
+            {
+            static const int * flags[] = {
+                &hf_nhrp_flag_NAT,
+                NULL
+            };
+            proto_tree_add_bitmask(nhrp_tree, tvb, offset, hf_nhrp_flags, ett_nhrp_mand_flag, flags, ENC_BIG_ENDIAN);
+            }
             break;
         }
-        proto_tree_add_boolean(flag_tree, hf_nhrp_flag_NAT, tvb, offset, 2, flags);
-
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", ID=%u", tvb_get_ntohl(tvb, offset));

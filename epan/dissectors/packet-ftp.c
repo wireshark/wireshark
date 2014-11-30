@@ -578,21 +578,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_ftp, tvb, 0, -1, ENC_NA);
     ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
-    if (is_request) {
-        hidden_item = proto_tree_add_boolean(ftp_tree,
-                hf_ftp_request, tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_boolean(ftp_tree,
-                hf_ftp_response, tvb, 0, 0, FALSE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-    } else {
-        hidden_item = proto_tree_add_boolean(ftp_tree,
-                hf_ftp_request, tvb, 0, 0, FALSE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        hidden_item = proto_tree_add_boolean(ftp_tree,
-                hf_ftp_response, tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-    }
+    hidden_item = proto_tree_add_boolean(ftp_tree,
+            hf_ftp_request, tvb, 0, 0, is_request);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_boolean(ftp_tree,
+            hf_ftp_response, tvb, 0, 0, is_request == FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* Put the line into the protocol tree. */
     ti = proto_tree_add_format_text(ftp_tree, tvb, 0, next_offset);

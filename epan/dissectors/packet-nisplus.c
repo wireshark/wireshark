@@ -312,31 +312,27 @@ dissect_group_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_access_rights(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_item* mask_item = NULL;
-	proto_tree* mask_tree = NULL;
-	guint32	mask;
+	static const int * flags[] = {
+		&hf_nisplus_mask_world_read,
+		&hf_nisplus_mask_world_modify,
+		&hf_nisplus_mask_world_create,
+		&hf_nisplus_mask_world_destroy,
+		&hf_nisplus_mask_group_read,
+		&hf_nisplus_mask_group_modify,
+		&hf_nisplus_mask_group_create,
+		&hf_nisplus_mask_group_destroy,
+		&hf_nisplus_mask_owner_read,
+		&hf_nisplus_mask_owner_modify,
+		&hf_nisplus_mask_owner_create,
+		&hf_nisplus_mask_owner_destroy,
+		&hf_nisplus_mask_nobody_read,
+		&hf_nisplus_mask_nobody_modify,
+		&hf_nisplus_mask_nobody_create,
+		&hf_nisplus_mask_nobody_destroy,
+		NULL
+	};
 
-	mask_item = proto_tree_add_item(tree, hf_nisplus_access_mask,
-			tvb, offset, 4,	ENC_NA);
-
-	mask_tree = proto_item_add_subtree(mask_item, ett_nisplus_access_mask);
-	mask = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_world_read, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_world_modify, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_world_create, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_world_destroy, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_group_read, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_group_modify, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_group_create, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_group_destroy, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_owner_read, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_owner_modify, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_owner_create, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_owner_destroy, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_nobody_read, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_nobody_modify, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_nobody_create, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_mask_nobody_destroy, tvb, offset, 4, mask);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nisplus_access_mask, ett_nisplus_access_mask, flags, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -345,12 +341,19 @@ dissect_access_rights(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_table(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	proto_item* lock_item = NULL;
-	proto_tree* lock_tree = NULL;
-	proto_item* mask_item = NULL;
-	proto_tree* mask_tree = NULL;
-	guint32	mask;
+	proto_item* lock_item;
+	proto_tree* lock_tree;
 	int old_offset = offset;
+	static const int * flags[] = {
+		&hf_nisplus_table_col_mask_binary,
+		&hf_nisplus_table_col_mask_encrypted,
+		&hf_nisplus_table_col_mask_xdr,
+		&hf_nisplus_table_col_mask_searchable,
+		&hf_nisplus_table_col_mask_casesensitive,
+		&hf_nisplus_table_col_mask_modified,
+		&hf_nisplus_table_col_mask_asn,
+		NULL
+	};
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_table_col,
 			tvb, offset, -1, ENC_NA);
@@ -360,26 +363,7 @@ dissect_table(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_nisplus_table_col_name, offset, NULL);
 
-
-	mask_item = proto_tree_add_item(lock_tree, hf_nisplus_table_col_mask,
-		tvb, offset, 4,
-		ENC_NA);
-	mask_tree = proto_item_add_subtree(mask_item, ett_nisplus_table_col_mask);
-	mask = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_binary,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_encrypted,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_xdr,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_searchable,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_casesensitive,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_modified,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_table_col_mask_asn,
-		tvb, offset, 4, mask);
+	proto_tree_add_bitmask(lock_tree, tvb, offset, hf_nisplus_table_col_mask, ett_nisplus_table_col_mask, flags, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_access_rights(tvb, offset, lock_tree);
@@ -422,29 +406,24 @@ dissect_table_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	proto_item* lock_item = NULL;
-	proto_tree* lock_tree = NULL;
-	proto_item* mask_item = NULL;
-	proto_tree* mask_tree = NULL;
-	guint32	mask;
+	proto_item* lock_item;
+	proto_tree* lock_tree;
 	int old_offset = offset;
+	static const int * flags[] = {
+		&hf_nisplus_entry_mask_binary,
+		&hf_nisplus_entry_mask_crypt,
+		&hf_nisplus_entry_mask_xdr,
+		&hf_nisplus_entry_mask_modified,
+		&hf_nisplus_entry_mask_asn,
+		NULL
+	};
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_entry_col,
 			tvb, offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_entry_col);
 
-	mask_item = proto_tree_add_item(lock_tree, hf_nisplus_entry_mask,
-			tvb, offset, 4,
-			ENC_NA);
-
-	mask_tree = proto_item_add_subtree(mask_item, ett_nisplus_entry_mask);
-	mask = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_entry_mask_binary, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_entry_mask_crypt, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_entry_mask_xdr, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_entry_mask_modified, tvb, offset, 4, mask);
-	proto_tree_add_boolean(mask_tree, hf_nisplus_entry_mask_asn, tvb, offset, 4, mask);
+	proto_tree_add_bitmask(lock_tree, tvb, offset, hf_nisplus_entry_mask, ett_nisplus_entry_mask, flags, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_rpc_string(tvb, lock_tree,
@@ -1476,7 +1455,7 @@ proto_register_nis(void)
 			NIS_MASK_NOBODY_DESTROY, "Nobody Destroy Flag", HFILL }},
 
 		{ &hf_nisplus_access_mask, {
-			"access mask", "nisplus.access.mask", FT_NONE, BASE_NONE,
+			"access mask", "nisplus.access.mask", FT_UINT32, BASE_HEX,
 			NULL, 0, "NIS Access Mask", HFILL }},
 
 		{ &hf_nisplus_object_type, {
@@ -1635,7 +1614,7 @@ proto_register_nis(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_table_col_mask, {
-			"flags", "nisplus.table.col.flags", FT_NONE, BASE_NONE,
+			"flags", "nisplus.table.col.flags", FT_UINT32, BASE_HEX,
 			NULL, 0, "Flags For This Column", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_binary, {

@@ -2764,9 +2764,17 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16       bytes, obj_type = 0;
   guint         data_len = 0, offset = 0;
   proto_item   *ti, *tc;
-  proto_tree   *al_tree, *field_tree, *robj_tree;
+  proto_tree   *al_tree, *robj_tree;
   const gchar  *func_code_str, *obj_type_str;
   nstime_t      al_cto;
+  static const int * control_flags[] = {
+    &hf_dnp3_al_fir,
+    &hf_dnp3_al_fin,
+    &hf_dnp3_al_con,
+    &hf_dnp3_al_uns,
+    &hf_dnp3_al_seq,
+    NULL
+  };
 
   nstime_set_zero (&al_cto);
 
@@ -2792,20 +2800,13 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item_append_text(ti, "Sequence %u, %s)", al_seq, func_code_str);
 
   /* Application Layer control byte subtree */
-  tc = proto_tree_add_uint_format(al_tree, hf_dnp3_al_ctl, tvb, offset, 1, al_ctl,
-      "Control: 0x%02x (", al_ctl);
+  tc = proto_tree_add_bitmask(al_tree, tvb, offset, hf_dnp3_al_ctl, ett_dnp3_al_ctl, control_flags, ENC_BIG_ENDIAN);
+  proto_item_append_text(tc, "(");
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(tc, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(tc, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(tc, "CON, ");
   if (al_ctl & DNP3_AL_UNS)  proto_item_append_text(tc, "UNS, ");
   proto_item_append_text(tc, "Sequence %u)", al_seq);
-
-  field_tree = proto_item_add_subtree(tc, ett_dnp3_al_ctl);
-  proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
-  proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
-  proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
-  proto_tree_add_boolean(field_tree, hf_dnp3_al_uns, tvb, offset, 1, al_ctl);
-  proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
 #if 0
@@ -3145,7 +3146,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   if ((dl_func != DL_FUNC_LINK_STAT) && (dl_func != DL_FUNC_STAT_LINK) &&
       (dl_func != DL_FUNC_RESET_LINK) && (dl_func != DL_FUNC_ACK))
   {
-    proto_tree *tr_tree, *al_tree;
+    proto_tree *al_tree;
     guint8      tr_ctl, tr_seq;
     gboolean    tr_fir, tr_fin;
     guint8     *tmp, *tmp_ptr;
@@ -3154,6 +3155,12 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
+  static const int * transport_flags[] = {
+    &hf_dnp3_tr_fin,
+    &hf_dnp3_tr_fir,
+    &hf_dnp3_tr_seq,
+    NULL
+  };
 
     /* get the transport layer byte */
     tr_ctl = tvb_get_guint8(tvb, offset);
@@ -3162,19 +3169,14 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tr_fin = tr_ctl & DNP3_TR_FIN;
 
     /* Add Transport Layer Tree */
-    tc = proto_tree_add_uint_format(dnp3_tree, hf_dnp3_tr_ctl, tvb, offset, 1, tr_ctl,
-            "Transport Layer: 0x%02x (", tr_ctl);
+    tc = proto_tree_add_bitmask(dnp3_tree, tvb, offset, hf_dnp3_tr_ctl, ett_dnp3_tr_ctl, transport_flags, ENC_BIG_ENDIAN);
+    proto_item_append_text(tc, "(");
     if (tr_fir) proto_item_append_text(tc, "FIR, ");
     if (tr_fin) proto_item_append_text(tc, "FIN, ");
     proto_item_append_text(tc, "Sequence %u)", tr_seq);
 
-    tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
-    proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
-    proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fir, tvb, offset, 1, tr_ctl);
-    proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     /* Allocate AL chunk tree */
-    al_tree = proto_tree_add_subtree(tr_tree, tvb, offset + 1, -1, ett_dnp3_al_data, NULL, "Application data chunks");
+    al_tree = proto_tree_add_subtree(dnp3_tree, tvb, offset + 1, -1, ett_dnp3_al_data, NULL, "Application data chunks");
 
     /* extract the application layer data, validating the CRCs */
 
@@ -3282,7 +3284,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
             "Reassembled DNP 3.0 Application Layer message", frag_msg, &dnp3_frag_items,
-            NULL, tr_tree);
+            NULL, dnp3_tree);
 
         if (next_tvb)  /* Reassembled */
         {

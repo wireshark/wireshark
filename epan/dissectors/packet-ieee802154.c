@@ -1205,23 +1205,17 @@ dissect_ieee802154_fcs:
 static void
 dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_tree *field_tree;
-    guint16     superframe;
+    static const int * superframe[] = {
+        &hf_ieee802154_beacon_order,
+        &hf_ieee802154_superframe_order,
+        &hf_ieee802154_cap,
+        &hf_ieee802154_superframe_battery_ext,
+        &hf_ieee802154_superframe_coord,
+        &hf_ieee802154_assoc_permit,
+        NULL
+    };
 
-    /* Parse the superframe spec. */
-    superframe = tvb_get_letohs(tvb, *offset);
-    if (tree) {
-        /*  Add Subtree for superframe specification */
-        field_tree = proto_tree_add_subtree(tree, tvb, *offset, 2, ett_ieee802154_superframe, NULL, "Superframe Specification");
-
-        /*  Add Beacon Order to the superframe spec. */
-        proto_tree_add_uint(field_tree, hf_ieee802154_beacon_order, tvb, *offset, 2, superframe & IEEE802154_BEACON_ORDER_MASK);
-        proto_tree_add_uint(field_tree, hf_ieee802154_superframe_order, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_ORDER_MASK);
-        proto_tree_add_uint(field_tree, hf_ieee802154_cap, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_CAP_MASK);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_superframe_battery_ext, tvb, *offset, 2, superframe & IEEE802154_BATT_EXTENSION_MASK);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_superframe_coord, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_COORD_MASK);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_assoc_permit, tvb, *offset, 2, superframe & IEEE802154_ASSOC_PERMIT_MASK);
-    }
+    proto_tree_add_bitmask_text(tree, tvb, *offset, 2, "Superframe Specification", NULL , ett_ieee802154_superframe, superframe, ENC_LITTLE_ENDIAN, BMT_NO_INT|BMT_NO_TFS);
     (*offset) += 2;
 } /* dissect_ieee802154_superframe */
 

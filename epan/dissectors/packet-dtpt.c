@@ -665,7 +665,6 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	proto_item	*dtpt_item;
 	guint8		version;
 	guint8		message_type;
-	guint32		flags;
 	guint32		payload_size;
 
 	version = tvb_get_guint8(tvb, 0);
@@ -708,80 +707,74 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 		switch (message_type) {
 			case LookupBeginRequest: {
-				proto_item* flags_item = NULL;
-				proto_tree*	flags_tree = NULL;
+				static const int * flags[] = {
+					&hf_dtpt_flags_res_service,
+					&hf_dtpt_flags_flushprevious,
+					&hf_dtpt_flags_flushcache,
+					&hf_dtpt_flags_return_query_string,
+					&hf_dtpt_flags_return_aliases,
+					&hf_dtpt_flags_return_blob,
+					&hf_dtpt_flags_return_addr,
+					&hf_dtpt_flags_return_comment,
+					&hf_dtpt_flags_return_version,
+					&hf_dtpt_flags_return_type,
+					&hf_dtpt_flags_return_name,
+					&hf_dtpt_flags_nearest,
+					&hf_dtpt_flags_nocontainers,
+					&hf_dtpt_flags_containers,
+					&hf_dtpt_flags_deep,
+					NULL
+				};
 
-				flags = tvb_get_letohl(tvb, 12);
+				proto_tree_add_bitmask(dtpt_tree, tvb, 12, hf_dtpt_flags, ett_dtpt_flags, flags, ENC_LITTLE_ENDIAN);
 
-				flags_item = proto_tree_add_uint(dtpt_tree, hf_dtpt_flags,
-					tvb, 12, 4, flags);
-				if (flags_item) {
-					flags_tree = proto_item_add_subtree(flags_item, ett_dtpt_flags);
-				}
-				if (flags_tree) {
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_res_service,   tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_flushprevious, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_flushcache,    tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_query_string, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_aliases, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_blob, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_addr, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_comment, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_version, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_type, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_return_name, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_nearest, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_nocontainers, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_containers, tvb, 12, 4, flags);
-					proto_tree_add_boolean(flags_tree, hf_dtpt_flags_deep, tvb, 12, 4, flags);
-				}
 				payload_size = tvb_get_letohl(tvb, 16);
 				proto_tree_add_uint(dtpt_tree, hf_dtpt_payload_size,
 					tvb, 16, 4, payload_size);
 			}
 			break;
 			case LookupBeginResponse: {
-				proto_tree_add_uint64(dtpt_tree, hf_dtpt_handle,
-					tvb, 4, 8, tvb_get_letoh64(tvb, 4));
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
-					tvb, 12, 4, tvb_get_letohl(tvb, 12));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_handle,
+					tvb, 4, 8, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
+					tvb, 12, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case LookupNextRequest: {
-				proto_tree_add_uint64(dtpt_tree, hf_dtpt_handle,
-					tvb, 4, 8, tvb_get_letoh64(tvb, 4));
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_buffer_size,
-					tvb, 16, 4, tvb_get_letohl(tvb, 16));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_handle,
+					tvb, 4, 8, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_tree, hf_dtpt_buffer_size,
+					tvb, 16, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case LookupNextResponse: {
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
-					tvb, 12, 4, tvb_get_letohl(tvb, 12));
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_data_size,
-					tvb, 16, 4, tvb_get_letohl(tvb, 16));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
+					tvb, 12, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_tree, hf_dtpt_data_size,
+					tvb, 16, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case LookupEndRequest: {
-				proto_tree_add_uint64(dtpt_tree, hf_dtpt_handle,
-					tvb, 4, 8, tvb_get_letoh64(tvb, 4));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_handle,
+					tvb, 4, 8, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case ConnectRequest: {
 				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
-					tvb, 32, 4, tvb_get_letohl(tvb, 32));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case ConnectResponseOK: {
 				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
-					tvb, 32, 4, tvb_get_letohl(tvb, 32));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case ConnectResponseERR: {
 				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
-				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
-					tvb, 32, 4, tvb_get_letohl(tvb, 32));
+				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 		}

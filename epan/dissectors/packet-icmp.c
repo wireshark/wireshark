@@ -360,12 +360,24 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
 	guint8 type;
 	guint8 length;
-	guint16 flags;
 	proto_item *ti;
 	proto_tree *mip_tree = NULL;
-	proto_tree *flags_tree = NULL;
 	gint numCOAs;
 	gint i;
+	static const int * flags[] = {
+		&hf_icmp_mip_r,
+		&hf_icmp_mip_b,
+		&hf_icmp_mip_h,
+		&hf_icmp_mip_f,
+		&hf_icmp_mip_m,
+		&hf_icmp_mip_g,
+		&hf_icmp_mip_v,
+		&hf_icmp_mip_rt,
+		&hf_icmp_mip_u,
+		&hf_icmp_mip_x,
+		&hf_icmp_mip_reserved,
+		NULL
+	};
 
 	/* Not much to do if we're not parsing everything */
 	if (!tree)
@@ -416,37 +428,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 					    ENC_BIG_ENDIAN);
 			offset += 2;
 			/* flags */
-			flags = tvb_get_ntohs(tvb, offset);
-			ti = proto_tree_add_uint(mip_tree,
-						 hf_icmp_mip_flags, tvb,
-						 offset, 2, flags);
-			flags_tree =
-			    proto_item_add_subtree(ti, ett_icmp_mip_flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_r,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_b,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_h,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_f,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_m,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_g,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_v,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_rt,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_u,
-					       tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, hf_icmp_mip_x,
-					       tvb, offset, 2, flags);
-
-			/* Reserved */
-			proto_tree_add_uint(flags_tree,
-					    hf_icmp_mip_reserved, tvb,
-					    offset, 2, flags);
+			proto_tree_add_bitmask(mip_tree, tvb, offset, hf_icmp_mip_flags, ett_icmp_mip_flags, flags, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			/* COAs */

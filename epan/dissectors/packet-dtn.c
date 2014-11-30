@@ -1587,9 +1587,13 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     }
     case BUNDLE_BLOCK_TYPE_EXTENDED_COS:
     {
-        proto_item *ecos_flag_item;
-        proto_tree *ecos_flag_tree;
         int flags, flow_label;
+        static const int * ecos_flags_fields[] = {
+            &hf_ecos_flags_critical,
+            &hf_ecos_flags_streaming,
+            &hf_ecos_flags_ordinal,
+            NULL
+        };
 
         /* check requirements for Block Processing Control Flags */
         if ((control_flags & BLOCK_CONTROL_REPLICATE) == 0) {
@@ -1601,11 +1605,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         /* flags byte */
         flags = (int)tvb_get_guint8(tvb, offset);
-        ecos_flag_item = proto_tree_add_item(block_tree, hf_ecos_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ecos_flag_tree = proto_item_add_subtree(ecos_flag_item, ett_block_flags);
-        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_critical, tvb, offset, 1, flags);
-        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_streaming, tvb, offset, 1, flags);
-        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_ordinal, tvb, offset, 1, flags);
+        proto_tree_add_bitmask(block_tree, tvb, offset, hf_ecos_flags, ett_block_flags, ecos_flags_fields, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* ordinal byte */
