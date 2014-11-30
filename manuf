@@ -12497,7 +12497,7 @@
 00:50:C2:61:10:00/36	Brookhav               # Brookhaven National Laboratory
 00:50:C2:61:20:00/36	Ihp-Gmbh
 00:50:C2:61:30:00/36	TattileS               # TATTILE SRL
-00:50:C2:61:40:00/36	SicomAs                # SICOM AS
+00:50:C2:61:40:00/36	Proserv
 00:50:C2:61:50:00/36	AxisElec               # Axis Electronics
 00:50:C2:61:60:00/36	Honeywel               # Honeywell
 00:50:C2:61:70:00/36	Narinet                # NARINET, INC.
@@ -20927,6 +20927,7 @@
 70:B3:D5:40:A0:00/36	MonroeEl               # Monroe Electronics, Inc.
 70:B3:D5:41:20:00/36	TattileS               # TATTILE SRL
 70:B3:D5:41:70:00/36	FigmentD               # Figment Design Laboratories
+70:B3:D5:41:80:00/36	DevSyste               # DEV Systemtechnik GmbH& Co KG
 70:B3:D5:41:E0:00/36	RedlerCo               # Redler Computers
 70:B3:D5:42:F0:00/36	Sintokog               # SINTOKOGIO, LTD
 70:B3:D5:43:30:00/36	Flexsolu               # Flexsolution APS
@@ -20967,6 +20968,7 @@
 70:B3:D5:5E:90:00/36	Zehetner               # Zehetner-Elektronik GmbH
 70:B3:D5:5E:A0:00/36	Kys                    # KYS,INC
 70:B3:D5:5F:00:00/36	Managee                # managee GmbH & Co KG
+70:B3:D5:5F:D0:00/36	WindarPh               # Windar Photonics
 70:B3:D5:60:00:00/36	Stellwer               # Stellwerk GmbH
 70:B3:D5:60:B0:00/36	Edgeware               # Edgeware AB
 70:B3:D5:60:C0:00/36	IstElekt               # IST ElektronikgesmbH
@@ -21011,6 +21013,7 @@
 70:B3:D5:75:50:00/36	Landmark               # LandmarkTech Systems Technology Co.,Ltd.
 70:B3:D5:75:D0:00/36	NanjingM               # Nanjing Magewell Electronics Co., Ltd.
 70:B3:D5:76:E0:00/36	GrupoEpe               # Grupo Epelsa S.L.
+70:B3:D5:77:50:00/36	SonelSA                # Sonel S.A.
 70:B3:D5:77:C0:00/36	HustyMSt               # HUSTY M.Styczen J.Hupert sp.j.
 70:B3:D5:79:60:00/36	GamptMbh               # GAMPT mbH
 70:B3:D5:79:90:00/36	VitecSys               # Vitec System Engineering Inc.
@@ -21048,6 +21051,7 @@
 70:B3:D5:90:80:00/36	Accusoni               # Accusonic
 70:B3:D5:91:70:00/36	Ksj                    # KSJ Co.Ltd
 70:B3:D5:91:80:00/36	GlovaRai               # Glova Rail A/S
+70:B3:D5:91:E0:00/36	Creotech               # Creotech Instruments S.A.
 70:B3:D5:93:60:00/36	FaroTech               # FARO TECHNOLOGIES, INC.
 70:B3:D5:94:10:00/36	Triax                  # Triax A/S
 70:B3:D5:95:60:00/36	Aerovisi               # AeroVision Avionics, Inc.
@@ -21072,6 +21076,7 @@
 70:B3:D5:A2:A0:00/36	Redwood                # Redwood Systems
 70:B3:D5:A2:F0:00/36	Botek                  # Botek Systems AB
 70:B3:D5:A4:00:00/36	StrackLi               # STRACK LIFT AUTOMATION GmbH
+70:B3:D5:A4:B0:00/36	MckayBro               # McKay Brothers LLC
 70:B3:D5:A5:50:00/36	EmbestTe               # Embest Technology Co., Ltd
 70:B3:D5:A5:70:00/36	Pcsc
 70:B3:D5:A5:A0:00/36	RcsEnerg               # RCS Energy Management Ltd

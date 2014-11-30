@@ -6547,7 +6547,7 @@ const value_string sminmpec_values[] = {
     {  6524, "Greenbytes GmbH" },
     {  6525, "Jasmine Networks, Inc." },
     {  6526, "Windward Consulting Group" },
-    {  6527, "Panthera Networks, Inc." },
+    {  6527, "Alcatel-Lucent (previous was 'Panthera Networks, Inc.')" },
     {  6528, "Source One" },
     {  6529, "Bundesamt f\0303\0274r Sicherheit in der Informationstechnik" },
     {  6530, "2N spol. s r.o." },
@@ -42851,7 +42851,7 @@ const value_string sminmpec_values[] = {
     { 42828, "US Army Electronic Provings Ground (USAEPG) Instrumentation Management System (IMS)" },
     { 42829, "QuartzDesk.com" },
     { 42830, "PowerSense" },
-    { 42831, "syssrv.net" },
+    { 42831, "Kickass Systems" },
     { 42832, "Tata Institute Fundamental Research " },
     { 42833, "Nimbus Technologieberatung GmbH" },
     { 42834, "TechniData IT-Service GmbH" },
@@ -44840,6 +44840,11 @@ const value_string sminmpec_values[] = {
     { 44817, "Idaho Division of Veterans Services" },
     { 44818, "CADMO CONOCIMIENTO S.L." },
     { 44819, "Store Electronic Systems S.A." },
+    { 44820, "Chlorine Hilarva" },
+    { 44821, "Beijer Electronics AB" },
+    { 44822, "DC Matrix Internet S/A" },
+    { 44823, "Airborne Interactive" },
+    { 44824, "Opravil" },
     {    0, NULL}
 };
 
