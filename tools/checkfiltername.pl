@@ -232,7 +232,7 @@ sub checkprotoabbrev {
 
 		if (($abbrev ne "") && (lc($abbrev) eq lc($afterabbrev))) {
 			#Allow ASN.1 generated files to duplicate part of proto name
-			if ((grep($currfile, @asn1automatedfilelist) == 0) &&
+			if ((!(grep {$currfile eq $_ } @asn1automatedfilelist))   &&
 				#Check "approved" whitelist
 				(is_proto_dup_whitelist($abbrev, $check_dup_abbrev) == 0)) {
 				if ($showlinenoFlag) {
@@ -335,7 +335,33 @@ sub printprevfile {
 # a problem for the pre-commit script
 #--------------------------------------------------------------------
 sub is_proto_dup_whitelist {
+	if (($_[0] eq "amf") && (index($_[1], "amf0") >= 0)) {return 1;}
+	if (($_[0] eq "amf") && (index($_[1], "amf3") >= 0)) {return 1;}
+	if (($_[0] eq "amqp") && (index($_[1], "amqp") >= 0)) {return 1;}
 	if (($_[0] eq "bat") && (index($_[1], "batman") >= 0)) {return 1;}
+	if (($_[0] eq "browser") && (index($_[1], "browser_") >= 0)) {return 1;}
+	if (($_[0] eq "dns") && (index($_[1], "dnskey") >= 0)) {return 1;}
+	if (($_[0] eq "exported_pdu") && (index($_[1], "exported_pdu") >= 0)) {return 1;}
+	if (($_[0] eq "fc") && (index($_[1], "fctl") >= 0)) {return 1;}
+	if (($_[0] eq "fcs") && (index($_[1], "fcsmask") >= 0)) {return 1;}
+	if (($_[0] eq "fmp") && (index($_[1], "fmp") >= 0)) {return 1;}
+	if (($_[0] eq "fr") && (index($_[1], "frame_relay") >= 0)) {return 1;}
+	if (($_[0] eq "mac") && (index($_[1], "macd") >= 0)) {return 1;}
+	if (($_[0] eq "mac") && (index($_[1], "macis") >= 0)) {return 1;}
+	if (($_[0] eq "mih") && (index($_[1], "mihf") >= 0)) {return 1;}
+	if (($_[0] eq "mih") && (index($_[1], "mihcap") >= 0)) {return 1;}
+	if (($_[0] eq "ncp") && (index($_[1], "ncp") >= 0)) {return 1;}
+	if (($_[0] eq "nfs") && (index($_[1], "nfs") >= 0)) {return 1;}
+	if (($_[0] eq "oxid") && (index($_[1], "oxid") >= 0)) {return 1;}
+	if (($_[0] eq "rquota") && (index($_[1], "rquota") >= 0)) {return 1;}
+	if (($_[0] eq "sm") && (index($_[1], "sm_") >= 0)) {return 1;}
+	if (($_[0] eq "smpp") && (index($_[1], "smppplus") >= 0)) {return 1;}
+	if (($_[0] eq "spray") && (index($_[1], "sprayarr") >= 0)) {return 1;}
+	if (($_[0] eq "tds") && (index($_[1], "tds_") >= 0)) {return 1;}
+	if (($_[0] eq "time") && (index($_[1], "time") >= 0)) {return 1;}
+	if (($_[0] eq "tn3270") && (index($_[1], "tn3270e") >= 0)) {return 1;}
+	if (($_[0] eq "usb") && (index($_[1], "usb") >= 0)) {return 1;}
+	if (($_[0] eq "xml") && (index($_[1], "xml") >= 0)) {return 1;}
 
 	return 0;
 }
@@ -470,18 +496,28 @@ while (<>) {
 		$filecount++;
 		$currfile = $ARGV;
 
-		#determine PROTABBREV for dissector based on file name format of (dirs)/packet-PROTABBREV.c
+		#determine PROTABBREV for dissector based on file name format of (dirs)/packet-PROTABBREV.c or (dirs)/file-PROTABBREV.c
 		$protabbrev_index = rindex($currfile, "packet-");
 		if ($protabbrev_index == -1) {
-			print "$currfile doesn't fit format of packet-PROTABBREV.c\n";
-			next;
-		}
+			$protabbrev_index = rindex($currfile, "file-");
+			if ($protabbrev_index == -1) {
+				#ignore "non-dissector" files
+				next;
+			}
 
-		$protabbrev = substr($currfile, $protabbrev_index+length("packet-"));
-		$protabbrev_index = rindex($protabbrev, ".");
-		if ($protabbrev_index == -1) {
-			print "$currfile doesn't fit format of packet-PROTABBREV.c\n";
-			next;
+			$protabbrev = substr($currfile, $protabbrev_index+length("file-"));
+			$protabbrev_index = rindex($protabbrev, ".");
+			if ($protabbrev_index == -1) {
+				print "$currfile doesn't fit format of file-PROTABBREV.c\n";
+				next;
+			}
+		} else {
+			$protabbrev = substr($currfile, $protabbrev_index+length("packet-"));
+			$protabbrev_index = rindex($protabbrev, ".");
+			if ($protabbrev_index == -1) {
+				print "$currfile doesn't fit format of packet-PROTABBREV.c\n";
+				next;
+			}
 		}
 		$protabbrev = substr($protabbrev, 0, $protabbrev_index);
 
