@@ -331,7 +331,7 @@ proto_register_file(void)
 		    NULL, HFILL }},
 #if 0
 		{ &hf_frame_file_off,
-		  { "File Offset", "file.file_off",
+		  { "File Offset", "file.offset",
 		    FT_INT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 #endif

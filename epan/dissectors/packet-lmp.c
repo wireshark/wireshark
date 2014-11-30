@@ -516,7 +516,7 @@ static int hf_lmp_interface_id_unnumbered = -1;
 static int hf_lmp_signal_types_sdh = -1;
 static int hf_lmp_link_type = -1;
 static int hf_lmp_number_of_data_links = -1;
-static int hf_lmp_lmp_version = -1;
+static int hf_lmp_version = -1;
 static int hf_lmp_interface_id_ipv4 = -1;
 static int hf_lmp_header_length = -1;
 static int hf_lmp_uni_version = -1;
@@ -741,7 +741,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             lmp_tree, tvb, offset, 12,
             lmp_subtree[LMP_TREE_HEADER], NULL, "LMP Header. %s",
             val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
-        proto_tree_add_item(lmp_header_tree, hf_lmp_lmp_version, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lmp_header_tree, hf_lmp_version, tvb, offset, 1, ENC_NA);
 
         proto_tree_add_bitmask(lmp_header_tree, tvb, offset+2, hf_lmp_header_flags, lmp_subtree[LMP_TREE_HEADER_FLAGS], header_flags, ENC_NA);
         msg_item = proto_tree_add_uint(lmp_header_tree, hf_lmp_filter[LMPF_MSG], tvb,
@@ -2593,7 +2593,7 @@ proto_register_lmp(void)
            NULL, HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_lmp_lmp_version, { "LMP Version", "lmp.lmp_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_version, { "LMP Version", "lmp.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_header_flags, { "Flags", "lmp.header_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_header_length, { "Length", "lmp.header_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_negotiable, { "Negotiable", "lmp.negotiable", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL }},

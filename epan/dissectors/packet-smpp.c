@@ -3679,7 +3679,7 @@ proto_register_smpp(void)
         {        &hf_huawei_smpp_smsc_addr,
                 {       "SMPP+: GT of SMSC", "smpp.smsc_addr",
                         FT_STRING, BASE_NONE, NULL, 0x00,
-                        "SMPP+: GT of SMSC", HFILL
+                        NULL, HFILL
                 }
         },
         {        &hf_huawei_smpp_msc_addr_noa,
@@ -3697,7 +3697,7 @@ proto_register_smpp(void)
         {        &hf_huawei_smpp_msc_addr,
                 {       "SMPP+: GT of MSC", "smpp.msc_addr",
                         FT_STRING, BASE_NONE, NULL, 0x00,
-                        "SMPP+: GT of MSC", HFILL
+                        NULL, HFILL
                 }
         },
         {        &hf_huawei_smpp_mo_mt_flag,

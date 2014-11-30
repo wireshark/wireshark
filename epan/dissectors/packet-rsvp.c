@@ -409,7 +409,7 @@ static int hf_rsvp_lsp_tunnel_if_id_data = -1;
 static int hf_rsvp_hello_destination_instance = -1;
 static int hf_rsvp_tspec_signal_type_g709 = -1;
 static int hf_rsvp_call_id_reserved = -1;
-static int hf_rsvp_rsvp_version = -1;
+static int hf_rsvp_version = -1;
 static int hf_rsvp_association_source_ipv6 = -1;
 static int hf_rsvp_ero_rro_subobjects_flags = -1;
 static int hf_rsvp_lsp_tunnel_if_id_lsp_encoding_type = -1;
@@ -6903,7 +6903,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (e2ei)
         proto_item_append_text(ti, " (E2E-IGNORE)");
 
-    proto_tree_add_item(rsvp_header_tree, hf_rsvp_rsvp_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(rsvp_header_tree, hf_rsvp_version, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(rsvp_header_tree, hf_rsvp_flags, tvb, offset, 1, ENC_NA);
     proto_tree_add_uint(rsvp_header_tree, hf_rsvp_filter[RSVPF_MSG], tvb,
                         offset+1, 1, message_type);
@@ -9189,7 +9189,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_detour_data, { "Data", "rsvp.detour.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_diffserv_data, { "Data", "rsvp.diffserv.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_diffserv_aware_te_data, { "Data", "rsvp.diffserv_aware_te.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_rsvp_version, { "RSVP Version", "rsvp.rsvp_version", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+      { &hf_rsvp_version, { "RSVP Version", "rsvp.version", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_rsvp_flags, { "Flags", "rsvp.flags", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
       { &hf_rsvp_sending_ttl, { "Sending TTL", "rsvp.sending_ttl", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_message_length, { "Message length", "rsvp.message_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
