@@ -1179,6 +1179,19 @@ wtap_buf_ptr(wtap *wth)
 	return ws_buffer_start_ptr(wth->frame_buffer);
 }
 
+void
+wtap_phdr_init(struct wtap_pkthdr *phdr)
+{
+	memset(phdr, 0, sizeof(struct wtap_pkthdr));
+	ws_buffer_init(&phdr->ft_specific_data, 0);
+}
+
+void
+wtap_phdr_cleanup(struct wtap_pkthdr *phdr)
+{
+	ws_buffer_free(&phdr->ft_specific_data);
+}
+
 gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)

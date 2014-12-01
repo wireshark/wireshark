@@ -990,7 +990,7 @@ load_cap_file(capture_file *cf)
     struct wtap_pkthdr phdr;
     epan_dissect_t edt;
 
-    memset(&phdr, 0, sizeof(phdr));
+    wtap_phdr_init(&phdr);
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 
@@ -999,6 +999,8 @@ load_cap_file(capture_file *cf)
     }
 
     epan_dissect_cleanup(&edt);
+
+    wtap_phdr_cleanup(&phdr);
 
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */

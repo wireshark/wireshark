@@ -104,21 +104,18 @@ typedef struct FrameRecord_t {
 
 
 static void
-frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
-            const char *infile)
+frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
+            struct wtap_pkthdr *phdr, Buffer *buf, const char *infile)
 {
     int    err;
     gchar  *err_info;
-    struct wtap_pkthdr phdr;
-
-    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
     DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u)\n",
                 frame->offset);
 
 
-    /* Re-read the first frame from the stored location */
-    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
+    /* Re-read the frame from the stored location */
+    if (!wtap_seek_read(wth, frame->offset, phdr, buf, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
@@ -138,11 +135,12 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
     }
 
     /* Copy, and set length and timestamp from item. */
-    /* TODO: remove when wtap_seek_read() will read phdr */
-    phdr.ts = frame->time;
+    /* TODO: remove when wtap_seek_read() fills in phdr,
+       including time stamps, for all file types  */
+    phdr->ts = frame->time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(buf), &err)) {
+    if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err)) {
         fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
                 wtap_strerror(err));
         exit(1);
@@ -202,6 +200,7 @@ main(int argc, char *argv[])
     GString *runtime_info_str;
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
+    struct wtap_pkthdr dump_phdr;
     Buffer buf;
     int err;
     gchar *err_info;
@@ -360,16 +359,18 @@ main(int argc, char *argv[])
     }
 
     /* Write out each sorted frame in turn */
+    wtap_phdr_init(&dump_phdr);
     ws_buffer_init(&buf, 1500);
     for (i = 0; i < frames->len; i++) {
         FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh, &buf, infile);
+            frame_write(frame, wth, pdh, &dump_phdr, &buf, infile);
         }
         g_slice_free(FrameRecord_t, frame);
     }
+    wtap_phdr_cleanup(&dump_phdr);
     ws_buffer_free(&buf);
 
     if (!write_output_regardless && (wrong_order_count == 0)) {

@@ -1104,7 +1104,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+	wtap_phdr_init(&phdr);
 
 	fdata = record->fdata;
 
@@ -1175,6 +1175,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		record->colorized = TRUE;
 
 	epan_dissect_cleanup(&edt);
+	wtap_phdr_cleanup(&phdr);
 	ws_buffer_free(&buf);
 }
 

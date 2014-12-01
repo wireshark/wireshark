@@ -1007,20 +1007,21 @@ union wtap_pseudo_header {
 #define REC_TYPE_FT_SPECIFIC_REPORT   2    /**< file-type-specific report */
 
 struct wtap_pkthdr {
-    guint               rec_type;       /* what type of record is this? */
-    guint32             presence_flags; /* what stuff do we have? */
-    nstime_t            ts;
-    guint32             caplen;         /* data length in the file */
-    guint32             len;            /* data length on the wire */
-    int                 pkt_encap;      /* WTAP_ENCAP_ value for this packet */
-    int                 pkt_tsprec;     /* WTAP_TSPREC_ value for this packet */
-                                        /* pcapng variables */
-    guint32             interface_id;   /* identifier of the interface. */
-                                        /* options */
-    gchar              *opt_comment;    /* NULL if not available */
-    guint64             drop_count;     /* number of packets lost (by the interface and the
-                                           operating system) between this packet and the preceding one. */
-    guint32             pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
+    guint     rec_type;         /* what type of record is this? */
+    guint32   presence_flags;   /* what stuff do we have? */
+    nstime_t  ts;               /* time stamp */
+    guint32   caplen;           /* data length in the file */
+    guint32   len;              /* data length on the wire */
+    int       pkt_encap;        /* WTAP_ENCAP_ value for this packet */
+    int       pkt_tsprec;       /* WTAP_TSPREC_ value for this packet */
+                                /* pcapng variables */
+    guint32   interface_id;     /* identifier of the interface. */
+                                /* options */
+    gchar     *opt_comment;     /* NULL if not available */
+    guint64   drop_count;       /* number of packets lost (by the interface and the
+                                   operating system) between this packet and the preceding one. */
+    guint32   pack_flags;       /* XXX - 0 for now (any value for "we don't have it"?) */
+    Buffer    ft_specific_data; /* file-type specific data */
 
     union wtap_pseudo_header  pseudo_header;
 };
@@ -1463,6 +1464,14 @@ WS_DLL_PUBLIC
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 WS_DLL_PUBLIC
 guint8 *wtap_buf_ptr(wtap *wth);
+
+/*** initialize a wtap_pkthdr structure ***/
+WS_DLL_PUBLIC
+void wtap_phdr_init(struct wtap_pkthdr *phdr);
+
+/*** clean up a wtap_pkthdr structure, freeing what wtap_phdr_init() allocated */
+WS_DLL_PUBLIC
+void wtap_phdr_cleanup(struct wtap_pkthdr *phdr);
 
 /*** get various information snippets about the current file ***/
 

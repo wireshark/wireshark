@@ -1810,7 +1810,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
 
-  memset(&file_phdr, 0, sizeof(file_phdr));
+  wtap_phdr_init(&file_phdr);
 
   /* XXX - TEMPORARY HACK TO ELF DISSECTOR */
   file_phdr.pkt_encap = 1234;
@@ -1944,6 +1944,8 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = NULL;
     }
   }
+
+  wtap_phdr_cleanup(&phdr);
 
   if (err != 0) {
     /*

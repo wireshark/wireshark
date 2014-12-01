@@ -310,6 +310,9 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
      and fill in the information for this file. */
   cf_close(cf);
 
+  /* Initialize the packet header. */
+  wtap_phdr_init(&cf->phdr);
+
   /* XXX - we really want to initialize this after we've read all
      the packets, so we know how much we'll ultimately need. */
   ws_buffer_init(&cf->buf, 1500);
@@ -435,6 +438,9 @@ cf_close(capture_file *cf)
 
   /* no open_routine type */
   cf->open_type = WTAP_TYPE_AUTO;
+
+  /* Clean up the packet header. */
+  wtap_phdr_cleanup(&cf->phdr);
 
   /* Free up the packet buffer. */
   ws_buffer_free(&cf->buf);
@@ -2192,7 +2198,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   range_process_e  process_this;
   struct wtap_pkthdr phdr;
 
-  memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+  wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
 
   /* Update the progress bar when it gets to this value. */
@@ -2290,6 +2296,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
 
+  wtap_phdr_cleanup(&phdr);
   ws_buffer_free(&buf);
 
   return ret;
@@ -3942,6 +3949,8 @@ cf_get_user_packet_comment(capture_file *cf, const frame_data *fd)
 char *
 cf_get_comment(capture_file *cf, const frame_data *fd)
 {
+  char *comment;
+
   /* fetch user comment */
   if (fd->flags.has_user_comment)
     return g_strdup(cf_get_user_packet_comment(cf, fd));
@@ -3951,14 +3960,16 @@ cf_get_comment(capture_file *cf, const frame_data *fd)
     struct wtap_pkthdr phdr; /* Packet header */
     Buffer buf; /* Packet data */
 
-    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
-
+    wtap_phdr_init(&phdr);
     ws_buffer_init(&buf, 1500);
+
     if (!cf_read_record_r(cf, fd, &phdr, &buf))
       { /* XXX, what we can do here? */ }
 
+    comment = phdr.opt_comment;
+    wtap_phdr_cleanup(&phdr);
     ws_buffer_free(&buf);
-    return phdr.opt_comment;
+    return comment;
   }
   return NULL;
 }

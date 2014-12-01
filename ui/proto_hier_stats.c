@@ -143,7 +143,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	Buffer				buf;
 	double				cur_time;
 
-	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+	wtap_phdr_init(&phdr);
 
 	/* Load the record from the capture file */
 	ws_buffer_init(&buf, 1500);
@@ -170,6 +170,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Free our memory. */
 	epan_dissect_cleanup(&edt);
+	wtap_phdr_cleanup(&phdr);
 	ws_buffer_free(&buf);
 
 	return TRUE;	/* success */

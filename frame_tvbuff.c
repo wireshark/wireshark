@@ -74,7 +74,7 @@ frame_cache(struct tvb_frame *frame_tvb)
 {
 	struct wtap_pkthdr phdr; /* Packet header */
 
-	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+	wtap_phdr_init(&phdr);
 
 	if (frame_tvb->buf == NULL) {
 		frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
@@ -87,6 +87,8 @@ frame_cache(struct tvb_frame *frame_tvb)
 	}
 
 	frame_tvb->tvb.real_data = ws_buffer_start_ptr(frame_tvb->buf) + frame_tvb->offset;
+
+	wtap_phdr_cleanup(&phdr);
 }
 
 static void

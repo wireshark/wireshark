@@ -36,5 +36,18 @@ WS_DLL_PUBLIC
 void register_pcapng_block_type_handler(guint block_type, block_reader read,
                                         block_writer write);
 
+/*
+ * Handler routine for pcap-ng option type.
+ */
+typedef gboolean (*option_handler)(gboolean, guint, guint8 *, int *, gchar **);
+
+/*
+ * Register a handler for a pcap-ng option code for a particular block
+ * type.
+ */
+WS_DLL_PUBLIC
+void register_pcapng_option_handler(guint block_type, guint option_code,
+                                    option_handler handle);
+
 #endif /* __PCAP_MODULE_H__ */
 

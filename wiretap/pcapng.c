@@ -418,6 +418,98 @@ register_pcapng_block_type_handler(guint block_type, block_reader read,
     (void)g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
                               handler);
 }
+
+/*
+ * Tables for plugins to handle particular options for particular block
+ * types.
+ *
+ * An option has a handler routine, which is passed an indication of
+ * whether this section of the file is byte-swapped, the length of the
+ * option, the data of the option, a pointer to an error code, and a
+ * pointer to a pointer variable for an error string.
+ *
+ * It checks whether the length and option are valid, and, if they aren't,
+ * returns FALSE, setting the error code to the appropriate error (normally
+ * WTAP_ERR_BAD_FILE) and the error string to an appropriate string
+ * indicating the problem.
+ *
+ * Otherwise, if this section of the file is byte-swapped, it byte-swaps
+ * multi-byte numerical values, so that it's in the host byte order.
+ */
+
+/*
+ * Block types indices in the table of tables of option handlers.
+ *
+ * Block types are not guaranteed to be sequential, so we map the
+ * block types we support to a sequential set.  Furthermore, all
+ * packet block types have the same set of options.
+ */
+#define BT_INDEX_SHB        0
+#define BT_INDEX_IDB        1
+#define BT_INDEX_PBS        2  /* all packet blocks */
+#define BT_INDEX_NRB        3
+#define BT_INDEX_ISB        4
+
+#define NUM_BT_INDICES      5
+
+static GHashTable *option_handlers[NUM_BT_INDICES];
+
+void
+register_pcapng_option_handler(guint block_type, guint option_code,
+                               option_handler handler)
+{
+    guint bt_index;
+
+    switch (block_type) {
+
+    case BLOCK_TYPE_SHB:
+        bt_index = BT_INDEX_SHB;
+        break;
+
+    case BLOCK_TYPE_IDB:
+        bt_index = BT_INDEX_IDB;
+        break;
+
+    case BLOCK_TYPE_PB:
+    case BLOCK_TYPE_EPB:
+    case BLOCK_TYPE_SPB:
+        bt_index = BT_INDEX_PBS;
+        break;
+
+    case BLOCK_TYPE_NRB:
+        bt_index = BT_INDEX_NRB;
+        break;
+
+    case BLOCK_TYPE_ISB:
+        bt_index = BT_INDEX_ISB;
+        break;
+
+    default:
+        /*
+         * This is a block type we don't process; either we ignore it,
+         * in which case the options don't get processed, or there's
+         * a plugin routine to handle it, in which case that routine
+         * will do the option processing itself.
+         *
+         * XXX - report an error?
+         */
+        return;
+    }
+
+    if (option_handlers[bt_index] == NULL) {
+        /*
+         * Create the table of option handlers for this block type.
+         *
+         * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+         * so we use "g_direct_hash()" and "g_direct_equal()".
+         */
+        option_handlers[bt_index] = g_hash_table_new_full(g_direct_hash,
+                                                          g_direct_equal,
+                                                          NULL, g_free);
+    }
+    (void)g_hash_table_insert(option_handlers[bt_index],
+                              GUINT_TO_POINTER(option_code), handler);
+}
 #endif /* HAVE_PLUGINS */
 
 static int
@@ -1003,10 +1095,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     guint32 padding;
     interface_info_t iface_info;
     guint64 ts;
-    pcapng_option_header_t oh;
+    guint8 *opt_ptr;
+    pcapng_option_header_t *oh;
+    guint8 *option_content;
     int pseudo_header_len;
-    char *option_content = NULL; /* Allocate as large as the options block */
     int fcslen;
+#ifdef HAVE_PLUGINS
+    option_handler handler;
+#endif
 
     /* Don't try to allocate memory for a huge number of options, as
        that might fail and, even if it succeeds, it might not leave
@@ -1232,24 +1328,24 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
     /* Allocate enough memory to hold all options */
     opt_cont_buf_len = to_read;
-    option_content = (char *)g_try_malloc(opt_cont_buf_len);
-    if (opt_cont_buf_len != 0 && option_content == NULL) {
-        *err = ENOMEM;  /* we assume we're out of memory */
-        return FALSE;
-    }
+    ws_buffer_assure_space(&wblock->packet_header->ft_specific_data, opt_cont_buf_len);
+    opt_ptr = ws_buffer_start_ptr(&wblock->packet_header->ft_specific_data);
 
     while (to_read != 0) {
         /* read option */
-        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        oh = (pcapng_option_header_t *)(void *)opt_ptr;
+        option_content = opt_ptr + sizeof (pcapng_option_header_t);
+        bytes_read = pcapng_read_option(fh, pn, oh, option_content, opt_cont_buf_len, to_read, err, err_info);
         if (bytes_read <= 0) {
             pcapng_debug0("pcapng_read_packet_block: failed to read option");
+            /* XXX - free anything? */
             return FALSE;
         }
         block_read += bytes_read;
         to_read -= bytes_read;
 
         /* handle option content */
-        switch (oh.option_code) {
+        switch (oh->option_code) {
             case(OPT_EOFOPT):
                 if (to_read != 0) {
                     pcapng_debug1("pcapng_read_packet_block: %u bytes after opt_endofopt", to_read);
@@ -1258,58 +1354,80 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 to_read = 0;
                 break;
             case(OPT_COMMENT):
-                if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                if (oh->option_length > 0 && oh->option_length < opt_cont_buf_len) {
                     wblock->packet_header->presence_flags |= WTAP_HAS_COMMENTS;
-                    wblock->packet_header->opt_comment = g_strndup(option_content, oh.option_length);
-                    pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh.option_length, wblock->packet_header->opt_comment);
+                    wblock->packet_header->opt_comment = g_strndup(option_content, oh->option_length);
+                    pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh->option_length, wblock->packet_header->opt_comment);
                 } else {
-                    pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
+                    pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh->option_length);
                 }
                 break;
             case(OPT_EPB_FLAGS):
-                if (oh.option_length == 4) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
-                     */
-                    wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
-                    memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
-                    if (pn->byte_swapped)
-                        wblock->packet_header->pack_flags = GUINT32_SWAP_LE_BE(wblock->packet_header->pack_flags);
-                    if (wblock->packet_header->pack_flags & 0x000001E0) {
-                        /* The FCS length is present */
-                        fcslen = (wblock->packet_header->pack_flags & 0x000001E0) >> 5;
-                    }
-                    pcapng_debug1("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->packet_header->pack_flags);
-                } else {
-                    pcapng_debug1("pcapng_read_packet_block: pack_flags length %u not 4 as expected", oh.option_length);
+                if (oh->option_length != 4) {
+                    *err = WTAP_ERR_BAD_FILE;
+                    *err_info = g_strdup_printf("pcapng: packet block flags option length %u is not 4",
+                                                oh->option_length);
+                    /* XXX - free anything? */
+                    return FALSE;
                 }
+                /*  Don't cast a char[] into a guint32--the
+                 *  char[] may not be aligned correctly.
+                 */
+                wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
+                memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
+                if (pn->byte_swapped) {
+                    wblock->packet_header->pack_flags = GUINT32_SWAP_LE_BE(wblock->packet_header->pack_flags);
+                    memcpy(option_content, &wblock->packet_header->pack_flags, sizeof(guint32));
+                }
+                if (wblock->packet_header->pack_flags & 0x000001E0) {
+                    /* The FCS length is present */
+                    fcslen = (wblock->packet_header->pack_flags & 0x000001E0) >> 5;
+                }
+                pcapng_debug1("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->packet_header->pack_flags);
                 break;
             case(OPT_EPB_HASH):
                 pcapng_debug2("pcapng_read_packet_block: epb_hash %u currently not handled - ignoring %u bytes",
-                              oh.option_code, oh.option_length);
+                              oh->option_code, oh->option_length);
                 break;
             case(OPT_EPB_DROPCOUNT):
-                if (oh.option_length == 8) {
-                    /*  Don't cast a char[] into a guint32--the
-                     *  char[] may not be aligned correctly.
-                     */
-                    wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
-                    memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
-                    if (pn->byte_swapped)
-                        wblock->packet_header->drop_count = GUINT64_SWAP_LE_BE(wblock->packet_header->drop_count);
-
-                    pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->packet_header->drop_count);
-                } else {
-                    pcapng_debug1("pcapng_read_packet_block: drop_count length %u not 8 as expected", oh.option_length);
+                if (oh->option_length != 8) {
+                    *err = WTAP_ERR_BAD_FILE;
+                    *err_info = g_strdup_printf("pcapng: packet block drop count option length %u is not 8",
+                                                oh->option_length);
+                    /* XXX - free anything? */
+                    return FALSE;
                 }
+                /*  Don't cast a char[] into a guint64--the
+                 *  char[] may not be aligned correctly.
+                 */
+                wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
+                memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
+                if (pn->byte_swapped) {
+                    wblock->packet_header->drop_count = GUINT64_SWAP_LE_BE(wblock->packet_header->drop_count);
+                    memcpy(option_content, &wblock->packet_header->drop_count, sizeof(guint64));
+                }
+
+                pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->packet_header->drop_count);
                 break;
             default:
+#ifdef HAVE_PLUGINS
+                /*
+                 * Do we have a handler for this packet block option code?
+                 */
+                handler = (option_handler)g_hash_table_lookup(option_handlers[BT_INDEX_PBS],
+                                                              GUINT_TO_POINTER(oh->option_code));
+                if (handler != NULL) {
+                    /* Yes - call the handler. */
+                    if (!handler(pn->byte_swapped, oh->option_length,
+                                 option_content, err, err_info))
+                        /* XXX - free anything? */
+                        return FALSE;
+                } else
+#endif
                 pcapng_debug2("pcapng_read_packet_block: unknown option %u - ignoring %u bytes",
-                              oh.option_code, oh.option_length);
+                              oh->option_code, oh->option_length);
         }
     }
-
-    g_free(option_content);
 
     pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
                            wblock->packet_header, ws_buffer_start_ptr(wblock->frame_buffer),
