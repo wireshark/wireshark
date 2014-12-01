@@ -4994,31 +4994,35 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     /* case of AS_PATH type being explicitly 4 bytes ASN */
     if (bgpa_type == BGPTYPE_AS4_PATH) {
         /* We calculate numbers of segments and return the as length */
+        assumed_as_len = 4;
         while (k < end_attr_offset)
         {
+            /* we skip segment type and point to length */
+            k++;
             length = tvb_get_guint8(tvb, k);
+            /* length read let's move to first ASN */
+            k++;
             /* we move to the next segment */
             k = k + (length*assumed_as_len);
-            /* if I am not facing the last segment k need to point to next length */
-            if(k < end_attr_offset)
-                k++;
             counter_as_segment++;
         }
         *number_as_segment = counter_as_segment;
-        bgp_asn_len = 4;
         return(4);
     }
     /* case of user specified ASN length */
     if (bgp_asn_len != 0) {
         /* We calculate numbers of segments and return the as length */
+        assumed_as_len = bgp_asn_len;
         while (k < end_attr_offset)
         {
+            /* we skip segment type and point to length */
+            k++;
             length = tvb_get_guint8(tvb, k);
+            /* length read let's move to first ASN */
+            k++;
             /* we move to the next segment */
             k = k + (length*assumed_as_len);
             /* if I am not facing the last segment k need to point to next length */
-            if(k < end_attr_offset)
-                k++;
             counter_as_segment++;
         }
         *number_as_segment = counter_as_segment;
@@ -5635,7 +5639,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     if(tlen == 0) {
                         proto_item_append_text(ti_pa,"empty");
                     }
-
                     q = o + i + aoff;
                     for (k=0; k < number_as_segment; k++)
                     {
