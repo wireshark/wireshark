@@ -1053,6 +1053,8 @@ proto_reg_handoff_multipart(void)
             "multipart/form-data", multipart_handle);
     dissector_add_string("media_type",
             "multipart/report", multipart_handle);
+    dissector_add_string("media_type",
+            "multipart/signed", multipart_handle);
 
     /*
      * Supply an entry to use for unknown multipart subtype.
