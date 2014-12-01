@@ -1424,8 +1424,10 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         return FALSE;
                 } else
 #endif
-                pcapng_debug2("pcapng_read_packet_block: unknown option %u - ignoring %u bytes",
-                              oh->option_code, oh->option_length);
+                {
+                    pcapng_debug2("pcapng_read_packet_block: unknown option %u - ignoring %u bytes",
+                                  oh->option_code, oh->option_length);
+                }
         }
     }
 
