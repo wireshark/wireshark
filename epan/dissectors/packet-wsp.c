@@ -4287,6 +4287,12 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
     return offset;
 }
 
+static const int * address_length_flags[] = {
+    &hf_address_flags_length_bearer_type_included,
+    &hf_address_flags_length_port_number_included,
+    &hf_address_flags_length_address_len,
+    NULL
+};
 
 /* Code to actually dissect the packets */
 
@@ -4302,15 +4308,12 @@ static void
 dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t dissector_handle)
 {
-    guint8             flags;
     proto_item        *ti;
     proto_tree        *addresses_tree = NULL;
     proto_tree        *addr_tree      = NULL;
-    proto_tree        *flags_tree;
     guint8             bearer_type;
     guint8             address_flags_len;
     int                address_len;
-    proto_tree        *address_flags_tree;
     guint16            port_num;
     guint32            address_ipv4;
     struct e_in6_addr  address_ipv6;
@@ -4318,20 +4321,17 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     conversation_t    *conv;
     guint32            idx            = 0; /* Address index */
     guint32            address_record_len; /* Length of the entire address record */
+    static const int * flags[] = {
+        &hf_wsp_redirect_permanent,
+        &hf_wsp_redirect_reuse_security_session,
+        NULL
+    };
+
 
     /*
      * Redirect flags.
      */
-    flags = tvb_get_guint8 (tvb, offset);
-    if (tree) {
-        ti = proto_tree_add_uint (tree, hf_wsp_redirect_flags,
-            tvb, offset, 1, flags);
-        flags_tree = proto_item_add_subtree (ti, ett_redirect_flags);
-        proto_tree_add_boolean (flags_tree, hf_wsp_redirect_permanent,
-            tvb, offset, 1, flags);
-        proto_tree_add_boolean (flags_tree, hf_wsp_redirect_reuse_security_session,
-            tvb, offset, 1, flags);
-    }
+    proto_tree_add_bitmask(tree, tvb, offset, hf_wsp_redirect_flags, ett_redirect_flags, flags, ENC_NA);
     offset++;
 
     /*
@@ -4355,38 +4355,24 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
             + (address_flags_len & PORT_NUMBER_INCLUDED ? 2 : 0)
         ;
 
-        if (tree) {
-            ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
-                    tvb, offset, 1 + address_record_len, idx);
-            addr_tree = proto_item_add_subtree(ti, ett_address);
+        ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
+                tvb, offset, 1 + address_record_len, idx);
+        addr_tree = proto_item_add_subtree(ti, ett_address);
 
-            ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
-                tvb, offset, 1, address_flags_len);
-            address_flags_tree = proto_item_add_subtree (ti, ett_address_flags);
-            proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_bearer_type_included,
-                tvb, offset, 1, address_flags_len);
-            proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_port_number_included,
-                tvb, offset, 1, address_flags_len);
-            proto_tree_add_uint (address_flags_tree, hf_address_flags_length_address_len,
-                tvb, offset, 1, address_flags_len);
-        }
+        proto_tree_add_bitmask(addr_tree, tvb, offset, hf_address_flags_length, ett_address_flags, address_length_flags, ENC_NA);
         offset++;
         if (address_flags_len & BEARER_TYPE_INCLUDED) {
             bearer_type = tvb_get_guint8 (tvb, offset);
-            if (tree) {
-                proto_tree_add_uint (addr_tree, hf_address_bearer_type,
+            proto_tree_add_uint (addr_tree, hf_address_bearer_type,
                     tvb, offset, 1, bearer_type);
-            }
             offset++;
         } else {
             bearer_type = 0x00; /* XXX */
         }
         if (address_flags_len & PORT_NUMBER_INCLUDED) {
             port_num = tvb_get_ntohs (tvb, offset);
-            if (tree) {
-                proto_tree_add_uint (addr_tree, hf_address_port_num,
+            proto_tree_add_uint (addr_tree, hf_address_port_num,
                     tvb, offset, 2, port_num);
-            }
             offset += 2;
         } else {
             /*
@@ -4523,7 +4509,6 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
     guint8             bearer_type;
     guint8             address_flags_len;
     int                address_len;
-    proto_tree        *address_flags_tree;
     guint32            tvb_len = tvb_length(tvb);
     guint32            offset  = 0;
     guint32            idx     = 0; /* Address index */
@@ -4558,15 +4543,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
                 tvb, offset, 1 + address_record_len, idx);
         addr_tree = proto_item_add_subtree(ti, ett_address);
 
-        ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
-                tvb, offset, 1, address_flags_len);
-        address_flags_tree = proto_item_add_subtree (ti, ett_address_flags);
-        proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_bearer_type_included,
-                tvb, offset, 1, address_flags_len);
-        proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_port_number_included,
-                tvb, offset, 1, address_flags_len);
-        proto_tree_add_uint (address_flags_tree, hf_address_flags_length_address_len,
-                tvb, offset, 1, address_flags_len);
+        proto_tree_add_bitmask(addr_tree, tvb, offset, hf_address_flags_length, ett_address_flags, address_length_flags, ENC_NA);
         offset++;
         if (address_flags_len & BEARER_TYPE_INCLUDED) {
             bearer_type = tvb_get_guint8 (tvb, offset);

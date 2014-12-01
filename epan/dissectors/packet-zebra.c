@@ -256,23 +256,17 @@ zebra_route_ifindex(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 len)
 }
 
 static guint8
-zebra_route_message(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 message)
+zebra_route_message(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	proto_item *ti;
-	proto_tree *msg_tree;
+	static const int * flags[] = {
+		&hf_zebra_msg_nexthop,
+		&hf_zebra_msg_index,
+		&hf_zebra_msg_distance,
+		&hf_zebra_msg_metric,
+		NULL
+	};
 
-	ti = proto_tree_add_uint(tree, hf_zebra_message, tvb,
-				 offset, 1, message);
-	msg_tree = proto_item_add_subtree(ti, ett_message);
-
-	proto_tree_add_boolean(msg_tree, hf_zebra_msg_nexthop,
-			       tvb, offset, 1, message);
-	proto_tree_add_boolean(msg_tree, hf_zebra_msg_index,
-			       tvb, offset, 1, message);
-	proto_tree_add_boolean(msg_tree, hf_zebra_msg_distance,
-			       tvb, offset, 1, message);
-	proto_tree_add_boolean(msg_tree, hf_zebra_msg_metric,
-			       tvb, offset, 1, message);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_zebra_message, ett_message, flags, ENC_NA);
 	offset += 1;
 
 	return offset;
@@ -294,7 +288,7 @@ zebra_route(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 len,
 	offset += 1;
 
 	message = tvb_get_guint8(tvb, offset);
-	offset = zebra_route_message(tree, tvb, offset, message);
+	offset = zebra_route_message(tree, tvb, offset);
 
 	prefixlen = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_zebra_prefixlen, tvb,

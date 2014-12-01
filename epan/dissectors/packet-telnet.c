@@ -967,10 +967,9 @@ static const value_string auth_krb5_types[] = {
 static void
 dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-  guint8 type, mod;
+  guint8 mod;
 
-  type=tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_telnet_auth_type, tvb, offset, 1, type);
+  proto_tree_add_item(tree, hf_telnet_auth_type, tvb, offset, 1, ENC_NA);
 
   mod=tvb_get_guint8(tvb, offset+1);
   proto_tree_add_uint(tree, hf_telnet_auth_mod_enc, tvb, offset+1, 1, mod);

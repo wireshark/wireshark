@@ -117,6 +117,7 @@ static int hf_zbee_nwk_cmd_leave_rejoin = -1;
 static int hf_zbee_nwk_cmd_leave_request = -1;
 static int hf_zbee_nwk_cmd_leave_children = -1;
 static int hf_zbee_nwk_cmd_relay_count = -1;
+static int hf_zbee_nwk_cmd_cinfo = -1;
 static int hf_zbee_nwk_cmd_cinfo_alt_coord = -1;
 static int hf_zbee_nwk_cmd_cinfo_type = -1;
 static int hf_zbee_nwk_cmd_cinfo_power = -1;
@@ -1140,32 +1141,17 @@ dissect_zbee_nwk_route_rec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static guint
 dissect_zbee_nwk_rejoin_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
-    proto_tree  *field_tree;
-    proto_item  *ti;
+    static const int * capabilities[] = {
+        &hf_zbee_nwk_cmd_cinfo_alt_coord,
+        &hf_zbee_nwk_cmd_cinfo_type,
+        &hf_zbee_nwk_cmd_cinfo_power,
+        &hf_zbee_nwk_cmd_cinfo_idle_rx,
+        &hf_zbee_nwk_cmd_cinfo_security,
+        &hf_zbee_nwk_cmd_cinfo_alloc,
+        NULL
+    };
 
-    guint8  capabilities;
-
-    /* Get and dispaly the capabilities information. */
-    capabilities = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        /* Create a subtree for the capability information. */
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "Capability Information");
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_cinfo);
-
-        /* Add the capability info flags. */
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_alt_coord, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_ALT_COORD);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_type, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_FFD);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_power, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_POWER);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_idle_rx, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_IDLE_RX);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_security, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_SECURITY);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_cmd_cinfo_alloc, tvb, offset, 1,
-                                capabilities & ZBEE_CINFO_ALLOC);
-    }
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_cmd_cinfo, ett_zbee_nwk_cmd_cinfo, capabilities, ENC_NA);
     offset += 1;
 
     /* Update the info column.*/
@@ -1829,6 +1815,10 @@ void proto_register_zbee_nwk(void)
             { &hf_zbee_nwk_cmd_relay_count,
             { "Relay Count",            "zbee_nwk.cmd.relay_count", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of relays required to route to the destination.", HFILL }},
+
+            { &hf_zbee_nwk_cmd_cinfo,
+            { "Capability Information",  "zbee_nwk.cmd.cinfo", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_alt_coord,
             { "Alternate Coordinator",  "zbee_nwk.cmd.cinfo.alt_coord", FT_BOOLEAN, 8, NULL,

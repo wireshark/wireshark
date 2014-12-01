@@ -805,8 +805,8 @@ static int
 dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset = 0;
-    proto_item  *ti, *tf;
-    proto_tree  *srvloc_tree, *srvloc_flags;
+    proto_item  *ti;
+    proto_tree  *srvloc_tree;
     guint8      version;
     guint8      function;
     guint16     encoding;
@@ -837,23 +837,20 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
                         function);
     if (version < 2) {
+        static const int * v1_flags[] = {
+            &hf_srvloc_flags_v1_overflow,
+            &hf_srvloc_flags_v1_monolingual,
+            &hf_srvloc_flags_v1_url_auth,
+            &hf_srvloc_flags_v1_attribute_auth,
+            &hf_srvloc_flags_v1_fresh,
+            NULL
+        };
+
         length = tvb_get_ntohs(tvb, offset + 2);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 2,
                             length);
         flags = tvb_get_guint8(tvb, offset + 4);
-        tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v1, tvb, offset + 4, 1,
-                                 flags);
-        srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_overflow,
-                               tvb, offset+4, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_monolingual,
-                               tvb, offset+4, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_url_auth,
-                               tvb, offset+4, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_attribute_auth,
-                               tvb, offset+4, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_fresh,
-                               tvb, offset+4, 1, flags);
+        proto_tree_add_bitmask(srvloc_tree, tvb, offset + 4, hf_srvloc_flags_v1, ett_srvloc_flags, v1_flags, ENC_NA);
         proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
                             tvb_get_guint8(tvb, offset + 5));
         proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
@@ -1058,19 +1055,16 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
     else { /* Version 2 */
+        static const int * v2_flags[] = {
+            &hf_srvloc_flags_v2_overflow,
+            &hf_srvloc_flags_v2_fresh,
+            &hf_srvloc_flags_v2_reqmulti,
+            NULL
+        };
+
         length = tvb_get_ntoh24(tvb, offset + 2);
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3,
-                            length);
-        flags = tvb_get_ntohs(tvb, offset + 5);
-        tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v2, tvb, offset + 5, 2,
-                                 flags);
-        srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_overflow,
-                               tvb, offset+5, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_fresh,
-                               tvb, offset+5, 1, flags);
-        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_reqmulti,
-                               tvb, offset+5, 1, flags);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3, length);
+        proto_tree_add_bitmask(srvloc_tree, tvb, offset + 5, hf_srvloc_flags_v2, ett_srvloc_flags, v2_flags, ENC_BIG_ENDIAN);
 
         next_ext_off = tvb_get_ntoh24(tvb, offset + 7);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,

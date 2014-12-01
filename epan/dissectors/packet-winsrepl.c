@@ -379,8 +379,6 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 {
 	proto_item *name_item = NULL, *ti;
 	proto_tree *name_tree = NULL;
-	proto_item *flags_item;
-	proto_tree *flags_tree;
 	int old_offset = winsrepl_offset;
 	tvbuff_t *name_tvb = NULL;
 	guint32 name_len;
@@ -388,6 +386,14 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	int   name_type;
 	guint32 flags;
 	guint32 addr;
+	static const int * name_flags[] = {
+		&hf_winsrepl_name_flags_rectype,
+		&hf_winsrepl_name_flags_recstate,
+		&hf_winsrepl_name_flags_local,
+		&hf_winsrepl_name_flags_hosttype,
+		&hf_winsrepl_name_flags_static,
+		NULL
+	};
 
 	if (sub_tree) {
 		name_tree = proto_tree_add_subtree_format(sub_tree, winsrepl_tvb, winsrepl_offset, -1,
@@ -434,13 +440,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	 * anything in the Samba code about them.
 	 */
 	flags = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
-	flags_item = proto_tree_add_uint(name_tree, hf_winsrepl_name_flags, winsrepl_tvb, winsrepl_offset, 4, flags);
-	flags_tree = proto_item_add_subtree(flags_item, ett_winsrepl_flags);
-	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_rectype, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_recstate, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_local, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_uint(flags_tree, hf_winsrepl_name_flags_hosttype, winsrepl_tvb, winsrepl_offset, 4, flags);
-	proto_tree_add_boolean(flags_tree, hf_winsrepl_name_flags_static, winsrepl_tvb, winsrepl_offset, 4, flags);
+	proto_tree_add_bitmask(name_tree, winsrepl_tvb, winsrepl_offset, hf_winsrepl_name_flags, ett_winsrepl_flags, name_flags, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	/* GROUP_FLAG */

@@ -395,6 +395,7 @@ static const gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff
 #define PACKETCABLE_MESSAGE_WAITING (1 << 3)
 
 static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+	/* XXX - this logic seems buggy because the offsets don't line up */
 	guint8 bitmask = tvb_get_guint8(tvb, 2);
 	guint intval = 1;
 	proto_item* ti = proto_tree_add_item(tree, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,

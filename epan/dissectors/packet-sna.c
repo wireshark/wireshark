@@ -2369,33 +2369,25 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    proto_tree *parent_tree)
 {
 	guint16		length;
-	guint16		type;
 	int		cont;
 	int		offset = 0;
-	proto_tree	*gds_tree;
-	proto_item	*gds_item;
+	static const int * flags[] = {
+		&hf_sna_gds_len,
+		&hf_sna_gds_cont,
+		&hf_sna_gds_type,
+		NULL
+	};
 
 	do {
 		length = tvb_get_ntohs(tvb, offset) & 0x7fff;
 		cont   = (tvb_get_ntohs(tvb, offset) & 0x8000) ? 1 : 0;
-		type   = tvb_get_ntohs(tvb, offset+2);
 
 		if (length < 2 ) /* escape sequence ? */
 			return;
-		if (tree) {
-			gds_item = proto_tree_add_item(tree, hf_sna_gds, tvb,
-			    offset, length, ENC_NA);
-			gds_tree = proto_item_add_subtree(gds_item,
-			    ett_sna_gds);
 
-			proto_tree_add_uint(gds_tree, hf_sna_gds_len, tvb,
-			    offset, 2, length);
-			proto_tree_add_boolean(gds_tree, hf_sna_gds_cont, tvb,
-			    offset, 2, cont);
-			proto_tree_add_uint(gds_tree, hf_sna_gds_type, tvb,
-			    offset+2, 2, type);
-		}
+		proto_tree_add_bitmask(tree, tvb, offset, hf_sna_gds, ett_sna_gds, flags, ENC_BIG_ENDIAN);
 		offset += length;
+
 	} while(cont);
 	if (tvb_offset_exists(tvb, offset))
 		call_dissector(data_handle,

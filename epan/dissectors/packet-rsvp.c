@@ -5095,42 +5095,27 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
                           int rsvp_class _U_, int type)
 {
     int         offset2 = offset + 4;
-    proto_tree *ti2, *rsvp_admin_subtree;
     guint32     status;
+    static const int * status_flags[] = {
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_INHIBIT],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_CALL_MGMT],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_TESTING],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_DOWN],
+        &hf_rsvp_filter[RSVPF_ADMIN_STATUS_DELETE],
+        NULL
+    };
 
     proto_item_set_text(ti, "ADMIN STATUS: ");
     switch(type) {
     case 1:
         proto_tree_add_uint(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, type);
         status = tvb_get_ntohl(tvb, offset2);
-        ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_admin_status, tvb, offset2, 4, ENC_BIG_ENDIAN);
-        rsvp_admin_subtree =
-            proto_item_add_subtree(ti2, TREE(TT_ADMIN_STATUS_FLAGS));
 
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_INHIBIT],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_CALL_MGMT],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_TESTING],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_DOWN],
-                               tvb, offset2, 4, status);
-        proto_tree_add_boolean(rsvp_admin_subtree,
-                               hf_rsvp_filter[RSVPF_ADMIN_STATUS_DELETE],
-                               tvb, offset2, 4, status);
+        proto_tree_add_bitmask(rsvp_object_tree, tvb, offset2, hf_rsvp_admin_status, TREE(TT_ADMIN_STATUS_FLAGS), status_flags, ENC_BIG_ENDIAN);
+
         proto_item_set_text(ti, "ADMIN-STATUS: %s%s%s%s%s%s%s%s",
                             (status & (1<<31)) ? "Reflect " : "",
                             (status & (1<<6)) ? "Handover " : "",

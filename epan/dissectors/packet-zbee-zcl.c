@@ -1102,6 +1102,13 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset += 1;
                                 break;
                             case ZBEE_ZCL_CSC_THERMOSTAT_C_SWS:
+                                {
+                                static const int * modes[] = {
+                                    &hf_zbee_zcl_thermostat_client_sws_mfs_heat,
+                                    &hf_zbee_zcl_thermostat_client_sws_mfs_cool,
+                                    NULL
+                                };
+
                                 /* Set Weekly Schedule. */
                                 number_of_transitions = tvb_get_guint8(tvb, offset);
                                 proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_client_sws_n_trans, tvb, offset, 1,
@@ -1119,13 +1126,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 }
                                 offset += 1;
                                 mode_for_sequence = tvb_get_guint8(tvb, offset);
-                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_client_sws_mfs, tvb,
-                                    offset, 1, mode_for_sequence, "Mode for Sequence");
-                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_client_sws_mfs);
-                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_client_sws_mfs_heat, tvb,
-                                    offset, 1, mode_for_sequence);
-                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_client_sws_mfs_cool, tvb,
-                                    offset, 1, mode_for_sequence);
+                                proto_tree_add_bitmask(zcl_tree, tvb, offset, hf_zbee_zcl_thermostat_client_sws_mfs, ett_zbee_zcl_thermostat_client_sws_mfs, modes, ENC_NA);
                                 offset += 1;
                                 for (i = 1; i <= number_of_transitions; ++i) {
                                     switch (mode_for_sequence) {
@@ -1168,6 +1169,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                             break;
                                     }
                                 }
+                                }
                                 break;
                         }
                     }
@@ -1181,6 +1183,13 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset += 1;
                         switch (packet.cmd_id) {
                             case ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR:
+                                {
+                                static const int * modes[] = {
+                                    &hf_zbee_zcl_thermostat_server_gwsr_mfs_heat,
+                                    &hf_zbee_zcl_thermostat_server_gwsr_mfs_cool,
+                                    NULL
+                                };
+
                                 /* Get Weekly Schedule Response. */
                                 number_of_transitions = tvb_get_guint8(tvb, offset);
                                 proto_tree_add_uint(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_n_trans, tvb, offset,
@@ -1198,13 +1207,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 }
                                 offset += 1;
                                 mode_for_sequence = tvb_get_guint8(tvb, offset);
-                                ti = proto_tree_add_uint_format(zcl_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs, tvb,
-                                    offset, 1, mode_for_sequence, "Mode for Sequence");
-                                sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_thermostat_server_gwsr_mfs);
-                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs_heat, tvb,
-                                    offset, 1, mode_for_sequence);
-                                proto_tree_add_boolean(sub_tree, hf_zbee_zcl_thermostat_server_gwsr_mfs_cool, tvb,
-                                    offset, 1, mode_for_sequence);
+                                proto_tree_add_bitmask(zcl_tree, tvb, offset, hf_zbee_zcl_thermostat_server_gwsr_mfs, ett_zbee_zcl_thermostat_server_gwsr_mfs, modes, ENC_NA);
                                 offset += 1;
                                 for (i = 1; i <= number_of_transitions; ++i) {
                                     switch (mode_for_sequence) {
@@ -1246,6 +1249,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                             offset += 2;
                                             break;
                                     }
+                                }
                                 }
                                 break;
                         }

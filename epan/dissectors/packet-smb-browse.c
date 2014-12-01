@@ -386,53 +386,30 @@ static const true_false_string tfs_os_nts = {
 static void
 dissect_election_criterion_os(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
-	guint8 os;
+	static const int * flags[] = {
+		&hf_election_os_wfw,
+		&hf_election_os_ntw,
+		&hf_election_os_nts,
+		NULL
+	};
 
-	os = tvb_get_guint8(tvb, offset);
-
-	if (parent_tree) {
-		item = proto_tree_add_uint(parent_tree, hf_election_os, tvb, offset, 1, os);
-	      	tree = proto_item_add_subtree(item, ett_browse_election_os);
-	}
-
-	proto_tree_add_boolean(tree, hf_election_os_wfw,
-		tvb, offset, 1, os);
-	proto_tree_add_boolean(tree, hf_election_os_ntw,
-		tvb, offset, 1, os);
-	proto_tree_add_boolean(tree, hf_election_os_nts,
-		tvb, offset, 1, os);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_election_os, ett_browse_election_os, flags, ENC_NA);
 }
 
 static void
 dissect_election_criterion_desire(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
-	guint8 desire;
+	static const int * flags[] = {
+		&hf_election_desire_flags_backup,
+		&hf_election_desire_flags_standby,
+		&hf_election_desire_flags_master,
+		&hf_election_desire_flags_domain_master,
+		&hf_election_desire_flags_wins,
+		&hf_election_desire_flags_nt,
+		NULL
+	};
 
-	desire = tvb_get_guint8(tvb, offset);
-
-	if (parent_tree) {
-		item = proto_tree_add_uint(parent_tree, hf_election_desire, tvb, offset, 1, desire);
-	      	tree = proto_item_add_subtree(item, ett_browse_election_desire);
-	}
-
-	proto_tree_add_boolean(tree, hf_election_desire_flags_backup,
-		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_standby,
-		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_master,
-		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_domain_master,
-		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_wins,
-		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_nt,
-		tvb, offset, 1, desire);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_election_desire, ett_browse_election_desire, flags, ENC_NA);
 }
 
 static void
@@ -584,7 +561,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	guint8 *host_name;
 	gint namelen;
-	guint8 server_count, reset_cmd;
+	guint8 server_count;
 	guint8 os_major_ver, os_minor_ver;
 	const gchar *windows_version;
 	int i;
@@ -765,21 +742,14 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		break;
 
 	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT: {
-	        proto_tree *sub_tree;
-	        proto_item *reset_item;
+		static const int * flags[] = {
+			&hf_mb_reset_demote,
+			&hf_mb_reset_flush,
+			&hf_mb_reset_stop,
+			NULL
+		};
 
-		/* the subcommand follows ... one of three values */
-
-	        reset_cmd = tvb_get_guint8(tvb, offset);
-		reset_item = proto_tree_add_uint(tree, hf_mb_reset_command, tvb,
-						 offset, 1, reset_cmd);
-		sub_tree = proto_item_add_subtree(reset_item, ett_browse_reset_cmd_flags);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_demote, tvb,
-				       offset, 1, reset_cmd);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_flush, tvb,
-				       offset, 1, reset_cmd);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_stop, tvb,
-				       offset, 1, reset_cmd);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_mb_reset_command, ett_browse_reset_cmd_flags, flags, ENC_NA);
 		break;
 	}
 

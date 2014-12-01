@@ -426,6 +426,7 @@ static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
 static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
+static gint ett_smb2_ioctl_network_interface_capabilities = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -2264,24 +2265,18 @@ dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guin
 static int
 dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	guint32     cap;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	static const int * flags[] = {
+		&hf_smb2_cap_dfs,
+		&hf_smb2_cap_leasing,
+		&hf_smb2_cap_large_mtu,
+		&hf_smb2_cap_multi_channel,
+		&hf_smb2_cap_persistent_handles,
+		&hf_smb2_cap_directory_leasing,
+		&hf_smb2_cap_encryption,
+		NULL
+	};
 
-	cap = tvb_get_letohl(tvb, offset);
-
-	item = proto_tree_add_item(parent_tree, hf_smb2_capabilities, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	tree = proto_item_add_subtree(item, ett_smb2_capabilities);
-
-
-	proto_tree_add_boolean(tree, hf_smb2_cap_dfs, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_leasing, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_large_mtu, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_multi_channel, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_persistent_handles, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_directory_leasing, tvb, offset, 4, cap);
-	proto_tree_add_boolean(tree, hf_smb2_cap_encryption, tvb, offset, 4, cap);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb2_capabilities, ett_smb2_capabilities, flags, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -2295,18 +2290,13 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	guint8      sm;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	static const int * flags[] = {
+		&hf_smb2_secmode_flags_sign_enabled,
+		&hf_smb2_secmode_flags_sign_required,
+		NULL
+	};
 
-	sm = tvb_get_guint8(tvb, offset);
-
-	item = proto_tree_add_item(parent_tree, hf_smb2_security_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	tree = proto_item_add_subtree(item, ett_smb2_sec_mode);
-
-	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_enabled, tvb, offset, 1, sm);
-	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 1, sm);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb2_security_mode, ett_smb2_sec_mode, flags, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	return offset;
@@ -2317,17 +2307,12 @@ dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_ses_req_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	guint8      sf;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	static const int * flags[] = {
+		&hf_smb2_ses_req_flags_session_binding,
+		NULL
+	};
 
-	sf = tvb_get_guint8(tvb, offset);
-
-	item = proto_tree_add_item(parent_tree, hf_smb2_ses_req_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	tree = proto_item_add_subtree(item, ett_smb2_ses_req_flags);
-
-	proto_tree_add_boolean(tree, hf_smb2_ses_req_flags_session_binding, tvb, offset, 1, sf);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb2_ses_req_flags, ett_smb2_ses_req_flags, flags, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	return offset;
@@ -2339,18 +2324,13 @@ dissect_smb2_ses_req_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	guint16     sf;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	static const int * flags[] = {
+		&hf_smb2_ses_flags_guest,
+		&hf_smb2_ses_flags_null,
+		NULL
+	};
 
-	sf = tvb_get_letohs(tvb, offset);
-
-	item = proto_tree_add_item(parent_tree, hf_smb2_session_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	tree = proto_item_add_subtree(item, ett_smb2_ses_flags);
-
-	proto_tree_add_boolean(tree, hf_smb2_ses_flags_guest, tvb, offset, 2, sf);
-	proto_tree_add_boolean(tree, hf_smb2_ses_flags_null, tvb, offset, 2, sf);
-
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_smb2_session_flags, ett_smb2_ses_flags, flags, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	return offset;
@@ -4408,6 +4388,11 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint64     link_speed;
 	gfloat      val      = 0;
 	const char *unit     = NULL;
+	static const int * capability_flags[] = {
+		&hf_smb2_ioctl_network_interface_capability_rdma,
+		&hf_smb2_ioctl_network_interface_capability_rss,
+		NULL
+	};
 
 	next_offset = tvb_get_letohl(tvb, offset);
 	if (next_offset) {
@@ -4427,9 +4412,8 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* capabilities */
 	capabilities = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(sub_tree, hf_smb2_ioctl_network_interface_capabilities, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_boolean(sub_tree, hf_smb2_ioctl_network_interface_capability_rdma, tvb, offset, 4, capabilities);
-	proto_tree_add_boolean(sub_tree, hf_smb2_ioctl_network_interface_capability_rss, tvb, offset, 4, capabilities);
+	proto_tree_add_bitmask(sub_tree, tvb, offset, hf_smb2_ioctl_network_interface_capabilities, ett_smb2_ioctl_network_interface_capabilities, capability_flags, ENC_LITTLE_ENDIAN);
+
 	if (capabilities != 0) {
 		proto_item_append_text(item, "%s%s",
 				       (capabilities & NETWORK_INTERFACE_CAP_RDMA)?", RDMA":"",
@@ -8441,6 +8425,7 @@ proto_register_smb2(void)
 		&ett_smb2_svhdx_open_device_context,
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
+		&ett_smb2_ioctl_network_interface_capabilities,
 	};
 
 	static ei_register_info ei[] = {

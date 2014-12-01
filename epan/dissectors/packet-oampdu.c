@@ -1182,7 +1182,6 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 {
-    guint16   raw_word;
     guint8    raw_octet;
     guint8    info_type;
     guint32   offset;
@@ -1192,10 +1191,6 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
     proto_tree *info_tree;
     proto_item *info_item;
-    proto_tree *state_tree;
-    proto_item *state_item;
-    proto_tree *cfg_tree;
-    proto_item *cfg_item;
     proto_item *oui_item;
     proto_item *item;
 
@@ -1234,72 +1229,55 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
         if ((info_type==OAMPDU_INFO_TYPE_LOCAL)||(info_type==OAMPDU_INFO_TYPE_REMOTE))
         {
-            raw_octet = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, raw_octet);
+            static const int * info_states[] = {
+                &hf_oampdu_info_state_parser,
+                &hf_oampdu_info_state_mux,
+                NULL
+            };
+            static const int * info_config[] = {
+                &hf_oampdu_info_oamConfig_mode,
+                &hf_oampdu_info_oamConfig_uni,
+                &hf_oampdu_info_oamConfig_lpbk,
+                &hf_oampdu_info_oamConfig_event,
+                &hf_oampdu_info_oamConfig_var,
+                NULL
+            };
+
+            proto_tree_add_item(info_tree, hf_oampdu_info_len,
+                    tvb, offset, 1, ENC_NA);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
-            raw_octet = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(info_tree, hf_oampdu_info_version,
-                    tvb, offset, 1, raw_octet);
+            proto_tree_add_item(info_tree, hf_oampdu_info_version,
+                    tvb, offset, 1, ENC_NA);
 
             offset += OAMPDU_INFO_VERSION_SZ;
 
-            raw_word = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(info_tree, hf_oampdu_info_revision,
-                    tvb, offset, 2, raw_word);
+            proto_tree_add_item(info_tree, hf_oampdu_info_revision,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
 
             offset += OAMPDU_INFO_REVISION_SZ;
 
             /* Build OAM State field field */
             raw_octet = tvb_get_guint8(tvb, offset);
-            state_item = proto_tree_add_uint(info_tree, hf_oampdu_info_state,
-                    tvb, offset, 1, raw_octet);
-
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
-                state_tree = proto_item_add_subtree(state_item, ett_oampdu_local_info_state);
+                proto_tree_add_bitmask(info_tree, tvb, offset, hf_oampdu_info_state, ett_oampdu_local_info_state, info_states, ENC_NA);
             else
-                state_tree = proto_item_add_subtree(state_item, ett_oampdu_remote_info_state);
-
-            proto_tree_add_uint(state_tree, hf_oampdu_info_state_parser,
-                    tvb, offset, 1, raw_octet);
-
-            proto_tree_add_boolean(state_tree, hf_oampdu_info_state_mux,
-                    tvb, offset, 1, raw_octet);
+                proto_tree_add_bitmask(info_tree, tvb, offset, hf_oampdu_info_state, ett_oampdu_remote_info_state, info_states, ENC_NA);
 
             offset += OAMPDU_INFO_STATE_SZ;
 
             /* Build OAM configuration field */
             raw_octet = tvb_get_guint8(tvb, offset);
-            cfg_item = proto_tree_add_uint(info_tree, hf_oampdu_info_oamConfig,
-                    tvb, offset, 1, raw_octet);
-
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
-                cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_local_info_config);
+                proto_tree_add_bitmask(info_tree, tvb, offset, hf_oampdu_info_oamConfig, ett_oampdu_local_info_config, info_config, ENC_NA);
             else
-                cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_remote_info_config);
-
-            proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_mode,
-                    tvb, offset, 1, raw_octet);
-
-            proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_uni,
-                    tvb, offset, 1, raw_octet);
-
-            proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_lpbk,
-                    tvb, offset, 1, raw_octet);
-
-            proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_event,
-                    tvb, offset, 1, raw_octet);
-
-            proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_var,
-                    tvb, offset, 1, raw_octet);
+                proto_tree_add_bitmask(info_tree, tvb, offset, hf_oampdu_info_oamConfig, ett_oampdu_remote_info_config, info_config, ENC_NA);
 
             offset += OAMPDU_INFO_OAM_CONFIG_SZ;
 
-            raw_word = tvb_get_ntohs(tvb, offset);
-            item = proto_tree_add_uint(info_tree, hf_oampdu_info_oampduConfig,
-                    tvb, offset, 2, raw_word);
+            item = proto_tree_add_item(info_tree, hf_oampdu_info_oampduConfig,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
 
             proto_item_append_text(item, " (bytes)");
 
@@ -1321,8 +1299,8 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
         {
             /* see IEEE802.3, section 57.5.2.3 for more details */
             raw_octet = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, raw_octet);
+            proto_tree_add_item(info_tree, hf_oampdu_info_len,
+                    tvb, offset, 1, ENC_NA);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 

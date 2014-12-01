@@ -1180,16 +1180,12 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
     }
     else if (subtype == VS_FORMAT_MJPEG)
     {
-        proto_item *flags_item = NULL;
-        proto_tree *flags_tree = NULL;
-        guint8 bmFlags;
+        static const int * flags[] = {
+            &hf_usb_vid_mjpeg_fixed_samples,
+            NULL
+        };
 
-        flags_item = proto_tree_add_item(tree, hf_usb_vid_mjpeg_flags, tvb, offset, 1, ENC_NA);
-        flags_tree = proto_item_add_subtree(flags_item, ett_mjpeg_flags);
-
-        bmFlags = tvb_get_guint8(tvb, offset);
-
-        proto_tree_add_boolean(flags_tree, hf_usb_vid_mjpeg_fixed_samples, tvb, offset, 1, bmFlags);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_mjpeg_flags, ett_mjpeg_flags, flags, ENC_NA);
         offset++;
     }
     else

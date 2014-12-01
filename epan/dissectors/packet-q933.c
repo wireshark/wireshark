@@ -1820,13 +1820,11 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 	if (call_ref_len != 0) {
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
-		if (q933_tree != NULL) {
-			proto_tree_add_boolean(q933_tree, hf_q933_call_ref_flag,
-			    tvb, offset, 1, (call_ref[0] & 0x80) != 0);
-			call_ref[0] &= 0x7F;
-			proto_tree_add_bytes(q933_tree, hf_q933_call_ref,
-			    tvb, offset, call_ref_len, call_ref);
-		}
+		proto_tree_add_boolean(q933_tree, hf_q933_call_ref_flag,
+			tvb, offset, 1, (call_ref[0] & 0x80) != 0);
+		call_ref[0] &= 0x7F;
+		proto_tree_add_bytes(q933_tree, hf_q933_call_ref,
+			tvb, offset, call_ref_len, call_ref);
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);

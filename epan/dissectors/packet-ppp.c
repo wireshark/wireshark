@@ -268,6 +268,7 @@ static gint ett_pppmux_subframe_flags = -1;
 static gint ett_pppmux_subframe_info = -1;
 
 static int proto_mp = -1;
+static int hf_mp_frag = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
 static int hf_mp_short_sequence_num_reserved = -1;
@@ -4109,13 +4110,20 @@ static const value_string bcp_mac_type_vals[] = {
 static void
 dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti, *flags_item;
-    proto_tree *bcp_tree, *flags_tree;
+    proto_item *ti;
+    proto_tree *bcp_tree;
     int offset = 0;
     guint8 flags;
     guint8 mac_type;
     gint captured_length, reported_length, pad_length;
     tvbuff_t *next_tvb;
+	static const int * bcp_flags[] = {
+		&hf_bcp_fcs_present,
+		&hf_bcp_zeropad,
+		&hf_bcp_bcontrol,
+		&hf_bcp_pads,
+		NULL
+	};
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BCP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -4127,18 +4135,8 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (flags & BCP_IS_BCONTROL) {
         col_set_str(pinfo->cinfo, COL_INFO, "Bridge control");
     }
-    if (tree) {
-        flags_item = proto_tree_add_uint(bcp_tree, hf_bcp_flags, tvb, offset,
-            1, flags);
-        flags_tree = proto_item_add_subtree(flags_item, ett_bcp_flags);
-        proto_tree_add_boolean(flags_tree, hf_bcp_fcs_present, tvb, offset,
-            1, flags);
-        proto_tree_add_boolean(flags_tree, hf_bcp_zeropad, tvb, offset, 1,
-            flags);
-        proto_tree_add_boolean(flags_tree, hf_bcp_bcontrol, tvb, offset, 1,
-            flags);
-        proto_tree_add_uint(flags_tree, hf_bcp_pads, tvb, offset, 1, flags);
-    }
+
+    proto_tree_add_bitmask(bcp_tree, tvb, offset, hf_bcp_flags, ett_bcp_flags, bcp_flags, ENC_NA);
     offset++;
 
     mac_type = tvb_get_guint8(tvb, offset);
@@ -4725,11 +4723,17 @@ dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
 
 #define MP_FRAG_MASK           0xC0
-#define MP_FRAG(bits)          ((bits) & MP_FRAG_MASK)
 #define MP_FRAG_FIRST          0x80
 #define MP_FRAG_LAST           0x40
 #define MP_FRAG_RESERVED       0x3f
 #define MP_FRAG_RESERVED_SHORT 0x30
+
+static const value_string mp_frag_vals[] = {
+   { MP_FRAG_FIRST,              "First"       },
+   { MP_FRAG_LAST,               "Last"        },
+   { MP_FRAG_FIRST|MP_FRAG_LAST, "First, Last" },
+   { 0,                 NULL                 }
+};
 
 /* According to RFC 1990, the length the MP header isn't indicated anywhere
    in the header itself.  It starts out at four bytes and can be
@@ -4739,56 +4743,37 @@ static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
 static void
 dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *mp_tree = NULL, *hdr_tree;
-    proto_item  *ti = NULL;
-    guint8       flags;
-    const gchar *flag_str;
+    proto_tree  *mp_tree;
+    proto_item  *ti;
     gint        hdrlen;
     tvbuff_t    *next_tvb;
+    static const int * mp_flags[] = {
+        &hf_mp_frag_first,
+        &hf_mp_frag_last,
+        &hf_mp_sequence_num_reserved,
+        NULL
+    };
+    static const int * mp_short_flags[] = {
+        &hf_mp_frag_first,
+        &hf_mp_frag_last,
+        &hf_mp_short_sequence_num_reserved,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_mp, tvb, 0,
+    ti = proto_tree_add_item(tree, proto_mp, tvb, 0,
             mp_short_seqno ? 2 : 4, ENC_NA);
-        mp_tree = proto_item_add_subtree(ti, ett_mp);
-    }
+    mp_tree = proto_item_add_subtree(ti, ett_mp);
 
-    flags = tvb_get_guint8(tvb, 0);
-
-    if (tree) {
-        switch (MP_FRAG(flags)) {
-        case MP_FRAG_FIRST:
-            flag_str = "First";
-            break;
-        case MP_FRAG_LAST:
-            flag_str = "Last";
-            break;
-        case MP_FRAG_FIRST|MP_FRAG_LAST:
-            flag_str = "First, Last";
-            break;
-        default:
-            flag_str = "Unknown";
-            break;
-        }
-        ti = proto_tree_add_text(mp_tree, tvb, 0, 1, "Fragment: 0x%2X (%s)",
-            MP_FRAG(flags), flag_str);
-        hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
-
-        proto_tree_add_boolean(hdr_tree, hf_mp_frag_first, tvb, 0, 1, flags);
-        proto_tree_add_boolean(hdr_tree, hf_mp_frag_last, tvb, 0, 1, flags);
-        if (mp_short_seqno) {
-            proto_tree_add_item(hdr_tree, hf_mp_short_sequence_num_reserved, tvb,  0, 1,
-                ENC_BIG_ENDIAN);
-            proto_tree_add_item(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2,
-                ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_item(hdr_tree, hf_mp_sequence_num_reserved, tvb,  0, 1,
-                ENC_BIG_ENDIAN);
-            proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3,
-                ENC_BIG_ENDIAN);
-        }
+    if (mp_short_seqno) {
+        proto_tree_add_bitmask(mp_tree, tvb, 0, hf_mp_frag, ett_mp_flags, mp_short_flags, ENC_NA);
+        proto_tree_add_item(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2, ENC_BIG_ENDIAN);
+    } else {
+        proto_tree_add_bitmask(mp_tree, tvb, 0, hf_mp_frag, ett_mp_flags, mp_flags, ENC_NA);
+        proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3,
+            ENC_BIG_ENDIAN);
     }
 
     hdrlen = mp_short_seqno ? 2 : 4;
@@ -5496,6 +5481,9 @@ void
 proto_register_mp(void)
 {
     static hf_register_info hf[] = {
+        { &hf_mp_frag,
+            { "Fragment", "mp.frag", FT_UINT8, BASE_HEX,
+                VALS(mp_frag_vals), MP_FRAG_MASK, NULL, HFILL }},
         { &hf_mp_frag_first,
             { "First fragment", "mp.first", FT_BOOLEAN, 8,
                 TFS(&tfs_yes_no), MP_FRAG_FIRST, NULL, HFILL }},

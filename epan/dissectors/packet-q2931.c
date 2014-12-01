@@ -1888,7 +1888,6 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	    offset     = 0;
 	proto_tree *q2931_tree = NULL;
 	proto_item *ti;
-	proto_tree *ext_tree;
 	guint8	    call_ref_len;
 	guint8	    call_ref[15];
 	guint8	    message_type;
@@ -1901,6 +1900,15 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	    codeset;
 	gboolean    non_locking_shift;
 #endif
+	static const int * ext_flags[] = {
+		&hf_q2931_message_flag,
+		NULL
+	};
+	static const int * ext_flags_follow_inst[] = {
+		&hf_q2931_message_flag,
+		&hf_q2931_message_action_indicator,
+		NULL
+	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.2931");
 
@@ -1918,12 +1926,10 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 	if (call_ref_len != 0) {
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
-		if (q2931_tree != NULL) {
-			proto_tree_add_boolean(q2931_tree, hf_q2931_call_ref_flag,
-			    tvb, offset, 1, (call_ref[0] & 0x80) != 0);
-			call_ref[0] &= 0x7F;
-			proto_tree_add_bytes(q2931_tree, hf_q2931_call_ref, tvb, offset, call_ref_len, call_ref);
-		}
+		proto_tree_add_boolean(q2931_tree, hf_q2931_call_ref_flag,
+			tvb, offset, 1, (call_ref[0] & 0x80) != 0);
+		call_ref[0] &= 0x7F;
+		proto_tree_add_bytes(q2931_tree, hf_q2931_call_ref, tvb, offset, call_ref_len, call_ref);
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -1931,21 +1937,14 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str_ext(message_type, &q2931_message_type_vals_ext,
 		      "Unknown message type (0x%02X)"));
 
-	if (q2931_tree != NULL)
-		proto_tree_add_uint(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);
+	proto_tree_add_uint(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);
 	offset += 1;
 
 	message_type_ext = tvb_get_guint8(tvb, offset);
-	if (q2931_tree != NULL) {
-		ti = proto_tree_add_uint(q2931_tree, hf_q2931_message_type_ext, tvb,
-		    offset, 1, message_type_ext);
-		ext_tree = proto_item_add_subtree(ti, ett_q2931_ext);
-		proto_tree_add_boolean(ext_tree, hf_q2931_message_flag, tvb,
-		    offset, 1, message_type_ext);
-		if (message_type_ext & Q2931_MSG_TYPE_EXT_FOLLOW_INST) {
-			proto_tree_add_uint(ext_tree, hf_q2931_message_action_indicator, tvb,
-			    offset, 1, message_type_ext);
-		}
+	if (message_type_ext & Q2931_MSG_TYPE_EXT_FOLLOW_INST) {
+		proto_tree_add_bitmask(q2931_tree, tvb, offset, hf_q2931_message_type_ext, ett_q2931_ext, ext_flags_follow_inst, ENC_NA);
+	} else {
+		proto_tree_add_bitmask(q2931_tree, tvb, offset, hf_q2931_message_type_ext, ett_q2931_ext, ext_flags, ENC_NA);
 	}
 	offset += 1;
 

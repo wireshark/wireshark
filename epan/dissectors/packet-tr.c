@@ -383,7 +383,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 static void
 dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*tr_tree, *bf_tree;
+	proto_tree	*tr_tree;
 	proto_item	*ti, *hidden_item;
 	guint8		 rcf1, rcf2;
 	tvbuff_t	*next_tvb;
@@ -554,26 +554,30 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* protocol analysis tree */
 	if (tree) {
+		static const int * ac[] = {
+			&hf_tr_priority,
+			&hf_tr_frame,
+			&hf_tr_monitor_cnt,
+			&hf_tr_priority_reservation,
+			NULL
+		};
+		static const int * fc_flags[] = {
+			&hf_tr_fc_type,
+			&hf_tr_fc_pcf,
+			NULL
+		};
+
 		/* Create Token-Ring Tree */
 		ti = proto_tree_add_item(tree, proto_tr, tr_tvb, 0, TR_MIN_HEADER_LEN + actual_rif_bytes, ENC_NA);
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
 		trh->ac = tvb_get_guint8(tr_tvb, 0);
-		ti = proto_tree_add_uint(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trh->ac);
-		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
-
-		proto_tree_add_uint(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trh->ac);
-		proto_tree_add_boolean(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trh->ac);
-		proto_tree_add_uint(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trh->ac);
-		proto_tree_add_uint(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trh->ac);
+		proto_tree_add_bitmask(tr_tree, tr_tvb, 0, hf_tr_ac, ett_token_ring_ac, ac, ENC_NA);
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_uint(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trh->fc);
-		bf_tree = proto_item_add_subtree(ti, ett_token_ring_fc);
+		proto_tree_add_bitmask(tr_tree, tr_tvb, 1, hf_tr_fc, ett_token_ring_fc, fc_flags, ENC_NA);
 
-		proto_tree_add_uint(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trh->fc);
-		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trh->fc);
 		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);
 		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, (const guint8 *)trh->src.data);
 		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);

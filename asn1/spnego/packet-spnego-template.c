@@ -945,26 +945,16 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int
 dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
 			      proto_tree *spnego_krb5_tree,
-			      guint8 cfx_flags)
+			      guint8 cfx_flags _U_)
 {
-	proto_tree *cfx_flags_tree;
-	proto_item *tf;
+	static const int * flags[] = {
+		&hf_spnego_krb5_cfx_flags_04,
+		&hf_spnego_krb5_cfx_flags_02,
+		&hf_spnego_krb5_cfx_flags_01,
+		NULL
+	};
 
-	tf = proto_tree_add_uint(spnego_krb5_tree,
-					 hf_spnego_krb5_cfx_flags,
-					 tvb, offset, 1, cfx_flags);
-	cfx_flags_tree = proto_item_add_subtree(tf, ett_spnego_krb5_cfx_flags);
-
-	proto_tree_add_boolean(cfx_flags_tree,
-			       hf_spnego_krb5_cfx_flags_04,
-			       tvb, offset, 1, cfx_flags);
-	proto_tree_add_boolean(cfx_flags_tree,
-			       hf_spnego_krb5_cfx_flags_02,
-			       tvb, offset, 1, cfx_flags);
-	proto_tree_add_boolean(cfx_flags_tree,
-			       hf_spnego_krb5_cfx_flags_01,
-			       tvb, offset, 1, cfx_flags);
-
+	proto_tree_add_bitmask(spnego_krb5_tree, tvb, offset, hf_spnego_krb5_cfx_flags, ett_spnego_krb5_cfx_flags, flags, ENC_NA);
 	return (offset + 1);
 }
 

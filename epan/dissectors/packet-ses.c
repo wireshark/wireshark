@@ -80,6 +80,7 @@ static int hf_enclosure_item_options_flags = -1;
 static int hf_token_item_options_flags = -1;
 
 static gint ett_connect_protocol_options_flags = -1;
+static gint ett_transport_options_flags = -1;
 static gint ett_protocol_version_flags = -1;
 static gint ett_enclosure_item_flags = -1;
 static gint ett_token_item_flags = -1;
@@ -190,6 +191,7 @@ static int hf_ses_transport_protocol_error = -1;
 static int hf_ses_transport_user_abort = -1;
 static int hf_ses_parameter_length = -1;
 static int hf_ses_transport_connection = -1;
+static int hf_ses_transport_option_flags = -1;
 
 /* clses header fields             */
 static int proto_clses          = -1;
@@ -391,9 +393,54 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 {
 	gboolean has_user_information = TRUE;
 	guint16       flags;
-	proto_item   *tf;
-	proto_tree   *flags_tree;
 	asn1_ctx_t asn1_ctx;
+	static const int * item_option_flags[] = {
+		&hf_release_token,
+		&hf_major_activity_token,
+		&hf_synchronize_minor_token,
+		&hf_data_token,
+		NULL
+	};
+	static const int * transport_option_flags[] = {
+		&hf_ses_transport_connection,
+		&hf_ses_transport_user_abort,
+		&hf_ses_transport_protocol_error,
+		&hf_ses_transport_no_reason,
+		&hf_ses_transport_implementation_restriction,
+		NULL
+	};
+	static const int * protocol_options_flags[] = {
+		&hf_able_to_receive_extended_concatenated_SPDU,
+		NULL
+	};
+	static const int * req_options_flags[] = {
+		&hf_session_exception_report,
+		&hf_data_separation_function_unit,
+		&hf_symmetric_synchronize_function_unit,
+		&hf_typed_data_function_unit,
+		&hf_exception_function_unit,
+		&hf_capability_function_unit,
+		&hf_negotiated_release_function_unit,
+		&hf_activity_management_function_unit,
+		&hf_resynchronize_function_unit,
+		&hf_major_resynchronize_function_unit,
+		&hf_minor_resynchronize_function_unit,
+		&hf_expedited_data_resynchronize_function_unit,
+		&hf_duplex_function_unit,
+		&hf_half_duplex_function_unit,
+		NULL
+	};
+	static const int * version_flags[] = {
+		&hf_protocol_version_2,
+		&hf_protocol_version_1,
+		NULL
+	};
+	static const int * enclosure_flags[] = {
+		&hf_end_of_SSDU,
+		&hf_beginning_of_SSDU,
+		NULL
+	};
+
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	switch (param_type)
@@ -401,45 +448,37 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Called_SS_user_Reference:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_called_ss_user_reference,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Calling_SS_user_Reference:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_calling_ss_user_reference,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Common_Reference:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_common_reference,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Additional_Reference_Information:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_additional_reference_information,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Token_Item:
@@ -449,23 +488,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 1", param_len);
 			break;
 		}
-		if (tree)
-		{
-			flags = tvb_get_guint8(tvb, offset);
-			tf = proto_tree_add_uint(param_tree,
-			    hf_token_item_options_flags, tvb, offset, 1,
-			    flags);
-			flags_tree = proto_item_add_subtree(tf,
-			    ett_token_item_flags);
-			proto_tree_add_boolean(flags_tree, hf_release_token,
-			    tvb, offset, 1, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_major_activity_token, tvb, offset, 1, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_synchronize_minor_token, tvb, offset, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_data_token, tvb,
-			    offset, 1, flags);
-		}
+
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_token_item_options_flags, ett_token_item_flags, item_option_flags, ENC_NA);
 		break;
 
 	case Transport_Disconnect:
@@ -475,27 +499,15 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 1", param_len);
 			break;
 		}
-		if (tree)
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_ses_transport_option_flags, ett_transport_options_flags, transport_option_flags, ENC_NA);
+
+		if(tvb_get_guint8(tvb, offset) & user_abort )
 		{
-			guint8       flags8;
-
-			flags8 = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(param_tree, hf_ses_transport_connection, tvb, offset, 1, ENC_NA);
-
-			proto_tree_add_item(param_tree, hf_ses_transport_user_abort, tvb, offset, 1, ENC_NA);
-			if(flags8 & user_abort )
-			{
-				session->abort_type = SESSION_USER_ABORT;
-			}
-			else
-			{
-				session->abort_type = SESSION_PROVIDER_ABORT;
-			}
-
-
-			proto_tree_add_item(param_tree, hf_ses_transport_protocol_error, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(param_tree, hf_ses_transport_no_reason, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(param_tree, hf_ses_transport_implementation_restriction, tvb, offset, 1, ENC_NA);
+			session->abort_type = SESSION_USER_ABORT;
+		}
+		else
+		{
+			session->abort_type = SESSION_PROVIDER_ABORT;
 		}
 		break;
 
@@ -506,18 +518,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 1", param_len);
 			break;
 		}
-		if (tree)
-		{
-			flags = tvb_get_guint8(tvb, offset);
-			tf = proto_tree_add_uint(param_tree,
-			    hf_connect_protocol_options_flags, tvb, offset, 1,
-			    flags);
-			flags_tree = proto_item_add_subtree(tf,
-			    ett_connect_protocol_options_flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_able_to_receive_extended_concatenated_SPDU,
-			    tvb, offset, 1, flags);
-		}
+
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_connect_protocol_options_flags, ett_connect_protocol_options_flags, protocol_options_flags, ENC_NA);
 		break;
 
 	case Session_Requirement:
@@ -527,52 +529,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 2", param_len);
 			break;
 		}
-		if (tree)
-		{
-			flags = tvb_get_ntohs(tvb, offset);
-			tf = proto_tree_add_uint(param_tree,
-			    hf_session_user_req_flags, tvb, offset, 2,
-			    flags);
-			flags_tree = proto_item_add_subtree(tf,
-			    ett_ses_req_options_flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_session_exception_report, tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_data_separation_function_unit, tvb, offset, 2,
-			    flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_symmetric_synchronize_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_typed_data_function_unit, tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_exception_function_unit, tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_capability_function_unit, tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_negotiated_release_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_activity_management_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_resynchronize_function_unit, tvb, offset, 2,
-			    flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_major_resynchronize_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_minor_resynchronize_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_expedited_data_resynchronize_function_unit,
-			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_duplex_function_unit, tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_half_duplex_function_unit,
-			    tvb, offset, 2, flags);
-		}
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_session_user_req_flags, ett_ses_req_options_flags, req_options_flags, ENC_BIG_ENDIAN);
 		break;
 
 	case TSDU_Maximum_Size:
@@ -600,30 +557,16 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 1", param_len);
 			break;
 		}
-		if (tree)
-		{
-			flags = tvb_get_guint8(tvb, offset);
-			tf = proto_tree_add_uint(param_tree,
-			    hf_version_number_options_flags, tvb, offset, 1,
-			    flags);
-			flags_tree = proto_item_add_subtree(tf,
-			    ett_protocol_version_flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_protocol_version_2, tvb, offset, 1, flags);
-			proto_tree_add_boolean(flags_tree,
-			    hf_protocol_version_1, tvb, offset, 1, flags);
-		}
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_version_number_options_flags, ett_protocol_version_flags, version_flags, ENC_BIG_ENDIAN);
 		break;
 
 	case Initial_Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_initial_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	case EnclosureItem:
@@ -635,18 +578,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		}
 		flags = tvb_get_guint8(tvb, offset);
 		*enclosure_item_flags = (guint8) flags;
-		if (tree)
-		{
-			tf = proto_tree_add_uint(param_tree,
-			    hf_enclosure_item_options_flags, tvb, offset, 1,
-			    flags);
-			flags_tree = proto_item_add_subtree(tf,
-			    ett_enclosure_item_flags);
-			proto_tree_add_boolean(flags_tree, hf_end_of_SSDU,
-			    tvb, offset, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_beginning_of_SSDU,
-			    tvb, offset, 1, flags);
-		}
+		proto_tree_add_bitmask(param_tree, tvb, offset, hf_enclosure_item_options_flags, ett_enclosure_item_flags, enclosure_flags, ENC_BIG_ENDIAN);
+
 		if (flags & END_SPDU) {
 			/*
 			 * In Data Transfer and Typed Data SPDUs, (X.225: 8.3.{11,13}.4)
@@ -698,26 +631,22 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case Activity_Identifier:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			/* 8.3.29.2 The parameter fields shall be as specified in Table 37.
-			 * Activity Identifier m 41 6 octets maximum
-			 */
-			proto_tree_add_item(param_tree,
-				hf_activity_identifier,
-				tvb, offset, param_len, ENC_NA);
-		}
+
+		/* 8.3.29.2 The parameter fields shall be as specified in Table 37.
+			* Activity Identifier m 41 6 octets maximum
+			*/
+		proto_tree_add_item(param_tree,
+			hf_activity_identifier,
+			tvb, offset, param_len, ENC_NA);
 		break;
 
 	case Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	case Reason_Code:
@@ -755,67 +684,55 @@ PICS.    */
 	case Calling_Session_Selector:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
+
 			proto_tree_add_item(param_tree,
 			    hf_calling_session_selector,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Called_Session_Selector:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_called_session_selector,
 			    tvb, offset, param_len, ENC_NA);
-		}
 		break;
 
 	case Second_Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_second_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	case Second_Initial_Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_second_initial_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	case Large_Initial_Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_large_initial_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	case Large_Second_Initial_Serial_Number:
 		if (param_len == 0)
 			break;
-		if (tree)
-		{
-			proto_tree_add_item(param_tree,
+
+		proto_tree_add_item(param_tree,
 			    hf_large_second_initial_serial_number,
 			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
-		}
 		break;
 
 	default:
@@ -1929,6 +1846,7 @@ proto_register_ses(void)
 
           /* Generated from convert_proto_tree_add_text.pl */
           { &hf_ses_user_data, { "User data", "ses.user_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { &hf_ses_transport_option_flags, { "Flags", "ses.transport_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
           { &hf_ses_transport_connection, { "Transport connection", "ses.transport_flags.connection", FT_BOOLEAN, 8, TFS(&tfs_released_kept), transport_connection_is_released, NULL, HFILL }},
           { &hf_ses_transport_user_abort, { "User abort", "ses.transport_flags.user_abort", FT_BOOLEAN, 8, TFS(&tfs_yes_no), user_abort, NULL, HFILL }},
           { &hf_ses_transport_protocol_error, { "Protocol error", "ses.transport_flags.protocol_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no), protocol_error, NULL, HFILL }},
@@ -1945,6 +1863,7 @@ proto_register_ses(void)
 		&ett_ses,
 		&ett_ses_param,
 		&ett_connect_protocol_options_flags,
+		&ett_transport_options_flags,
 		&ett_protocol_version_flags,
 		&ett_enclosure_item_flags,
 		&ett_token_item_flags,

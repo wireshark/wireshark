@@ -984,7 +984,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 17:    /* SYMBOLIC-PATH-NAME TLV */
-                proto_tree_add_item(tlv, hf_pcep_symbolic_path_name, tvb, offset+4+j, tlv_length, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_symbolic_path_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
                 break;
 
             case 18:    /* IPV4-LSP-IDENTIFIERS TLV */
@@ -1007,7 +1007,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 proto_tree_add_item(tlv, hf_pcep_lsp_error_code, tvb, offset+4+j, 4, ENC_NA);
 
             case 21:    /* RSVP-ERROR-SPEC TLV */
-                proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
                 break;
 
             case 23:    /* LSP-DB-VERSION TLV */
@@ -1015,7 +1015,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 24:    /* SPEAKER-ENTITY-ID TLV */
-                proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
                 break;
 
             default:
@@ -1219,11 +1219,9 @@ static void
 dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, gint ett_pcep_obj, guint length)
 {
     proto_tree *pcep_subobj_unnumb_interfaceID;
-    proto_tree *pcep_subobj_unnumb_interfaceID_flags;
     proto_item *ti;
     guint32     router_ID;
     guint32     interface_ID;
-    guint16     reserved_flags;
 
     ti = proto_tree_add_item(pcep_subobj_tree, hf_PCEPF_SUBOBJ_UNNUM_INTERFACEID, tvb, offset, length, ENC_NA);
     pcep_subobj_unnumb_interfaceID = proto_item_add_subtree(ti, ett_pcep_obj);
@@ -1234,7 +1232,6 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
         return;
     }
 
-    reserved_flags = tvb_get_ntohs(tvb, offset+2);
     router_ID = tvb_get_ipv4(tvb, offset+4);
     interface_ID = tvb_get_ntohl(tvb, offset+8);
     proto_item_append_text(ti, ": %s:%u", ip_to_str ((guint8 *) &router_ID),
@@ -1250,15 +1247,18 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
             break;
 
         case PCEP_RECORD_ROUTE_OBJ:
+            {
+            static const int * flags[] = {
+                &pcep_subobj_flags_lpa,
+                &pcep_subobj_flags_lpu,
+                NULL
+            };
+
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_PCEPF_SUBOBJ, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_length, tvb, offset+1, 1, ENC_NA);
-
-            ti = proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_flags, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            pcep_subobj_unnumb_interfaceID_flags = proto_item_add_subtree(ti, ett_pcep_obj);
-            proto_tree_add_boolean(pcep_subobj_unnumb_interfaceID_flags, pcep_subobj_flags_lpa, tvb, offset+2, 1, (reserved_flags & 0xff00)>>8);
-            proto_tree_add_boolean(pcep_subobj_unnumb_interfaceID_flags, pcep_subobj_flags_lpu, tvb, offset+2, 1, (reserved_flags & 0xff00)>>8);
-
+            proto_tree_add_bitmask(pcep_subobj_unnumb_interfaceID, tvb, offset+2, hf_pcep_subobj_unnumb_interfaceID_flags, ett_pcep_obj, flags, ENC_BIG_ENDIAN);
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_reserved_rrobj, tvb, offset+3, 1, ENC_NA);
+            }
             break;
 
         case PCEP_IRO_OBJ:

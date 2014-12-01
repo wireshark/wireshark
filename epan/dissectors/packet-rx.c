@@ -412,27 +412,18 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 static int
 dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, int offset)
 {
-	proto_tree *tree;
-	proto_item *item;
-	guint8 flags;
+	static const int * flags[] = {
+		&hf_rx_flags_free_packet,
+		&hf_rx_flags_more_packets,
+		&hf_rx_flags_last_packet,
+		&hf_rx_flags_request_ack,
+		&hf_rx_flags_clientinit,
+		NULL
+	};
 
-	flags = tvb_get_guint8(tvb, offset);
-	rxinfo->flags = flags;
+	rxinfo->flags = tvb_get_guint8(tvb, offset);
 
-	item = proto_tree_add_uint(parent_tree, hf_rx_flags, tvb,
-		offset, 1, flags);
-	tree = proto_item_add_subtree(item, ett_rx_flags);
-
-	proto_tree_add_boolean(tree, hf_rx_flags_free_packet, tvb,
-		offset, 1, flags);
-	proto_tree_add_boolean(tree, hf_rx_flags_more_packets, tvb,
-		offset, 1, flags);
-	proto_tree_add_boolean(tree, hf_rx_flags_last_packet, tvb,
-		offset, 1, flags);
-	proto_tree_add_boolean(tree, hf_rx_flags_request_ack, tvb,
-		offset, 1, flags);
-	proto_tree_add_boolean(tree, hf_rx_flags_clientinit, tvb,
-		offset, 1, flags);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_rx_flags, ett_rx_flags, flags, ENC_NA);
 
 	offset += 1;
 	return offset;

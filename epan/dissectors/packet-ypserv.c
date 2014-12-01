@@ -159,11 +159,8 @@ dissect_domain_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 {
 	proto_item_append_text(tree, " DOMAIN reply");
 
-	if ( tree )
-	{
-		proto_tree_add_boolean(tree, hf_ypserv_servesdomain, tvb,
-			offset, 4, tvb_get_ntohl(tvb,offset));
-	}
+	proto_tree_add_item(tree, hf_ypserv_servesdomain, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;
@@ -174,11 +171,8 @@ dissect_domain_nonack_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 {
 	proto_item_append_text(tree, " DOMAIN_NONACK reply");
 
-	if ( tree )
-	{
-		proto_tree_add_boolean(tree, hf_ypserv_servesdomain, tvb,
-			offset, 4, tvb_get_ntohl(tvb,offset));
-	}
+	proto_tree_add_item(tree, hf_ypserv_servesdomain, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;
