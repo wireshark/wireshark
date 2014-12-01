@@ -1229,7 +1229,6 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_item_set_len(nlp_item, indx);
 
 		if ((nhdr_1 & 0xf0) == 0x10) {
-			nhdr_x = tvb_get_guint8(tvb, indx);
 			proto_tree_add_item(tree, hf_sna_nlp_frh,
 				    tvb, indx, 1, ENC_NA);
 			indx ++;
@@ -1864,8 +1863,6 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tree)
 		return bytes_in_header;
 
-	th_byte = tvb_get_guint8(tvb, offset);
-
 	/* Byte 0 */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_sna_th_0,
 			       ett_sna_th_fid, byte0_fields, ENC_NA);
@@ -1879,7 +1876,6 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	mft = th_byte & 0x04;
 	offset += 1;
-	th_byte = tvb_get_guint8(tvb, offset);
 
 	/* Byte 2 */
 	if (mft) {
@@ -1891,7 +1887,6 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset += 1;
-	th_byte = tvb_get_guint8(tvb, offset);
 
 	/* Byte 3 */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_sna_th_byte3,
@@ -1919,7 +1914,6 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(tree, hf_sna_th_osaf, tvb, offset, 4, osaf);
 
 	offset += 4;
-	th_byte = tvb_get_guint8(tvb, offset);
 
 	/* Byte 16 */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_sna_th_byte16,
