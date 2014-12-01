@@ -626,11 +626,12 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     /* Sanity! */
     if (plen > 128) return;
     if (!prefix) return;
+    if (!lowpan_context_table) return;
 
     /* Search the context table for an existing entry. */
     key.pan = pan;
     key.cid = cid;
-    if (g_hash_table_lookup_extended(lowpan_context_table, &key, &pkey, &pdata)) {
+    if (g_hash_table_lookup_extended(lowpan_context_table, &key, NULL, &pdata)) {
         /* Context already exists. */
         data = (lowpan_context_data *)pdata;
         if ( (data->plen == plen) && (memcmp(&data->prefix, prefix, (plen+7)/8) == 0) ) {
@@ -638,18 +639,33 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
             return;
         }
     }
-    else {
-        pkey = wmem_memdup(wmem_file_scope(), &key, sizeof(key));
-    }
+    pkey = wmem_memdup(NULL, &key, sizeof(key));
 
     /* Create a new context */
-    data = wmem_new(wmem_file_scope(), lowpan_context_data);
+    data = wmem_new(NULL, lowpan_context_data);
     data->frame = frame;
     data->plen = plen;
     memset(&data->prefix, 0, sizeof(struct e_in6_addr)); /* Ensure zero paddeding */
     lowpan_pfxcpy(&data->prefix, prefix, plen);
     g_hash_table_insert(lowpan_context_table, pkey, data);
 } /* lowpan_context_insert */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_free
+ *  DESCRIPTION
+ *     Frees the allocated memory for the context hash table
+ *  PARAMETERS
+ *      data            ; Pointer to key or value
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+void
+lowpan_context_free(gpointer data)
+{
+    wmem_free(NULL, data);
+} /* lowpan_context_free */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2823,7 +2839,7 @@ proto_init_6lowpan(void)
     /* Initialize the context table. */
     if (lowpan_context_table)
         g_hash_table_destroy(lowpan_context_table);
-    lowpan_context_table = g_hash_table_new(lowpan_context_hash, lowpan_context_equal);
+    lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_free);
 
 
     /* Initialize the link-local context. */
