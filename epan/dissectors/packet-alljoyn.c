@@ -257,7 +257,7 @@ static const value_string message_header_encoding_vals[] = {
 #define HDR_COMPRESSION_TOKEN     0x12
 #define HDR_SESSION_ID            0x13
 
-static const value_string header_field_encoding_vals[] = {
+static const value_string mess_header_field_encoding_vals[] = {
     { HDR_INVALID,           "Invalid" },           /* Not a valid field name (error if it appears in a message). */
     { HDR_OBJ_PATH,          "Object Path" },       /* The object to send a call to, or the object a signal
                                                        is emitted from. */
@@ -1837,7 +1837,7 @@ proto_register_AllJoyn(void)
          ******************/
         {&hf_alljoyn_ns_header,
          {"Header", "alljoyn.header",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_ns_sender_version,
@@ -1868,7 +1868,7 @@ proto_register_AllJoyn(void)
 
         {&hf_alljoyn_ns_whohas,
          {"Who-Has Message", "alljoyn.whohas",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_ns_whohas_t_flag,
@@ -1899,17 +1899,17 @@ proto_register_AllJoyn(void)
 
         {&hf_alljoyn_answer,
          {"Is-At Message", "alljoyn.isat",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_isat_entry,
          {"Advertisement Entry", "alljoyn.isat_entry",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_isat_guid_string,
          {"GUID String", "alljoyn.isat_guid_string",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
 
@@ -2058,92 +2058,92 @@ proto_register_AllJoyn(void)
          * Wireshark header fields for the AllJoyn message header.
          */
         {&hf_alljoyn_mess_header,
-         {"Message Header", "alljoyn.header",
+         {"Message Header", "alljoyn.mess_header",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_endian,
-         {"Endianness", "alljoyn.header.endianess",
+         {"Endianness", "alljoyn.mess_header.endianess",
           FT_UINT8, BASE_DEC, VALS(endian_encoding_vals), 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_type,
-         {"Message type", "alljoyn.header.type",
+         {"Message type", "alljoyn.mess_header.type",
           FT_UINT8, BASE_DEC, VALS(message_header_encoding_vals), 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags,
-         {"Flags", "alljoyn.header.flags",
+         {"Flags", "alljoyn.mess_header.flags",
           FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
 
         /* Individual fields of the flags byte. */
         {&hf_alljoyn_mess_header_flags_no_reply,
-         {"No reply expected", "alljoyn.header.flags.noreply",
+         {"No reply expected", "alljoyn.mess_header.flags.noreply",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_REPLY_EXPECTED,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_no_auto_start,
-         {"No auto start", "alljoyn.header.flags.noautostart",
+         {"No auto start", "alljoyn.mess_header.flags.noautostart",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_AUTO_START,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_allow_remote_msg,
-         {"Allow remote messages", "alljoyn.header.flags.allowremotemessages",
+         {"Allow remote messages", "alljoyn.mess_header.flags.allowremotemessages",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ALLOW_REMOTE_MSG,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_sessionless,
-         {"Sessionless", "alljoyn.header.flags.sessionless",
+         {"Sessionless", "alljoyn.mess_header.flags.sessionless",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_SESSIONLESS,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_global_broadcast,
-         {"Allow global broadcast", "alljoyn.header.flags.globalbroadcast",
+         {"Allow global broadcast", "alljoyn.mess_header.flags.globalbroadcast",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_GLOBAL_BROADCAST,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_compressed,
-         {"Compressed", "alljoyn.header.flags.compressed",
+         {"Compressed", "alljoyn.mess_header.flags.compressed",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_COMPRESSED,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_encrypted,
-         {"Encrypted", "alljoyn.header.flags.encrypted",
+         {"Encrypted", "alljoyn.mess_header.flags.encrypted",
           FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ENCRYPTED,
           NULL, HFILL}
         },
 
         {&hf_alljoyn_mess_header_majorversion,
-         {"Major version", "alljoyn.header.majorversion",
+         {"Major version", "alljoyn.mess_header.majorversion",
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_body_length,
-         {"Body length", "alljoyn.header.bodylength",
+         {"Body length", "alljoyn.mess_header.bodylength",
           FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_serial,
-         {"Serial number", "alljoyn.header.serial",
+         {"Serial number", "alljoyn.mess_header.serial",
           FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_header_length,
-         {"Header length", "alljoyn.header.headerlength",
+         {"Header length", "alljoyn.mess_header.headerlength",
           FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL}
         },
 
         {&hf_alljoyn_mess_header_fields,
-         {"Header fields", "alljoyn.headerfields",
+         {"Header fields", "alljoyn.mess_header.fields",
           FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_field,
-         {"Header field", "alljoyn.headerfield",
-          FT_UINT8, BASE_HEX, VALS(header_field_encoding_vals), 0,
+         {"Header field", "alljoyn.mess_header.field",
+          FT_UINT8, BASE_HEX, VALS(mess_header_field_encoding_vals), 0,
           NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_header_fieldcode,
@@ -2249,7 +2249,7 @@ proto_register_AllJoyn(void)
          */
         {&hf_alljoyn_string,
          {"Bus Name", "alljoyn.string",
-          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_alljoyn_string_size_8bit,
