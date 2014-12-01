@@ -680,6 +680,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
   char  *content_type_str = NULL;
+  char  *content_encoding_str = NULL;
   char  *parameters = NULL;
   int   hf_id;
   gint  start_offset = 0;
@@ -786,6 +787,8 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_imf_content_type(tvb, start_offset, end_offset - start_offset, item,
                                  &content_type_str, &parameters);
 
+      } else if (hf_id == hf_imf_content_transfer_encoding) {
+        content_encoding_str = tvb_get_string_enc (wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
       } else if(f_info->subdissector) {
 
         /* we have a subdissector */
@@ -806,7 +809,15 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* now dissect the MIME based upon the content type */
 
   if(content_type_str && media_type_dissector_table) {
-    next_tvb = tvb_new_subset_remaining(tvb, end_offset);
+    col_set_fence(pinfo->cinfo, COL_INFO);
+
+    if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
+      char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, end_offset, tvb_reported_length(tvb), ENC_ASCII);
+      next_tvb = base64_to_tvb(tvb, data);
+      add_new_data_source(pinfo, next_tvb, content_encoding_str);
+    } else {
+      next_tvb = tvb_new_subset_remaining(tvb, end_offset);
+    }
 
     dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, parameters);
   } else {
