@@ -1945,7 +1945,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
   }
 
-  wtap_phdr_cleanup(&phdr);
+  wtap_phdr_cleanup(&file_phdr);
 
   if (err != 0) {
     /*
