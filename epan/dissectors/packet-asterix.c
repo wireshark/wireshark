@@ -7120,6 +7120,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
                 switch (field->part[i]->type) {
                     case FIELD_PART_FX:
                         if (!value) go_on = 0;
+                        /* Fall through */
                     case FIELD_PART_INT:
                     case FIELD_PART_UINT:
                     case FIELD_PART_HEX:
@@ -7129,6 +7130,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
                         break;
                     case FIELD_PART_FLOAT:
                         twos_complement (&value, field->part[i]->bit_length);
+                        /* Fall through */
                     case FIELD_PART_UFLOAT:
                         if (field->part[i]->format_string != NULL)
                             proto_tree_add_double_format_value (parent, *field->part[i]->hf, tvb, offset + inner_offset / 8, byte_length (field->part[i]->bit_length), value * field->part[i]->scaling_factor, field->part[i]->format_string, value * field->part[i]->scaling_factor);
