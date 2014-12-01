@@ -5825,12 +5825,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                                 tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_value,
                                                 tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
-                            proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3),
-                                                      tvb_get_ntohs(tvb, q -1));
-                            proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3),
-                                                      tvb_get_ntohs(tvb, q -1));
-                            proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3),
-                                                      tvb_get_ntohs(tvb, q -1));
+                            proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                                      tvb_get_ntohs(tvb, q -1 + aoff));
+                            proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                                      tvb_get_ntohs(tvb, q -1 + aoff));
+                            proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                                      tvb_get_ntohs(tvb, q -1 + aoff));
                         }
 
                         q += 4;
