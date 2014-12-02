@@ -10093,17 +10093,17 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },  /* XXX - 16 bitfield!*/
     { &hf_pn_io_api_tree,
-      { "API", "pn_io.api",
+      { "API", "pn_io.api_tree",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_module_tree,
-      { "Module", "pn_io.module",
+      { "Module", "pn_io.module_tree",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_tree,
-      { "Submodule", "pn_io.submodule",
+      { "Submodule", "pn_io.submodule_tree",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
@@ -10670,7 +10670,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_data_description_tree,
-      { "DataDescription", "pn_io.data_description",
+      { "DataDescription", "pn_io.data_description_tree",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
@@ -11957,7 +11957,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_profidrive_param_value_float,
-      { "Value", "pn_io.profidrive.parameter.value_dw",
+      { "Value", "pn_io.profidrive.parameter.value_float",
         FT_FLOAT, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
