@@ -1238,12 +1238,12 @@ proto_register_adwin(void)
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_data_no16,
-		  { "Data No. (16bit)", "adwin.data",
+		  { "Data No. (16bit)", "adwin.data_no16",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_data_no32,
-		  { "Data No. (32bit)", "adwin.data",
+		  { "Data No. (32bit)", "adwin.data_no32",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
