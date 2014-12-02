@@ -431,14 +431,6 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknowledgement"},
   { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
   { PROTOCOL_BINARY_DCP_RESERVED4,                  "DCP Set Reserved"         },
-  { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
-  { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
-  { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
-  { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
-  { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
-  { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
-  { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
-  { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -483,7 +475,16 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_RETURN_META,                "Return Meta"              },
   { PROTOCOL_BINARY_CMD_COMPACT_DB,                 "Compact Database"         },
   { PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
-  { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
+  { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       }
+  { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
+  { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
+  { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
+  { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
+  { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
+  { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
+  { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
+
   /* Internally defined values not valid here */
   { 0, NULL }
 };
