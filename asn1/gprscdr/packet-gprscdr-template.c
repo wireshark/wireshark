@@ -47,9 +47,13 @@ static int proto_gprscdr = -1;
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
+static int ett_gprscdr_managementextension_information = -1;
 #include "packet-gprscdr-ett.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
+
+/* Global variables */
+static const char *obj_id = NULL;
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -77,6 +81,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr,
 	&ett_gprscdr_timestamp,
 	&ett_gprscdr_plmn_id,
+    &ett_gprscdr_managementextension_information,
 #include "packet-gprscdr-ettarr.c"
         };
 

@@ -49,9 +49,18 @@ GPRSCallEventRecord
 GPRSRecord
 
 
+# Get the OID
+#.FN_PARS ManagementExtension/identifier FN_VARIANT = _str  VAL_PTR = &obj_id
+
 #.FN_BODY ManagementExtension/information
 
-   proto_tree_add_expert(tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+  proto_tree *ext_tree;
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
+  }else{
+	 proto_tree_add_expert(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+  }
 
 #.FN_BODY TimeStamp VAL_PTR = &parameter_tvb
 /*

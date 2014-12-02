@@ -88,7 +88,7 @@ static int hf_gprscdr_serviceSpecificData = -1;   /* GraphicString */
 static int hf_gprscdr_serviceSpecificType = -1;   /* INTEGER */
 static int hf_gprscdr_subscriptionIDType = -1;    /* SubscriptionIDType */
 static int hf_gprscdr_subscriptionIDData = -1;    /* UTF8String */
-static int hf_gprscdr_identifier = -1;            /* OBJECT_IDENTIFIER */
+static int hf_gprscdr_identifier = -1;            /* T_identifier */
 static int hf_gprscdr_significance = -1;          /* BOOLEAN */
 static int hf_gprscdr_information = -1;           /* T_information */
 static int hf_gprscdr_sgsnPDPRecord = -1;         /* SGSNPDPRecordV651 */
@@ -341,6 +341,7 @@ static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
+static int ett_gprscdr_managementextension_information = -1;
 
 /*--- Included file: packet-gprscdr-ett.c ---*/
 #line 1 "../../asn1/gprscdr/packet-gprscdr-ett.c"
@@ -401,9 +402,12 @@ static gint ett_gprscdr_TWANUserLocationInfo = -1;
 static gint ett_gprscdr_UserCSGInformation = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 51 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 52 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
+
+/* Global variables */
+static const char *obj_id = NULL;
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -579,8 +583,8 @@ dissect_gprscdr_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_gprscdr_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+dissect_gprscdr_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
 
   return offset;
 }
@@ -598,9 +602,15 @@ dissect_gprscdr_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "../../asn1/gprscdr/gprscdr.cnf"
+#line 56 "../../asn1/gprscdr/gprscdr.cnf"
 
-   proto_tree_add_expert(tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+  proto_tree *ext_tree;
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
+  }else{
+	 proto_tree_add_expert(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+  }
 
 
 
@@ -609,7 +619,7 @@ dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t ManagementExtension_sequence[] = {
-  { &hf_gprscdr_identifier  , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_gprscdr_OBJECT_IDENTIFIER },
+  { &hf_gprscdr_identifier  , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_gprscdr_T_identifier },
   { &hf_gprscdr_significance, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_BOOLEAN },
   { &hf_gprscdr_information , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_T_information },
   { NULL, 0, 0, 0, NULL }
@@ -1027,7 +1037,7 @@ dissect_gprscdr_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "../../asn1/gprscdr/gprscdr.cnf"
+#line 105 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
@@ -1268,7 +1278,7 @@ dissect_gprscdr_SubscriptionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "../../asn1/gprscdr/gprscdr.cnf"
+#line 66 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * The contents of this field are a compact form of the UTCTime format
@@ -1744,7 +1754,7 @@ dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/gprscdr/gprscdr.cnf"
+#line 132 "../../asn1/gprscdr/gprscdr.cnf"
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
 
@@ -2939,7 +2949,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 63 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 67 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -3095,7 +3105,7 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_identifier,
       { "identifier", "gprscdr.identifier",
         FT_OID, BASE_NONE, NULL, 0,
-        "OBJECT_IDENTIFIER", HFILL }},
+        NULL, HFILL }},
     { &hf_gprscdr_significance,
       { "significance", "gprscdr.significance",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -4074,7 +4084,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 73 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 77 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -4082,6 +4092,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr,
 	&ett_gprscdr_timestamp,
 	&ett_gprscdr_plmn_id,
+    &ett_gprscdr_managementextension_information,
 
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
 #line 1 "../../asn1/gprscdr/packet-gprscdr-ettarr.c"
@@ -4142,7 +4153,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UserCSGInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 81 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 86 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {
