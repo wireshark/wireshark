@@ -475,7 +475,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_RETURN_META,                "Return Meta"              },
   { PROTOCOL_BINARY_CMD_COMPACT_DB,                 "Compact Database"         },
   { PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
-  { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       }
+  { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
   { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
   { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
   { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
