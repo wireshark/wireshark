@@ -571,68 +571,76 @@ sctp_chunk_type_update_cb(void *r, const char **err)
 
 static struct _sctp_info sctp_info;
 
+#define RETURN_DIRECTION(direction) \
+  do { \
+    /*g_warning("Returning %d at %d: a-itag=0x%x, a-vtag1=0x%x, a-vtag2=0x%x, b-itag=0x%x, b-vtag1=0x%x, b-vtag2=0x%x", \
+              direction, __LINE__, a->initiate_tag, a->verification_tag1, a->verification_tag2, b->initiate_tag, b->verification_tag1, b->verification_tag2);*/ \
+    return direction; \
+  } while (0)
 static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
 {
   if (a == NULL || b == NULL)
-    return ASSOC_NOT_FOUND;
+    RETURN_DIRECTION(ASSOC_NOT_FOUND);
 
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
+      (b->verification_tag2 != 0) &&
       (a->initiate_tag == b->verification_tag2) &&
       (a->initiate_tag == b->initiate_tag))
-    return FORWARD_STREAM;
+    RETURN_DIRECTION(FORWARD_STREAM);
 
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
       (a->verification_tag1 == b->verification_tag1) &&
       (a->initiate_tag ==  b->initiate_tag))
-    return FORWARD_STREAM;
+    RETURN_DIRECTION(FORWARD_STREAM);
 
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
-      (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
+      (a->verification_tag1 == b->verification_tag1) &&
+      (a->verification_tag1 == 0 && a->initiate_tag != 0) &&
       (a->initiate_tag != b->initiate_tag ))
-    return ASSOC_NOT_FOUND;   /* two INITs that belong to different assocs */
+    RETURN_DIRECTION(ASSOC_NOT_FOUND);   /* two INITs that belong to different assocs */
 
   /* assoc known*/
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
       (a->verification_tag1 == b->verification_tag1) &&
       ((a->verification_tag1 != 0 ||
-      (b->verification_tag2 != 0))))
-    return FORWARD_STREAM;
+       (b->verification_tag2 != 0))))
+    RETURN_DIRECTION(FORWARD_STREAM);
 
   /* ABORT, vtag reflected */
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
       (a->verification_tag2 == b->verification_tag2) &&
       (a->verification_tag1 == 0 && b->verification_tag1 != 0))
-    return FORWARD_STREAM;
+    RETURN_DIRECTION(FORWARD_STREAM);
 
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag1 == b->verification_tag2) &&
       (a->verification_tag1 != 0))
-    return BACKWARD_STREAM;
+    RETURN_DIRECTION(BACKWARD_STREAM);
 
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag2 == b->verification_tag1) &&
       (a->verification_tag2 != 0))
-    return BACKWARD_STREAM;
+    RETURN_DIRECTION(BACKWARD_STREAM);
 
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag1 == b->initiate_tag) &&
       (a->verification_tag2 == 0))
-    return BACKWARD_ADD_BACKWARD_VTAG;
+    RETURN_DIRECTION(BACKWARD_ADD_BACKWARD_VTAG);
 
   /* ABORT, vtag reflected */
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag2 == b->verification_tag1) &&
       (a->verification_tag1 == 0 && b->verification_tag2 != 0))
-    return BACKWARD_STREAM;
+    RETURN_DIRECTION(BACKWARD_STREAM);
 
   /*forward stream verification tag can be added*/
   if ((a->sport == b->sport) &&
@@ -640,24 +648,25 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
       (a->verification_tag1 != 0) &&
       (b->verification_tag1 == 0) &&
       (b->verification_tag2 !=0))
-    return FORWARD_ADD_FORWARD_VTAG;
+    RETURN_DIRECTION(FORWARD_ADD_FORWARD_VTAG);
 
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
       (a->verification_tag1 == b->verification_tag2) &&
       (b->verification_tag1 == 0))
-    return BACKWARD_ADD_FORWARD_VTAG;
+    RETURN_DIRECTION(BACKWARD_ADD_FORWARD_VTAG);
 
   /*backward stream verification tag can be added */
   if ((a->sport == b->dport) &&
       (a->dport == b->sport) &&
-      (a->verification_tag1 !=0) &&
+      (a->verification_tag1 != 0) &&
       (b->verification_tag1 != 0) &&
       (b->verification_tag2 == 0))
-    return BACKWARD_ADD_BACKWARD_VTAG;
+    RETURN_DIRECTION(BACKWARD_ADD_BACKWARD_VTAG);
 
-  return ASSOC_NOT_FOUND;
+  RETURN_DIRECTION(ASSOC_NOT_FOUND);
 }
+#undef RETURN_DIRECTION
 
 static infodata_t
 find_assoc_index(assoc_info_t* tmpinfo)
