@@ -102,6 +102,7 @@ static int hf_l2tp_l2_spec_atm = -1;
 static int hf_l2tp_l2_spec_docsis_dmpt = -1;
 static int hf_l2tp_l2_spec_v = -1;
 static int hf_l2tp_l2_spec_s = -1;
+static int hf_l2tp_l2_spec_h = -1;
 static int hf_l2tp_l2_spec_flow_id = -1;
 static int hf_l2tp_l2_spec_sequence = -1;
 static int hf_l2tp_l2_spec_t = -1;
@@ -2120,6 +2121,9 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb,
                                 idx + cookie_len,1, ENC_BIG_ENDIAN);
 
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_h, tvb,
+                                idx + cookie_len,1, ENC_BIG_ENDIAN);
+
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
                                 idx + cookie_len,1, ENC_BIG_ENDIAN);
 
@@ -2843,6 +2847,10 @@ proto_register_l2tp(void)
         { &hf_l2tp_l2_spec_s,
           { "S-bit","l2tp.l2_spec_s", FT_BOOLEAN, 8, NULL, 0x40,
             "Sequence Bit", HFILL }},
+
+        { &hf_l2tp_l2_spec_h,
+          { "H-bits","l2tp.l2_spec_h", FT_UINT8, BASE_HEX, NULL, 0x30,
+            "Extended Header Bits", HFILL }},
 
         { &hf_l2tp_l2_spec_t,
           { "T-bit","l2tp.l2_spec_t", FT_BOOLEAN, 8, NULL, 0x08,
