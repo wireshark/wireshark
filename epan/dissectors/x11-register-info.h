@@ -132,6 +132,7 @@
 { &hf_x11_event_sequencenumber, { "event-sequencenumber", "x11.event-sequencenumber", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_error, { "error", "x11.error", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_error_badvalue, { "error-badvalue", "x11.error-badvalue", FT_UINT32, BASE_DEC, NULL, 0, "error badvalue", HFILL }},
+{ &hf_x11_error_badresourceid, { "error-badresourceid", "x11.error-badresourceid", FT_UINT32, BASE_HEX, NULL, 0, "error_badresourceid", HFILL }},
 { &hf_x11_error_sequencenumber, { "error_sequencenumber", "x11.error_sequencenumber", FT_UINT16, BASE_DEC, NULL, 0, "error sequencenumber", HFILL }},
 { &hf_x11_errorcode, { "errorcode", "x11.errorcode", FT_UINT8, BASE_DEC, VALS(errorcode_vals), 0, NULL, HFILL }},
 { &hf_x11_event_x, { "event-x", "x11.event-x", FT_UINT16, BASE_DEC, NULL, 0, "event x", HFILL }},

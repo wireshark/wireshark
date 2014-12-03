@@ -132,6 +132,7 @@ static int hf_x11_do_not_propagate_mask_erroneous_bits = -1;
 static int hf_x11_event_sequencenumber = -1;
 static int hf_x11_error = -1;
 static int hf_x11_error_badvalue = -1;
+static int hf_x11_error_badresourceid = -1;
 static int hf_x11_error_sequencenumber = -1;
 static int hf_x11_errorcode = -1;
 static int hf_x11_event_x = -1;

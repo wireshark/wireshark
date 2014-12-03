@@ -142,6 +142,7 @@ do-not-propagate-mask	UINT32	HEX
 event-sequencenumber	UINT16	DEC
 error	UINT8	DEC
 error-badvalue	UINT32	DEC	error badvalue
+error-badresourceid UINT32  HEX     error_badresourceid
 error_sequencenumber	UINT16	DEC	error sequencenumber
 errorcode	UINT8	DEC	VALS
 event-x	UINT16	DEC	event x

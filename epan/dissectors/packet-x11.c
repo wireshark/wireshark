@@ -956,7 +956,7 @@ static const value_string eventcode_vals[] = {
                                            list from other than the local host.
                                         */
 #define BadAlloc                11      /* insufficient resources */
-#define BadColor                12      /* no such colormap */
+#define BadColormap             12      /* no such colormap */
 #define BadGC                   13      /* parameter not a GC */
 #define BadIDChoice             14      /* choice not in range or already used */
 #define BadName                 15      /* font or color name doesn't exist */
@@ -976,7 +976,7 @@ static const value_string errorcode_vals[] = {
       { BadDrawable,           "BadDrawable" },
       { BadAccess,             "BadAccess" },
       { BadAlloc,              "BadAlloc" },
-      { BadColor,              "BadColor" },
+      { BadColormap,           "BadColormap" },
       { BadGC,                 "BadGC" },
       { BadIDChoice,           "BadIDChoice" },
       { BadName,               "BadName" },
@@ -5757,6 +5757,16 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       switch (errorcode) {
             case BadValue:
                   CARD32(error_badvalue);
+                  break;
+            case BadWindow:
+            case BadPixmap:
+            case BadCursor:
+            case BadFont:
+            case BadDrawable:
+            case BadColormap:
+            case BadGC:
+            case BadIDChoice:
+                  CARD32(error_badresourceid);
                   break;
 
             default:
