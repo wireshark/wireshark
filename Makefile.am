@@ -1396,7 +1396,7 @@ patch-bzip2: distdir
 # to search for data files in addition to the $XDG_DATA_HOME base
 # directory. The directories in $XDG_DATA_DIRS should be seperated with a
 # colon ':'.
-# 
+#
 # If $XDG_DATA_DIRS is either not set or empty, a value equal to
 # /usr/local/share/:/usr/share/ should be used.
 #
