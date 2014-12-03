@@ -289,8 +289,6 @@ touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
-	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 	/usr/sbin/update-alternatives --remove %{name} %{_bindir}/wireshark-qt
 fi
 %endif
@@ -300,6 +298,7 @@ fi
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 touch --no-create /usr/share/icons/hicolor &>/dev/null || :
+gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 /usr/sbin/update-alternatives --install %{_bindir}/wireshark \
   %{name} %{_bindir}/wireshark-gtk 10
 
@@ -387,6 +386,10 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %endif
 
 %changelog
+* Wed Dec  3 2014 Jeff Morriss
+- Don't run gtk-update-icon-cache when uninstalling the Qt package.  But do run
+  it when installing the gnome package.
+
 * Fri Aug 29 2014 Gerald Combs
 - The Qt UI is now the default. Update logic and prioritization to
   reflect this.
