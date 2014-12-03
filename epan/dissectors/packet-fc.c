@@ -1247,6 +1247,18 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static int
+dissect_fc_wtap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    fc_data_t fc_data;
+
+    fc_data.ethertype = ETHERTYPE_UNK;
+    fc_data.sof_eof = 0;
+
+    dissect_fc_helper (tvb, pinfo, tree, FALSE, &fc_data);
+    return tvb_length(tvb);
+}
+
+static int
 dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     fc_data_t* fc_data = (fc_data_t*)data;
@@ -1597,7 +1609,8 @@ proto_register_fc(void)
 void
 proto_reg_handoff_fc (void)
 {
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2,
+                       new_create_dissector_handle(dissect_fc_wtap, proto_fc));
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
 
