@@ -1441,17 +1441,17 @@ install-data-local:
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
 	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
-	#
-	# XXX - can we just do this ourselves?  update-mime-database would
-	# presumably write to stuff under $(datadir)/mime; if we pass it
-	# $(DESTDIR)$(datadir)/mime, that should not require root
-	# privileges if nothing under $(DESTDIR) does.  However, getting
-	# update-desktop-database to do the right thing might be
-	# trickier; the man page for it says that, if not passed a
-	# directory argument, it processes the files "installed in
-	# $XDG_DATA_DIRS/applications", but $XDG_DATA_DIRS is a sequence
-	# of directories, not just a single directory.
-	#
+#
+# XXX - can we just do this ourselves?  update-mime-database would
+# presumably write to stuff under $(datadir)/mime; if we pass it
+# $(DESTDIR)$(datadir)/mime, that should not require root
+# privileges if nothing under $(DESTDIR) does.  However, getting
+# update-desktop-database to do the right thing might be
+# trickier; the man page for it says that, if not passed a
+# directory argument, it processes the files "installed in
+# $XDG_DATA_DIRS/applications", but $XDG_DATA_DIRS is a sequence
+# of directories, not just a single directory.
+#
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database $(datadir)/mime\""
 
 uninstall-local:
