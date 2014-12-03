@@ -9653,23 +9653,15 @@ fSpecialEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offs
 {
     guint8 tag_no, tag_info;
     guint32 lvt;
-    guint lastoffset = 0, len;
-    gboolean closing_found = FALSE;  /* tracks when we are done decoding the fSpecialEvent entries */
+    guint lastoffset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
-        len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-        /* maybe a SEQUENCE of SpecialEvents if we spot a closing tag */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        /* quit loop if we spot an un-matched closing tag */
         if (tag_is_closing(tag_info)) {
-            /* if we find 2 closing tags in succession we need to exit without incrementing the offset again */
-            /* This handles the special case where we have a special event entry in an RPM-ACK msg           */
-            if ( closing_found == TRUE )
-                break;
-            offset += len;
-            closing_found = TRUE;
-            continue;
+            break;
         }
-
         switch (tag_no) {
         case 0: /* calendarEntry */
             if (tag_is_opening(tag_info)) {
@@ -9696,7 +9688,6 @@ fSpecialEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offs
         default:
             return offset;
         }
-        closing_found = FALSE; /* reset our closing tag status, we processed another open tag */
         if (offset == lastoffset) break;     /* nothing happened, exit loop */
     }
     return offset;
