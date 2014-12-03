@@ -1330,13 +1330,13 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     {
     case GVSP_PACKET_ALLIN:
         dissect_packet_all_in(gvsp_tree, tvb, offset, pinfo, &info);
-
+        break;
     case GVSP_PACKET_LEADER:
         dissect_packet_leader(gvsp_tree, tvb, offset, pinfo, &info);
-
+        break;
     case GVSP_PACKET_TRAILER:
         dissect_packet_trailer(gvsp_tree, tvb, offset, pinfo, &info);
-
+        break;
     default:
         break;
     }
