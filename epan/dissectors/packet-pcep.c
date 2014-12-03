@@ -1005,6 +1005,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
             case 20:    /* LSP-ERROR-CODE TLV */
                 proto_tree_add_item(tlv, hf_pcep_lsp_error_code, tvb, offset+4+j, 4, ENC_NA);
+                break;
 
             case 21:    /* RSVP-ERROR-SPEC TLV */
                 proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
