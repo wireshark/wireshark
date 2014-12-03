@@ -891,12 +891,12 @@ proto_register_btle(void)
         },
         { &hf_data_header_next_expected_sequence_number,
             { "Next Expected Sequence Number",   "btle.data_header.next_expected_sequence_number",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_UINT8, BASE_DEC, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_data_header_sequence_number,
             { "Sequence Number",                 "btle.data_header.sequence_number",
-            FT_BOOLEAN, 8, NULL, 0x08,
+            FT_UINT8, BASE_DEC, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_data_header_more_data,
