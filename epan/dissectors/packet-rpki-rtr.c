@@ -234,6 +234,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_error_text,   tvb, offset, len_text, ENC_ASCII|ENC_NA);
                 offset += len_text;
             }
+            break;
             default:
                 /* No default ? */
                 break;
