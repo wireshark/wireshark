@@ -958,16 +958,16 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
 static gint
 dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree,
-        gint offset, gint segment_size _U_, gint register_size _U_, guint machine_encoding)
+        gint offset, gint segment_size, gint register_size _U_, guint machine_encoding)
 {
     proto_tree    *cfi_tree = NULL;
     proto_item    *cfi_tree_item = NULL;
     proto_tree    *entry_tree;
-    proto_item    *pi;
+    proto_item    *pi = NULL;
     guint64        length;
     guint          lengths_size;
     gboolean       is_cie;
-    guint          entry_size, entry_end;
+    guint          entry_size, entry_end = 0;
     guint          cfi_size = 0;
     guint64        unsigned_value;
     gint64         signed_value;
