@@ -251,7 +251,6 @@ mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-qt
 %if %{with qt} || %{with gtk2} || %{with gtk3}
 # Create the 'alternative' file
 touch %{buildroot}%{_bindir}/wireshark
-make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 %if 0%{?suse_version}
 # SuSE's packaging conventions
 # (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
@@ -260,7 +259,7 @@ make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
-desktop-file-validate %{buildroot}/usr/share/applications/wireshark.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/wireshark.desktop
 %endif
 %endif
 
@@ -284,15 +283,15 @@ fi
 
 %if %{with qt}
 %post qt
-update-desktop-database &> /dev/null ||:
-update-mime-database /usr/share/mime &> /dev/null || :
-touch --no-create /usr/share/icons/hicolor &>/dev/null || :
+update-desktop-database %{_datadir}/applications &> /dev/null || :
+update-mime-database %{_datadir}/mime &> /dev/null || :
+touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 /usr/sbin/update-alternatives --install %{_bindir}/wireshark \
   %{name} %{_bindir}/wireshark-qt 50
 
 %postun qt
-update-desktop-database &> /dev/null ||:
-update-mime-database /usr/share/mime &> /dev/null || :
+update-desktop-database %{_datadir}/applications &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
 	/usr/sbin/update-alternatives --remove %{name} %{_bindir}/wireshark-qt
 fi
@@ -300,19 +299,19 @@ fi
 
 %if %{with gtk2} || %{with gtk3}
 %post gnome
-update-desktop-database &> /dev/null ||:
-update-mime-database /usr/share/mime &> /dev/null || :
-touch --no-create /usr/share/icons/hicolor &>/dev/null || :
-gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
+update-desktop-database %{_datadir}/applications &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
+touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+gtk-update-icon-cache -t %{_datadir}/icons/hicolor &>/dev/null || :
 /usr/sbin/update-alternatives --install %{_bindir}/wireshark \
   %{name} %{_bindir}/wireshark-gtk 10
 
 %postun gnome
-update-desktop-database &> /dev/null ||:
-update-mime-database /usr/share/mime &> /dev/null || :
+update-desktop-database %{_datadir}/applications &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
-	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
+	touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+	gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 	/usr/sbin/update-alternatives --remove %{name} %{_bindir}/wireshark-gtk
 fi
 %endif
@@ -367,10 +366,10 @@ fi
 %if %{with qt}
 %files qt
 %defattr(-,root,root)
-/usr/share/applications/wireshark.desktop
-/usr/share/icons/hicolor/*/apps/*
-/usr/share/icons/hicolor/*/mimetypes/*
-/usr/share/mime/packages/wireshark.xml
+%{_datadir}/applications/wireshark.desktop
+%{_datadir}/icons/hicolor/*/apps/*
+%{_datadir}/icons/hicolor/*/mimetypes/*
+%{_datadir}/mime/packages/wireshark.xml
 %{_bindir}/wireshark-qt
 %{_mandir}/man1/wireshark.*
 %ghost %{_bindir}/wireshark
@@ -379,10 +378,10 @@ fi
 %if %{with gtk2} || %{with gtk3}
 %files gnome
 %defattr(-,root,root)
-/usr/share/applications/wireshark.desktop
-/usr/share/icons/hicolor/*/apps/*
-/usr/share/icons/hicolor/*/mimetypes/*
-/usr/share/mime/packages/wireshark.xml
+%{_datadir}/applications/wireshark.desktop
+%{_datadir}/icons/hicolor/*/apps/*
+%{_datadir}/icons/hicolor/*/mimetypes/*
+%{_datadir}/mime/packages/wireshark.xml
 %{_bindir}/wireshark-gtk
 %{_mandir}/man1/wireshark.*
 %ghost %{_bindir}/wireshark
@@ -394,6 +393,9 @@ fi
   it when installing the gnome package.
 - Tell the loader where to find our libraries if we're being installed
   someplace other than /usr .
+- Attempt to get RPMs working with a prefix other than /usr (now that the
+  (free)desktop files are no longer always installed /usr).  Desktop
+  integration doesn't work for prefixes other than "/usr" or "/usr/local".
 
 * Fri Aug 29 2014 Gerald Combs
 - The Qt UI is now the default. Update logic and prioritization to
