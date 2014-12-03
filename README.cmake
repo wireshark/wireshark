@@ -184,6 +184,8 @@ What needs to be done?
   config.nmake.
 - Define the GTK_DISABLE_ and GDK_DISABLE_ values as appropriate if we
   care about supporting the GTK+ version.
+- Install the freedesktop integration files (wireshark.desktop,
+  wireshark-mime-package.xml, etc.).
 ...
 
 Links regarding cmake
