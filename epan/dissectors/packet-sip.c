@@ -2411,8 +2411,8 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         return len;
 }
 
-static void
-dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 octet;
     int offset = 0;
@@ -2422,7 +2422,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     octet = tvb_get_guint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
         call_dissector(sigcomp_handle, tvb, pinfo, tree);
-        return;
+        return tvb_reported_length(tvb);
     }
 
     remaining_length = tvb_reported_length(tvb);
@@ -2433,6 +2433,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += len;
         remaining_length = remaining_length - len;
     }
+    return tvb_reported_length(tvb);
 }
 
 static gboolean
@@ -5830,7 +5831,7 @@ void proto_register_sip(void)
     proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
                                             "Raw_SIP", "raw_sip");
     new_register_dissector("sip", dissect_sip, proto_sip);
-    register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
+    new_register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sip, hf, array_length(hf));
