@@ -1432,7 +1432,7 @@ install-data-local:
 		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
-	install -m 644 image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
 
 uninstall-local:
 	for size in 16 24 32 48 64 128 256; \
