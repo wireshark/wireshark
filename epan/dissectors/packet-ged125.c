@@ -1525,15 +1525,15 @@ proto_register_ged125 (void)
 			"A bit mask that is a logical OR of the Service Control features supported by the VRU", HFILL }},
 
 		{ &hf_ged125_floating_payload_strg,
-		  { "Floating Payload", "ged125.floating_payload",
+		  { "Floating Payload", "ged125.floating_payload.strg",
 		  FT_STRING, FT_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_floating_payload_uint,
-		  { "Floating Payload", "ged125.floating_payload",
+		  { "Floating Payload", "ged125.floating_payload.uint",
 		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_floating_payload_bool,
-		  { "Floating Payload", "ged125.floating_payload",
+		  { "Floating Payload", "ged125.floating_payload.bool",
 			FT_BOOLEAN, 32, NULL, 0x01, NULL, HFILL }},
 
 		{ &hf_ged125_floating_payload_ECC_tag,

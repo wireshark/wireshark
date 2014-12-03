@@ -2230,7 +2230,7 @@ proto_register_dhcpv6(void)
         { &hf_capabilities_encoding_bytes,
           { "Value", "dhcpv6.cccV6.tlv5.suboption.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_capabilities_encoding_number,
-          { "Value", "dhcpv6.cccV6.tlv5.suboption.value", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+          { "Value", "dhcpv6.cccV6.tlv5.suboption.value_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_pri_dss,
           { "Primary SSID", "dhcpv6.packetcable.cccV6.pri_dss", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_sec_dss,

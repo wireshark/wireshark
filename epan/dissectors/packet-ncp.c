@@ -1033,7 +1033,7 @@ proto_register_ncp(void)
             FT_UINT32, BASE_HEX, VALS(burst_command), 0x0,
             "Packet Burst Command", HFILL }},
         { &hf_ncp_burst_file_handle,
-          { "Burst File Handle",                "ncp.file_handle",
+          { "Burst File Handle",                "ncp.burst_file_handle",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             "Packet Burst File Handle", HFILL }},
         { &hf_ncp_burst_reserved,
