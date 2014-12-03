@@ -283,7 +283,7 @@ static expert_field ei_mac_lte_lcid_unexpected = EI_INIT;
 static expert_field ei_mac_lte_ul_mac_frame_retx = EI_INIT;
 static expert_field ei_mac_lte_oob_sr_failure = EI_INIT;
 static expert_field ei_mac_lte_control_timing_advance_command_correction_needed = EI_INIT;
-static expert_field ei_mac_lte_sch_header_only = EI_INIT;
+static expert_field ei_mac_lte_sch_header_only_truncated = EI_INIT;
 static expert_field ei_mac_lte_control_timing_advance_command_no_correction = EI_INIT;
 static expert_field ei_mac_lte_rar_timing_advance_not_zero_note = EI_INIT;
 static expert_field ei_mac_lte_padding_data_start_and_end = EI_INIT;
@@ -4596,7 +4596,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                        is_truncated);
     if (is_truncated) {
         PROTO_ITEM_SET_GENERATED(truncated_ti);
-        expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only);
+        expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only_truncated);
         return;
     }
     else {
@@ -5132,7 +5132,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                        is_truncated);
     if (is_truncated) {
         PROTO_ITEM_SET_GENERATED(truncated_ti);
-        expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only);
+        expert_add_info(pinfo, truncated_ti, &ei_mac_lte_sch_header_only_truncated);
         return;
     }
     else {
@@ -7122,7 +7122,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_control_timing_advance_command_correction_needed, { "mac-lte.control.timing-advance.correction-needed", PI_SEQUENCE, PI_WARN, "Timing Advance control element received with correction needed", EXPFILL }},
         { &ei_mac_lte_control_element_size_invalid, { "mac-lte.control-element.size-invalid", PI_MALFORMED, PI_ERROR, "Control Element has an unexpected size", EXPFILL }},
         { &ei_mac_lte_bsr_warn_threshold_exceeded, { "mac-lte.bsr-warn-threshold-exceeded", PI_SEQUENCE, PI_WARN, "BSR for LCG X exceeds threshold", EXPFILL }},
-        { &ei_mac_lte_sch_header_only, { "mac-lte.sch.header-only", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
+        { &ei_mac_lte_sch_header_only_truncated, { "mac-lte.sch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
         { &ei_mac_lte_context_length, { "mac-lte.length.invalid", PI_MALFORMED, PI_ERROR, "MAC PDU is longer than reported length", EXPFILL }},
         { &ei_mac_lte_rach_preamble_sent_warn, { "mac-lte.rach-preamble-sent", PI_SEQUENCE, PI_WARN, "RACH Preamble sent", EXPFILL }},
         { &ei_mac_lte_rach_preamble_sent_note, { "mac-lte.rach-preamble-sent", PI_SEQUENCE, PI_NOTE, "RACH Preamble sent", EXPFILL }},
