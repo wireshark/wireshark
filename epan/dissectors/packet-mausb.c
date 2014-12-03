@@ -1814,36 +1814,36 @@ proto_register_mausb(void)
 
     static ei_register_info ei[] = {
         { &ei_ep_handle_len,
-            { "mausb.ep_handle.length", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.ep_handle.length", PI_PROTOCOL, PI_WARN,
               "Invalid Endpoint handle length field", EXPFILL }
         },
         { &ei_len,
-            { "mausb.length", PI_MALFORMED, PI_ERROR,
+            { "mausb.ei.length", PI_MALFORMED, PI_ERROR,
               "Packet length field does not match size of packet", EXPFILL }
         },
         { &ei_mgmt_type_undef,
-            { "mausb.type", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type", PI_PROTOCOL, PI_WARN,
               "Undefined managment packet type", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_long,
-            { "mausb.type_spec.len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
               "Data exists after type-specific managment packet field", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_short,
-            { "mausb.type_spec.len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
               "Expected type-specific managment packet data", EXPFILL }
         },
         { &ei_dev_cap_len,
-            { "mausb.cap_resp.dev_cap.length", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.cap_resp.dev_cap.length", PI_PROTOCOL, PI_WARN,
               "Incorrect length value for this device capability descriptor",
               EXPFILL }
         },
         { &ei_dev_cap_resp_desc_len,
-            { "mausb.cap_resp.desc_len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.dev_cap_resp.desc_len", PI_PROTOCOL, PI_WARN,
               "Incorrect value in Device Descriptors Length field", EXPFILL }
         },
         { &ei_cap_resp_desc_len,
-            { "mausb.cap_resp.desc_len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.cap_resp.desc_len", PI_PROTOCOL, PI_WARN,
               "Value in Descriptors Length field exceeds actual space in packet", EXPFILL }
         },
     };
