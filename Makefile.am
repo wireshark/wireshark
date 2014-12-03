@@ -1381,8 +1381,8 @@ patch-bzip2: distdir
 	$(am__remove_distdir)
 
 #
-# Install icons for (for use with GNOME, KDE, or any other
-# freedesktop.org-compliant desktops).
+# Install icons and other desktop files for (for use with GNOME, KDE, or
+# any other freedesktop.org-compliant desktops).
 #
 # We use $(datadir).  If the desktop doesn't look for them there,
 # the desktop is broken; the latest XDG Base Directory Specification
@@ -1424,6 +1424,14 @@ patch-bzip2: distdir
 # that has completely different semantics.
 #
 install-data-local:
+	mkdir -p $(DESTDIR)$(datadir)/mime/packages
+	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	mkdir -p $(DESTDIR)$(datadir)/applications
+	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
+		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop; \
+	else \
+		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark.desktop; \
+	fi
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
@@ -1433,34 +1441,28 @@ install-data-local:
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
 	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+	#
+	# XXX - can we just do this ourselves?  update-mime-database would
+	# presumably write to stuff under $(datadir)/mime; if we pass it
+	# $(DESTDIR)$(datadir)/mime, that should not require root
+	# privileges if nothing under $(DESTDIR) does.  However, getting
+	# update-desktop-database to do the right thing might be
+	# trickier; the man page for it says that, if not passed a
+	# directory argument, it processes the files "installed in
+	# $XDG_DATA_DIRS/applications", but $XDG_DATA_DIRS is a sequence
+	# of directories, not just a single directory.
+	#
+	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database $(datadir)/mime\""
 
 uninstall-local:
+	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
 		rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
-
-# Install some desktop files (for use with GNOME, KDE, or any other freedesktop.org-compliant desktops)
-# No, these do not go into $(datarootdir): the desktop won't look for them there.
-# Yes, that violate's autofoo's principle of relocatability.
-# What we (probably) should do is check `pkg-config --variable=prefix gtk+-2.0` to know where
-# to install this stuff...
-#
-# Do not use the -T flag to the install command, as it's not portable.
-# Some versions of install don't support a -T flag at all, and the
-# FreeBSD install command has a -T flag that takes an argument and
-# that has completely different semantics.
-install_desktop_files:
-	mkdir -p $(DESTDIR)/usr/share/{mime/packages,applications}
-	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)/usr/share/mime/packages/wireshark.xml
-	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
-		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)/usr/share/applications $(srcdir)/wireshark.desktop; \
-	else \
-		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
-	fi
-	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an absolute path so that libtool doesn't freak.
