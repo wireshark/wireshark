@@ -1539,7 +1539,6 @@ fi
 if test "$have_gtk" = "yes" ; then
 	# If we have GTK then add flags for it.
 
-	CPPFLAGS="-DGDK_PIXBUF_DISABLE_DEPRECATED $CPPFLAGS"
 	CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
 	if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
 		## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
