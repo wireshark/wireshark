@@ -204,6 +204,7 @@ static gint hf_sip_sec_mechanism_port1    = -1;
 static gint hf_sip_sec_mechanism_port_c   = -1;
 static gint hf_sip_sec_mechanism_port2    = -1;
 static gint hf_sip_sec_mechanism_port_s   = -1;
+static gint hf_sip_continuation           = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
@@ -2415,7 +2416,7 @@ static int
 dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 octet;
-    int offset = 0;
+    int offset = 0, linelen;
     int len;
     int remaining_length;
 
@@ -2426,14 +2427,35 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
 
     remaining_length = tvb_reported_length(tvb);
+    len = dissect_sip_common(tvb, offset, remaining_length, pinfo, tree, TRUE, TRUE);
+    if (len <= 0)
+        return len;
+    offset += len;
+    remaining_length = remaining_length - len;
+
+    /*
+     * This is a bit of a cludge as the TCP dissector does not call the dissectors again if not all
+     * the data in the segment was dissected and we do not know if we need another segment or not.
+     * so DESEGMENT_ONE_MORE_SEGMENT can't be used in all cases.
+     *
+     */
     while (remaining_length > 0) {
+        /* Check if we have enough data or if we need another segment, as a safty measure set a lenght limit*/
+        if (remaining_length < 1500){
+            linelen = tvb_find_line_end(tvb, offset, remaining_length, NULL, TRUE);
+            if (linelen == -1){
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                return -1;
+            }
+        }
         len = dissect_sip_common(tvb, offset, remaining_length, pinfo, tree, TRUE, TRUE);
         if (len <= 0)
-            break;
+            return len;
         offset += len;
         remaining_length = remaining_length - len;
     }
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static gboolean
@@ -2650,7 +2672,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                      ett_sip_reqresp, NULL, "%s line: %s", descr,
                                      tvb_format_text(tvb, offset, linelen));
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
-            proto_tree_add_text(reqresp_tree, tvb, offset, -1, "Continuation data");
+            proto_tree_add_item(reqresp_tree, hf_sip_continuation, tvb, offset, -1, ENC_NA);
         }
         return remaining_length;
     }
@@ -5767,6 +5789,11 @@ void proto_register_sip(void)
         { &hf_sip_sec_mechanism_port_s,
           { "port-s",  "sip.sec_mechanism.port_s",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_continuation,
+          { "Continuation data",  "sip.continuation",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         }
     };
