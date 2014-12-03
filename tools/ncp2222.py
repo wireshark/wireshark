@@ -8217,7 +8217,7 @@ proto_register_ncp2222(void)
     { "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_srvr_param_number,
-    { "Set Parameter Value", "ncp.srvr_param_string", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { "Set Parameter Value", "ncp.srvr_param_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_srvr_param_boolean,
     { "Set Parameter Value", "ncp.srvr_param_boolean", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},

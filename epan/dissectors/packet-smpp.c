@@ -206,7 +206,7 @@ static int hf_smpp_display_time                       = -1;
 static int hf_smpp_sms_signal                         = -1;
 static int hf_smpp_ms_validity                        = -1;
 static int hf_smpp_alert_on_message_delivery_null     = -1;
-static int hf_smpp_alert_on_message_delivery          = -1;
+static int hf_smpp_alert_on_message_delivery_type     = -1;
 static int hf_smpp_its_reply_type                     = -1;
 static int hf_smpp_its_session_number                 = -1;
 static int hf_smpp_its_session_sequence               = -1;
@@ -1757,7 +1757,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                                     tvb, *offset, length, ENC_NA);
                 } else {
                         smpp_handle_int1(sub_tree, tvb,
-                                    hf_smpp_alert_on_message_delivery, offset);
+                                    hf_smpp_alert_on_message_delivery_type, offset);
                 }
                 break;
             case  0x1380:       /* its_reply_type       */
@@ -3383,14 +3383,14 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_alert_on_message_delivery_null,
-            {   "Alert on delivery", "smpp.alert_on_message_delivery",
+            {   "Alert on delivery", "smpp.alert_on_message_delivery_null",
                 FT_NONE, BASE_NONE, NULL, 0x00,
                 "Instructs the handset to alert user on message delivery.",
                 HFILL
             }
         },
-        {   &hf_smpp_alert_on_message_delivery,
-            {   "Alert on delivery", "smpp.alert_on_message_delivery",
+        {   &hf_smpp_alert_on_message_delivery_type,
+            {   "Alert on delivery", "smpp.alert_on_message_delivery_type",
                 FT_UINT8, BASE_DEC, VALS(vals_alert_on_message_delivery), 0x00,
                 "Instructs the handset to alert user on message delivery.",
                 HFILL
