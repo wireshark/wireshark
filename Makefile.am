@@ -1380,6 +1380,59 @@ patch-bzip2: distdir
 	fi
 	$(am__remove_distdir)
 
+#
+# Install icons for (for use with GNOME, KDE, or any other
+# freedesktop.org-compliant desktops).
+#
+# We use $(datadir).  If the desktop doesn't look for them there,
+# the desktop is broken; the latest XDG Base Directory Specification
+# at
+#
+#    http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+#
+# says
+#
+# $XDG_DATA_DIRS defines the preference-ordered set of base directories
+# to search for data files in addition to the $XDG_DATA_HOME base
+# directory. The directories in $XDG_DATA_DIRS should be seperated with a
+# colon ':'.
+# 
+# If $XDG_DATA_DIRS is either not set or empty, a value equal to
+# /usr/local/share/:/usr/share/ should be used.
+#
+# so:
+#
+#    if this is configured to install under /usr, that should Just Work,
+#    unless XDG_DATA_DIRS is set incorrectly or the desktop isn't
+#    compliant with the latest version of the spec;
+#
+#    if this installs under the default /usr/share, that should Just Work,
+#    unless XDG_DATA_DIRS is set incorrectly or the desktop isn't
+#    compliant with the latest version of the spec;
+#
+#    if this is configured to install somewhere else, whoever configured
+#    it should also have made sure that XDG_DATA_DIRS was set correctly
+#    and, if that doesn't work, the desktop isn't compliant with the
+#    latest version of the spec.
+#
+# We install these as part of the standard installation process, just
+# as, for example, Inkscape does with its icons.  See bug 10737.
+#
+# Do not use the -T flag to the install command, as it's not portable.
+# Some versions of install don't support a -T flag at all, and the
+# FreeBSD install command has a -T flag that takes an argument and
+# that has completely different semantics.
+#
+install-data-local:
+	for size in 16 24 32 48 64 128 256; \
+	do \
+		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/{apps,mimetypes} ; \
+		install -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
+		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
+	done
+	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
+	install -m 644 image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+
 # Install some desktop files (for use with GNOME, KDE, or any other freedesktop.org-compliant desktops)
 # No, these do not go into $(datarootdir): the desktop won't look for them there.
 # Yes, that violate's autofoo's principle of relocatability.
@@ -1398,14 +1451,6 @@ install_desktop_files:
 	else \
 		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
 	fi
-	for size in 16 24 32 48 64 128 256; \
-	do \
-		mkdir -p $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/{apps,mimetypes} ; \
-		install -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
-		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
-	done
-	mkdir -p $(DESTDIR)/usr/share/icons/hicolor/scalable/apps
-	install -m 644 image/wsicon.svg $(DESTDIR)/usr/share/icons/hicolor/scalable/apps/wireshark.svg
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 # Used by svr4-package and osx-package
