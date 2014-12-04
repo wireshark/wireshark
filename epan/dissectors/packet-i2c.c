@@ -98,7 +98,7 @@ capture_i2c(union wtap_pseudo_header *pseudo_header, packet_counts *ld)
 }
 
 static const char *
-i2c_get_event_desc(int event)
+i2c_get_event_desc(guint32 event)
 {
 	const char *desc;
 
@@ -188,7 +188,9 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *i2c_tree;
-	int         is_event, bus, flags, addr;
+	guint8      is_event;
+	guint8      bus, addr;
+	guint32     flags;
 
 	flags = pinfo->pseudo_header->i2c.flags;
 
