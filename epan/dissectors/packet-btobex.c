@@ -1216,6 +1216,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             offset += 1;
                             proto_tree_add_item(parameter_tree, hf_authentication_info, tvb, offset, sub_parameter_length - 1, ENC_ASCII|ENC_NA);
                             offset += sub_parameter_length - 1;
+                            break;
                         default:
                             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
                             offset += sub_parameter_length;
