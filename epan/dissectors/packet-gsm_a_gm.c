@@ -47,6 +47,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 11.7.0 Release 11)
  *
+ *   Reference [12]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 12.7.0 Release 12)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -213,6 +219,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_REQ_TYPE,			 "Request type" },
 	{ DE_SM_NOTIF_IND,		 "Notification indicator" },
 	{ DE_SM_CONNECTIVITY_TYPE,	 "Connectivity type" },
+	{ DE_SM_WLAN_OFFLOAD_ACCEPT,	 "WLAN offload acceptability" },
 	/* GPRS Common Information Elements 10.5.7 */
 	{ DE_PDP_CONTEXT_STAT,		 "PDP Context Status" },
 	{ DE_RAD_PRIO,			 "Radio Priority" },
@@ -363,6 +370,7 @@ static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
 static int hf_gsm_a_sm_notif_ind = -1;
 static int hf_gsm_a_sm_connectivity_type = -1;
+static int hf_gsm_a_sm_wlan_offload_accept = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
 static int hf_gsm_a_gm_rac_pseudo_sync = -1;
 static int hf_gsm_a_gm_rac_vgcs = -1;
@@ -423,6 +431,14 @@ static int hf_gsm_a_gm_rac_tighter_cap = -1;
 static int hf_gsm_a_gm_rac_fanr_cap = -1;
 static int hf_gsm_a_gm_rac_ipa_cap = -1;
 static int hf_gsm_a_gm_rac_geran_nw_sharing_support = -1;
+static int hf_gsm_a_gm_rac_eutra_wb_rsrq_support = -1;
+static int hf_gsm_a_gm_rac_utra_mfbi_support = -1;
+static int hf_gsm_a_gm_rac_eutra_mfbi_support = -1;
+static int hf_gsm_a_gm_rac_dlmc_non_contig_intra_band_recep = -1;
+static int hf_gsm_a_gm_rac_dlmc_inter_band_recep = -1;
+static int hf_gsm_a_gm_rac_dlmc_max_bandwidth = -1;
+static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts = -1;
+static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -1355,6 +1371,49 @@ static const value_string gsm_a_gm_alt_efta_multi_slot_class_vals[] = {
 	{ 0x0d, "Unused" },
 	{ 0x0e, "Unused" },
 	{ 0x0f, "Unused" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_dlmc_non_contig_intra_band_recep_vals[] = {
+	{ 0x00, "Not supported" },
+	{ 0x01, "Supported in band E-GSM or GSM850" },
+	{ 0x02, "Supported in band DCS1800 or PCS1900" },
+	{ 0x03, "Supported in band E-GSM, or GSM850, or DCS1800 or PCS1900" },
+	{ 0, NULL }
+};
+
+static const true_false_string gsm_a_gm_dlmc_inter_band_recep_val = {
+	"Supported in band combination (E-GSM, DCS1800), or band combination (GSM850, PCS1900)",
+	"Not supported"
+};
+
+static const value_string gsm_a_gm_dlmc_max_bandwidth_vals[] = {
+	{ 0x00, "5 MHz" },
+	{ 0x01, "10 MHz" },
+	{ 0x02, "15 MHz" },
+	{ 0x03, "20 MHz" },
+	{ 0, NULL }
+};
+
+static void
+gsm_a_gm_dlmc_max_nb_dl_ts_fmt(gchar *s, guint32 v)
+{
+	if (v < 0x3E)
+		g_snprintf(s, ITEM_LABEL_LENGTH, "%u TS supported (%u)",
+		           2*v + 6, v);
+	else
+		g_snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", v);
+}
+
+static const value_string gsm_a_gm_dlmc_max_nb_dl_carriers_vals[] = {
+	{ 0x00, "2 carriers supported" },
+	{ 0x01, "4 carriers supported" },
+	{ 0x02, "6 carriers supported" },
+	{ 0x03, "8 carriers supported" },
+	{ 0x04, "10 carriers supported" },
+	{ 0x05, "12 carriers supported" },
+	{ 0x06, "14 carriers supported" },
+	{ 0x07, "16 carriers supported" },
 	{ 0, NULL }
 };
 
@@ -2945,6 +3004,135 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_in_oct -= bits_needed;
 
 		 /*
+		 * E-UTRA Wideband RSRQ measurements support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_eutra_wb_rsrq_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 12
+		 */
+
+		 /*
+		 * UTRA Multiple Frequency Band Indicators support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_utra_mfbi_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
+		 * E-UTRA Multiple Frequency Band Indicators support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_eutra_mfbi_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
+		 * DLMC Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		if ((oct>>(32-bits_needed)) == 0)
+		{
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+		else
+		{
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct  <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			bits_needed = 1;
+			GET_DATA;
+			if ((oct>>(32-bits_needed)) == 0)
+			{
+				bit_offset += bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+			}
+			else
+			{
+				bit_offset += bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+
+				/*
+				 * DLMC - Non-contiguous intra-band reception
+				*/
+				bits_needed = 2;
+				GET_DATA;
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dlmc_non_contig_intra_band_recep, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+				bit_offset += bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+
+				/*
+				 * DLMC - Inter-band reception
+				*/
+				bits_needed = 1;
+				GET_DATA;
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dlmc_inter_band_recep, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+				bit_offset += bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+			}
+
+			/*
+			 * DLMC - Maximum Bandwidth
+			*/
+			bits_needed = 2;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dlmc_max_bandwidth, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			/*
+			 * DLMC - Maximum Number of Downlink Timeslots
+			*/
+			bits_needed = 6;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			/*
+			 * DLMC - Maximum Number of Downlink Carriers
+			*/
+			bits_needed = 3;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+
+		 /*
 		 * we are too long ... so jump over it
 		 */
 		while (curr_bits_length > 0)
@@ -3938,6 +4126,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x000f, 0x000f, "IFOM-Support-Request" },
 	{ 0x0010, 0x0010, "IPv4 Link MTU Request" },
 	{ 0x0011, 0x0011, "MS support of Local address in TFT indicator" },
+	{ 0x0012, 0x0012, "P-CSCF Re-selection support" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -3959,6 +4148,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x000f, 0x000f, "IFOM-Support" },
 	{ 0x0010, 0x0010, "IPv4 Link MTU" },
 	{ 0x0011, 0x0011, "Network support of Local address in TFT indicator" },
+	{ 0x0012, 0x0012, "Reserved" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -5479,15 +5669,28 @@ static const range_string gsm_a_sm_connectivity_type_vals[] = {
 static guint16
 de_sm_connectivity_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	proto_tree_add_item(tree, hf_gsm_a_sm_connectivity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_connectivity_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return (len);
 }
 
+/*
+ * [12] 10.5.6.20 WLAN offload acceptability
+ */
+static const range_string gsm_a_sm_wlan_offload_accept_vals[] = {
+	{ 0x0,	0x0, "Offloading the traffic of the PDN connection via a WLAN is not acceptable"},
+	{ 0x1,	0x1, "Offloading the traffic of the PDN connection via a WLAN is acceptable"},
+	{ 0x2,	0xF, "Offloading the traffic of the PDN connection via a WLAN is not acceptable"},
+	{ 0, 0, NULL }
+};
+
+static guint16
+de_sm_wlan_offload_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_a_sm_wlan_offload_accept, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	return (len);
+}
 
 guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
@@ -5547,6 +5750,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_sm_req_type,                    /* Request type */
 	de_sm_notif_ind,                   /* Notification indicator */
 	de_sm_connectivity_type,           /* Connectivity type */
+	de_sm_wlan_offload_accept,         /* WLAN offload acceptability */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,                /* PDP Context Status */
 	de_gc_radio_prio,                  /* Radio Priority */
@@ -5623,6 +5827,10 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
 
+	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
+
+	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -5682,6 +5890,8 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
 
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
+
+	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6059,6 +6269,10 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
 
+	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
+
+	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6118,6 +6332,8 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
 
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
+
+	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6377,6 +6593,8 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TV_SHORT(0xB0 , GSM_A_PDU_TYPE_GM, DE_SM_CONNECTIVITY_TYPE, NULL);
 
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6597,6 +6815,8 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV( 0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
+
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7854,13 +8074,18 @@ proto_register_gsm_a_gm(void)
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_notif_ind,
-		  { "Notification indicator value", "gsm_a.gm.sm.notif_ind",
+		  { "Notification indicator", "gsm_a.gm.sm.notif_ind",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_notif_ind_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_connectivity_type,
-		  { "Connectivity type value", "gsm_a.gm.sm.connectivity_type",
+		  { "Connectivity type", "gsm_a.gm.sm.connectivity_type",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_connectivity_type_vals), 0x0F,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_wlan_offload_accept,
+		  { "WLAN offload acceptability", "gsm_a.gm.sm.wlan_offload_accept",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_wlan_offload_accept_vals), 0x0F,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
@@ -8161,6 +8386,46 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_rac_geran_nw_sharing_support,
 		  { "GERAN Network Sharing support", "gsm_a.gm.gmm.rac.geran_nw_sharing_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_eutra_wb_rsrq_support,
+		  { "E-UTRA Wideband RSRQ measurements support", "gsm_a.gm.gmm.rac.eutra_wb_rsrq_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_utra_mfbi_support,
+		  { "UTRA Multiple Frequency Band Indicators support", "gsm_a.gm.gmm.rac.utra_mfbi_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_eutra_mfbi_support,
+		  { "E-UTRA Multiple Frequency Band Indicators support", "gsm_a.gm.gmm.rac.eutra_mfbi_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_dlmc_non_contig_intra_band_recep,
+		  { "DLMC - Non-contiguous intra-band reception", "gsm_a.gm.gmm.rac.dlmc.non_contig_intra_band_recep",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dlmc_non_contig_intra_band_recep_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_dlmc_inter_band_recep,
+		  { "DLMC - Inter-band reception", "gsm_a.gm.gmm.rac.dlmc.inter_band_recep",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_dlmc_inter_band_recep_val), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_dlmc_max_bandwidth,
+		  { "DLMC - Maximum Bandwidth", "gsm_a.gm.gmm.rac.dlmc.max_bandwidth",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dlmc_max_bandwidth_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts,
+		  { "DLMC - Maximum Number of Downlink Timeslots", "gsm_a.gm.gmm.rac.dlmc.max_nb_dl_ts",
+		    FT_UINT8, BASE_CUSTOM, &gsm_a_gm_dlmc_max_nb_dl_ts_fmt, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers,
+		  { "DLMC - Maximum Number of Downlink Carriers", "gsm_a.gm.gmm.rac.dlmc.max_nb_dl_carriers",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dlmc_max_nb_dl_carriers_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,

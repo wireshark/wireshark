@@ -453,7 +453,7 @@ static const value_string vamos_level_vals[] = {
     { 0, "VAMOS not supported" },
     { 1, "VAMOS I supported" },
     { 2, "VAMOS II supported" },
-    { 3, "Unused. If received, the network shall interpret this as VAMOS II supported" },
+    { 3, "VAMOS III supported" },
     { 0, NULL}
 };
 
@@ -705,6 +705,10 @@ static int hf_gsm_a_selective_ciph_down_sacch = -1;
 static int hf_gsm_a_cs_to_ps_srvcc_geran_to_utra = -1;
 static int hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra = -1;
 static int hf_gsm_a_geran_network_sharing_support = -1;
+static int hf_gsm_a_eutra_wb_rsrq_support = -1;
+static int hf_gsm_a_er_band_support = -1;
+static int hf_gsm_a_utra_mfbi_support = -1;
+static int hf_gsm_a_eutra_mfbi_support = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat = -1;
@@ -2461,7 +2465,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 11.7.0 Release 11
+ * 3GPP TS 24.008 version 12.7.0 Release 12
  */
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
@@ -3186,6 +3190,36 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
      */
     AVAILABLE_BITS_CHECK(1);
     proto_tree_add_bits_item(tree, hf_gsm_a_geran_network_sharing_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
+     * < E-UTRA Wideband RSRQ measurements support : bit(1)>
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_eutra_wb_rsrq_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
+     * Release 12 starts here
+     *
+     * < ER Band support : bit(1) > -- Release 12 starts here
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_er_band_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
+     * < UTRA Multiple Frequency Band Indicators support : bit(1)>
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_utra_mfbi_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
+     * < E-UTRA Multiple Frequency Band Indicators support : bit(1)>
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_eutra_mfbi_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = bit_offset + 1;
 
     /*
@@ -4304,7 +4338,27 @@ proto_register_gsm_a_common(void)
         NULL, HFILL}
     },
     { &hf_gsm_a_geran_network_sharing_support,
-        { "GERAN Network Sharing support", "gsm_a.classmark3.ggeran_network_sharing_support",
+        { "GERAN Network Sharing support", "gsm_a.classmark3.geran_network_sharing_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_eutra_wb_rsrq_support,
+        { "E-UTRA Wideband RSRQ measurements support", "gsm_a.classmark3.eutra_wb_rsrq_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_er_band_support,
+        { "ER Band support", "gsm_a.classmark3.er_band_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_utra_mfbi_support,
+        { "UTRA Multiple Frequency Band Indicators support", "gsm_a.classmark3.utra_mfbi_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_eutra_mfbi_support,
+        { "E-UTRA Multiple Frequency Band Indicators support", "gsm_a.classmark3.eutra_mfbi_support",
         FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
         NULL, HFILL}
     },

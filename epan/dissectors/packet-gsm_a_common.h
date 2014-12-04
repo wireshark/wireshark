@@ -1173,6 +1173,7 @@ typedef enum
     DE_REQ_TYPE,                    /* Request type */
     DE_SM_NOTIF_IND,                /* Notification indicator */
     DE_SM_CONNECTIVITY_TYPE,        /* Connectivity type */
+    DE_SM_WLAN_OFFLOAD_ACCEPT,      /* WLAN offload acceptability */
     /* GPRS Common Information Elements [8] 10.5.7 */
     DE_PDP_CONTEXT_STAT,            /* [8] 10.5.7.1     PDP Context Status */
     DE_RAD_PRIO,                    /* [8] 10.5.7.2     Radio Priority */
@@ -1363,6 +1364,7 @@ typedef enum
     DE_EMM_NONCE,               /* 9.9.3.25 Nonce */
     DE_EMM_PAGING_ID,           /* 9.9.3.25A Paging identity */
     DE_EMM_P_TMSI_SIGN,         /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+    DE_EMM_EXT_CAUSE,           /* 9.9.3.26A Extended EMM cause */
     DE_EMM_SERV_TYPE,           /* 9.9.3.27 Service type */
     DE_EMM_SHORT_MAC,           /* 9.9.3.28 Short MAC */
     DE_EMM_TZ,                  /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
