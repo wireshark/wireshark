@@ -90,6 +90,7 @@ AllJoyn Reliable Datagram Protocol
 HiQnet
 Elasticsearch
 Shared Memory Communications - RDMA
+Riemann
 --sort-and-group--
 
 === Updated Protocol Support

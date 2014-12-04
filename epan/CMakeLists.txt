@@ -1158,6 +1158,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rfid-pn532.c
 	dissectors/packet-rfid-pn532-hci.c
 	dissectors/packet-rgmp.c
+	dissectors/packet-riemann.c
 	dissectors/packet-rip.c
 	dissectors/packet-ripng.c
 	dissectors/packet-rlc-lte.c
