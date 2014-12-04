@@ -187,63 +187,51 @@ static void
 dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *i2c_tree = NULL;
+	proto_tree *i2c_tree;
 	int         is_event, bus, flags, addr;
 
-	is_event = pinfo->pseudo_header->i2c.is_event;
 	flags = pinfo->pseudo_header->i2c.flags;
+
 	bus = pinfo->pseudo_header->i2c.bus;
+	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "I2C-%d", bus);
+
+	is_event = pinfo->pseudo_header->i2c.is_event;
 	if (is_event) {
 		addr = 0;
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				i2c_get_event_desc(flags));
 	} else {
 		/* Report 7-bit hardware address */
 		addr = tvb_get_guint8(tvb, 0) >> 1;
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
+				(flags & I2C_FLAG_RD) ? "Read" : "Write");
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "I2C %s, %d bytes",
+					(flags & I2C_FLAG_RD) ? "Read" : "Write", tvb_captured_length(tvb));
 	}
 
 	pinfo->ptype = PT_I2C;
 
-	if (is_event)
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
-	else
-		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
-				(flags & I2C_FLAG_RD) ? "Read" : "Write");
+	ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
+			"Inter-Integrated Circuit (%s)",
+			is_event ? "Event" : "Data");
 
-	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "I2C-%d", bus);
+	i2c_tree = proto_item_add_subtree(ti, ett_i2c);
+	proto_tree_add_uint_format(i2c_tree, hf_i2c_bus, tvb, 0, 0, bus,
+			"Bus: I2C-%d", bus);
 
-	if (is_event)
-		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
-	else
-		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
+	if (is_event) {
+		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_event, tvb, 0, 0,
+				flags, "%s (0x%08x)",
+				i2c_get_event_desc(flags), flags);
+	} else {
+		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 1,
+				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
+		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_flags, tvb, 0, 0,
+				flags, "0x%08x", flags);
 
-	if (is_event)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-				i2c_get_event_desc(flags));
-	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "I2C %s, %d bytes",
-					(flags & I2C_FLAG_RD) ? "Read" : "Write", tvb_captured_length(tvb));
-
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
-					"Inter-Integrated Circuit (%s)",
-					is_event ? "Event" : "Data");
-
-		i2c_tree = proto_item_add_subtree(ti, ett_i2c);
-		proto_tree_add_uint_format(i2c_tree, hf_i2c_bus, tvb, 0, 0, bus,
-				"Bus: I2C-%d", bus);
-
-		if (is_event) {
-			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_event, tvb, 0, 0,
-					flags, "%s (0x%08x)",
-					i2c_get_event_desc(flags), flags);
-		} else {
-			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 1,
-					addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
-			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_flags, tvb, 0, 0,
-					flags, "0x%08x", flags);
-		}
-	}
-
-	if (!is_event) {
 		if (sub_check[sub_selected] && sub_check[sub_selected](pinfo)) {
 			call_dissector(sub_handles[sub_selected], tvb, pinfo, tree);
 		} else {
