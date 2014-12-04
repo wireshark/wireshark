@@ -1441,18 +1441,6 @@ install-data-local:
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
 	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
-#
-# XXX - can we just do this ourselves?  update-mime-database would
-# presumably write to stuff under $(datadir)/mime; if we pass it
-# $(DESTDIR)$(datadir)/mime, that should not require root
-# privileges if nothing under $(DESTDIR) does.  However, getting
-# update-desktop-database to do the right thing might be
-# trickier; the man page for it says that, if not passed a
-# directory argument, it processes the files "installed in
-# $XDG_DATA_DIRS/applications", but $XDG_DATA_DIRS is a sequence
-# of directories, not just a single directory.
-#
-	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database $(datadir)/mime\""
 
 uninstall-local:
 	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
@@ -1463,6 +1451,47 @@ uninstall-local:
 		rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+
+install-data-hook: update-databases-and-caches-install
+uninstall-hook: update-databases-and-caches-uninstall
+
+#
+# XXX - which of this stuff can, and should, we do ourselves?
+#
+# If we're "installing" under $(DESTDIR) as part of the process of
+# building a package, we probably don't need to, and shouldn't, do
+# any of this.
+#
+# If we're installing for use, we may need to do some of this; which
+# of them do we need to tell where to search, especially if we're
+# installing somewhere other than under /usr or /usr/local?
+#
+# What if we're installing in the user's home directory?
+#
+# What if we're installing under /opt?
+#
+# We only need to run ldconfig on systems where it's necessary in order
+# to update a shared library cache to know about our shared libraries.
+#
+# We only need to run update-desktop-database and update-mime-database
+# on freedesktop.org desktops.
+#
+# We only need to run gtk-update-icon-cache if we're installing a GTK+
+# version of Wireshark.
+#
+# The update-alternatives suggestions need work.
+#
+update-databases-and-caches-common:
+	@echo "You may need to run \"ldconfig\" as root"
+	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
+	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
+	@echo "You may need to run \"gtk-update-icon-cache -f -t $(datadir)/icons/hicolor\""
+
+update-databases-and-caches-install: update-databases-and-caches-common
+	@echo "You may need to run \"update-alternatives --install $(bindir)/wireshark wireshark $(bindir)/wireshark-qt 50\""
+
+update-databases-and-caches-uninstall: update-databases-and-caches-common
+	@echo "You may need to run \"update-alternatives --remove wireshark $(bindir)/wireshark-qt\""
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an absolute path so that libtool doesn't freak.
