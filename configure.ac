@@ -102,7 +102,7 @@ fi
 AC_PATH_PROG(PERL, perl)
 
 # Check for Python.
-AC_PATH_PROG(PYTHON, python)
+AC_PATH_PROGS(PYTHON, python, python3)
 if test ! -z "$PYTHON"; then
 	#
 	# OK, we found Python; is it Python 2.5 or later?
