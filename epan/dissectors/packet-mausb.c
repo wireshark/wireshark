@@ -1411,27 +1411,27 @@ proto_register_mausb(void)
 
     static ei_register_info ei[] = {
         { &ei_ep_handle_len,
-            { "mausb.ep_handle.length", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.ep_handle.length", PI_PROTOCOL, PI_WARN,
               "Invalid Endpoint handle length field", EXPFILL }
         },
         { &ei_len,
-            { "mausb.length", PI_MALFORMED, PI_ERROR,
+            { "mausb.ei.length", PI_MALFORMED, PI_ERROR,
               "Packet length field does not match size of packet", EXPFILL }
         },
         { &ei_len_dword,
-            { "mausb.length", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.length.dword", PI_PROTOCOL, PI_WARN,
               "Packet contains partial DWORD", EXPFILL }
         },
         { &ei_mgmt_type_undef,
-            { "mausb.type", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type", PI_PROTOCOL, PI_WARN,
               "Undefined managment packet type", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_long,
-            { "mausb.type_spec.len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
               "Data exists after type-specific managment packet field", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_short,
-            { "mausb.type_spec.len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
               "Expected type-specific managment packet data", EXPFILL }
         },
     };
