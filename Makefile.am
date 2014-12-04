@@ -1490,8 +1490,6 @@ uninstall-hook: update-databases-and-caches-uninstall
 # We only need to run gtk-update-icon-cache if we're installing a GTK+
 # version of Wireshark.
 #
-# The update-alternatives suggestions need work.
-#
 # We neither need nor want any of this on OS X, nor do we want it if
 # we're not building Wireshark (that being the only desktop app).
 #
@@ -1506,18 +1504,8 @@ endif
 endif
 
 update-databases-and-caches-install: update-databases-and-caches-common
-if BUILDING_WIRESHARK
-if NOT_OS_X
-	@echo "You may need to run \"update-alternatives --install $(bindir)/wireshark wireshark $(bindir)/wireshark-qt 50\""
-endif
-endif
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
-if BUILDING_WIRESHARK
-if NOT_OS_X
-	@echo "You may need to run \"update-alternatives --remove wireshark $(bindir)/wireshark-qt\""
-endif
-endif
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an absolute path so that libtool doesn't freak.
