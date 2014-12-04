@@ -37,7 +37,12 @@ AUTOCONF=autoconf
 
 # Check for python. Python did not support --version before version 2.5.
 # Until we require a version > 2.5, we should use -V.
-PYVER=`python -V 2>&1 | sed 's/Python *//'`
+PYVER=`exec python -V 2>&1 | sed 's/Python *//'`
+# If "python" isn't found, try "python3"
+if test "$PYVER" = "exec: python: not found"
+then
+    PYVER=`exec python3 -V 2>&1 | sed 's/Python *//'`
+fi
 case "$PYVER" in
 2*|3*)
   ;;
@@ -50,7 +55,6 @@ case "$PYVER" in
 _EOF_
   DIE="exit 1"
 esac
-
 
 ACVER=`$AUTOCONF --version | grep '^autoconf' | sed 's/.*) *//'`
 case "$ACVER" in
