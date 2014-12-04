@@ -1381,6 +1381,7 @@ AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
                   [build the Wireshark GUI (with Gtk+, Qt, or both) @<:@default=yes@:>@]),
     enable_wireshark=$enableval,enable_wireshark=yes)
+AM_CONDITIONAL(BUILDING_WIRESHARK, test x$enable_wireshark = xyes)
 
 AC_ARG_ENABLE(packet-editor,
   AC_HELP_STRING( [--enable-packet-editor],
