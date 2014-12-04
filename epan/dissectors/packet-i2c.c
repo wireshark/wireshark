@@ -27,7 +27,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
 
@@ -189,18 +188,14 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *i2c_tree = NULL;
-	int         is_event, bus, flags, addr, len;
+	int         is_event, bus, flags, addr;
 
 	is_event = pinfo->pseudo_header->i2c.is_event;
 	flags = pinfo->pseudo_header->i2c.flags;
 	bus = pinfo->pseudo_header->i2c.bus;
-	len = tvb_length(tvb);
 	if (is_event) {
 		addr = 0;
 	} else {
-		if (len == 0) {
-			THROW(ReportedBoundsError);
-		}
 		/* Report 7-bit hardware address */
 		addr = tvb_get_guint8(tvb, 0) >> 1;
 	}
@@ -225,7 +220,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				i2c_get_event_desc(flags));
 	else
 		col_add_fstr(pinfo->cinfo, COL_INFO, "I2C %s, %d bytes",
-					(flags & I2C_FLAG_RD) ? "Read" : "Write", len);
+					(flags & I2C_FLAG_RD) ? "Read" : "Write", tvb_captured_length(tvb));
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
