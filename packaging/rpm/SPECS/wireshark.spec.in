@@ -235,10 +235,15 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-# %if %{with gtk3} || %{with gtk2}
-# # Change the program name for 'alternatives'
-# mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-gtk
-# %endif
+
+# If we're being installed in an unusual prefix tell the loader where
+# to find our libraries.
+%if "%{_prefix}" != "/usr"
+	%define install_ld_so_conf 1
+	mkdir -p $RPM_BUILD_ROOT/etc/ld.so.conf.d
+	echo %{_libdir} > $RPM_BUILD_ROOT/etc/ld.so.conf.d/wireshark.conf
+%endif
+
 %if %{with qt}
 # Change the program name for 'alternatives'
 mv %{buildroot}%{_bindir}/wireshark %{buildroot}%{_bindir}/wireshark-qt
@@ -312,11 +317,6 @@ if [ $1 -eq 0 ] ; then
 fi
 %endif
 
-# Is this really needed?
-%posttrans
-gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
-
-
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog INSTALL INSTALL.configure NEWS README*
@@ -360,6 +360,9 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_datadir}/wireshark
+%if 0%{?install_ld_so_conf}
+/etc/ld.so.conf.d/wireshark.conf
+%endif
 
 %if %{with qt}
 %files qt
@@ -389,6 +392,8 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 * Wed Dec  3 2014 Jeff Morriss
 - Don't run gtk-update-icon-cache when uninstalling the Qt package.  But do run
   it when installing the gnome package.
+- Tell the loader where to find our libraries if we're being installed
+  someplace other than /usr .
 
 * Fri Aug 29 2014 Gerald Combs
 - The Qt UI is now the default. Update logic and prioritization to
