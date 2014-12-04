@@ -1423,7 +1423,10 @@ patch-bzip2: distdir
 # FreeBSD install command has a -T flag that takes an argument and
 # that has completely different semantics.
 #
+# We neither need nor want any of this on OS X.
+#
 install-data-local:
+if NOT_OS_X
 	mkdir -p $(DESTDIR)$(datadir)/mime/packages
 	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	mkdir -p $(DESTDIR)$(datadir)/applications
@@ -1441,8 +1444,10 @@ install-data-local:
 	done
 	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
 	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+endif
 
 uninstall-local:
+if NOT_OS_X
 	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
 	for size in 16 24 32 48 64 128 256; \
@@ -1451,6 +1456,7 @@ uninstall-local:
 		rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
 	rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+endif
 
 install-data-hook: update-databases-and-caches-install
 uninstall-hook: update-databases-and-caches-uninstall
@@ -1481,17 +1487,25 @@ uninstall-hook: update-databases-and-caches-uninstall
 #
 # The update-alternatives suggestions need work.
 #
+# We neither need nor want any of this on OS X.
+#
 update-databases-and-caches-common:
+if NOT_OS_X
 	@echo "You may need to run \"ldconfig\" as root"
 	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
 	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
 	@echo "You may need to run \"gtk-update-icon-cache -f -t $(datadir)/icons/hicolor\""
+endif
 
 update-databases-and-caches-install: update-databases-and-caches-common
+if NOT_OS_X
 	@echo "You may need to run \"update-alternatives --install $(bindir)/wireshark wireshark $(bindir)/wireshark-qt 50\""
+endif
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
+if NOT_OS_X
 	@echo "You may need to run \"update-alternatives --remove wireshark $(bindir)/wireshark-qt\""
+endif
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an absolute path so that libtool doesn't freak.

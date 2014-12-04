@@ -809,6 +809,14 @@ fi
 AC_SUBST(HAVE_OSX_PACKAGING)
 
 #
+# Use this as a proxy for "is this OS X" (just in case somebody actually
+# built and installed Darwin as an OS, perhaps with some X11-based GUI,
+# don't look for Darwin).
+#
+AC_CHECK_PROG(have_sw_vers, sw_vers, "yes", "no")
+AM_CONDITIONAL(NOT_OS_X, test "x$have_sw_vers" = "xno")
+
+#
 # Some compilers have to be told to fail when passed an unknown -W flag;
 # make sure we do that.
 #
