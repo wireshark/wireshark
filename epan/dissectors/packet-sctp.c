@@ -844,9 +844,30 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   return 1;
 }
 
-static const char* sctp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+static const char* sctp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-  return sctp_conv_get_filter_type(NULL, filter);
+    if (filter == CONV_FT_SRC_PORT)
+        return "sctp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "sctp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "sctp.port";
+
+    if(!host) {
+        return CONV_FILTER_INVALID;
+    }
+
+    if (filter == CONV_FT_SRC_ADDRESS || filter == CONV_FT_DST_ADDRESS || filter == CONV_FT_ANY_ADDRESS) {
+        if (host->myaddress.type == AT_IPv4)
+            return "ip.addr";
+        if (host->myaddress.type == AT_IPv6)
+            return "ipv6.addr";
+    }
+
+
+    return CONV_FILTER_INVALID;
 }
 
 static hostlist_dissector_info_t sctp_host_dissector_info = {&sctp_host_get_filter_type};
