@@ -983,7 +983,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                             /* Record isn't long enough to have a source descriptor extra type field */
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                        rec_len, K12_SRCDESC_DS0_MASK + 32);
                             destroy_k12_file_data(file_data);
                             g_free(rec);
                             return WTAP_OPEN_ERROR;
@@ -1001,7 +1001,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                             /* Record isn't long enough to have a source descriptor extra type field */
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                        rec_len, K12_SRCDESC_ATM_VCI + 2);
                             destroy_k12_file_data(file_data);
                             g_free(rec);
                             return WTAP_OPEN_ERROR;
@@ -1019,7 +1019,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                     /* Record isn't long enough to have a source descriptor extra type field */
                     *err = WTAP_ERR_BAD_FILE;
                     *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                rec_len, K12_SRCDESC_PORT_TYPE + 1);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
                     return WTAP_OPEN_ERROR;
