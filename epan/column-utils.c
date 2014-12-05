@@ -558,12 +558,13 @@ col_set_str(column_info *cinfo, const gint el, const gchar* str)
 }
 
 void
-col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...)
+col_add_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
 {
   va_list ap;
   int     i;
   gsize   pos;
   gsize   max_len;
+  const gchar *str;
 
   if (!CHECK_COL(cinfo, el))
     return;
@@ -589,7 +590,8 @@ col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...)
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
 
-      va_start(ap, str);
+      va_start(ap, str1);
+      str = str1; 
       do {
          if G_UNLIKELY(str == NULL)
              str = "(null)";
