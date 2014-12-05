@@ -60,6 +60,8 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 
 WS_DLL_PUBLIC const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2];
 
+WS_DLL_PUBLIC value_string_ext ieee80211_supported_rates_vals_ext;
+
 struct _wlan_stats {
   guint8 channel;
   guint8 ssid_len;

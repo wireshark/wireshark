@@ -1069,7 +1069,7 @@ static const value_string ieee80211_supported_rates_vals[] = {
   { 0xFF, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)" },
   { 0,    NULL}
 };
-static value_string_ext ieee80211_supported_rates_vals_ext = VALUE_STRING_EXT_INIT(ieee80211_supported_rates_vals);
+value_string_ext ieee80211_supported_rates_vals_ext = VALUE_STRING_EXT_INIT(ieee80211_supported_rates_vals);
 
 /* ************************************************************************* */
 /*                         8.4.1.7 Reason Code field                         */
