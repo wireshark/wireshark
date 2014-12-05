@@ -691,8 +691,10 @@ find_assoc_index(assoc_info_t* tmpinfo)
         case FORWARD_ADD_FORWARD_VTAG:
         case BACKWARD_ADD_FORWARD_VTAG:
           info->verification_tag1 = tmpinfo->verification_tag1;
+          break;
         case BACKWARD_ADD_BACKWARD_VTAG:
           info->verification_tag2 = tmpinfo->verification_tag1;
+          break;
       }
       if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
         info->direction = 1;
