@@ -39,15 +39,15 @@ WS_DLL_PUBLIC
 void capture_wlancap(const guchar *, int, int, packet_counts *);
 
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-			 int offset, gint size);
+                         int offset, gint size);
 int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
                                    tvbuff_t *tvb, int offset);
 int dissect_wifi_p2p_action(proto_tree *tree, tvbuff_t *tvb, int offset);
 void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-			   int offset, gboolean request);
+                           int offset, gboolean request);
 
 void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
-			     tvbuff_t *tvb, int offset, gint size);
+                             tvbuff_t *tvb, int offset, gint size);
 
 #define MAX_SSID_LEN    32
 #define MAX_PROTECT_LEN 10
@@ -56,7 +56,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
  * Table of data rates, indexed by MCS index, bandwidth (0 for 20, 1 for 40),
  * amd guard interval (0 for long, 1 for short).
  */
-#define MAX_MCS_INDEX	76
+#define MAX_MCS_INDEX 76
 
 WS_DLL_PUBLIC const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2];
 
@@ -70,11 +70,11 @@ struct _wlan_stats {
 };
 
 typedef struct _wlan_hdr {
-        address bssid;
-        address src;
-        address dst;
-        guint16 type;
-        struct _wlan_stats stats;
+  address bssid;
+  address src;
+  address dst;
+  guint16 type;
+  struct _wlan_stats stats;
 } wlan_hdr;
 
 #define WLANCAP_MAGIC_COOKIE_BASE 0x80211000
@@ -83,6 +83,19 @@ typedef struct _wlan_hdr {
 
 /* UAT entry structure. */
 typedef struct {
-    guint8    key;
-    gchar    *string;
+  guint8    key;
+  gchar    *string;
 } uat_wep_key_record_t;
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
