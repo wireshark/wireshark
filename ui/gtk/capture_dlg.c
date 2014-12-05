@@ -2392,7 +2392,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   GtkWidget *buffer_size_sb;
 #endif
 #ifdef HAVE_EXTCAP
-  GtkWidget *extcap_vbox;
+  GtkWidget *extcap_vbox = NULL;
 #endif
 
   interface_t device;
@@ -2457,7 +2457,8 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   if (device.external_cap_args_settings != NULL)
     g_hash_table_unref(device.external_cap_args_settings);
 
-  device.external_cap_args_settings = extcap_gtk_get_state(extcap_vbox);
+  if (extcap_vbox != NULL)
+    device.external_cap_args_settings = extcap_gtk_get_state(extcap_vbox);
 
   /* Destroy the args data linked in the gtk widget */
 #if 0
@@ -2980,8 +2981,10 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 #ifdef HAVE_EXTCAP
   extcap_hash = device.external_cap_args_settings;
   extcap_vbox = build_extcap_options(device.name, extcap_hash);
-  gtk_box_pack_start(GTK_BOX(capture_vb), extcap_vbox, FALSE, FALSE, 5);
-  gtk_widget_show(extcap_vbox);
+  if (extcap_vbox != NULL) {
+    gtk_box_pack_start(GTK_BOX(capture_vb), extcap_vbox, FALSE, FALSE, 5);
+    gtk_widget_show(extcap_vbox);
+  }
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_EXTCAP_KEY, extcap_vbox);
 #endif
 
