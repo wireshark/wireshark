@@ -911,7 +911,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                             /* Record isn't long enough to have a source descriptor extra type field */
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                        rec_len, K12_SRCDESC_DS0_MASK + 32);
                             return -1;
                         }
 
@@ -927,7 +927,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                             /* Record isn't long enough to have a source descriptor extra type field */
                             *err = WTAP_ERR_BAD_FILE;
                             *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                        rec_len, K12_SRCDESC_ATM_VCI + 2);
                             return -1;
                         }
 
@@ -943,7 +943,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                     /* Record isn't long enough to have a source descriptor extra type field */
                     *err = WTAP_ERR_BAD_FILE;
                     *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                rec_len, K12_SRCDESC_DS0_MASK + 12);
+                                                rec_len, K12_SRCDESC_PORT_TYPE + 1);
                     return -1;
                 }
                 if (read_buffer[K12_SRCDESC_PORT_TYPE] >= 0x14
