@@ -644,7 +644,7 @@ col_add_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
       }
 
       va_start(ap, str1);
-      str = str1; 
+      str = str1;
       do {
          if G_UNLIKELY(str == NULL)
              str = "(null)";
