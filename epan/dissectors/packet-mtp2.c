@@ -338,7 +338,7 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_item *mtp2_item;
   proto_tree *mtp2_tree;
 
-  if ((pinfo->phdr->rec_type != WTAP_ENCAP_MTP2_WITH_PHDR) ||
+  if ((pinfo->phdr->pkt_encap != WTAP_ENCAP_MTP2_WITH_PHDR) ||
       (pinfo->pseudo_header->mtp2.annex_a_used == MTP2_ANNEX_A_USED_UNKNOWN))
     use_extended_sequence_numbers = use_extended_sequence_numbers_default;
   else
