@@ -165,8 +165,8 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			}
 
 		} else if (err == Z_DATA_ERROR && inits_done == 1
-			&& uncompr == NULL && (*compr  == 0x1f) &&
-			(*(compr + 1) == 0x8b)) {
+			&& uncompr == NULL && comprlen >= 2 &&
+			(*compr  == 0x1f) && (*(compr + 1) == 0x8b)) {
 			/*
 			 * inflate() is supposed to handle both gzip and deflate
 			 * streams automatically, but in reality it doesn't
@@ -181,12 +181,13 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			 * fix to make it work (setting windowBits to 31)
 			 * doesn't work with all versions of the library.
 			 */
-			Bytef *c     = compr + 2;
+			Bytef *c = compr + 2;
 			Bytef  flags = 0;
 
-			if (*c == Z_DEFLATED) {
-				c++;
-			} else {
+			/* we read two bytes already (0x1f, 0x8b) and
+			   need at least Z_DEFLATED, 1 byte flags, 4
+			   bytes MTIME, 1 byte XFL, 1 byte OS */
+			if (comprlen < 10 || *c != Z_DEFLATED) {
 				inflateEnd(strm);
 				g_free(strm);
 				g_free(compr);
@@ -194,6 +195,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 				return NULL;
 			}
 
+			c++;
 			flags = *c;
 
 			/* Skip past the MTIME, XFL, and OS fields. */
