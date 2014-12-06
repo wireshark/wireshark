@@ -55,6 +55,64 @@ static int hf_icq_ack_random = -1;
 static int hf_icq_keep_alive_random = -1;
 static int hf_icq_status = -1;
 static int hf_icq_meta_user_subcmd = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_icq_rand_user_tcpversion = -1;
+static int hf_icq_meta_user_x3 = -1;
+static int hf_icq_user_online_realip = -1;
+static int hf_icq_rand_user_realip = -1;
+static int hf_icq_meta_user_hideip = -1;
+static int hf_icq_user_online_port = -1;
+static int hf_icq_user_online_ip = -1;
+static int hf_icq_num_uin_pairs = -1;
+static int hf_icq_x1 = -1;
+static int hf_icq_meta_user_timezone = -1;
+static int hf_icq_user_online_version = -1;
+static int hf_icq_receiver_uin = -1;
+static int hf_icq_text_code = -1;
+static int hf_icq_login_reply_ip = -1;
+static int hf_icq_rand_user_ip = -1;
+static int hf_icq_multi_num_packets = -1;
+static int hf_icq_number_of_uins = -1;
+static int hf_icq_meta_user_length = -1;
+static int hf_icq_text_code_length = -1;
+static int hf_icq_login_password = -1;
+static int hf_icq_meta_user_x2 = -1;
+static int hf_icq_login_time = -1;
+static int hf_icq_meta_user_countrycode = -1;
+static int hf_icq_msg_length = -1;
+static int hf_icq_meta_user_about = -1;
+static int hf_icq_meta_user_webaware = -1;
+static int hf_icq_rand_user_class = -1;
+static int hf_icq_rand_user_port = -1;
+static int hf_icq_meta_user_found_authorization = -1;
+static int hf_icq_meta_user_info_authorization = -1;
+static int hf_icq_no_parameters = -1;
+static int hf_icq_login_port = -1;
+static int hf_icq_meta_user_result = -1;
+static int hf_icq_login_ip = -1;
+static int hf_icq_msg_authorization = -1;
+static int hf_icq_msg = -1;
+static int hf_icq_nickname = -1;
+static int hf_icq_first_name = -1;
+static int hf_icq_last_name = -1;
+static int hf_icq_email = -1;
+static int hf_icq_primary_email = -1;
+static int hf_icq_secondary_email = -1;
+static int hf_icq_old_email = -1;
+static int hf_icq_city = -1;
+static int hf_icq_state = -1;
+static int hf_icq_phone = -1;
+static int hf_icq_fax = -1;
+static int hf_icq_street = -1;
+static int hf_icq_cellphone = -1;
+static int hf_icq_zip = -1;
+static int hf_icq_description = -1;
+static int hf_icq_url = -1;
+static int hf_icq_text = -1;
+static int hf_icq_unknown = -1;
+static int hf_icq_reason = -1;
+static int hf_icq_msg_contact = -1;
+static int hf_icq_recv_time = -1;
 
 static gint ett_icq = -1;
 static gint ett_icq_header = -1;
@@ -437,15 +495,14 @@ static guint16
 proto_add_icq_attr(proto_tree *tree, /* The tree to add to */
             tvbuff_t *tvb,    /* Tvbuff with packet */
             const int offset, /* Offset from the start of packet of field */
-            const char *descr)  /* The description to use in the tree */
+            const int* hf)  /* The description to use in the tree */
 {
     guint16 len;
 
     len = tvb_get_letohs(tvb, offset);
     if (len > tvb_reported_length_remaining(tvb, offset))
         return -1;  /* length goes past end of packet */
-    proto_tree_add_text(tree, tvb, offset, len+2,
-            "%s[%u]: %.*s", descr, len, len,
+    proto_tree_add_string(tree, *hf, tvb, offset, len+2,
             tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII));
     return len + 2;
 }
@@ -461,34 +518,34 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     gint sep_offset;
     int sz;            /* Size of the current element */
     unsigned int n;
-    static const char *url_field_descr[] = {
-        "Description",
-        "URL",
+    static const int *url_field_descr[] = {
+         &hf_icq_description,
+         &hf_icq_url,
     };
 #define N_URL_FIELDS    (sizeof url_field_descr / sizeof url_field_descr[0])
-    static const char *email_field_descr[] = {
-        "Nickname",
-        "First name",
-        "Last name",
-        "Email address",
-        "Unknown",
-        "Text"
+    static const int *email_field_descr[] = {
+         &hf_icq_nickname,
+         &hf_icq_first_name,
+         &hf_icq_last_name,
+         &hf_icq_email,
+         &hf_icq_unknown,
+         &hf_icq_text,
     };
 #define N_EMAIL_FIELDS  (sizeof email_field_descr / sizeof email_field_descr[0])
-    static const char *auth_req_field_descr[] = {
-        "Nickname",
-        "First name",
-        "Last name",
-        "Email address",
-        "Unknown",
-        "Reason"
+    static const int *auth_req_field_descr[] = {
+         &hf_icq_nickname,
+         &hf_icq_first_name,
+         &hf_icq_last_name,
+         &hf_icq_email,
+         &hf_icq_unknown,
+         &hf_icq_reason,
     };
 #define N_AUTH_REQ_FIELDS   (sizeof auth_req_field_descr / sizeof auth_req_field_descr[0])
-    static const char *user_added_field_descr[] = {
-        "Nickname",
-        "First name",
-        "Last name",
-        "Email address",
+    static const int *user_added_field_descr[] = {
+         &hf_icq_nickname,
+         &hf_icq_first_name,
+         &hf_icq_last_name,
+         &hf_icq_email,
     };
 #define N_USER_ADDED_FIELDS (sizeof user_added_field_descr / sizeof user_added_field_descr[0])
 
@@ -504,8 +561,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
          * XXX - does a MSG_AUTH message really have 3 bytes of information
          * rather than a length field?
          */
-        proto_tree_add_text(subtree, tvb, offset, 2, "Length: %u",
-                    tvb_get_letohs(tvb, offset));
+        proto_tree_add_item(subtree, hf_icq_msg_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         left -= 2;
     }
@@ -518,8 +574,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                    "Unknown msgType: %u (0x%x)", msgType, msgType);
         break;
     case MSG_TEXT:
-        proto_tree_add_text(subtree, tvb, offset, left, "Msg: %.*s", left-1,
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset, left, ENC_ASCII));
+        proto_tree_add_item(subtree, hf_icq_msg, tvb, offset, left, ENC_ASCII|ENC_NA);
         break;
     case MSG_URL:
         for (n = 0; n < N_URL_FIELDS; n++) {
@@ -530,13 +585,10 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                 sz = left;
             }
             if (sz != 0) {
-                proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
-                            url_field_descr[n],
-                            sz - 1,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
+                proto_tree_add_item(subtree, *url_field_descr[n], tvb, offset, sz, ENC_ASCII|ENC_NA);
             } else {
-                proto_tree_add_text(subtree, tvb, offset, 0,
-                            "%s: %s", url_field_descr[n], "(empty)");
+                proto_tree_add_string_format_value(subtree, *url_field_descr[n], tvb, offset, 0,
+                            "", "(empty)");
             }
             offset += sz;
             left -= sz;
@@ -551,13 +603,10 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
             sz = left;
         }
         if (sz != 0) {
-            proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
-                        email_field_descr[n],
-                        sz - 1,
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
+            proto_tree_add_item(subtree, *email_field_descr[n], tvb, offset, sz, ENC_ASCII|ENC_NA);
         } else {
-            proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
-                        email_field_descr[n], "(empty)");
+            proto_tree_add_string_format_value(subtree, *email_field_descr[n], tvb, offset, 0,
+                        "", "(empty)");
         }
         offset += sz;
         left -= sz;
@@ -570,12 +619,11 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
         unsigned char auth_suc;
 
         auth_suc = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(subtree, tvb, offset, 1,
-                    "Authorization: (%u) %s",auth_suc,
+        proto_tree_add_uint_format_value(subtree, hf_icq_msg_authorization, tvb, offset, 1,
+                    auth_suc, "(%u) %s",auth_suc,
                     (auth_suc==0)?"Denied":"Allowed");
         offset++;
-        proto_tree_add_text(subtree, tvb, offset, 2, "x1: 0x%04x",
-                    tvb_get_letohs(tvb, offset));
+        proto_tree_add_item(subtree, hf_icq_x1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         break;
     }
     case MSG_AUTH_REQ:
@@ -587,12 +635,10 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                 sz = left;
             }
             if (sz != 0) {
-                proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
-                            auth_req_field_descr[n], sz - 1,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
+                proto_tree_add_item(subtree, *auth_req_field_descr[n], tvb, offset, sz, ENC_ASCII|ENC_NA);
             } else {
-                proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
-                            auth_req_field_descr[n], "(empty)");
+                proto_tree_add_string_format_value(subtree, *auth_req_field_descr[n], tvb, offset, 0,
+                        "", "(empty)");
             }
             offset += sz;
             left -= sz;
@@ -607,12 +653,10 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
             sz = left;
         }
         if (sz != 0) {
-            proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
-                        user_added_field_descr[n], sz - 1,
-                        tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz, ENC_ASCII));
+            proto_tree_add_item(subtree, *user_added_field_descr[n], tvb, offset, sz, ENC_ASCII|ENC_NA);
         } else {
-            proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
-                        user_added_field_descr[n], "(empty)");
+            proto_tree_add_string_format_value(subtree, *user_added_field_descr[n], tvb, offset, 0,
+                        "", "(empty)");
         }
         offset += sz;
         left -= sz;
@@ -637,12 +681,11 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 
             if (n_local == 0) {
                 /* The first element is the number of Nick/UIN pairs follow */
-                proto_tree_add_text(subtree, tvb, offset, sz_local,
-                            "Number of pairs: %.*s", sz_local - 1,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, sz_local, ENC_ASCII));
+                proto_tree_add_item(subtree, hf_icq_num_uin_pairs, tvb, offset, sz_local, ENC_ASCII|ENC_NA);
                 n_local++;
             } else if (!last) {
                 int svsz = sz_local;
+                char* contact;
 
                 left -= sz_local;
                 sep_offset_prev = sep_offset;
@@ -653,10 +696,11 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                     sz_local = left;
                     last = TRUE;
                 }
-                proto_tree_add_text(subtree, tvb, offset, sz_local + svsz,
-                            "%.*s: %.*s", svsz - 1,
+                contact = tvb_get_string_enc(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
+                proto_tree_add_string_format(subtree, hf_icq_msg_contact, tvb, offset, sz_local + svsz,
+                            contact, "%.*s: %.*s", svsz - 1,
                             tvb_get_string_enc(wmem_packet_scope(), tvb, offset, svsz, ENC_ASCII), sz_local - 1,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local, ENC_ASCII));
+                            contact);
                 n_local += 2;
             }
 
@@ -680,32 +724,22 @@ icqv5_cmd_send_text_code(proto_tree *tree, /* Tree to put the data in */
 {
     proto_tree *subtree = tree;
     guint16 len;
-    guint16 x1;
 
     len = tvb_get_letohs(tvb, offset+CMD_SEND_TEXT_CODE_LEN);
-    proto_tree_add_text(subtree, tvb, offset + CMD_SEND_TEXT_CODE_LEN,
-                2, "Length: %d", len);
+    proto_tree_add_item(subtree, hf_icq_text_code_length, tvb, offset + CMD_SEND_TEXT_CODE_LEN, 2, ENC_LITTLE_ENDIAN);
 
     if (len>0) {
-        proto_tree_add_text(subtree, tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
-                len, "Text: %.*s", len,
-                tvb_get_string_enc(wmem_packet_scope(), tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
-                        len, ENC_ASCII));
+        proto_tree_add_item(subtree, hf_icq_text_code, tvb, offset + CMD_SEND_TEXT_CODE_TEXT, len, ENC_ASCII|ENC_NA);
     }
 
-    x1 = tvb_get_letohs(tvb, offset + CMD_SEND_TEXT_CODE_TEXT + len);
-    proto_tree_add_text(subtree, tvb,
-                offset + CMD_SEND_TEXT_CODE_TEXT + len,
-                2, "X1: 0x%04x", x1);
+    proto_tree_add_item(subtree, hf_icq_x1, tvb, offset + CMD_SEND_TEXT_CODE_TEXT + len, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
 icqv5_cmd_send_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
            packet_info *pinfo)
 {
-    proto_tree_add_text(tree, tvb, offset + CMD_SEND_MSG_RECV_UIN, 4,
-                "Receiver UIN: %u",
-                tvb_get_letohl(tvb, offset + CMD_SEND_MSG_RECV_UIN));
+    proto_tree_add_item(tree, hf_icq_receiver_uin, tvb, offset + CMD_SEND_MSG_RECV_UIN, 4, ENC_LITTLE_ENDIAN);
     size -= 4;
 
     icqv5_decode_msgType(tree, tvb, offset + CMD_SEND_MSG_MSG_TYPE,
@@ -718,25 +752,17 @@ icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree *subtree = tree;
     time_t theTime;
     char *aTime;
-    guint32 port;
     guint32 passwdLen;
 
     if (tree) {
         theTime = tvb_get_letohl(tvb, offset + CMD_LOGIN_TIME);
         aTime = abs_time_secs_to_str(wmem_packet_scope(), theTime, ABSOLUTE_TIME_LOCAL, TRUE);
-        proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_TIME, 4,
-                    "Time: %ld = %s", (long)theTime, aTime);
-        port = tvb_get_letohl(tvb, offset + CMD_LOGIN_PORT);
-        proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_PORT, 4,
-                    "Port: %u", port);
+        proto_tree_add_uint_format_value(subtree, hf_icq_login_time, tvb, offset + CMD_LOGIN_TIME, 4,
+                    (guint32)theTime, "%u = %s", (guint32)theTime, aTime);
+        proto_tree_add_item(subtree, hf_icq_login_port, tvb, offset + CMD_LOGIN_PORT, 4, ENC_LITTLE_ENDIAN);
         passwdLen = tvb_get_letohs(tvb, offset + CMD_LOGIN_PASSLEN);
-        proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_PASSLEN,
-                    2 + passwdLen, "Passwd: %.*s", (int)passwdLen,
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + CMD_LOGIN_PASSWD,
-                        passwdLen, ENC_ASCII));
-        proto_tree_add_text(subtree, tvb,
-                    offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
-                    4, "IP: %s", tvb_ip_to_str(tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP));
+        proto_tree_add_item(subtree, hf_icq_login_password, tvb, offset + CMD_LOGIN_PASSLEN, 2 + passwdLen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_icq_login_ip, tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_icq_status, tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS, 4, ENC_LITTLE_ENDIAN);
     }
 }
@@ -750,16 +776,15 @@ icqv5_cmd_contact_list(proto_tree *tree, tvbuff_t *tvb, int offset)
 
     if (tree) {
         num = tvb_get_guint8(tvb, offset + CMD_CONTACT_LIST_NUM);
-        proto_tree_add_text(tree, tvb, offset + CMD_CONTACT_LIST,
-                    1, "Number of uins: %u", num);
+        proto_tree_add_item(tree, hf_icq_number_of_uins, tvb, offset + CMD_CONTACT_LIST, 1, ENC_NA);
         /*
          * A sequence of num times UIN follows
          */
         offset += (CMD_CONTACT_LIST_NUM + 1);
         for (i = 0; i < num; i++) {
             uin = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 4,
-                    "UIN[%d]: %u", i ,uin);
+            proto_tree_add_uint_format(tree, hf_icq_uin, tvb, offset, 4,
+                    uin, "UIN[%d]: %u", i, uin);
             offset += 4;
         }
     }
@@ -779,25 +804,17 @@ icqv5_srv_user_online(proto_tree *tree,/* Tree to put the data in */
     proto_tree *subtree = tree;
 
     if (tree) {
-        proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_UIN, 4,
-                    "UIN: %u",
-                    tvb_get_letohl(tvb, offset + SRV_USER_ONL_UIN));
-        proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_IP, 4,
-                    "IP: %s", tvb_ip_to_str(tvb, offset + SRV_USER_ONL_IP));
-        proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_PORT, 4,
-                    "Port: %u",
-                    tvb_get_letohl(tvb, offset + SRV_USER_ONL_PORT));
-        proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_REALIP, 4,
-                    "RealIP: %s", tvb_ip_to_str(tvb, offset + SRV_USER_ONL_REALIP));
+        proto_tree_add_item(subtree, hf_icq_uin, tvb, offset + SRV_USER_ONL_UIN, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(subtree, hf_icq_user_online_ip, tvb, offset + SRV_USER_ONL_IP, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_icq_user_online_port, tvb, offset + SRV_USER_ONL_PORT, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(subtree, hf_icq_user_online_realip, tvb, offset + SRV_USER_ONL_REALIP, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_icq_status, tvb, offset + SRV_USER_ONL_STATUS, 2, ENC_LITTLE_ENDIAN);
         /*
          * Kojak: Hypothesis is that this field might be an encoding for the
          * version used by the UIN that changed. To test this, I included
          * this line to the code.
          */
-        proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_X2, 4,
-                    "Version: %08x",
-                    tvb_get_letohl(tvb, offset + SRV_USER_ONL_X2));
+        proto_tree_add_item(subtree, hf_icq_user_online_version, tvb, offset + SRV_USER_ONL_X2, 4, ENC_LITTLE_ENDIAN);
     }
 }
 
@@ -812,8 +829,7 @@ icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
     int i;
 
     num = tvb_get_guint8(tvb, offset + SRV_MULTI_NUM);
-    proto_tree_add_text(tree, tvb, offset + SRV_MULTI_NUM, 1,
-                "Number of pkts: %u", num);
+    proto_tree_add_item(tree, hf_icq_multi_num_packets, tvb, offset + SRV_MULTI_NUM, 1, ENC_NA);
     /*
      * A sequence of num times ( pktsize, packetData) follows
      */
@@ -842,8 +858,8 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
     ti = proto_tree_add_item(tree, hf_icq_meta_user_subcmd, tvb, offset + SRV_META_USER_SUBCMD, 2, ENC_LITTLE_ENDIAN);
     sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
     result = tvb_get_guint8(tvb, offset + SRV_META_USER_RESULT);
-    proto_tree_add_text(sstree, tvb, offset + SRV_META_USER_RESULT,
-                1, "%s", (result==0x0a)?"Success":"Failure");
+    proto_tree_add_uint_format_value(sstree, hf_icq_meta_user_result, tvb, offset + SRV_META_USER_RESULT,
+                result, 1, "%s", (result==0x0a)?"Success":"Failure");
 
     /* Skip the META_USER header */
     offset += 3;
@@ -854,12 +870,9 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
         /* This is almost the same as META_USER_FOUND,
          * however, there's an extra length field
          */
-        guint16 pktLen;
 
         /* Read the length field */
-        pktLen = tvb_get_letohs(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 2,
-                "Length: %u", pktLen);
+        proto_tree_add_item(sstree, hf_icq_meta_user_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         offset += 2;
     }
@@ -872,40 +885,37 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
          * They are used to "implement" a poorman's exception handling
          */
         int len = 0;
-        static const char *descr[] = {
-            "Nick",
-            "First name",
-            "Last name",
-            "Email",
+        static const int *hf_descr[] = {
+            &hf_icq_nickname,
+            &hf_icq_first_name,
+            &hf_icq_last_name,
+            &hf_icq_email,
             NULL
         };
-        const char **d = descr;
+        const int **hf = hf_descr;
         unsigned char auth;
         /*
          * Read UIN
          */
-        proto_tree_add_text(sstree, tvb, offset, 4,
-                "UIN: %u", tvb_get_letohl(tvb, offset));
+        proto_tree_add_item(sstree, hf_icq_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=4;
 
-        for ( ; *d!=NULL; d++) {
-            len = proto_add_icq_attr(sstree, tvb, offset, *d);
+        for ( ; *hf!=NULL; hf++) {
+            len = proto_add_icq_attr(sstree, tvb, offset, *hf);
             if (len == -1)
                 return;
             offset += len;
         }
         /* Get the authorize setting */
         auth = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 1,
-                "authorization: %s", (auth==0x01)?"Necessary":"Who needs it");
+        proto_tree_add_uint_format_value(sstree, hf_icq_meta_user_found_authorization, tvb, offset, 1,
+                auth, "%s", (auth==0x01)?"Necessary":"Who needs it");
         offset++;
         /* Get x2 */
-        proto_tree_add_text(sstree, tvb, offset, 2,
-                "x2: 0x%04x", tvb_get_letohs(tvb, offset));
+        proto_tree_add_item(sstree, hf_icq_meta_user_x2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         /* Get x3 */
-        proto_tree_add_text(sstree, tvb, offset, 4,
-                "x3: 0x%08x", tvb_get_letohl(tvb, offset));
+        proto_tree_add_item(sstree, hf_icq_meta_user_x3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         break;
     }
     case META_ABOUT:
@@ -915,9 +925,8 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
         /* Get the about information */
         len = tvb_get_letohs(tvb, offset);
         offset+=2;
-        proto_tree_add_text(sstree, tvb, offset - 2,
-                len+2, "About(%d): %.*s", len,
-                len, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
+        proto_tree_add_string(sstree, hf_icq_meta_user_about, tvb, offset - 2,
+                len+2, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
         break;
     }
     case META_USER_INFO:
@@ -927,39 +936,35 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
          *
          * They are used to "implement" a poorman's exception handling
          */
-        static const char *descr[] = {
-            "Nick",
-            "First name",
-            "Last name",
-            "Primary email",
-            "Secondary email",
-            "Old email",
-            "City",
-            "State",
-            "Phone",
-            "Fax",
-            "Street",
-            "Cellphone",
-            "Zip",
+        static const int *hf_descr[] = {
+            &hf_icq_nickname,
+            &hf_icq_first_name,
+            &hf_icq_last_name,
+            &hf_icq_primary_email,
+            &hf_icq_secondary_email,
+            &hf_icq_old_email,
+            &hf_icq_city,
+            &hf_icq_state,
+            &hf_icq_phone,
+            &hf_icq_fax,
+            &hf_icq_street,
+            &hf_icq_cellphone,
+            &hf_icq_zip,
             NULL
         };
-        const char **d = descr;
-        guint16 country;
-        guint8 user_timezone;
-        guint8 auth;
+        const int **hf = hf_descr;
         int len = 0;
 #if 0
         /* Get the uin */
-        uin = tvb_get_letohl(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 4, "UIN: %u", uin);
+        proto_tree_add_item(sstree, hf_icq_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=4;
 #endif
 
         /*
          * Get every field from the description
          */
-        for ( ; *d!=NULL; d++) {
-            len = proto_add_icq_attr(sstree, tvb, offset, *d);
+        for ( ; *hf!=NULL; hf++) {
+            len = proto_add_icq_attr(sstree, tvb, offset, *hf);
             if (len < 0) {
                 offset+=2;
                 continue;
@@ -967,31 +972,19 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
             offset+=len;
         }
         /* Get country code */
-        country = tvb_get_letohs(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 2,
-                "Countrycode: %u", country);
+        proto_tree_add_item(sstree, hf_icq_meta_user_countrycode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         /* Get the timezone setting */
-        user_timezone = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 1,
-                "Timezone: %u", user_timezone);
+        proto_tree_add_item(sstree, hf_icq_meta_user_timezone, tvb, offset, 1, ENC_NA);
         offset++;
         /* Get the authorize setting */
-        auth = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 1,
-                "Authorization: (%u) %s", auth,
-                (auth==0)?"No":"Yes");
+        proto_tree_add_item(sstree, hf_icq_meta_user_info_authorization, tvb, offset, 1, ENC_NA);
         offset++;
         /* Get the webaware setting */
-        auth = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 1,
-                "Webaware: (%u) %s", auth,
-                (auth==0)?"No":"Yes");
+        proto_tree_add_item(sstree, hf_icq_meta_user_webaware, tvb, offset, 1, ENC_NA);
         offset++;
         /* Get the authorize setting */
-        auth = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(sstree, tvb, offset, 1,
-                "HideIP: (%u) %s", auth, (auth==0)?"No":"Yes");
+        proto_tree_add_item(sstree, hf_icq_meta_user_hideip, tvb, offset, 1, ENC_NA);
         break;
     }
     default:
@@ -1023,9 +1016,8 @@ icqv5_srv_recv_message(proto_tree *tree, /* Tree to put the data in */
     hour = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_HOUR);
     minute = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_MINUTE);
 
-    proto_tree_add_text(tree, tvb, offset + SRV_RECV_MSG_YEAR,
-                2 + 4,
-                "Time: %u-%u-%u %02u:%02u",
+    proto_tree_add_bytes_format_value(tree, hf_icq_recv_time, tvb, offset + SRV_RECV_MSG_YEAR,
+                2 + 4, NULL, "%u-%u-%u %02u:%02u",
                 day, month, year, hour, minute);
     icqv5_decode_msgType(tree, tvb, offset + SRV_RECV_MSG_MSG_TYPE,
                  size-10, pinfo);
@@ -1037,40 +1029,29 @@ icqv5_srv_rand_user(proto_tree *tree,      /* Tree to put the data in */
             int offset)            /* Offset from the start of the packet to the content */
 {
     proto_tree *subtree = tree;
-    guint32 uin;
-    guint32 port;
     guint8 commClass;
-    guint16 tcpVer;
 
     if (tree) {
         /* guint32 UIN */
-        uin = tvb_get_letohl(tvb, offset + SRV_RAND_USER_UIN);
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_UIN,
-                    4, "UIN: %u", uin);
+        proto_tree_add_item(subtree, hf_icq_uin, tvb, offset + SRV_RAND_USER_UIN,
+                    4, ENC_LITTLE_ENDIAN);
         /* guint32 IP */
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_IP,
-                    4, "IP: %s", tvb_ip_to_str(tvb, offset + SRV_RAND_USER_IP));
+        proto_tree_add_item(subtree, hf_icq_rand_user_ip, tvb, offset + SRV_RAND_USER_IP, 4, ENC_BIG_ENDIAN);
         /* guint16 portNum */
         /* XXX - 16 bits, or 32 bits? */
-        port = tvb_get_letohs(tvb, offset + SRV_RAND_USER_PORT);
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_UIN,
-                    4, "Port: %u", port);
+        proto_tree_add_item(subtree, hf_icq_rand_user_port, tvb, offset + SRV_RAND_USER_PORT, 4, ENC_LITTLE_ENDIAN);
         /* guint32 realIP */
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_REAL_IP,
-                    4, "RealIP: %s", tvb_ip_to_str(tvb, offset + SRV_RAND_USER_REAL_IP));
+        proto_tree_add_item(subtree, hf_icq_rand_user_realip, tvb, offset + SRV_RAND_USER_REAL_IP, 4, ENC_BIG_ENDIAN);
         /* guint8 Communication Class */
         commClass = tvb_get_guint8(tvb, offset + SRV_RAND_USER_CLASS);
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_CLASS,
-                    1, "Class: %s",
-                    (commClass!=4)?"User to User":"Through Server");
+        proto_tree_add_uint_format_value(subtree, hf_icq_rand_user_class, tvb, offset + SRV_RAND_USER_CLASS,
+                    1, commClass, "%s", (commClass!=4)?"User to User":"Through Server");
         /* guint32 status */
         /* XXX - 16 bits, or 32 bits? */
         proto_tree_add_item(subtree, hf_icq_status, tvb, offset + SRV_RAND_USER_STATUS, 4, ENC_LITTLE_ENDIAN);
 
         /* guint16 tcpVersion */
-        tcpVer = tvb_get_letohs(tvb, offset + SRV_RAND_USER_TCP_VER);
-        proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_TCP_VER,
-                    2, "TCPVersion: %u", tcpVer);
+        proto_tree_add_item(subtree, hf_icq_rand_user_tcpversion, tvb, offset + SRV_RAND_USER_TCP_VER, 2, ENC_LITTLE_ENDIAN);
     }
 }
 
@@ -1182,7 +1163,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CMD_REG_NEW_USER:
     case CMD_QUERY_SERVERS:
     case CMD_QUERY_ADDONS:
-        proto_tree_add_text(icq_body_tree, tvb, ICQ5_CL_HDRSIZE, 0, "No parameters");
+        proto_tree_add_item(icq_body_tree, hf_icq_no_parameters, tvb, ICQ5_CL_HDRSIZE, 0, ENC_NA);
         break;
     default:
         expert_add_info(pinfo, cmd_item, &ei_icq_unknown_command);
@@ -1237,8 +1218,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_item(icq_body_tree, hf_icq_uin, tvb, offset + ICQ5_SRV_HDRSIZE + SRV_USER_OFFLINE_UIN, 4, ENC_LITTLE_ENDIAN);
         break;
     case SRV_LOGIN_REPLY:
-        proto_tree_add_text(tree, tvb, offset + ICQ5_SRV_HDRSIZE + SRV_LOGIN_REPLY_IP, 4,
-                "IP: %s", tvb_ip_to_str(tvb, offset + ICQ5_SRV_HDRSIZE + SRV_LOGIN_REPLY_IP));
+        proto_tree_add_item(tree, hf_icq_login_reply_ip, tvb, offset + ICQ5_SRV_HDRSIZE + SRV_LOGIN_REPLY_IP, 4, ENC_BIG_ENDIAN);
         break;
     case SRV_META_USER:
         icqv5_srv_meta_user(icq_body_tree, tvb, offset + ICQ5_SRV_HDRSIZE,
@@ -1257,7 +1237,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
     case SRV_NEW_UIN:
     case SRV_BAD_PASS:
     case SRV_UPDATE_SUCCESS:
-        proto_tree_add_text(icq_body_tree, tvb, offset + ICQ5_SRV_HDRSIZE, 0, "No Parameters");
+        proto_tree_add_item(icq_body_tree, hf_icq_no_parameters, tvb, offset + ICQ5_SRV_HDRSIZE, 0, ENC_NA);
         break;
     default:
         expert_add_info(pinfo, cmd_item, &ei_icq_unknown_command);
@@ -1340,8 +1320,65 @@ proto_register_icq(void)
           {"Client command", "icq.status", FT_UINT32, BASE_DEC, VALS(statusCode), 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_subcmd,
           {"Subcommand", "icq.meta_user.subcmd", FT_UINT16, BASE_DEC, VALS(serverMetaSubCmdCode), 0x0, NULL, HFILL }},
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &hf_icq_msg_length, { "Length", "icq.msg_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_msg, { "Msg", "icq.msg", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_msg_authorization, { "Authorization", "icq.msg_authorization", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_x1, { "X1", "icq.x1", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_num_uin_pairs, { "Number of pairs", "icq.num_uin_pairs", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_text_code_length, { "Length", "icq.text_code_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_text_code, { "Text", "icq.text_code", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_receiver_uin, { "Receiver UIN", "icq.receiver_uin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_login_time, { "Time", "icq.login.time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_login_port, { "Port", "icq.login.port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_login_password, { "Password", "icq.login.password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_login_ip, { "IP", "icq.login.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_number_of_uins, { "Number of uins", "icq.number_of_uins", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_user_online_ip, { "IP", "icq.user_online.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_user_online_port, { "Port", "icq.user_online.port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_user_online_realip, { "RealIP", "icq.user_online.realip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_user_online_version, { "Version", "icq.user_online.version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_multi_num_packets, { "Number of pkts", "icq.multi.num_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_result, { "Result", "icq.meta_user.result", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_length, { "Length", "icq.meta_user.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_found_authorization, { "Authorization", "icq.meta_user.found_authorization", FT_UINT8, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_x2, { "x2", "icq.meta_user.x2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_x3, { "x3", "icq.meta_user.x3", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_about, { "About", "icq.meta_user.about", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_countrycode, { "Countrycode", "icq.meta_user.countrycode", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_timezone, { "Timezone", "icq.meta_user.timezone", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_info_authorization, { "Authorization", "icq.meta_user.info_authorization", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_webaware, { "Webaware", "icq.meta_user.webaware", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_hideip, { "HideIP", "icq.meta_user.hideip", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+        { &hf_icq_rand_user_ip, { "IP", "icq.rand_user.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_rand_user_port, { "Port", "icq.rand_user.port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_rand_user_realip, { "RealIP", "icq.rand_user.realip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_rand_user_class, { "Class", "icq.rand_user.class", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_rand_user_tcpversion, { "TCPVersion", "icq.rand_user.tcpversion", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_no_parameters, { "No parameters", "icq.no_parameters", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_login_reply_ip, { "IP", "icq.login_reply.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_nickname, { "Nickname", "icq.nickname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_first_name, { "First name", "icq.first_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_last_name, { "Last name", "icq.last_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_email, { "Email", "icq.email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_primary_email, { "Primary email", "icq.primary_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_secondary_email, { "Secondary email", "icq.secondary_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_old_email, { "Old email", "icq.old_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_city, { "City", "icq.city", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_state, { "State", "icq.state", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_phone, { "Phone", "icq.phone", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_fax, { "Fax", "icq.fax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_street, { "Street", "icq.street", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_cellphone, { "Cellphone", "icq.cellphone", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_zip, { "Zip", "icq.zip", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_description, { "Description", "icq.description", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_url, { "URL", "icq.url", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_text, { "Text", "icq.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_unknown, { "Unknown", "icq.unknown", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_reason, { "Reason", "icq.reason", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_msg_contact, { "Contact", "icq.msg_contact", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_recv_time, { "Time", "icq.recv_time", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
-
 
     static gint *ett[] = {
         &ett_icq,
