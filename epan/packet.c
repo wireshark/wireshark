@@ -468,7 +468,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
-	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
@@ -533,7 +532,6 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
-	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
