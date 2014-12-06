@@ -314,18 +314,22 @@ typedef struct _k12_src_desc_t {
 #define K12_SRCDESC_COLOR_FOREGROUND 0x12 /* 1 byte */
 #define K12_SRCDESC_COLOR_BACKGROUND 0x13 /* 1 byte */
 
-#define K12_SRCDESC_PORT_TYPE  0x1a   /* 1 byte */
-#define K12_SRCDESC_EXTRALEN   0x1e   /* uint16, big endian */
-#define K12_SRCDESC_NAMELEN    0x20   /* uint16, big endian */
-#define K12_SRCDESC_STACKLEN   0x22   /* uint16, big endian */
+#define K12_SRCDESC_PORT_TYPE  0x1a /* 1 byte */
+#define K12_SRCDESC_HWPARTLEN  0x1e /* uint16, big endian */
+#define K12_SRCDESC_NAMELEN    0x20 /* uint16, big endian */
+#define K12_SRCDESC_STACKLEN   0x22 /* uint16, big endian */
 
-#define K12_SRCDESC_EXTRATYPE  0x24   /* uint32, big endian */
+/* Hardware part of the record */
+#define K12_SRCDESC_HWPART     0x24 /* offset of the hardware part */
 
-#define K12_SRCDESC_ATM_VPI    0x38   /* uint16, big endian */
-#define K12_SRCDESC_ATM_VCI    0x3a   /* uint16, big endian */
-#define K12_SRCDESC_ATM_AAL    0x3c   /* 1 byte */
+/* Offsets relative to the beginning of the hardware part */
+#define K12_SRCDESC_HWPARTTYPE 0    /* uint32, big endian */
 
-#define K12_SRCDESC_DS0_MASK   0x3c   /* 32 bytes */
+#define K12_SRCDESC_DS0_MASK   24   /* variable-length */
+
+#define K12_SRCDESC_ATM_VPI    20   /* uint16, big endian */
+#define K12_SRCDESC_ATM_VCI    22   /* uint16, big endian */
+#define K12_SRCDESC_ATM_AAL    24   /* 1 byte */
 
 /*
  * A "stack file", as appears in a K12_REC_STK_FILE record, is a text
@@ -812,8 +816,9 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
     guint32 type;
     long offset;
     long len;
+    guint port_type;
     guint32 rec_len;
-    guint32 extra_len;
+    guint32 hwpart_len;
     guint32 name_len;
     guint32 stack_len;
     guint i;
@@ -940,8 +945,11 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
         case K12_REC_SRCDSC2:
             rec = g_new0(k12_src_desc_t,1);
 
-            if (rec_len < K12_SRCDESC_STACKLEN + 2) {
-                /* Record isn't long enough to have a stack length field */
+            if (rec_len < K12_SRCDESC_HWPART) {
+                /*
+                 * Record isn't long enough to have the fixed-length portion
+                 * of the source descriptor field.
+                 */
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
                                             rec_len, K12_SRCDESC_STACKLEN + 2);
@@ -949,7 +957,8 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                 g_free(rec);
                 return WTAP_OPEN_ERROR;
             }
-            extra_len = pntoh16( read_buffer + K12_SRCDESC_EXTRALEN );
+            port_type = read_buffer[K12_SRCDESC_PORT_TYPE];
+            hwpart_len = pntoh16( read_buffer + K12_SRCDESC_HWPARTLEN );
             name_len = pntoh16( read_buffer + K12_SRCDESC_NAMELEN );
             stack_len = pntoh16( read_buffer + K12_SRCDESC_STACKLEN );
 
@@ -957,75 +966,75 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
 
             K12_DBG(5,("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
 
-            if (name_len == 0 || stack_len == 0
-                || 0x20 + extra_len + name_len + stack_len > rec_len ) {
-                g_free(rec);
-                K12_DBG(5,("k12_open: failed (name_len == 0 || stack_len == 0 "
-                        "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
+            if (name_len == 0) {
+                K12_DBG(5,("k12_open: failed (name_len == 0 in source description"));
                 destroy_k12_file_data(file_data);
                 g_free(rec);
                 return WTAP_OPEN_NOT_MINE;
             }
+            if (stack_len == 0) {
+                K12_DBG(5,("k12_open: failed (stack_len == 0 in source description"));
+                destroy_k12_file_data(file_data);
+                g_free(rec);
+                return WTAP_OPEN_NOT_MINE;
+            }
+            if (rec_len < K12_SRCDESC_HWPART + hwpart_len + name_len + stack_len) {
+                /*
+                 * Record isn't long enough to have the full source descriptor
+                 * field, including the variable-length parts.
+                 */
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u (%u + %u + %u + %u)",
+                                            rec_len,
+                                            K12_SRCDESC_HWPART + hwpart_len + name_len + stack_len,
+                                            K12_SRCDESC_HWPART, hwpart_len, name_len, stack_len);
+                destroy_k12_file_data(file_data);
+                g_free(rec);
+                return WTAP_OPEN_ERROR;
+            }
 
-            if (extra_len) {
-                if (rec_len < K12_SRCDESC_EXTRATYPE + 4) {
-                    /* Record isn't long enough to have a source descriptor extra type field */
+            if (hwpart_len) {
+                if (hwpart_len < 4) {
+                    /* Hardware part isn't long enough to have a type field */
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                rec_len, K12_SRCDESC_EXTRATYPE + 4);
+                    *err_info = g_strdup_printf("k12_open: source descriptor hardware part length %u < 4",
+                                                hwpart_len);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
                     return WTAP_OPEN_ERROR;
                 }
-                switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
+                switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_HWPARTTYPE ) )) {
                     case K12_PORT_DS0S:
-                        if (rec_len < K12_SRCDESC_DS0_MASK + 32) {
-                            /* Record isn't long enough to have a source descriptor extra type field */
-                            *err = WTAP_ERR_BAD_FILE;
-                            *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_DS0_MASK + 32);
-                            destroy_k12_file_data(file_data);
-                            g_free(rec);
-                            return WTAP_OPEN_ERROR;
-                        }
-
+                        /* This appears to be variable-length */
                         rec->input_info.ds0mask = 0x00000000;
-
-                        for (i = 0; i < 32; i++) {
-                            rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0;
+                        if (hwpart_len > K12_SRCDESC_DS0_MASK) {
+                            for (i = 0; i < hwpart_len - K12_SRCDESC_DS0_MASK; i++) {
+                                rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0;
+                            }
                         }
-
                         break;
                     case K12_PORT_ATMPVC:
-                        if (rec_len < K12_SRCDESC_ATM_VCI + 2) {
-                            /* Record isn't long enough to have a source descriptor extra type field */
+                        if (hwpart_len < K12_SRCDESC_ATM_VCI + 2) {
+                            /* Hardware part isn't long enough to have ATM information */
                             *err = WTAP_ERR_BAD_FILE;
-                            *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                        rec_len, K12_SRCDESC_ATM_VCI + 2);
+                            *err_info = g_strdup_printf("k12_open: source descriptor hardware part length %u < %u",
+                                                        hwpart_len,
+                                                        K12_SRCDESC_ATM_VCI + 2);
                             destroy_k12_file_data(file_data);
                             g_free(rec);
                             return WTAP_OPEN_ERROR;
                         }
 
-                        rec->input_info.atm.vp = pntoh16( read_buffer + K12_SRCDESC_ATM_VPI );
-                        rec->input_info.atm.vc = pntoh16( read_buffer + K12_SRCDESC_ATM_VCI );
+                        rec->input_info.atm.vp = pntoh16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VPI );
+                        rec->input_info.atm.vc = pntoh16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VCI );
                         break;
                     default:
                         break;
                 }
             } else {
                 /* Record viewer generated files don't have this information */
-                if (rec_len < K12_SRCDESC_PORT_TYPE + 1) {
-                    /* Record isn't long enough to have a source descriptor extra type field */
-                    *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                                rec_len, K12_SRCDESC_PORT_TYPE + 1);
-                    destroy_k12_file_data(file_data);
-                    g_free(rec);
-                    return WTAP_OPEN_ERROR;
-                }
-                if (read_buffer[K12_SRCDESC_PORT_TYPE] >= 0x14
-                    && read_buffer[K12_SRCDESC_PORT_TYPE] <= 0x17) {
+                if (port_type >= 0x14
+                    && port_type <= 0x17) {
                     /* For ATM2_E1DS1, ATM2_E3DS3,
                        ATM2_STM1EL and ATM2_STM1OP */
                     rec->input_type = K12_PORT_ATMPVC;
@@ -1040,17 +1049,8 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                Obviously not, as a corrupt file could contain anything
                here; the Tektronix document says the strings "must end
                with \0", but a bad file could fail to add the \0. */
-            if (rec_len < K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len) {
-                /* Record isn't long enough to have a source descriptor extra type field */
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                            rec_len, K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len);
-                destroy_k12_file_data(file_data);
-                g_free(rec);
-                return WTAP_OPEN_ERROR;
-            }
-            rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
-            rec->stack_file = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
+            rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_HWPART + hwpart_len, name_len);
+            rec->stack_file = (gchar *)g_memdup(read_buffer + K12_SRCDESC_HWPART + hwpart_len + name_len, stack_len);
 
             ascii_strdown_inplace (rec->stack_file);
 
@@ -1154,7 +1154,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
             guint32 unk32_3;
             guint32 unk32_4;
             guint16 unk16_1;
-            guint16 extra_len;
+            guint16 hwpart_len;
 
             guint16 name_len;
             guint16 stack_len;
@@ -1203,13 +1203,13 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 
     switch (src_desc->input_type) {
         case K12_PORT_ATMPVC:
-            obj.record.extra_len = g_htons(0x18);
+            obj.record.hwpart_len = g_htons(0x18);
             obj.record.extra.desc.atm.vp = g_htons(src_desc->input_info.atm.vp);
             obj.record.extra.desc.atm.vc = g_htons(src_desc->input_info.atm.vc);
             offset = 0x3c;
             break;
         case K12_PORT_DS0S:
-            obj.record.extra_len = g_htons(0x18);
+            obj.record.hwpart_len = g_htons(0x18);
             for( i=0; i<32; i++ ) {
                 obj.record.extra.desc.ds0mask.mask[i] =
                 (src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
@@ -1217,7 +1217,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
             offset = 0x3c;
             break;
         default:
-            obj.record.extra_len = g_htons(0x08);
+            obj.record.hwpart_len = g_htons(0x08);
             offset = 0x2c;
             break;
     }
