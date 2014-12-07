@@ -60,7 +60,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	guint      bufsiz;
 #ifdef TVB_Z_DEBUG
 	guint      inflate_passes = 0;
-	guint      bytes_in       = tvb_length_remaining(tvb, offset);
+	guint      bytes_in       = tvb_captured_length_remaining(tvb, offset);
 #endif
 
 	if (tvb == NULL) {
@@ -76,7 +76,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	 * Assume that the uncompressed data is at least twice as big as
 	 * the compressed size.
 	 */
-	bufsiz = tvb_length_remaining(tvb, offset) * 2;
+	bufsiz = tvb_captured_length_remaining(tvb, offset) * 2;
 	bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
 
 #ifdef TVB_Z_DEBUG
@@ -204,9 +204,23 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			c += 6;
 
 			if (flags & (1 << 2)) {
-				/* An Extra field is present. */
-				gint xsize = (gint)(*c |
-					(*(c + 1) << 8));
+				/* An Extra field is present. It
+				   consists of 2 bytes xsize and xsize
+				   bytes of data.
+				   Read byte-by-byte (least significant
+				   byte first) to make sure we abort
+				   cleanly when the xsize is truncated
+				   after the first byte. */
+				guint16 xsize = 0;
+
+				if (c-compr < comprlen) {
+					xsize += *c;
+					c++;
+				}
+				if (c-compr < comprlen) {
+					xsize += *c << 8;
+					c++;
+				}
 
 				c += xsize;
 			}
