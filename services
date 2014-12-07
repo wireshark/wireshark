@@ -9387,6 +9387,7 @@ clever-ctrace    6687/tcp # CleverView for cTrace Message Service [David_Cheng] 
 clever-tcpip     6688/tcp # CleverView for TCP/IP Message Service [David_Cheng] [David_Cheng] 2009-10-13
 tsa              6689/tcp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
 tsa              6689/udp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
+cleverdetect     6690/tcp # CLEVERDetect Message Service [Applied_Expert_Systems_Inc] [David_Cheng] 2014-12-03
 babel            6696/udp # Babel Routing Protocol 2011-08-15 [RFC6126]
 ircs-u           6697/tcp # Internet Relay Chat via TLS/SSL 2014-02-11 [RFC7194]
 kti-icad-srvr    6701/tcp # KTI/ICAD Nameserver [Stanley_Knutson] [Stanley_Knutson]
