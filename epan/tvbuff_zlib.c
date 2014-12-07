@@ -47,17 +47,17 @@
 tvbuff_t *
 tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 {
-	gint       err            = Z_OK;
+	gint       err;
 	guint      bytes_out      = 0;
-	guint8    *compr          = NULL;
+	guint8    *compr;
 	guint8    *uncompr        = NULL;
 	tvbuff_t  *uncompr_tvb    = NULL;
-	z_streamp  strm           = NULL;
-	Bytef     *strmbuf        = NULL;
+	z_streamp  strm;
+	Bytef     *strmbuf;
 	guint      inits_done     = 0;
 	gint       wbits          = MAX_WBITS;
-	guint8    *next           = NULL;
-	guint      bufsiz         = TVB_Z_MIN_BUFSIZ;
+	guint8    *next;
+	guint      bufsiz;
 #ifdef TVB_Z_DEBUG
 	guint      inflate_passes = 0;
 	guint      bytes_in       = tvb_length_remaining(tvb, offset);
