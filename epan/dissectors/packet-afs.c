@@ -2027,8 +2027,10 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				break;
 			case 139: /* symlink */
 				OUT_FS_AFSFid("Symlink");
+				break;
 			case 140: /* link */
 				OUT_FS_AFSFetchStatus("Symlink Status");
+				break;
 			case 142: /* rmdir */
 				OUT_FS_AFSFetchStatus("Directory Status");
 				OUT_FS_AFSVolSync();
