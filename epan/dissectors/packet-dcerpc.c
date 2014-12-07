@@ -4584,6 +4584,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         default:
             break;
         }
+        break;
      case RTS_FLAG_IN_CHANNEL:
         switch (commands_nb) {
         case 7:
@@ -4594,6 +4595,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         default:
             break;
         }
+        break;
      case RTS_FLAG_OUT_CHANNEL|RTS_FLAG_RECYCLE_CHANNEL:
         switch (commands_nb) {
         case 7:
@@ -4627,6 +4629,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         default:
             break;
         }
+        break;
     case RTS_FLAG_EOF:
         switch (commands_nb) {
         case 1:
