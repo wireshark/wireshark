@@ -423,6 +423,106 @@ static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b = -1
 static int hf_capwap_data_keep_alive = -1;
 static int hf_capwap_data_keep_alive_length = -1;
 
+static int hf_capwap_fortinet_element_id = -1;
+static int hf_capwap_fortinet_value = -1;
+static int hf_capwap_fortinet_ap_scan_rid = -1;
+static int hf_capwap_fortinet_ap_scan_bgscan_intv = -1;
+static int hf_capwap_fortinet_ap_scan_bgscan_idle = -1;
+static int hf_capwap_fortinet_ap_scan_bgscan_rpt_intv = -1;
+static int hf_capwap_fortinet_ap_scan_fgscan_rpt_intv = -1;
+static int hf_capwap_fortinet_passive_rid = -1;
+static int hf_capwap_fortinet_passive = -1;
+static int hf_capwap_fortinet_daemon_rst = -1;
+static int hf_capwap_fortinet_mac_rid = -1;
+static int hf_capwap_fortinet_mac_wid = -1;
+static int hf_capwap_fortinet_mac_len = -1;
+static int hf_capwap_fortinet_mac = -1;
+static int hf_capwap_fortinet_wtp_allow_sn = -1;
+static int hf_capwap_fortinet_wtp_allow_allow = -1;
+static int hf_capwap_fortinet_wbh_sta_rid = -1;
+static int hf_capwap_fortinet_wbh_sta_len = -1;
+static int hf_capwap_fortinet_wbh_sta_mac = -1;
+static int hf_capwap_fortinet_wbh_sta_bssid = -1;
+static int hf_capwap_fortinet_wbh_sta_mhc = -1;
+static int hf_capwap_fortinet_htcap_rid = -1;
+static int hf_capwap_fortinet_htcap_mcs = -1;
+static int hf_capwap_fortinet_htcap_gi = -1;
+static int hf_capwap_fortinet_htcap_bw = -1;
+static int hf_capwap_fortinet_mvap_sn_length = -1;
+static int hf_capwap_fortinet_mvap_sn = -1;
+static int hf_capwap_fortinet_mvap_unknown = -1;
+static int hf_capwap_fortinet_mvap_age = -1;
+static int hf_capwap_fortinet_mvap_period = -1;
+static int hf_capwap_fortinet_mvap_vfid = -1;
+static int hf_capwap_fortinet_mode_rid = -1;
+static int hf_capwap_fortinet_mode = -1;
+static int hf_capwap_fortinet_coext_rid = -1;
+static int hf_capwap_fortinet_coext = -1;
+static int hf_capwap_fortinet_amsdu_rid = -1;
+static int hf_capwap_fortinet_amsdu = -1;
+static int hf_capwap_fortinet_ps_opt_rid = -1;
+static int hf_capwap_fortinet_ps_opt = -1;
+static int hf_capwap_fortinet_pure_rid = -1;
+static int hf_capwap_fortinet_pure = -1;
+static int hf_capwap_fortinet_ebptag_ebp = -1;
+static int hf_capwap_fortinet_ebptag_tag = -1;
+static int hf_capwap_fortinet_telnet_enable = -1;
+static int hf_capwap_fortinet_admin_passwd = -1;
+static int hf_capwap_fortinet_regcode = -1;
+static int hf_capwap_fortinet_countrycode_rid = -1;
+static int hf_capwap_fortinet_countrycode_code = -1;
+static int hf_capwap_fortinet_countrycode_string = -1;
+static int hf_capwap_fortinet_sta_scan_rid = -1;
+static int hf_capwap_fortinet_sta_scan = -1;
+static int hf_capwap_fortinet_fho_rid = -1;
+static int hf_capwap_fortinet_fho = -1;
+static int hf_capwap_fortinet_apho_rid = -1;
+static int hf_capwap_fortinet_apho = -1;
+static int hf_capwap_fortinet_sta_locate_rid = -1;
+static int hf_capwap_fortinet_sta_locate_enable = -1;
+static int hf_capwap_fortinet_sta_locate_interval = -1;
+static int hf_capwap_fortinet_sa_rid = -1;
+static int hf_capwap_fortinet_sa_enable = -1;
+static int hf_capwap_fortinet_sa_ssid = -1;
+static int hf_capwap_fortinet_darrp_cfg_rid = -1;
+static int hf_capwap_fortinet_darrp_cfg_enable = -1;
+static int hf_capwap_fortinet_darrp_cfg_interval = -1;
+static int hf_capwap_fortinet_ap_suppress_list_ver = -1;
+static int hf_capwap_fortinet_ap_suppress_list_op = -1;
+static int hf_capwap_fortinet_ap_suppress_list_rid = -1;
+static int hf_capwap_fortinet_ap_suppress_list_len = -1;
+static int hf_capwap_fortinet_wds_rid = -1;
+static int hf_capwap_fortinet_wds_wid = -1;
+static int hf_capwap_fortinet_wds_enable = -1;
+static int hf_capwap_fortinet_vap_vlan_tag_rid = -1;
+static int hf_capwap_fortinet_vap_vlan_tag_wid = -1;
+static int hf_capwap_fortinet_vap_vlan_tag = -1;
+static int hf_capwap_fortinet_vap_bitmap_rid = -1;
+static int hf_capwap_fortinet_vap_bitmap = -1;
+static int hf_capwap_fortinet_mcast_rate_rid = -1;
+static int hf_capwap_fortinet_mcast_rate_wid = -1;
+static int hf_capwap_fortinet_mcast_rate = -1;
+static int hf_capwap_fortinet_cfg_rid = -1;
+static int hf_capwap_fortinet_cfg_wid = -1;
+static int hf_capwap_fortinet_cfg_ip = -1;
+static int hf_capwap_fortinet_cfg_mask = -1;
+static int hf_capwap_fortinet_split_tun_cfg_enable_local_subnet = -1;
+static int hf_capwap_fortinet_split_tun_cfg_cnt = -1;
+static int hf_capwap_fortinet_mgmt_vlan_id = -1;
+static int hf_capwap_fortinet_vap_psk_passwd_rid = -1;
+static int hf_capwap_fortinet_vap_psk_passwd_wid = -1;
+static int hf_capwap_fortinet_vap_psk_passwd_key = -1;
+static int hf_capwap_fortinet_mesh_eth_bridge_enable = -1;
+static int hf_capwap_fortinet_mesh_eth_bridge_type = -1;
+static int hf_capwap_fortinet_wtp_cap = -1;
+static int hf_capwap_fortinet_txpwr_rid = -1;
+static int hf_capwap_fortinet_txpwr = -1;
+static int hf_capwap_fortinet_wids_enable_rid = -1;
+static int hf_capwap_fortinet_wids_enable = -1;
+static int hf_capwap_fortinet_unknown_rid = -1;
+static int hf_capwap_fortinet_unknown_wid = -1;
+static int hf_capwap_fortinet_unknown = -1;
+
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
 static int hf_msg_fragment_overlap = -1;
@@ -473,6 +573,8 @@ static expert_field ei_capwap_header_length_bad = EI_INIT;
 static expert_field ei_capwap_data_keep_alive_length = EI_INIT;
 static expert_field ei_capwap_msg_element_length = EI_INIT;
 static expert_field ei_capwap_message_element_type = EI_INIT;
+static expert_field ei_capwap_fortinet_mac_len = EI_INIT;
+static expert_field ei_capwap_message_element_fortinet_type = EI_INIT;
 
 static const int * ieee80211_ofdm_control_band_support_flags[] = {
 	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit0,
@@ -1224,6 +1326,443 @@ dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, guint
     return 2+2+optlen;
 }
 
+/* From FortiAP/WiFI 5.2.0
+
+
+*/
+#define VSP_FORTINET_AP_SCAN 16
+#define VSP_FORTINET_PASSIVE 24
+#define VSP_FORTINET_DAEMON_RST 32
+#define VSP_FORTINET_MAC 33
+#define VSP_FORTINET_WTP_ALLOW 34
+#define VSP_FORTINET_WBH_STA 36
+#define VSP_FORTINET_HTCAP 49
+#define VSP_FORTINET_MGMT_VAP 50 /* MVAP */
+#define VSP_FORTINET_MODE 51
+#define VSP_FORTINET_COEXT 52
+#define VSP_FORTINET_AMSDU 53
+#define VSP_FORTINET_PS_OPT 54
+#define VSP_FORTINET_PURE 55
+#define VSP_FORTINET_EBP_TAG 56 /* ?? */
+#define VSP_FORTINET_TELNET_ENABLE 81
+#define VSP_FORTINET_ADMIN_PASSWD 82
+#define VSP_FORTINET_REGCODE 83
+#define VSP_FORTINET_COUNTRYCODE 84
+#define VSP_FORTINET_STA_SCAN 99
+#define VSP_FORTINET_FHO 103
+#define VSP_FORTINET_APHO 104
+#define VSP_FORTINET_STA_LOCATE 106
+#define VSP_FORTINET_SPECTRUM_ANALYSIS 108
+#define VSP_FORTINET_DARRP_CFG 112
+#define VSP_FORTINET_AP_SUPPRESS_LIST 128
+#define VSP_FORTINET_WDS 145
+#define VSP_FORTINET_VAP_VLAN_TAG 147
+#define VSP_FORTINET_VAP_BITMAP 148
+#define VSP_FORTINET_MCAST_RATE 149
+#define VSP_FORTINET_CFG 150
+#define VSP_FORTINET_SPLIT_TUN_CFG 151
+#define VSP_FORTINET_MGMT_VLAN_TAG 161
+#define VSP_FORTINET_VAP_PSK_PASSWD 167
+#define VSP_FORTINET_MESH_ETH_BRIDGE_ENABLE 176
+#define VSP_FORTINET_MESH_ETH_BRIDGE_TYPE 177
+#define VSP_FORTINET_WTP_CAP 192
+#define VSP_FORTINET_TXPWR 193
+#define VSP_FORTINET_WIDS_ENABLE 209
+
+static const value_string fortinet_element_id_vals[] = {
+    { VSP_FORTINET_AP_SCAN, "AP Scan" },
+    { VSP_FORTINET_DAEMON_RST, "Daemon Reset" },
+    { VSP_FORTINET_MAC, "MAC" },
+    { VSP_FORTINET_PASSIVE, "Passive" },
+    { VSP_FORTINET_WTP_ALLOW, "WTP Allow" },
+    { VSP_FORTINET_WBH_STA, "Mesh WBH STA" },
+    { VSP_FORTINET_HTCAP, "HT Capabilities" },
+    { VSP_FORTINET_MGMT_VAP, "Management VAP" },
+    { VSP_FORTINET_MODE, "Mode" },
+    { VSP_FORTINET_COEXT, "Coext" },
+    { VSP_FORTINET_AMSDU, "AMSDU" },
+    { VSP_FORTINET_PS_OPT, "PS OPT" },
+    { VSP_FORTINET_PURE, "Pure "},
+    { VSP_FORTINET_EBP_TAG, "EBP Tag" },
+    { VSP_FORTINET_TELNET_ENABLE, "Telnet Enable" },
+    { VSP_FORTINET_ADMIN_PASSWD, "Admin Password" },
+    { VSP_FORTINET_REGCODE, "Reg Code" },
+    { VSP_FORTINET_COUNTRYCODE, "Country Code" },
+    { VSP_FORTINET_STA_SCAN, "STA Scan" },
+    { VSP_FORTINET_FHO, "FHO" },
+    { VSP_FORTINET_APHO, "APHO" },
+    { VSP_FORTINET_STA_LOCATE, "STA Locate" },
+    { VSP_FORTINET_SPECTRUM_ANALYSIS, "Spectrum Analysis" },
+    { VSP_FORTINET_DARRP_CFG, "DARRP Configuration" },
+    { VSP_FORTINET_AP_SUPPRESS_LIST, "AP Suppress List" },
+    { VSP_FORTINET_WDS, "WDS" },
+    { VSP_FORTINET_VAP_VLAN_TAG, "VAP Vlan" },
+    { VSP_FORTINET_VAP_BITMAP, "VAP Bitmap" },
+    { VSP_FORTINET_MCAST_RATE, "Multicast Rate" },
+    { VSP_FORTINET_CFG, "Configuration" },
+    { VSP_FORTINET_SPLIT_TUN_CFG, "Split Tunnel Configuration" },
+    { VSP_FORTINET_MGMT_VLAN_TAG, "Management Vlan" },
+    { VSP_FORTINET_VAP_PSK_PASSWD, "VAP PSK Password" },
+    { VSP_FORTINET_MESH_ETH_BRIDGE_ENABLE, "Mesh Eth Bridge Enable" },
+    { VSP_FORTINET_MESH_ETH_BRIDGE_TYPE, "Mesh Eth Bridge Type" },
+    { VSP_FORTINET_WTP_CAP, "WTP Capabilities" },
+    { VSP_FORTINET_TXPWR, "Tx Power" },
+    { VSP_FORTINET_WIDS_ENABLE, "WIDS Enable" },
+    { 0,     NULL     }
+};
+
+
+static int
+dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo _U_, guint optlen,  proto_item *msg_element_type_item)
+{
+    guint element_id;
+
+    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    element_id = tvb_get_ntohs(tvb, offset);
+    proto_item_append_text(msg_element_type_item, ": Fortinet %s", val_to_str(element_id, fortinet_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
+    offset += 2;
+
+    /* Remove length and element id to optlen */
+    optlen -= 6;
+    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_value, tvb, offset, optlen, ENC_NA);
+
+    switch(element_id){
+        case VSP_FORTINET_AP_SCAN: /* 16 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_scan_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_scan_bgscan_intv, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_scan_bgscan_idle, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_scan_bgscan_rpt_intv, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_scan_fgscan_rpt_intv, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_PASSIVE: /* 24 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_passive_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_passive, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_DAEMON_RST: /* 32 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_daemon_rst, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_MAC:{ /* 33 */
+            guint8 mac_length;
+            proto_item *ti;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            ti =proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            mac_length = tvb_get_guint8(tvb, offset);
+            offset += 1;
+            if(mac_length %6 != 0)
+            {
+                expert_add_info(pinfo, ti, &ei_capwap_fortinet_mac_len );
+                break;
+            }
+            for(;mac_length > 0; mac_length -= 6){
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac, tvb, offset, 6, ENC_NA);
+                offset += 6;
+            }
+            }
+        break;
+        case VSP_FORTINET_WTP_ALLOW: /* 34 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_allow_sn, tvb, offset, optlen-1, ENC_ASCII|ENC_NA);
+            offset += optlen - 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_allow_allow, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_WBH_STA:{ /* 36 */
+            guint16 mac_length;
+            proto_item *ti;
+
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            ti = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            mac_length = tvb_get_guint8(tvb, offset);
+            offset += 1;
+            if(mac_length %6 != 0)
+            {
+                expert_add_info(pinfo, ti, &ei_capwap_fortinet_mac_len );
+                break;
+            }
+            for(;mac_length > 0; mac_length -= 6){
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_mac, tvb, offset, 6, ENC_NA);
+                offset += 6;
+            }
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_bssid, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_mhc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            }
+        break;
+        case VSP_FORTINET_HTCAP: /* 49 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_htcap_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_htcap_mcs, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_htcap_gi, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_htcap_bw, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_MGMT_VAP:{ /* 50 */
+            guint16 sn_length;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn_length, tvb, offset, 2, ENC_NA);
+            sn_length = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn, tvb, offset, sn_length, ENC_ASCII|ENC_NA);
+            offset += sn_length;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_age, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_period, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_vfid, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        }
+        case VSP_FORTINET_MODE: /* 51 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mode_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_COEXT: /* 52 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_coext_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_coext, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_AMSDU: /* 53 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_amsdu_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_amsdu, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_PS_OPT: /* 54 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ps_opt_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ps_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_PURE: /* 55 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_pure_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_pure, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_EBP_TAG: /* 56 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ebptag_ebp, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ebptag_tag, tvb, offset, 6, ENC_NA);
+            offset += 6;
+        break;
+        case VSP_FORTINET_TELNET_ENABLE: /* 81 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_telnet_enable, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case VSP_FORTINET_ADMIN_PASSWD: /* 82 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_admin_passwd, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_FORTINET_REGCODE: /* 83 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_regcode, tvb, offset, 3, ENC_ASCII|ENC_NA);
+            offset += 3;
+        break;
+        case VSP_FORTINET_COUNTRYCODE: /* 84 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_string, tvb, offset, 3, ENC_ASCII|ENC_NA);
+            offset += 3;
+        break;
+        case VSP_FORTINET_STA_SCAN: /* 99 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sta_scan_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sta_scan, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_FHO: /* 103 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_fho_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_fho, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_APHO: /* 104 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_apho_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_apho, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_STA_LOCATE: /* 106 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sta_locate_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sta_locate_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sta_locate_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_SPECTRUM_ANALYSIS: /* 108 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_ssid, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_FORTINET_DARRP_CFG: /* 112 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_darrp_cfg_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_darrp_cfg_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_darrp_cfg_interval, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_AP_SUPPRESS_LIST: /* 128 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_suppress_list_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_suppress_list_op, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_suppress_list_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_ap_suppress_list_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_WDS: /* 145 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wds_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wds_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wds_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_VAP_VLAN_TAG: /* 147 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_vlan_tag_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_vlan_tag_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_vlan_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_VAP_BITMAP: /* 148 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_bitmap_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_bitmap, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_MCAST_RATE: /* 149 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mcast_rate_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mcast_rate_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mcast_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case VSP_FORTINET_CFG: /* 150 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_cfg_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_cfg_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_cfg_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_cfg_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case VSP_FORTINET_SPLIT_TUN_CFG: /* 151 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_split_tun_cfg_enable_local_subnet, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_split_tun_cfg_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_MGMT_VLAN_TAG: /* 161 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mgmt_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_VAP_PSK_PASSWD: /* 167 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_key, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_FORTINET_MESH_ETH_BRIDGE_ENABLE: /* 176 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mesh_eth_bridge_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_FORTINET_MESH_ETH_BRIDGE_TYPE: /* 177 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mesh_eth_bridge_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        case VSP_FORTINET_WTP_CAP: /* 192 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_cap, tvb, offset, optlen, ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_FORTINET_TXPWR: /* 193 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_txpwr_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_txpwr, tvb, offset, 2, ENC_NA);
+            offset += 2;
+        break;
+        case VSP_FORTINET_WIDS_ENABLE: /* 209 */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wids_enable_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wids_enable, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case 146: /* VAP (ak Virtual AP) stuff, there is Radio ID and Wlan ID to start... */
+        case 152:
+        case 153:
+        case 163:
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            expert_add_info_format(pinfo, msg_element_type_item, &ei_capwap_message_element_fortinet_type,
+                                 "Dissector for CAPWAP Vendor Specific (Fortinet) Message Element"
+                                 " (%d) type not implemented (VAP Stuff..)", element_id);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown, tvb, offset, optlen, ENC_NA);
+            offset += optlen;
+        break;
+
+        case 65: /* Radio stuff, there is Radio ID  to start... */
+        case 170:
+        case 171:
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            optlen -= 1;
+            expert_add_info_format(pinfo, msg_element_type_item, &ei_capwap_message_element_fortinet_type,
+                                 "Dissector for CAPWAP Vendor Specific (Fortinet) Message Element"
+                                 " (%d) type not implemented (VAP Stuff..)", element_id);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown, tvb, offset, optlen, ENC_NA);
+            offset += optlen;
+        break;
+        default:
+            expert_add_info_format(pinfo, msg_element_type_item, &ei_capwap_message_element_fortinet_type,
+                                 "Dissector for CAPWAP Vendor Specific (Fortinet) Message Element"
+                                 " (%d) type not implemented", element_id);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_unknown, tvb, offset, optlen, ENC_NA);
+            offset += optlen;
+        break;
+    }
+
+    return offset;
+}
+
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_tree, guint offset, packet_info *pinfo)
@@ -1538,15 +2077,26 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_statistics_timer, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         break;
 
-    case TYPE_VENDOR_SPECIFIC_PAYLOAD: /* Vendor Specific Payload (37) */
+    case TYPE_VENDOR_SPECIFIC_PAYLOAD:{ /* Vendor Specific Payload (37) */
+        guint32 vendor_id;
         if (optlen < 7) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
                            "Vendor Specific Payload length %u wrong, must be >= 7", optlen);
         break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_vsp_vendor_identifier, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        vendor_id = tvb_get_ntohl(tvb, offset+4);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_vsp_vendor_element_id, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_vsp_vendor_data, tvb, offset+10, optlen-6, ENC_NA);
+        switch(vendor_id){
+            case VENDOR_FORTINET:
+                dissect_capwap_message_element_vendor_fortinet_type(tvb, sub_msg_element_type_tree, offset+8, pinfo, optlen, msg_element_type_item);
+            break;
+            default:
+                /* No default... */
+            break;
+        }
+        }
         break;
 
     case TYPE_WTP_BOARD_DATA: /* WTP Board Data (38) */
@@ -4071,9 +4621,508 @@ proto_register_capwap_control(void)
         },
         { & hf_capwap_data_keep_alive_length,
             { "Message Element Length", "capwap.keep_alive.length",
-              FT_UINT16, BASE_DEC,NULL, 0x0,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+
+        /* Fortinet Vendor Specific*/
+
+        { &hf_capwap_fortinet_element_id,
+            { "Fortinet Element ID", "capwap.control.fortinet.element_id",
+              FT_UINT16, BASE_DEC, VALS(fortinet_element_id_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_value,
+            { "Fortinet Value", "capwap.control.fortinet.value",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_scan_rid,
+            { "Radio ID", "capwap.control.fortinet.ap_scan.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_scan_bgscan_intv,
+            { "bg scan interval", "capwap.control.fortinet.ap_scan.bgpscan.interval",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_scan_bgscan_idle,
+            { "bg scan idle", "capwap.control.fortinet.ap_scan.bgpscan.idle",
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_scan_bgscan_rpt_intv,
+            { "bg scan rpt interval", "capwap.control.fortinet.ap_scan.bgscan.rpt_interval",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_scan_fgscan_rpt_intv,
+            { "fg scan rpt interval", "capwap.control.fortinet.ap_scan.fgscan.rpt_interval",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_passive_rid,
+            { "Radio ID", "capwap.control.fortinet.passive.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_passive,
+            { "Passive", "capwap.control.fortinet.passive",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_daemon_rst,
+            { "Daemon RST", "capwap.control.fortinet.daemon_rst",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mac_rid,
+            { "Radio ID", "capwap.control.fortinet.mac.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mac_wid,
+            { "WLAN ID", "capwap.control.fortinet.mac.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mac_len,
+            { "Length", "capwap.control.fortinet.mac.len",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mac,
+            { "MAC", "capwap.control.fortinet.mac",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wtp_allow_sn,
+            { "Serial Number", "capwap.control.fortinet.wtp_allow.sn",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "WTP Serial Number", HFILL }
+        },
+        { &hf_capwap_fortinet_wtp_allow_allow,
+            { "Allowed", "capwap.control.fortinet.wtp_allow.allowed",
+              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wbh_sta_rid,
+            { "Radio ID", "capwap.control.fortinet.wbh_sta.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wbh_sta_len,
+            { "Length", "capwap.control.fortinet.wbh_sta.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wbh_sta_mac,
+            { "STA MAC", "capwap.control.fortinet.wbh_sta.mac",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wbh_sta_bssid,
+            { "BSSID", "capwap.control.fortinet.wbh_sta.bssid",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wbh_sta_mhc,
+            { "MHC", "capwap.control.fortinet.wbh_sta.mhc",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_htcap_rid,
+            { "Radio ID", "capwap.control.fortinet.htcap.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_htcap_mcs,
+            { "MCS", "capwap.control.fortinet.htcap.mcs",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_htcap_gi,
+            { "HT Short GI", "capwap.control.fortinet.htcap.mcs.gi",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_htcap_bw,
+            { "Bandwidth", "capwap.control.fortinet.htcap.mcs.bw",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "20 or 40Mhz Mode", HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_sn_length,
+            { "SN Length", "capwap.control.fortinet.mvap.sn.length",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_sn,
+            { "SN", "capwap.control.fortinet.mvap.sn",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_unknown,
+            { "Unknown", "capwap.control.fortinet.mvap.unknown",
+              FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_age,
+            { "Age", "capwap.control.fortinet.mvap.age",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_period,
+            { "Period", "capwap.control.fortinet.mvap.period",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mvap_vfid,
+            { "Vfid", "capwap.control.fortinet.mvap.vfid",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mode_rid,
+            { "Radio ID", "capwap.control.fortinet.mode.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mode,
+            { "Mode", "capwap.control.fortinet.mode",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_coext_rid,
+            { "Radio ID", "capwap.control.fortinet.coext.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_coext,
+            { "Coext", "capwap.control.fortinet.coext",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_amsdu_rid,
+            { "Radio ID", "capwap.control.fortinet.amsdu.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_amsdu,
+            { "AMSDU", "capwap.control.fortinet.amsdu",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ps_opt_rid,
+            { "Radio ID", "capwap.control.fortinet.ps_opt.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ps_opt,
+            { "PS OPT", "capwap.control.fortinet.ps_opt",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_pure_rid,
+            { "Radio ID", "capwap.control.fortinet.pure.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_pure,
+            { "Pure", "capwap.control.fortinet.pure",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ebptag_ebp,
+            { "EBP", "capwap.control.fortinet.ebptag.ebp",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ebptag_tag,
+            { "Tag", "capwap.control.fortinet.ebptag.ebp",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_telnet_enable,
+            { "Telnet Enable", "capwap.control.fortinet.telnet_enable",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_admin_passwd,
+            { "Admin Password", "capwap.control.fortinet.admin_password",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_regcode,
+            { "Reg Code", "capwap.control.fortinet.reg_code",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_countrycode_rid,
+            { "Radio ID", "capwap.control.fortinet.countrycode.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_countrycode_code,
+            { "Country Code", "capwap.control.fortinet.countrycode.code",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_countrycode_string,
+            { "Country Code", "capwap.control.fortinet.countrycode.string",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sta_scan_rid,
+            { "Radio ID", "capwap.control.fortinet.sta_scan.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sta_scan,
+            { "STA Scan", "capwap.control.fortinet.sta_scan",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_fho_rid,
+            { "Radio ID", "capwap.control.fortinet.fho.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_fho,
+            { "FHO", "capwap.control.fortinet.fho",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_apho_rid,
+            { "Radio ID", "capwap.control.fortinet.fho.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_apho,
+            { "APHO", "capwap.control.fortinet.apho",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sta_locate_rid,
+            { "Radio ID", "capwap.control.fortinet.sta_locate.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sta_locate_enable,
+            { "Locate Enable", "capwap.control.fortinet.sta_locate.enable",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sta_locate_interval,
+            { "Locate Interval", "capwap.control.fortinet.sta_locate.interval",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sa_rid,
+            { "Radio ID", "capwap.control.fortinet.spectrum_analysis.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sa_enable,
+            { "Spectrum Analysis Enable", "capwap.control.fortinet.spectrum_analysis.enable",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_sa_ssid,
+            { "SSID", "capwap.control.fortinet.spectrum_analysis.ssid",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_darrp_cfg_rid,
+            { "Radio ID", "capwap.control.fortinet.darrp_cfg.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_darrp_cfg_enable,
+            { "DARRP CFG Enable", "capwap.control.fortinet.darrp_cfg.enable",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_darrp_cfg_interval,
+            { "DARRP CFG Interval", "capwap.control.fortinet.darrp_cfg.interval",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_suppress_list_ver,
+            { "Ver", "capwap.control.fortinet.ap_suppress_list.ver",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_suppress_list_op,
+            { "Op", "capwap.control.fortinet.ap_suppress_list.op",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Operation ?", HFILL }
+        },
+        { &hf_capwap_fortinet_ap_suppress_list_rid,
+            { "Radio ID", "capwap.control.fortinet.ap_suppress_list.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_ap_suppress_list_len,
+            { "Length", "capwap.control.fortinet.ap_suppress_list.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wds_rid,
+            { "Radio ID", "capwap.control.fortinet.wds.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wds_wid,
+            { "WLAN ID", "capwap.control.fortinet.wds.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wds_enable,
+            { "WDS Enable", "capwap.control.fortinet.wds.enable",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_vlan_tag_rid,
+            { "Radio ID", "capwap.control.fortinet.vap_vlan_tag.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_vlan_tag_wid,
+            { "WLAN ID", "capwap.control.fortinet.vap_vlan_tag.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_vlan_tag,
+            { "Vlan ID", "capwap.control.fortinet.vap_vlan_tag",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_bitmap_rid,
+            { "Radio ID", "capwap.control.fortinet.bitmap.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_bitmap,
+            { "Bitmap", "capwap.control.fortinet.vap_bitmap",
+              FT_UINT16, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mcast_rate_rid,
+            { "Radio ID", "capwap.control.fortinet.mcast_rate.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mcast_rate_wid,
+            { "WLAN ID", "capwap.control.fortinet.mcast_rate.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mcast_rate,
+            { "Multicast Rate", "capwap.control.fortinet.mcast_rate",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_cfg_rid,
+            { "Radio ID", "capwap.control.fortinet.cfg.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_cfg_wid,
+            { "WLAN ID", "capwap.control.fortinet.cfg.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_cfg_ip,
+            { "IP", "capwap.control.fortinet.cfg.ip",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_cfg_mask,
+            { "Mask", "capwap.control.fortinet.cfg.mask",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_split_tun_cfg_enable_local_subnet,
+            { "Enable Local Subnet", "capwap.control.fortinet.split_tun_cfg.enable_local_subnet",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_split_tun_cfg_cnt,
+            { "CNT", "capwap.control.fortinet.split_tun_cfg.cnt",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mgmt_vlan_id,
+            { "Vlan ID", "capwap.control.fortinet.mgmt_vlan.id",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_psk_passwd_rid,
+            { "Radio ID", "capwap.control.fortinet.vap_psk_passwd.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_psk_passwd_wid,
+            { "WLAN ID", "capwap.control.fortinet.vap_psk_passwd.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_vap_psk_passwd_key,
+            { "Key", "capwap.control.fortinet.vap_psk_passwd.key",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mesh_eth_bridge_enable,
+            { "Mesh Eth Bridge Enable", "capwap.control.fortinet.mesh_eth_bridge.enable",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_mesh_eth_bridge_type,
+            { "Mesh Eth Bridge Type", "capwap.control.fortinet.mesh_eth_bridge.type",
+              FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wtp_cap,
+            { "WTP CAP", "capwap.control.fortinet.wtp_cap",
+              FT_BYTES, SEP_SPACE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_txpwr_rid,
+            { "Radio ID", "capwap.control.fortinet.tx_power.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_txpwr,
+            { "TX Power", "capwap.control.fortinet.tx_power",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              "In Pourcentage", HFILL }
+        },
+        { &hf_capwap_fortinet_wids_enable_rid,
+            { "Radio ID", "capwap.control.fortinet.wids_enable.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_wids_enable,
+            { "WIDS Enable", "capwap.control.fortinet.wids_enable.enable",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_unknown_rid,
+            { "Radio ID", "capwap.control.fortinet.unknown.rid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_unknown_wid,
+            { "WLAN ID", "capwap.control.fortinet.unknown.wid",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_fortinet_unknown,
+            { "Unknown Data", "capwap.control.fortinet.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
 
         /* Fragment entries */
         { &hf_msg_fragments,
@@ -4163,7 +5212,9 @@ proto_register_capwap_control(void)
         { &ei_capwap_header_length_bad, { "capwap.header.length.bad", PI_MALFORMED, PI_WARN, "Wrong calculate length =! header length", EXPFILL }},
         { &ei_capwap_data_keep_alive_length, { "capwap.keep_alive.length.bad", PI_MALFORMED, PI_WARN, "Invalid Keep Alive length", EXPFILL }},
         { &ei_capwap_msg_element_length, { "capwap.message_element.length.bad", PI_MALFORMED, PI_ERROR, "Bad Message Element length", EXPFILL }},
-        { &ei_capwap_message_element_type, { "capwap.message_element.type.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Type not implemented, Contact Wireshark developers if you want this supported", EXPFILL }}
+        { &ei_capwap_message_element_type, { "capwap.message_element.type.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Type not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
+        { &ei_capwap_fortinet_mac_len, { "capwap.control.fortinet.mac.length.bad", PI_MALFORMED, PI_ERROR, "Bad length: Should be a multiple of 6", EXPFILL }},
+        { &ei_capwap_message_element_fortinet_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Fortinet Type not implemented", EXPFILL }}
     };
 
     expert_module_t* expert_capwap;
