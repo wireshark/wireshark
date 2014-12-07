@@ -800,14 +800,14 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                 *err_info = g_strdup("k12_open: source descriptor record contains non-null-terminated link-layer name");
                 destroy_k12_file_data(file_data);
                 g_free(rec);
-                return WTAP_OPEN_ERROR;
+                return -1;
             }
             if (read_buffer[K12_SRCDESC_EXTRATYPE + extra_len + name_len + stack_len - 1] != '\0') {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup("k12_open: source descriptor record contains non-null-terminated stack path");
                 destroy_k12_file_data(file_data);
                 g_free(rec);
-                return WTAP_OPEN_ERROR;
+                return -1;
             }
             rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
             rec->stack_file = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
