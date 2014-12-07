@@ -197,9 +197,11 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 
 			c++;
 			flags = *c;
+			c++;
 
-			/* Skip past the MTIME, XFL, and OS fields. */
-			c += 7;
+			/* Skip past the MTIME (4 bytes),
+			   XFL, and OS fields (1 byte each). */
+			c += 6;
 
 			if (flags & (1 << 2)) {
 				/* An Extra field is present. */
