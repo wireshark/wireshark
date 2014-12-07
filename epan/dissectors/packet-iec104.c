@@ -1438,6 +1438,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				temp16 = tvb_get_letohs(tvb, Off + 2) >> 1;
 				wmem_strbuf_append_printf(res, "%d,", temp16);
 				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, temp16);
+				break;
 			case S_TYPE:
 				temp16 = tvb_get_letohs(tvb, Off + 4) >> 1;
 				wmem_strbuf_append_printf(res, "%d) ", temp16);
