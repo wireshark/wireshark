@@ -70,6 +70,7 @@ static gboolean   system_info_value_current_set;
 
 
 extern int proto_mac_lte;
+extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
 
 

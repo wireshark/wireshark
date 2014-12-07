@@ -794,7 +794,7 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* Tell MAC to use extended BSR sizes configuration */
-    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE);
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE, actx->pinfo);
   }
 
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
@@ -1236,28 +1236,29 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_commercial_mobile_alert_sys);
 
 #.FN_BODY DRB-ToAddMod
-  struct mac_lte_info  *p_mac_lte_info;
+  struct mac_lte_info *p_mac_lte_info;
+  struct rlc_lte_info *p_rlc_lte_info;
   /* Get the struct and clear it out */
   drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
   memset(drb_mapping, 0, sizeof(*drb_mapping));
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
-  if (p_mac_lte_info == NULL) {
-    return offset;
-  }
-  else {
+  if (p_mac_lte_info) {
     drb_mapping->ueid = p_mac_lte_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_lte_channel_mapping(drb_mapping);
   }
-
-  /* Tell MAC about this mapping */
-  set_mac_lte_channel_mapping(drb_mapping);
 
   /* Also tell RLC how many PDCP sequence number bits */
   if (drb_mapping->pdcp_sn_size_present) {
-    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping->ueid,
-                                       drb_mapping->drbid,
-                                       drb_mapping->pdcp_sn_size);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
+    if (p_rlc_lte_info) {
+      set_rlc_lte_drb_pdcp_seqnum_length(actx->pinfo,
+                                         p_rlc_lte_info->ueid,
+                                         drb_mapping->drbid,
+                                         drb_mapping->pdcp_sn_size);
+    }
   }
 
   /* Clear out the struct again */
@@ -1549,7 +1550,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
     /* Also tell MAC to release extended BSR sizes configuration */
-    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE);
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE, actx->pinfo);
     /* TODO: also release PDCP security config here */
   }
 %(DEFAULT_BODY)s

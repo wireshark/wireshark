@@ -37,7 +37,7 @@ void proto_reg_handoff_mac_lte(void);
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification v11.0.0
+ *                Medium Access Control (MAC) protocol specification v12.3.0
  */
 
 
@@ -424,6 +424,7 @@ static const true_false_string mac_lte_scell_status_vals = {
     "Deactivated"
 };
 
+#define LONG_DRX_COMMAND_LCID                  0x1a
 #define ACTIVATION_DEACTIVATION_LCID           0x1b
 #define UE_CONTENTION_RESOLUTION_IDENTITY_LCID 0x1c
 #define TIMING_ADVANCE_LCID                    0x1d
@@ -443,6 +444,7 @@ static const value_string dlsch_lcid_vals[] =
     { 8,                                        "8"},
     { 9,                                        "9"},
     { 10,                                       "10"},
+    { LONG_DRX_COMMAND_LCID                 ,   "Long DRX Command"},
     { ACTIVATION_DEACTIVATION_LCID          ,   "Activation/Deactivation"},
     { UE_CONTENTION_RESOLUTION_IDENTITY_LCID,   "UE Contention Resolution Identity"},
     { TIMING_ADVANCE_LCID                   ,   "Timing Advance"},
@@ -1079,14 +1081,20 @@ typedef enum rlc_channel_type_t {
     rlcTM,
     rlcUM5,
     rlcUM10,
-    rlcAM
+    rlcAM,
+    rlcAMulExtLiField,
+    rlcAMdlExtLiField,
+    rlcAMextLiField
 } rlc_channel_type_t;
 
 static const value_string rlc_channel_type_vals[] = {
-    { rlcTM,    "TM"},
-    { rlcUM5 ,  "UM, SN Len=5"},
-    { rlcUM10,  "UM, SN Len=10"},
-    { rlcAM  ,  "AM"},
+    { rlcTM            ,  "TM"},
+    { rlcUM5           ,  "UM, SN Len=5"},
+    { rlcUM10          ,  "UM, SN Len=10"},
+    { rlcAM            ,  "AM"},
+    { rlcAMulExtLiField,  "AM, UL Extended LI Field"},
+    { rlcAMdlExtLiField,  "AM, DL Extended LI Field"},
+    { rlcAMextLiField  ,  "AM, UL/DL Extended LI Field"},
     { 0, NULL }
 };
 
@@ -2859,7 +2867,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                guint8 mode, guint8 direction, guint16 ueid,
                                guint16 channelType, guint16 channelId,
                                guint8 UMSequenceNumberLength,
-                               guint8 priority)
+                               guint8 priority, gboolean rlcExtLiField)
 {
     tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
@@ -2879,6 +2887,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     p_rlc_lte_info->channelId = channelId;
     p_rlc_lte_info->pduLength = data_length;
     p_rlc_lte_info->UMSequenceNumberLength = UMSequenceNumberLength;
+    p_rlc_lte_info->extendedLiField = rlcExtLiField;
 
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
@@ -3526,14 +3535,17 @@ static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuf
 /* Lookup channel details for lcid */
 static void lookup_rlc_channel_from_lcid(guint16 ueid,
                                          guint8 lcid,
+                                         guint8 direction,
                                          rlc_channel_type_t *rlc_channel_type,
                                          guint8 *UM_seqnum_length,
-                                         gint *drb_id)
+                                         gint *drb_id,
+                                         gboolean *rlc_ext_li_field)
 {
     /* Zero params (in case no match is found) */
     *rlc_channel_type = rlcRaw;
     *UM_seqnum_length = 0;
     *drb_id           = 0;
+    *rlc_ext_li_field = FALSE;
 
     if (global_mac_lte_lcid_drb_source == (int)FromStaticTable) {
 
@@ -3551,6 +3563,19 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
                         break;
                     case rlcUM10:
                         *UM_seqnum_length = 10;
+                        break;
+                    case rlcAMulExtLiField:
+                        if (direction == DIRECTION_UPLINK) {
+                            *rlc_ext_li_field = TRUE;
+                        }
+                        break;
+                    case rlcAMdlExtLiField:
+                        if (direction == DIRECTION_DOWNLINK) {
+                            *rlc_ext_li_field = TRUE;
+                        }
+                        break;
+                    case rlcAMextLiField:
+                        *rlc_ext_li_field = TRUE;
                         break;
                     default:
                         break;
@@ -3583,6 +3608,19 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
                 break;
             case rlcUM10:
                 *UM_seqnum_length = 10;
+                break;
+            case rlcAMulExtLiField:
+                if (direction == DIRECTION_UPLINK) {
+                    *rlc_ext_li_field = TRUE;
+                }
+                break;
+            case rlcAMdlExtLiField:
+                if (direction == DIRECTION_DOWNLINK) {
+                    *rlc_ext_li_field = TRUE;
+                }
+                break;
+            case rlcAMextLiField:
+                *rlc_ext_li_field = TRUE;
                 break;
             default:
                 break;
@@ -4684,7 +4722,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    RLC_AM_MODE, direction, p_mac_lte_info->ueid,
                                    CHANNEL_TYPE_SRB, lcids[n], 0,
                                    get_mac_lte_channel_priority(p_mac_lte_info->ueid,
-                                                                lcids[n], direction));
+                                                                lcids[n], direction),
+                                   FALSE);
 
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
@@ -4698,40 +4737,41 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             rlc_channel_type_t rlc_channel_type;
             guint8 UM_seqnum_length;
             gint drb_id;
+            gboolean rlc_ext_li_field;
             guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
                                                            lcids[n], direction);
 
             lookup_rlc_channel_from_lcid(p_mac_lte_info->ueid,
                                          lcids[n],
+                                         p_mac_lte_info->direction,
                                          &rlc_channel_type,
                                          &UM_seqnum_length,
-                                         &drb_id);
+                                         &drb_id,
+                                         &rlc_ext_li_field);
 
             /* Dissect according to channel type */
             switch (rlc_channel_type) {
                 case rlcUM5:
-                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
-                                       RLC_UM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length,
-                                       priority);
-                    break;
                 case rlcUM10:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length,
-                                       priority);
+                                       priority, FALSE);
                     break;
                 case rlcAM:
+                case rlcAMulExtLiField:
+                case rlcAMdlExtLiField:
+                case rlcAMextLiField:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_AM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
-                                       priority);
+                                       priority, rlc_ext_li_field);
                     break;
                 case rlcTM:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_TM_MODE, direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
-                                       priority);
+                                       priority, FALSE);
                     break;
                 case rlcRaw:
                     /* Nothing to do! */
@@ -5163,12 +5203,12 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* Call RLC dissector */
             call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
-                               CHANNEL_TYPE_MCCH, 0, 5, 0);
+                               CHANNEL_TYPE_MCCH, 0, 5, 0, FALSE);
         } else if ((lcids[n] <= 28) && global_mac_lte_call_rlc_for_mtch) {
             /* Call RLC dissector */
             call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
-                               CHANNEL_TYPE_MTCH, 0, 5, 0);
+                               CHANNEL_TYPE_MTCH, 0, 5, 0, FALSE);
         } else {
             /* Dissect SDU as raw bytes */
             sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
@@ -5858,7 +5898,19 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
     if (drb_mapping->rlcMode_present) {
         switch (drb_mapping->rlcMode) {
             case RLC_AM_MODE:
-                ue_mappings->mapping[lcid].channel_type = rlcAM;
+                if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
+                    if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                        ue_mappings->mapping[lcid].channel_type = rlcAMextLiField;
+                    } else {
+                        ue_mappings->mapping[lcid].channel_type = rlcAMulExtLiField;
+                    }
+                } else {
+                    if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                        ue_mappings->mapping[lcid].channel_type = rlcAMdlExtLiField;
+                    } else {
+                        ue_mappings->mapping[lcid].channel_type = rlcAM;
+                    }
+                }
                 break;
             case RLC_UM_MODE:
                 if (drb_mapping->um_sn_length_present) {
@@ -5956,10 +6008,12 @@ void set_mac_lte_rapid_ranges(guint group_A, guint all_RA)
 }
 
 /* Configure the BSR sizes for this UE (from RRC) */
-void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes)
+void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes, packet_info *pinfo)
 {
-    g_hash_table_insert(mac_lte_ue_ext_bsr_sizes_hash, GUINT_TO_POINTER((guint)ueid),
-                        GUINT_TO_POINTER((guint)use_ext_bsr_sizes));
+    if (!PINFO_FD_VISITED(pinfo)) {
+        g_hash_table_insert(mac_lte_ue_ext_bsr_sizes_hash, GUINT_TO_POINTER((guint)ueid),
+                            GUINT_TO_POINTER((guint)use_ext_bsr_sizes));
+    }
 }
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */

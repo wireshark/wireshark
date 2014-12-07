@@ -78,6 +78,7 @@ static gboolean   system_info_value_current_set;
 
 
 extern int proto_mac_lte;
+extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
 
 
@@ -180,7 +181,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 78 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 79 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -2355,7 +2356,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 83 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 84 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3578,7 +3579,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 201 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 202 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -12990,7 +12991,8 @@ static const per_sequence_t DRB_ToAddMod_sequence[] = {
 
 static int
 dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  struct mac_lte_info  *p_mac_lte_info;
+  struct mac_lte_info *p_mac_lte_info;
+  struct rlc_lte_info *p_rlc_lte_info;
   /* Get the struct and clear it out */
   drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
   memset(drb_mapping, 0, sizeof(*drb_mapping));
@@ -12999,21 +13001,21 @@ dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   /* Need UE identifier */
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
-  if (p_mac_lte_info == NULL) {
-    return offset;
-  }
-  else {
+  if (p_mac_lte_info) {
     drb_mapping->ueid = p_mac_lte_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_lte_channel_mapping(drb_mapping);
   }
-
-  /* Tell MAC about this mapping */
-  set_mac_lte_channel_mapping(drb_mapping);
 
   /* Also tell RLC how many PDCP sequence number bits */
   if (drb_mapping->pdcp_sn_size_present) {
-    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping->ueid,
-                                       drb_mapping->drbid,
-                                       drb_mapping->pdcp_sn_size);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
+    if (p_rlc_lte_info) {
+      set_rlc_lte_drb_pdcp_seqnum_length(actx->pinfo,
+                                         p_rlc_lte_info->ueid,
+                                         drb_mapping->drbid,
+                                         drb_mapping->pdcp_sn_size);
+    }
   }
 
   /* Clear out the struct again */
@@ -13857,7 +13859,7 @@ dissect_lte_rrc_T_extendedBSR_Sizes_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
   if (p_mac_lte_info != NULL) {
     /* Tell MAC to use extended BSR sizes configuration */
-    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE);
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE, actx->pinfo);
   }
 
 
@@ -18963,7 +18965,7 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
     /* Also tell MAC to release extended BSR sizes configuration */
-    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE);
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE, actx->pinfo);
     /* TODO: also release PDCP security config here */
   }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -35409,7 +35411,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2283 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2284 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -44240,7 +44242,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2453 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2454 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -45800,7 +45802,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2908 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2909 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45870,7 +45872,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2962 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2963 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

@@ -287,18 +287,20 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* Some are optional, and may not be seen (e.g. on reestablishment) */
 typedef struct drb_mapping_t
 {
-    guint16    ueid;              /* Mandatory */
-    guint8     drbid;             /* Mandatory */
+    guint16    ueid;                /* Mandatory */
+    guint8     drbid;               /* Mandatory */
     gboolean   lcid_present;
-    guint8     lcid;              /* Part of LogicalChannelConfig - optional */
+    guint8     lcid;                /* Part of LogicalChannelConfig - optional */
     gboolean   rlcMode_present;
-    guint8     rlcMode;           /* Part of RLC config - optional */
+    guint8     rlcMode;             /* Part of RLC config - optional */
+    gboolean   rlc_ul_ext_li_field; /* Part of RLC config - optional */
+    gboolean   rlc_dl_ext_li_field; /* Part of RLC config - optional */
     gboolean   um_sn_length_present;
-    guint8     um_sn_length;      /* Part of RLC config - optional */
+    guint8     um_sn_length;        /* Part of RLC config - optional */
     gboolean   ul_priority_present;
-    guint8     ul_priority;       /* Part of LogicalChannelConfig - optional */
+    guint8     ul_priority;         /* Part of LogicalChannelConfig - optional */
     gboolean   pdcp_sn_size_present;
-    guint8     pdcp_sn_size;      /* Part of pdcp-Config - optional */
+    guint8     pdcp_sn_size;        /* Part of pdcp-Config - optional */
 } drb_mapping_t;
 
 
@@ -334,7 +336,7 @@ void set_mac_lte_drx_config_release(guint16 ueid,  packet_info *pinfo);
 void set_mac_lte_rapid_ranges(guint groupA, guint all_RA);
 
 /* RRC can indicate whether extended BSR sizes are used */
-void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes);
+void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes, packet_info *pinfo);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
