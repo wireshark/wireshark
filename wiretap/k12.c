@@ -908,6 +908,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             if (stack_len == 0) {
                 K12_DBG(5,("k12_open: failed (stack_len == 0 in source description"));
                 destroy_k12_file_data(file_data);
+                g_free(rec);
                 return 0;
             }
             if (rec_len < K12_SRCDESC_HWPART + hwpart_len + name_len + stack_len) {
