@@ -45,8 +45,6 @@
 
 #include "color_utils.h"
 
-#include "file.h"
-
 #include "version_info.h"
 
 #include "ui/follow.h"
