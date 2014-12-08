@@ -778,7 +778,7 @@ proto_register_dvmrp(void)
 			  VALS(code_v3), 0, "DVMRP Packet Code", HFILL }},
 
 		{ &hf_capabilities,
-			{ "Capabilities", "dvmrp.capabilities", FT_NONE, BASE_NONE,
+			{ "Capabilities", "dvmrp.capabilities", FT_UINT8, BASE_HEX,
 			  NULL, 0, "DVMRP V3 Capabilities", HFILL }},
 
 		{&hf_cap_leaf,
