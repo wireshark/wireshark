@@ -952,7 +952,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                  */
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("k12_open: source descriptor record length %u < %u",
-                                            rec_len, K12_SRCDESC_STACKLEN + 2);
+                                            rec_len, K12_SRCDESC_HWPART);
                 destroy_k12_file_data(file_data);
                 g_free(rec);
                 return WTAP_OPEN_ERROR;
