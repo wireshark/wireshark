@@ -1949,7 +1949,7 @@ proto_reg_handoff_erf(void)
   chdlc_handle  = find_dissector("chdlc");
   ppp_handle    = find_dissector("ppp_hdlc");
   frelay_handle = find_dissector("fr");
-  mtp2_handle   = find_dissector("mtp2");
+  mtp2_handle   = find_dissector("mtp2_with_crc");
 
   /* Get handle for ATM dissector */
   atm_untruncated_handle = find_dissector("atm_untruncated");
