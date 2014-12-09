@@ -593,49 +593,34 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			THROW(TypeError);
 		}
 	}
-	else if (type2 == STTYPE_STRING) {
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
 		s = (char *)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
-			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
+			if (type2 == STTYPE_STRING)
+				fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
+			else
+				fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
 		} else {
-			fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
+			/* Skip incompatible fields */
+			while (hfinfo1->same_name_prev_id != -1 &&
+					((type2 == STTYPE_STRING && ftype1 != FT_STRING && ftype1!= FT_STRINGZ) ||
+					(type2 != STTYPE_STRING && (ftype1 == FT_STRING || ftype1== FT_STRINGZ)))) {
+				hfinfo1 = proto_registrar_get_nth(hfinfo1->same_name_prev_id);
+				ftype1 = hfinfo1->type;
+			}
+
+			if (type2 == STTYPE_STRING)
+				fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
+			else
+				fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
+
 			if (!fvalue) {
 				/* check value_string */
 				fvalue = mk_fvalue_from_val_string(hfinfo1, s);
 			}
 		}
-		if (!fvalue) {
-			THROW(TypeError);
-		}
 
-		new_st = stnode_new(STTYPE_FVALUE, fvalue);
-		sttype_test_set2_args(st_node, st_arg1, new_st);
-		stnode_free(st_arg2);
-	}
-	else if (type2 == STTYPE_UNPARSED) {
-		s = (char *)stnode_data(st_arg2);
-		if (strcmp(relation_string, "matches") == 0) {
-			/* Convert to a FT_PCRE */
-			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
-		} else {
-			do {
-				fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
-				if (!fvalue) {
-					/* check value_string */
-					fvalue = mk_fvalue_from_val_string(hfinfo1, s);
-				}
-				if (!fvalue) {
-					/* Try another field with the same name */
-					if (hfinfo1->same_name_prev_id != -1) {
-						hfinfo1 = proto_registrar_get_nth(hfinfo1->same_name_prev_id);
-						ftype1 = hfinfo1->type;
-					} else {
-						break;
-					}
-				}
-			} while (!fvalue);
-		}
 		if (!fvalue) {
 			THROW(TypeError);
 		}
