@@ -1414,9 +1414,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 /*
                  * Do we have a handler for this packet block option code?
                  */
-                handler = (option_handler)g_hash_table_lookup(option_handlers[BT_INDEX_PBS],
-                                                              GUINT_TO_POINTER((guint)oh->option_code));
-                if (handler != NULL) {
+                if (option_handlers[BT_INDEX_PBS] != NULL &&
+                    (handler = (option_handler)g_hash_table_lookup(option_handlers[BT_INDEX_PBS],
+                                                                   GUINT_TO_POINTER((guint)oh->option_code))) != NULL) {
                     /* Yes - call the handler. */
                     if (!handler(pn->byte_swapped, oh->option_length,
                                  option_content, err, err_info))
