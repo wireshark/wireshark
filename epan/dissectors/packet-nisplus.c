@@ -1553,7 +1553,7 @@ proto_register_nis(void)
 			NULL, 0, "Entry Value", HFILL }},
 
 		{ &hf_nisplus_entry_mask, {
-			"mask", "nisplus.entry.mask", FT_NONE, BASE_NONE,
+			"mask", "nisplus.entry.mask", FT_UINT32, BASE_HEX,
 			NULL, 0, "Entry Col Mask", HFILL }},
 
 		{ &hf_nisplus_entry_mask_binary, {
