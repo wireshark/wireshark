@@ -2325,7 +2325,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     case PCAPNG_BLOCK_NOT_SHB:
         /* An error indicating that this isn't a pcap-ng file. */
         pcapng_free_wtapng_block_data(&wblock);
-        g_free(*err_info);  /* We don't care why */
         *err = 0;
         *err_info = NULL;
         return WTAP_OPEN_NOT_MINE;
