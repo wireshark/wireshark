@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.8.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V12.3.0 Release 12) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2014, Pascal Quantin
  *
@@ -188,6 +188,8 @@ static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
+static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1 = -1;
+static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
 static int hf_lte_rrc_sr_config_subframe_offset = -1;
 static int hf_lte_rrc_cdma_time = -1;
@@ -214,6 +216,7 @@ static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
+static gint ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12 = -1;
 static gint ett_lte_rrc_sr_ConfigIndex = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
@@ -1828,6 +1831,16 @@ static const true_false_string lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_
   "SCell DL subframes are neither superset nor subset of PCell by SIB1 configuration - Not supported",
 };
 
+static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1_val = {
+  "TDD PCell - Supported",
+  "TDD PCell - Not supported"
+};
+
+static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val = {
+  "FDD PCell - Supported",
+  "FDD PCell - Not supported"
+};
+
 /*****************************************************************************/
 /* Packet private data                                                       */
 /* For this dissector, all access to actx->private_data should be made       */
@@ -2876,6 +2889,14 @@ void proto_register_lte_rrc(void) {
       { "Bit 2", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit2",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1,
+      { "Bit 1", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12.bit1",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2,
+      { "Bit 2", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12.bit2",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_sr_config_periodicity,
       { "Periodicity", "lte-rrc.sr_Periodicity",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2921,6 +2942,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment,
     &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
+    &ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12,
     &ett_lte_rrc_sr_ConfigIndex
   };
 

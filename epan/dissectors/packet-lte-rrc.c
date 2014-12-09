@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.8.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V12.3.0 Release 12) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2014, Pascal Quantin
  *
@@ -93,9 +93,11 @@ extern int proto_pdcp_lte;
 #define maxBandwidthCombSet_r10        32
 #define maxCDMA_BandClass              32
 #define maxCellBlack                   16
+#define maxCellHistory_r12             16
 #define maxCellInfoGERAN_r9            32
 #define maxCellInfoUTRA_r9             16
 #define maxCSI_IM_r11                  3
+#define maxCSI_IM_r12                  4
 #define maxCSI_Proc_r11                4
 #define maxCSI_RS_NZP_r11              3
 #define maxCSI_RS_ZP_r11               4
@@ -150,6 +152,7 @@ extern int proto_pdcp_lte;
 #define maxSubframePatternIDC_r11      8
 #define maxUTRA_FDD_Carrier            16
 #define maxUTRA_TDD_Carrier            16
+#define maxWLAN_Id_r12                 16
 #define maxLogMeas_r10                 4060
 #define maxReestabInfo                 32
 
@@ -401,13 +404,18 @@ static int hf_lte_rrc_lateNonCriticalExtension_r10 = -1;  /* OCTET_STRING */
 static int hf_lte_rrc_nonCriticalExtension_17 = -1;  /* LoggedMeasurementConfiguration_v1130_IEs */
 static int hf_lte_rrc_plmn_IdentityList_r11 = -1;  /* PLMN_IdentityList3_r11 */
 static int hf_lte_rrc_areaConfiguration_v1130 = -1;  /* AreaConfiguration_v1130 */
-static int hf_lte_rrc_nonCriticalExtension_18 = -1;  /* T_nonCriticalExtension_08 */
+static int hf_lte_rrc_nonCriticalExtension_18 = -1;  /* LoggedMeasurementConfiguration_v12xy_IEs */
+static int hf_lte_rrc_targetMBSFN_AreaList_r12 = -1;  /* TargetMBSFN_AreaList_r12 */
+static int hf_lte_rrc_nonCriticalExtension_19 = -1;  /* T_nonCriticalExtension_08 */
+static int hf_lte_rrc_TargetMBSFN_AreaList_r12_item = -1;  /* TargetMBSFN_Area_r12 */
+static int hf_lte_rrc_mbsfn_AreaId_r12 = -1;      /* INTEGER_0_255 */
+static int hf_lte_rrc_carrierFreq_r12 = -1;       /* ARFCN_ValueEUTRA_r9 */
 static int hf_lte_rrc_dl_Bandwidth = -1;          /* T_dl_Bandwidth */
 static int hf_lte_rrc_phich_Config = -1;          /* PHICH_Config */
 static int hf_lte_rrc_systemFrameNumber = -1;     /* T_systemFrameNumber */
 static int hf_lte_rrc_spare = -1;                 /* BIT_STRING_SIZE_10 */
 static int hf_lte_rrc_countingRequestList_r10 = -1;  /* CountingRequestList_r10 */
-static int hf_lte_rrc_nonCriticalExtension_19 = -1;  /* T_nonCriticalExtension_09 */
+static int hf_lte_rrc_nonCriticalExtension_20 = -1;  /* T_nonCriticalExtension_09 */
 static int hf_lte_rrc_CountingRequestList_r10_item = -1;  /* CountingRequestInfo_r10 */
 static int hf_lte_rrc_tmgi_r10 = -1;              /* TMGI_r9 */
 static int hf_lte_rrc_criticalExtensions_09 = -1;  /* T_criticalExtensions_09 */
@@ -416,7 +424,7 @@ static int hf_lte_rrc_countingResponse_r10 = -1;  /* MBMSCountingResponse_r10_IE
 static int hf_lte_rrc_criticalExtensionsFuture_09 = -1;  /* T_criticalExtensionsFuture_09 */
 static int hf_lte_rrc_mbsfn_AreaIndex_r10 = -1;   /* INTEGER_0_maxMBSFN_Area_1 */
 static int hf_lte_rrc_countingResponseList_r10 = -1;  /* CountingResponseList_r10 */
-static int hf_lte_rrc_nonCriticalExtension_20 = -1;  /* T_nonCriticalExtension_10 */
+static int hf_lte_rrc_nonCriticalExtension_21 = -1;  /* T_nonCriticalExtension_10 */
 static int hf_lte_rrc_CountingResponseList_r10_item = -1;  /* CountingResponseInfo_r10 */
 static int hf_lte_rrc_countingResponseService_r10 = -1;  /* INTEGER_0_maxServiceCount_1 */
 static int hf_lte_rrc_criticalExtensions_10 = -1;  /* T_criticalExtensions_10 */
@@ -425,20 +433,22 @@ static int hf_lte_rrc_interestIndication_r11 = -1;  /* MBMSInterestIndication_r1
 static int hf_lte_rrc_criticalExtensionsFuture_10 = -1;  /* T_criticalExtensionsFuture_10 */
 static int hf_lte_rrc_mbms_FreqList_r11 = -1;     /* CarrierFreqListMBMS_r11 */
 static int hf_lte_rrc_mbms_Priority_r11 = -1;     /* T_mbms_Priority_r11 */
-static int hf_lte_rrc_nonCriticalExtension_21 = -1;  /* T_nonCriticalExtension_11 */
+static int hf_lte_rrc_nonCriticalExtension_22 = -1;  /* T_nonCriticalExtension_11 */
 static int hf_lte_rrc_commonSF_Alloc_r9 = -1;     /* CommonSF_AllocPatternList_r9 */
 static int hf_lte_rrc_commonSF_AllocPeriod_r9 = -1;  /* T_commonSF_AllocPeriod_r9 */
 static int hf_lte_rrc_pmch_InfoList_r9 = -1;      /* PMCH_InfoList_r9 */
-static int hf_lte_rrc_nonCriticalExtension_22 = -1;  /* MBSFNAreaConfiguration_v930_IEs */
-static int hf_lte_rrc_nonCriticalExtension_23 = -1;  /* T_nonCriticalExtension_12 */
+static int hf_lte_rrc_nonCriticalExtension_23 = -1;  /* MBSFNAreaConfiguration_v930_IEs */
+static int hf_lte_rrc_nonCriticalExtension_24 = -1;  /* MBSFNAreaConfiguration_v12xy_IEs */
+static int hf_lte_rrc_pmch_InfoListExt_r12 = -1;  /* PMCH_InfoListExt_r12 */
+static int hf_lte_rrc_nonCriticalExtension_25 = -1;  /* T_nonCriticalExtension_12 */
 static int hf_lte_rrc_CommonSF_AllocPatternList_r9_item = -1;  /* MBSFN_SubframeConfig */
 static int hf_lte_rrc_criticalExtensions_11 = -1;  /* T_criticalExtensions_11 */
 static int hf_lte_rrc_c1_15 = -1;                 /* T_c1_15 */
 static int hf_lte_rrc_measurementReport_r8 = -1;  /* MeasurementReport_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_11 = -1;  /* T_criticalExtensionsFuture_11 */
 static int hf_lte_rrc_measResults = -1;           /* MeasResults */
-static int hf_lte_rrc_nonCriticalExtension_24 = -1;  /* MeasurementReport_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_25 = -1;  /* T_nonCriticalExtension_13 */
+static int hf_lte_rrc_nonCriticalExtension_26 = -1;  /* MeasurementReport_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_27 = -1;  /* T_nonCriticalExtension_13 */
 static int hf_lte_rrc_criticalExtensions_12 = -1;  /* T_criticalExtensions_12 */
 static int hf_lte_rrc_c1_16 = -1;                 /* T_c1_16 */
 static int hf_lte_rrc_mobilityFromEUTRACommand_r8 = -1;  /* MobilityFromEUTRACommand_r8_IEs */
@@ -448,15 +458,15 @@ static int hf_lte_rrc_cs_FallbackIndicator = -1;  /* BOOLEAN */
 static int hf_lte_rrc_purpose = -1;               /* T_purpose */
 static int hf_lte_rrc_handover = -1;              /* Handover */
 static int hf_lte_rrc_cellChangeOrder = -1;       /* CellChangeOrder */
-static int hf_lte_rrc_nonCriticalExtension_26 = -1;  /* MobilityFromEUTRACommand_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_27 = -1;  /* MobilityFromEUTRACommand_v8d0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_28 = -1;  /* MobilityFromEUTRACommand_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_29 = -1;  /* MobilityFromEUTRACommand_v8d0_IEs */
 static int hf_lte_rrc_bandIndicator = -1;         /* BandIndicatorGERAN */
-static int hf_lte_rrc_nonCriticalExtension_28 = -1;  /* T_nonCriticalExtension_14 */
+static int hf_lte_rrc_nonCriticalExtension_30 = -1;  /* T_nonCriticalExtension_14 */
 static int hf_lte_rrc_purpose_01 = -1;            /* T_purpose_01 */
 static int hf_lte_rrc_e_CSFB_r9 = -1;             /* E_CSFB_r9 */
-static int hf_lte_rrc_nonCriticalExtension_29 = -1;  /* MobilityFromEUTRACommand_v930_IEs */
-static int hf_lte_rrc_nonCriticalExtension_30 = -1;  /* MobilityFromEUTRACommand_v960_IEs */
-static int hf_lte_rrc_nonCriticalExtension_31 = -1;  /* T_nonCriticalExtension_15 */
+static int hf_lte_rrc_nonCriticalExtension_31 = -1;  /* MobilityFromEUTRACommand_v930_IEs */
+static int hf_lte_rrc_nonCriticalExtension_32 = -1;  /* MobilityFromEUTRACommand_v960_IEs */
+static int hf_lte_rrc_nonCriticalExtension_33 = -1;  /* T_nonCriticalExtension_15 */
 static int hf_lte_rrc_targetRAT_Type = -1;        /* T_targetRAT_Type */
 static int hf_lte_rrc_targetRAT_MessageContainer = -1;  /* T_targetRAT_MessageContainer */
 static int hf_lte_rrc_nas_SecurityParamFromEUTRA = -1;  /* T_nas_SecurityParamFromEUTRA */
@@ -476,12 +486,12 @@ static int hf_lte_rrc_redirectCarrierCDMA2000_HRPD_r9 = -1;  /* CarrierFreqCDMA2
 static int hf_lte_rrc_pagingRecordList = -1;      /* T_pagingRecordList */
 static int hf_lte_rrc_systemInfoModification = -1;  /* T_systemInfoModification */
 static int hf_lte_rrc_etws_Indication = -1;       /* T_etws_Indication */
-static int hf_lte_rrc_nonCriticalExtension_32 = -1;  /* Paging_v890_IEs */
-static int hf_lte_rrc_nonCriticalExtension_33 = -1;  /* Paging_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_34 = -1;  /* Paging_v890_IEs */
+static int hf_lte_rrc_nonCriticalExtension_35 = -1;  /* Paging_v920_IEs */
 static int hf_lte_rrc_cmas_Indication_r9 = -1;    /* T_cmas_Indication_r9 */
-static int hf_lte_rrc_nonCriticalExtension_34 = -1;  /* Paging_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_36 = -1;  /* Paging_v1130_IEs */
 static int hf_lte_rrc_eab_ParamModification_r11 = -1;  /* T_eab_ParamModification_r11 */
-static int hf_lte_rrc_nonCriticalExtension_35 = -1;  /* T_nonCriticalExtension_16 */
+static int hf_lte_rrc_nonCriticalExtension_37 = -1;  /* T_nonCriticalExtension_16 */
 static int hf_lte_rrc_PagingRecordList_item = -1;  /* PagingRecord */
 static int hf_lte_rrc_ue_Identity = -1;           /* PagingUE_Identity */
 static int hf_lte_rrc_cn_Domain = -1;             /* T_cn_Domain */
@@ -497,22 +507,22 @@ static int hf_lte_rrc_carrierFreq_r9 = -1;        /* T_carrierFreq_r9 */
 static int hf_lte_rrc_eutra_r9 = -1;              /* ARFCN_ValueEUTRA */
 static int hf_lte_rrc_utra_r9 = -1;               /* ARFCN_ValueUTRA */
 static int hf_lte_rrc_eutra2_v9e0 = -1;           /* ARFCN_ValueEUTRA_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_36 = -1;  /* ProximityIndication_v930_IEs */
-static int hf_lte_rrc_nonCriticalExtension_37 = -1;  /* T_nonCriticalExtension_17 */
+static int hf_lte_rrc_nonCriticalExtension_38 = -1;  /* ProximityIndication_v930_IEs */
+static int hf_lte_rrc_nonCriticalExtension_39 = -1;  /* T_nonCriticalExtension_17 */
 static int hf_lte_rrc_criticalExtensions_14 = -1;  /* T_criticalExtensions_14 */
 static int hf_lte_rrc_c1_18 = -1;                 /* T_c1_18 */
 static int hf_lte_rrc_rnReconfiguration_r10_01 = -1;  /* RNReconfiguration_r10_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_14 = -1;  /* T_criticalExtensionsFuture_14 */
 static int hf_lte_rrc_rn_SystemInfo_r10 = -1;     /* RN_SystemInfo_r10 */
 static int hf_lte_rrc_rn_SubframeConfig_r10 = -1;  /* RN_SubframeConfig_r10 */
-static int hf_lte_rrc_nonCriticalExtension_38 = -1;  /* T_nonCriticalExtension_18 */
+static int hf_lte_rrc_nonCriticalExtension_40 = -1;  /* T_nonCriticalExtension_18 */
 static int hf_lte_rrc_systemInformationBlockType1_r10 = -1;  /* T_systemInformationBlockType1_r10 */
 static int hf_lte_rrc_systemInformationBlockType2_r10 = -1;  /* SystemInformationBlockType2 */
 static int hf_lte_rrc_criticalExtensions_15 = -1;  /* T_criticalExtensions_15 */
 static int hf_lte_rrc_c1_19 = -1;                 /* T_c1_19 */
 static int hf_lte_rrc_rnReconfigurationComplete_r10_01 = -1;  /* RNReconfigurationComplete_r10_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_15 = -1;  /* T_criticalExtensionsFuture_15 */
-static int hf_lte_rrc_nonCriticalExtension_39 = -1;  /* T_nonCriticalExtension_19 */
+static int hf_lte_rrc_nonCriticalExtension_41 = -1;  /* T_nonCriticalExtension_19 */
 static int hf_lte_rrc_criticalExtensions_16 = -1;  /* T_criticalExtensions_16 */
 static int hf_lte_rrc_c1_20 = -1;                 /* T_c1_20 */
 static int hf_lte_rrc_rrcConnectionReconfiguration_r8 = -1;  /* RRCConnectionReconfiguration_r8_IEs */
@@ -523,16 +533,22 @@ static int hf_lte_rrc_dedicatedInfoNASList = -1;  /* SEQUENCE_SIZE_1_maxDRB_OF_D
 static int hf_lte_rrc_dedicatedInfoNASList_item = -1;  /* DedicatedInfoNAS */
 static int hf_lte_rrc_radioResourceConfigDedicated = -1;  /* RadioResourceConfigDedicated */
 static int hf_lte_rrc_securityConfigHO = -1;      /* SecurityConfigHO */
-static int hf_lte_rrc_nonCriticalExtension_40 = -1;  /* RRCConnectionReconfiguration_v890_IEs */
-static int hf_lte_rrc_nonCriticalExtension_41 = -1;  /* RRCConnectionReconfiguration_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_42 = -1;  /* RRCConnectionReconfiguration_v890_IEs */
+static int hf_lte_rrc_nonCriticalExtension_43 = -1;  /* RRCConnectionReconfiguration_v920_IEs */
 static int hf_lte_rrc_otherConfig_r9 = -1;        /* OtherConfig_r9 */
 static int hf_lte_rrc_fullConfig_r9 = -1;         /* T_fullConfig_r9 */
-static int hf_lte_rrc_nonCriticalExtension_42 = -1;  /* RRCConnectionReconfiguration_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_44 = -1;  /* RRCConnectionReconfiguration_v1020_IEs */
 static int hf_lte_rrc_sCellToReleaseList_r10 = -1;  /* SCellToReleaseList_r10 */
 static int hf_lte_rrc_sCellToAddModList_r10 = -1;  /* SCellToAddModList_r10 */
-static int hf_lte_rrc_nonCriticalExtension_43 = -1;  /* RRCConnectionReconfiguration_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_45 = -1;  /* RRCConnectionReconfiguration_v1130_IEs */
 static int hf_lte_rrc_systemInfomationBlockType1Dedicated_r11 = -1;  /* T_systemInfomationBlockType1Dedicated_r11 */
-static int hf_lte_rrc_nonCriticalExtension_44 = -1;  /* T_nonCriticalExtension_20 */
+static int hf_lte_rrc_nonCriticalExtension_46 = -1;  /* RRCConnectionReconfiguration_v12xy_IEs */
+static int hf_lte_rrc_wlan_OffloadDedicated_r12 = -1;  /* T_wlan_OffloadDedicated_r12 */
+static int hf_lte_rrc_release = -1;               /* NULL */
+static int hf_lte_rrc_setup = -1;                 /* T_setup */
+static int hf_lte_rrc_wlan_OffloadConfig_r12 = -1;  /* WLAN_OffloadConfig_r12 */
+static int hf_lte_rrc_t350_r12 = -1;              /* T_t350_r12 */
+static int hf_lte_rrc_nonCriticalExtension_47 = -1;  /* T_nonCriticalExtension_20 */
 static int hf_lte_rrc_SCellToAddModList_r10_item = -1;  /* SCellToAddMod_r10 */
 static int hf_lte_rrc_sCellIndex_r10 = -1;        /* SCellIndex_r10 */
 static int hf_lte_rrc_cellIdentification_r10 = -1;  /* T_cellIdentification_r10 */
@@ -552,35 +568,39 @@ static int hf_lte_rrc_nas_SecurityParamToEUTRA = -1;  /* T_nas_SecurityParamToEU
 static int hf_lte_rrc_criticalExtensions_17 = -1;  /* T_criticalExtensions_17 */
 static int hf_lte_rrc_rrcConnectionReconfigurationComplete_r8 = -1;  /* RRCConnectionReconfigurationComplete_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_17 = -1;  /* T_criticalExtensionsFuture_17 */
-static int hf_lte_rrc_nonCriticalExtension_45 = -1;  /* RRCConnectionReconfigurationComplete_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_46 = -1;  /* RRCConnectionReconfigurationComplete_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_48 = -1;  /* RRCConnectionReconfigurationComplete_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_49 = -1;  /* RRCConnectionReconfigurationComplete_v1020_IEs */
 static int hf_lte_rrc_rlf_InfoAvailable_r10 = -1;  /* T_rlf_InfoAvailable_r10 */
 static int hf_lte_rrc_logMeasAvailable_r10 = -1;  /* T_logMeasAvailable_r10 */
-static int hf_lte_rrc_nonCriticalExtension_47 = -1;  /* RRCConnectionReconfigurationComplete_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_50 = -1;  /* RRCConnectionReconfigurationComplete_v1130_IEs */
 static int hf_lte_rrc_connEstFailInfoAvailable_r11 = -1;  /* T_connEstFailInfoAvailable_r11 */
-static int hf_lte_rrc_nonCriticalExtension_48 = -1;  /* T_nonCriticalExtension_21 */
+static int hf_lte_rrc_nonCriticalExtension_51 = -1;  /* RRCConnectionReconfigurationComplete_v12xy_IEs */
+static int hf_lte_rrc_logMeasAvailableMBSFN_r12 = -1;  /* T_logMeasAvailableMBSFN_r12 */
+static int hf_lte_rrc_nonCriticalExtension_52 = -1;  /* T_nonCriticalExtension_21 */
 static int hf_lte_rrc_criticalExtensions_18 = -1;  /* T_criticalExtensions_18 */
 static int hf_lte_rrc_c1_21 = -1;                 /* T_c1_21 */
 static int hf_lte_rrc_rrcConnectionReestablishment_r8 = -1;  /* RRCConnectionReestablishment_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_18 = -1;  /* T_criticalExtensionsFuture_18 */
-static int hf_lte_rrc_nonCriticalExtension_49 = -1;  /* RRCConnectionReestablishment_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_50 = -1;  /* T_nonCriticalExtension_22 */
+static int hf_lte_rrc_nonCriticalExtension_53 = -1;  /* RRCConnectionReestablishment_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_54 = -1;  /* T_nonCriticalExtension_22 */
 static int hf_lte_rrc_criticalExtensions_19 = -1;  /* T_criticalExtensions_19 */
 static int hf_lte_rrc_rrcConnectionReestablishmentComplete_r8 = -1;  /* RRCConnectionReestablishmentComplete_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_19 = -1;  /* T_criticalExtensionsFuture_19 */
-static int hf_lte_rrc_nonCriticalExtension_51 = -1;  /* RRCConnectionReestablishmentComplete_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_55 = -1;  /* RRCConnectionReestablishmentComplete_v920_IEs */
 static int hf_lte_rrc_rlf_InfoAvailable_r9 = -1;  /* T_rlf_InfoAvailable_r9 */
-static int hf_lte_rrc_nonCriticalExtension_52 = -1;  /* RRCConnectionReestablishmentComplete_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_53 = -1;  /* RRCConnectionReestablishmentComplete_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_56 = -1;  /* RRCConnectionReestablishmentComplete_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_57 = -1;  /* RRCConnectionReestablishmentComplete_v1020_IEs */
 static int hf_lte_rrc_logMeasAvailable_r10_01 = -1;  /* T_logMeasAvailable_r10_01 */
-static int hf_lte_rrc_nonCriticalExtension_54 = -1;  /* RRCConnectionReestablishmentComplete_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_58 = -1;  /* RRCConnectionReestablishmentComplete_v1130_IEs */
 static int hf_lte_rrc_connEstFailInfoAvailable_r11_01 = -1;  /* T_connEstFailInfoAvailable_r11_01 */
-static int hf_lte_rrc_nonCriticalExtension_55 = -1;  /* T_nonCriticalExtension_23 */
+static int hf_lte_rrc_nonCriticalExtension_59 = -1;  /* RRCConnectionReestablishmentComplete_v12xy_IEs */
+static int hf_lte_rrc_logMeasAvailableMBSFN_r12_01 = -1;  /* T_logMeasAvailableMBSFN_r12_01 */
+static int hf_lte_rrc_nonCriticalExtension_60 = -1;  /* T_nonCriticalExtension_23 */
 static int hf_lte_rrc_criticalExtensions_20 = -1;  /* T_criticalExtensions_20 */
 static int hf_lte_rrc_rrcConnectionReestablishmentReject_r8 = -1;  /* RRCConnectionReestablishmentReject_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_20 = -1;  /* T_criticalExtensionsFuture_20 */
-static int hf_lte_rrc_nonCriticalExtension_56 = -1;  /* RRCConnectionReestablishmentReject_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_57 = -1;  /* T_nonCriticalExtension_24 */
+static int hf_lte_rrc_nonCriticalExtension_61 = -1;  /* RRCConnectionReestablishmentReject_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_62 = -1;  /* T_nonCriticalExtension_24 */
 static int hf_lte_rrc_criticalExtensions_21 = -1;  /* T_criticalExtensions_21 */
 static int hf_lte_rrc_rrcConnectionReestablishmentRequest_r8 = -1;  /* RRCConnectionReestablishmentRequest_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_21 = -1;  /* T_criticalExtensionsFuture_21 */
@@ -595,14 +615,14 @@ static int hf_lte_rrc_c1_22 = -1;                 /* T_c1_22 */
 static int hf_lte_rrc_rrcConnectionReject_r8 = -1;  /* RRCConnectionReject_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_22 = -1;  /* T_criticalExtensionsFuture_22 */
 static int hf_lte_rrc_waitTime = -1;              /* T_waitTime */
-static int hf_lte_rrc_nonCriticalExtension_58 = -1;  /* RRCConnectionReject_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_59 = -1;  /* RRCConnectionReject_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_63 = -1;  /* RRCConnectionReject_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_64 = -1;  /* RRCConnectionReject_v1020_IEs */
 static int hf_lte_rrc_extendedWaitTime_r10 = -1;  /* T_extendedWaitTime_r10 */
-static int hf_lte_rrc_nonCriticalExtension_60 = -1;  /* RRCConnectionReject_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_65 = -1;  /* RRCConnectionReject_v1130_IEs */
 static int hf_lte_rrc_deprioritisationReq_r11 = -1;  /* T_deprioritisationReq_r11 */
 static int hf_lte_rrc_deprioritisationType_r11 = -1;  /* T_deprioritisationType_r11 */
 static int hf_lte_rrc_deprioritisationTimer_r11 = -1;  /* T_deprioritisationTimer_r11 */
-static int hf_lte_rrc_nonCriticalExtension_61 = -1;  /* T_nonCriticalExtension_25 */
+static int hf_lte_rrc_nonCriticalExtension_66 = -1;  /* T_nonCriticalExtension_25 */
 static int hf_lte_rrc_criticalExtensions_23 = -1;  /* T_criticalExtensions_23 */
 static int hf_lte_rrc_c1_23 = -1;                 /* T_c1_23 */
 static int hf_lte_rrc_rrcConnectionRelease_r8 = -1;  /* RRCConnectionRelease_r8_IEs */
@@ -610,20 +630,20 @@ static int hf_lte_rrc_criticalExtensionsFuture_23 = -1;  /* T_criticalExtensions
 static int hf_lte_rrc_releaseCause = -1;          /* ReleaseCause */
 static int hf_lte_rrc_redirectedCarrierInfo = -1;  /* RedirectedCarrierInfo */
 static int hf_lte_rrc_idleModeMobilityControlInfo = -1;  /* IdleModeMobilityControlInfo */
-static int hf_lte_rrc_nonCriticalExtension_62 = -1;  /* RRCConnectionRelease_v890_IEs */
+static int hf_lte_rrc_nonCriticalExtension_67 = -1;  /* RRCConnectionRelease_v890_IEs */
 static int hf_lte_rrc_lateNonCriticalExtension_01 = -1;  /* T_lateNonCriticalExtension */
-static int hf_lte_rrc_nonCriticalExtension_63 = -1;  /* RRCConnectionRelease_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_68 = -1;  /* RRCConnectionRelease_v920_IEs */
 static int hf_lte_rrc_redirectedCarrierInfo_v9e0 = -1;  /* RedirectedCarrierInfo_v9e0 */
 static int hf_lte_rrc_idleModeMobilityControlInfo_v9e0 = -1;  /* IdleModeMobilityControlInfo_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_64 = -1;  /* T_nonCriticalExtension_26 */
+static int hf_lte_rrc_nonCriticalExtension_69 = -1;  /* T_nonCriticalExtension_26 */
 static int hf_lte_rrc_cellInfoList_r9 = -1;       /* T_cellInfoList_r9 */
 static int hf_lte_rrc_geran_r9 = -1;              /* CellInfoListGERAN_r9 */
 static int hf_lte_rrc_utra_FDD_r9 = -1;           /* CellInfoListUTRA_FDD_r9 */
 static int hf_lte_rrc_utra_TDD_r9 = -1;           /* CellInfoListUTRA_TDD_r9 */
 static int hf_lte_rrc_utra_TDD_r10 = -1;          /* CellInfoListUTRA_TDD_r10 */
-static int hf_lte_rrc_nonCriticalExtension_65 = -1;  /* RRCConnectionRelease_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_70 = -1;  /* RRCConnectionRelease_v1020_IEs */
 static int hf_lte_rrc_extendedWaitTime_r10_01 = -1;  /* T_extendedWaitTime_r10_01 */
-static int hf_lte_rrc_nonCriticalExtension_66 = -1;  /* T_nonCriticalExtension_27 */
+static int hf_lte_rrc_nonCriticalExtension_71 = -1;  /* T_nonCriticalExtension_27 */
 static int hf_lte_rrc_eutra = -1;                 /* ARFCN_ValueEUTRA */
 static int hf_lte_rrc_geran_01 = -1;              /* CarrierFreqsGERAN */
 static int hf_lte_rrc_utra_FDD = -1;              /* ARFCN_ValueUTRA */
@@ -679,23 +699,27 @@ static int hf_lte_rrc_criticalExtensions_25 = -1;  /* T_criticalExtensions_25 */
 static int hf_lte_rrc_c1_24 = -1;                 /* T_c1_24 */
 static int hf_lte_rrc_rrcConnectionSetup_r8 = -1;  /* RRCConnectionSetup_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_25 = -1;  /* T_criticalExtensionsFuture_25 */
-static int hf_lte_rrc_nonCriticalExtension_67 = -1;  /* RRCConnectionSetup_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_68 = -1;  /* T_nonCriticalExtension_28 */
+static int hf_lte_rrc_nonCriticalExtension_72 = -1;  /* RRCConnectionSetup_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_73 = -1;  /* T_nonCriticalExtension_28 */
 static int hf_lte_rrc_criticalExtensions_26 = -1;  /* T_criticalExtensions_26 */
 static int hf_lte_rrc_c1_25 = -1;                 /* T_c1_25 */
 static int hf_lte_rrc_rrcConnectionSetupComplete_r8 = -1;  /* RRCConnectionSetupComplete_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_26 = -1;  /* T_criticalExtensionsFuture_26 */
 static int hf_lte_rrc_selectedPLMN_Identity = -1;  /* INTEGER_1_maxPLMN_r11 */
 static int hf_lte_rrc_registeredMME = -1;         /* RegisteredMME */
-static int hf_lte_rrc_nonCriticalExtension_69 = -1;  /* RRCConnectionSetupComplete_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_70 = -1;  /* RRCConnectionSetupComplete_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_74 = -1;  /* RRCConnectionSetupComplete_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_75 = -1;  /* RRCConnectionSetupComplete_v1020_IEs */
 static int hf_lte_rrc_gummei_Type_r10 = -1;       /* T_gummei_Type_r10 */
 static int hf_lte_rrc_rlf_InfoAvailable_r10_01 = -1;  /* T_rlf_InfoAvailable_r10_01 */
 static int hf_lte_rrc_logMeasAvailable_r10_02 = -1;  /* T_logMeasAvailable_r10_02 */
 static int hf_lte_rrc_rn_SubframeConfigReq_r10 = -1;  /* T_rn_SubframeConfigReq_r10 */
-static int hf_lte_rrc_nonCriticalExtension_71 = -1;  /* RRCConnectionSetupComplete_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_76 = -1;  /* RRCConnectionSetupComplete_v1130_IEs */
 static int hf_lte_rrc_connEstFailInfoAvailable_r11_02 = -1;  /* T_connEstFailInfoAvailable_r11_02 */
-static int hf_lte_rrc_nonCriticalExtension_72 = -1;  /* T_nonCriticalExtension_29 */
+static int hf_lte_rrc_nonCriticalExtension_77 = -1;  /* RRCConnectionSetupComplete_v12xy_IEs */
+static int hf_lte_rrc_mobilityState_r12 = -1;     /* T_mobilityState_r12 */
+static int hf_lte_rrc_mobilityHistoryAvail_r12 = -1;  /* T_mobilityHistoryAvail_r12 */
+static int hf_lte_rrc_logMeasAvailableMBSFN_r12_02 = -1;  /* T_logMeasAvailableMBSFN_r12_02 */
+static int hf_lte_rrc_nonCriticalExtension_78 = -1;  /* T_nonCriticalExtension_29 */
 static int hf_lte_rrc_plmn_Identity = -1;         /* PLMN_Identity */
 static int hf_lte_rrc_mmegi = -1;                 /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_mmec = -1;                  /* MMEC */
@@ -704,18 +728,18 @@ static int hf_lte_rrc_c1_26 = -1;                 /* T_c1_26 */
 static int hf_lte_rrc_securityModeCommand_r8 = -1;  /* SecurityModeCommand_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_27 = -1;  /* T_criticalExtensionsFuture_27 */
 static int hf_lte_rrc_securityConfigSMC = -1;     /* SecurityConfigSMC */
-static int hf_lte_rrc_nonCriticalExtension_73 = -1;  /* SecurityModeCommand_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_74 = -1;  /* T_nonCriticalExtension_30 */
+static int hf_lte_rrc_nonCriticalExtension_79 = -1;  /* SecurityModeCommand_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_80 = -1;  /* T_nonCriticalExtension_30 */
 static int hf_lte_rrc_criticalExtensions_28 = -1;  /* T_criticalExtensions_28 */
 static int hf_lte_rrc_securityModeComplete_r8 = -1;  /* SecurityModeComplete_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_28 = -1;  /* T_criticalExtensionsFuture_28 */
-static int hf_lte_rrc_nonCriticalExtension_75 = -1;  /* SecurityModeComplete_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_76 = -1;  /* T_nonCriticalExtension_31 */
+static int hf_lte_rrc_nonCriticalExtension_81 = -1;  /* SecurityModeComplete_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_82 = -1;  /* T_nonCriticalExtension_31 */
 static int hf_lte_rrc_criticalExtensions_29 = -1;  /* T_criticalExtensions_29 */
 static int hf_lte_rrc_securityModeFailure_r8 = -1;  /* SecurityModeFailure_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_29 = -1;  /* T_criticalExtensionsFuture_29 */
-static int hf_lte_rrc_nonCriticalExtension_77 = -1;  /* SecurityModeFailure_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_78 = -1;  /* T_nonCriticalExtension_32 */
+static int hf_lte_rrc_nonCriticalExtension_83 = -1;  /* SecurityModeFailure_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_84 = -1;  /* T_nonCriticalExtension_32 */
 static int hf_lte_rrc_criticalExtensions_30 = -1;  /* T_criticalExtensions_30 */
 static int hf_lte_rrc_systemInformation_r8 = -1;  /* SystemInformation_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_30 = -1;  /* T_criticalExtensionsFuture_30 */
@@ -736,8 +760,9 @@ static int hf_lte_rrc_sib13_v920 = -1;            /* SystemInformationBlockType1
 static int hf_lte_rrc_sib14_v1130 = -1;           /* SystemInformationBlockType14_r11 */
 static int hf_lte_rrc_sib15_v1130 = -1;           /* SystemInformationBlockType15_r11 */
 static int hf_lte_rrc_sib16_v1130 = -1;           /* SystemInformationBlockType16_r11 */
-static int hf_lte_rrc_nonCriticalExtension_79 = -1;  /* SystemInformation_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_80 = -1;  /* T_nonCriticalExtension_33 */
+static int hf_lte_rrc_sib17_v12xy = -1;           /* SystemInformationBlockType17_r12 */
+static int hf_lte_rrc_nonCriticalExtension_85 = -1;  /* SystemInformation_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_86 = -1;  /* T_nonCriticalExtension_33 */
 static int hf_lte_rrc_cellAccessRelatedInfo = -1;  /* T_cellAccessRelatedInfo */
 static int hf_lte_rrc_plmn_IdentityList = -1;     /* PLMN_IdentityList */
 static int hf_lte_rrc_trackingAreaCode = -1;      /* TrackingAreaCode */
@@ -755,20 +780,23 @@ static int hf_lte_rrc_schedulingInfoList = -1;    /* SchedulingInfoList */
 static int hf_lte_rrc_tdd_Config = -1;            /* TDD_Config */
 static int hf_lte_rrc_si_WindowLength = -1;       /* T_si_WindowLength */
 static int hf_lte_rrc_systemInfoValueTag = -1;    /* T_systemInfoValueTag */
-static int hf_lte_rrc_nonCriticalExtension_81 = -1;  /* SystemInformationBlockType1_v890_IEs */
+static int hf_lte_rrc_nonCriticalExtension_87 = -1;  /* SystemInformationBlockType1_v890_IEs */
 static int hf_lte_rrc_lateNonCriticalExtension_02 = -1;  /* T_lateNonCriticalExtension_01 */
-static int hf_lte_rrc_nonCriticalExtension_82 = -1;  /* SystemInformationBlockType1_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_88 = -1;  /* SystemInformationBlockType1_v920_IEs */
 static int hf_lte_rrc_multiBandInfoList = -1;     /* MultiBandInfoList */
-static int hf_lte_rrc_nonCriticalExtension_83 = -1;  /* SystemInformationBlockType1_v9e0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_89 = -1;  /* SystemInformationBlockType1_v9e0_IEs */
 static int hf_lte_rrc_freqBandIndicator_v9e0 = -1;  /* FreqBandIndicator_v9e0 */
 static int hf_lte_rrc_multiBandInfoList_v9e0 = -1;  /* MultiBandInfoList_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_84 = -1;  /* T_nonCriticalExtension_34 */
+static int hf_lte_rrc_nonCriticalExtension_90 = -1;  /* T_nonCriticalExtension_34 */
 static int hf_lte_rrc_ims_EmergencySupport_r9 = -1;  /* T_ims_EmergencySupport_r9 */
 static int hf_lte_rrc_cellSelectionInfo_v920 = -1;  /* CellSelectionInfo_v920 */
-static int hf_lte_rrc_nonCriticalExtension_85 = -1;  /* SystemInformationBlockType1_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_91 = -1;  /* SystemInformationBlockType1_v1130_IEs */
 static int hf_lte_rrc_tdd_Config_v1130 = -1;      /* TDD_Config_v1130 */
 static int hf_lte_rrc_cellSelectionInfo_v1130 = -1;  /* CellSelectionInfo_v1130 */
-static int hf_lte_rrc_nonCriticalExtension_86 = -1;  /* T_nonCriticalExtension_35 */
+static int hf_lte_rrc_nonCriticalExtension_92 = -1;  /* SystemInformationBlockType1_v12xy_IEs */
+static int hf_lte_rrc_cellAccessRelatedInfo_v12xy = -1;  /* T_cellAccessRelatedInfo_v12xy */
+static int hf_lte_rrc_category0Allowed_r12 = -1;  /* T_category0Allowed_r12 */
+static int hf_lte_rrc_nonCriticalExtension_93 = -1;  /* T_nonCriticalExtension_35 */
 static int hf_lte_rrc_PLMN_IdentityList_item = -1;  /* PLMN_IdentityInfo */
 static int hf_lte_rrc_cellReservedForOperatorUse = -1;  /* T_cellReservedForOperatorUse */
 static int hf_lte_rrc_SchedulingInfoList_item = -1;  /* SchedulingInfo */
@@ -783,37 +811,41 @@ static int hf_lte_rrc_c1_27 = -1;                 /* T_c1_27 */
 static int hf_lte_rrc_ueAssistanceInformation_r11_01 = -1;  /* UEAssistanceInformation_r11_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_31 = -1;  /* T_criticalExtensionsFuture_31 */
 static int hf_lte_rrc_powerPrefIndication_r11 = -1;  /* T_powerPrefIndication_r11 */
-static int hf_lte_rrc_nonCriticalExtension_87 = -1;  /* T_nonCriticalExtension_36 */
+static int hf_lte_rrc_nonCriticalExtension_94 = -1;  /* T_nonCriticalExtension_36 */
 static int hf_lte_rrc_criticalExtensions_32 = -1;  /* T_criticalExtensions_32 */
 static int hf_lte_rrc_c1_28 = -1;                 /* T_c1_28 */
 static int hf_lte_rrc_ueCapabilityEnquiry_r8 = -1;  /* UECapabilityEnquiry_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_32 = -1;  /* T_criticalExtensionsFuture_32 */
 static int hf_lte_rrc_ue_CapabilityRequest = -1;  /* UE_CapabilityRequest */
-static int hf_lte_rrc_nonCriticalExtension_88 = -1;  /* UECapabilityEnquiry_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_89 = -1;  /* UECapabilityEnquiry_v1180_IEs */
+static int hf_lte_rrc_nonCriticalExtension_95 = -1;  /* UECapabilityEnquiry_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_96 = -1;  /* UECapabilityEnquiry_v1180_IEs */
 static int hf_lte_rrc_requestedFrequencyBands_r11 = -1;  /* SEQUENCE_SIZE_1_16_OF_FreqBandIndicator_r11 */
 static int hf_lte_rrc_requestedFrequencyBands_r11_item = -1;  /* FreqBandIndicator_r11 */
-static int hf_lte_rrc_nonCriticalExtension_90 = -1;  /* T_nonCriticalExtension_37 */
+static int hf_lte_rrc_nonCriticalExtension_97 = -1;  /* T_nonCriticalExtension_37 */
 static int hf_lte_rrc_UE_CapabilityRequest_item = -1;  /* RAT_Type */
 static int hf_lte_rrc_criticalExtensions_33 = -1;  /* T_criticalExtensions_33 */
 static int hf_lte_rrc_c1_29 = -1;                 /* T_c1_29 */
 static int hf_lte_rrc_ueCapabilityInformation_r8 = -1;  /* UECapabilityInformation_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_33 = -1;  /* T_criticalExtensionsFuture_33 */
 static int hf_lte_rrc_ue_CapabilityRAT_ContainerList = -1;  /* UE_CapabilityRAT_ContainerList */
-static int hf_lte_rrc_nonCriticalExtension_91 = -1;  /* UECapabilityInformation_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_92 = -1;  /* T_nonCriticalExtension_38 */
+static int hf_lte_rrc_nonCriticalExtension_98 = -1;  /* UECapabilityInformation_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_99 = -1;  /* UECapabilityInformation_v12xy_IEs */
+static int hf_lte_rrc_ue_RadioPagingInfo_r12 = -1;  /* UE_RadioPagingInfo_r12 */
+static int hf_lte_rrc_nonCriticalExtension_100 = -1;  /* T_nonCriticalExtension_38 */
 static int hf_lte_rrc_criticalExtensions_34 = -1;  /* T_criticalExtensions_34 */
 static int hf_lte_rrc_c1_30 = -1;                 /* T_c1_30 */
 static int hf_lte_rrc_ueInformationRequest_r9_01 = -1;  /* UEInformationRequest_r9_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_34 = -1;  /* T_criticalExtensionsFuture_34 */
 static int hf_lte_rrc_rach_ReportReq_r9 = -1;     /* BOOLEAN */
 static int hf_lte_rrc_rlf_ReportReq_r9 = -1;      /* BOOLEAN */
-static int hf_lte_rrc_nonCriticalExtension_93 = -1;  /* UEInformationRequest_v930_IEs */
-static int hf_lte_rrc_nonCriticalExtension_94 = -1;  /* UEInformationRequest_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_101 = -1;  /* UEInformationRequest_v930_IEs */
+static int hf_lte_rrc_nonCriticalExtension_102 = -1;  /* UEInformationRequest_v1020_IEs */
 static int hf_lte_rrc_logMeasReportReq_r10 = -1;  /* T_logMeasReportReq_r10 */
-static int hf_lte_rrc_nonCriticalExtension_95 = -1;  /* UEInformationRequest_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_103 = -1;  /* UEInformationRequest_v1130_IEs */
 static int hf_lte_rrc_connEstFailReportReq_r11 = -1;  /* T_connEstFailReportReq_r11 */
-static int hf_lte_rrc_nonCriticalExtension_96 = -1;  /* T_nonCriticalExtension_39 */
+static int hf_lte_rrc_nonCriticalExtension_104 = -1;  /* UEInformationRequest_v12xy_IEs */
+static int hf_lte_rrc_mobilityHistoryReportReq_r12 = -1;  /* T_mobilityHistoryReportReq_r12 */
+static int hf_lte_rrc_nonCriticalExtension_105 = -1;  /* T_nonCriticalExtension_39 */
 static int hf_lte_rrc_criticalExtensions_35 = -1;  /* T_criticalExtensions_35 */
 static int hf_lte_rrc_c1_31 = -1;                 /* T_c1_31 */
 static int hf_lte_rrc_ueInformationResponse_r9_01 = -1;  /* UEInformationResponse_r9_IEs */
@@ -822,15 +854,17 @@ static int hf_lte_rrc_rach_Report_r9 = -1;        /* T_rach_Report_r9 */
 static int hf_lte_rrc_numberOfPreamblesSent_r9 = -1;  /* NumberOfPreamblesSent_r11 */
 static int hf_lte_rrc_contentionDetected_r9 = -1;  /* BOOLEAN */
 static int hf_lte_rrc_rlf_Report_r9 = -1;         /* RLF_Report_r9 */
-static int hf_lte_rrc_nonCriticalExtension_97 = -1;  /* UEInformationResponse_v930_IEs */
+static int hf_lte_rrc_nonCriticalExtension_106 = -1;  /* UEInformationResponse_v930_IEs */
 static int hf_lte_rrc_rlf_Report_v9e0 = -1;       /* RLF_Report_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_98 = -1;  /* T_nonCriticalExtension_40 */
+static int hf_lte_rrc_nonCriticalExtension_107 = -1;  /* T_nonCriticalExtension_40 */
 static int hf_lte_rrc_lateNonCriticalExtension_03 = -1;  /* T_lateNonCriticalExtension_02 */
-static int hf_lte_rrc_nonCriticalExtension_99 = -1;  /* UEInformationResponse_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_108 = -1;  /* UEInformationResponse_v1020_IEs */
 static int hf_lte_rrc_logMeasReport_r10 = -1;     /* LogMeasReport_r10 */
-static int hf_lte_rrc_nonCriticalExtension_100 = -1;  /* UEInformationResponse_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_109 = -1;  /* UEInformationResponse_v1130_IEs */
 static int hf_lte_rrc_connEstFailReport_r11 = -1;  /* ConnEstFailReport_r11 */
-static int hf_lte_rrc_nonCriticalExtension_101 = -1;  /* T_nonCriticalExtension_41 */
+static int hf_lte_rrc_nonCriticalExtension_110 = -1;  /* UEInformationResponse_v12xy_IEs */
+static int hf_lte_rrc_mobilityHistoryReport_r12 = -1;  /* MobilityHistoryReport_r12 */
+static int hf_lte_rrc_nonCriticalExtension_111 = -1;  /* T_nonCriticalExtension_41 */
 static int hf_lte_rrc_measResultLastServCell_r9 = -1;  /* T_measResultLastServCell_r9 */
 static int hf_lte_rrc_rsrpResult_r9 = -1;         /* RSRP_Range */
 static int hf_lte_rrc_rsrqResult_r9 = -1;         /* RSRQ_Range */
@@ -860,6 +894,8 @@ static int hf_lte_rrc_tdd_r11 = -1;               /* PhysCellIdUTRA_TDD */
 static int hf_lte_rrc_cellGlobalId_r11 = -1;      /* CellGlobalIdUTRA */
 static int hf_lte_rrc_selectedUTRA_CellId_r11 = -1;  /* T_selectedUTRA_CellId_r11 */
 static int hf_lte_rrc_physCellId_r11_01 = -1;     /* T_physCellId_r11_01 */
+static int hf_lte_rrc_failedPCellId_v12xy = -1;   /* T_failedPCellId_v12xy */
+static int hf_lte_rrc_tac_FailedPCell_r12 = -1;   /* TrackingAreaCode */
 static int hf_lte_rrc_measResultListEUTRA_v9e0 = -1;  /* MeasResultList2EUTRA_v9e0 */
 static int hf_lte_rrc_MeasResultList2EUTRA_r9_item = -1;  /* MeasResult2EUTRA_r9 */
 static int hf_lte_rrc_MeasResultList2EUTRA_v9e0_item = -1;  /* MeasResult2EUTRA_v9e0 */
@@ -886,6 +922,16 @@ static int hf_lte_rrc_measResultListUTRA_r10 = -1;  /* MeasResultList2UTRA_r9 */
 static int hf_lte_rrc_measResultListGERAN_r10 = -1;  /* MeasResultList2GERAN_r10 */
 static int hf_lte_rrc_measResultListCDMA2000_r10 = -1;  /* MeasResultList2CDMA2000_r9 */
 static int hf_lte_rrc_measResultListEUTRA_v1090 = -1;  /* MeasResultList2EUTRA_v9e0 */
+static int hf_lte_rrc_measResultListMBSFN_r12 = -1;  /* MeasResultListMBSFN_r12 */
+static int hf_lte_rrc_MeasResultListMBSFN_r12_item = -1;  /* MeasResultMBSFN_r12 */
+static int hf_lte_rrc_mbsfn_Area_r12 = -1;        /* T_mbsfn_Area_r12 */
+static int hf_lte_rrc_rsrpResultMBSFN_r12 = -1;   /* RSRP_Range */
+static int hf_lte_rrc_rsrqResultMBSFN_r12 = -1;   /* RSRQ_Range */
+static int hf_lte_rrc_signallingBLER_Result_r12 = -1;  /* BLER_Range_r12 */
+static int hf_lte_rrc_dataBLER_MCH_ResultList_r12 = -1;  /* DataBLER_MCH_ResultList_r12 */
+static int hf_lte_rrc_DataBLER_MCH_ResultList_r12_item = -1;  /* DataBLER_MCH_Result_r12 */
+static int hf_lte_rrc_mch_Index_r12 = -1;         /* INTEGER_1_maxPMCH_PerMBSFN */
+static int hf_lte_rrc_dataBLER_Result_r12 = -1;   /* BLER_Range_r12 */
 static int hf_lte_rrc_MeasResultList2GERAN_r10_item = -1;  /* MeasResultListGERAN */
 static int hf_lte_rrc_failedCellId_r11 = -1;      /* CellGlobalIdEUTRA */
 static int hf_lte_rrc_locationInfo_r11 = -1;      /* LocationInfo_r10 */
@@ -907,15 +953,15 @@ static int hf_lte_rrc_ulHandoverPreparationTransfer_r8 = -1;  /* ULHandoverPrepa
 static int hf_lte_rrc_criticalExtensionsFuture_36 = -1;  /* T_criticalExtensionsFuture_36 */
 static int hf_lte_rrc_meid = -1;                  /* BIT_STRING_SIZE_56 */
 static int hf_lte_rrc_dedicatedInfo = -1;         /* DedicatedInfoCDMA2000 */
-static int hf_lte_rrc_nonCriticalExtension_102 = -1;  /* ULHandoverPreparationTransfer_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_103 = -1;  /* T_nonCriticalExtension_42 */
+static int hf_lte_rrc_nonCriticalExtension_112 = -1;  /* ULHandoverPreparationTransfer_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_113 = -1;  /* T_nonCriticalExtension_42 */
 static int hf_lte_rrc_criticalExtensions_37 = -1;  /* T_criticalExtensions_37 */
 static int hf_lte_rrc_c1_33 = -1;                 /* T_c1_33 */
 static int hf_lte_rrc_ulInformationTransfer_r8 = -1;  /* ULInformationTransfer_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_37 = -1;  /* T_criticalExtensionsFuture_37 */
 static int hf_lte_rrc_dedicatedInfoType_01 = -1;  /* T_dedicatedInfoType_01 */
-static int hf_lte_rrc_nonCriticalExtension_104 = -1;  /* ULInformationTransfer_v8a0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_105 = -1;  /* T_nonCriticalExtension_43 */
+static int hf_lte_rrc_nonCriticalExtension_114 = -1;  /* ULInformationTransfer_v8a0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_115 = -1;  /* T_nonCriticalExtension_43 */
 static int hf_lte_rrc_ac_BarringInfo = -1;        /* T_ac_BarringInfo */
 static int hf_lte_rrc_ac_BarringForEmergency = -1;  /* BOOLEAN */
 static int hf_lte_rrc_ac_BarringForMO_Signalling = -1;  /* AC_BarringConfig */
@@ -932,11 +978,14 @@ static int hf_lte_rrc_lateNonCriticalExtension_04 = -1;  /* T_lateNonCriticalExt
 static int hf_lte_rrc_ssac_BarringForMMTEL_Voice_r9 = -1;  /* AC_BarringConfig */
 static int hf_lte_rrc_ssac_BarringForMMTEL_Video_r9 = -1;  /* AC_BarringConfig */
 static int hf_lte_rrc_ac_BarringForCSFB_r10 = -1;  /* AC_BarringConfig */
+static int hf_lte_rrc_ac_BarringSkipForMMTELVoice_r12 = -1;  /* T_ac_BarringSkipForMMTELVoice_r12 */
+static int hf_lte_rrc_ac_BarringSkipForMMTELVideo_r12 = -1;  /* T_ac_BarringSkipForMMTELVideo_r12 */
+static int hf_lte_rrc_ac_BarringSkipForSMS_r12 = -1;  /* T_ac_BarringSkipForSMS_r12 */
 static int hf_lte_rrc_multiBandInfoList_01 = -1;  /* SEQUENCE_SIZE_1_maxMultiBands_OF_AdditionalSpectrumEmission */
 static int hf_lte_rrc_multiBandInfoList_item = -1;  /* AdditionalSpectrumEmission */
-static int hf_lte_rrc_nonCriticalExtension_106 = -1;  /* SystemInformationBlockType2_v9e0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_116 = -1;  /* SystemInformationBlockType2_v9e0_IEs */
 static int hf_lte_rrc_ul_CarrierFreq_v9e0 = -1;   /* ARFCN_ValueEUTRA_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_107 = -1;  /* T_nonCriticalExtension_44 */
+static int hf_lte_rrc_nonCriticalExtension_117 = -1;  /* T_nonCriticalExtension_44 */
 static int hf_lte_rrc_ac_BarringFactor = -1;      /* T_ac_BarringFactor */
 static int hf_lte_rrc_ac_BarringTime = -1;        /* T_ac_BarringTime */
 static int hf_lte_rrc_ac_BarringForSpecialAC = -1;  /* BIT_STRING_SIZE_5 */
@@ -975,10 +1024,10 @@ static int hf_lte_rrc_interFreqCarrierFreqList = -1;  /* InterFreqCarrierFreqLis
 static int hf_lte_rrc_lateNonCriticalExtension_05 = -1;  /* T_lateNonCriticalExtension_04 */
 static int hf_lte_rrc_interFreqCarrierFreqList_v8h0 = -1;  /* SEQUENCE_SIZE_1_maxFreq_OF_InterFreqCarrierFreqInfo_v8h0 */
 static int hf_lte_rrc_interFreqCarrierFreqList_v8h0_item = -1;  /* InterFreqCarrierFreqInfo_v8h0 */
-static int hf_lte_rrc_nonCriticalExtension_108 = -1;  /* SystemInformationBlockType5_v9e0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_118 = -1;  /* SystemInformationBlockType5_v9e0_IEs */
 static int hf_lte_rrc_interFreqCarrierFreqList_v9e0 = -1;  /* SEQUENCE_SIZE_1_maxFreq_OF_InterFreqCarrierFreqInfo_v9e0 */
 static int hf_lte_rrc_interFreqCarrierFreqList_v9e0_item = -1;  /* InterFreqCarrierFreqInfo_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_109 = -1;  /* T_nonCriticalExtension_45 */
+static int hf_lte_rrc_nonCriticalExtension_119 = -1;  /* T_nonCriticalExtension_45 */
 static int hf_lte_rrc_InterFreqCarrierFreqList_item = -1;  /* InterFreqCarrierFreqInfo */
 static int hf_lte_rrc_dl_CarrierFreq = -1;        /* ARFCN_ValueEUTRA */
 static int hf_lte_rrc_threshX_High = -1;          /* ReselectionThreshold */
@@ -999,7 +1048,7 @@ static int hf_lte_rrc_t_ReselectionUTRA_SF = -1;  /* SpeedStateScaleFactors */
 static int hf_lte_rrc_lateNonCriticalExtension_06 = -1;  /* T_lateNonCriticalExtension_05 */
 static int hf_lte_rrc_carrierFreqListUTRA_FDD_v8h0 = -1;  /* SEQUENCE_SIZE_1_maxUTRA_FDD_Carrier_OF_CarrierFreqInfoUTRA_FDD_v8h0 */
 static int hf_lte_rrc_carrierFreqListUTRA_FDD_v8h0_item = -1;  /* CarrierFreqInfoUTRA_FDD_v8h0 */
-static int hf_lte_rrc_nonCriticalExtension_110 = -1;  /* T_nonCriticalExtension_46 */
+static int hf_lte_rrc_nonCriticalExtension_120 = -1;  /* T_nonCriticalExtension_46 */
 static int hf_lte_rrc_CarrierFreqListUTRA_FDD_item = -1;  /* CarrierFreqUTRA_FDD */
 static int hf_lte_rrc_q_RxLevMin_01 = -1;         /* INTEGER_M60_M13 */
 static int hf_lte_rrc_p_MaxUTRA = -1;             /* T_p_MaxUTRA */
@@ -1127,6 +1176,16 @@ static int hf_lte_rrc_timeInfoUTC_r11 = -1;       /* T_timeInfoUTC_r11 */
 static int hf_lte_rrc_dayLightSavingTime_r11 = -1;  /* T_dayLightSavingTime_r11 */
 static int hf_lte_rrc_leapSeconds_r11 = -1;       /* T_leapSeconds_r11 */
 static int hf_lte_rrc_localTimeOffset_r11 = -1;   /* INTEGER_M63_64 */
+static int hf_lte_rrc_wlan_OffloadPerPLMN_List_r12 = -1;  /* SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12 */
+static int hf_lte_rrc_wlan_OffloadPerPLMN_List_r12_item = -1;  /* WLAN_OffloadPerPLMN_r12 */
+static int hf_lte_rrc_plmn_Identity_r12 = -1;     /* INTEGER_1_maxPLMN_r11 */
+static int hf_lte_rrc_wlan_OffloadConfigCommon_r12 = -1;  /* WLAN_OffloadConfig_r12 */
+static int hf_lte_rrc_wlan_Id_List_r12 = -1;      /* WLAN_Id_List_r12 */
+static int hf_lte_rrc_WLAN_Id_List_r12_item = -1;  /* WLAN_Id_r12 */
+static int hf_lte_rrc_wlan_Identifiers = -1;      /* T_wlan_Identifiers */
+static int hf_lte_rrc_ssid = -1;                  /* T_ssid */
+static int hf_lte_rrc_bssid = -1;                 /* OCTET_STRING_SIZE_6 */
+static int hf_lte_rrc_hessid = -1;                /* OCTET_STRING_SIZE_6 */
 static int hf_lte_rrc_antennaPortsCount = -1;     /* T_antennaPortsCount */
 static int hf_lte_rrc_transmissionMode = -1;      /* T_transmissionMode */
 static int hf_lte_rrc_codebookSubsetRestriction = -1;  /* T_codebookSubsetRestriction */
@@ -1139,15 +1198,15 @@ static int hf_lte_rrc_n4TxAntenna_tm5 = -1;       /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_n2TxAntenna_tm6 = -1;       /* BIT_STRING_SIZE_4 */
 static int hf_lte_rrc_n4TxAntenna_tm6 = -1;       /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_ue_TransmitAntennaSelection = -1;  /* T_ue_TransmitAntennaSelection */
-static int hf_lte_rrc_release = -1;               /* NULL */
-static int hf_lte_rrc_setup = -1;                 /* T_setup */
+static int hf_lte_rrc_setup_01 = -1;              /* T_setup_01 */
 static int hf_lte_rrc_codebookSubsetRestriction_v920 = -1;  /* T_codebookSubsetRestriction_v920 */
 static int hf_lte_rrc_n2TxAntenna_tm8_r9 = -1;    /* BIT_STRING_SIZE_6 */
 static int hf_lte_rrc_n4TxAntenna_tm8_r9 = -1;    /* BIT_STRING_SIZE_32 */
 static int hf_lte_rrc_transmissionMode_r10 = -1;  /* T_transmissionMode_r10 */
 static int hf_lte_rrc_codebookSubsetRestriction_r10 = -1;  /* BIT_STRING */
 static int hf_lte_rrc_ue_TransmitAntennaSelection_01 = -1;  /* T_ue_TransmitAntennaSelection_01 */
-static int hf_lte_rrc_setup_01 = -1;              /* T_setup_01 */
+static int hf_lte_rrc_setup_02 = -1;              /* T_setup_02 */
+static int hf_lte_rrc_alternativeCodebookEnabledFor4TX_r12 = -1;  /* T_alternativeCodebookEnabledFor4TX_r12 */
 static int hf_lte_rrc_transmissionModeUL_r10 = -1;  /* T_transmissionModeUL_r10 */
 static int hf_lte_rrc_fourAntennaPortActivated_r10 = -1;  /* T_fourAntennaPortActivated_r10 */
 static int hf_lte_rrc_cqi_ReportModeAperiodic = -1;  /* CQI_ReportModeAperiodic */
@@ -1159,16 +1218,21 @@ static int hf_lte_rrc_cqi_ReportAperiodic_r10 = -1;  /* CQI_ReportAperiodic_r10 
 static int hf_lte_rrc_cqi_ReportPeriodic_r10 = -1;  /* CQI_ReportPeriodic_r10 */
 static int hf_lte_rrc_pmi_RI_Report_r9_01 = -1;   /* T_pmi_RI_Report_r9_01 */
 static int hf_lte_rrc_csi_SubframePatternConfig_r10 = -1;  /* T_csi_SubframePatternConfig_r10 */
-static int hf_lte_rrc_setup_02 = -1;              /* T_setup_02 */
+static int hf_lte_rrc_setup_03 = -1;              /* T_setup_03 */
 static int hf_lte_rrc_csi_MeasSubframeSet1_r10 = -1;  /* MeasSubframePattern_r10 */
 static int hf_lte_rrc_csi_MeasSubframeSet2_r10 = -1;  /* MeasSubframePattern_r10 */
 static int hf_lte_rrc_cqi_ReportPeriodic_v1130 = -1;  /* CQI_ReportPeriodic_v1130 */
 static int hf_lte_rrc_cqi_ReportBoth_r11 = -1;    /* CQI_ReportBoth_r11 */
+static int hf_lte_rrc_csi_SubframePatternConfig_r12 = -1;  /* T_csi_SubframePatternConfig_r12 */
+static int hf_lte_rrc_setup_04 = -1;              /* T_setup_04 */
+static int hf_lte_rrc_csi_MeasSubframeSet_r12 = -1;  /* BIT_STRING_SIZE_10 */
+static int hf_lte_rrc_cqi_ReportBoth_r12 = -1;    /* CQI_ReportBoth_r12 */
+static int hf_lte_rrc_cqi_ReportAperiodic_v12x0 = -1;  /* CQI_ReportAperiodic_v12x0 */
 static int hf_lte_rrc_cqi_ReportModeAperiodic_r10 = -1;  /* CQI_ReportModeAperiodic */
 static int hf_lte_rrc_nomPDSCH_RS_EPRE_Offset_r10 = -1;  /* INTEGER_M1_6 */
 static int hf_lte_rrc_cqi_ReportPeriodicSCell_r10 = -1;  /* CQI_ReportPeriodic_r10 */
 static int hf_lte_rrc_pmi_RI_Report_r10 = -1;     /* T_pmi_RI_Report_r10 */
-static int hf_lte_rrc_setup_03 = -1;              /* T_setup_03 */
+static int hf_lte_rrc_setup_05 = -1;              /* T_setup_05 */
 static int hf_lte_rrc_cqi_PUCCH_ResourceIndex = -1;  /* INTEGER_0_1185 */
 static int hf_lte_rrc_cqi_pmi_ConfigIndex = -1;   /* INTEGER_0_1023 */
 static int hf_lte_rrc_cqi_FormatIndicatorPeriodic = -1;  /* T_cqi_FormatIndicatorPeriodic */
@@ -1177,7 +1241,7 @@ static int hf_lte_rrc_subbandCQI = -1;            /* T_subbandCQI */
 static int hf_lte_rrc_k = -1;                     /* INTEGER_1_4 */
 static int hf_lte_rrc_ri_ConfigIndex = -1;        /* INTEGER_0_1023 */
 static int hf_lte_rrc_simultaneousAckNackAndCQI = -1;  /* BOOLEAN */
-static int hf_lte_rrc_setup_04 = -1;              /* T_setup_04 */
+static int hf_lte_rrc_setup_06 = -1;              /* T_setup_06 */
 static int hf_lte_rrc_cqi_PUCCH_ResourceIndex_r10 = -1;  /* INTEGER_0_1184 */
 static int hf_lte_rrc_cqi_PUCCH_ResourceIndexP1_r10 = -1;  /* INTEGER_0_1184 */
 static int hf_lte_rrc_cqi_FormatIndicatorPeriodic_r10 = -1;  /* T_cqi_FormatIndicatorPeriodic_r10 */
@@ -1187,7 +1251,7 @@ static int hf_lte_rrc_subbandCQI_r10 = -1;        /* T_subbandCQI_r10 */
 static int hf_lte_rrc_periodicityFactor_r10 = -1;  /* T_periodicityFactor_r10 */
 static int hf_lte_rrc_cqi_Mask_r9_01 = -1;        /* T_cqi_Mask_r9_01 */
 static int hf_lte_rrc_csi_ConfigIndex_r10 = -1;   /* T_csi_ConfigIndex_r10 */
-static int hf_lte_rrc_setup_05 = -1;              /* T_setup_05 */
+static int hf_lte_rrc_setup_07 = -1;              /* T_setup_07 */
 static int hf_lte_rrc_cqi_pmi_ConfigIndex2_r10 = -1;  /* INTEGER_0_1023 */
 static int hf_lte_rrc_ri_ConfigIndex2_r10 = -1;   /* INTEGER_0_1023 */
 static int hf_lte_rrc_simultaneousAckNackAndCQI_Format3_r11 = -1;  /* T_simultaneousAckNackAndCQI_Format3_r11 */
@@ -1204,13 +1268,18 @@ static int hf_lte_rrc_subbandCQI_r11 = -1;        /* T_subbandCQI_r11 */
 static int hf_lte_rrc_periodicityFactor_r11 = -1;  /* T_periodicityFactor_r11 */
 static int hf_lte_rrc_ri_ConfigIndex_r11 = -1;    /* INTEGER_0_1023 */
 static int hf_lte_rrc_csi_ConfigIndex_r11 = -1;   /* T_csi_ConfigIndex_r11 */
-static int hf_lte_rrc_setup_06 = -1;              /* T_setup_06 */
+static int hf_lte_rrc_setup_08 = -1;              /* T_setup_08 */
 static int hf_lte_rrc_cqi_pmi_ConfigIndex2_r11 = -1;  /* INTEGER_0_1023 */
 static int hf_lte_rrc_ri_ConfigIndex2_r11 = -1;   /* INTEGER_0_1023 */
-static int hf_lte_rrc_setup_07 = -1;              /* T_setup_07 */
+static int hf_lte_rrc_setup_09 = -1;              /* T_setup_09 */
 static int hf_lte_rrc_aperiodicCSI_Trigger_r10 = -1;  /* T_aperiodicCSI_Trigger_r10 */
 static int hf_lte_rrc_trigger1_r10 = -1;          /* BIT_STRING_SIZE_8 */
 static int hf_lte_rrc_trigger2_r10 = -1;          /* BIT_STRING_SIZE_8 */
+static int hf_lte_rrc_setup_10 = -1;              /* T_setup_10 */
+static int hf_lte_rrc_aperiodicCSI_Trigger_r12 = -1;  /* T_aperiodicCSI_Trigger_r12 */
+static int hf_lte_rrc_trigger_SubframeSetIndicator_r12 = -1;  /* T_trigger_SubframeSetIndicator_r12 */
+static int hf_lte_rrc_trigger1_SubframeSetIndicator_r12 = -1;  /* BIT_STRING_SIZE_8 */
+static int hf_lte_rrc_trigger2_SubframeSetIndicator_r12 = -1;  /* BIT_STRING_SIZE_8 */
 static int hf_lte_rrc_cqi_ReportModeAperiodic_r11 = -1;  /* CQI_ReportModeAperiodic */
 static int hf_lte_rrc_trigger01_r11 = -1;         /* BOOLEAN */
 static int hf_lte_rrc_trigger10_r11 = -1;         /* BOOLEAN */
@@ -1219,8 +1288,12 @@ static int hf_lte_rrc_csi_IM_ConfigToReleaseList_r11 = -1;  /* CSI_IM_ConfigToRe
 static int hf_lte_rrc_csi_IM_ConfigToAddModList_r11 = -1;  /* CSI_IM_ConfigToAddModList_r11 */
 static int hf_lte_rrc_csi_ProcessToReleaseList_r11 = -1;  /* CSI_ProcessToReleaseList_r11 */
 static int hf_lte_rrc_csi_ProcessToAddModList_r11 = -1;  /* CSI_ProcessToAddModList_r11 */
+static int hf_lte_rrc_csi_IM_ConfigToReleaseList_r12 = -1;  /* CSI_IM_ConfigToReleaseList_r12 */
+static int hf_lte_rrc_csi_IM_ConfigToAddModList_r12 = -1;  /* CSI_IM_ConfigToAddModList_r12 */
 static int hf_lte_rrc_CSI_IM_ConfigToAddModList_r11_item = -1;  /* CSI_IM_Config_r11 */
+static int hf_lte_rrc_CSI_IM_ConfigToAddModList_r12_item = -1;  /* CSI_IM_Config_r12 */
 static int hf_lte_rrc_CSI_IM_ConfigToReleaseList_r11_item = -1;  /* CSI_IM_ConfigId_r11 */
+static int hf_lte_rrc_CSI_IM_ConfigToReleaseList_r12_item = -1;  /* CSI_IM_ConfigId_r12 */
 static int hf_lte_rrc_CSI_ProcessToAddModList_r11_item = -1;  /* CSI_Process_r11 */
 static int hf_lte_rrc_CSI_ProcessToReleaseList_r11_item = -1;  /* CSI_ProcessId_r11 */
 static int hf_lte_rrc_ri_Ref_CSI_ProcessId_r11 = -1;  /* CSI_ProcessId_r11 */
@@ -1234,6 +1307,9 @@ static int hf_lte_rrc_pdsch_Start_r10 = -1;       /* INTEGER_1_4 */
 static int hf_lte_rrc_csi_IM_ConfigId_r11 = -1;   /* CSI_IM_ConfigId_r11 */
 static int hf_lte_rrc_resourceConfig_r11 = -1;    /* INTEGER_0_31 */
 static int hf_lte_rrc_subframeConfig_r11 = -1;    /* INTEGER_0_154 */
+static int hf_lte_rrc_csi_IM_ConfigId_r12 = -1;   /* CSI_IM_ConfigId_r12 */
+static int hf_lte_rrc_resourceConfig_r12 = -1;    /* INTEGER_0_31 */
+static int hf_lte_rrc_subframeConfig_r12 = -1;    /* INTEGER_0_154 */
 static int hf_lte_rrc_csi_ProcessId_r11 = -1;     /* CSI_ProcessId_r11 */
 static int hf_lte_rrc_csi_RS_ConfigNZPId_r11 = -1;  /* CSI_RS_ConfigNZPId_r11 */
 static int hf_lte_rrc_p_C_AndCBSRList_r11 = -1;   /* SEQUENCE_SIZE_1_2_OF_P_C_AndCBSR_r11 */
@@ -1241,34 +1317,42 @@ static int hf_lte_rrc_p_C_AndCBSRList_r11_item = -1;  /* P_C_AndCBSR_r11 */
 static int hf_lte_rrc_cqi_ReportBothProc_r11 = -1;  /* CQI_ReportBothProc_r11 */
 static int hf_lte_rrc_cqi_ReportPeriodicProcId_r11 = -1;  /* INTEGER_0_maxCQI_ProcExt_r11 */
 static int hf_lte_rrc_cqi_ReportAperiodicProc_r11 = -1;  /* CQI_ReportAperiodicProc_r11 */
+static int hf_lte_rrc_alternativeCodebookEnabledFor4TXProc_r12 = -1;  /* T_alternativeCodebookEnabledFor4TXProc_r12 */
+static int hf_lte_rrc_csi_IM_ConfigIdList_r12 = -1;  /* SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12 */
+static int hf_lte_rrc_csi_IM_ConfigIdList_r12_item = -1;  /* CSI_IM_ConfigId_r12 */
+static int hf_lte_rrc_cqi_ReportAperiodicProcSecond_r12 = -1;  /* CQI_ReportAperiodicProc_r11 */
 static int hf_lte_rrc_p_C_r11 = -1;               /* INTEGER_M8_15 */
 static int hf_lte_rrc_codebookSubsetRestriction_r11 = -1;  /* BIT_STRING */
 static int hf_lte_rrc_csi_RS_r10 = -1;            /* T_csi_RS_r10 */
-static int hf_lte_rrc_setup_08 = -1;              /* T_setup_08 */
+static int hf_lte_rrc_setup_11 = -1;              /* T_setup_11 */
 static int hf_lte_rrc_antennaPortsCount_r10 = -1;  /* T_antennaPortsCount_r10 */
 static int hf_lte_rrc_resourceConfig_r10 = -1;    /* INTEGER_0_31 */
 static int hf_lte_rrc_subframeConfig_r10 = -1;    /* INTEGER_0_154 */
 static int hf_lte_rrc_p_C_r10 = -1;               /* INTEGER_M8_15 */
 static int hf_lte_rrc_zeroTxPowerCSI_RS_r10 = -1;  /* T_zeroTxPowerCSI_RS_r10 */
-static int hf_lte_rrc_setup_09 = -1;              /* T_setup_09 */
+static int hf_lte_rrc_setup_12 = -1;              /* T_setup_12 */
 static int hf_lte_rrc_zeroTxPowerResourceConfigList_r10 = -1;  /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_zeroTxPowerSubframeConfig_r10 = -1;  /* INTEGER_0_154 */
+static int hf_lte_rrc_zeroTxPowerCSI_RS_r12 = -1;  /* T_zeroTxPowerCSI_RS_r12 */
+static int hf_lte_rrc_setup_13 = -1;              /* T_setup_13 */
+static int hf_lte_rrc_zeroTxPowerResourceConfigList_r12 = -1;  /* BIT_STRING_SIZE_16 */
+static int hf_lte_rrc_zeroTxPowerSubframeConfig_r12 = -1;  /* INTEGER_0_154 */
 static int hf_lte_rrc_antennaPortsCount_r11 = -1;  /* T_antennaPortsCount_r11 */
 static int hf_lte_rrc_scramblingIdentity_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_qcl_CRS_Info_r11 = -1;      /* T_qcl_CRS_Info_r11 */
 static int hf_lte_rrc_qcl_ScramblingIdentity_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_crs_PortsCount_r11 = -1;    /* T_crs_PortsCount_r11 */
 static int hf_lte_rrc_mbsfn_SubframeConfigList_r11 = -1;  /* T_mbsfn_SubframeConfigList_r11 */
-static int hf_lte_rrc_setup_10 = -1;              /* T_setup_10 */
+static int hf_lte_rrc_setup_14 = -1;              /* T_setup_14 */
 static int hf_lte_rrc_subframeConfigList = -1;    /* MBSFN_SubframeConfigList */
 static int hf_lte_rrc_csi_RS_ConfigZPId_r11 = -1;  /* CSI_RS_ConfigZPId_r11 */
 static int hf_lte_rrc_resourceConfigList_r11 = -1;  /* BIT_STRING_SIZE_16 */
-static int hf_lte_rrc_setup_11 = -1;              /* T_setup_11 */
+static int hf_lte_rrc_setup_15 = -1;              /* T_setup_15 */
 static int hf_lte_rrc_scramblingIdentity2_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_config_r11 = -1;            /* T_config_r11 */
-static int hf_lte_rrc_setup_12 = -1;              /* T_setup_12 */
+static int hf_lte_rrc_setup_16 = -1;              /* T_setup_16 */
 static int hf_lte_rrc_subframePatternConfig_r11 = -1;  /* T_subframePatternConfig_r11 */
-static int hf_lte_rrc_setup_13 = -1;              /* T_setup_13 */
+static int hf_lte_rrc_setup_17 = -1;              /* T_setup_17 */
 static int hf_lte_rrc_subframePattern_r11 = -1;   /* MeasSubframePattern_r10 */
 static int hf_lte_rrc_startSymbol_r11 = -1;       /* INTEGER_1_4 */
 static int hf_lte_rrc_setConfigToReleaseList_r11 = -1;  /* EPDCCH_SetConfigToReleaseList_r11 */
@@ -1283,6 +1367,17 @@ static int hf_lte_rrc_resourceBlockAssignment_r11_01 = -1;  /* BIT_STRING_SIZE_4
 static int hf_lte_rrc_dmrs_ScramblingSequenceInt_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_pucch_ResourceStartOffset_r11 = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_re_MappingQCL_ConfigId_r11 = -1;  /* PDSCH_RE_MappingQCL_ConfigId_r11 */
+static int hf_lte_rrc_csi_RS_ConfigZPId_Second_r12 = -1;  /* CSI_RS_ConfigZPId_r11 */
+static int hf_lte_rrc_setup_18 = -1;              /* T_setup_18 */
+static int hf_lte_rrc_eimta_RNTI_r12 = -1;        /* C_RNTI */
+static int hf_lte_rrc_eimta_CommandPeriodicity_r12 = -1;  /* T_eimta_CommandPeriodicity_r12 */
+static int hf_lte_rrc_eimta_CommandSubframeSet_r12 = -1;  /* BIT_STRING_SIZE_10 */
+static int hf_lte_rrc_setup_19 = -1;              /* T_setup_19 */
+static int hf_lte_rrc_eimta_ReConfigIndex_r12 = -1;  /* INTEGER_1_5 */
+static int hf_lte_rrc_eimta_HarqReferenceConfig_r12 = -1;  /* T_eimta_HarqReferenceConfig_r12 */
+static int hf_lte_rrc_mbsfn_SubframeConfigList_v12x0 = -1;  /* T_mbsfn_SubframeConfigList_v12x0 */
+static int hf_lte_rrc_setup_20 = -1;              /* T_setup_20 */
+static int hf_lte_rrc_subframeConfigList_r12 = -1;  /* MBSFN_SubframeConfigList */
 static int hf_lte_rrc_ul_SpecificParameters = -1;  /* T_ul_SpecificParameters */
 static int hf_lte_rrc_priority = -1;              /* T_priority */
 static int hf_lte_rrc_prioritisedBitRate = -1;    /* T_prioritisedBitRate */
@@ -1297,7 +1392,7 @@ static int hf_lte_rrc_ttiBundling = -1;           /* BOOLEAN */
 static int hf_lte_rrc_drx_Config = -1;            /* DRX_Config */
 static int hf_lte_rrc_timeAlignmentTimerDedicated = -1;  /* TimeAlignmentTimer */
 static int hf_lte_rrc_phr_Config = -1;            /* T_phr_Config */
-static int hf_lte_rrc_setup_14 = -1;              /* T_setup_14 */
+static int hf_lte_rrc_setup_21 = -1;              /* T_setup_21 */
 static int hf_lte_rrc_periodicPHR_Timer = -1;     /* T_periodicPHR_Timer */
 static int hf_lte_rrc_prohibitPHR_Timer = -1;     /* T_prohibitPHR_Timer */
 static int hf_lte_rrc_dl_PathlossChange = -1;     /* T_dl_PathlossChange */
@@ -1309,9 +1404,10 @@ static int hf_lte_rrc_extendedPHR_r10 = -1;       /* T_extendedPHR_r10 */
 static int hf_lte_rrc_stag_ToReleaseList_r11 = -1;  /* STAG_ToReleaseList_r11 */
 static int hf_lte_rrc_stag_ToAddModList_r11 = -1;  /* STAG_ToAddModList_r11 */
 static int hf_lte_rrc_drx_Config_v1130 = -1;      /* DRX_Config_v1130 */
+static int hf_lte_rrc_e_HARQ_Pattern_r12 = -1;    /* BOOLEAN */
 static int hf_lte_rrc_stag_Id_r11 = -1;           /* STAG_Id_r11 */
 static int hf_lte_rrc_release_01 = -1;            /* T_release */
-static int hf_lte_rrc_setup_15 = -1;              /* T_setup_15 */
+static int hf_lte_rrc_setup_22 = -1;              /* T_setup_22 */
 static int hf_lte_rrc_onDurationTimer = -1;       /* T_onDurationTimer */
 static int hf_lte_rrc_drx_InactivityTimer = -1;   /* T_drx_InactivityTimer */
 static int hf_lte_rrc_drx_RetransmissionTimer = -1;  /* T_drx_RetransmissionTimer */
@@ -1378,7 +1474,7 @@ static int hf_lte_rrc_optionalSetOfFields_r11 = -1;  /* T_optionalSetOfFields_r1
 static int hf_lte_rrc_crs_PortsCount_r11_01 = -1;  /* T_crs_PortsCount_r11_01 */
 static int hf_lte_rrc_crs_FreqShift_r11 = -1;     /* INTEGER_0_5 */
 static int hf_lte_rrc_mbsfn_SubframeConfigList_r11_01 = -1;  /* T_mbsfn_SubframeConfigList_r11_01 */
-static int hf_lte_rrc_setup_16 = -1;              /* T_setup_16 */
+static int hf_lte_rrc_setup_23 = -1;              /* T_setup_23 */
 static int hf_lte_rrc_pdsch_Start_r11 = -1;       /* T_pdsch_Start_r11 */
 static int hf_lte_rrc_qcl_CSI_RS_ConfigNZPId_r11 = -1;  /* CSI_RS_ConfigNZPId_r11 */
 static int hf_lte_rrc_phich_Duration = -1;        /* T_phich_Duration */
@@ -1408,7 +1504,7 @@ static int hf_lte_rrc_soundingRS_UL_ConfigDedicated_v1020 = -1;  /* SoundingRS_U
 static int hf_lte_rrc_soundingRS_UL_ConfigDedicatedAperiodic_r10 = -1;  /* SoundingRS_UL_ConfigDedicatedAperiodic_r10 */
 static int hf_lte_rrc_uplinkPowerControlDedicated_v1020 = -1;  /* UplinkPowerControlDedicated_v1020 */
 static int hf_lte_rrc_additionalSpectrumEmissionCA_r10 = -1;  /* T_additionalSpectrumEmissionCA_r10 */
-static int hf_lte_rrc_setup_17 = -1;              /* T_setup_17 */
+static int hf_lte_rrc_setup_24 = -1;              /* T_setup_24 */
 static int hf_lte_rrc_additionalSpectrumEmissionPCell_r10 = -1;  /* AdditionalSpectrumEmission */
 static int hf_lte_rrc_csi_RS_ConfigNZPToReleaseList_r11 = -1;  /* CSI_RS_ConfigNZPToReleaseList_r11 */
 static int hf_lte_rrc_csi_RS_ConfigNZPToAddModList_r11 = -1;  /* CSI_RS_ConfigNZPToAddModList_r11 */
@@ -1420,6 +1516,14 @@ static int hf_lte_rrc_cqi_ReportConfig_v1130 = -1;  /* CQI_ReportConfig_v1130 */
 static int hf_lte_rrc_pucch_ConfigDedicated_v1130 = -1;  /* PUCCH_ConfigDedicated_v1130 */
 static int hf_lte_rrc_pusch_ConfigDedicated_v1130 = -1;  /* PUSCH_ConfigDedicated_v1130 */
 static int hf_lte_rrc_uplinkPowerControlDedicated_v1130 = -1;  /* UplinkPowerControlDedicated_v1130 */
+static int hf_lte_rrc_antennaInfo_v12xx = -1;     /* AntennaInfoDedicated_v12xx */
+static int hf_lte_rrc_eimta_MainConfig_r12 = -1;  /* EIMTA_MainConfig_r12 */
+static int hf_lte_rrc_eimta_MainConfigPCell_r12 = -1;  /* EIMTA_MainConfigServCell_r12 */
+static int hf_lte_rrc_pucch_ConfigDedicated_v12x0 = -1;  /* PUCCH_ConfigDedicated_v12x0 */
+static int hf_lte_rrc_cqi_ReportConfigPCell_v12x0 = -1;  /* CQI_ReportConfig_v12x0 */
+static int hf_lte_rrc_uplinkPowerControlDedicated_v12x0 = -1;  /* UplinkPowerControlDedicated_v12x0 */
+static int hf_lte_rrc_pusch_ConfigDedicated_v12x0 = -1;  /* PUSCH_ConfigDedicated_v12x0 */
+static int hf_lte_rrc_csi_RS_Config2_r12 = -1;    /* CSI_RS_Config2_r12 */
 static int hf_lte_rrc_nonUL_Configuration_r10 = -1;  /* T_nonUL_Configuration_r10 */
 static int hf_lte_rrc_antennaInfo_r10_01 = -1;    /* AntennaInfoDedicated_r10 */
 static int hf_lte_rrc_crossCarrierSchedulingConfig_r10 = -1;  /* CrossCarrierSchedulingConfig_r10 */
@@ -1430,6 +1534,9 @@ static int hf_lte_rrc_uplinkPowerControlDedicatedSCell_r10 = -1;  /* UplinkPower
 static int hf_lte_rrc_cqi_ReportConfigSCell_r10 = -1;  /* CQI_ReportConfigSCell_r10 */
 static int hf_lte_rrc_soundingRS_UL_ConfigDedicated_r10 = -1;  /* SoundingRS_UL_ConfigDedicated */
 static int hf_lte_rrc_uplinkPowerControlDedicatedSCell_v1130 = -1;  /* UplinkPowerControlDedicated_v1130 */
+static int hf_lte_rrc_eimta_MainConfigSCell_r12 = -1;  /* EIMTA_MainConfigServCell_r12 */
+static int hf_lte_rrc_cqi_ReportConfigSCell_v12x0 = -1;  /* CQI_ReportConfig_v12x0 */
+static int hf_lte_rrc_uplinkPowerControlDedicatedSCell_v12x0 = -1;  /* UplinkPowerControlDedicated_v12x0 */
 static int hf_lte_rrc_CSI_RS_ConfigNZPToAddModList_r11_item = -1;  /* CSI_RS_ConfigNZP_r11 */
 static int hf_lte_rrc_CSI_RS_ConfigNZPToReleaseList_r11_item = -1;  /* CSI_RS_ConfigNZPId_r11 */
 static int hf_lte_rrc_CSI_RS_ConfigZPToAddModList_r11_item = -1;  /* CSI_RS_ConfigZP_r11 */
@@ -1446,7 +1553,7 @@ static int hf_lte_rrc_nRB_CQI = -1;               /* INTEGER_0_98 */
 static int hf_lte_rrc_nCS_AN = -1;                /* INTEGER_0_7 */
 static int hf_lte_rrc_n1PUCCH_AN = -1;            /* INTEGER_0_2047 */
 static int hf_lte_rrc_ackNackRepetition = -1;     /* T_ackNackRepetition */
-static int hf_lte_rrc_setup_18 = -1;              /* T_setup_18 */
+static int hf_lte_rrc_setup_25 = -1;              /* T_setup_25 */
 static int hf_lte_rrc_repetitionFactor = -1;      /* T_repetitionFactor */
 static int hf_lte_rrc_n1PUCCH_AN_Rep = -1;        /* INTEGER_0_2047 */
 static int hf_lte_rrc_tdd_AckNackFeedbackMode = -1;  /* T_tdd_AckNackFeedbackMode */
@@ -1455,25 +1562,28 @@ static int hf_lte_rrc_format3_r10 = -1;           /* T_format3_r10 */
 static int hf_lte_rrc_n3PUCCH_AN_List_r10 = -1;   /* T_n3PUCCH_AN_List_r10 */
 static int hf_lte_rrc_n3PUCCH_AN_List_r10_item = -1;  /* INTEGER_0_549 */
 static int hf_lte_rrc_twoAntennaPortActivatedPUCCH_Format3_r10 = -1;  /* T_twoAntennaPortActivatedPUCCH_Format3_r10 */
-static int hf_lte_rrc_setup_19 = -1;              /* T_setup_19 */
+static int hf_lte_rrc_setup_26 = -1;              /* T_setup_26 */
 static int hf_lte_rrc_n3PUCCH_AN_ListP1_r10 = -1;  /* T_n3PUCCH_AN_ListP1_r10 */
 static int hf_lte_rrc_n3PUCCH_AN_ListP1_r10_item = -1;  /* INTEGER_0_549 */
 static int hf_lte_rrc_channelSelection_r10 = -1;  /* T_channelSelection_r10 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_r10 = -1;     /* T_n1PUCCH_AN_CS_r10 */
-static int hf_lte_rrc_setup_20 = -1;              /* T_setup_20 */
+static int hf_lte_rrc_setup_27 = -1;              /* T_setup_27 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_List_r10 = -1;  /* SEQUENCE_SIZE_1_2_OF_N1PUCCH_AN_CS_r10 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_List_r10_item = -1;  /* N1PUCCH_AN_CS_r10 */
 static int hf_lte_rrc_twoAntennaPortActivatedPUCCH_Format1a1b_r10 = -1;  /* T_twoAntennaPortActivatedPUCCH_Format1a1b_r10 */
 static int hf_lte_rrc_simultaneousPUCCH_PUSCH_r10 = -1;  /* T_simultaneousPUCCH_PUSCH_r10 */
 static int hf_lte_rrc_n1PUCCH_AN_RepP1_r10 = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_v1130 = -1;   /* T_n1PUCCH_AN_CS_v1130 */
-static int hf_lte_rrc_setup_21 = -1;              /* T_setup_21 */
+static int hf_lte_rrc_setup_28 = -1;              /* T_setup_28 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_ListP1_r11 = -1;  /* T_n1PUCCH_AN_CS_ListP1_r11 */
 static int hf_lte_rrc_n1PUCCH_AN_CS_ListP1_r11_item = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_nPUCCH_Param_r11 = -1;      /* T_nPUCCH_Param_r11 */
-static int hf_lte_rrc_setup_22 = -1;              /* T_setup_22 */
+static int hf_lte_rrc_setup_29 = -1;              /* T_setup_29 */
 static int hf_lte_rrc_nPUCCH_Identity_r11 = -1;   /* INTEGER_0_503 */
 static int hf_lte_rrc_n1PUCCH_AN_r11 = -1;        /* INTEGER_0_2047 */
+static int hf_lte_rrc_n1PUCCH_Param_r12 = -1;     /* T_n1PUCCH_Param_r12 */
+static int hf_lte_rrc_setup_30 = -1;              /* T_setup_30 */
+static int hf_lte_rrc_n1PUCCH_AN_r12 = -1;        /* INTEGER_0_2047 */
 static int hf_lte_rrc_N1PUCCH_AN_CS_r10_item = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_pusch_ConfigBasic = -1;     /* T_pusch_ConfigBasic */
 static int hf_lte_rrc_n_SB = -1;                  /* INTEGER_1_4 */
@@ -1491,9 +1601,18 @@ static int hf_lte_rrc_betaOffset_CQI_Index_MC_r10 = -1;  /* INTEGER_0_15 */
 static int hf_lte_rrc_groupHoppingDisabled_r10 = -1;  /* T_groupHoppingDisabled_r10 */
 static int hf_lte_rrc_dmrs_WithOCC_Activated_r10 = -1;  /* T_dmrs_WithOCC_Activated_r10 */
 static int hf_lte_rrc_pusch_DMRS_r11 = -1;        /* T_pusch_DMRS_r11 */
-static int hf_lte_rrc_setup_23 = -1;              /* T_setup_23 */
+static int hf_lte_rrc_setup_31 = -1;              /* T_setup_31 */
 static int hf_lte_rrc_nPUSCH_Identity_r11 = -1;   /* INTEGER_0_509 */
 static int hf_lte_rrc_nDMRS_CSH_Identity_r11 = -1;  /* INTEGER_0_509 */
+static int hf_lte_rrc_uciOnPUSCH = -1;            /* T_uciOnPUSCH */
+static int hf_lte_rrc_setup_32 = -1;              /* T_setup_32 */
+static int hf_lte_rrc_betaOffset_ACK_Index_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
+static int hf_lte_rrc_betaOffset_RI_Index_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
+static int hf_lte_rrc_betaOffset_CQI_Index_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
+static int hf_lte_rrc_betaOffsetMC_r12 = -1;      /* T_betaOffsetMC_r12 */
+static int hf_lte_rrc_betaOffset_ACK_Index_MC_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
+static int hf_lte_rrc_betaOffset_RI_Index_MC_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
+static int hf_lte_rrc_betaOffset_CQI_Index_MC_SubframeSet2_r12 = -1;  /* INTEGER_0_15 */
 static int hf_lte_rrc_groupHoppingDisabled_r10_01 = -1;  /* T_groupHoppingDisabled_r10_01 */
 static int hf_lte_rrc_dmrs_WithOCC_Activated_r10_01 = -1;  /* T_dmrs_WithOCC_Activated_r10_01 */
 static int hf_lte_rrc_groupHoppingEnabled = -1;   /* BOOLEAN */
@@ -1512,6 +1631,10 @@ static int hf_lte_rrc_preambleTransMax = -1;      /* PreambleTransMax */
 static int hf_lte_rrc_ra_ResponseWindowSize = -1;  /* T_ra_ResponseWindowSize */
 static int hf_lte_rrc_mac_ContentionResolutionTimer = -1;  /* T_mac_ContentionResolutionTimer */
 static int hf_lte_rrc_maxHARQ_Msg3Tx = -1;        /* INTEGER_1_8 */
+static int hf_lte_rrc_txFailParams_r12 = -1;      /* T_txFailParams_r12 */
+static int hf_lte_rrc_connEstFailCount_r12 = -1;  /* T_connEstFailCount_r12 */
+static int hf_lte_rrc_connEstFailOffsetValidity_r12 = -1;  /* T_connEstFailOffsetValidity_r12 */
+static int hf_lte_rrc_connEstFailOffset_r12 = -1;  /* T_connEstFailOffset_r12 */
 static int hf_lte_rrc_powerRampingParameters_r11 = -1;  /* PowerRampingParameters */
 static int hf_lte_rrc_ra_SupervisionInfo_r11 = -1;  /* T_ra_SupervisionInfo_r11 */
 static int hf_lte_rrc_preambleTransMax_r11 = -1;  /* PreambleTransMax */
@@ -1530,6 +1653,7 @@ static int hf_lte_rrc_soundingRS_UL_ConfigCommon = -1;  /* SoundingRS_UL_ConfigC
 static int hf_lte_rrc_uplinkPowerControlCommon = -1;  /* UplinkPowerControlCommon */
 static int hf_lte_rrc_ul_CyclicPrefixLength = -1;  /* UL_CyclicPrefixLength */
 static int hf_lte_rrc_uplinkPowerControlCommon_v1020 = -1;  /* UplinkPowerControlCommon_v1020 */
+static int hf_lte_rrc_rach_ConfigCommon_v12xy = -1;  /* RACH_ConfigCommon_v12xy */
 static int hf_lte_rrc_prach_Config_01 = -1;       /* PRACH_Config */
 static int hf_lte_rrc_antennaInfoCommon = -1;     /* AntennaInfoCommon */
 static int hf_lte_rrc_nonUL_Configuration_r10_01 = -1;  /* T_nonUL_Configuration_r10_01 */
@@ -1582,8 +1706,8 @@ static int hf_lte_rrc_rlc_Config_01 = -1;         /* RLC_Config */
 static int hf_lte_rrc_logicalChannelIdentity = -1;  /* T_logicalChannelIdentity */
 static int hf_lte_rrc_logicalChannelConfig_01 = -1;  /* LogicalChannelConfig */
 static int hf_lte_rrc_DRB_ToReleaseList_item = -1;  /* DRB_Identity */
-static int hf_lte_rrc_setup_24 = -1;              /* MeasSubframePattern_r10 */
-static int hf_lte_rrc_setup_25 = -1;              /* CRS_AssistanceInfoList_r11 */
+static int hf_lte_rrc_setup_33 = -1;              /* MeasSubframePattern_r10 */
+static int hf_lte_rrc_setup_34 = -1;              /* CRS_AssistanceInfoList_r11 */
 static int hf_lte_rrc_CRS_AssistanceInfoList_r11_item = -1;  /* CRS_AssistanceInfo_r11 */
 static int hf_lte_rrc_physCellId_r11_02 = -1;     /* PhysCellId */
 static int hf_lte_rrc_antennaPortsCount_r11_01 = -1;  /* T_antennaPortsCount_r11_01 */
@@ -1596,14 +1720,21 @@ static int hf_lte_rrc_ul_UM_RLC = -1;             /* UL_UM_RLC */
 static int hf_lte_rrc_dl_UM_RLC = -1;             /* DL_UM_RLC */
 static int hf_lte_rrc_um_Uni_Directional_UL = -1;  /* T_um_Uni_Directional_UL */
 static int hf_lte_rrc_um_Uni_Directional_DL = -1;  /* T_um_Uni_Directional_DL */
+static int hf_lte_rrc_am_v12xy = -1;              /* T_am_v12xy */
+static int hf_lte_rrc_ul_AM_RLC_r12 = -1;         /* UL_AM_RLC_r12 */
+static int hf_lte_rrc_dl_AM_RLC_r12 = -1;         /* DL_AM_RLC_r12 */
 static int hf_lte_rrc_t_PollRetransmit = -1;      /* T_PollRetransmit */
 static int hf_lte_rrc_pollPDU = -1;               /* PollPDU */
 static int hf_lte_rrc_pollByte = -1;              /* PollByte */
 static int hf_lte_rrc_maxRetxThreshold = -1;      /* T_maxRetxThreshold */
+static int hf_lte_rrc_ul_AM_RLC_r12_01 = -1;      /* UL_AM_RLC */
+static int hf_lte_rrc_extended_RLC_LI_Field_r12 = -1;  /* T_extended_RLC_LI_Field_r12 */
 static int hf_lte_rrc_t_Reordering = -1;          /* T_Reordering */
 static int hf_lte_rrc_t_StatusProhibit = -1;      /* T_StatusProhibit */
+static int hf_lte_rrc_dl_AM_RLC_r12_01 = -1;      /* DL_AM_RLC */
+static int hf_lte_rrc_extended_RLC_LI_Field_r12_01 = -1;  /* T_extended_RLC_LI_Field_r12_01 */
 static int hf_lte_rrc_sn_FieldLength = -1;        /* SN_FieldLength */
-static int hf_lte_rrc_setup_26 = -1;              /* T_setup_24 */
+static int hf_lte_rrc_setup_35 = -1;              /* T_setup_33 */
 static int hf_lte_rrc_t301_r9 = -1;               /* T_t301_r9 */
 static int hf_lte_rrc_t310_r9 = -1;               /* T_t310_r9 */
 static int hf_lte_rrc_n310_r9 = -1;               /* T_n310_r9 */
@@ -1642,17 +1773,17 @@ static int hf_lte_rrc_fallbackForFormat3 = -1;    /* T_fallbackForFormat3 */
 static int hf_lte_rrc_n1PUCCH_AN_P0_r10 = -1;     /* INTEGER_0_2047 */
 static int hf_lte_rrc_n1PUCCH_AN_P1_r10 = -1;     /* INTEGER_0_2047 */
 static int hf_lte_rrc_fdd = -1;                   /* T_fdd */
-static int hf_lte_rrc_setup_27 = -1;              /* T_setup_25 */
+static int hf_lte_rrc_setup_36 = -1;              /* T_setup_34 */
 static int hf_lte_rrc_sr_PUCCH_ResourceIndex = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_sr_ConfigIndex = -1;        /* T_sr_ConfigIndex */
 static int hf_lte_rrc_dsr_TransMax = -1;          /* T_dsr_TransMax */
 static int hf_lte_rrc_sr_PUCCH_ResourceIndexP1_r10 = -1;  /* INTEGER_0_2047 */
-static int hf_lte_rrc_setup_28 = -1;              /* T_setup_26 */
+static int hf_lte_rrc_setup_37 = -1;              /* T_setup_35 */
 static int hf_lte_rrc_srs_BandwidthConfig = -1;   /* T_srs_BandwidthConfig */
 static int hf_lte_rrc_srs_SubframeConfig = -1;    /* T_srs_SubframeConfig */
 static int hf_lte_rrc_ackNackSRS_SimultaneousTransmission = -1;  /* BOOLEAN */
 static int hf_lte_rrc_srs_MaxUpPts = -1;          /* T_srs_MaxUpPts */
-static int hf_lte_rrc_setup_29 = -1;              /* T_setup_27 */
+static int hf_lte_rrc_setup_38 = -1;              /* T_setup_36 */
 static int hf_lte_rrc_srs_Bandwidth = -1;         /* T_srs_Bandwidth */
 static int hf_lte_rrc_srs_HoppingBandwidth = -1;  /* T_srs_HoppingBandwidth */
 static int hf_lte_rrc_freqDomainPosition = -1;    /* INTEGER_0_23 */
@@ -1661,12 +1792,12 @@ static int hf_lte_rrc_srs_ConfigIndex = -1;       /* INTEGER_0_1023 */
 static int hf_lte_rrc_transmissionComb = -1;      /* INTEGER_0_1 */
 static int hf_lte_rrc_cyclicShift_01 = -1;        /* T_cyclicShift */
 static int hf_lte_rrc_srs_AntennaPort_r10 = -1;   /* SRS_AntennaPort */
-static int hf_lte_rrc_setup_30 = -1;              /* T_setup_28 */
+static int hf_lte_rrc_setup_39 = -1;              /* T_setup_37 */
 static int hf_lte_rrc_srs_ConfigIndexAp_r10 = -1;  /* INTEGER_0_31 */
 static int hf_lte_rrc_srs_ConfigApDCI_Format4_r10 = -1;  /* SEQUENCE_SIZE_1_3_OF_SRS_ConfigAp_r10 */
 static int hf_lte_rrc_srs_ConfigApDCI_Format4_r10_item = -1;  /* SRS_ConfigAp_r10 */
 static int hf_lte_rrc_srs_ActivateAp_r10 = -1;    /* T_srs_ActivateAp_r10 */
-static int hf_lte_rrc_setup_31 = -1;              /* T_setup_29 */
+static int hf_lte_rrc_setup_40 = -1;              /* T_setup_38 */
 static int hf_lte_rrc_srs_ConfigApDCI_Format0_r10 = -1;  /* SRS_ConfigAp_r10 */
 static int hf_lte_rrc_srs_ConfigApDCI_Format1a2b2c_r10 = -1;  /* SRS_ConfigAp_r10 */
 static int hf_lte_rrc_srs_AntennaPortAp_r10 = -1;  /* SRS_AntennaPort */
@@ -1677,25 +1808,28 @@ static int hf_lte_rrc_cyclicShiftAp_r10 = -1;     /* T_cyclicShiftAp_r10 */
 static int hf_lte_rrc_semiPersistSchedC_RNTI = -1;  /* C_RNTI */
 static int hf_lte_rrc_sps_ConfigDL = -1;          /* SPS_ConfigDL */
 static int hf_lte_rrc_sps_ConfigUL = -1;          /* SPS_ConfigUL */
-static int hf_lte_rrc_setup_32 = -1;              /* T_setup_30 */
+static int hf_lte_rrc_setup_41 = -1;              /* T_setup_39 */
 static int hf_lte_rrc_semiPersistSchedIntervalDL = -1;  /* T_semiPersistSchedIntervalDL */
 static int hf_lte_rrc_numberOfConfSPS_Processes = -1;  /* INTEGER_1_8 */
 static int hf_lte_rrc_n1PUCCH_AN_PersistentList = -1;  /* N1PUCCH_AN_PersistentList */
 static int hf_lte_rrc_twoAntennaPortActivated_r10 = -1;  /* T_twoAntennaPortActivated_r10 */
-static int hf_lte_rrc_setup_33 = -1;              /* T_setup_31 */
+static int hf_lte_rrc_setup_42 = -1;              /* T_setup_40 */
 static int hf_lte_rrc_n1PUCCH_AN_PersistentListP1_r10 = -1;  /* N1PUCCH_AN_PersistentList */
-static int hf_lte_rrc_setup_34 = -1;              /* T_setup_32 */
+static int hf_lte_rrc_setup_43 = -1;              /* T_setup_41 */
 static int hf_lte_rrc_semiPersistSchedIntervalUL = -1;  /* T_semiPersistSchedIntervalUL */
 static int hf_lte_rrc_implicitReleaseAfter = -1;  /* T_implicitReleaseAfter */
 static int hf_lte_rrc_p0_Persistent = -1;         /* T_p0_Persistent */
 static int hf_lte_rrc_p0_NominalPUSCH_Persistent = -1;  /* T_p0_NominalPUSCH_Persistent */
 static int hf_lte_rrc_p0_UE_PUSCH_Persistent = -1;  /* T_p0_UE_PUSCH_Persistent */
 static int hf_lte_rrc_twoIntervalsConfig = -1;    /* T_twoIntervalsConfig */
+static int hf_lte_rrc_p0_Persistent_SubframeSet2_r12 = -1;  /* T_p0_Persistent_SubframeSet2_r12 */
+static int hf_lte_rrc_p0_NominalPUSCH_Persistent_SubframeSet2_r12 = -1;  /* T_p0_NominalPUSCH_Persistent_SubframeSet2_r12 */
+static int hf_lte_rrc_p0_UE_PUSCH_Persistent_SubframeSet2_r12 = -1;  /* T_p0_UE_PUSCH_Persistent_SubframeSet2_r12 */
 static int hf_lte_rrc_N1PUCCH_AN_PersistentList_item = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_subframeAssignment = -1;    /* T_subframeAssignment */
 static int hf_lte_rrc_specialSubframePatterns = -1;  /* T_specialSubframePatterns */
 static int hf_lte_rrc_specialSubframePatterns_v1130 = -1;  /* T_specialSubframePatterns_v1130 */
-static int hf_lte_rrc_setup_35 = -1;              /* T_setup_33 */
+static int hf_lte_rrc_setup_44 = -1;              /* T_setup_42 */
 static int hf_lte_rrc_tpc_RNTI = -1;              /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_tpc_Index = -1;             /* TPC_Index */
 static int hf_lte_rrc_indexOfFormat3 = -1;        /* INTEGER_1_15 */
@@ -1721,6 +1855,12 @@ static int hf_lte_rrc_pSRS_OffsetAp_r10 = -1;     /* INTEGER_0_15 */
 static int hf_lte_rrc_pSRS_Offset_v1130 = -1;     /* INTEGER_16_31 */
 static int hf_lte_rrc_pSRS_OffsetAp_v1130 = -1;   /* INTEGER_16_31 */
 static int hf_lte_rrc_deltaTxD_OffsetListPUCCH_v1130 = -1;  /* DeltaTxD_OffsetListPUCCH_v1130 */
+static int hf_lte_rrc_set2PowerControlParameter = -1;  /* T_set2PowerControlParameter */
+static int hf_lte_rrc_setup_45 = -1;              /* T_setup_43 */
+static int hf_lte_rrc_tpc_SubframeSet_r12 = -1;   /* BIT_STRING_SIZE_10 */
+static int hf_lte_rrc_p0_NominalPUSCH_SubframeSet2_r12 = -1;  /* T_p0_NominalPUSCH_SubframeSet2_r12 */
+static int hf_lte_rrc_alpha_SubframeSet2_r12 = -1;  /* T_alpha_SubframeSet2_r12 */
+static int hf_lte_rrc_p0_UE_PUSCH_SubframeSet2_r12 = -1;  /* T_p0_UE_PUSCH_SubframeSet2_r12 */
 static int hf_lte_rrc_p0_UE_PUSCH_r10 = -1;       /* T_p0_UE_PUSCH_r10 */
 static int hf_lte_rrc_deltaMCS_Enabled_r10 = -1;  /* T_deltaMCS_Enabled_r10 */
 static int hf_lte_rrc_accumulationEnabled_r10 = -1;  /* BOOLEAN */
@@ -1832,13 +1972,13 @@ static int hf_lte_rrc_quantityConfig = -1;        /* QuantityConfig */
 static int hf_lte_rrc_measGapConfig = -1;         /* MeasGapConfig */
 static int hf_lte_rrc_s_Measure = -1;             /* S_Measure */
 static int hf_lte_rrc_speedStatePars = -1;        /* T_speedStatePars */
-static int hf_lte_rrc_setup_36 = -1;              /* T_setup_34 */
+static int hf_lte_rrc_setup_46 = -1;              /* T_setup_44 */
 static int hf_lte_rrc_timeToTrigger_SF = -1;      /* SpeedStateScaleFactors */
 static int hf_lte_rrc_measObjectToAddModList_v9e0 = -1;  /* MeasObjectToAddModList_v9e0 */
 static int hf_lte_rrc_MeasIdToRemoveList_item = -1;  /* MeasId */
 static int hf_lte_rrc_MeasObjectToRemoveList_item = -1;  /* MeasObjectId */
 static int hf_lte_rrc_ReportConfigToRemoveList_item = -1;  /* ReportConfigId */
-static int hf_lte_rrc_setup_37 = -1;              /* T_setup_35 */
+static int hf_lte_rrc_setup_47 = -1;              /* T_setup_45 */
 static int hf_lte_rrc_gapOffset = -1;             /* T_gapOffset */
 static int hf_lte_rrc_gp0 = -1;                   /* INTEGER_0_39 */
 static int hf_lte_rrc_gp1 = -1;                   /* INTEGER_0_79 */
@@ -1862,14 +2002,18 @@ static int hf_lte_rrc_cellForWhichToReportCGI_01 = -1;  /* PhysCellId */
 static int hf_lte_rrc_measCycleSCell_r10 = -1;    /* MeasCycleSCell_r10 */
 static int hf_lte_rrc_measSubframePatternConfigNeigh_r10 = -1;  /* MeasSubframePatternConfigNeigh_r10 */
 static int hf_lte_rrc_widebandRSRQ_Meas_r11 = -1;  /* BOOLEAN */
+static int hf_lte_rrc_altTTT_CellsToRemoveList_r12 = -1;  /* CellIndexList */
+static int hf_lte_rrc_altTTT_CellsToAddModList_r12 = -1;  /* AltTTT_CellsToAddModList_r12 */
+static int hf_lte_rrc_t312_r12 = -1;              /* T_t312_r12 */
 static int hf_lte_rrc_CellsToAddModList_item = -1;  /* CellsToAddMod */
 static int hf_lte_rrc_cellIndividualOffset = -1;  /* Q_OffsetRange */
 static int hf_lte_rrc_BlackCellsToAddModList_item = -1;  /* BlackCellsToAddMod */
 static int hf_lte_rrc_physCellIdRange = -1;       /* PhysCellIdRange */
-static int hf_lte_rrc_setup_38 = -1;              /* T_setup_36 */
+static int hf_lte_rrc_setup_48 = -1;              /* T_setup_46 */
 static int hf_lte_rrc_measSubframePatternNeigh_r10 = -1;  /* MeasSubframePattern_r10 */
 static int hf_lte_rrc_measSubframeCellList_r10 = -1;  /* MeasSubframeCellList_r10 */
 static int hf_lte_rrc_MeasSubframeCellList_r10_item = -1;  /* PhysCellIdRange */
+static int hf_lte_rrc_AltTTT_CellsToAddModList_r12_item = -1;  /* AltTTT_CellsToAddMod_r12 */
 static int hf_lte_rrc_cellForWhichToReportCGI_02 = -1;  /* PhysCellIdGERAN */
 static int hf_lte_rrc_MeasObjectToAddModList_item = -1;  /* MeasObjectToAddMod */
 static int hf_lte_rrc_MeasObjectToAddModList_v9e0_item = -1;  /* MeasObjectToAddMod_v9e0 */
@@ -1907,6 +2051,7 @@ static int hf_lte_rrc_cellGlobalId = -1;          /* CellGlobalIdEUTRA */
 static int hf_lte_rrc_plmn_IdentityList_01 = -1;  /* PLMN_IdentityList2 */
 static int hf_lte_rrc_measResult = -1;            /* T_measResult */
 static int hf_lte_rrc_additionalSI_Info_r9 = -1;  /* AdditionalSI_Info_r9 */
+static int hf_lte_rrc_primaryPLMN_Suitable_r12 = -1;  /* T_primaryPLMN_Suitable_r12 */
 static int hf_lte_rrc_MeasResultServFreqList_r10_item = -1;  /* MeasResultServFreq_r10 */
 static int hf_lte_rrc_servFreqId_r10 = -1;        /* ServCellIndex_r10 */
 static int hf_lte_rrc_measResultSCell_r10 = -1;   /* T_measResultSCell_r10 */
@@ -1925,6 +2070,7 @@ static int hf_lte_rrc_routingAreaCode = -1;       /* BIT_STRING_SIZE_8 */
 static int hf_lte_rrc_measResult_01 = -1;         /* T_measResult_01 */
 static int hf_lte_rrc_utra_RSCP = -1;             /* INTEGER_M5_91 */
 static int hf_lte_rrc_utra_EcN0 = -1;             /* INTEGER_0_49 */
+static int hf_lte_rrc_primaryPLMN_Suitable_r12_01 = -1;  /* T_primaryPLMN_Suitable_r12_01 */
 static int hf_lte_rrc_MeasResultListGERAN_item = -1;  /* MeasResultGERAN */
 static int hf_lte_rrc_cgi_Info_02 = -1;           /* T_cgi_Info_02 */
 static int hf_lte_rrc_cellGlobalId_02 = -1;       /* CellGlobalIdGERAN */
@@ -1985,6 +2131,8 @@ static int hf_lte_rrc_si_RequestForHO_r9 = -1;    /* T_si_RequestForHO_r9 */
 static int hf_lte_rrc_ue_RxTxTimeDiffPeriodical_r9 = -1;  /* T_ue_RxTxTimeDiffPeriodical_r9 */
 static int hf_lte_rrc_includeLocationInfo_r10 = -1;  /* T_includeLocationInfo_r10 */
 static int hf_lte_rrc_reportAddNeighMeas_r10 = -1;  /* T_reportAddNeighMeas_r10 */
+static int hf_lte_rrc_alternativeTimeToTrigger_r12 = -1;  /* TimeToTrigger */
+static int hf_lte_rrc_useT312_r12 = -1;           /* T_useT312_r12 */
 static int hf_lte_rrc_threshold_RSRP = -1;        /* Threshold_RSRP_Range */
 static int hf_lte_rrc_threshold_RSRQ = -1;        /* Threshold_RSRQ_Range */
 static int hf_lte_rrc_triggerType_01 = -1;        /* T_triggerType_01 */
@@ -2034,7 +2182,7 @@ static int hf_lte_rrc_autonomousDenialParameters_r11 = -1;  /* T_autonomousDenia
 static int hf_lte_rrc_autonomousDenialSubframes_r11 = -1;  /* T_autonomousDenialSubframes_r11 */
 static int hf_lte_rrc_autonomousDenialValidity_r11 = -1;  /* T_autonomousDenialValidity_r11 */
 static int hf_lte_rrc_obtainLocation_r11 = -1;    /* T_obtainLocation_r11 */
-static int hf_lte_rrc_setup_39 = -1;              /* T_setup_37 */
+static int hf_lte_rrc_setup_49 = -1;              /* T_setup_47 */
 static int hf_lte_rrc_powerPrefIndicationTimer_r11 = -1;  /* T_powerPrefIndicationTimer_r11 */
 static int hf_lte_rrc_proximityIndicationEUTRA_r9 = -1;  /* T_proximityIndicationEUTRA_r9 */
 static int hf_lte_rrc_proximityIndicationUTRA_r9 = -1;  /* T_proximityIndicationUTRA_r9 */
@@ -2059,21 +2207,21 @@ static int hf_lte_rrc_utraTDD768 = -1;            /* IRAT_ParametersUTRA_TDD768 
 static int hf_lte_rrc_geran_02 = -1;              /* IRAT_ParametersGERAN */
 static int hf_lte_rrc_cdma2000_HRPD_01 = -1;      /* IRAT_ParametersCDMA2000_HRPD */
 static int hf_lte_rrc_cdma2000_1xRTT_01 = -1;     /* IRAT_ParametersCDMA2000_1XRTT */
-static int hf_lte_rrc_nonCriticalExtension_111 = -1;  /* UE_EUTRA_Capability_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_121 = -1;  /* UE_EUTRA_Capability_v920_IEs */
 static int hf_lte_rrc_featureGroupIndRel9Add_r9 = -1;  /* T_featureGroupIndRel9Add_r9 */
 static int hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_r9 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_r9 */
 static int hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_r9 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_r9 */
-static int hf_lte_rrc_nonCriticalExtension_112 = -1;  /* UE_EUTRA_Capability_v9c0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_122 = -1;  /* UE_EUTRA_Capability_v9c0_IEs */
 static int hf_lte_rrc_interRAT_ParametersUTRA_v9c0 = -1;  /* IRAT_ParametersUTRA_v9c0 */
-static int hf_lte_rrc_nonCriticalExtension_113 = -1;  /* UE_EUTRA_Capability_v9d0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_123 = -1;  /* UE_EUTRA_Capability_v9d0_IEs */
 static int hf_lte_rrc_phyLayerParameters_v9d0 = -1;  /* PhyLayerParameters_v9d0 */
-static int hf_lte_rrc_nonCriticalExtension_114 = -1;  /* UE_EUTRA_Capability_v9e0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_124 = -1;  /* UE_EUTRA_Capability_v9e0_IEs */
 static int hf_lte_rrc_rf_Parameters_v9e0 = -1;    /* RF_Parameters_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_115 = -1;  /* UE_EUTRA_Capability_v9h0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_125 = -1;  /* UE_EUTRA_Capability_v9h0_IEs */
 static int hf_lte_rrc_interRAT_ParametersUTRA_v9h0 = -1;  /* IRAT_ParametersUTRA_v9h0 */
-static int hf_lte_rrc_nonCriticalExtension_116 = -1;  /* UE_EUTRA_Capability_v10c0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_126 = -1;  /* UE_EUTRA_Capability_v10c0_IEs */
 static int hf_lte_rrc_otdoa_PositioningCapabilities_r10 = -1;  /* OTDOA_PositioningCapabilities_r10 */
-static int hf_lte_rrc_nonCriticalExtension_117 = -1;  /* T_nonCriticalExtension_47 */
+static int hf_lte_rrc_nonCriticalExtension_127 = -1;  /* T_nonCriticalExtension_47 */
 static int hf_lte_rrc_phyLayerParameters_v920 = -1;  /* PhyLayerParameters_v920 */
 static int hf_lte_rrc_interRAT_ParametersGERAN_v920 = -1;  /* IRAT_ParametersGERAN_v920 */
 static int hf_lte_rrc_interRAT_ParametersUTRA_v920 = -1;  /* IRAT_ParametersUTRA_v920 */
@@ -2082,9 +2230,9 @@ static int hf_lte_rrc_deviceType_r9 = -1;         /* T_deviceType_r9 */
 static int hf_lte_rrc_csg_ProximityIndicationParameters_r9 = -1;  /* CSG_ProximityIndicationParameters_r9 */
 static int hf_lte_rrc_neighCellSI_AcquisitionParameters_r9 = -1;  /* NeighCellSI_AcquisitionParameters_r9 */
 static int hf_lte_rrc_son_Parameters_r9 = -1;     /* SON_Parameters_r9 */
-static int hf_lte_rrc_nonCriticalExtension_118 = -1;  /* UE_EUTRA_Capability_v940_IEs */
+static int hf_lte_rrc_nonCriticalExtension_128 = -1;  /* UE_EUTRA_Capability_v940_IEs */
 static int hf_lte_rrc_lateNonCriticalExtension_07 = -1;  /* T_lateNonCriticalExtension_06 */
-static int hf_lte_rrc_nonCriticalExtension_119 = -1;  /* UE_EUTRA_Capability_v1020_IEs */
+static int hf_lte_rrc_nonCriticalExtension_129 = -1;  /* UE_EUTRA_Capability_v1020_IEs */
 static int hf_lte_rrc_ue_Category_v1020 = -1;     /* INTEGER_6_8 */
 static int hf_lte_rrc_phyLayerParameters_v1020 = -1;  /* PhyLayerParameters_v1020 */
 static int hf_lte_rrc_rf_Parameters_v1020 = -1;   /* RF_Parameters_v1020 */
@@ -2093,13 +2241,13 @@ static int hf_lte_rrc_featureGroupIndRel10_r10 = -1;  /* T_featureGroupIndRel10_
 static int hf_lte_rrc_interRAT_ParametersCDMA2000_v1020 = -1;  /* IRAT_ParametersCDMA2000_1XRTT_v1020 */
 static int hf_lte_rrc_ue_BasedNetwPerfMeasParameters_r10 = -1;  /* UE_BasedNetwPerfMeasParameters_r10 */
 static int hf_lte_rrc_interRAT_ParametersUTRA_TDD_v1020 = -1;  /* IRAT_ParametersUTRA_TDD_v1020 */
-static int hf_lte_rrc_nonCriticalExtension_120 = -1;  /* UE_EUTRA_Capability_v1060_IEs */
+static int hf_lte_rrc_nonCriticalExtension_130 = -1;  /* UE_EUTRA_Capability_v1060_IEs */
 static int hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1060 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1060 */
 static int hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1060 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1060 */
 static int hf_lte_rrc_rf_Parameters_v1060 = -1;   /* RF_Parameters_v1060 */
-static int hf_lte_rrc_nonCriticalExtension_121 = -1;  /* UE_EUTRA_Capability_v1090_IEs */
+static int hf_lte_rrc_nonCriticalExtension_131 = -1;  /* UE_EUTRA_Capability_v1090_IEs */
 static int hf_lte_rrc_rf_Parameters_v1090 = -1;   /* RF_Parameters_v1090 */
-static int hf_lte_rrc_nonCriticalExtension_122 = -1;  /* UE_EUTRA_Capability_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_132 = -1;  /* UE_EUTRA_Capability_v1130_IEs */
 static int hf_lte_rrc_pdcp_Parameters_v1130 = -1;  /* PDCP_Parameters_v1130 */
 static int hf_lte_rrc_phyLayerParameters_v1130 = -1;  /* PhyLayerParameters_v1130 */
 static int hf_lte_rrc_rf_Parameters_v1130 = -1;   /* RF_Parameters_v1130 */
@@ -2108,15 +2256,21 @@ static int hf_lte_rrc_interRAT_ParametersCDMA2000_v1130 = -1;  /* IRAT_Parameter
 static int hf_lte_rrc_otherParameters_r11 = -1;   /* Other_Parameters_r11 */
 static int hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1130 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1130 */
 static int hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1130 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1130 */
-static int hf_lte_rrc_nonCriticalExtension_123 = -1;  /* UE_EUTRA_Capability_v1170_IEs */
+static int hf_lte_rrc_nonCriticalExtension_133 = -1;  /* UE_EUTRA_Capability_v1170_IEs */
 static int hf_lte_rrc_phyLayerParameters_v1170 = -1;  /* PhyLayerParameters_v1170 */
 static int hf_lte_rrc_ue_Category_v1170 = -1;     /* INTEGER_9_10 */
-static int hf_lte_rrc_nonCriticalExtension_124 = -1;  /* UE_EUTRA_Capability_v1180_IEs */
+static int hf_lte_rrc_nonCriticalExtension_134 = -1;  /* UE_EUTRA_Capability_v1180_IEs */
 static int hf_lte_rrc_rf_Parameters_v1180 = -1;   /* RF_Parameters_v1180 */
 static int hf_lte_rrc_mbms_Parameters_r11 = -1;   /* MBMS_Parameters_r11 */
 static int hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1180 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1180 */
 static int hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1180 = -1;  /* UE_EUTRA_CapabilityAddXDD_Mode_v1180 */
-static int hf_lte_rrc_nonCriticalExtension_125 = -1;  /* T_nonCriticalExtension_48 */
+static int hf_lte_rrc_nonCriticalExtension_135 = -1;  /* UE_EUTRA_Capability_v12xy_IEs */
+static int hf_lte_rrc_phyLayerParameters_v12xy = -1;  /* PhyLayerParameters_v12xy */
+static int hf_lte_rrc_rlc_Parameters_r12 = -1;    /* RLC_Parameters_r12 */
+static int hf_lte_rrc_ue_BasedNetwPerfMeasParameters_v12xy = -1;  /* UE_BasedNetwPerfMeasParameters_v12xy */
+static int hf_lte_rrc_ue_Category_v12xy = -1;     /* INTEGER_0 */
+static int hf_lte_rrc_measParameters_v12xy = -1;  /* MeasParameters_v12xy */
+static int hf_lte_rrc_nonCriticalExtension_136 = -1;  /* T_nonCriticalExtension_48 */
 static int hf_lte_rrc_phyLayerParameters_r9 = -1;  /* PhyLayerParameters */
 static int hf_lte_rrc_featureGroupIndicators_r9 = -1;  /* T_featureGroupIndicators_r9 */
 static int hf_lte_rrc_featureGroupIndRel9Add_r9_01 = -1;  /* T_featureGroupIndRel9Add_r9_01 */
@@ -2127,6 +2281,7 @@ static int hf_lte_rrc_phyLayerParameters_v1060 = -1;  /* PhyLayerParameters_v102
 static int hf_lte_rrc_featureGroupIndRel10_v1060 = -1;  /* T_featureGroupIndRel10_v1060 */
 static int hf_lte_rrc_interRAT_ParametersCDMA2000_v1060 = -1;  /* IRAT_ParametersCDMA2000_1XRTT_v1020 */
 static int hf_lte_rrc_interRAT_ParametersUTRA_TDD_v1060 = -1;  /* IRAT_ParametersUTRA_TDD_v1020 */
+static int hf_lte_rrc_extended_RLC_LI_Field_r12_02 = -1;  /* T_extended_RLC_LI_Field_r12_02 */
 static int hf_lte_rrc_supportedROHC_Profiles = -1;  /* T_supportedROHC_Profiles */
 static int hf_lte_rrc_maxNumberROHC_ContextSessions = -1;  /* T_maxNumberROHC_ContextSessions */
 static int hf_lte_rrc_pdcp_SN_Extension_r11 = -1;  /* T_pdcp_SN_Extension_r11 */
@@ -2152,6 +2307,12 @@ static int hf_lte_rrc_tdd_SpecialSubframe_r11 = -1;  /* T_tdd_SpecialSubframe_r1
 static int hf_lte_rrc_txDiv_PUCCH1b_ChSelect_r11 = -1;  /* T_txDiv_PUCCH1b_ChSelect_r11 */
 static int hf_lte_rrc_ul_CoMP_r11 = -1;           /* T_ul_CoMP_r11 */
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_r11 = -1;  /* T_interBandTDD_CA_WithDifferentConfig_r11 */
+static int hf_lte_rrc_e_HARQ_Pattern_FDD_r12 = -1;  /* T_e_HARQ_Pattern_FDD_r12 */
+static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12 = -1;  /* T_tdd_FDD_CA_PCellDuplex_r12 */
+static int hf_lte_rrc_phy_TDD_ReConfig_TDDPCell_r12 = -1;  /* T_phy_TDD_ReConfig_TDDPCell_r12 */
+static int hf_lte_rrc_phy_TDD_ReConfig_FDDPCell_r12 = -1;  /* T_phy_TDD_ReConfig_FDDPCell_r12 */
+static int hf_lte_rrc_pusch_SRS_PowerControl_SubframeSet_r12 = -1;  /* T_pusch_SRS_PowerControl_SubframeSet_r12 */
+static int hf_lte_rrc_csi_SubframeSet_r12 = -1;   /* T_csi_SubframeSet_r12 */
 static int hf_lte_rrc_NonContiguousUL_RA_WithinCC_List_r10_item = -1;  /* NonContiguousUL_RA_WithinCC_r10 */
 static int hf_lte_rrc_nonContiguousUL_RA_WithinCC_Info_r10 = -1;  /* T_nonContiguousUL_RA_WithinCC_Info_r10 */
 static int hf_lte_rrc_supportedBandListEUTRA = -1;  /* SupportedBandListEUTRA */
@@ -2161,8 +2322,8 @@ static int hf_lte_rrc_supportedBandCombinationExt_r10 = -1;  /* SupportedBandCom
 static int hf_lte_rrc_supportedBandCombination_v1090 = -1;  /* SupportedBandCombination_v1090 */
 static int hf_lte_rrc_supportedBandCombination_v1130 = -1;  /* SupportedBandCombination_v1130 */
 static int hf_lte_rrc_freqBandRetrieval_r11 = -1;  /* T_freqBandRetrieval_r11 */
-static int hf_lte_rrc_reportedFrequencyBands_r11 = -1;  /* SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11 */
-static int hf_lte_rrc_reportedFrequencyBands_r11_item = -1;  /* FreqBandIndicator_r11 */
+static int hf_lte_rrc_requestedBands_r11 = -1;    /* SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11 */
+static int hf_lte_rrc_requestedBands_r11_item = -1;  /* FreqBandIndicator_r11 */
 static int hf_lte_rrc_supportedBandCombinationAdd_r11 = -1;  /* SupportedBandCombinationAdd_r11 */
 static int hf_lte_rrc_SupportedBandCombination_r10_item = -1;  /* BandCombinationParameters_r10 */
 static int hf_lte_rrc_SupportedBandCombinationExt_r10_item = -1;  /* BandCombinationParametersExt_r10 */
@@ -2205,6 +2366,8 @@ static int hf_lte_rrc_bandEUTRA_v9e0 = -1;        /* FreqBandIndicator_v9e0 */
 static int hf_lte_rrc_bandListEUTRA = -1;         /* BandListEUTRA */
 static int hf_lte_rrc_bandCombinationListEUTRA_r10 = -1;  /* BandCombinationListEUTRA_r10 */
 static int hf_lte_rrc_rsrqMeasWideband_r11 = -1;  /* T_rsrqMeasWideband_r11 */
+static int hf_lte_rrc_timerT312_r12 = -1;         /* T_timerT312_r12 */
+static int hf_lte_rrc_alternativeTimeToTrigger_r12_01 = -1;  /* T_alternativeTimeToTrigger_r12 */
 static int hf_lte_rrc_BandListEUTRA_item = -1;    /* BandInfoEUTRA */
 static int hf_lte_rrc_BandCombinationListEUTRA_r10_item = -1;  /* BandInfoEUTRA */
 static int hf_lte_rrc_interFreqBandList = -1;     /* InterFreqBandList */
@@ -2256,6 +2419,7 @@ static int hf_lte_rrc_utran_SI_AcquisitionForHO_r9 = -1;  /* T_utran_SI_Acquisit
 static int hf_lte_rrc_rach_Report_r9_01 = -1;     /* T_rach_Report_r9_01 */
 static int hf_lte_rrc_loggedMeasurementsIdle_r10 = -1;  /* T_loggedMeasurementsIdle_r10 */
 static int hf_lte_rrc_standaloneGNSS_Location_r10 = -1;  /* T_standaloneGNSS_Location_r10 */
+static int hf_lte_rrc_loggedMBSFNMeasurements_r12 = -1;  /* T_loggedMBSFNMeasurements_r12 */
 static int hf_lte_rrc_otdoa_UE_Assisted_r10 = -1;  /* T_otdoa_UE_Assisted_r10 */
 static int hf_lte_rrc_interFreqRSTD_Measurement_r10 = -1;  /* T_interFreqRSTD_Measurement_r10 */
 static int hf_lte_rrc_inDeviceCoexInd_r11 = -1;   /* T_inDeviceCoexInd_r11 */
@@ -2269,6 +2433,31 @@ static int hf_lte_rrc_t310 = -1;                  /* T_t310 */
 static int hf_lte_rrc_n310 = -1;                  /* T_n310 */
 static int hf_lte_rrc_t311 = -1;                  /* T_t311 */
 static int hf_lte_rrc_n311 = -1;                  /* T_n311 */
+static int hf_lte_rrc_VisitedCellInfoList_r12_item = -1;  /* VisitedCellInfo_r12 */
+static int hf_lte_rrc_visitedCellId_r12 = -1;     /* T_visitedCellId_r12 */
+static int hf_lte_rrc_cellGlobalId_r12 = -1;      /* CellGlobalIdEUTRA */
+static int hf_lte_rrc_pci_arfcn_r12 = -1;         /* T_pci_arfcn_r12 */
+static int hf_lte_rrc_physCellId_r12 = -1;        /* PhysCellId */
+static int hf_lte_rrc_timeSpent_r12 = -1;         /* T_timeSpent_r12 */
+static int hf_lte_rrc_thresholdRSRP_r12 = -1;     /* T_thresholdRSRP_r12 */
+static int hf_lte_rrc_thresholdRSRP_Low_r12 = -1;  /* RSRP_Range */
+static int hf_lte_rrc_thresholdRSRP_High_r12 = -1;  /* RSRP_Range */
+static int hf_lte_rrc_thresholdRSRQ_r12 = -1;     /* T_thresholdRSRQ_r12 */
+static int hf_lte_rrc_thresholdRSRQ_Low_r12 = -1;  /* RSRQ_Range */
+static int hf_lte_rrc_thresholdRSRQ_High_r12 = -1;  /* RSRQ_Range */
+static int hf_lte_rrc_thresholdChannelUtilization_r12 = -1;  /* T_thresholdChannelUtilization_r12 */
+static int hf_lte_rrc_thresholdChannelUtilizationLow_r12 = -1;  /* T_thresholdChannelUtilizationLow_r12 */
+static int hf_lte_rrc_thresholdChannelUtilizationHigh_r12 = -1;  /* T_thresholdChannelUtilizationHigh_r12 */
+static int hf_lte_rrc_thresholdBackhaul_Bandwidth_r12 = -1;  /* T_thresholdBackhaul_Bandwidth_r12 */
+static int hf_lte_rrc_thresholdBackhaulDL_BandwidthLow_r12 = -1;  /* WLAN_backhaulRate */
+static int hf_lte_rrc_thresholdBackhaulDL_BandwidthHigh_r12 = -1;  /* WLAN_backhaulRate */
+static int hf_lte_rrc_thresholdBackhaulUL_BandwidthLow_r12 = -1;  /* WLAN_backhaulRate */
+static int hf_lte_rrc_thresholdBackhaulUL_BandwidthHigh_r12 = -1;  /* WLAN_backhaulRate */
+static int hf_lte_rrc_thresholdBeaconRSSI_r12 = -1;  /* T_thresholdBeaconRSSI_r12 */
+static int hf_lte_rrc_thresholdBeaconRSSI_Low_r12 = -1;  /* INTEGER_0_255 */
+static int hf_lte_rrc_thresholdBeaconRSSI_High_r12 = -1;  /* INTEGER_0_255 */
+static int hf_lte_rrc_offloadPreferenceIndicator_r12 = -1;  /* BIT_STRING_SIZE_16 */
+static int hf_lte_rrc_t_SteeringWLAN_r12 = -1;    /* T_Reselection */
 static int hf_lte_rrc_notificationRepetitionCoeff_r9 = -1;  /* T_notificationRepetitionCoeff_r9 */
 static int hf_lte_rrc_notificationOffset_r9 = -1;  /* INTEGER_0_10 */
 static int hf_lte_rrc_notificationSF_Index_r9 = -1;  /* INTEGER_1_6 */
@@ -2288,8 +2477,11 @@ static int hf_lte_rrc_subframeAllocation = -1;    /* T_subframeAllocation */
 static int hf_lte_rrc_oneFrame = -1;              /* BIT_STRING_SIZE_6 */
 static int hf_lte_rrc_fourFrames = -1;            /* BIT_STRING_SIZE_24 */
 static int hf_lte_rrc_PMCH_InfoList_r9_item = -1;  /* PMCH_Info_r9 */
+static int hf_lte_rrc_PMCH_InfoListExt_r12_item = -1;  /* PMCH_InfoExt_r12 */
 static int hf_lte_rrc_pmch_Config_r9 = -1;        /* PMCH_Config_r9 */
 static int hf_lte_rrc_mbms_SessionInfoList_r9 = -1;  /* MBMS_SessionInfoList_r9 */
+static int hf_lte_rrc_pmch_Config_r12 = -1;       /* PMCH_Config_r12 */
+static int hf_lte_rrc_mbms_SessionInfoList_r12 = -1;  /* MBMS_SessionInfoList_r9 */
 static int hf_lte_rrc_MBMS_SessionInfoList_r9_item = -1;  /* MBMS_SessionInfo_r9 */
 static int hf_lte_rrc_tmgi_r9 = -1;               /* TMGI_r9 */
 static int hf_lte_rrc_sessionId_r9 = -1;          /* OCTET_STRING_SIZE_1 */
@@ -2297,6 +2489,9 @@ static int hf_lte_rrc_logicalChannelIdentity_r9 = -1;  /* INTEGER_0_maxSessionPe
 static int hf_lte_rrc_sf_AllocEnd_r9 = -1;        /* INTEGER_0_1535 */
 static int hf_lte_rrc_dataMCS_r9 = -1;            /* INTEGER_0_28 */
 static int hf_lte_rrc_mch_SchedulingPeriod_r9 = -1;  /* T_mch_SchedulingPeriod_r9 */
+static int hf_lte_rrc_sf_AllocEnd_r12 = -1;       /* INTEGER_0_1535 */
+static int hf_lte_rrc_dataMCS_r12 = -1;           /* INTEGER_0_28 */
+static int hf_lte_rrc_mch_SchedulingPeriod_r12 = -1;  /* T_mch_SchedulingPeriod_r12 */
 static int hf_lte_rrc_plmn_Id_r9 = -1;            /* T_plmn_Id_r9 */
 static int hf_lte_rrc_plmn_Index_r9 = -1;         /* INTEGER_1_maxPLMN_r11 */
 static int hf_lte_rrc_explicitValue_r9 = -1;      /* PLMN_Identity */
@@ -2306,7 +2501,7 @@ static int hf_lte_rrc_c1_34 = -1;                 /* T_c1_34 */
 static int hf_lte_rrc_handoverCommand_r8 = -1;    /* HandoverCommand_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_38 = -1;  /* T_criticalExtensionsFuture_38 */
 static int hf_lte_rrc_handoverCommandMessage = -1;  /* T_handoverCommandMessage */
-static int hf_lte_rrc_nonCriticalExtension_126 = -1;  /* T_nonCriticalExtension_49 */
+static int hf_lte_rrc_nonCriticalExtension_137 = -1;  /* T_nonCriticalExtension_49 */
 static int hf_lte_rrc_criticalExtensions_39 = -1;  /* T_criticalExtensions_39 */
 static int hf_lte_rrc_c1_35 = -1;                 /* T_c1_35 */
 static int hf_lte_rrc_handoverPreparationInformation_r8 = -1;  /* HandoverPreparationInformation_r8_IEs */
@@ -2315,20 +2510,23 @@ static int hf_lte_rrc_ue_RadioAccessCapabilityInfo = -1;  /* UE_CapabilityRAT_Co
 static int hf_lte_rrc_as_Config = -1;             /* AS_Config */
 static int hf_lte_rrc_rrm_Config = -1;            /* RRM_Config */
 static int hf_lte_rrc_as_Context = -1;            /* AS_Context */
-static int hf_lte_rrc_nonCriticalExtension_127 = -1;  /* HandoverPreparationInformation_v920_IEs */
+static int hf_lte_rrc_nonCriticalExtension_138 = -1;  /* HandoverPreparationInformation_v920_IEs */
 static int hf_lte_rrc_ue_ConfigRelease_r9 = -1;   /* T_ue_ConfigRelease_r9 */
-static int hf_lte_rrc_nonCriticalExtension_128 = -1;  /* HandoverPreparationInformation_v9d0_IEs */
-static int hf_lte_rrc_nonCriticalExtension_129 = -1;  /* HandoverPreparationInformation_v9e0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_139 = -1;  /* HandoverPreparationInformation_v9d0_IEs */
+static int hf_lte_rrc_nonCriticalExtension_140 = -1;  /* HandoverPreparationInformation_v9e0_IEs */
 static int hf_lte_rrc_as_Config_v9e0 = -1;        /* AS_Config_v9e0 */
-static int hf_lte_rrc_nonCriticalExtension_130 = -1;  /* HandoverPreparationInformation_v1130_IEs */
+static int hf_lte_rrc_nonCriticalExtension_141 = -1;  /* HandoverPreparationInformation_v1130_IEs */
 static int hf_lte_rrc_as_Context_v1130 = -1;      /* AS_Context_v1130 */
-static int hf_lte_rrc_nonCriticalExtension_131 = -1;  /* T_nonCriticalExtension_50 */
+static int hf_lte_rrc_nonCriticalExtension_142 = -1;  /* HandoverPreparationInformation_v12xy_IEs */
+static int hf_lte_rrc_ue_SupportedEARFCN_r12 = -1;  /* ARFCN_ValueEUTRA_r9 */
+static int hf_lte_rrc_as_Config_v12xy = -1;       /* AS_Config_v12xy */
+static int hf_lte_rrc_nonCriticalExtension_143 = -1;  /* T_nonCriticalExtension_50 */
 static int hf_lte_rrc_criticalExtensions_40 = -1;  /* T_criticalExtensions_40 */
 static int hf_lte_rrc_c1_36 = -1;                 /* T_c1_36 */
 static int hf_lte_rrc_ueRadioAccessCapabilityInformation_r8 = -1;  /* UERadioAccessCapabilityInformation_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_40 = -1;  /* T_criticalExtensionsFuture_40 */
 static int hf_lte_rrc_ue_RadioAccessCapabilityInfo_01 = -1;  /* T_ue_RadioAccessCapabilityInfo */
-static int hf_lte_rrc_nonCriticalExtension_132 = -1;  /* T_nonCriticalExtension_51 */
+static int hf_lte_rrc_nonCriticalExtension_144 = -1;  /* T_nonCriticalExtension_51 */
 static int hf_lte_rrc_sourceMeasConfig = -1;      /* MeasConfig */
 static int hf_lte_rrc_sourceRadioResourceConfig = -1;  /* RadioResourceConfigDedicated */
 static int hf_lte_rrc_sourceSecurityAlgorithmConfig = -1;  /* SecurityAlgorithmConfig */
@@ -2341,6 +2539,7 @@ static int hf_lte_rrc_sourceSystemInformationBlockType1Ext = -1;  /* T_sourceSys
 static int hf_lte_rrc_sourceOtherConfig_r9 = -1;  /* OtherConfig_r9 */
 static int hf_lte_rrc_sourceSCellConfigList_r10 = -1;  /* SCellToAddModList_r10 */
 static int hf_lte_rrc_sourceDl_CarrierFreq_v9e0 = -1;  /* ARFCN_ValueEUTRA_v9e0 */
+static int hf_lte_rrc_sourceWlan_OffloadConfig_r12 = -1;  /* WLAN_OffloadConfig_r12 */
 static int hf_lte_rrc_reestablishmentInfo = -1;   /* ReestablishmentInfo */
 static int hf_lte_rrc_idc_Indication_r11_01 = -1;  /* T_idc_Indication_r11_01 */
 static int hf_lte_rrc_mbmsInterestIndication_r11_01 = -1;  /* T_mbmsInterestIndication_r11 */
@@ -2464,6 +2663,8 @@ static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
+static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1 = -1;
+static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
 static int hf_lte_rrc_sr_config_subframe_offset = -1;
 static int hf_lte_rrc_cdma_time = -1;
@@ -2586,7 +2787,10 @@ static gint ett_lte_rrc_T_criticalExtensionsFuture_08 = -1;
 static gint ett_lte_rrc_LoggedMeasurementConfiguration_r10_IEs = -1;
 static gint ett_lte_rrc_LoggedMeasurementConfiguration_v1080_IEs = -1;
 static gint ett_lte_rrc_LoggedMeasurementConfiguration_v1130_IEs = -1;
+static gint ett_lte_rrc_LoggedMeasurementConfiguration_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_08 = -1;
+static gint ett_lte_rrc_TargetMBSFN_AreaList_r12 = -1;
+static gint ett_lte_rrc_TargetMBSFN_Area_r12 = -1;
 static gint ett_lte_rrc_MasterInformationBlock = -1;
 static gint ett_lte_rrc_MBMSCountingRequest_r10 = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_09 = -1;
@@ -2608,6 +2812,7 @@ static gint ett_lte_rrc_MBMSInterestIndication_r11_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_11 = -1;
 static gint ett_lte_rrc_MBSFNAreaConfiguration_r9 = -1;
 static gint ett_lte_rrc_MBSFNAreaConfiguration_v930_IEs = -1;
+static gint ett_lte_rrc_MBSFNAreaConfiguration_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_12 = -1;
 static gint ett_lte_rrc_CommonSF_AllocPatternList_r9 = -1;
 static gint ett_lte_rrc_MeasurementReport = -1;
@@ -2677,6 +2882,9 @@ static gint ett_lte_rrc_RRCConnectionReconfiguration_v890_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfiguration_v920_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfiguration_v1020_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfiguration_v1130_IEs = -1;
+static gint ett_lte_rrc_RRCConnectionReconfiguration_v12xy_IEs = -1;
+static gint ett_lte_rrc_T_wlan_OffloadDedicated_r12 = -1;
+static gint ett_lte_rrc_T_setup = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_20 = -1;
 static gint ett_lte_rrc_SCellToAddModList_r10 = -1;
 static gint ett_lte_rrc_SCellToAddMod_r10 = -1;
@@ -2693,6 +2901,7 @@ static gint ett_lte_rrc_RRCConnectionReconfigurationComplete_r8_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfigurationComplete_v8a0_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfigurationComplete_v1020_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReconfigurationComplete_v1130_IEs = -1;
+static gint ett_lte_rrc_RRCConnectionReconfigurationComplete_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_21 = -1;
 static gint ett_lte_rrc_RRCConnectionReestablishment = -1;
 static gint ett_lte_rrc_T_criticalExtensions_18 = -1;
@@ -2709,6 +2918,7 @@ static gint ett_lte_rrc_RRCConnectionReestablishmentComplete_v920_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReestablishmentComplete_v8a0_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReestablishmentComplete_v1020_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionReestablishmentComplete_v1130_IEs = -1;
+static gint ett_lte_rrc_RRCConnectionReestablishmentComplete_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_23 = -1;
 static gint ett_lte_rrc_RRCConnectionReestablishmentReject = -1;
 static gint ett_lte_rrc_T_criticalExtensions_20 = -1;
@@ -2790,6 +3000,7 @@ static gint ett_lte_rrc_RRCConnectionSetupComplete_r8_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionSetupComplete_v8a0_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionSetupComplete_v1020_IEs = -1;
 static gint ett_lte_rrc_RRCConnectionSetupComplete_v1130_IEs = -1;
+static gint ett_lte_rrc_RRCConnectionSetupComplete_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_29 = -1;
 static gint ett_lte_rrc_RegisteredMME = -1;
 static gint ett_lte_rrc_SecurityModeCommand = -1;
@@ -2829,6 +3040,8 @@ static gint ett_lte_rrc_SystemInformationBlockType1_v9e0_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_34 = -1;
 static gint ett_lte_rrc_SystemInformationBlockType1_v920_IEs = -1;
 static gint ett_lte_rrc_SystemInformationBlockType1_v1130_IEs = -1;
+static gint ett_lte_rrc_SystemInformationBlockType1_v12xy_IEs = -1;
+static gint ett_lte_rrc_T_cellAccessRelatedInfo_v12xy = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_35 = -1;
 static gint ett_lte_rrc_PLMN_IdentityList = -1;
 static gint ett_lte_rrc_PLMN_IdentityInfo = -1;
@@ -2859,6 +3072,7 @@ static gint ett_lte_rrc_T_c1_29 = -1;
 static gint ett_lte_rrc_T_criticalExtensionsFuture_33 = -1;
 static gint ett_lte_rrc_UECapabilityInformation_r8_IEs = -1;
 static gint ett_lte_rrc_UECapabilityInformation_v8a0_IEs = -1;
+static gint ett_lte_rrc_UECapabilityInformation_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_38 = -1;
 static gint ett_lte_rrc_UEInformationRequest_r9 = -1;
 static gint ett_lte_rrc_T_criticalExtensions_34 = -1;
@@ -2868,6 +3082,7 @@ static gint ett_lte_rrc_UEInformationRequest_r9_IEs = -1;
 static gint ett_lte_rrc_UEInformationRequest_v930_IEs = -1;
 static gint ett_lte_rrc_UEInformationRequest_v1020_IEs = -1;
 static gint ett_lte_rrc_UEInformationRequest_v1130_IEs = -1;
+static gint ett_lte_rrc_UEInformationRequest_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_39 = -1;
 static gint ett_lte_rrc_UEInformationResponse_r9 = -1;
 static gint ett_lte_rrc_T_criticalExtensions_35 = -1;
@@ -2880,6 +3095,7 @@ static gint ett_lte_rrc_T_nonCriticalExtension_40 = -1;
 static gint ett_lte_rrc_UEInformationResponse_v930_IEs = -1;
 static gint ett_lte_rrc_UEInformationResponse_v1020_IEs = -1;
 static gint ett_lte_rrc_UEInformationResponse_v1130_IEs = -1;
+static gint ett_lte_rrc_UEInformationResponse_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_41 = -1;
 static gint ett_lte_rrc_RLF_Report_r9 = -1;
 static gint ett_lte_rrc_T_measResultLastServCell_r9 = -1;
@@ -2892,6 +3108,7 @@ static gint ett_lte_rrc_T_previousUTRA_CellId_r11 = -1;
 static gint ett_lte_rrc_T_physCellId_r11 = -1;
 static gint ett_lte_rrc_T_selectedUTRA_CellId_r11 = -1;
 static gint ett_lte_rrc_T_physCellId_r11_01 = -1;
+static gint ett_lte_rrc_T_failedPCellId_v12xy = -1;
 static gint ett_lte_rrc_RLF_Report_v9e0 = -1;
 static gint ett_lte_rrc_MeasResultList2EUTRA_r9 = -1;
 static gint ett_lte_rrc_MeasResultList2EUTRA_v9e0 = -1;
@@ -2906,6 +3123,11 @@ static gint ett_lte_rrc_LogMeasInfoList_r10 = -1;
 static gint ett_lte_rrc_LogMeasInfo_r10 = -1;
 static gint ett_lte_rrc_T_measResultServCell_r10 = -1;
 static gint ett_lte_rrc_T_measResultNeighCells_r10 = -1;
+static gint ett_lte_rrc_MeasResultListMBSFN_r12 = -1;
+static gint ett_lte_rrc_MeasResultMBSFN_r12 = -1;
+static gint ett_lte_rrc_T_mbsfn_Area_r12 = -1;
+static gint ett_lte_rrc_DataBLER_MCH_ResultList_r12 = -1;
+static gint ett_lte_rrc_DataBLER_MCH_Result_r12 = -1;
 static gint ett_lte_rrc_MeasResultList2GERAN_r10 = -1;
 static gint ett_lte_rrc_ConnEstFailReport_r11 = -1;
 static gint ett_lte_rrc_T_measResultFailedCell_r11 = -1;
@@ -3024,6 +3246,12 @@ static gint ett_lte_rrc_MBMS_SAI_InterFreq_r11 = -1;
 static gint ett_lte_rrc_MBMS_SAI_InterFreq_v1140 = -1;
 static gint ett_lte_rrc_SystemInformationBlockType16_r11 = -1;
 static gint ett_lte_rrc_T_timeInfo_r11 = -1;
+static gint ett_lte_rrc_SystemInformationBlockType17_r12 = -1;
+static gint ett_lte_rrc_SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12 = -1;
+static gint ett_lte_rrc_WLAN_OffloadPerPLMN_r12 = -1;
+static gint ett_lte_rrc_WLAN_Id_List_r12 = -1;
+static gint ett_lte_rrc_WLAN_Id_r12 = -1;
+static gint ett_lte_rrc_T_wlan_Identifiers = -1;
 static gint ett_lte_rrc_AntennaInfoCommon = -1;
 static gint ett_lte_rrc_AntennaInfoDedicated = -1;
 static gint ett_lte_rrc_T_codebookSubsetRestriction = -1;
@@ -3032,25 +3260,29 @@ static gint ett_lte_rrc_AntennaInfoDedicated_v920 = -1;
 static gint ett_lte_rrc_T_codebookSubsetRestriction_v920 = -1;
 static gint ett_lte_rrc_AntennaInfoDedicated_r10 = -1;
 static gint ett_lte_rrc_T_ue_TransmitAntennaSelection_01 = -1;
+static gint ett_lte_rrc_AntennaInfoDedicated_v12xx = -1;
 static gint ett_lte_rrc_AntennaInfoUL_r10 = -1;
 static gint ett_lte_rrc_CQI_ReportConfig = -1;
 static gint ett_lte_rrc_CQI_ReportConfig_v920 = -1;
 static gint ett_lte_rrc_CQI_ReportConfig_r10 = -1;
 static gint ett_lte_rrc_T_csi_SubframePatternConfig_r10 = -1;
-static gint ett_lte_rrc_T_setup_02 = -1;
+static gint ett_lte_rrc_T_setup_03 = -1;
 static gint ett_lte_rrc_CQI_ReportConfig_v1130 = -1;
+static gint ett_lte_rrc_CQI_ReportConfig_v12x0 = -1;
+static gint ett_lte_rrc_T_csi_SubframePatternConfig_r12 = -1;
+static gint ett_lte_rrc_T_setup_04 = -1;
 static gint ett_lte_rrc_CQI_ReportConfigSCell_r10 = -1;
 static gint ett_lte_rrc_CQI_ReportPeriodic = -1;
-static gint ett_lte_rrc_T_setup_03 = -1;
+static gint ett_lte_rrc_T_setup_05 = -1;
 static gint ett_lte_rrc_T_cqi_FormatIndicatorPeriodic = -1;
 static gint ett_lte_rrc_T_subbandCQI = -1;
 static gint ett_lte_rrc_CQI_ReportPeriodic_r10 = -1;
-static gint ett_lte_rrc_T_setup_04 = -1;
+static gint ett_lte_rrc_T_setup_06 = -1;
 static gint ett_lte_rrc_T_cqi_FormatIndicatorPeriodic_r10 = -1;
 static gint ett_lte_rrc_T_widebandCQI_r10 = -1;
 static gint ett_lte_rrc_T_subbandCQI_r10 = -1;
 static gint ett_lte_rrc_T_csi_ConfigIndex_r10 = -1;
-static gint ett_lte_rrc_T_setup_05 = -1;
+static gint ett_lte_rrc_T_setup_07 = -1;
 static gint ett_lte_rrc_CQI_ReportPeriodic_v1130 = -1;
 static gint ett_lte_rrc_CQI_ReportPeriodicProcExtToAddModList_r11 = -1;
 static gint ett_lte_rrc_CQI_ReportPeriodicProcExtToReleaseList_r11 = -1;
@@ -3059,14 +3291,20 @@ static gint ett_lte_rrc_T_cqi_FormatIndicatorPeriodic_r11 = -1;
 static gint ett_lte_rrc_T_widebandCQI_r11 = -1;
 static gint ett_lte_rrc_T_subbandCQI_r11 = -1;
 static gint ett_lte_rrc_T_csi_ConfigIndex_r11 = -1;
-static gint ett_lte_rrc_T_setup_06 = -1;
+static gint ett_lte_rrc_T_setup_08 = -1;
 static gint ett_lte_rrc_CQI_ReportAperiodic_r10 = -1;
-static gint ett_lte_rrc_T_setup_07 = -1;
+static gint ett_lte_rrc_T_setup_09 = -1;
 static gint ett_lte_rrc_T_aperiodicCSI_Trigger_r10 = -1;
+static gint ett_lte_rrc_CQI_ReportAperiodic_v12x0 = -1;
+static gint ett_lte_rrc_T_setup_10 = -1;
+static gint ett_lte_rrc_T_aperiodicCSI_Trigger_r12 = -1;
 static gint ett_lte_rrc_CQI_ReportAperiodicProc_r11 = -1;
 static gint ett_lte_rrc_CQI_ReportBoth_r11 = -1;
+static gint ett_lte_rrc_CQI_ReportBoth_r12 = -1;
 static gint ett_lte_rrc_CSI_IM_ConfigToAddModList_r11 = -1;
+static gint ett_lte_rrc_CSI_IM_ConfigToAddModList_r12 = -1;
 static gint ett_lte_rrc_CSI_IM_ConfigToReleaseList_r11 = -1;
+static gint ett_lte_rrc_CSI_IM_ConfigToReleaseList_r12 = -1;
 static gint ett_lte_rrc_CSI_ProcessToAddModList_r11 = -1;
 static gint ett_lte_rrc_CSI_ProcessToReleaseList_r11 = -1;
 static gint ett_lte_rrc_CQI_ReportBothProc_r11 = -1;
@@ -3075,40 +3313,51 @@ static gint ett_lte_rrc_T_schedulingCellInfo_r10 = -1;
 static gint ett_lte_rrc_T_own_r10 = -1;
 static gint ett_lte_rrc_T_other_r10 = -1;
 static gint ett_lte_rrc_CSI_IM_Config_r11 = -1;
+static gint ett_lte_rrc_CSI_IM_Config_r12 = -1;
 static gint ett_lte_rrc_CSI_Process_r11 = -1;
 static gint ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_P_C_AndCBSR_r11 = -1;
+static gint ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12 = -1;
 static gint ett_lte_rrc_P_C_AndCBSR_r11 = -1;
 static gint ett_lte_rrc_CSI_RS_Config_r10 = -1;
 static gint ett_lte_rrc_T_csi_RS_r10 = -1;
-static gint ett_lte_rrc_T_setup_08 = -1;
+static gint ett_lte_rrc_T_setup_11 = -1;
 static gint ett_lte_rrc_T_zeroTxPowerCSI_RS_r10 = -1;
-static gint ett_lte_rrc_T_setup_09 = -1;
+static gint ett_lte_rrc_T_setup_12 = -1;
+static gint ett_lte_rrc_CSI_RS_Config2_r12 = -1;
+static gint ett_lte_rrc_T_zeroTxPowerCSI_RS_r12 = -1;
+static gint ett_lte_rrc_T_setup_13 = -1;
 static gint ett_lte_rrc_CSI_RS_ConfigNZP_r11 = -1;
 static gint ett_lte_rrc_T_qcl_CRS_Info_r11 = -1;
 static gint ett_lte_rrc_T_mbsfn_SubframeConfigList_r11 = -1;
-static gint ett_lte_rrc_T_setup_10 = -1;
+static gint ett_lte_rrc_T_setup_14 = -1;
 static gint ett_lte_rrc_CSI_RS_ConfigZP_r11 = -1;
 static gint ett_lte_rrc_DMRS_Config_r11 = -1;
-static gint ett_lte_rrc_T_setup_11 = -1;
+static gint ett_lte_rrc_T_setup_15 = -1;
 static gint ett_lte_rrc_EPDCCH_Config_r11 = -1;
 static gint ett_lte_rrc_T_config_r11 = -1;
-static gint ett_lte_rrc_T_setup_12 = -1;
+static gint ett_lte_rrc_T_setup_16 = -1;
 static gint ett_lte_rrc_T_subframePatternConfig_r11 = -1;
-static gint ett_lte_rrc_T_setup_13 = -1;
+static gint ett_lte_rrc_T_setup_17 = -1;
 static gint ett_lte_rrc_EPDCCH_SetConfigToAddModList_r11 = -1;
 static gint ett_lte_rrc_EPDCCH_SetConfigToReleaseList_r11 = -1;
 static gint ett_lte_rrc_EPDCCH_SetConfig_r11 = -1;
 static gint ett_lte_rrc_T_resourceBlockAssignment_r11 = -1;
+static gint ett_lte_rrc_EIMTA_MainConfig_r12 = -1;
+static gint ett_lte_rrc_T_setup_18 = -1;
+static gint ett_lte_rrc_EIMTA_MainConfigServCell_r12 = -1;
+static gint ett_lte_rrc_T_setup_19 = -1;
+static gint ett_lte_rrc_T_mbsfn_SubframeConfigList_v12x0 = -1;
+static gint ett_lte_rrc_T_setup_20 = -1;
 static gint ett_lte_rrc_LogicalChannelConfig = -1;
 static gint ett_lte_rrc_T_ul_SpecificParameters = -1;
 static gint ett_lte_rrc_MAC_MainConfig = -1;
 static gint ett_lte_rrc_T_ul_SCH_Config = -1;
 static gint ett_lte_rrc_T_phr_Config = -1;
-static gint ett_lte_rrc_T_setup_14 = -1;
+static gint ett_lte_rrc_T_setup_21 = -1;
 static gint ett_lte_rrc_T_mac_MainConfig_v1020 = -1;
 static gint ett_lte_rrc_MAC_MainConfigSCell_r11 = -1;
 static gint ett_lte_rrc_DRX_Config = -1;
-static gint ett_lte_rrc_T_setup_15 = -1;
+static gint ett_lte_rrc_T_setup_22 = -1;
 static gint ett_lte_rrc_T_longDRX_CycleStartOffset = -1;
 static gint ett_lte_rrc_T_shortDRX = -1;
 static gint ett_lte_rrc_DRX_Config_v1130 = -1;
@@ -3130,13 +3379,13 @@ static gint ett_lte_rrc_RE_MappingQCLConfigToReleaseList_r11 = -1;
 static gint ett_lte_rrc_PDSCH_RE_MappingQCL_Config_r11 = -1;
 static gint ett_lte_rrc_T_optionalSetOfFields_r11 = -1;
 static gint ett_lte_rrc_T_mbsfn_SubframeConfigList_r11_01 = -1;
-static gint ett_lte_rrc_T_setup_16 = -1;
+static gint ett_lte_rrc_T_setup_23 = -1;
 static gint ett_lte_rrc_PHICH_Config = -1;
 static gint ett_lte_rrc_PhysicalConfigDedicated = -1;
 static gint ett_lte_rrc_T_antennaInfo = -1;
 static gint ett_lte_rrc_T_antennaInfo_r10 = -1;
 static gint ett_lte_rrc_T_additionalSpectrumEmissionCA_r10 = -1;
-static gint ett_lte_rrc_T_setup_17 = -1;
+static gint ett_lte_rrc_T_setup_24 = -1;
 static gint ett_lte_rrc_PhysicalConfigDedicatedSCell_r10 = -1;
 static gint ett_lte_rrc_T_nonUL_Configuration_r10 = -1;
 static gint ett_lte_rrc_T_ul_Configuration_r10 = -1;
@@ -3151,24 +3400,27 @@ static gint ett_lte_rrc_PRACH_ConfigInfo = -1;
 static gint ett_lte_rrc_PUCCH_ConfigCommon = -1;
 static gint ett_lte_rrc_PUCCH_ConfigDedicated = -1;
 static gint ett_lte_rrc_T_ackNackRepetition = -1;
-static gint ett_lte_rrc_T_setup_18 = -1;
+static gint ett_lte_rrc_T_setup_25 = -1;
 static gint ett_lte_rrc_PUCCH_ConfigDedicated_v1020 = -1;
 static gint ett_lte_rrc_T_pucch_Format_r10 = -1;
 static gint ett_lte_rrc_T_format3_r10 = -1;
 static gint ett_lte_rrc_T_n3PUCCH_AN_List_r10 = -1;
 static gint ett_lte_rrc_T_twoAntennaPortActivatedPUCCH_Format3_r10 = -1;
-static gint ett_lte_rrc_T_setup_19 = -1;
+static gint ett_lte_rrc_T_setup_26 = -1;
 static gint ett_lte_rrc_T_n3PUCCH_AN_ListP1_r10 = -1;
 static gint ett_lte_rrc_T_channelSelection_r10 = -1;
 static gint ett_lte_rrc_T_n1PUCCH_AN_CS_r10 = -1;
-static gint ett_lte_rrc_T_setup_20 = -1;
+static gint ett_lte_rrc_T_setup_27 = -1;
 static gint ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_N1PUCCH_AN_CS_r10 = -1;
 static gint ett_lte_rrc_PUCCH_ConfigDedicated_v1130 = -1;
 static gint ett_lte_rrc_T_n1PUCCH_AN_CS_v1130 = -1;
-static gint ett_lte_rrc_T_setup_21 = -1;
+static gint ett_lte_rrc_T_setup_28 = -1;
 static gint ett_lte_rrc_T_n1PUCCH_AN_CS_ListP1_r11 = -1;
 static gint ett_lte_rrc_T_nPUCCH_Param_r11 = -1;
-static gint ett_lte_rrc_T_setup_22 = -1;
+static gint ett_lte_rrc_T_setup_29 = -1;
+static gint ett_lte_rrc_PUCCH_ConfigDedicated_v12x0 = -1;
+static gint ett_lte_rrc_T_n1PUCCH_Param_r12 = -1;
+static gint ett_lte_rrc_T_setup_30 = -1;
 static gint ett_lte_rrc_N1PUCCH_AN_CS_r10 = -1;
 static gint ett_lte_rrc_PUSCH_ConfigCommon = -1;
 static gint ett_lte_rrc_T_pusch_ConfigBasic = -1;
@@ -3177,13 +3429,19 @@ static gint ett_lte_rrc_PUSCH_ConfigDedicated_v1020 = -1;
 static gint ett_lte_rrc_T_betaOffsetMC_r10 = -1;
 static gint ett_lte_rrc_PUSCH_ConfigDedicated_v1130 = -1;
 static gint ett_lte_rrc_T_pusch_DMRS_r11 = -1;
-static gint ett_lte_rrc_T_setup_23 = -1;
+static gint ett_lte_rrc_T_setup_31 = -1;
+static gint ett_lte_rrc_PUSCH_ConfigDedicated_v12x0 = -1;
+static gint ett_lte_rrc_T_uciOnPUSCH = -1;
+static gint ett_lte_rrc_T_setup_32 = -1;
+static gint ett_lte_rrc_T_betaOffsetMC_r12 = -1;
 static gint ett_lte_rrc_PUSCH_ConfigDedicatedSCell_r10 = -1;
 static gint ett_lte_rrc_UL_ReferenceSignalsPUSCH = -1;
 static gint ett_lte_rrc_RACH_ConfigCommon = -1;
 static gint ett_lte_rrc_T_preambleInfo = -1;
 static gint ett_lte_rrc_T_preamblesGroupAConfig = -1;
 static gint ett_lte_rrc_T_ra_SupervisionInfo = -1;
+static gint ett_lte_rrc_RACH_ConfigCommon_v12xy = -1;
+static gint ett_lte_rrc_T_txFailParams_r12 = -1;
 static gint ett_lte_rrc_RACH_ConfigCommonSCell_r11 = -1;
 static gint ett_lte_rrc_T_ra_SupervisionInfo_r11 = -1;
 static gint ett_lte_rrc_PowerRampingParameters = -1;
@@ -3215,12 +3473,15 @@ static gint ett_lte_rrc_T_am = -1;
 static gint ett_lte_rrc_T_um_Bi_Directional = -1;
 static gint ett_lte_rrc_T_um_Uni_Directional_UL = -1;
 static gint ett_lte_rrc_T_um_Uni_Directional_DL = -1;
+static gint ett_lte_rrc_T_am_v12xy = -1;
 static gint ett_lte_rrc_UL_AM_RLC = -1;
+static gint ett_lte_rrc_UL_AM_RLC_r12 = -1;
 static gint ett_lte_rrc_DL_AM_RLC = -1;
+static gint ett_lte_rrc_DL_AM_RLC_r12 = -1;
 static gint ett_lte_rrc_UL_UM_RLC = -1;
 static gint ett_lte_rrc_DL_UM_RLC = -1;
 static gint ett_lte_rrc_RLF_TimersAndConstants_r9 = -1;
-static gint ett_lte_rrc_T_setup_24 = -1;
+static gint ett_lte_rrc_T_setup_33 = -1;
 static gint ett_lte_rrc_RN_SubframeConfig_r10 = -1;
 static gint ett_lte_rrc_T_subframeConfigPattern_r10 = -1;
 static gint ett_lte_rrc_T_rpdcch_Config_r10 = -1;
@@ -3235,32 +3496,33 @@ static gint ett_lte_rrc_T_n1PUCCH_AN_List_r10 = -1;
 static gint ett_lte_rrc_T_fallbackForFormat3 = -1;
 static gint ett_lte_rrc_T_fdd = -1;
 static gint ett_lte_rrc_SchedulingRequestConfig = -1;
-static gint ett_lte_rrc_T_setup_25 = -1;
+static gint ett_lte_rrc_T_setup_34 = -1;
 static gint ett_lte_rrc_SchedulingRequestConfig_v1020 = -1;
 static gint ett_lte_rrc_SoundingRS_UL_ConfigCommon = -1;
-static gint ett_lte_rrc_T_setup_26 = -1;
+static gint ett_lte_rrc_T_setup_35 = -1;
 static gint ett_lte_rrc_SoundingRS_UL_ConfigDedicated = -1;
-static gint ett_lte_rrc_T_setup_27 = -1;
+static gint ett_lte_rrc_T_setup_36 = -1;
 static gint ett_lte_rrc_SoundingRS_UL_ConfigDedicated_v1020 = -1;
 static gint ett_lte_rrc_SoundingRS_UL_ConfigDedicatedAperiodic_r10 = -1;
-static gint ett_lte_rrc_T_setup_28 = -1;
+static gint ett_lte_rrc_T_setup_37 = -1;
 static gint ett_lte_rrc_SEQUENCE_SIZE_1_3_OF_SRS_ConfigAp_r10 = -1;
 static gint ett_lte_rrc_T_srs_ActivateAp_r10 = -1;
-static gint ett_lte_rrc_T_setup_29 = -1;
+static gint ett_lte_rrc_T_setup_38 = -1;
 static gint ett_lte_rrc_SRS_ConfigAp_r10 = -1;
 static gint ett_lte_rrc_SPS_Config = -1;
 static gint ett_lte_rrc_SPS_ConfigDL = -1;
-static gint ett_lte_rrc_T_setup_30 = -1;
+static gint ett_lte_rrc_T_setup_39 = -1;
 static gint ett_lte_rrc_T_twoAntennaPortActivated_r10 = -1;
-static gint ett_lte_rrc_T_setup_31 = -1;
+static gint ett_lte_rrc_T_setup_40 = -1;
 static gint ett_lte_rrc_SPS_ConfigUL = -1;
-static gint ett_lte_rrc_T_setup_32 = -1;
+static gint ett_lte_rrc_T_setup_41 = -1;
 static gint ett_lte_rrc_T_p0_Persistent = -1;
+static gint ett_lte_rrc_T_p0_Persistent_SubframeSet2_r12 = -1;
 static gint ett_lte_rrc_N1PUCCH_AN_PersistentList = -1;
 static gint ett_lte_rrc_TDD_Config = -1;
 static gint ett_lte_rrc_TDD_Config_v1130 = -1;
 static gint ett_lte_rrc_TPC_PDCCH_Config = -1;
-static gint ett_lte_rrc_T_setup_33 = -1;
+static gint ett_lte_rrc_T_setup_42 = -1;
 static gint ett_lte_rrc_TPC_Index = -1;
 static gint ett_lte_rrc_UplinkPowerControlCommon = -1;
 static gint ett_lte_rrc_UplinkPowerControlCommon_v1020 = -1;
@@ -3269,6 +3531,9 @@ static gint ett_lte_rrc_UplinkPowerControlCommonSCell_v1130 = -1;
 static gint ett_lte_rrc_UplinkPowerControlDedicated = -1;
 static gint ett_lte_rrc_UplinkPowerControlDedicated_v1020 = -1;
 static gint ett_lte_rrc_UplinkPowerControlDedicated_v1130 = -1;
+static gint ett_lte_rrc_UplinkPowerControlDedicated_v12x0 = -1;
+static gint ett_lte_rrc_T_set2PowerControlParameter = -1;
+static gint ett_lte_rrc_T_setup_43 = -1;
 static gint ett_lte_rrc_UplinkPowerControlDedicatedSCell_r10 = -1;
 static gint ett_lte_rrc_DeltaFList_PUCCH = -1;
 static gint ett_lte_rrc_DeltaTxD_OffsetListPUCCH_r10 = -1;
@@ -3315,12 +3580,12 @@ static gint ett_lte_rrc_LocationInfo_r10 = -1;
 static gint ett_lte_rrc_T_locationCoordinates_r10 = -1;
 static gint ett_lte_rrc_MeasConfig = -1;
 static gint ett_lte_rrc_T_speedStatePars = -1;
-static gint ett_lte_rrc_T_setup_34 = -1;
+static gint ett_lte_rrc_T_setup_44 = -1;
 static gint ett_lte_rrc_MeasIdToRemoveList = -1;
 static gint ett_lte_rrc_MeasObjectToRemoveList = -1;
 static gint ett_lte_rrc_ReportConfigToRemoveList = -1;
 static gint ett_lte_rrc_MeasGapConfig = -1;
-static gint ett_lte_rrc_T_setup_35 = -1;
+static gint ett_lte_rrc_T_setup_45 = -1;
 static gint ett_lte_rrc_T_gapOffset = -1;
 static gint ett_lte_rrc_MeasIdToAddModList = -1;
 static gint ett_lte_rrc_MeasIdToAddMod = -1;
@@ -3334,8 +3599,10 @@ static gint ett_lte_rrc_CellsToAddMod = -1;
 static gint ett_lte_rrc_BlackCellsToAddModList = -1;
 static gint ett_lte_rrc_BlackCellsToAddMod = -1;
 static gint ett_lte_rrc_MeasSubframePatternConfigNeigh_r10 = -1;
-static gint ett_lte_rrc_T_setup_36 = -1;
+static gint ett_lte_rrc_T_setup_46 = -1;
 static gint ett_lte_rrc_MeasSubframeCellList_r10 = -1;
+static gint ett_lte_rrc_AltTTT_CellsToAddModList_r12 = -1;
+static gint ett_lte_rrc_AltTTT_CellsToAddMod_r12 = -1;
 static gint ett_lte_rrc_MeasObjectGERAN = -1;
 static gint ett_lte_rrc_MeasObjectToAddModList = -1;
 static gint ett_lte_rrc_MeasObjectToAddModList_v9e0 = -1;
@@ -3421,7 +3688,7 @@ static gint ett_lte_rrc_IDC_Config_r11 = -1;
 static gint ett_lte_rrc_T_autonomousDenialParameters_r11 = -1;
 static gint ett_lte_rrc_ObtainLocationConfig_r11 = -1;
 static gint ett_lte_rrc_PowerPrefIndicationConfig_r11 = -1;
-static gint ett_lte_rrc_T_setup_37 = -1;
+static gint ett_lte_rrc_T_setup_47 = -1;
 static gint ett_lte_rrc_ReportProximityConfig_r9 = -1;
 static gint ett_lte_rrc_S_TMSI = -1;
 static gint ett_lte_rrc_TraceReference_r10 = -1;
@@ -3444,11 +3711,13 @@ static gint ett_lte_rrc_UE_EUTRA_Capability_v1090_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1130_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1170_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1180_IEs = -1;
+static gint ett_lte_rrc_UE_EUTRA_Capability_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_48 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1130 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1180 = -1;
+static gint ett_lte_rrc_RLC_Parameters_r12 = -1;
 static gint ett_lte_rrc_PDCP_Parameters = -1;
 static gint ett_lte_rrc_T_supportedROHC_Profiles = -1;
 static gint ett_lte_rrc_PDCP_Parameters_v1130 = -1;
@@ -3458,6 +3727,7 @@ static gint ett_lte_rrc_PhyLayerParameters_v9d0 = -1;
 static gint ett_lte_rrc_PhyLayerParameters_v1020 = -1;
 static gint ett_lte_rrc_PhyLayerParameters_v1130 = -1;
 static gint ett_lte_rrc_PhyLayerParameters_v1170 = -1;
+static gint ett_lte_rrc_PhyLayerParameters_v12xy = -1;
 static gint ett_lte_rrc_NonContiguousUL_RA_WithinCC_List_r10 = -1;
 static gint ett_lte_rrc_NonContiguousUL_RA_WithinCC_r10 = -1;
 static gint ett_lte_rrc_RF_Parameters = -1;
@@ -3495,6 +3765,7 @@ static gint ett_lte_rrc_SupportedBandEUTRA_v9e0 = -1;
 static gint ett_lte_rrc_MeasParameters = -1;
 static gint ett_lte_rrc_MeasParameters_v1020 = -1;
 static gint ett_lte_rrc_MeasParameters_v1130 = -1;
+static gint ett_lte_rrc_MeasParameters_v12xy = -1;
 static gint ett_lte_rrc_BandListEUTRA = -1;
 static gint ett_lte_rrc_BandCombinationListEUTRA_r10 = -1;
 static gint ett_lte_rrc_BandInfoEUTRA = -1;
@@ -3528,10 +3799,22 @@ static gint ett_lte_rrc_CSG_ProximityIndicationParameters_r9 = -1;
 static gint ett_lte_rrc_NeighCellSI_AcquisitionParameters_r9 = -1;
 static gint ett_lte_rrc_SON_Parameters_r9 = -1;
 static gint ett_lte_rrc_UE_BasedNetwPerfMeasParameters_r10 = -1;
+static gint ett_lte_rrc_UE_BasedNetwPerfMeasParameters_v12xy = -1;
 static gint ett_lte_rrc_OTDOA_PositioningCapabilities_r10 = -1;
 static gint ett_lte_rrc_Other_Parameters_r11 = -1;
 static gint ett_lte_rrc_MBMS_Parameters_r11 = -1;
+static gint ett_lte_rrc_UE_RadioPagingInfo_r12 = -1;
 static gint ett_lte_rrc_UE_TimersAndConstants = -1;
+static gint ett_lte_rrc_VisitedCellInfoList_r12 = -1;
+static gint ett_lte_rrc_VisitedCellInfo_r12 = -1;
+static gint ett_lte_rrc_T_visitedCellId_r12 = -1;
+static gint ett_lte_rrc_T_pci_arfcn_r12 = -1;
+static gint ett_lte_rrc_WLAN_OffloadConfig_r12 = -1;
+static gint ett_lte_rrc_T_thresholdRSRP_r12 = -1;
+static gint ett_lte_rrc_T_thresholdRSRQ_r12 = -1;
+static gint ett_lte_rrc_T_thresholdChannelUtilization_r12 = -1;
+static gint ett_lte_rrc_T_thresholdBackhaul_Bandwidth_r12 = -1;
+static gint ett_lte_rrc_T_thresholdBeaconRSSI_r12 = -1;
 static gint ett_lte_rrc_MBMS_NotificationConfig_r9 = -1;
 static gint ett_lte_rrc_MBSFN_AreaInfoList_r9 = -1;
 static gint ett_lte_rrc_MBSFN_AreaInfo_r9 = -1;
@@ -3539,10 +3822,13 @@ static gint ett_lte_rrc_T_mcch_Config_r9 = -1;
 static gint ett_lte_rrc_MBSFN_SubframeConfig = -1;
 static gint ett_lte_rrc_T_subframeAllocation = -1;
 static gint ett_lte_rrc_PMCH_InfoList_r9 = -1;
+static gint ett_lte_rrc_PMCH_InfoListExt_r12 = -1;
 static gint ett_lte_rrc_PMCH_Info_r9 = -1;
+static gint ett_lte_rrc_PMCH_InfoExt_r12 = -1;
 static gint ett_lte_rrc_MBMS_SessionInfoList_r9 = -1;
 static gint ett_lte_rrc_MBMS_SessionInfo_r9 = -1;
 static gint ett_lte_rrc_PMCH_Config_r9 = -1;
+static gint ett_lte_rrc_PMCH_Config_r12 = -1;
 static gint ett_lte_rrc_TMGI_r9 = -1;
 static gint ett_lte_rrc_T_plmn_Id_r9 = -1;
 static gint ett_lte_rrc_HandoverCommand = -1;
@@ -3560,6 +3846,7 @@ static gint ett_lte_rrc_HandoverPreparationInformation_v920_IEs = -1;
 static gint ett_lte_rrc_HandoverPreparationInformation_v9d0_IEs = -1;
 static gint ett_lte_rrc_HandoverPreparationInformation_v9e0_IEs = -1;
 static gint ett_lte_rrc_HandoverPreparationInformation_v1130_IEs = -1;
+static gint ett_lte_rrc_HandoverPreparationInformation_v12xy_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_50 = -1;
 static gint ett_lte_rrc_UERadioAccessCapabilityInformation = -1;
 static gint ett_lte_rrc_T_criticalExtensions_40 = -1;
@@ -3569,6 +3856,7 @@ static gint ett_lte_rrc_UERadioAccessCapabilityInformation_r8_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_51 = -1;
 static gint ett_lte_rrc_AS_Config = -1;
 static gint ett_lte_rrc_AS_Config_v9e0 = -1;
+static gint ett_lte_rrc_AS_Config_v12xy = -1;
 static gint ett_lte_rrc_AS_Context = -1;
 static gint ett_lte_rrc_AS_Context_v1130 = -1;
 static gint ett_lte_rrc_ReestablishmentInfo = -1;
@@ -3579,7 +3867,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 202 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 204 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -3595,6 +3883,7 @@ static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
+static gint ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12 = -1;
 static gint ett_lte_rrc_sr_ConfigIndex = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
@@ -5209,6 +5498,16 @@ static const true_false_string lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_
   "SCell DL subframes are neither superset nor subset of PCell by SIB1 configuration - Not supported",
 };
 
+static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1_val = {
+  "TDD PCell - Supported",
+  "TDD PCell - Not supported"
+};
+
+static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val = {
+  "FDD PCell - Supported",
+  "FDD PCell - Not supported"
+};
+
 /*****************************************************************************/
 /* Packet private data                                                       */
 /* For this dissector, all access to actx->private_data should be made       */
@@ -5998,7 +6297,6 @@ dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, as
   private_data_set_ra_preambles(actx, 0);
 
 
-
   return offset;
 }
 
@@ -6675,7 +6973,7 @@ dissect_lte_rrc_T_srs_MaxUpPts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t T_setup_26_sequence[] = {
+static const per_sequence_t T_setup_35_sequence[] = {
   { &hf_lte_rrc_srs_BandwidthConfig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_srs_BandwidthConfig },
   { &hf_lte_rrc_srs_SubframeConfig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_srs_SubframeConfig },
   { &hf_lte_rrc_ackNackSRS_SimultaneousTransmission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
@@ -6684,9 +6982,9 @@ static const per_sequence_t T_setup_26_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_26, T_setup_26_sequence);
+                                   ett_lte_rrc_T_setup_35, T_setup_35_sequence);
 
   return offset;
 }
@@ -6700,7 +6998,7 @@ static const value_string lte_rrc_SoundingRS_UL_ConfigCommon_vals[] = {
 
 static const per_choice_t SoundingRS_UL_ConfigCommon_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_28    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_26 },
+  {   1, &hf_lte_rrc_setup_37    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_35 },
   { 0, NULL, 0, NULL }
 };
 
@@ -6978,6 +7276,102 @@ dissect_lte_rrc_RadioResourceConfigCommonSIB_eag_1(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const value_string lte_rrc_T_connEstFailCount_r12_vals[] = {
+  {   0, "n1" },
+  {   1, "n2" },
+  {   2, "n3" },
+  {   3, "n4" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_connEstFailCount_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_connEstFailOffsetValidity_r12_vals[] = {
+  {   0, "s30" },
+  {   1, "s60" },
+  {   2, "s120" },
+  {   3, "s240" },
+  {   4, "s300" },
+  {   5, "s420" },
+  {   6, "s600" },
+  {   7, "s900" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_connEstFailOffsetValidity_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_connEstFailOffset_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "dB");
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_txFailParams_r12_sequence[] = {
+  { &hf_lte_rrc_connEstFailCount_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_connEstFailCount_r12 },
+  { &hf_lte_rrc_connEstFailOffsetValidity_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_connEstFailOffsetValidity_r12 },
+  { &hf_lte_rrc_connEstFailOffset_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_connEstFailOffset_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_txFailParams_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_txFailParams_r12, T_txFailParams_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RACH_ConfigCommon_v12xy_sequence[] = {
+  { &hf_lte_rrc_txFailParams_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_txFailParams_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RACH_ConfigCommon_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RACH_ConfigCommon_v12xy, RACH_ConfigCommon_v12xy_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RadioResourceConfigCommonSIB_eag_2_sequence[] = {
+  { &hf_lte_rrc_rach_ConfigCommon_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RACH_ConfigCommon_v12xy },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RadioResourceConfigCommonSIB_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, RadioResourceConfigCommonSIB_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RadioResourceConfigCommonSIB_sequence[] = {
   { &hf_lte_rrc_rach_ConfigCommon, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RACH_ConfigCommon },
   { &hf_lte_rrc_bcch_Config , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BCCH_Config },
@@ -6990,6 +7384,7 @@ static const per_sequence_t RadioResourceConfigCommonSIB_sequence[] = {
   { &hf_lte_rrc_uplinkPowerControlCommon, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UplinkPowerControlCommon },
   { &hf_lte_rrc_ul_CyclicPrefixLength, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UL_CyclicPrefixLength },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RadioResourceConfigCommonSIB_eag_1 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RadioResourceConfigCommonSIB_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7358,6 +7753,66 @@ dissect_lte_rrc_SystemInformationBlockType2_eag_2(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const value_string lte_rrc_T_ac_BarringSkipForMMTELVoice_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_ac_BarringSkipForMMTELVoice_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_ac_BarringSkipForMMTELVideo_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_ac_BarringSkipForMMTELVideo_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_ac_BarringSkipForSMS_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_ac_BarringSkipForSMS_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SystemInformationBlockType2_eag_3_sequence[] = {
+  { &hf_lte_rrc_ac_BarringSkipForMMTELVoice_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ac_BarringSkipForMMTELVoice_r12 },
+  { &hf_lte_rrc_ac_BarringSkipForMMTELVideo_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ac_BarringSkipForMMTELVideo_r12 },
+  { &hf_lte_rrc_ac_BarringSkipForSMS_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ac_BarringSkipForSMS_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SystemInformationBlockType2_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, SystemInformationBlockType2_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t SystemInformationBlockType2_sequence[] = {
   { &hf_lte_rrc_ac_BarringInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_ac_BarringInfo },
   { &hf_lte_rrc_radioResourceConfigCommon, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RadioResourceConfigCommonSIB },
@@ -7368,6 +7823,7 @@ static const per_sequence_t SystemInformationBlockType2_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension_04, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lte_rrc_T_lateNonCriticalExtension_03 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInformationBlockType2_eag_1 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInformationBlockType2_eag_2 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInformationBlockType2_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -10401,6 +10857,325 @@ dissect_lte_rrc_SystemInformationBlockType16_r11(tvbuff_t *tvb _U_, int offset _
 }
 
 
+
+static int
+dissect_lte_rrc_RSRP_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 97U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_thresholdRSRP_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdRSRP_Low_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRP_Range },
+  { &hf_lte_rrc_thresholdRSRP_High_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRP_Range },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_thresholdRSRP_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_thresholdRSRP_r12, T_thresholdRSRP_r12_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_RSRQ_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 34U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_thresholdRSRQ_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdRSRQ_Low_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRQ_Range },
+  { &hf_lte_rrc_thresholdRSRQ_High_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRQ_Range },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_thresholdRSRQ_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_thresholdRSRQ_r12, T_thresholdRSRQ_r12_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_thresholdChannelUtilizationLow_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, " (BSS load)");
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_thresholdChannelUtilizationHigh_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, " (BSS load)");
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_thresholdChannelUtilization_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdChannelUtilizationLow_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_thresholdChannelUtilizationLow_r12 },
+  { &hf_lte_rrc_thresholdChannelUtilizationHigh_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_thresholdChannelUtilizationHigh_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_thresholdChannelUtilization_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_thresholdChannelUtilization_r12, T_thresholdChannelUtilization_r12_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_WLAN_backhaulRate_vals[] = {
+  {   0, "r0" },
+  {   1, "r2" },
+  {   2, "r4" },
+  {   3, "r8" },
+  {   4, "r16" },
+  {   5, "r32" },
+  {   6, "r64" },
+  {   7, "r128" },
+  {   8, "r256" },
+  {   9, "r512" },
+  {  10, "r1024" },
+  {  11, "r2048" },
+  {  12, "r4096" },
+  {  13, "r8192" },
+  {  14, "r16384" },
+  {  15, "r32768" },
+  {  16, "r65536" },
+  {  17, "r131072" },
+  {  18, "r262144" },
+  {  19, "r524288" },
+  {  20, "r1048576" },
+  {  21, "r2097152" },
+  {  22, "r4194304" },
+  {  23, "r8388608" },
+  {  24, "r16777216" },
+  {  25, "r33554432" },
+  {  26, "r67108864" },
+  {  27, "r134217728" },
+  {  28, "r268435456" },
+  {  29, "r536870912" },
+  {  30, "r1073741824" },
+  {  31, "r2147483648" },
+  {  32, "r4294967296" },
+  { 0, NULL }
+};
+
+static value_string_ext lte_rrc_WLAN_backhaulRate_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_WLAN_backhaulRate_vals);
+
+
+static int
+dissect_lte_rrc_WLAN_backhaulRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     33, NULL, FALSE, 0, NULL);
+
+  proto_item_append_text(actx->created_item, " Kbps");
+
+  return offset;
+}
+
+
+static const per_sequence_t T_thresholdBackhaul_Bandwidth_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdBackhaulDL_BandwidthLow_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_backhaulRate },
+  { &hf_lte_rrc_thresholdBackhaulDL_BandwidthHigh_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_backhaulRate },
+  { &hf_lte_rrc_thresholdBackhaulUL_BandwidthLow_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_backhaulRate },
+  { &hf_lte_rrc_thresholdBackhaulUL_BandwidthHigh_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_backhaulRate },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_thresholdBackhaul_Bandwidth_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_thresholdBackhaul_Bandwidth_r12, T_thresholdBackhaul_Bandwidth_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_thresholdBeaconRSSI_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdBeaconRSSI_Low_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_255 },
+  { &hf_lte_rrc_thresholdBeaconRSSI_High_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_255 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_thresholdBeaconRSSI_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_thresholdBeaconRSSI_r12, T_thresholdBeaconRSSI_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLAN_OffloadConfig_r12_sequence[] = {
+  { &hf_lte_rrc_thresholdRSRP_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_thresholdRSRP_r12 },
+  { &hf_lte_rrc_thresholdRSRQ_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_thresholdRSRQ_r12 },
+  { &hf_lte_rrc_thresholdChannelUtilization_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_thresholdChannelUtilization_r12 },
+  { &hf_lte_rrc_thresholdBackhaul_Bandwidth_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_thresholdBackhaul_Bandwidth_r12 },
+  { &hf_lte_rrc_thresholdBeaconRSSI_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_thresholdBeaconRSSI_r12 },
+  { &hf_lte_rrc_offloadPreferenceIndicator_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_BIT_STRING_SIZE_16 },
+  { &hf_lte_rrc_t_SteeringWLAN_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_Reselection },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_WLAN_OffloadConfig_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_WLAN_OffloadConfig_r12, WLAN_OffloadConfig_r12_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_ssid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *ssid_tvb = NULL;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       1, 32, FALSE, &ssid_tvb);
+
+  actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_OCTET_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       6, 6, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_wlan_Identifiers_vals[] = {
+  {   0, "ssid" },
+  {   1, "bssid" },
+  {   2, "hessid" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_wlan_Identifiers_choice[] = {
+  {   0, &hf_lte_rrc_ssid        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_ssid },
+  {   1, &hf_lte_rrc_bssid       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_OCTET_STRING_SIZE_6 },
+  {   2, &hf_lte_rrc_hessid      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_OCTET_STRING_SIZE_6 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_wlan_Identifiers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_wlan_Identifiers, T_wlan_Identifiers_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLAN_Id_r12_sequence[] = {
+  { &hf_lte_rrc_wlan_Identifiers, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_wlan_Identifiers },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_WLAN_Id_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_WLAN_Id_r12, WLAN_Id_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLAN_Id_List_r12_sequence_of[1] = {
+  { &hf_lte_rrc_WLAN_Id_List_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_Id_r12 },
+};
+
+static int
+dissect_lte_rrc_WLAN_Id_List_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_WLAN_Id_List_r12, WLAN_Id_List_r12_sequence_of,
+                                                  1, maxWLAN_Id_r12, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLAN_OffloadPerPLMN_r12_sequence[] = {
+  { &hf_lte_rrc_plmn_Identity_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_maxPLMN_r11 },
+  { &hf_lte_rrc_wlan_OffloadConfigCommon_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_OffloadConfig_r12 },
+  { &hf_lte_rrc_wlan_Id_List_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_WLAN_Id_List_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_WLAN_OffloadPerPLMN_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_WLAN_OffloadPerPLMN_r12, WLAN_OffloadPerPLMN_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12_sequence_of[1] = {
+  { &hf_lte_rrc_wlan_OffloadPerPLMN_List_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_OffloadPerPLMN_r12 },
+};
+
+static int
+dissect_lte_rrc_SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12, SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12_sequence_of,
+                                                  1, maxPLMN_r11, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SystemInformationBlockType17_r12_sequence[] = {
+  { &hf_lte_rrc_wlan_OffloadPerPLMN_List_r12, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12 },
+  { &hf_lte_rrc_lateNonCriticalExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SystemInformationBlockType17_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB17 ");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_SystemInformationBlockType17_r12, SystemInformationBlockType17_r12_sequence);
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_T_sib_TypeAndInfo_item_vals[] = {
   {   0, "sib2" },
   {   1, "sib3" },
@@ -10417,6 +11192,7 @@ static const value_string lte_rrc_T_sib_TypeAndInfo_item_vals[] = {
   {  12, "sib14-v1130" },
   {  13, "sib15-v1130" },
   {  14, "sib16-v1130" },
+  {  15, "sib17-v12xy" },
   { 0, NULL }
 };
 
@@ -10436,6 +11212,7 @@ static const per_choice_t T_sib_TypeAndInfo_item_choice[] = {
   {  12, &hf_lte_rrc_sib14_v1130 , ASN1_NOT_EXTENSION_ROOT, dissect_lte_rrc_SystemInformationBlockType14_r11 },
   {  13, &hf_lte_rrc_sib15_v1130 , ASN1_NOT_EXTENSION_ROOT, dissect_lte_rrc_SystemInformationBlockType15_r11 },
   {  14, &hf_lte_rrc_sib16_v1130 , ASN1_NOT_EXTENSION_ROOT, dissect_lte_rrc_SystemInformationBlockType16_r11 },
+  {  15, &hf_lte_rrc_sib17_v12xy , ASN1_NOT_EXTENSION_ROOT, dissect_lte_rrc_SystemInformationBlockType17_r12 },
   { 0, NULL, 0, NULL }
 };
 
@@ -10478,7 +11255,7 @@ dissect_lte_rrc_T_nonCriticalExtension_33(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SystemInformation_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_80, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_33 },
+  { &hf_lte_rrc_nonCriticalExtension_86, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_33 },
   { NULL, 0, 0, NULL }
 };
 
@@ -10493,7 +11270,7 @@ dissect_lte_rrc_SystemInformation_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, as
 
 static const per_sequence_t SystemInformation_r8_IEs_sequence[] = {
   { &hf_lte_rrc_sib_TypeAndInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_sib_TypeAndInfo },
-  { &hf_lte_rrc_nonCriticalExtension_79, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformation_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_85, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformation_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -10807,7 +11584,7 @@ static const value_string lte_rrc_SIB_Type_vals[] = {
   {  11, "sibType14-v1130" },
   {  12, "sibType15-v1130" },
   {  13, "sibType16-v1130" },
-  {  14, "spare2" },
+  {  14, "sibType17-v12xy" },
   {  15, "spare1" },
   { 0, NULL }
 };
@@ -11077,6 +11854,35 @@ dissect_lte_rrc_CellSelectionInfo_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+static const value_string lte_rrc_T_category0Allowed_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_category0Allowed_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_cellAccessRelatedInfo_v12xy_sequence[] = {
+  { &hf_lte_rrc_category0Allowed_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_category0Allowed_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_cellAccessRelatedInfo_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_cellAccessRelatedInfo_v12xy, T_cellAccessRelatedInfo_v12xy_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_35_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -11090,10 +11896,25 @@ dissect_lte_rrc_T_nonCriticalExtension_35(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t SystemInformationBlockType1_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_cellAccessRelatedInfo_v12xy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_cellAccessRelatedInfo_v12xy },
+  { &hf_lte_rrc_nonCriticalExtension_93, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_35 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SystemInformationBlockType1_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_SystemInformationBlockType1_v12xy_IEs, SystemInformationBlockType1_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t SystemInformationBlockType1_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_tdd_Config_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_TDD_Config_v1130 },
   { &hf_lte_rrc_cellSelectionInfo_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CellSelectionInfo_v1130 },
-  { &hf_lte_rrc_nonCriticalExtension_86, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_35 },
+  { &hf_lte_rrc_nonCriticalExtension_92, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11109,7 +11930,7 @@ dissect_lte_rrc_SystemInformationBlockType1_v1130_IEs(tvbuff_t *tvb _U_, int off
 static const per_sequence_t SystemInformationBlockType1_v920_IEs_sequence[] = {
   { &hf_lte_rrc_ims_EmergencySupport_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ims_EmergencySupport_r9 },
   { &hf_lte_rrc_cellSelectionInfo_v920, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CellSelectionInfo_v920 },
-  { &hf_lte_rrc_nonCriticalExtension_85, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_91, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11124,7 +11945,7 @@ dissect_lte_rrc_SystemInformationBlockType1_v920_IEs(tvbuff_t *tvb _U_, int offs
 
 static const per_sequence_t SystemInformationBlockType1_v890_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_lateNonCriticalExtension_01 },
-  { &hf_lte_rrc_nonCriticalExtension_82, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_88, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11146,7 +11967,7 @@ static const per_sequence_t SystemInformationBlockType1_sequence[] = {
   { &hf_lte_rrc_tdd_Config  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_TDD_Config },
   { &hf_lte_rrc_si_WindowLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_si_WindowLength },
   { &hf_lte_rrc_systemInfoValueTag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_systemInfoValueTag },
-  { &hf_lte_rrc_nonCriticalExtension_81, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v890_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_87, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v890_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11452,6 +12273,74 @@ dissect_lte_rrc_PMCH_InfoList_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string lte_rrc_T_mch_SchedulingPeriod_r12_vals[] = {
+  {   0, "rf4" },
+  {   1, "rf8" },
+  {   2, "rf16" },
+  {   3, "rf32" },
+  {   4, "rf64" },
+  {   5, "rf128" },
+  {   6, "rf256" },
+  {   7, "rf512" },
+  {   8, "rf1024" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_mch_SchedulingPeriod_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     9, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PMCH_Config_r12_sequence[] = {
+  { &hf_lte_rrc_sf_AllocEnd_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1535 },
+  { &hf_lte_rrc_dataMCS_r12 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_28 },
+  { &hf_lte_rrc_mch_SchedulingPeriod_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_mch_SchedulingPeriod_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PMCH_Config_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_PMCH_Config_r12, PMCH_Config_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PMCH_InfoExt_r12_sequence[] = {
+  { &hf_lte_rrc_pmch_Config_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PMCH_Config_r12 },
+  { &hf_lte_rrc_mbms_SessionInfoList_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MBMS_SessionInfoList_r9 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PMCH_InfoExt_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_PMCH_InfoExt_r12, PMCH_InfoExt_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PMCH_InfoListExt_r12_sequence_of[1] = {
+  { &hf_lte_rrc_PMCH_InfoListExt_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PMCH_InfoExt_r12 },
+};
+
+static int
+dissect_lte_rrc_PMCH_InfoListExt_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_PMCH_InfoListExt_r12, PMCH_InfoListExt_r12_sequence_of,
+                                                  0, maxPMCH_PerMBSFN, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_12_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -11465,9 +12354,24 @@ dissect_lte_rrc_T_nonCriticalExtension_12(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t MBSFNAreaConfiguration_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_pmch_InfoListExt_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PMCH_InfoListExt_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_25, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MBSFNAreaConfiguration_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_MBSFNAreaConfiguration_v12xy_IEs, MBSFNAreaConfiguration_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MBSFNAreaConfiguration_v930_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_23, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_12 },
+  { &hf_lte_rrc_nonCriticalExtension_24, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MBSFNAreaConfiguration_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11484,7 +12388,7 @@ static const per_sequence_t MBSFNAreaConfiguration_r9_sequence[] = {
   { &hf_lte_rrc_commonSF_Alloc_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CommonSF_AllocPatternList_r9 },
   { &hf_lte_rrc_commonSF_AllocPeriod_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_commonSF_AllocPeriod_r9 },
   { &hf_lte_rrc_pmch_InfoList_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PMCH_InfoList_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_22, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MBSFNAreaConfiguration_v930_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_23, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MBSFNAreaConfiguration_v930_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11564,7 +12468,7 @@ dissect_lte_rrc_T_nonCriticalExtension_09(tvbuff_t *tvb _U_, int offset _U_, asn
 static const per_sequence_t MBMSCountingRequest_r10_sequence[] = {
   { &hf_lte_rrc_countingRequestList_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CountingRequestList_r10 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_19, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_09 },
+  { &hf_lte_rrc_nonCriticalExtension_20, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_09 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11898,7 +12802,7 @@ dissect_lte_rrc_T_nonCriticalExtension_16(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t Paging_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_eab_ParamModification_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_eab_ParamModification_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_35, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_16 },
+  { &hf_lte_rrc_nonCriticalExtension_37, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11913,7 +12817,7 @@ dissect_lte_rrc_Paging_v1130_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static const per_sequence_t Paging_v920_IEs_sequence[] = {
   { &hf_lte_rrc_cmas_Indication_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_cmas_Indication_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_36, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11928,7 +12832,7 @@ dissect_lte_rrc_Paging_v920_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static const per_sequence_t Paging_v890_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_33, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_35, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -11945,7 +12849,7 @@ static const per_sequence_t Paging_sequence[] = {
   { &hf_lte_rrc_pagingRecordList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_pagingRecordList },
   { &hf_lte_rrc_systemInfoModification, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_systemInfoModification },
   { &hf_lte_rrc_etws_Indication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_etws_Indication },
-  { &hf_lte_rrc_nonCriticalExtension_32, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v890_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v890_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -12475,11 +13379,89 @@ dissect_lte_rrc_T_um_Uni_Directional_DL(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+
+static int
+dissect_lte_rrc_T_extended_RLC_LI_Field_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  gboolean ext_li_field;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &ext_li_field);
+
+  if (mapping != NULL) {
+    mapping->rlc_ul_ext_li_field = ext_li_field;
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t UL_AM_RLC_r12_sequence[] = {
+  { &hf_lte_rrc_ul_AM_RLC_r12_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UL_AM_RLC },
+  { &hf_lte_rrc_extended_RLC_LI_Field_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_extended_RLC_LI_Field_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UL_AM_RLC_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UL_AM_RLC_r12, UL_AM_RLC_r12_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_extended_RLC_LI_Field_r12_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  gboolean ext_li_field;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &ext_li_field);
+
+  if (mapping != NULL) {
+    mapping->rlc_dl_ext_li_field = ext_li_field;
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t DL_AM_RLC_r12_sequence[] = {
+  { &hf_lte_rrc_dl_AM_RLC_r12_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DL_AM_RLC },
+  { &hf_lte_rrc_extended_RLC_LI_Field_r12_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_extended_RLC_LI_Field_r12_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_DL_AM_RLC_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_DL_AM_RLC_r12, DL_AM_RLC_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_am_v12xy_sequence[] = {
+  { &hf_lte_rrc_ul_AM_RLC_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UL_AM_RLC_r12 },
+  { &hf_lte_rrc_dl_AM_RLC_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DL_AM_RLC_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_am_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_am_v12xy, T_am_v12xy_sequence);
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_RLC_Config_vals[] = {
   {   0, "am" },
   {   1, "um-Bi-Directional" },
   {   2, "um-Uni-Directional-UL" },
   {   3, "um-Uni-Directional-DL" },
+  {   4, "am-v12xy" },
   { 0, NULL }
 };
 
@@ -12488,6 +13470,7 @@ static const per_choice_t RLC_Config_choice[] = {
   {   1, &hf_lte_rrc_um_Bi_Directional, ASN1_EXTENSION_ROOT    , dissect_lte_rrc_T_um_Bi_Directional },
   {   2, &hf_lte_rrc_um_Uni_Directional_UL, ASN1_EXTENSION_ROOT    , dissect_lte_rrc_T_um_Uni_Directional_UL },
   {   3, &hf_lte_rrc_um_Uni_Directional_DL, ASN1_EXTENSION_ROOT    , dissect_lte_rrc_T_um_Uni_Directional_DL },
+  {   4, &hf_lte_rrc_am_v12xy    , ASN1_NOT_EXTENSION_ROOT, dissect_lte_rrc_T_am_v12xy },
   { 0, NULL, 0, NULL }
 };
 
@@ -13007,14 +13990,21 @@ dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     set_mac_lte_channel_mapping(drb_mapping);
   }
 
-  /* Also tell RLC how many PDCP sequence number bits */
-  if (drb_mapping->pdcp_sn_size_present) {
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
-    if (p_rlc_lte_info) {
+  /* Also tell RLC how many PDCP sequence number bits and wether it should use extended LI */
+  p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
+  if (p_rlc_lte_info) {
+    if (drb_mapping->pdcp_sn_size_present) {
       set_rlc_lte_drb_pdcp_seqnum_length(actx->pinfo,
                                          p_rlc_lte_info->ueid,
                                          drb_mapping->drbid,
                                          drb_mapping->pdcp_sn_size);
+    }
+    if (drb_mapping->rlcMode_present) {
+      set_rlc_lte_drb_li_field(actx->pinfo,
+                               p_rlc_lte_info->ueid,
+                               drb_mapping->drbid,
+                               drb_mapping->rlc_ul_ext_li_field,
+                               drb_mapping->rlc_dl_ext_li_field);
     }
   }
 
@@ -13652,7 +14642,7 @@ dissect_lte_rrc_T_shortDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const per_sequence_t T_setup_15_sequence[] = {
+static const per_sequence_t T_setup_22_sequence[] = {
   { &hf_lte_rrc_onDurationTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_onDurationTimer },
   { &hf_lte_rrc_drx_InactivityTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_drx_InactivityTimer },
   { &hf_lte_rrc_drx_RetransmissionTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_drx_RetransmissionTimer },
@@ -13662,9 +14652,9 @@ static const per_sequence_t T_setup_15_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_15, T_setup_15_sequence);
+                                   ett_lte_rrc_T_setup_22, T_setup_22_sequence);
 
   return offset;
 }
@@ -13678,7 +14668,7 @@ static const value_string lte_rrc_DRX_Config_vals[] = {
 
 static const per_choice_t DRX_Config_choice[] = {
   {   0, &hf_lte_rrc_release_01  , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_release },
-  {   1, &hf_lte_rrc_setup_15    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_15 },
+  {   1, &hf_lte_rrc_setup_22    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_22 },
   { 0, NULL, 0, NULL }
 };
 
@@ -13754,7 +14744,7 @@ dissect_lte_rrc_T_dl_PathlossChange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t T_setup_14_sequence[] = {
+static const per_sequence_t T_setup_21_sequence[] = {
   { &hf_lte_rrc_periodicPHR_Timer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_periodicPHR_Timer },
   { &hf_lte_rrc_prohibitPHR_Timer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_prohibitPHR_Timer },
   { &hf_lte_rrc_dl_PathlossChange, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dl_PathlossChange },
@@ -13762,9 +14752,9 @@ static const per_sequence_t T_setup_14_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_14, T_setup_14_sequence);
+                                   ett_lte_rrc_T_setup_21, T_setup_21_sequence);
 
   return offset;
 }
@@ -13778,7 +14768,7 @@ static const value_string lte_rrc_T_phr_Config_vals[] = {
 
 static const per_choice_t T_phr_Config_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_14    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_14 },
+  {   1, &hf_lte_rrc_setup_21    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_21 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14093,6 +15083,19 @@ dissect_lte_rrc_MAC_MainConfig_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+static const per_sequence_t MAC_MainConfig_eag_4_sequence[] = {
+  { &hf_lte_rrc_e_HARQ_Pattern_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MAC_MainConfig_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MAC_MainConfig_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MAC_MainConfig_sequence[] = {
   { &hf_lte_rrc_ul_SCH_Config, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_ul_SCH_Config },
   { &hf_lte_rrc_drx_Config  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_DRX_Config },
@@ -14101,6 +15104,7 @@ static const per_sequence_t MAC_MainConfig_sequence[] = {
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MAC_MainConfig_eag_1 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MAC_MainConfig_eag_2 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MAC_MainConfig_eag_3 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MAC_MainConfig_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14212,15 +15216,15 @@ dissect_lte_rrc_N1PUCCH_AN_PersistentList(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t T_setup_31_sequence[] = {
+static const per_sequence_t T_setup_40_sequence[] = {
   { &hf_lte_rrc_n1PUCCH_AN_PersistentListP1_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_N1PUCCH_AN_PersistentList },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_31, T_setup_31_sequence);
+                                   ett_lte_rrc_T_setup_40, T_setup_40_sequence);
 
   return offset;
 }
@@ -14234,7 +15238,7 @@ static const value_string lte_rrc_T_twoAntennaPortActivated_r10_vals[] = {
 
 static const per_choice_t T_twoAntennaPortActivated_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_33    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_31 },
+  {   1, &hf_lte_rrc_setup_42    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_40 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14261,7 +15265,7 @@ dissect_lte_rrc_T_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_setup_30_sequence[] = {
+static const per_sequence_t T_setup_39_sequence[] = {
   { &hf_lte_rrc_semiPersistSchedIntervalDL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_semiPersistSchedIntervalDL },
   { &hf_lte_rrc_numberOfConfSPS_Processes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_8 },
   { &hf_lte_rrc_n1PUCCH_AN_PersistentList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_N1PUCCH_AN_PersistentList },
@@ -14270,9 +15274,9 @@ static const per_sequence_t T_setup_30_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_30, T_setup_30_sequence);
+                                   ett_lte_rrc_T_setup_39, T_setup_39_sequence);
 
   return offset;
 }
@@ -14286,7 +15290,7 @@ static const value_string lte_rrc_SPS_ConfigDL_vals[] = {
 
 static const per_choice_t SPS_ConfigDL_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_32    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_30 },
+  {   1, &hf_lte_rrc_setup_41    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_39 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14404,18 +15408,73 @@ dissect_lte_rrc_T_twoIntervalsConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_setup_32_sequence[] = {
-  { &hf_lte_rrc_semiPersistSchedIntervalUL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_semiPersistSchedIntervalUL },
-  { &hf_lte_rrc_implicitReleaseAfter, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_implicitReleaseAfter },
-  { &hf_lte_rrc_p0_Persistent, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_p0_Persistent },
-  { &hf_lte_rrc_twoIntervalsConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_twoIntervalsConfig },
+
+static int
+dissect_lte_rrc_T_p0_NominalPUSCH_Persistent_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -126, 24U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "dBm");
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_p0_UE_PUSCH_Persistent_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -8, 7U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "dB");
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_p0_Persistent_SubframeSet2_r12_sequence[] = {
+  { &hf_lte_rrc_p0_NominalPUSCH_Persistent_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_p0_NominalPUSCH_Persistent_SubframeSet2_r12 },
+  { &hf_lte_rrc_p0_UE_PUSCH_Persistent_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_p0_UE_PUSCH_Persistent_SubframeSet2_r12 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_p0_Persistent_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_32, T_setup_32_sequence);
+                                   ett_lte_rrc_T_p0_Persistent_SubframeSet2_r12, T_p0_Persistent_SubframeSet2_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_eag_1_01_sequence[] = {
+  { &hf_lte_rrc_p0_Persistent_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_p0_Persistent_SubframeSet2_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_eag_1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_01_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_41_sequence[] = {
+  { &hf_lte_rrc_semiPersistSchedIntervalUL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_semiPersistSchedIntervalUL },
+  { &hf_lte_rrc_implicitReleaseAfter, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_implicitReleaseAfter },
+  { &hf_lte_rrc_p0_Persistent, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_p0_Persistent },
+  { &hf_lte_rrc_twoIntervalsConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_twoIntervalsConfig },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_1_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_41(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_41, T_setup_41_sequence);
 
   return offset;
 }
@@ -14429,7 +15488,7 @@ static const value_string lte_rrc_SPS_ConfigUL_vals[] = {
 
 static const per_choice_t SPS_ConfigUL_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_34    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_32 },
+  {   1, &hf_lte_rrc_setup_43    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_41 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14513,16 +15572,16 @@ dissect_lte_rrc_T_repetitionFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const per_sequence_t T_setup_18_sequence[] = {
+static const per_sequence_t T_setup_25_sequence[] = {
   { &hf_lte_rrc_repetitionFactor, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_repetitionFactor },
   { &hf_lte_rrc_n1PUCCH_AN_Rep, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_18, T_setup_18_sequence);
+                                   ett_lte_rrc_T_setup_25, T_setup_25_sequence);
 
   return offset;
 }
@@ -14536,7 +15595,7 @@ static const value_string lte_rrc_T_ackNackRepetition_vals[] = {
 
 static const per_choice_t T_ackNackRepetition_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_18    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_18 },
+  {   1, &hf_lte_rrc_setup_25    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_25 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14730,16 +15789,16 @@ dissect_lte_rrc_TPC_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t T_setup_33_sequence[] = {
+static const per_sequence_t T_setup_42_sequence[] = {
   { &hf_lte_rrc_tpc_RNTI    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
   { &hf_lte_rrc_tpc_Index   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_TPC_Index },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_42(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_33, T_setup_33_sequence);
+                                   ett_lte_rrc_T_setup_42, T_setup_42_sequence);
 
   return offset;
 }
@@ -14753,7 +15812,7 @@ static const value_string lte_rrc_TPC_PDCCH_Config_vals[] = {
 
 static const per_choice_t TPC_PDCCH_Config_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_35    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_33 },
+  {   1, &hf_lte_rrc_setup_44    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_42 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14773,7 +15832,7 @@ static const value_string lte_rrc_CQI_ReportModeAperiodic_vals[] = {
   {   2, "rm22" },
   {   3, "rm30" },
   {   4, "rm31" },
-  {   5, "spare3" },
+  {   5, "rm32-v12xx" },
   {   6, "spare2" },
   {   7, "spare1" },
   { 0, NULL }
@@ -14845,7 +15904,7 @@ dissect_lte_rrc_T_cqi_FormatIndicatorPeriodic(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const per_sequence_t T_setup_03_sequence[] = {
+static const per_sequence_t T_setup_05_sequence[] = {
   { &hf_lte_rrc_cqi_PUCCH_ResourceIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1185 },
   { &hf_lte_rrc_cqi_pmi_ConfigIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1023 },
   { &hf_lte_rrc_cqi_FormatIndicatorPeriodic, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_cqi_FormatIndicatorPeriodic },
@@ -14855,9 +15914,9 @@ static const per_sequence_t T_setup_03_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_03, T_setup_03_sequence);
+                                   ett_lte_rrc_T_setup_05, T_setup_05_sequence);
 
   return offset;
 }
@@ -14871,7 +15930,7 @@ static const value_string lte_rrc_CQI_ReportPeriodic_vals[] = {
 
 static const per_choice_t CQI_ReportPeriodic_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_03    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_03 },
+  {   1, &hf_lte_rrc_setup_05    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_05 },
   { 0, NULL, 0, NULL }
 };
 
@@ -14990,7 +16049,7 @@ dissect_lte_rrc_T_cyclicShift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t T_setup_27_sequence[] = {
+static const per_sequence_t T_setup_36_sequence[] = {
   { &hf_lte_rrc_srs_Bandwidth, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_srs_Bandwidth },
   { &hf_lte_rrc_srs_HoppingBandwidth, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_srs_HoppingBandwidth },
   { &hf_lte_rrc_freqDomainPosition, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_23 },
@@ -15002,9 +16061,9 @@ static const per_sequence_t T_setup_27_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_27, T_setup_27_sequence);
+                                   ett_lte_rrc_T_setup_36, T_setup_36_sequence);
 
   return offset;
 }
@@ -15018,7 +16077,7 @@ static const value_string lte_rrc_SoundingRS_UL_ConfigDedicated_vals[] = {
 
 static const per_choice_t SoundingRS_UL_ConfigDedicated_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_29    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_27 },
+  {   1, &hf_lte_rrc_setup_38    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_36 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15118,7 +16177,7 @@ dissect_lte_rrc_T_codebookSubsetRestriction(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const value_string lte_rrc_T_setup_vals[] = {
+static const value_string lte_rrc_T_setup_01_vals[] = {
   {   0, "closedLoop" },
   {   1, "openLoop" },
   { 0, NULL }
@@ -15126,7 +16185,7 @@ static const value_string lte_rrc_T_setup_vals[] = {
 
 
 static int
-dissect_lte_rrc_T_setup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
 
@@ -15142,7 +16201,7 @@ static const value_string lte_rrc_T_ue_TransmitAntennaSelection_vals[] = {
 
 static const per_choice_t T_ue_TransmitAntennaSelection_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup },
+  {   1, &hf_lte_rrc_setup_01    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_01 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15242,7 +16301,7 @@ dissect_lte_rrc_T_dsr_TransMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t T_setup_25_sequence[] = {
+static const per_sequence_t T_setup_34_sequence[] = {
   { &hf_lte_rrc_sr_PUCCH_ResourceIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
   { &hf_lte_rrc_sr_ConfigIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_sr_ConfigIndex },
   { &hf_lte_rrc_dsr_TransMax, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dsr_TransMax },
@@ -15250,9 +16309,9 @@ static const per_sequence_t T_setup_25_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_25, T_setup_25_sequence);
+                                   ett_lte_rrc_T_setup_34, T_setup_34_sequence);
 
   return offset;
 }
@@ -15266,7 +16325,7 @@ static const value_string lte_rrc_SchedulingRequestConfig_vals[] = {
 
 static const per_choice_t SchedulingRequestConfig_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_27    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_25 },
+  {   1, &hf_lte_rrc_setup_36    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_34 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15415,7 +16474,7 @@ dissect_lte_rrc_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const value_string lte_rrc_T_setup_01_vals[] = {
+static const value_string lte_rrc_T_setup_02_vals[] = {
   {   0, "closedLoop" },
   {   1, "openLoop" },
   { 0, NULL }
@@ -15423,7 +16482,7 @@ static const value_string lte_rrc_T_setup_01_vals[] = {
 
 
 static int
-dissect_lte_rrc_T_setup_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
 
@@ -15439,7 +16498,7 @@ static const value_string lte_rrc_T_ue_TransmitAntennaSelection_01_vals[] = {
 
 static const per_choice_t T_ue_TransmitAntennaSelection_01_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_01    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_01 },
+  {   1, &hf_lte_rrc_setup_02    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_02 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15558,16 +16617,16 @@ dissect_lte_rrc_T_aperiodicCSI_Trigger_r10(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_setup_07_sequence[] = {
+static const per_sequence_t T_setup_09_sequence[] = {
   { &hf_lte_rrc_cqi_ReportModeAperiodic_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CQI_ReportModeAperiodic },
   { &hf_lte_rrc_aperiodicCSI_Trigger_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_aperiodicCSI_Trigger_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_07, T_setup_07_sequence);
+                                   ett_lte_rrc_T_setup_09, T_setup_09_sequence);
 
   return offset;
 }
@@ -15581,7 +16640,7 @@ static const value_string lte_rrc_CQI_ReportAperiodic_r10_vals[] = {
 
 static const per_choice_t CQI_ReportAperiodic_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_07    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_07 },
+  {   1, &hf_lte_rrc_setup_09    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_09 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15703,16 +16762,16 @@ dissect_lte_rrc_T_cqi_Mask_r9_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_setup_05_sequence[] = {
+static const per_sequence_t T_setup_07_sequence[] = {
   { &hf_lte_rrc_cqi_pmi_ConfigIndex2_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1023 },
   { &hf_lte_rrc_ri_ConfigIndex2_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_1023 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_05, T_setup_05_sequence);
+                                   ett_lte_rrc_T_setup_07, T_setup_07_sequence);
 
   return offset;
 }
@@ -15726,7 +16785,7 @@ static const value_string lte_rrc_T_csi_ConfigIndex_r10_vals[] = {
 
 static const per_choice_t T_csi_ConfigIndex_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_05    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_05 },
+  {   1, &hf_lte_rrc_setup_07    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_07 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15740,7 +16799,7 @@ dissect_lte_rrc_T_csi_ConfigIndex_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const per_sequence_t T_setup_04_sequence[] = {
+static const per_sequence_t T_setup_06_sequence[] = {
   { &hf_lte_rrc_cqi_PUCCH_ResourceIndex_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1184 },
   { &hf_lte_rrc_cqi_PUCCH_ResourceIndexP1_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_1184 },
   { &hf_lte_rrc_cqi_pmi_ConfigIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1023 },
@@ -15753,9 +16812,9 @@ static const per_sequence_t T_setup_04_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_04, T_setup_04_sequence);
+                                   ett_lte_rrc_T_setup_06, T_setup_06_sequence);
 
   return offset;
 }
@@ -15769,7 +16828,7 @@ static const value_string lte_rrc_CQI_ReportPeriodic_r10_vals[] = {
 
 static const per_choice_t CQI_ReportPeriodic_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_04    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_04 },
+  {   1, &hf_lte_rrc_setup_06    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_06 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15884,16 +16943,16 @@ dissect_lte_rrc_MeasSubframePattern_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t T_setup_02_sequence[] = {
+static const per_sequence_t T_setup_03_sequence[] = {
   { &hf_lte_rrc_csi_MeasSubframeSet1_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasSubframePattern_r10 },
   { &hf_lte_rrc_csi_MeasSubframeSet2_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasSubframePattern_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_02, T_setup_02_sequence);
+                                   ett_lte_rrc_T_setup_03, T_setup_03_sequence);
 
   return offset;
 }
@@ -15907,7 +16966,7 @@ static const value_string lte_rrc_T_csi_SubframePatternConfig_r10_vals[] = {
 
 static const per_choice_t T_csi_SubframePatternConfig_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_02    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_02 },
+  {   1, &hf_lte_rrc_setup_03    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_03 },
   { 0, NULL, 0, NULL }
 };
 
@@ -15977,7 +17036,7 @@ dissect_lte_rrc_INTEGER_M8_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t T_setup_08_sequence[] = {
+static const per_sequence_t T_setup_11_sequence[] = {
   { &hf_lte_rrc_antennaPortsCount_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_antennaPortsCount_r10 },
   { &hf_lte_rrc_resourceConfig_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_31 },
   { &hf_lte_rrc_subframeConfig_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_154 },
@@ -15986,9 +17045,9 @@ static const per_sequence_t T_setup_08_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_08, T_setup_08_sequence);
+                                   ett_lte_rrc_T_setup_11, T_setup_11_sequence);
 
   return offset;
 }
@@ -16002,7 +17061,7 @@ static const value_string lte_rrc_T_csi_RS_r10_vals[] = {
 
 static const per_choice_t T_csi_RS_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_08    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_08 },
+  {   1, &hf_lte_rrc_setup_11    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_11 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16016,16 +17075,16 @@ dissect_lte_rrc_T_csi_RS_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const per_sequence_t T_setup_09_sequence[] = {
+static const per_sequence_t T_setup_12_sequence[] = {
   { &hf_lte_rrc_zeroTxPowerResourceConfigList_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
   { &hf_lte_rrc_zeroTxPowerSubframeConfig_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_154 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_09, T_setup_09_sequence);
+                                   ett_lte_rrc_T_setup_12, T_setup_12_sequence);
 
   return offset;
 }
@@ -16039,7 +17098,7 @@ static const value_string lte_rrc_T_zeroTxPowerCSI_RS_r10_vals[] = {
 
 static const per_choice_t T_zeroTxPowerCSI_RS_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_09    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_09 },
+  {   1, &hf_lte_rrc_setup_12    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_12 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16106,15 +17165,15 @@ dissect_lte_rrc_T_n3PUCCH_AN_ListP1_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t T_setup_19_sequence[] = {
+static const per_sequence_t T_setup_26_sequence[] = {
   { &hf_lte_rrc_n3PUCCH_AN_ListP1_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_n3PUCCH_AN_ListP1_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_19, T_setup_19_sequence);
+                                   ett_lte_rrc_T_setup_26, T_setup_26_sequence);
 
   return offset;
 }
@@ -16128,7 +17187,7 @@ static const value_string lte_rrc_T_twoAntennaPortActivatedPUCCH_Format3_r10_val
 
 static const per_choice_t T_twoAntennaPortActivatedPUCCH_Format3_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_19    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_19 },
+  {   1, &hf_lte_rrc_setup_26    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_26 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16185,15 +17244,15 @@ dissect_lte_rrc_SEQUENCE_SIZE_1_2_OF_N1PUCCH_AN_CS_r10(tvbuff_t *tvb _U_, int of
 }
 
 
-static const per_sequence_t T_setup_20_sequence[] = {
+static const per_sequence_t T_setup_27_sequence[] = {
   { &hf_lte_rrc_n1PUCCH_AN_CS_List_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SEQUENCE_SIZE_1_2_OF_N1PUCCH_AN_CS_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_20, T_setup_20_sequence);
+                                   ett_lte_rrc_T_setup_27, T_setup_27_sequence);
 
   return offset;
 }
@@ -16207,7 +17266,7 @@ static const value_string lte_rrc_T_n1PUCCH_AN_CS_r10_vals[] = {
 
 static const per_choice_t T_n1PUCCH_AN_CS_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_20    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_20 },
+  {   1, &hf_lte_rrc_setup_27    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_27 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16484,16 +17543,16 @@ dissect_lte_rrc_SEQUENCE_SIZE_1_3_OF_SRS_ConfigAp_r10(tvbuff_t *tvb _U_, int off
 }
 
 
-static const per_sequence_t T_setup_29_sequence[] = {
+static const per_sequence_t T_setup_38_sequence[] = {
   { &hf_lte_rrc_srs_ConfigApDCI_Format0_r10, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SRS_ConfigAp_r10 },
   { &hf_lte_rrc_srs_ConfigApDCI_Format1a2b2c_r10, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SRS_ConfigAp_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_38(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_29, T_setup_29_sequence);
+                                   ett_lte_rrc_T_setup_38, T_setup_38_sequence);
 
   return offset;
 }
@@ -16507,7 +17566,7 @@ static const value_string lte_rrc_T_srs_ActivateAp_r10_vals[] = {
 
 static const per_choice_t T_srs_ActivateAp_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_31    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_29 },
+  {   1, &hf_lte_rrc_setup_40    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_38 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16521,7 +17580,7 @@ dissect_lte_rrc_T_srs_ActivateAp_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_setup_28_sequence[] = {
+static const per_sequence_t T_setup_37_sequence[] = {
   { &hf_lte_rrc_srs_ConfigIndexAp_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_31 },
   { &hf_lte_rrc_srs_ConfigApDCI_Format4_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_3_OF_SRS_ConfigAp_r10 },
   { &hf_lte_rrc_srs_ActivateAp_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_srs_ActivateAp_r10 },
@@ -16529,9 +17588,9 @@ static const per_sequence_t T_setup_28_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_37(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_28, T_setup_28_sequence);
+                                   ett_lte_rrc_T_setup_37, T_setup_37_sequence);
 
   return offset;
 }
@@ -16545,7 +17604,7 @@ static const value_string lte_rrc_SoundingRS_UL_ConfigDedicatedAperiodic_r10_val
 
 static const per_choice_t SoundingRS_UL_ConfigDedicatedAperiodic_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_30    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_28 },
+  {   1, &hf_lte_rrc_setup_39    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_37 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16678,15 +17737,15 @@ dissect_lte_rrc_PhysicalConfigDedicated_eag_2(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const per_sequence_t T_setup_17_sequence[] = {
+static const per_sequence_t T_setup_24_sequence[] = {
   { &hf_lte_rrc_additionalSpectrumEmissionPCell_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_AdditionalSpectrumEmission },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_17, T_setup_17_sequence);
+                                   ett_lte_rrc_T_setup_24, T_setup_24_sequence);
 
   return offset;
 }
@@ -16700,7 +17759,7 @@ static const value_string lte_rrc_T_additionalSpectrumEmissionCA_r10_vals[] = {
 
 static const per_choice_t T_additionalSpectrumEmissionCA_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_17    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_17 },
+  {   1, &hf_lte_rrc_setup_24    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_24 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16797,15 +17856,15 @@ dissect_lte_rrc_T_crs_PortsCount_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_setup_10_sequence[] = {
+static const per_sequence_t T_setup_14_sequence[] = {
   { &hf_lte_rrc_subframeConfigList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MBSFN_SubframeConfigList },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_10, T_setup_10_sequence);
+                                   ett_lte_rrc_T_setup_14, T_setup_14_sequence);
 
   return offset;
 }
@@ -16819,7 +17878,7 @@ static const value_string lte_rrc_T_mbsfn_SubframeConfigList_r11_vals[] = {
 
 static const per_choice_t T_mbsfn_SubframeConfigList_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_10    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_10 },
+  {   1, &hf_lte_rrc_setup_14    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_14 },
   { 0, NULL, 0, NULL }
 };
 
@@ -16936,15 +17995,15 @@ dissect_lte_rrc_CSI_RS_ConfigZPToAddModList_r11(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const per_sequence_t T_setup_13_sequence[] = {
+static const per_sequence_t T_setup_17_sequence[] = {
   { &hf_lte_rrc_subframePattern_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasSubframePattern_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_13, T_setup_13_sequence);
+                                   ett_lte_rrc_T_setup_17, T_setup_17_sequence);
 
   return offset;
 }
@@ -16958,7 +18017,7 @@ static const value_string lte_rrc_T_subframePatternConfig_r11_vals[] = {
 
 static const per_choice_t T_subframePatternConfig_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_13    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_13 },
+  {   1, &hf_lte_rrc_setup_17    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_17 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17064,6 +18123,19 @@ dissect_lte_rrc_PDSCH_RE_MappingQCL_ConfigId_r11(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const per_sequence_t EPDCCH_SetConfig_r11_eag_1_sequence[] = {
+  { &hf_lte_rrc_csi_RS_ConfigZPId_Second_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CSI_RS_ConfigZPId_r11 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_EPDCCH_SetConfig_r11_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, EPDCCH_SetConfig_r11_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t EPDCCH_SetConfig_r11_sequence[] = {
   { &hf_lte_rrc_setConfigId_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_EPDCCH_SetConfigId_r11 },
   { &hf_lte_rrc_transmissionType_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_transmissionType_r11 },
@@ -17071,6 +18143,7 @@ static const per_sequence_t EPDCCH_SetConfig_r11_sequence[] = {
   { &hf_lte_rrc_dmrs_ScramblingSequenceInt_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_503 },
   { &hf_lte_rrc_pucch_ResourceStartOffset_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
   { &hf_lte_rrc_re_MappingQCL_ConfigId_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PDSCH_RE_MappingQCL_ConfigId_r11 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_EPDCCH_SetConfig_r11_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17097,7 +18170,7 @@ dissect_lte_rrc_EPDCCH_SetConfigToAddModList_r11(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const per_sequence_t T_setup_12_sequence[] = {
+static const per_sequence_t T_setup_16_sequence[] = {
   { &hf_lte_rrc_subframePatternConfig_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_subframePatternConfig_r11 },
   { &hf_lte_rrc_startSymbol_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_1_4 },
   { &hf_lte_rrc_setConfigToReleaseList_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_EPDCCH_SetConfigToReleaseList_r11 },
@@ -17106,9 +18179,9 @@ static const per_sequence_t T_setup_12_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_12, T_setup_12_sequence);
+                                   ett_lte_rrc_T_setup_16, T_setup_16_sequence);
 
   return offset;
 }
@@ -17122,7 +18195,7 @@ static const value_string lte_rrc_T_config_r11_vals[] = {
 
 static const per_choice_t T_config_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_12    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_12 },
+  {   1, &hf_lte_rrc_setup_16    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_16 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17150,16 +18223,16 @@ dissect_lte_rrc_EPDCCH_Config_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const per_sequence_t T_setup_11_sequence[] = {
+static const per_sequence_t T_setup_15_sequence[] = {
   { &hf_lte_rrc_scramblingIdentity_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_503 },
   { &hf_lte_rrc_scramblingIdentity2_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_503 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_11, T_setup_11_sequence);
+                                   ett_lte_rrc_T_setup_15, T_setup_15_sequence);
 
   return offset;
 }
@@ -17173,7 +18246,7 @@ static const value_string lte_rrc_DMRS_Config_r11_vals[] = {
 
 static const per_choice_t DMRS_Config_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_11    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_11 },
+  {   1, &hf_lte_rrc_setup_15    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_15 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17245,15 +18318,15 @@ dissect_lte_rrc_INTEGER_0_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const per_sequence_t T_setup_16_sequence[] = {
+static const per_sequence_t T_setup_23_sequence[] = {
   { &hf_lte_rrc_subframeConfigList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MBSFN_SubframeConfigList },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_16, T_setup_16_sequence);
+                                   ett_lte_rrc_T_setup_23, T_setup_23_sequence);
 
   return offset;
 }
@@ -17267,7 +18340,7 @@ static const value_string lte_rrc_T_mbsfn_SubframeConfigList_r11_01_vals[] = {
 
 static const per_choice_t T_mbsfn_SubframeConfigList_r11_01_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_16    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_16 },
+  {   1, &hf_lte_rrc_setup_23    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_23 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17488,16 +18561,16 @@ dissect_lte_rrc_T_cqi_FormatIndicatorPeriodic_r11(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const per_sequence_t T_setup_06_sequence[] = {
+static const per_sequence_t T_setup_08_sequence[] = {
   { &hf_lte_rrc_cqi_pmi_ConfigIndex2_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_1023 },
   { &hf_lte_rrc_ri_ConfigIndex2_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_1023 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_06, T_setup_06_sequence);
+                                   ett_lte_rrc_T_setup_08, T_setup_08_sequence);
 
   return offset;
 }
@@ -17511,7 +18584,7 @@ static const value_string lte_rrc_T_csi_ConfigIndex_r11_vals[] = {
 
 static const per_choice_t T_csi_ConfigIndex_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_06    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_06 },
+  {   1, &hf_lte_rrc_setup_08    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_08 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17737,6 +18810,60 @@ dissect_lte_rrc_CQI_ReportAperiodicProc_r11(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const value_string lte_rrc_T_alternativeCodebookEnabledFor4TXProc_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_alternativeCodebookEnabledFor4TXProc_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_CSI_IM_ConfigId_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, maxCSI_IM_r12, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12_sequence_of[1] = {
+  { &hf_lte_rrc_csi_IM_ConfigIdList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_IM_ConfigId_r12 },
+};
+
+static int
+dissect_lte_rrc_SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12, SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12_sequence_of,
+                                                  1, 2, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_Process_r11_eag_1_sequence[] = {
+  { &hf_lte_rrc_alternativeCodebookEnabledFor4TXProc_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_alternativeCodebookEnabledFor4TXProc_r12 },
+  { &hf_lte_rrc_csi_IM_ConfigIdList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12 },
+  { &hf_lte_rrc_cqi_ReportAperiodicProcSecond_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportAperiodicProc_r11 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CSI_Process_r11_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, CSI_Process_r11_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t CSI_Process_r11_sequence[] = {
   { &hf_lte_rrc_csi_ProcessId_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_ProcessId_r11 },
   { &hf_lte_rrc_csi_RS_ConfigNZPId_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_RS_ConfigNZPId_r11 },
@@ -17745,6 +18872,7 @@ static const per_sequence_t CSI_Process_r11_sequence[] = {
   { &hf_lte_rrc_cqi_ReportBothProc_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportBothProc_r11 },
   { &hf_lte_rrc_cqi_ReportPeriodicProcId_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_maxCQI_ProcExt_r11 },
   { &hf_lte_rrc_cqi_ReportAperiodicProc_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportAperiodicProc_r11 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_Process_r11_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17817,15 +18945,15 @@ dissect_lte_rrc_T_n1PUCCH_AN_CS_ListP1_r11(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_setup_21_sequence[] = {
+static const per_sequence_t T_setup_28_sequence[] = {
   { &hf_lte_rrc_n1PUCCH_AN_CS_ListP1_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_n1PUCCH_AN_CS_ListP1_r11 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_21, T_setup_21_sequence);
+                                   ett_lte_rrc_T_setup_28, T_setup_28_sequence);
 
   return offset;
 }
@@ -17839,7 +18967,7 @@ static const value_string lte_rrc_T_n1PUCCH_AN_CS_v1130_vals[] = {
 
 static const per_choice_t T_n1PUCCH_AN_CS_v1130_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_21    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_21 },
+  {   1, &hf_lte_rrc_setup_28    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_28 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17853,16 +18981,16 @@ dissect_lte_rrc_T_n1PUCCH_AN_CS_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const per_sequence_t T_setup_22_sequence[] = {
+static const per_sequence_t T_setup_29_sequence[] = {
   { &hf_lte_rrc_nPUCCH_Identity_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_503 },
   { &hf_lte_rrc_n1PUCCH_AN_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_22, T_setup_22_sequence);
+                                   ett_lte_rrc_T_setup_29, T_setup_29_sequence);
 
   return offset;
 }
@@ -17876,7 +19004,7 @@ static const value_string lte_rrc_T_nPUCCH_Param_r11_vals[] = {
 
 static const per_choice_t T_nPUCCH_Param_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_22    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_22 },
+  {   1, &hf_lte_rrc_setup_29    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_29 },
   { 0, NULL, 0, NULL }
 };
 
@@ -17915,16 +19043,16 @@ dissect_lte_rrc_INTEGER_0_509(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t T_setup_23_sequence[] = {
+static const per_sequence_t T_setup_31_sequence[] = {
   { &hf_lte_rrc_nPUSCH_Identity_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_509 },
   { &hf_lte_rrc_nDMRS_CSH_Identity_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_509 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_23, T_setup_23_sequence);
+                                   ett_lte_rrc_T_setup_31, T_setup_31_sequence);
 
   return offset;
 }
@@ -17938,7 +19066,7 @@ static const value_string lte_rrc_T_pusch_DMRS_r11_vals[] = {
 
 static const per_choice_t T_pusch_DMRS_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_23    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_23 },
+  {   1, &hf_lte_rrc_setup_31    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_31 },
   { 0, NULL, 0, NULL }
 };
 
@@ -18044,6 +19172,662 @@ dissect_lte_rrc_PhysicalConfigDedicated_eag_4(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
+static const value_string lte_rrc_T_alternativeCodebookEnabledFor4TX_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_alternativeCodebookEnabledFor4TX_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t AntennaInfoDedicated_v12xx_sequence[] = {
+  { &hf_lte_rrc_alternativeCodebookEnabledFor4TX_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_alternativeCodebookEnabledFor4TX_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_AntennaInfoDedicated_v12xx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_AntennaInfoDedicated_v12xx, AntennaInfoDedicated_v12xx_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_eimta_CommandPeriodicity_r12_vals[] = {
+  {   0, "sf10" },
+  {   1, "sf20" },
+  {   2, "sf40" },
+  {   3, "sf80" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_eimta_CommandPeriodicity_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_18_sequence[] = {
+  { &hf_lte_rrc_eimta_RNTI_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_C_RNTI },
+  { &hf_lte_rrc_eimta_CommandPeriodicity_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eimta_CommandPeriodicity_r12 },
+  { &hf_lte_rrc_eimta_CommandSubframeSet_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_10 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_18, T_setup_18_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_EIMTA_MainConfig_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t EIMTA_MainConfig_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_18    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_18 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_EIMTA_MainConfig_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_EIMTA_MainConfig_r12, EIMTA_MainConfig_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_1_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 5U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_eimta_HarqReferenceConfig_r12_vals[] = {
+  {   0, "sa2" },
+  {   1, "sa4" },
+  {   2, "sa5" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_eimta_HarqReferenceConfig_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_20_sequence[] = {
+  { &hf_lte_rrc_subframeConfigList_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MBSFN_SubframeConfigList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_20, T_setup_20_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_mbsfn_SubframeConfigList_v12x0_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_mbsfn_SubframeConfigList_v12x0_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_20    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_20 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_mbsfn_SubframeConfigList_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_mbsfn_SubframeConfigList_v12x0, T_mbsfn_SubframeConfigList_v12x0_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_19_sequence[] = {
+  { &hf_lte_rrc_eimta_ReConfigIndex_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_5 },
+  { &hf_lte_rrc_eimta_HarqReferenceConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eimta_HarqReferenceConfig_r12 },
+  { &hf_lte_rrc_mbsfn_SubframeConfigList_v12x0, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_mbsfn_SubframeConfigList_v12x0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_19, T_setup_19_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_EIMTA_MainConfigServCell_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t EIMTA_MainConfigServCell_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_19    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_19 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_EIMTA_MainConfigServCell_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_EIMTA_MainConfigServCell_r12, EIMTA_MainConfigServCell_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_30_sequence[] = {
+  { &hf_lte_rrc_n1PUCCH_AN_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_30, T_setup_30_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_n1PUCCH_Param_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_n1PUCCH_Param_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_30    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_30 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_n1PUCCH_Param_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_n1PUCCH_Param_r12, T_n1PUCCH_Param_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PUCCH_ConfigDedicated_v12x0_sequence[] = {
+  { &hf_lte_rrc_n1PUCCH_Param_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_n1PUCCH_Param_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PUCCH_ConfigDedicated_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_PUCCH_ConfigDedicated_v12x0, PUCCH_ConfigDedicated_v12x0_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_04_sequence[] = {
+  { &hf_lte_rrc_csi_MeasSubframeSet_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_10 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_04, T_setup_04_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_csi_SubframePatternConfig_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_csi_SubframePatternConfig_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_04    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_04 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_csi_SubframePatternConfig_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_csi_SubframePatternConfig_r12, T_csi_SubframePatternConfig_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_IM_ConfigToReleaseList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_CSI_IM_ConfigToReleaseList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_IM_ConfigId_r12 },
+};
+
+static int
+dissect_lte_rrc_CSI_IM_ConfigToReleaseList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_CSI_IM_ConfigToReleaseList_r12, CSI_IM_ConfigToReleaseList_r12_sequence_of,
+                                                  1, maxCSI_IM_r12, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_IM_Config_r12_sequence[] = {
+  { &hf_lte_rrc_csi_IM_ConfigId_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_IM_ConfigId_r12 },
+  { &hf_lte_rrc_resourceConfig_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_31 },
+  { &hf_lte_rrc_subframeConfig_r12, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_154 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CSI_IM_Config_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_CSI_IM_Config_r12, CSI_IM_Config_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_IM_ConfigToAddModList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_CSI_IM_ConfigToAddModList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSI_IM_Config_r12 },
+};
+
+static int
+dissect_lte_rrc_CSI_IM_ConfigToAddModList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_CSI_IM_ConfigToAddModList_r12, CSI_IM_ConfigToAddModList_r12_sequence_of,
+                                                  1, maxCSI_IM_r12, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CQI_ReportBoth_r12_sequence[] = {
+  { &hf_lte_rrc_csi_IM_ConfigToReleaseList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CSI_IM_ConfigToReleaseList_r12 },
+  { &hf_lte_rrc_csi_IM_ConfigToAddModList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CSI_IM_ConfigToAddModList_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CQI_ReportBoth_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_CQI_ReportBoth_r12, CQI_ReportBoth_r12_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_trigger_SubframeSetIndicator_r12_vals[] = {
+  {   0, "s1" },
+  {   1, "s2" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_trigger_SubframeSetIndicator_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_aperiodicCSI_Trigger_r12_sequence[] = {
+  { &hf_lte_rrc_trigger_SubframeSetIndicator_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_trigger_SubframeSetIndicator_r12 },
+  { &hf_lte_rrc_trigger1_SubframeSetIndicator_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_8 },
+  { &hf_lte_rrc_trigger2_SubframeSetIndicator_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_8 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_aperiodicCSI_Trigger_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_aperiodicCSI_Trigger_r12, T_aperiodicCSI_Trigger_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_10_sequence[] = {
+  { &hf_lte_rrc_aperiodicCSI_Trigger_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_aperiodicCSI_Trigger_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_10, T_setup_10_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_CQI_ReportAperiodic_v12x0_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t CQI_ReportAperiodic_v12x0_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_10    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_10 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CQI_ReportAperiodic_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_CQI_ReportAperiodic_v12x0, CQI_ReportAperiodic_v12x0_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CQI_ReportConfig_v12x0_sequence[] = {
+  { &hf_lte_rrc_csi_SubframePatternConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_csi_SubframePatternConfig_r12 },
+  { &hf_lte_rrc_cqi_ReportBoth_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CQI_ReportBoth_r12 },
+  { &hf_lte_rrc_cqi_ReportAperiodic_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportAperiodic_v12x0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CQI_ReportConfig_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_CQI_ReportConfig_v12x0, CQI_ReportConfig_v12x0_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_p0_NominalPUSCH_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -126, 24U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "dBm");
+
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_alpha_SubframeSet2_r12_vals[] = {
+  {   0, "al0" },
+  {   1, "al04" },
+  {   2, "al05" },
+  {   3, "al06" },
+  {   4, "al07" },
+  {   5, "al08" },
+  {   6, "al09" },
+  {   7, "al1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_alpha_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_p0_UE_PUSCH_SubframeSet2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -8, 7U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "dB");
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_43_sequence[] = {
+  { &hf_lte_rrc_tpc_SubframeSet_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_10 },
+  { &hf_lte_rrc_p0_NominalPUSCH_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_p0_NominalPUSCH_SubframeSet2_r12 },
+  { &hf_lte_rrc_alpha_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_alpha_SubframeSet2_r12 },
+  { &hf_lte_rrc_p0_UE_PUSCH_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_p0_UE_PUSCH_SubframeSet2_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_43(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_43, T_setup_43_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_set2PowerControlParameter_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_set2PowerControlParameter_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_45    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_43 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_set2PowerControlParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_set2PowerControlParameter, T_set2PowerControlParameter_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t UplinkPowerControlDedicated_v12x0_sequence[] = {
+  { &hf_lte_rrc_set2PowerControlParameter, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_set2PowerControlParameter },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UplinkPowerControlDedicated_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UplinkPowerControlDedicated_v12x0, UplinkPowerControlDedicated_v12x0_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_betaOffsetMC_r12_sequence[] = {
+  { &hf_lte_rrc_betaOffset_ACK_Index_MC_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { &hf_lte_rrc_betaOffset_RI_Index_MC_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { &hf_lte_rrc_betaOffset_CQI_Index_MC_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_betaOffsetMC_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_betaOffsetMC_r12, T_betaOffsetMC_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_32_sequence[] = {
+  { &hf_lte_rrc_betaOffset_ACK_Index_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { &hf_lte_rrc_betaOffset_RI_Index_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { &hf_lte_rrc_betaOffset_CQI_Index_SubframeSet2_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_15 },
+  { &hf_lte_rrc_betaOffsetMC_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_betaOffsetMC_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_32, T_setup_32_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_uciOnPUSCH_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_uciOnPUSCH_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_32    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_32 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_uciOnPUSCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_uciOnPUSCH, T_uciOnPUSCH_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PUSCH_ConfigDedicated_v12x0_sequence[] = {
+  { &hf_lte_rrc_uciOnPUSCH  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_uciOnPUSCH },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PUSCH_ConfigDedicated_v12x0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_PUSCH_ConfigDedicated_v12x0, PUSCH_ConfigDedicated_v12x0_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_13_sequence[] = {
+  { &hf_lte_rrc_zeroTxPowerResourceConfigList_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
+  { &hf_lte_rrc_zeroTxPowerSubframeConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_154 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup_13, T_setup_13_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_zeroTxPowerCSI_RS_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_zeroTxPowerCSI_RS_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup_13    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_13 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_zeroTxPowerCSI_RS_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_zeroTxPowerCSI_RS_r12, T_zeroTxPowerCSI_RS_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSI_RS_Config2_r12_sequence[] = {
+  { &hf_lte_rrc_zeroTxPowerCSI_RS_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_zeroTxPowerCSI_RS_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_CSI_RS_Config2_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_CSI_RS_Config2_r12, CSI_RS_Config2_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PhysicalConfigDedicated_eag_5_sequence[] = {
+  { &hf_lte_rrc_antennaInfo_v12xx, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AntennaInfoDedicated_v12xx },
+  { &hf_lte_rrc_eimta_MainConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_EIMTA_MainConfig_r12 },
+  { &hf_lte_rrc_eimta_MainConfigPCell_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_EIMTA_MainConfigServCell_r12 },
+  { &hf_lte_rrc_pucch_ConfigDedicated_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PUCCH_ConfigDedicated_v12x0 },
+  { &hf_lte_rrc_cqi_ReportConfigPCell_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportConfig_v12x0 },
+  { &hf_lte_rrc_uplinkPowerControlDedicated_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UplinkPowerControlDedicated_v12x0 },
+  { &hf_lte_rrc_pusch_ConfigDedicated_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PUSCH_ConfigDedicated_v12x0 },
+  { &hf_lte_rrc_csi_RS_Config2_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CSI_RS_Config2_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PhysicalConfigDedicated_eag_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PhysicalConfigDedicated_eag_5_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PhysicalConfigDedicated_sequence[] = {
   { &hf_lte_rrc_pdsch_ConfigDedicated, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PDSCH_ConfigDedicated },
   { &hf_lte_rrc_pucch_ConfigDedicated, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PUCCH_ConfigDedicated },
@@ -18059,6 +19843,7 @@ static const per_sequence_t PhysicalConfigDedicated_sequence[] = {
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicated_eag_2 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicated_eag_3 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicated_eag_4 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicated_eag_5 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18179,7 +19964,7 @@ dissect_lte_rrc_T_n311_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t T_setup_24_sequence[] = {
+static const per_sequence_t T_setup_33_sequence[] = {
   { &hf_lte_rrc_t301_r9     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_t301_r9 },
   { &hf_lte_rrc_t310_r9     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_t310_r9 },
   { &hf_lte_rrc_n310_r9     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_n310_r9 },
@@ -18189,9 +19974,9 @@ static const per_sequence_t T_setup_24_sequence[] = {
 };
 
 static int
-dissect_lte_rrc_T_setup_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_24, T_setup_24_sequence);
+                                   ett_lte_rrc_T_setup_33, T_setup_33_sequence);
 
   return offset;
 }
@@ -18205,7 +19990,7 @@ static const value_string lte_rrc_RLF_TimersAndConstants_r9_vals[] = {
 
 static const per_choice_t RLF_TimersAndConstants_r9_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_26    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_24 },
+  {   1, &hf_lte_rrc_setup_35    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_33 },
   { 0, NULL, 0, NULL }
 };
 
@@ -18240,7 +20025,7 @@ static const value_string lte_rrc_MeasSubframePatternPCell_r10_vals[] = {
 
 static const per_choice_t MeasSubframePatternPCell_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_24    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_MeasSubframePattern_r10 },
+  {   1, &hf_lte_rrc_setup_33    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_MeasSubframePattern_r10 },
   { 0, NULL, 0, NULL }
 };
 
@@ -18323,7 +20108,7 @@ static const value_string lte_rrc_NeighCellsCRS_Info_r11_vals[] = {
 
 static const per_choice_t NeighCellsCRS_Info_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_25    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_CRS_AssistanceInfoList_r11 },
+  {   1, &hf_lte_rrc_setup_34    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_CRS_AssistanceInfoList_r11 },
   { 0, NULL, 0, NULL }
 };
 
@@ -18397,7 +20182,7 @@ dissect_lte_rrc_T_nonCriticalExtension_22(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RRCConnectionReestablishment_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_50, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_22 },
+  { &hf_lte_rrc_nonCriticalExtension_54, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_22 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18413,7 +20198,7 @@ dissect_lte_rrc_RRCConnectionReestablishment_v8a0_IEs(tvbuff_t *tvb _U_, int off
 static const per_sequence_t RRCConnectionReestablishment_r8_IEs_sequence[] = {
   { &hf_lte_rrc_radioResourceConfigDedicated, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RadioResourceConfigDedicated },
   { &hf_lte_rrc_nextHopChainingCount, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_NextHopChainingCount },
-  { &hf_lte_rrc_nonCriticalExtension_49, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishment_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_53, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishment_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -18528,7 +20313,7 @@ dissect_lte_rrc_T_nonCriticalExtension_24(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RRCConnectionReestablishmentReject_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_57, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_24 },
+  { &hf_lte_rrc_nonCriticalExtension_62, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_24 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18542,7 +20327,7 @@ dissect_lte_rrc_RRCConnectionReestablishmentReject_v8a0_IEs(tvbuff_t *tvb _U_, i
 
 
 static const per_sequence_t RRCConnectionReestablishmentReject_r8_IEs_sequence[] = {
-  { &hf_lte_rrc_nonCriticalExtension_56, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentReject_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_61, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentReject_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -18697,7 +20482,7 @@ dissect_lte_rrc_T_nonCriticalExtension_25(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RRCConnectionReject_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_deprioritisationReq_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_deprioritisationReq_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_61, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_25 },
+  { &hf_lte_rrc_nonCriticalExtension_66, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_25 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18712,7 +20497,7 @@ dissect_lte_rrc_RRCConnectionReject_v1130_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t RRCConnectionReject_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_extendedWaitTime_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_extendedWaitTime_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_60, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_65, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -18727,7 +20512,7 @@ dissect_lte_rrc_RRCConnectionReject_v1020_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t RRCConnectionReject_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_59, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_64, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -18742,7 +20527,7 @@ dissect_lte_rrc_RRCConnectionReject_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t RRCConnectionReject_r8_IEs_sequence[] = {
   { &hf_lte_rrc_waitTime    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_waitTime },
-  { &hf_lte_rrc_nonCriticalExtension_58, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_63, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReject_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -18848,7 +20633,7 @@ dissect_lte_rrc_T_nonCriticalExtension_28(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RRCConnectionSetup_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_68, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_28 },
+  { &hf_lte_rrc_nonCriticalExtension_73, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_28 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18863,7 +20648,7 @@ dissect_lte_rrc_RRCConnectionSetup_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, a
 
 static const per_sequence_t RRCConnectionSetup_r8_IEs_sequence[] = {
   { &hf_lte_rrc_radioResourceConfigDedicated, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RadioResourceConfigDedicated },
-  { &hf_lte_rrc_nonCriticalExtension_67, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetup_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_72, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetup_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -19900,7 +21685,7 @@ dissect_lte_rrc_T_nonCriticalExtension_14(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t MobilityFromEUTRACommand_v8d0_IEs_sequence[] = {
   { &hf_lte_rrc_bandIndicator, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BandIndicatorGERAN },
-  { &hf_lte_rrc_nonCriticalExtension_28, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_14 },
+  { &hf_lte_rrc_nonCriticalExtension_30, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_14 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19915,7 +21700,7 @@ dissect_lte_rrc_MobilityFromEUTRACommand_v8d0_IEs(tvbuff_t *tvb _U_, int offset 
 
 static const per_sequence_t MobilityFromEUTRACommand_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_27, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v8d0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_29, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v8d0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -19931,7 +21716,7 @@ dissect_lte_rrc_MobilityFromEUTRACommand_v8a0_IEs(tvbuff_t *tvb _U_, int offset 
 static const per_sequence_t MobilityFromEUTRACommand_r8_IEs_sequence[] = {
   { &hf_lte_rrc_cs_FallbackIndicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
   { &hf_lte_rrc_purpose     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_purpose },
-  { &hf_lte_rrc_nonCriticalExtension_26, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_28, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -20016,7 +21801,7 @@ dissect_lte_rrc_T_nonCriticalExtension_15(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t MobilityFromEUTRACommand_v960_IEs_sequence[] = {
   { &hf_lte_rrc_bandIndicator, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BandIndicatorGERAN },
-  { &hf_lte_rrc_nonCriticalExtension_31, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_15 },
+  { &hf_lte_rrc_nonCriticalExtension_33, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_15 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20031,7 +21816,7 @@ dissect_lte_rrc_MobilityFromEUTRACommand_v960_IEs(tvbuff_t *tvb _U_, int offset 
 
 static const per_sequence_t MobilityFromEUTRACommand_v930_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_30, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v960_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_32, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v960_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -20047,7 +21832,7 @@ dissect_lte_rrc_MobilityFromEUTRACommand_v930_IEs(tvbuff_t *tvb _U_, int offset 
 static const per_sequence_t MobilityFromEUTRACommand_r9_IEs_sequence[] = {
   { &hf_lte_rrc_cs_FallbackIndicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
   { &hf_lte_rrc_purpose_01  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_purpose_01 },
-  { &hf_lte_rrc_nonCriticalExtension_29, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v930_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_31, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityFromEUTRACommand_v930_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -20292,16 +22077,16 @@ dissect_lte_rrc_MeasSubframeCellList_r10(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const per_sequence_t T_setup_36_sequence[] = {
+static const per_sequence_t T_setup_46_sequence[] = {
   { &hf_lte_rrc_measSubframePatternNeigh_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasSubframePattern_r10 },
   { &hf_lte_rrc_measSubframeCellList_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasSubframeCellList_r10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_46(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_36, T_setup_36_sequence);
+                                   ett_lte_rrc_T_setup_46, T_setup_46_sequence);
 
   return offset;
 }
@@ -20315,7 +22100,7 @@ static const value_string lte_rrc_MeasSubframePatternConfigNeigh_r10_vals[] = {
 
 static const per_choice_t MeasSubframePatternConfigNeigh_r10_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_38    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_36 },
+  {   1, &hf_lte_rrc_setup_48    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_46 },
   { 0, NULL, 0, NULL }
 };
 
@@ -20356,6 +22141,84 @@ dissect_lte_rrc_MeasObjectEUTRA_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t AltTTT_CellsToAddMod_r12_sequence[] = {
+  { &hf_lte_rrc_cellIndex   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_maxCellMeas },
+  { &hf_lte_rrc_physCellIdRange, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellIdRange },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_AltTTT_CellsToAddMod_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_AltTTT_CellsToAddMod_r12, AltTTT_CellsToAddMod_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AltTTT_CellsToAddModList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_AltTTT_CellsToAddModList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_AltTTT_CellsToAddMod_r12 },
+};
+
+static int
+dissect_lte_rrc_AltTTT_CellsToAddModList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_AltTTT_CellsToAddModList_r12, AltTTT_CellsToAddModList_r12_sequence_of,
+                                                  1, maxCellMeas, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasObjectEUTRA_eag_3_sequence[] = {
+  { &hf_lte_rrc_altTTT_CellsToRemoveList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CellIndexList },
+  { &hf_lte_rrc_altTTT_CellsToAddModList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AltTTT_CellsToAddModList_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MeasObjectEUTRA_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MeasObjectEUTRA_eag_3_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_t312_r12_vals[] = {
+  {   0, "ms0" },
+  {   1, "ms50" },
+  {   2, "ms100" },
+  {   3, "ms200" },
+  {   4, "ms300" },
+  {   5, "ms400" },
+  {   6, "ms500" },
+  {   7, "ms1000" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_t312_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasObjectEUTRA_eag_4_sequence[] = {
+  { &hf_lte_rrc_t312_r12    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_t312_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MeasObjectEUTRA_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MeasObjectEUTRA_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MeasObjectEUTRA_sequence[] = {
   { &hf_lte_rrc_carrierFreq_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ARFCN_ValueEUTRA },
   { &hf_lte_rrc_allowedMeasBandwidth, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_AllowedMeasBandwidth },
@@ -20369,6 +22232,8 @@ static const per_sequence_t MeasObjectEUTRA_sequence[] = {
   { &hf_lte_rrc_cellForWhichToReportCGI_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PhysCellId },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasObjectEUTRA_eag_1 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasObjectEUTRA_eag_2 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasObjectEUTRA_eag_3 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasObjectEUTRA_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20748,28 +22613,8 @@ dissect_lte_rrc_ReportConfigToRemoveList(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static int
-dissect_lte_rrc_RSRP_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 97U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_lte_rrc_Threshold_RSRP_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_lte_rrc_RSRP_Range(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lte_rrc_RSRQ_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 34U, NULL, FALSE);
 
   return offset;
 }
@@ -21223,6 +23068,35 @@ dissect_lte_rrc_ReportConfigEUTRA_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+static const value_string lte_rrc_T_useT312_r12_vals[] = {
+  {   0, "setup" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_useT312_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ReportConfigEUTRA_eag_3_sequence[] = {
+  { &hf_lte_rrc_alternativeTimeToTrigger_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_TimeToTrigger },
+  { &hf_lte_rrc_useT312_r12 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_useT312_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_ReportConfigEUTRA_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, ReportConfigEUTRA_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t ReportConfigEUTRA_sequence[] = {
   { &hf_lte_rrc_triggerType , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_triggerType },
   { &hf_lte_rrc_triggerQuantity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_triggerQuantity },
@@ -21232,6 +23106,7 @@ static const per_sequence_t ReportConfigEUTRA_sequence[] = {
   { &hf_lte_rrc_reportAmount, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_reportAmount },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_ReportConfigEUTRA_eag_1 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_ReportConfigEUTRA_eag_2 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_ReportConfigEUTRA_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -21899,15 +23774,15 @@ dissect_lte_rrc_T_gapOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const per_sequence_t T_setup_35_sequence[] = {
+static const per_sequence_t T_setup_45_sequence[] = {
   { &hf_lte_rrc_gapOffset   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_gapOffset },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_45(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_35, T_setup_35_sequence);
+                                   ett_lte_rrc_T_setup_45, T_setup_45_sequence);
 
   return offset;
 }
@@ -21921,7 +23796,7 @@ static const value_string lte_rrc_MeasGapConfig_vals[] = {
 
 static const per_choice_t MeasGapConfig_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_37    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_35 },
+  {   1, &hf_lte_rrc_setup_47    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_45 },
   { 0, NULL, 0, NULL }
 };
 
@@ -21944,16 +23819,16 @@ dissect_lte_rrc_S_Measure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t T_setup_34_sequence[] = {
+static const per_sequence_t T_setup_44_sequence[] = {
   { &hf_lte_rrc_mobilityStateParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MobilityStateParameters },
   { &hf_lte_rrc_timeToTrigger_SF, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SpeedStateScaleFactors },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_44(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_34, T_setup_34_sequence);
+                                   ett_lte_rrc_T_setup_44, T_setup_44_sequence);
 
   return offset;
 }
@@ -21967,7 +23842,7 @@ static const value_string lte_rrc_T_speedStatePars_vals[] = {
 
 static const per_choice_t T_speedStatePars_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_36    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_34 },
+  {   1, &hf_lte_rrc_setup_46    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_44 },
   { 0, NULL, 0, NULL }
 };
 
@@ -22730,15 +24605,15 @@ dissect_lte_rrc_T_powerPrefIndicationTimer_r11(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const per_sequence_t T_setup_37_sequence[] = {
+static const per_sequence_t T_setup_47_sequence[] = {
   { &hf_lte_rrc_powerPrefIndicationTimer_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_powerPrefIndicationTimer_r11 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_setup_37(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_setup_47(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_setup_37, T_setup_37_sequence);
+                                   ett_lte_rrc_T_setup_47, T_setup_47_sequence);
 
   return offset;
 }
@@ -22752,7 +24627,7 @@ static const value_string lte_rrc_PowerPrefIndicationConfig_r11_vals[] = {
 
 static const per_choice_t PowerPrefIndicationConfig_r11_choice[] = {
   {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
-  {   1, &hf_lte_rrc_setup_39    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_37 },
+  {   1, &hf_lte_rrc_setup_49    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_47 },
   { 0, NULL, 0, NULL }
 };
 
@@ -23402,10 +25277,28 @@ dissect_lte_rrc_PhysicalConfigDedicatedSCell_r10_eag_1(tvbuff_t *tvb _U_, int of
 }
 
 
+static const per_sequence_t PhysicalConfigDedicatedSCell_r10_eag_2_sequence[] = {
+  { &hf_lte_rrc_antennaInfo_v12xx, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AntennaInfoDedicated_v12xx },
+  { &hf_lte_rrc_eimta_MainConfigSCell_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_EIMTA_MainConfigServCell_r12 },
+  { &hf_lte_rrc_cqi_ReportConfigSCell_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CQI_ReportConfig_v12x0 },
+  { &hf_lte_rrc_uplinkPowerControlDedicatedSCell_v12x0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UplinkPowerControlDedicated_v12x0 },
+  { &hf_lte_rrc_csi_RS_Config2_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CSI_RS_Config2_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PhysicalConfigDedicatedSCell_r10_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PhysicalConfigDedicatedSCell_r10_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PhysicalConfigDedicatedSCell_r10_sequence[] = {
   { &hf_lte_rrc_nonUL_Configuration_r10, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonUL_Configuration_r10 },
   { &hf_lte_rrc_ul_Configuration_r10, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_ul_Configuration_r10 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicatedSCell_r10_eag_1 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysicalConfigDedicatedSCell_r10_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -23515,6 +25408,65 @@ dissect_lte_rrc_T_systemInfomationBlockType1Dedicated_r11(tvbuff_t *tvb _U_, int
 }
 
 
+static const value_string lte_rrc_T_t350_r12_vals[] = {
+  {   0, "min5" },
+  {   1, "min10" },
+  {   2, "min20" },
+  {   3, "min30" },
+  {   4, "min60" },
+  {   5, "min120" },
+  {   6, "min180" },
+  {   7, "spare1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_t350_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_setup_sequence[] = {
+  { &hf_lte_rrc_wlan_OffloadConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_WLAN_OffloadConfig_r12 },
+  { &hf_lte_rrc_t350_r12    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_t350_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_setup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_setup, T_setup_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_wlan_OffloadDedicated_r12_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_wlan_OffloadDedicated_r12_choice[] = {
+  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   1, &hf_lte_rrc_setup       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_wlan_OffloadDedicated_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_wlan_OffloadDedicated_r12, T_wlan_OffloadDedicated_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_20_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -23528,9 +25480,24 @@ dissect_lte_rrc_T_nonCriticalExtension_20(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t RRCConnectionReconfiguration_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_wlan_OffloadDedicated_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_wlan_OffloadDedicated_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_47, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_20 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RRCConnectionReconfiguration_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RRCConnectionReconfiguration_v12xy_IEs, RRCConnectionReconfiguration_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCConnectionReconfiguration_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_systemInfomationBlockType1Dedicated_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_systemInfomationBlockType1Dedicated_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_44, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_20 },
+  { &hf_lte_rrc_nonCriticalExtension_46, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -23546,7 +25513,7 @@ dissect_lte_rrc_RRCConnectionReconfiguration_v1130_IEs(tvbuff_t *tvb _U_, int of
 static const per_sequence_t RRCConnectionReconfiguration_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_sCellToReleaseList_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SCellToReleaseList_r10 },
   { &hf_lte_rrc_sCellToAddModList_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SCellToAddModList_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_43, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_45, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -23562,7 +25529,7 @@ dissect_lte_rrc_RRCConnectionReconfiguration_v1020_IEs(tvbuff_t *tvb _U_, int of
 static const per_sequence_t RRCConnectionReconfiguration_v920_IEs_sequence[] = {
   { &hf_lte_rrc_otherConfig_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OtherConfig_r9 },
   { &hf_lte_rrc_fullConfig_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_fullConfig_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_42, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_44, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -23577,7 +25544,7 @@ dissect_lte_rrc_RRCConnectionReconfiguration_v920_IEs(tvbuff_t *tvb _U_, int off
 
 static const per_sequence_t RRCConnectionReconfiguration_v890_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_41, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_43, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -23596,7 +25563,7 @@ static const per_sequence_t RRCConnectionReconfiguration_r8_IEs_sequence[] = {
   { &hf_lte_rrc_dedicatedInfoNASList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxDRB_OF_DedicatedInfoNAS },
   { &hf_lte_rrc_radioResourceConfigDedicated, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RadioResourceConfigDedicated },
   { &hf_lte_rrc_securityConfigHO, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityConfigHO },
-  { &hf_lte_rrc_nonCriticalExtension_40, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v890_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_42, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfiguration_v890_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24229,7 +26196,7 @@ dissect_lte_rrc_T_nonCriticalExtension_27(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RRCConnectionRelease_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_extendedWaitTime_r10_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_extendedWaitTime_r10_01 },
-  { &hf_lte_rrc_nonCriticalExtension_66, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_27 },
+  { &hf_lte_rrc_nonCriticalExtension_71, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_27 },
   { NULL, 0, 0, NULL }
 };
 
@@ -24244,7 +26211,7 @@ dissect_lte_rrc_RRCConnectionRelease_v1020_IEs(tvbuff_t *tvb _U_, int offset _U_
 
 static const per_sequence_t RRCConnectionRelease_v920_IEs_sequence[] = {
   { &hf_lte_rrc_cellInfoList_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_cellInfoList_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_65, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_70, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24259,7 +26226,7 @@ dissect_lte_rrc_RRCConnectionRelease_v920_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t RRCConnectionRelease_v890_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_lateNonCriticalExtension },
-  { &hf_lte_rrc_nonCriticalExtension_63, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_68, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24276,7 +26243,7 @@ static const per_sequence_t RRCConnectionRelease_r8_IEs_sequence[] = {
   { &hf_lte_rrc_releaseCause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ReleaseCause },
   { &hf_lte_rrc_redirectedCarrierInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RedirectedCarrierInfo },
   { &hf_lte_rrc_idleModeMobilityControlInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IdleModeMobilityControlInfo },
-  { &hf_lte_rrc_nonCriticalExtension_62, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v890_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_67, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionRelease_v890_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24397,7 +26364,7 @@ dissect_lte_rrc_T_nonCriticalExtension_30(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SecurityModeCommand_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_74, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_30 },
+  { &hf_lte_rrc_nonCriticalExtension_80, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_30 },
   { NULL, 0, 0, NULL }
 };
 
@@ -24412,7 +26379,7 @@ dissect_lte_rrc_SecurityModeCommand_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t SecurityModeCommand_r8_IEs_sequence[] = {
   { &hf_lte_rrc_securityConfigSMC, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SecurityConfigSMC },
-  { &hf_lte_rrc_nonCriticalExtension_73, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeCommand_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_79, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeCommand_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24574,7 +26541,7 @@ dissect_lte_rrc_T_nonCriticalExtension_37(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t UECapabilityEnquiry_v1180_IEs_sequence[] = {
   { &hf_lte_rrc_requestedFrequencyBands_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_16_OF_FreqBandIndicator_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_90, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_37 },
+  { &hf_lte_rrc_nonCriticalExtension_97, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_37 },
   { NULL, 0, 0, NULL }
 };
 
@@ -24589,7 +26556,7 @@ dissect_lte_rrc_UECapabilityEnquiry_v1180_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t UECapabilityEnquiry_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_89, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityEnquiry_v1180_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_96, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityEnquiry_v1180_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24604,7 +26571,7 @@ dissect_lte_rrc_UECapabilityEnquiry_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t UECapabilityEnquiry_r8_IEs_sequence[] = {
   { &hf_lte_rrc_ue_CapabilityRequest, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UE_CapabilityRequest },
-  { &hf_lte_rrc_nonCriticalExtension_88, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityEnquiry_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_95, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityEnquiry_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24888,6 +26855,21 @@ dissect_lte_rrc_T_connEstFailReportReq_r11(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const value_string lte_rrc_T_mobilityHistoryReportReq_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_mobilityHistoryReportReq_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_39_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -24901,9 +26883,24 @@ dissect_lte_rrc_T_nonCriticalExtension_39(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t UEInformationRequest_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_mobilityHistoryReportReq_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_mobilityHistoryReportReq_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_105, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_39 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UEInformationRequest_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UEInformationRequest_v12xy_IEs, UEInformationRequest_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UEInformationRequest_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_connEstFailReportReq_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_connEstFailReportReq_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_96, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_39 },
+  { &hf_lte_rrc_nonCriticalExtension_104, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24918,7 +26915,7 @@ dissect_lte_rrc_UEInformationRequest_v1130_IEs(tvbuff_t *tvb _U_, int offset _U_
 
 static const per_sequence_t UEInformationRequest_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_logMeasReportReq_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasReportReq_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_95, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_103, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24933,7 +26930,7 @@ dissect_lte_rrc_UEInformationRequest_v1020_IEs(tvbuff_t *tvb _U_, int offset _U_
 
 static const per_sequence_t UEInformationRequest_v930_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_94, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_102, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -24949,7 +26946,7 @@ dissect_lte_rrc_UEInformationRequest_v930_IEs(tvbuff_t *tvb _U_, int offset _U_,
 static const per_sequence_t UEInformationRequest_r9_IEs_sequence[] = {
   { &hf_lte_rrc_rach_ReportReq_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
   { &hf_lte_rrc_rlf_ReportReq_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
-  { &hf_lte_rrc_nonCriticalExtension_93, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v930_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_101, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationRequest_v930_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -25253,6 +27250,35 @@ dissect_lte_rrc_AreaConfiguration_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+static const per_sequence_t TargetMBSFN_Area_r12_sequence[] = {
+  { &hf_lte_rrc_mbsfn_AreaId_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_255 },
+  { &hf_lte_rrc_carrierFreq_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ARFCN_ValueEUTRA_r9 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_TargetMBSFN_Area_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_TargetMBSFN_Area_r12, TargetMBSFN_Area_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TargetMBSFN_AreaList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_TargetMBSFN_AreaList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_TargetMBSFN_Area_r12 },
+};
+
+static int
+dissect_lte_rrc_TargetMBSFN_AreaList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_TargetMBSFN_AreaList_r12, TargetMBSFN_AreaList_r12_sequence_of,
+                                                  0, 8, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_08_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -25266,10 +27292,25 @@ dissect_lte_rrc_T_nonCriticalExtension_08(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t LoggedMeasurementConfiguration_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_targetMBSFN_AreaList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_TargetMBSFN_AreaList_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_19, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_08 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_LoggedMeasurementConfiguration_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_LoggedMeasurementConfiguration_v12xy_IEs, LoggedMeasurementConfiguration_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t LoggedMeasurementConfiguration_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_plmn_IdentityList_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PLMN_IdentityList3_r11 },
   { &hf_lte_rrc_areaConfiguration_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AreaConfiguration_v1130 },
-  { &hf_lte_rrc_nonCriticalExtension_18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_08 },
+  { &hf_lte_rrc_nonCriticalExtension_18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_LoggedMeasurementConfiguration_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -25822,7 +27863,7 @@ static const per_sequence_t RNReconfiguration_r10_IEs_sequence[] = {
   { &hf_lte_rrc_rn_SystemInfo_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RN_SystemInfo_r10 },
   { &hf_lte_rrc_rn_SubframeConfig_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RN_SubframeConfig_r10 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_38, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_18 },
+  { &hf_lte_rrc_nonCriticalExtension_40, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_18 },
   { NULL, 0, 0, NULL }
 };
 
@@ -26489,14 +28530,42 @@ dissect_lte_rrc_AdditionalSI_Info_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_eag_1_01_sequence[] = {
+static const per_sequence_t T_eag_1_02_sequence[] = {
   { &hf_lte_rrc_additionalSI_Info_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AdditionalSI_Info_r9 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_eag_1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_01_sequence);
+dissect_lte_rrc_T_eag_1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_02_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_primaryPLMN_Suitable_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_primaryPLMN_Suitable_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_eag_2_sequence[] = {
+  { &hf_lte_rrc_primaryPLMN_Suitable_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_primaryPLMN_Suitable_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_2_sequence);
 
   return offset;
 }
@@ -26505,7 +28574,8 @@ dissect_lte_rrc_T_eag_1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static const per_sequence_t T_measResult_sequence[] = {
   { &hf_lte_rrc_rsrpResult  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_RSRP_Range },
   { &hf_lte_rrc_rsrqResult  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_RSRQ_Range },
-  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_1_01 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_1_02 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -26632,14 +28702,42 @@ dissect_lte_rrc_INTEGER_0_49(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const per_sequence_t T_eag_1_02_sequence[] = {
+static const per_sequence_t T_eag_1_03_sequence[] = {
   { &hf_lte_rrc_additionalSI_Info_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AdditionalSI_Info_r9 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_T_eag_1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_02_sequence);
+dissect_lte_rrc_T_eag_1_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_03_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_primaryPLMN_Suitable_r12_01_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_primaryPLMN_Suitable_r12_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_eag_2_01_sequence[] = {
+  { &hf_lte_rrc_primaryPLMN_Suitable_r12_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_primaryPLMN_Suitable_r12_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_eag_2_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_2_01_sequence);
 
   return offset;
 }
@@ -26648,7 +28746,8 @@ dissect_lte_rrc_T_eag_1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static const per_sequence_t T_measResult_01_sequence[] = {
   { &hf_lte_rrc_utra_RSCP   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_M5_91 },
   { &hf_lte_rrc_utra_EcN0   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_49 },
-  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_1_02 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_1_03 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_eag_2_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27245,7 +29344,7 @@ dissect_lte_rrc_T_nonCriticalExtension_13(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t MeasurementReport_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_25, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_13 },
+  { &hf_lte_rrc_nonCriticalExtension_27, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_13 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27260,7 +29359,7 @@ dissect_lte_rrc_MeasurementReport_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, as
 
 static const per_sequence_t MeasurementReport_r8_IEs_sequence[] = {
   { &hf_lte_rrc_measResults , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasResults },
-  { &hf_lte_rrc_nonCriticalExtension_24, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasurementReport_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_26, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasurementReport_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27404,6 +29503,21 @@ dissect_lte_rrc_T_connEstFailInfoAvailable_r11(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+static const value_string lte_rrc_T_logMeasAvailableMBSFN_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_logMeasAvailableMBSFN_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_21_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -27417,9 +29531,24 @@ dissect_lte_rrc_T_nonCriticalExtension_21(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t RRCConnectionReconfigurationComplete_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_logMeasAvailableMBSFN_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailableMBSFN_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_52, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_21 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RRCConnectionReconfigurationComplete_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RRCConnectionReconfigurationComplete_v12xy_IEs, RRCConnectionReconfigurationComplete_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCConnectionReconfigurationComplete_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_connEstFailInfoAvailable_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_connEstFailInfoAvailable_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_48, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_21 },
+  { &hf_lte_rrc_nonCriticalExtension_51, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27435,7 +29564,7 @@ dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1130_IEs(tvbuff_t *tvb _U_
 static const per_sequence_t RRCConnectionReconfigurationComplete_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_rlf_InfoAvailable_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_rlf_InfoAvailable_r10 },
   { &hf_lte_rrc_logMeasAvailable_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailable_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_47, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_50, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27450,7 +29579,7 @@ dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1020_IEs(tvbuff_t *tvb _U_
 
 static const per_sequence_t RRCConnectionReconfigurationComplete_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_46, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_49, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27464,7 +29593,7 @@ dissect_lte_rrc_RRCConnectionReconfigurationComplete_v8a0_IEs(tvbuff_t *tvb _U_,
 
 
 static const per_sequence_t RRCConnectionReconfigurationComplete_r8_IEs_sequence[] = {
-  { &hf_lte_rrc_nonCriticalExtension_45, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_48, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReconfigurationComplete_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27575,6 +29704,21 @@ dissect_lte_rrc_T_connEstFailInfoAvailable_r11_01(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const value_string lte_rrc_T_logMeasAvailableMBSFN_r12_01_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_logMeasAvailableMBSFN_r12_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_23_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -27588,9 +29732,24 @@ dissect_lte_rrc_T_nonCriticalExtension_23(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t RRCConnectionReestablishmentComplete_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_logMeasAvailableMBSFN_r12_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailableMBSFN_r12_01 },
+  { &hf_lte_rrc_nonCriticalExtension_60, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_23 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RRCConnectionReestablishmentComplete_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RRCConnectionReestablishmentComplete_v12xy_IEs, RRCConnectionReestablishmentComplete_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCConnectionReestablishmentComplete_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_connEstFailInfoAvailable_r11_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_connEstFailInfoAvailable_r11_01 },
-  { &hf_lte_rrc_nonCriticalExtension_55, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_23 },
+  { &hf_lte_rrc_nonCriticalExtension_59, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27605,7 +29764,7 @@ dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1130_IEs(tvbuff_t *tvb _U_
 
 static const per_sequence_t RRCConnectionReestablishmentComplete_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_logMeasAvailable_r10_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailable_r10_01 },
-  { &hf_lte_rrc_nonCriticalExtension_54, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_58, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27620,7 +29779,7 @@ dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1020_IEs(tvbuff_t *tvb _U_
 
 static const per_sequence_t RRCConnectionReestablishmentComplete_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_53, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_57, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27635,7 +29794,7 @@ dissect_lte_rrc_RRCConnectionReestablishmentComplete_v8a0_IEs(tvbuff_t *tvb _U_,
 
 static const per_sequence_t RRCConnectionReestablishmentComplete_v920_IEs_sequence[] = {
   { &hf_lte_rrc_rlf_InfoAvailable_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_rlf_InfoAvailable_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_52, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_56, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27649,7 +29808,7 @@ dissect_lte_rrc_RRCConnectionReestablishmentComplete_v920_IEs(tvbuff_t *tvb _U_,
 
 
 static const per_sequence_t RRCConnectionReestablishmentComplete_r8_IEs_sequence[] = {
-  { &hf_lte_rrc_nonCriticalExtension_51, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_55, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionReestablishmentComplete_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27808,6 +29967,54 @@ dissect_lte_rrc_T_connEstFailInfoAvailable_r11_02(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const value_string lte_rrc_T_mobilityState_r12_vals[] = {
+  {   0, "normal" },
+  {   1, "medium" },
+  {   2, "high" },
+  {   3, "spare" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_mobilityState_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_mobilityHistoryAvail_r12_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_mobilityHistoryAvail_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_logMeasAvailableMBSFN_r12_02_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_logMeasAvailableMBSFN_r12_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_29_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -27821,9 +30028,26 @@ dissect_lte_rrc_T_nonCriticalExtension_29(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t RRCConnectionSetupComplete_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_mobilityState_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_mobilityState_r12 },
+  { &hf_lte_rrc_mobilityHistoryAvail_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_mobilityHistoryAvail_r12 },
+  { &hf_lte_rrc_logMeasAvailableMBSFN_r12_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailableMBSFN_r12_02 },
+  { &hf_lte_rrc_nonCriticalExtension_78, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_29 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RRCConnectionSetupComplete_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RRCConnectionSetupComplete_v12xy_IEs, RRCConnectionSetupComplete_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCConnectionSetupComplete_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_connEstFailInfoAvailable_r11_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_connEstFailInfoAvailable_r11_02 },
-  { &hf_lte_rrc_nonCriticalExtension_72, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_29 },
+  { &hf_lte_rrc_nonCriticalExtension_77, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27841,7 +30065,7 @@ static const per_sequence_t RRCConnectionSetupComplete_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_rlf_InfoAvailable_r10_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_rlf_InfoAvailable_r10_01 },
   { &hf_lte_rrc_logMeasAvailable_r10_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_logMeasAvailable_r10_02 },
   { &hf_lte_rrc_rn_SubframeConfigReq_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_rn_SubframeConfigReq_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_71, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_76, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27856,7 +30080,7 @@ dissect_lte_rrc_RRCConnectionSetupComplete_v1020_IEs(tvbuff_t *tvb _U_, int offs
 
 static const per_sequence_t RRCConnectionSetupComplete_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_70, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_75, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27873,7 +30097,7 @@ static const per_sequence_t RRCConnectionSetupComplete_r8_IEs_sequence[] = {
   { &hf_lte_rrc_selectedPLMN_Identity, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_maxPLMN_r11 },
   { &hf_lte_rrc_registeredMME, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RegisteredMME },
   { &hf_lte_rrc_dedicatedInfoNAS, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DedicatedInfoNAS },
-  { &hf_lte_rrc_nonCriticalExtension_69, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_74, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRCConnectionSetupComplete_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -27980,7 +30204,7 @@ dissect_lte_rrc_T_nonCriticalExtension_31(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SecurityModeComplete_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_76, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_31 },
+  { &hf_lte_rrc_nonCriticalExtension_82, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_31 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27994,7 +30218,7 @@ dissect_lte_rrc_SecurityModeComplete_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 
 static const per_sequence_t SecurityModeComplete_r8_IEs_sequence[] = {
-  { &hf_lte_rrc_nonCriticalExtension_75, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeComplete_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_81, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeComplete_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -28075,7 +30299,7 @@ dissect_lte_rrc_T_nonCriticalExtension_32(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SecurityModeFailure_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_78, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_32 },
+  { &hf_lte_rrc_nonCriticalExtension_84, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_32 },
   { NULL, 0, 0, NULL }
 };
 
@@ -28089,7 +30313,7 @@ dissect_lte_rrc_SecurityModeFailure_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static const per_sequence_t SecurityModeFailure_r8_IEs_sequence[] = {
-  { &hf_lte_rrc_nonCriticalExtension_77, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeFailure_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_83, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SecurityModeFailure_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -28265,6 +30489,30 @@ dissect_lte_rrc_UE_CapabilityRAT_ContainerList(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+
+static int
+dissect_lte_rrc_INTEGER_0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 0U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_RadioPagingInfo_r12_sequence[] = {
+  { &hf_lte_rrc_ue_Category_v12xy, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UE_RadioPagingInfo_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UE_RadioPagingInfo_r12, UE_RadioPagingInfo_r12_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_38_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -28278,9 +30526,24 @@ dissect_lte_rrc_T_nonCriticalExtension_38(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t UECapabilityInformation_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_ue_RadioPagingInfo_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_RadioPagingInfo_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_100, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_38 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UECapabilityInformation_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UECapabilityInformation_v12xy_IEs, UECapabilityInformation_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UECapabilityInformation_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_92, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_38 },
+  { &hf_lte_rrc_nonCriticalExtension_99, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityInformation_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -28295,7 +30558,7 @@ dissect_lte_rrc_UECapabilityInformation_v8a0_IEs(tvbuff_t *tvb _U_, int offset _
 
 static const per_sequence_t UECapabilityInformation_r8_IEs_sequence[] = {
   { &hf_lte_rrc_ue_CapabilityRAT_ContainerList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_UE_CapabilityRAT_ContainerList },
-  { &hf_lte_rrc_nonCriticalExtension_91, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityInformation_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_98, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UECapabilityInformation_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -28420,7 +30683,7 @@ dissect_lte_rrc_T_nonCriticalExtension_42(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t ULHandoverPreparationTransfer_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_103, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_42 },
+  { &hf_lte_rrc_nonCriticalExtension_113, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_42 },
   { NULL, 0, 0, NULL }
 };
 
@@ -28437,7 +30700,7 @@ static const per_sequence_t ULHandoverPreparationTransfer_r8_IEs_sequence[] = {
   { &hf_lte_rrc_cdma2000_Type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CDMA2000_Type },
   { &hf_lte_rrc_meid        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BIT_STRING_SIZE_56 },
   { &hf_lte_rrc_dedicatedInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DedicatedInfoCDMA2000 },
-  { &hf_lte_rrc_nonCriticalExtension_102, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ULHandoverPreparationTransfer_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_112, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ULHandoverPreparationTransfer_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -28567,7 +30830,7 @@ dissect_lte_rrc_T_nonCriticalExtension_43(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t ULInformationTransfer_v8a0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_105, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_43 },
+  { &hf_lte_rrc_nonCriticalExtension_115, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_43 },
   { NULL, 0, 0, NULL }
 };
 
@@ -28582,7 +30845,7 @@ dissect_lte_rrc_ULInformationTransfer_v8a0_IEs(tvbuff_t *tvb _U_, int offset _U_
 
 static const per_sequence_t ULInformationTransfer_r8_IEs_sequence[] = {
   { &hf_lte_rrc_dedicatedInfoType_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dedicatedInfoType_01 },
-  { &hf_lte_rrc_nonCriticalExtension_104, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ULInformationTransfer_v8a0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_114, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ULInformationTransfer_v8a0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29055,7 +31318,7 @@ static const value_string lte_rrc_T_rlf_Cause_r11_vals[] = {
   {   0, "t310-Expiry" },
   {   1, "randomAccessProblem" },
   {   2, "rlc-MaxNumRetx" },
-  {   3, "spare1" },
+  {   3, "t312-Expiry-r12" },
   { 0, NULL }
 };
 
@@ -29188,12 +31451,40 @@ dissect_lte_rrc_RLF_Report_r9_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t T_failedPCellId_v12xy_sequence[] = {
+  { &hf_lte_rrc_tac_FailedPCell_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_TrackingAreaCode },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_failedPCellId_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_failedPCellId_v12xy, T_failedPCellId_v12xy_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RLF_Report_r9_eag_4_sequence[] = {
+  { &hf_lte_rrc_failedPCellId_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_failedPCellId_v12xy },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RLF_Report_r9_eag_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, RLF_Report_r9_eag_4_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RLF_Report_r9_sequence[] = {
   { &hf_lte_rrc_measResultLastServCell_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_measResultLastServCell_r9 },
   { &hf_lte_rrc_measResultNeighCells_r9, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_measResultNeighCells_r9 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RLF_Report_r9_eag_1 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RLF_Report_r9_eag_2 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RLF_Report_r9_eag_3 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_RLF_Report_r9_eag_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -29316,6 +31607,115 @@ dissect_lte_rrc_LogMeasInfo_r10_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t T_mbsfn_Area_r12_sequence[] = {
+  { &hf_lte_rrc_mbsfn_AreaId_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_255 },
+  { &hf_lte_rrc_carrierFreq_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ARFCN_ValueEUTRA_r9 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_mbsfn_Area_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_mbsfn_Area_r12, T_mbsfn_Area_r12_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_BLER_Range_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 31U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_1_maxPMCH_PerMBSFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, maxPMCH_PerMBSFN, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DataBLER_MCH_Result_r12_sequence[] = {
+  { &hf_lte_rrc_mch_Index_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_maxPMCH_PerMBSFN },
+  { &hf_lte_rrc_dataBLER_Result_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BLER_Range_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_DataBLER_MCH_Result_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_DataBLER_MCH_Result_r12, DataBLER_MCH_Result_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DataBLER_MCH_ResultList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_DataBLER_MCH_ResultList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DataBLER_MCH_Result_r12 },
+};
+
+static int
+dissect_lte_rrc_DataBLER_MCH_ResultList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_DataBLER_MCH_ResultList_r12, DataBLER_MCH_ResultList_r12_sequence_of,
+                                                  1, maxPMCH_PerMBSFN, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultMBSFN_r12_sequence[] = {
+  { &hf_lte_rrc_mbsfn_Area_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_mbsfn_Area_r12 },
+  { &hf_lte_rrc_rsrpResultMBSFN_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRP_Range },
+  { &hf_lte_rrc_rsrqResultMBSFN_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RSRQ_Range },
+  { &hf_lte_rrc_signallingBLER_Result_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BLER_Range_r12 },
+  { &hf_lte_rrc_dataBLER_MCH_ResultList_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_DataBLER_MCH_ResultList_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MeasResultMBSFN_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_MeasResultMBSFN_r12, MeasResultMBSFN_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultListMBSFN_r12_sequence_of[1] = {
+  { &hf_lte_rrc_MeasResultListMBSFN_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasResultMBSFN_r12 },
+};
+
+static int
+dissect_lte_rrc_MeasResultListMBSFN_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_MeasResultListMBSFN_r12, MeasResultListMBSFN_r12_sequence_of,
+                                                  1, 8, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t LogMeasInfo_r10_eag_2_sequence[] = {
+  { &hf_lte_rrc_measResultListMBSFN_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasResultListMBSFN_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_LogMeasInfo_r10_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, LogMeasInfo_r10_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t LogMeasInfo_r10_sequence[] = {
   { &hf_lte_rrc_locationInfo_r10, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_LocationInfo_r10 },
   { &hf_lte_rrc_relativeTimeStamp_r10, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_relativeTimeStamp_r10 },
@@ -29323,6 +31723,7 @@ static const per_sequence_t LogMeasInfo_r10_sequence[] = {
   { &hf_lte_rrc_measResultServCell_r10, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_measResultServCell_r10 },
   { &hf_lte_rrc_measResultNeighCells_r10, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_measResultNeighCells_r10 },
   { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_LogMeasInfo_r10_eag_1 },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_LogMeasInfo_r10_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -29437,6 +31838,94 @@ dissect_lte_rrc_ConnEstFailReport_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t T_pci_arfcn_r12_sequence[] = {
+  { &hf_lte_rrc_physCellId_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellId },
+  { &hf_lte_rrc_carrierFreq_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ARFCN_ValueEUTRA_r9 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_pci_arfcn_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_T_pci_arfcn_r12, T_pci_arfcn_r12_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_visitedCellId_r12_vals[] = {
+  {   0, "cellGlobalId-r12" },
+  {   1, "pci-arfcn-r12" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_visitedCellId_r12_choice[] = {
+  {   0, &hf_lte_rrc_cellGlobalId_r12, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_CellGlobalIdEUTRA },
+  {   1, &hf_lte_rrc_pci_arfcn_r12, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_pci_arfcn_r12 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_visitedCellId_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_visitedCellId_r12, T_visitedCellId_r12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_timeSpent_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, FALSE);
+
+  proto_item_append_text(actx->created_item, "s");
+
+
+  return offset;
+}
+
+
+static const per_sequence_t VisitedCellInfo_r12_sequence[] = {
+  { &hf_lte_rrc_visitedCellId_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_visitedCellId_r12 },
+  { &hf_lte_rrc_timeSpent_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_timeSpent_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_VisitedCellInfo_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_VisitedCellInfo_r12, VisitedCellInfo_r12_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t VisitedCellInfoList_r12_sequence_of[1] = {
+  { &hf_lte_rrc_VisitedCellInfoList_r12_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_VisitedCellInfo_r12 },
+};
+
+static int
+dissect_lte_rrc_VisitedCellInfoList_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_VisitedCellInfoList_r12, VisitedCellInfoList_r12_sequence_of,
+                                                  1, maxCellHistory_r12, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_MobilityHistoryReport_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lte_rrc_VisitedCellInfoList_r12(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_41_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -29450,9 +31939,24 @@ dissect_lte_rrc_T_nonCriticalExtension_41(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t UEInformationResponse_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_mobilityHistoryReport_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MobilityHistoryReport_r12 },
+  { &hf_lte_rrc_nonCriticalExtension_111, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_41 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UEInformationResponse_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UEInformationResponse_v12xy_IEs, UEInformationResponse_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UEInformationResponse_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_connEstFailReport_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ConnEstFailReport_r11 },
-  { &hf_lte_rrc_nonCriticalExtension_101, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_41 },
+  { &hf_lte_rrc_nonCriticalExtension_110, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29467,7 +31971,7 @@ dissect_lte_rrc_UEInformationResponse_v1130_IEs(tvbuff_t *tvb _U_, int offset _U
 
 static const per_sequence_t UEInformationResponse_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_logMeasReport_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_LogMeasReport_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_100, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_109, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29482,7 +31986,7 @@ dissect_lte_rrc_UEInformationResponse_v1020_IEs(tvbuff_t *tvb _U_, int offset _U
 
 static const per_sequence_t UEInformationResponse_v930_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_lateNonCriticalExtension_02 },
-  { &hf_lte_rrc_nonCriticalExtension_99, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_108, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29498,7 +32002,7 @@ dissect_lte_rrc_UEInformationResponse_v930_IEs(tvbuff_t *tvb _U_, int offset _U_
 static const per_sequence_t UEInformationResponse_r9_IEs_sequence[] = {
   { &hf_lte_rrc_rach_Report_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_rach_Report_r9 },
   { &hf_lte_rrc_rlf_Report_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RLF_Report_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_97, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v930_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_106, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UEInformationResponse_v930_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29645,7 +32149,7 @@ dissect_lte_rrc_T_nonCriticalExtension_17(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t ProximityIndication_v930_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_37, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_17 },
+  { &hf_lte_rrc_nonCriticalExtension_39, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_17 },
   { NULL, 0, 0, NULL }
 };
 
@@ -29661,7 +32165,7 @@ dissect_lte_rrc_ProximityIndication_v930_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 static const per_sequence_t ProximityIndication_r9_IEs_sequence[] = {
   { &hf_lte_rrc_type_r9     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_type_r9 },
   { &hf_lte_rrc_carrierFreq_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_carrierFreq_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_36, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ProximityIndication_v930_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_38, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ProximityIndication_v930_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -29767,7 +32271,7 @@ dissect_lte_rrc_T_nonCriticalExtension_19(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t RNReconfigurationComplete_r10_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_39, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_19 },
+  { &hf_lte_rrc_nonCriticalExtension_41, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_19 },
   { NULL, 0, 0, NULL }
 };
 
@@ -29924,7 +32428,7 @@ static const per_sequence_t MBMSCountingResponse_r10_IEs_sequence[] = {
   { &hf_lte_rrc_mbsfn_AreaIndex_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_maxMBSFN_Area_1 },
   { &hf_lte_rrc_countingResponseList_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CountingResponseList_r10 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_20, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_10 },
+  { &hf_lte_rrc_nonCriticalExtension_21, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_10 },
   { NULL, 0, 0, NULL }
 };
 
@@ -30283,7 +32787,7 @@ dissect_lte_rrc_T_nonCriticalExtension_36(tvbuff_t *tvb _U_, int offset _U_, asn
 static const per_sequence_t UEAssistanceInformation_r11_IEs_sequence[] = {
   { &hf_lte_rrc_powerPrefIndication_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_powerPrefIndication_r11 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_87, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_36 },
+  { &hf_lte_rrc_nonCriticalExtension_94, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_36 },
   { NULL, 0, 0, NULL }
 };
 
@@ -30717,7 +33221,7 @@ static const per_sequence_t MBMSInterestIndication_r11_IEs_sequence[] = {
   { &hf_lte_rrc_mbms_FreqList_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_CarrierFreqListMBMS_r11 },
   { &hf_lte_rrc_mbms_Priority_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_mbms_Priority_r11 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_21, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_11 },
+  { &hf_lte_rrc_nonCriticalExtension_22, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_11 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31003,7 +33507,7 @@ dissect_lte_rrc_T_nonCriticalExtension_26(tvbuff_t *tvb _U_, int offset _U_, asn
 static const per_sequence_t RRCConnectionRelease_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_redirectedCarrierInfo_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RedirectedCarrierInfo_v9e0 },
   { &hf_lte_rrc_idleModeMobilityControlInfo_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IdleModeMobilityControlInfo_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_64, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_26 },
+  { &hf_lte_rrc_nonCriticalExtension_69, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_26 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31088,7 +33592,7 @@ dissect_lte_rrc_T_nonCriticalExtension_34(tvbuff_t *tvb _U_, int offset _U_, asn
 static const per_sequence_t SystemInformationBlockType1_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_freqBandIndicator_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_FreqBandIndicator_v9e0 },
   { &hf_lte_rrc_multiBandInfoList_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MultiBandInfoList_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_84, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_34 },
+  { &hf_lte_rrc_nonCriticalExtension_90, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_34 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31103,7 +33607,7 @@ dissect_lte_rrc_SystemInformationBlockType1_v9e0_IEs(tvbuff_t *tvb _U_, int offs
 
 static const per_sequence_t SystemInformationBlockType1_v8h0_IEs_sequence[] = {
   { &hf_lte_rrc_multiBandInfoList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MultiBandInfoList },
-  { &hf_lte_rrc_nonCriticalExtension_83, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v9e0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_89, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v9e0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -31145,7 +33649,7 @@ dissect_lte_rrc_T_nonCriticalExtension_40(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t UEInformationResponse_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_rlf_Report_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RLF_Report_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_98, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_40 },
+  { &hf_lte_rrc_nonCriticalExtension_107, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_40 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31187,7 +33691,7 @@ dissect_lte_rrc_T_nonCriticalExtension_44(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SystemInformationBlockType2_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_ul_CarrierFreq_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ARFCN_ValueEUTRA_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_107, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_44 },
+  { &hf_lte_rrc_nonCriticalExtension_117, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_44 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31202,7 +33706,7 @@ dissect_lte_rrc_SystemInformationBlockType2_v9e0_IEs(tvbuff_t *tvb _U_, int offs
 
 static const per_sequence_t SystemInformationBlockType2_v8h0_IEs_sequence[] = {
   { &hf_lte_rrc_multiBandInfoList_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxMultiBands_OF_AdditionalSpectrumEmission },
-  { &hf_lte_rrc_nonCriticalExtension_106, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType2_v9e0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_116, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType2_v9e0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -31287,7 +33791,7 @@ dissect_lte_rrc_T_nonCriticalExtension_45(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SystemInformationBlockType5_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_interFreqCarrierFreqList_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxFreq_OF_InterFreqCarrierFreqInfo_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_109, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_45 },
+  { &hf_lte_rrc_nonCriticalExtension_119, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_45 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31302,7 +33806,7 @@ dissect_lte_rrc_SystemInformationBlockType5_v9e0_IEs(tvbuff_t *tvb _U_, int offs
 
 static const per_sequence_t SystemInformationBlockType5_v8h0_IEs_sequence[] = {
   { &hf_lte_rrc_interFreqCarrierFreqList_v8h0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxFreq_OF_InterFreqCarrierFreqInfo_v8h0 },
-  { &hf_lte_rrc_nonCriticalExtension_108, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType5_v9e0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_118, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType5_v9e0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -31382,7 +33886,7 @@ dissect_lte_rrc_T_nonCriticalExtension_46(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t SystemInformationBlockType6_v8h0_IEs_sequence[] = {
   { &hf_lte_rrc_carrierFreqListUTRA_FDD_v8h0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxUTRA_FDD_Carrier_OF_CarrierFreqInfoUTRA_FDD_v8h0 },
-  { &hf_lte_rrc_nonCriticalExtension_110, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_46 },
+  { &hf_lte_rrc_nonCriticalExtension_120, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_46 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31412,16 +33916,6 @@ static int
 dissect_lte_rrc_AccessStratumRelease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lte_rrc_INTEGER_1_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 5U, NULL, FALSE);
 
   return offset;
 }
@@ -33643,7 +36137,7 @@ dissect_lte_rrc_T_freqBandRetrieval_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11_sequence_of[1] = {
-  { &hf_lte_rrc_reportedFrequencyBands_r11_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_FreqBandIndicator_r11 },
+  { &hf_lte_rrc_requestedBands_r11_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_FreqBandIndicator_r11 },
 };
 
 static int
@@ -33768,7 +36262,7 @@ dissect_lte_rrc_SupportedBandCombinationAdd_r11(tvbuff_t *tvb _U_, int offset _U
 
 static const per_sequence_t RF_Parameters_v1180_sequence[] = {
   { &hf_lte_rrc_freqBandRetrieval_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_freqBandRetrieval_r11 },
-  { &hf_lte_rrc_reportedFrequencyBands_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11 },
+  { &hf_lte_rrc_requestedBands_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11 },
   { &hf_lte_rrc_supportedBandCombinationAdd_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SupportedBandCombinationAdd_r11 },
   { NULL, 0, 0, NULL }
 };
@@ -33841,6 +36335,222 @@ dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1180(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const value_string lte_rrc_T_e_HARQ_Pattern_FDD_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_e_HARQ_Pattern_FDD_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_tdd_FDD_CA_PCellDuplex_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *pcellduplex_tvb=NULL;
+  proto_tree *subtree;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     2, 2, FALSE, &pcellduplex_tvb, NULL);
+
+  if (pcellduplex_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1, pcellduplex_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2, pcellduplex_tvb, 1, 1, ENC_BIG_ENDIAN);
+  }
+
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_phy_TDD_ReConfig_TDDPCell_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_phy_TDD_ReConfig_TDDPCell_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_phy_TDD_ReConfig_FDDPCell_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_phy_TDD_ReConfig_FDDPCell_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_pusch_SRS_PowerControl_SubframeSet_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_pusch_SRS_PowerControl_SubframeSet_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_csi_SubframeSet_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_csi_SubframeSet_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PhyLayerParameters_v12xy_sequence[] = {
+  { &hf_lte_rrc_e_HARQ_Pattern_FDD_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_e_HARQ_Pattern_FDD_r12 },
+  { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_tdd_FDD_CA_PCellDuplex_r12 },
+  { &hf_lte_rrc_phy_TDD_ReConfig_TDDPCell_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_phy_TDD_ReConfig_TDDPCell_r12 },
+  { &hf_lte_rrc_phy_TDD_ReConfig_FDDPCell_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_phy_TDD_ReConfig_FDDPCell_r12 },
+  { &hf_lte_rrc_pusch_SRS_PowerControl_SubframeSet_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_pusch_SRS_PowerControl_SubframeSet_r12 },
+  { &hf_lte_rrc_csi_SubframeSet_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_csi_SubframeSet_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_PhyLayerParameters_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_PhyLayerParameters_v12xy, PhyLayerParameters_v12xy_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_extended_RLC_LI_Field_r12_02_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_extended_RLC_LI_Field_r12_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t RLC_Parameters_r12_sequence[] = {
+  { &hf_lte_rrc_extended_RLC_LI_Field_r12_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_extended_RLC_LI_Field_r12_02 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_RLC_Parameters_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_RLC_Parameters_r12, RLC_Parameters_r12_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_loggedMBSFNMeasurements_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_loggedMBSFNMeasurements_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_BasedNetwPerfMeasParameters_v12xy_sequence[] = {
+  { &hf_lte_rrc_loggedMBSFNMeasurements_r12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_loggedMBSFNMeasurements_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UE_BasedNetwPerfMeasParameters_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UE_BasedNetwPerfMeasParameters_v12xy, UE_BasedNetwPerfMeasParameters_v12xy_sequence);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_timerT312_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_timerT312_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_alternativeTimeToTrigger_r12_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lte_rrc_T_alternativeTimeToTrigger_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasParameters_v12xy_sequence[] = {
+  { &hf_lte_rrc_timerT312_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_timerT312_r12 },
+  { &hf_lte_rrc_alternativeTimeToTrigger_r12_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_alternativeTimeToTrigger_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MeasParameters_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_MeasParameters_v12xy, MeasParameters_v12xy_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_48_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -33854,12 +36564,31 @@ dissect_lte_rrc_T_nonCriticalExtension_48(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t UE_EUTRA_Capability_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_phyLayerParameters_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PhyLayerParameters_v12xy },
+  { &hf_lte_rrc_rlc_Parameters_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RLC_Parameters_r12 },
+  { &hf_lte_rrc_ue_BasedNetwPerfMeasParameters_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_BasedNetwPerfMeasParameters_v12xy },
+  { &hf_lte_rrc_ue_Category_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0 },
+  { &hf_lte_rrc_measParameters_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MeasParameters_v12xy },
+  { &hf_lte_rrc_nonCriticalExtension_136, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_48 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_UE_EUTRA_Capability_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_UE_EUTRA_Capability_v12xy_IEs, UE_EUTRA_Capability_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UE_EUTRA_Capability_v1180_IEs_sequence[] = {
   { &hf_lte_rrc_rf_Parameters_v1180, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RF_Parameters_v1180 },
   { &hf_lte_rrc_mbms_Parameters_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MBMS_Parameters_r11 },
   { &hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1180, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1180 },
   { &hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1180, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1180 },
-  { &hf_lte_rrc_nonCriticalExtension_125, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_48 },
+  { &hf_lte_rrc_nonCriticalExtension_135, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33875,7 +36604,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v1180_IEs(tvbuff_t *tvb _U_, int offset _U_,
 static const per_sequence_t UE_EUTRA_Capability_v1170_IEs_sequence[] = {
   { &hf_lte_rrc_phyLayerParameters_v1170, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PhyLayerParameters_v1170 },
   { &hf_lte_rrc_ue_Category_v1170, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_9_10 },
-  { &hf_lte_rrc_nonCriticalExtension_124, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1180_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_134, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1180_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33897,7 +36626,7 @@ static const per_sequence_t UE_EUTRA_Capability_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_otherParameters_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_Other_Parameters_r11 },
   { &hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1130 },
   { &hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1130 },
-  { &hf_lte_rrc_nonCriticalExtension_123, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1170_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_133, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1170_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33912,7 +36641,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v1130_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t UE_EUTRA_Capability_v1090_IEs_sequence[] = {
   { &hf_lte_rrc_rf_Parameters_v1090, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RF_Parameters_v1090 },
-  { &hf_lte_rrc_nonCriticalExtension_122, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_132, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33929,7 +36658,7 @@ static const per_sequence_t UE_EUTRA_Capability_v1060_IEs_sequence[] = {
   { &hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_v1060, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060 },
   { &hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_v1060, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060 },
   { &hf_lte_rrc_rf_Parameters_v1060, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RF_Parameters_v1060 },
-  { &hf_lte_rrc_nonCriticalExtension_121, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1090_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_131, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1090_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33951,7 +36680,7 @@ static const per_sequence_t UE_EUTRA_Capability_v1020_IEs_sequence[] = {
   { &hf_lte_rrc_interRAT_ParametersCDMA2000_v1020, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IRAT_ParametersCDMA2000_1XRTT_v1020 },
   { &hf_lte_rrc_ue_BasedNetwPerfMeasParameters_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_BasedNetwPerfMeasParameters_r10 },
   { &hf_lte_rrc_interRAT_ParametersUTRA_TDD_v1020, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IRAT_ParametersUTRA_TDD_v1020 },
-  { &hf_lte_rrc_nonCriticalExtension_120, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1060_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1060_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33966,7 +36695,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v1020_IEs(tvbuff_t *tvb _U_, int offset _U_,
 
 static const per_sequence_t UE_EUTRA_Capability_v940_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension_07, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_lateNonCriticalExtension_06 },
-  { &hf_lte_rrc_nonCriticalExtension_119, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1020_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_129, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1020_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -33988,7 +36717,7 @@ static const per_sequence_t UE_EUTRA_Capability_v920_IEs_sequence[] = {
   { &hf_lte_rrc_csg_ProximityIndicationParameters_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CSG_ProximityIndicationParameters_r9 },
   { &hf_lte_rrc_neighCellSI_AcquisitionParameters_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_NeighCellSI_AcquisitionParameters_r9 },
   { &hf_lte_rrc_son_Parameters_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SON_Parameters_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_118, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v940_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_128, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v940_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34010,7 +36739,7 @@ static const per_sequence_t UE_EUTRA_Capability_sequence[] = {
   { &hf_lte_rrc_measParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasParameters },
   { &hf_lte_rrc_featureGroupIndicators, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_featureGroupIndicators },
   { &hf_lte_rrc_interRAT_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_interRAT_Parameters },
-  { &hf_lte_rrc_nonCriticalExtension_111, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_121, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34334,7 +37063,7 @@ dissect_lte_rrc_T_nonCriticalExtension_47(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t UE_EUTRA_Capability_v10c0_IEs_sequence[] = {
   { &hf_lte_rrc_otdoa_PositioningCapabilities_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OTDOA_PositioningCapabilities_r10 },
-  { &hf_lte_rrc_nonCriticalExtension_117, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_47 },
+  { &hf_lte_rrc_nonCriticalExtension_127, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_47 },
   { NULL, 0, 0, NULL }
 };
 
@@ -34350,7 +37079,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v10c0_IEs(tvbuff_t *tvb _U_, int offset _U_,
 static const per_sequence_t UE_EUTRA_Capability_v9h0_IEs_sequence[] = {
   { &hf_lte_rrc_interRAT_ParametersUTRA_v9h0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IRAT_ParametersUTRA_v9h0 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_116, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v10c0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_126, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v10c0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34365,7 +37094,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v9h0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t UE_EUTRA_Capability_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_rf_Parameters_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RF_Parameters_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_115, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9h0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_125, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9h0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34380,7 +37109,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v9e0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t UE_EUTRA_Capability_v9d0_IEs_sequence[] = {
   { &hf_lte_rrc_phyLayerParameters_v9d0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PhyLayerParameters_v9d0 },
-  { &hf_lte_rrc_nonCriticalExtension_114, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9e0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_124, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9e0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34395,7 +37124,7 @@ dissect_lte_rrc_UE_EUTRA_Capability_v9d0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 
 static const per_sequence_t UE_EUTRA_Capability_v9c0_IEs_sequence[] = {
   { &hf_lte_rrc_interRAT_ParametersUTRA_v9c0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_IRAT_ParametersUTRA_v9c0 },
-  { &hf_lte_rrc_nonCriticalExtension_113, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9d0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_123, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9d0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34412,7 +37141,7 @@ static const per_sequence_t UE_EUTRA_Capability_v9a0_IEs_sequence[] = {
   { &hf_lte_rrc_featureGroupIndRel9Add_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_featureGroupIndRel9Add_r9 },
   { &hf_lte_rrc_fdd_Add_UE_EUTRA_Capabilities_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9 },
   { &hf_lte_rrc_tdd_Add_UE_EUTRA_Capabilities_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_112, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9c0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_122, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v9c0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34450,7 +37179,7 @@ dissect_lte_rrc_T_nonCriticalExtension_49(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t HandoverCommand_r8_IEs_sequence[] = {
   { &hf_lte_rrc_handoverCommandMessage, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_handoverCommandMessage },
-  { &hf_lte_rrc_nonCriticalExtension_126, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_49 },
+  { &hf_lte_rrc_nonCriticalExtension_137, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_49 },
   { NULL, 0, 0, NULL }
 };
 
@@ -34912,6 +37641,20 @@ dissect_lte_rrc_AS_Context_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const per_sequence_t AS_Config_v12xy_sequence[] = {
+  { &hf_lte_rrc_sourceWlan_OffloadConfig_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_WLAN_OffloadConfig_r12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_AS_Config_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_AS_Config_v12xy, AS_Config_v12xy_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_50_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -34925,9 +37668,25 @@ dissect_lte_rrc_T_nonCriticalExtension_50(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t HandoverPreparationInformation_v12xy_IEs_sequence[] = {
+  { &hf_lte_rrc_ue_SupportedEARFCN_r12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_ARFCN_ValueEUTRA_r9 },
+  { &hf_lte_rrc_as_Config_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AS_Config_v12xy },
+  { &hf_lte_rrc_nonCriticalExtension_143, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_50 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_HandoverPreparationInformation_v12xy_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_HandoverPreparationInformation_v12xy_IEs, HandoverPreparationInformation_v12xy_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t HandoverPreparationInformation_v1130_IEs_sequence[] = {
   { &hf_lte_rrc_as_Context_v1130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AS_Context_v1130 },
-  { &hf_lte_rrc_nonCriticalExtension_131, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_50 },
+  { &hf_lte_rrc_nonCriticalExtension_142, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v12xy_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34942,7 +37701,7 @@ dissect_lte_rrc_HandoverPreparationInformation_v1130_IEs(tvbuff_t *tvb _U_, int 
 
 static const per_sequence_t HandoverPreparationInformation_v9e0_IEs_sequence[] = {
   { &hf_lte_rrc_as_Config_v9e0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AS_Config_v9e0 },
-  { &hf_lte_rrc_nonCriticalExtension_130, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v1130_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_141, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v1130_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34957,7 +37716,7 @@ dissect_lte_rrc_HandoverPreparationInformation_v9e0_IEs(tvbuff_t *tvb _U_, int o
 
 static const per_sequence_t HandoverPreparationInformation_v9d0_IEs_sequence[] = {
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nonCriticalExtension_129, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v9e0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_140, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v9e0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34972,7 +37731,7 @@ dissect_lte_rrc_HandoverPreparationInformation_v9d0_IEs(tvbuff_t *tvb _U_, int o
 
 static const per_sequence_t HandoverPreparationInformation_v920_IEs_sequence[] = {
   { &hf_lte_rrc_ue_ConfigRelease_r9, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ue_ConfigRelease_r9 },
-  { &hf_lte_rrc_nonCriticalExtension_128, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v9d0_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_139, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v9d0_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -34990,7 +37749,7 @@ static const per_sequence_t HandoverPreparationInformation_r8_IEs_sequence[] = {
   { &hf_lte_rrc_as_Config   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AS_Config },
   { &hf_lte_rrc_rrm_Config  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_RRM_Config },
   { &hf_lte_rrc_as_Context  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AS_Context },
-  { &hf_lte_rrc_nonCriticalExtension_127, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v920_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_138, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_HandoverPreparationInformation_v920_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -35111,7 +37870,7 @@ dissect_lte_rrc_T_nonCriticalExtension_51(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t UERadioAccessCapabilityInformation_r8_IEs_sequence[] = {
   { &hf_lte_rrc_ue_RadioAccessCapabilityInfo_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_ue_RadioAccessCapabilityInfo },
-  { &hf_lte_rrc_nonCriticalExtension_132, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_51 },
+  { &hf_lte_rrc_nonCriticalExtension_144, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_51 },
   { NULL, 0, 0, NULL }
 };
 
@@ -35411,7 +38170,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2284 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2297 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -36435,7 +39194,27 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_nonCriticalExtension_18,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        "LoggedMeasurementConfiguration_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_targetMBSFN_AreaList_r12,
+      { "targetMBSFN-AreaList-r12", "lte-rrc.targetMBSFN_AreaList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_19,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_08", HFILL }},
+    { &hf_lte_rrc_TargetMBSFN_AreaList_r12_item,
+      { "TargetMBSFN-Area-r12", "lte-rrc.TargetMBSFN_Area_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mbsfn_AreaId_r12,
+      { "mbsfn-AreaId-r12", "lte-rrc.mbsfn_AreaId_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lte_rrc_carrierFreq_r12,
+      { "carrierFreq-r12", "lte-rrc.carrierFreq_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_r9", HFILL }},
     { &hf_lte_rrc_dl_Bandwidth,
       { "dl-Bandwidth", "lte-rrc.dl_Bandwidth",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_dl_Bandwidth_vals), 0,
@@ -36456,7 +39235,7 @@ void proto_register_lte_rrc(void) {
       { "countingRequestList-r10", "lte-rrc.countingRequestList_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_19,
+    { &hf_lte_rrc_nonCriticalExtension_20,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_09", HFILL }},
@@ -36492,7 +39271,7 @@ void proto_register_lte_rrc(void) {
       { "countingResponseList-r10", "lte-rrc.countingResponseList_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_20,
+    { &hf_lte_rrc_nonCriticalExtension_21,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_10", HFILL }},
@@ -36528,7 +39307,7 @@ void proto_register_lte_rrc(void) {
       { "mbms-Priority-r11", "lte-rrc.mbms_Priority_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mbms_Priority_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_21,
+    { &hf_lte_rrc_nonCriticalExtension_22,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_11", HFILL }},
@@ -36544,11 +39323,19 @@ void proto_register_lte_rrc(void) {
       { "pmch-InfoList-r9", "lte-rrc.pmch_InfoList_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_22,
+    { &hf_lte_rrc_nonCriticalExtension_23,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MBSFNAreaConfiguration_v930_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_23,
+    { &hf_lte_rrc_nonCriticalExtension_24,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MBSFNAreaConfiguration_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_pmch_InfoListExt_r12,
+      { "pmch-InfoListExt-r12", "lte-rrc.pmch_InfoListExt_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_25,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_12", HFILL }},
@@ -36576,11 +39363,11 @@ void proto_register_lte_rrc(void) {
       { "measResults", "lte-rrc.measResults_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_24,
+    { &hf_lte_rrc_nonCriticalExtension_26,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasurementReport_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_25,
+    { &hf_lte_rrc_nonCriticalExtension_27,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_13", HFILL }},
@@ -36620,11 +39407,11 @@ void proto_register_lte_rrc(void) {
       { "cellChangeOrder", "lte-rrc.cellChangeOrder_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_26,
+    { &hf_lte_rrc_nonCriticalExtension_28,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MobilityFromEUTRACommand_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_27,
+    { &hf_lte_rrc_nonCriticalExtension_29,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MobilityFromEUTRACommand_v8d0_IEs", HFILL }},
@@ -36632,7 +39419,7 @@ void proto_register_lte_rrc(void) {
       { "bandIndicator", "lte-rrc.bandIndicator",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_BandIndicatorGERAN_vals), 0,
         "BandIndicatorGERAN", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_28,
+    { &hf_lte_rrc_nonCriticalExtension_30,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_14", HFILL }},
@@ -36644,15 +39431,15 @@ void proto_register_lte_rrc(void) {
       { "e-CSFB-r9", "lte-rrc.e_CSFB_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_29,
+    { &hf_lte_rrc_nonCriticalExtension_31,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MobilityFromEUTRACommand_v930_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_30,
+    { &hf_lte_rrc_nonCriticalExtension_32,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MobilityFromEUTRACommand_v960_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_31,
+    { &hf_lte_rrc_nonCriticalExtension_33,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_15", HFILL }},
@@ -36732,11 +39519,11 @@ void proto_register_lte_rrc(void) {
       { "etws-Indication", "lte-rrc.etws_Indication",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_etws_Indication_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_32,
+    { &hf_lte_rrc_nonCriticalExtension_34,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Paging_v890_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_33,
+    { &hf_lte_rrc_nonCriticalExtension_35,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Paging_v920_IEs", HFILL }},
@@ -36744,7 +39531,7 @@ void proto_register_lte_rrc(void) {
       { "cmas-Indication-r9", "lte-rrc.cmas_Indication_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_cmas_Indication_r9_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_34,
+    { &hf_lte_rrc_nonCriticalExtension_36,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Paging_v1130_IEs", HFILL }},
@@ -36752,7 +39539,7 @@ void proto_register_lte_rrc(void) {
       { "eab-ParamModification-r11", "lte-rrc.eab_ParamModification_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_eab_ParamModification_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_35,
+    { &hf_lte_rrc_nonCriticalExtension_37,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_16", HFILL }},
@@ -36816,11 +39603,11 @@ void proto_register_lte_rrc(void) {
       { "eutra2-v9e0", "lte-rrc.eutra2_v9e0",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueEUTRA_v9e0", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_36,
+    { &hf_lte_rrc_nonCriticalExtension_38,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ProximityIndication_v930_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_37,
+    { &hf_lte_rrc_nonCriticalExtension_39,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_17", HFILL }},
@@ -36848,7 +39635,7 @@ void proto_register_lte_rrc(void) {
       { "rn-SubframeConfig-r10", "lte-rrc.rn_SubframeConfig_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_38,
+    { &hf_lte_rrc_nonCriticalExtension_40,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_18", HFILL }},
@@ -36876,7 +39663,7 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_15", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_39,
+    { &hf_lte_rrc_nonCriticalExtension_41,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_19", HFILL }},
@@ -36920,11 +39707,11 @@ void proto_register_lte_rrc(void) {
       { "securityConfigHO", "lte-rrc.securityConfigHO_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_40,
+    { &hf_lte_rrc_nonCriticalExtension_42,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfiguration_v890_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_41,
+    { &hf_lte_rrc_nonCriticalExtension_43,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfiguration_v920_IEs", HFILL }},
@@ -36936,7 +39723,7 @@ void proto_register_lte_rrc(void) {
       { "fullConfig-r9", "lte-rrc.fullConfig_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_fullConfig_r9_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_42,
+    { &hf_lte_rrc_nonCriticalExtension_44,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfiguration_v1020_IEs", HFILL }},
@@ -36948,7 +39735,7 @@ void proto_register_lte_rrc(void) {
       { "sCellToAddModList-r10", "lte-rrc.sCellToAddModList_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_43,
+    { &hf_lte_rrc_nonCriticalExtension_45,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfiguration_v1130_IEs", HFILL }},
@@ -36956,7 +39743,31 @@ void proto_register_lte_rrc(void) {
       { "systemInfomationBlockType1Dedicated-r11", "lte-rrc.systemInfomationBlockType1Dedicated_r11",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_44,
+    { &hf_lte_rrc_nonCriticalExtension_46,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCConnectionReconfiguration_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_wlan_OffloadDedicated_r12,
+      { "wlan-OffloadDedicated-r12", "lte-rrc.wlan_OffloadDedicated_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_wlan_OffloadDedicated_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_release,
+      { "release", "lte-rrc.release_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_wlan_OffloadConfig_r12,
+      { "wlan-OffloadConfig-r12", "lte-rrc.wlan_OffloadConfig_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_t350_r12,
+      { "t350-r12", "lte-rrc.t350_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_t350_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_47,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_20", HFILL }},
@@ -37036,11 +39847,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_17", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_45,
+    { &hf_lte_rrc_nonCriticalExtension_48,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfigurationComplete_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_46,
+    { &hf_lte_rrc_nonCriticalExtension_49,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfigurationComplete_v1020_IEs", HFILL }},
@@ -37052,7 +39863,7 @@ void proto_register_lte_rrc(void) {
       { "logMeasAvailable-r10", "lte-rrc.logMeasAvailable_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasAvailable_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_47,
+    { &hf_lte_rrc_nonCriticalExtension_50,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReconfigurationComplete_v1130_IEs", HFILL }},
@@ -37060,7 +39871,15 @@ void proto_register_lte_rrc(void) {
       { "connEstFailInfoAvailable-r11", "lte-rrc.connEstFailInfoAvailable_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailInfoAvailable_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_48,
+    { &hf_lte_rrc_nonCriticalExtension_51,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCConnectionReconfigurationComplete_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_logMeasAvailableMBSFN_r12,
+      { "logMeasAvailableMBSFN-r12", "lte-rrc.logMeasAvailableMBSFN_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasAvailableMBSFN_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_52,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_21", HFILL }},
@@ -37080,11 +39899,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_18", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_49,
+    { &hf_lte_rrc_nonCriticalExtension_53,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishment_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_50,
+    { &hf_lte_rrc_nonCriticalExtension_54,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_22", HFILL }},
@@ -37100,7 +39919,7 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_19", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_51,
+    { &hf_lte_rrc_nonCriticalExtension_55,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishmentComplete_v920_IEs", HFILL }},
@@ -37108,11 +39927,11 @@ void proto_register_lte_rrc(void) {
       { "rlf-InfoAvailable-r9", "lte-rrc.rlf_InfoAvailable_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_rlf_InfoAvailable_r9_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_52,
+    { &hf_lte_rrc_nonCriticalExtension_56,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishmentComplete_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_53,
+    { &hf_lte_rrc_nonCriticalExtension_57,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishmentComplete_v1020_IEs", HFILL }},
@@ -37120,7 +39939,7 @@ void proto_register_lte_rrc(void) {
       { "logMeasAvailable-r10", "lte-rrc.logMeasAvailable_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasAvailable_r10_01_vals), 0,
         "T_logMeasAvailable_r10_01", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_54,
+    { &hf_lte_rrc_nonCriticalExtension_58,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishmentComplete_v1130_IEs", HFILL }},
@@ -37128,7 +39947,15 @@ void proto_register_lte_rrc(void) {
       { "connEstFailInfoAvailable-r11", "lte-rrc.connEstFailInfoAvailable_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailInfoAvailable_r11_01_vals), 0,
         "T_connEstFailInfoAvailable_r11_01", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_55,
+    { &hf_lte_rrc_nonCriticalExtension_59,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCConnectionReestablishmentComplete_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_logMeasAvailableMBSFN_r12_01,
+      { "logMeasAvailableMBSFN-r12", "lte-rrc.logMeasAvailableMBSFN_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasAvailableMBSFN_r12_01_vals), 0,
+        "T_logMeasAvailableMBSFN_r12_01", HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_60,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_23", HFILL }},
@@ -37144,11 +39971,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_20", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_56,
+    { &hf_lte_rrc_nonCriticalExtension_61,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReestablishmentReject_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_57,
+    { &hf_lte_rrc_nonCriticalExtension_62,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_24", HFILL }},
@@ -37208,11 +40035,11 @@ void proto_register_lte_rrc(void) {
       { "waitTime", "lte-rrc.waitTime",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_58,
+    { &hf_lte_rrc_nonCriticalExtension_63,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReject_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_59,
+    { &hf_lte_rrc_nonCriticalExtension_64,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReject_v1020_IEs", HFILL }},
@@ -37220,7 +40047,7 @@ void proto_register_lte_rrc(void) {
       { "extendedWaitTime-r10", "lte-rrc.extendedWaitTime_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_60,
+    { &hf_lte_rrc_nonCriticalExtension_65,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionReject_v1130_IEs", HFILL }},
@@ -37236,7 +40063,7 @@ void proto_register_lte_rrc(void) {
       { "deprioritisationTimer-r11", "lte-rrc.deprioritisationTimer_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_deprioritisationTimer_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_61,
+    { &hf_lte_rrc_nonCriticalExtension_66,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_25", HFILL }},
@@ -37268,7 +40095,7 @@ void proto_register_lte_rrc(void) {
       { "idleModeMobilityControlInfo", "lte-rrc.idleModeMobilityControlInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_62,
+    { &hf_lte_rrc_nonCriticalExtension_67,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionRelease_v890_IEs", HFILL }},
@@ -37276,7 +40103,7 @@ void proto_register_lte_rrc(void) {
       { "lateNonCriticalExtension", "lte-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_63,
+    { &hf_lte_rrc_nonCriticalExtension_68,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionRelease_v920_IEs", HFILL }},
@@ -37288,7 +40115,7 @@ void proto_register_lte_rrc(void) {
       { "idleModeMobilityControlInfo-v9e0", "lte-rrc.idleModeMobilityControlInfo_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_64,
+    { &hf_lte_rrc_nonCriticalExtension_69,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_26", HFILL }},
@@ -37312,7 +40139,7 @@ void proto_register_lte_rrc(void) {
       { "utra-TDD-r10", "lte-rrc.utra_TDD_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CellInfoListUTRA_TDD_r10", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_65,
+    { &hf_lte_rrc_nonCriticalExtension_70,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionRelease_v1020_IEs", HFILL }},
@@ -37320,7 +40147,7 @@ void proto_register_lte_rrc(void) {
       { "extendedWaitTime-r10", "lte-rrc.extendedWaitTime_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         "T_extendedWaitTime_r10_01", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_66,
+    { &hf_lte_rrc_nonCriticalExtension_71,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_27", HFILL }},
@@ -37544,11 +40371,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_25", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_67,
+    { &hf_lte_rrc_nonCriticalExtension_72,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionSetup_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_68,
+    { &hf_lte_rrc_nonCriticalExtension_73,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_28", HFILL }},
@@ -37576,11 +40403,11 @@ void proto_register_lte_rrc(void) {
       { "registeredMME", "lte-rrc.registeredMME_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_69,
+    { &hf_lte_rrc_nonCriticalExtension_74,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionSetupComplete_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_70,
+    { &hf_lte_rrc_nonCriticalExtension_75,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionSetupComplete_v1020_IEs", HFILL }},
@@ -37600,7 +40427,7 @@ void proto_register_lte_rrc(void) {
       { "rn-SubframeConfigReq-r10", "lte-rrc.rn_SubframeConfigReq_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_rn_SubframeConfigReq_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_71,
+    { &hf_lte_rrc_nonCriticalExtension_76,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCConnectionSetupComplete_v1130_IEs", HFILL }},
@@ -37608,7 +40435,23 @@ void proto_register_lte_rrc(void) {
       { "connEstFailInfoAvailable-r11", "lte-rrc.connEstFailInfoAvailable_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailInfoAvailable_r11_02_vals), 0,
         "T_connEstFailInfoAvailable_r11_02", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_72,
+    { &hf_lte_rrc_nonCriticalExtension_77,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCConnectionSetupComplete_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_mobilityState_r12,
+      { "mobilityState-r12", "lte-rrc.mobilityState_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mobilityState_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mobilityHistoryAvail_r12,
+      { "mobilityHistoryAvail-r12", "lte-rrc.mobilityHistoryAvail_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mobilityHistoryAvail_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_logMeasAvailableMBSFN_r12_02,
+      { "logMeasAvailableMBSFN-r12", "lte-rrc.logMeasAvailableMBSFN_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasAvailableMBSFN_r12_02_vals), 0,
+        "T_logMeasAvailableMBSFN_r12_02", HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_78,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_29", HFILL }},
@@ -37644,11 +40487,11 @@ void proto_register_lte_rrc(void) {
       { "securityConfigSMC", "lte-rrc.securityConfigSMC_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_73,
+    { &hf_lte_rrc_nonCriticalExtension_79,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityModeCommand_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_74,
+    { &hf_lte_rrc_nonCriticalExtension_80,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_30", HFILL }},
@@ -37664,11 +40507,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_28", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_75,
+    { &hf_lte_rrc_nonCriticalExtension_81,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityModeComplete_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_76,
+    { &hf_lte_rrc_nonCriticalExtension_82,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_31", HFILL }},
@@ -37684,11 +40527,11 @@ void proto_register_lte_rrc(void) {
       { "criticalExtensionsFuture", "lte-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_29", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_77,
+    { &hf_lte_rrc_nonCriticalExtension_83,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityModeFailure_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_78,
+    { &hf_lte_rrc_nonCriticalExtension_84,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_32", HFILL }},
@@ -37772,11 +40615,15 @@ void proto_register_lte_rrc(void) {
       { "sib16-v1130", "lte-rrc.sib16_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType16_r11", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_79,
+    { &hf_lte_rrc_sib17_v12xy,
+      { "sib17-v12xy", "lte-rrc.sib17_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SystemInformationBlockType17_r12", HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_85,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformation_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_80,
+    { &hf_lte_rrc_nonCriticalExtension_86,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_33", HFILL }},
@@ -37848,7 +40695,7 @@ void proto_register_lte_rrc(void) {
       { "systemInfoValueTag", "lte-rrc.systemInfoValueTag",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_81,
+    { &hf_lte_rrc_nonCriticalExtension_87,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType1_v890_IEs", HFILL }},
@@ -37856,7 +40703,7 @@ void proto_register_lte_rrc(void) {
       { "lateNonCriticalExtension", "lte-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_lateNonCriticalExtension_01", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_82,
+    { &hf_lte_rrc_nonCriticalExtension_88,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType1_v920_IEs", HFILL }},
@@ -37864,7 +40711,7 @@ void proto_register_lte_rrc(void) {
       { "multiBandInfoList", "lte-rrc.multiBandInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_83,
+    { &hf_lte_rrc_nonCriticalExtension_89,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType1_v9e0_IEs", HFILL }},
@@ -37876,7 +40723,7 @@ void proto_register_lte_rrc(void) {
       { "multiBandInfoList-v9e0", "lte-rrc.multiBandInfoList_v9e0",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_84,
+    { &hf_lte_rrc_nonCriticalExtension_90,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_34", HFILL }},
@@ -37888,7 +40735,7 @@ void proto_register_lte_rrc(void) {
       { "cellSelectionInfo-v920", "lte-rrc.cellSelectionInfo_v920_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_85,
+    { &hf_lte_rrc_nonCriticalExtension_91,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType1_v1130_IEs", HFILL }},
@@ -37900,7 +40747,19 @@ void proto_register_lte_rrc(void) {
       { "cellSelectionInfo-v1130", "lte-rrc.cellSelectionInfo_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_86,
+    { &hf_lte_rrc_nonCriticalExtension_92,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SystemInformationBlockType1_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_cellAccessRelatedInfo_v12xy,
+      { "cellAccessRelatedInfo-v12xy", "lte-rrc.cellAccessRelatedInfo_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_category0Allowed_r12,
+      { "category0Allowed-r12", "lte-rrc.category0Allowed_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_category0Allowed_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_93,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_35", HFILL }},
@@ -37960,7 +40819,7 @@ void proto_register_lte_rrc(void) {
       { "powerPrefIndication-r11", "lte-rrc.powerPrefIndication_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_powerPrefIndication_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_87,
+    { &hf_lte_rrc_nonCriticalExtension_94,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_36", HFILL }},
@@ -37984,11 +40843,11 @@ void proto_register_lte_rrc(void) {
       { "ue-CapabilityRequest", "lte-rrc.ue_CapabilityRequest",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_88,
+    { &hf_lte_rrc_nonCriticalExtension_95,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UECapabilityEnquiry_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_89,
+    { &hf_lte_rrc_nonCriticalExtension_96,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UECapabilityEnquiry_v1180_IEs", HFILL }},
@@ -38000,7 +40859,7 @@ void proto_register_lte_rrc(void) {
       { "FreqBandIndicator-r11", "lte-rrc.FreqBandIndicator_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_90,
+    { &hf_lte_rrc_nonCriticalExtension_97,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_37", HFILL }},
@@ -38028,11 +40887,19 @@ void proto_register_lte_rrc(void) {
       { "ue-CapabilityRAT-ContainerList", "lte-rrc.ue_CapabilityRAT_ContainerList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_91,
+    { &hf_lte_rrc_nonCriticalExtension_98,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UECapabilityInformation_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_92,
+    { &hf_lte_rrc_nonCriticalExtension_99,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UECapabilityInformation_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_ue_RadioPagingInfo_r12,
+      { "ue-RadioPagingInfo-r12", "lte-rrc.ue_RadioPagingInfo_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_100,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_38", HFILL }},
@@ -38060,11 +40927,11 @@ void proto_register_lte_rrc(void) {
       { "rlf-ReportReq-r9", "lte-rrc.rlf_ReportReq_r9",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_93,
+    { &hf_lte_rrc_nonCriticalExtension_101,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationRequest_v930_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_94,
+    { &hf_lte_rrc_nonCriticalExtension_102,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationRequest_v1020_IEs", HFILL }},
@@ -38072,7 +40939,7 @@ void proto_register_lte_rrc(void) {
       { "logMeasReportReq-r10", "lte-rrc.logMeasReportReq_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_logMeasReportReq_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_95,
+    { &hf_lte_rrc_nonCriticalExtension_103,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationRequest_v1130_IEs", HFILL }},
@@ -38080,7 +40947,15 @@ void proto_register_lte_rrc(void) {
       { "connEstFailReportReq-r11", "lte-rrc.connEstFailReportReq_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailReportReq_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_96,
+    { &hf_lte_rrc_nonCriticalExtension_104,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UEInformationRequest_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_mobilityHistoryReportReq_r12,
+      { "mobilityHistoryReportReq-r12", "lte-rrc.mobilityHistoryReportReq_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mobilityHistoryReportReq_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_105,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_39", HFILL }},
@@ -38116,7 +40991,7 @@ void proto_register_lte_rrc(void) {
       { "rlf-Report-r9", "lte-rrc.rlf_Report_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_97,
+    { &hf_lte_rrc_nonCriticalExtension_106,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationResponse_v930_IEs", HFILL }},
@@ -38124,7 +40999,7 @@ void proto_register_lte_rrc(void) {
       { "rlf-Report-v9e0", "lte-rrc.rlf_Report_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_98,
+    { &hf_lte_rrc_nonCriticalExtension_107,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_40", HFILL }},
@@ -38132,7 +41007,7 @@ void proto_register_lte_rrc(void) {
       { "lateNonCriticalExtension", "lte-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_lateNonCriticalExtension_02", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_99,
+    { &hf_lte_rrc_nonCriticalExtension_108,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationResponse_v1020_IEs", HFILL }},
@@ -38140,7 +41015,7 @@ void proto_register_lte_rrc(void) {
       { "logMeasReport-r10", "lte-rrc.logMeasReport_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_100,
+    { &hf_lte_rrc_nonCriticalExtension_109,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEInformationResponse_v1130_IEs", HFILL }},
@@ -38148,7 +41023,15 @@ void proto_register_lte_rrc(void) {
       { "connEstFailReport-r11", "lte-rrc.connEstFailReport_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_101,
+    { &hf_lte_rrc_nonCriticalExtension_110,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UEInformationResponse_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_mobilityHistoryReport_r12,
+      { "mobilityHistoryReport-r12", "lte-rrc.mobilityHistoryReport_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_111,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_41", HFILL }},
@@ -38268,6 +41151,14 @@ void proto_register_lte_rrc(void) {
       { "physCellId-r11", "lte-rrc.physCellId_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_physCellId_r11_01_vals), 0,
         "T_physCellId_r11_01", HFILL }},
+    { &hf_lte_rrc_failedPCellId_v12xy,
+      { "failedPCellId-v12xy", "lte-rrc.failedPCellId_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_tac_FailedPCell_r12,
+      { "tac-FailedPCell-r12", "lte-rrc.tac_FailedPCell_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TrackingAreaCode", HFILL }},
     { &hf_lte_rrc_measResultListEUTRA_v9e0,
       { "measResultListEUTRA-v9e0", "lte-rrc.measResultListEUTRA_v9e0",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -38372,6 +41263,46 @@ void proto_register_lte_rrc(void) {
       { "measResultListEUTRA-v1090", "lte-rrc.measResultListEUTRA_v1090",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasResultList2EUTRA_v9e0", HFILL }},
+    { &hf_lte_rrc_measResultListMBSFN_r12,
+      { "measResultListMBSFN-r12", "lte-rrc.measResultListMBSFN_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_MeasResultListMBSFN_r12_item,
+      { "MeasResultMBSFN-r12", "lte-rrc.MeasResultMBSFN_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mbsfn_Area_r12,
+      { "mbsfn-Area-r12", "lte-rrc.mbsfn_Area_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_rsrpResultMBSFN_r12,
+      { "rsrpResultMBSFN-r12", "lte-rrc.rsrpResultMBSFN_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRP_Range_vals_ext, 0,
+        "RSRP_Range", HFILL }},
+    { &hf_lte_rrc_rsrqResultMBSFN_r12,
+      { "rsrqResultMBSFN-r12", "lte-rrc.rsrqResultMBSFN_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRQ_Range_vals_ext, 0,
+        "RSRQ_Range", HFILL }},
+    { &hf_lte_rrc_signallingBLER_Result_r12,
+      { "signallingBLER-Result-r12", "lte-rrc.signallingBLER_Result_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BLER_Range_r12", HFILL }},
+    { &hf_lte_rrc_dataBLER_MCH_ResultList_r12,
+      { "dataBLER-MCH-ResultList-r12", "lte-rrc.dataBLER_MCH_ResultList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_DataBLER_MCH_ResultList_r12_item,
+      { "DataBLER-MCH-Result-r12", "lte-rrc.DataBLER_MCH_Result_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mch_Index_r12,
+      { "mch-Index-r12", "lte-rrc.mch_Index_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_maxPMCH_PerMBSFN", HFILL }},
+    { &hf_lte_rrc_dataBLER_Result_r12,
+      { "dataBLER-Result-r12", "lte-rrc.dataBLER_Result_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BLER_Range_r12", HFILL }},
     { &hf_lte_rrc_MeasResultList2GERAN_r10_item,
       { "MeasResultListGERAN", "lte-rrc.MeasResultListGERAN",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -38456,11 +41387,11 @@ void proto_register_lte_rrc(void) {
       { "dedicatedInfo", "lte-rrc.dedicatedInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
         "DedicatedInfoCDMA2000", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_102,
+    { &hf_lte_rrc_nonCriticalExtension_112,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ULHandoverPreparationTransfer_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_103,
+    { &hf_lte_rrc_nonCriticalExtension_113,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_42", HFILL }},
@@ -38484,11 +41415,11 @@ void proto_register_lte_rrc(void) {
       { "dedicatedInfoType", "lte-rrc.dedicatedInfoType",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_dedicatedInfoType_01_vals), 0,
         "T_dedicatedInfoType_01", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_104,
+    { &hf_lte_rrc_nonCriticalExtension_114,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ULInformationTransfer_v8a0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_105,
+    { &hf_lte_rrc_nonCriticalExtension_115,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_43", HFILL }},
@@ -38556,6 +41487,18 @@ void proto_register_lte_rrc(void) {
       { "ac-BarringForCSFB-r10", "lte-rrc.ac_BarringForCSFB_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AC_BarringConfig", HFILL }},
+    { &hf_lte_rrc_ac_BarringSkipForMMTELVoice_r12,
+      { "ac-BarringSkipForMMTELVoice-r12", "lte-rrc.ac_BarringSkipForMMTELVoice_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ac_BarringSkipForMMTELVoice_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ac_BarringSkipForMMTELVideo_r12,
+      { "ac-BarringSkipForMMTELVideo-r12", "lte-rrc.ac_BarringSkipForMMTELVideo_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ac_BarringSkipForMMTELVideo_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ac_BarringSkipForSMS_r12,
+      { "ac-BarringSkipForSMS-r12", "lte-rrc.ac_BarringSkipForSMS_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ac_BarringSkipForSMS_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_multiBandInfoList_01,
       { "multiBandInfoList", "lte-rrc.multiBandInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -38564,7 +41507,7 @@ void proto_register_lte_rrc(void) {
       { "AdditionalSpectrumEmission", "lte-rrc.AdditionalSpectrumEmission",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_106,
+    { &hf_lte_rrc_nonCriticalExtension_116,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType2_v9e0_IEs", HFILL }},
@@ -38572,7 +41515,7 @@ void proto_register_lte_rrc(void) {
       { "ul-CarrierFreq-v9e0", "lte-rrc.ul_CarrierFreq_v9e0",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueEUTRA_v9e0", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_107,
+    { &hf_lte_rrc_nonCriticalExtension_117,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_44", HFILL }},
@@ -38728,7 +41671,7 @@ void proto_register_lte_rrc(void) {
       { "InterFreqCarrierFreqInfo-v8h0", "lte-rrc.InterFreqCarrierFreqInfo_v8h0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_108,
+    { &hf_lte_rrc_nonCriticalExtension_118,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformationBlockType5_v9e0_IEs", HFILL }},
@@ -38740,7 +41683,7 @@ void proto_register_lte_rrc(void) {
       { "InterFreqCarrierFreqInfo-v9e0", "lte-rrc.InterFreqCarrierFreqInfo_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_109,
+    { &hf_lte_rrc_nonCriticalExtension_119,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_45", HFILL }},
@@ -38824,7 +41767,7 @@ void proto_register_lte_rrc(void) {
       { "CarrierFreqInfoUTRA-FDD-v8h0", "lte-rrc.CarrierFreqInfoUTRA_FDD_v8h0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_110,
+    { &hf_lte_rrc_nonCriticalExtension_120,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_46", HFILL }},
@@ -39336,6 +42279,46 @@ void proto_register_lte_rrc(void) {
       { "localTimeOffset-r11", "lte-rrc.localTimeOffset_r11",
         FT_INT32, BASE_CUSTOM, &lte_rrc_localTimeOffset_fmt, 0,
         "INTEGER_M63_64", HFILL }},
+    { &hf_lte_rrc_wlan_OffloadPerPLMN_List_r12,
+      { "wlan-OffloadPerPLMN-List-r12", "lte-rrc.wlan_OffloadPerPLMN_List_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12", HFILL }},
+    { &hf_lte_rrc_wlan_OffloadPerPLMN_List_r12_item,
+      { "WLAN-OffloadPerPLMN-r12", "lte-rrc.WLAN_OffloadPerPLMN_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_plmn_Identity_r12,
+      { "plmn-Identity-r12", "lte-rrc.plmn_Identity_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_maxPLMN_r11", HFILL }},
+    { &hf_lte_rrc_wlan_OffloadConfigCommon_r12,
+      { "wlan-OffloadConfigCommon-r12", "lte-rrc.wlan_OffloadConfigCommon_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "WLAN_OffloadConfig_r12", HFILL }},
+    { &hf_lte_rrc_wlan_Id_List_r12,
+      { "wlan-Id-List-r12", "lte-rrc.wlan_Id_List_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_WLAN_Id_List_r12_item,
+      { "WLAN-Id-r12", "lte-rrc.WLAN_Id_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_wlan_Identifiers,
+      { "wlan-Identifiers", "lte-rrc.wlan_Identifiers",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_wlan_Identifiers_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ssid,
+      { "ssid", "lte-rrc.ssid",
+        FT_STRING, STR_ASCII, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_bssid,
+      { "bssid", "lte-rrc.bssid",
+        FT_ETHER, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_6", HFILL }},
+    { &hf_lte_rrc_hessid,
+      { "hessid", "lte-rrc.hessid",
+        FT_ETHER, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_6", HFILL }},
     { &hf_lte_rrc_antennaPortsCount,
       { "antennaPortsCount", "lte-rrc.antennaPortsCount",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_antennaPortsCount_vals), 0,
@@ -39384,14 +42367,10 @@ void proto_register_lte_rrc(void) {
       { "ue-TransmitAntennaSelection", "lte-rrc.ue_TransmitAntennaSelection",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ue_TransmitAntennaSelection_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_release,
-      { "release", "lte-rrc.release_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_setup,
+    { &hf_lte_rrc_setup_01,
       { "setup", "lte-rrc.setup",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_setup_vals), 0,
-        NULL, HFILL }},
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_setup_01_vals), 0,
+        "T_setup_01", HFILL }},
     { &hf_lte_rrc_codebookSubsetRestriction_v920,
       { "codebookSubsetRestriction-v920", "lte-rrc.codebookSubsetRestriction_v920",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_codebookSubsetRestriction_v920_vals), 0,
@@ -39416,10 +42395,14 @@ void proto_register_lte_rrc(void) {
       { "ue-TransmitAntennaSelection", "lte-rrc.ue_TransmitAntennaSelection",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ue_TransmitAntennaSelection_01_vals), 0,
         "T_ue_TransmitAntennaSelection_01", HFILL }},
-    { &hf_lte_rrc_setup_01,
+    { &hf_lte_rrc_setup_02,
       { "setup", "lte-rrc.setup",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_setup_01_vals), 0,
-        "T_setup_01", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_setup_02_vals), 0,
+        "T_setup_02", HFILL }},
+    { &hf_lte_rrc_alternativeCodebookEnabledFor4TX_r12,
+      { "alternativeCodebookEnabledFor4TX-r12", "lte-rrc.alternativeCodebookEnabledFor4TX_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_alternativeCodebookEnabledFor4TX_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_transmissionModeUL_r10,
       { "transmissionModeUL-r10", "lte-rrc.transmissionModeUL_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_transmissionModeUL_r10_vals), 0,
@@ -39464,10 +42447,10 @@ void proto_register_lte_rrc(void) {
       { "csi-SubframePatternConfig-r10", "lte-rrc.csi_SubframePatternConfig_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_SubframePatternConfig_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_02,
+    { &hf_lte_rrc_setup_03,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_02", HFILL }},
+        "T_setup_03", HFILL }},
     { &hf_lte_rrc_csi_MeasSubframeSet1_r10,
       { "csi-MeasSubframeSet1-r10", "lte-rrc.csi_MeasSubframeSet1_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_MeasSubframePattern_r10_vals), 0,
@@ -39483,6 +42466,26 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_cqi_ReportBoth_r11,
       { "cqi-ReportBoth-r11", "lte-rrc.cqi_ReportBoth_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_csi_SubframePatternConfig_r12,
+      { "csi-SubframePatternConfig-r12", "lte-rrc.csi_SubframePatternConfig_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_SubframePatternConfig_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup_04,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_04", HFILL }},
+    { &hf_lte_rrc_csi_MeasSubframeSet_r12,
+      { "csi-MeasSubframeSet-r12", "lte-rrc.csi_MeasSubframeSet_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_10", HFILL }},
+    { &hf_lte_rrc_cqi_ReportBoth_r12,
+      { "cqi-ReportBoth-r12", "lte-rrc.cqi_ReportBoth_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cqi_ReportAperiodic_v12x0,
+      { "cqi-ReportAperiodic-v12x0", "lte-rrc.cqi_ReportAperiodic_v12x0",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_CQI_ReportAperiodic_v12x0_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_cqi_ReportModeAperiodic_r10,
       { "cqi-ReportModeAperiodic-r10", "lte-rrc.cqi_ReportModeAperiodic_r10",
@@ -39500,10 +42503,10 @@ void proto_register_lte_rrc(void) {
       { "pmi-RI-Report-r10", "lte-rrc.pmi_RI_Report_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_pmi_RI_Report_r10_vals), 0,
         "T_pmi_RI_Report_r10", HFILL }},
-    { &hf_lte_rrc_setup_03,
+    { &hf_lte_rrc_setup_05,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_03", HFILL }},
+        "T_setup_05", HFILL }},
     { &hf_lte_rrc_cqi_PUCCH_ResourceIndex,
       { "cqi-PUCCH-ResourceIndex", "lte-rrc.cqi_PUCCH_ResourceIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39536,10 +42539,10 @@ void proto_register_lte_rrc(void) {
       { "simultaneousAckNackAndCQI", "lte-rrc.simultaneousAckNackAndCQI",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_lte_rrc_setup_04,
+    { &hf_lte_rrc_setup_06,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_04", HFILL }},
+        "T_setup_06", HFILL }},
     { &hf_lte_rrc_cqi_PUCCH_ResourceIndex_r10,
       { "cqi-PUCCH-ResourceIndex-r10", "lte-rrc.cqi_PUCCH_ResourceIndex_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39576,10 +42579,10 @@ void proto_register_lte_rrc(void) {
       { "csi-ConfigIndex-r10", "lte-rrc.csi_ConfigIndex_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_ConfigIndex_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_05,
+    { &hf_lte_rrc_setup_07,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_05", HFILL }},
+        "T_setup_07", HFILL }},
     { &hf_lte_rrc_cqi_pmi_ConfigIndex2_r10,
       { "cqi-pmi-ConfigIndex2-r10", "lte-rrc.cqi_pmi_ConfigIndex2_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39644,10 +42647,10 @@ void proto_register_lte_rrc(void) {
       { "csi-ConfigIndex-r11", "lte-rrc.csi_ConfigIndex_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_ConfigIndex_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_06,
+    { &hf_lte_rrc_setup_08,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_06", HFILL }},
+        "T_setup_08", HFILL }},
     { &hf_lte_rrc_cqi_pmi_ConfigIndex2_r11,
       { "cqi-pmi-ConfigIndex2-r11", "lte-rrc.cqi_pmi_ConfigIndex2_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39656,10 +42659,10 @@ void proto_register_lte_rrc(void) {
       { "ri-ConfigIndex2-r11", "lte-rrc.ri_ConfigIndex2_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_lte_rrc_setup_07,
+    { &hf_lte_rrc_setup_09,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_07", HFILL }},
+        "T_setup_09", HFILL }},
     { &hf_lte_rrc_aperiodicCSI_Trigger_r10,
       { "aperiodicCSI-Trigger-r10", "lte-rrc.aperiodicCSI_Trigger_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -39670,6 +42673,26 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_8", HFILL }},
     { &hf_lte_rrc_trigger2_r10,
       { "trigger2-r10", "lte-rrc.trigger2_r10",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_8", HFILL }},
+    { &hf_lte_rrc_setup_10,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_10", HFILL }},
+    { &hf_lte_rrc_aperiodicCSI_Trigger_r12,
+      { "aperiodicCSI-Trigger-r12", "lte-rrc.aperiodicCSI_Trigger_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_trigger_SubframeSetIndicator_r12,
+      { "trigger-SubframeSetIndicator-r12", "lte-rrc.trigger_SubframeSetIndicator_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_trigger_SubframeSetIndicator_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_trigger1_SubframeSetIndicator_r12,
+      { "trigger1-SubframeSetIndicator-r12", "lte-rrc.trigger1_SubframeSetIndicator_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_8", HFILL }},
+    { &hf_lte_rrc_trigger2_SubframeSetIndicator_r12,
+      { "trigger2-SubframeSetIndicator-r12", "lte-rrc.trigger2_SubframeSetIndicator_r12",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
     { &hf_lte_rrc_cqi_ReportModeAperiodic_r11,
@@ -39704,12 +42727,28 @@ void proto_register_lte_rrc(void) {
       { "csi-ProcessToAddModList-r11", "lte-rrc.csi_ProcessToAddModList_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_csi_IM_ConfigToReleaseList_r12,
+      { "csi-IM-ConfigToReleaseList-r12", "lte-rrc.csi_IM_ConfigToReleaseList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_csi_IM_ConfigToAddModList_r12,
+      { "csi-IM-ConfigToAddModList-r12", "lte-rrc.csi_IM_ConfigToAddModList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_CSI_IM_ConfigToAddModList_r11_item,
       { "CSI-IM-Config-r11", "lte-rrc.CSI_IM_Config_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_CSI_IM_ConfigToAddModList_r12_item,
+      { "CSI-IM-Config-r12", "lte-rrc.CSI_IM_Config_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_CSI_IM_ConfigToReleaseList_r11_item,
       { "CSI-IM-ConfigId-r11", "lte-rrc.CSI_IM_ConfigId_r11",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_CSI_IM_ConfigToReleaseList_r12_item,
+      { "CSI-IM-ConfigId-r12", "lte-rrc.CSI_IM_ConfigId_r12",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_CSI_ProcessToAddModList_r11_item,
@@ -39764,6 +42803,18 @@ void proto_register_lte_rrc(void) {
       { "subframeConfig-r11", "lte-rrc.subframeConfig_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_154", HFILL }},
+    { &hf_lte_rrc_csi_IM_ConfigId_r12,
+      { "csi-IM-ConfigId-r12", "lte-rrc.csi_IM_ConfigId_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_resourceConfig_r12,
+      { "resourceConfig-r12", "lte-rrc.resourceConfig_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_31", HFILL }},
+    { &hf_lte_rrc_subframeConfig_r12,
+      { "subframeConfig-r12", "lte-rrc.subframeConfig_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_154", HFILL }},
     { &hf_lte_rrc_csi_ProcessId_r11,
       { "csi-ProcessId-r11", "lte-rrc.csi_ProcessId_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39792,6 +42843,22 @@ void proto_register_lte_rrc(void) {
       { "cqi-ReportAperiodicProc-r11", "lte-rrc.cqi_ReportAperiodicProc_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_alternativeCodebookEnabledFor4TXProc_r12,
+      { "alternativeCodebookEnabledFor4TXProc-r12", "lte-rrc.alternativeCodebookEnabledFor4TXProc_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_alternativeCodebookEnabledFor4TXProc_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_csi_IM_ConfigIdList_r12,
+      { "csi-IM-ConfigIdList-r12", "lte-rrc.csi_IM_ConfigIdList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12", HFILL }},
+    { &hf_lte_rrc_csi_IM_ConfigIdList_r12_item,
+      { "CSI-IM-ConfigId-r12", "lte-rrc.CSI_IM_ConfigId_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cqi_ReportAperiodicProcSecond_r12,
+      { "cqi-ReportAperiodicProcSecond-r12", "lte-rrc.cqi_ReportAperiodicProcSecond_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CQI_ReportAperiodicProc_r11", HFILL }},
     { &hf_lte_rrc_p_C_r11,
       { "p-C-r11", "lte-rrc.p_C_r11",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -39804,10 +42871,10 @@ void proto_register_lte_rrc(void) {
       { "csi-RS-r10", "lte-rrc.csi_RS_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_RS_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_08,
+    { &hf_lte_rrc_setup_11,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_08", HFILL }},
+        "T_setup_11", HFILL }},
     { &hf_lte_rrc_antennaPortsCount_r10,
       { "antennaPortsCount-r10", "lte-rrc.antennaPortsCount_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_antennaPortsCount_r10_vals), 0,
@@ -39828,16 +42895,32 @@ void proto_register_lte_rrc(void) {
       { "zeroTxPowerCSI-RS-r10", "lte-rrc.zeroTxPowerCSI_RS_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_zeroTxPowerCSI_RS_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_09,
+    { &hf_lte_rrc_setup_12,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_09", HFILL }},
+        "T_setup_12", HFILL }},
     { &hf_lte_rrc_zeroTxPowerResourceConfigList_r10,
       { "zeroTxPowerResourceConfigList-r10", "lte-rrc.zeroTxPowerResourceConfigList_r10",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_16", HFILL }},
     { &hf_lte_rrc_zeroTxPowerSubframeConfig_r10,
       { "zeroTxPowerSubframeConfig-r10", "lte-rrc.zeroTxPowerSubframeConfig_r10",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_154", HFILL }},
+    { &hf_lte_rrc_zeroTxPowerCSI_RS_r12,
+      { "zeroTxPowerCSI-RS-r12", "lte-rrc.zeroTxPowerCSI_RS_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_zeroTxPowerCSI_RS_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup_13,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_13", HFILL }},
+    { &hf_lte_rrc_zeroTxPowerResourceConfigList_r12,
+      { "zeroTxPowerResourceConfigList-r12", "lte-rrc.zeroTxPowerResourceConfigList_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
+    { &hf_lte_rrc_zeroTxPowerSubframeConfig_r12,
+      { "zeroTxPowerSubframeConfig-r12", "lte-rrc.zeroTxPowerSubframeConfig_r12",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_154", HFILL }},
     { &hf_lte_rrc_antennaPortsCount_r11,
@@ -39864,10 +42947,10 @@ void proto_register_lte_rrc(void) {
       { "mbsfn-SubframeConfigList-r11", "lte-rrc.mbsfn_SubframeConfigList_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mbsfn_SubframeConfigList_r11_vals), 0,
         "T_mbsfn_SubframeConfigList_r11", HFILL }},
-    { &hf_lte_rrc_setup_10,
+    { &hf_lte_rrc_setup_14,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_10", HFILL }},
+        "T_setup_14", HFILL }},
     { &hf_lte_rrc_subframeConfigList,
       { "subframeConfigList", "lte-rrc.subframeConfigList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39880,10 +42963,10 @@ void proto_register_lte_rrc(void) {
       { "resourceConfigList-r11", "lte-rrc.resourceConfigList_r11",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_16", HFILL }},
-    { &hf_lte_rrc_setup_11,
+    { &hf_lte_rrc_setup_15,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_11", HFILL }},
+        "T_setup_15", HFILL }},
     { &hf_lte_rrc_scramblingIdentity2_r11,
       { "scramblingIdentity2-r11", "lte-rrc.scramblingIdentity2_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -39892,18 +42975,18 @@ void proto_register_lte_rrc(void) {
       { "config-r11", "lte-rrc.config_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_config_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_12,
+    { &hf_lte_rrc_setup_16,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_12", HFILL }},
+        "T_setup_16", HFILL }},
     { &hf_lte_rrc_subframePatternConfig_r11,
       { "subframePatternConfig-r11", "lte-rrc.subframePatternConfig_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_subframePatternConfig_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_13,
+    { &hf_lte_rrc_setup_17,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_13", HFILL }},
+        "T_setup_17", HFILL }},
     { &hf_lte_rrc_subframePattern_r11,
       { "subframePattern-r11", "lte-rrc.subframePattern_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_MeasSubframePattern_r10_vals), 0,
@@ -39960,6 +43043,50 @@ void proto_register_lte_rrc(void) {
       { "re-MappingQCL-ConfigId-r11", "lte-rrc.re_MappingQCL_ConfigId_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PDSCH_RE_MappingQCL_ConfigId_r11", HFILL }},
+    { &hf_lte_rrc_csi_RS_ConfigZPId_Second_r12,
+      { "csi-RS-ConfigZPId-Second-r12", "lte-rrc.csi_RS_ConfigZPId_Second_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CSI_RS_ConfigZPId_r11", HFILL }},
+    { &hf_lte_rrc_setup_18,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_18", HFILL }},
+    { &hf_lte_rrc_eimta_RNTI_r12,
+      { "eimta-RNTI-r12", "lte-rrc.eimta_RNTI_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "C_RNTI", HFILL }},
+    { &hf_lte_rrc_eimta_CommandPeriodicity_r12,
+      { "eimta-CommandPeriodicity-r12", "lte-rrc.eimta_CommandPeriodicity_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_eimta_CommandPeriodicity_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_eimta_CommandSubframeSet_r12,
+      { "eimta-CommandSubframeSet-r12", "lte-rrc.eimta_CommandSubframeSet_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_10", HFILL }},
+    { &hf_lte_rrc_setup_19,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_19", HFILL }},
+    { &hf_lte_rrc_eimta_ReConfigIndex_r12,
+      { "eimta-ReConfigIndex-r12", "lte-rrc.eimta_ReConfigIndex_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_5", HFILL }},
+    { &hf_lte_rrc_eimta_HarqReferenceConfig_r12,
+      { "eimta-HarqReferenceConfig-r12", "lte-rrc.eimta_HarqReferenceConfig_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_eimta_HarqReferenceConfig_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mbsfn_SubframeConfigList_v12x0,
+      { "mbsfn-SubframeConfigList-v12x0", "lte-rrc.mbsfn_SubframeConfigList_v12x0",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mbsfn_SubframeConfigList_v12x0_vals), 0,
+        "T_mbsfn_SubframeConfigList_v12x0", HFILL }},
+    { &hf_lte_rrc_setup_20,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_20", HFILL }},
+    { &hf_lte_rrc_subframeConfigList_r12,
+      { "subframeConfigList-r12", "lte-rrc.subframeConfigList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MBSFN_SubframeConfigList", HFILL }},
     { &hf_lte_rrc_ul_SpecificParameters,
       { "ul-SpecificParameters", "lte-rrc.ul_SpecificParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -40016,10 +43143,10 @@ void proto_register_lte_rrc(void) {
       { "phr-Config", "lte-rrc.phr_Config",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_phr_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_14,
+    { &hf_lte_rrc_setup_21,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_14", HFILL }},
+        "T_setup_21", HFILL }},
     { &hf_lte_rrc_periodicPHR_Timer,
       { "periodicPHR-Timer", "lte-rrc.periodicPHR_Timer",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_periodicPHR_Timer_vals), 0,
@@ -40064,6 +43191,10 @@ void proto_register_lte_rrc(void) {
       { "drx-Config-v1130", "lte-rrc.drx_Config_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_e_HARQ_Pattern_r12,
+      { "e-HARQ-Pattern-r12", "lte-rrc.e_HARQ_Pattern_r12",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_lte_rrc_stag_Id_r11,
       { "stag-Id-r11", "lte-rrc.stag_Id_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40072,10 +43203,10 @@ void proto_register_lte_rrc(void) {
       { "release", "lte-rrc.release_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_15,
+    { &hf_lte_rrc_setup_22,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_15", HFILL }},
+        "T_setup_22", HFILL }},
     { &hf_lte_rrc_onDurationTimer,
       { "onDurationTimer", "lte-rrc.onDurationTimer",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_onDurationTimer_vals), 0,
@@ -40340,10 +43471,10 @@ void proto_register_lte_rrc(void) {
       { "mbsfn-SubframeConfigList-r11", "lte-rrc.mbsfn_SubframeConfigList_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mbsfn_SubframeConfigList_r11_01_vals), 0,
         "T_mbsfn_SubframeConfigList_r11_01", HFILL }},
-    { &hf_lte_rrc_setup_16,
+    { &hf_lte_rrc_setup_23,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_16", HFILL }},
+        "T_setup_23", HFILL }},
     { &hf_lte_rrc_pdsch_Start_r11,
       { "pdsch-Start-r11", "lte-rrc.pdsch_Start_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_pdsch_Start_r11_vals), 0,
@@ -40460,10 +43591,10 @@ void proto_register_lte_rrc(void) {
       { "additionalSpectrumEmissionCA-r10", "lte-rrc.additionalSpectrumEmissionCA_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_additionalSpectrumEmissionCA_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_17,
+    { &hf_lte_rrc_setup_24,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_17", HFILL }},
+        "T_setup_24", HFILL }},
     { &hf_lte_rrc_additionalSpectrumEmissionPCell_r10,
       { "additionalSpectrumEmissionPCell-r10", "lte-rrc.additionalSpectrumEmissionPCell_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40508,6 +43639,38 @@ void proto_register_lte_rrc(void) {
       { "uplinkPowerControlDedicated-v1130", "lte-rrc.uplinkPowerControlDedicated_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_antennaInfo_v12xx,
+      { "antennaInfo-v12xx", "lte-rrc.antennaInfo_v12xx_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AntennaInfoDedicated_v12xx", HFILL }},
+    { &hf_lte_rrc_eimta_MainConfig_r12,
+      { "eimta-MainConfig-r12", "lte-rrc.eimta_MainConfig_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_EIMTA_MainConfig_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_eimta_MainConfigPCell_r12,
+      { "eimta-MainConfigPCell-r12", "lte-rrc.eimta_MainConfigPCell_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_EIMTA_MainConfigServCell_r12_vals), 0,
+        "EIMTA_MainConfigServCell_r12", HFILL }},
+    { &hf_lte_rrc_pucch_ConfigDedicated_v12x0,
+      { "pucch-ConfigDedicated-v12x0", "lte-rrc.pucch_ConfigDedicated_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cqi_ReportConfigPCell_v12x0,
+      { "cqi-ReportConfigPCell-v12x0", "lte-rrc.cqi_ReportConfigPCell_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CQI_ReportConfig_v12x0", HFILL }},
+    { &hf_lte_rrc_uplinkPowerControlDedicated_v12x0,
+      { "uplinkPowerControlDedicated-v12x0", "lte-rrc.uplinkPowerControlDedicated_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_pusch_ConfigDedicated_v12x0,
+      { "pusch-ConfigDedicated-v12x0", "lte-rrc.pusch_ConfigDedicated_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_csi_RS_Config2_r12,
+      { "csi-RS-Config2-r12", "lte-rrc.csi_RS_Config2_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_nonUL_Configuration_r10,
       { "nonUL-Configuration-r10", "lte-rrc.nonUL_Configuration_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -40548,6 +43711,18 @@ void proto_register_lte_rrc(void) {
       { "uplinkPowerControlDedicatedSCell-v1130", "lte-rrc.uplinkPowerControlDedicatedSCell_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UplinkPowerControlDedicated_v1130", HFILL }},
+    { &hf_lte_rrc_eimta_MainConfigSCell_r12,
+      { "eimta-MainConfigSCell-r12", "lte-rrc.eimta_MainConfigSCell_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_EIMTA_MainConfigServCell_r12_vals), 0,
+        "EIMTA_MainConfigServCell_r12", HFILL }},
+    { &hf_lte_rrc_cqi_ReportConfigSCell_v12x0,
+      { "cqi-ReportConfigSCell-v12x0", "lte-rrc.cqi_ReportConfigSCell_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CQI_ReportConfig_v12x0", HFILL }},
+    { &hf_lte_rrc_uplinkPowerControlDedicatedSCell_v12x0,
+      { "uplinkPowerControlDedicatedSCell-v12x0", "lte-rrc.uplinkPowerControlDedicatedSCell_v12x0_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UplinkPowerControlDedicated_v12x0", HFILL }},
     { &hf_lte_rrc_CSI_RS_ConfigNZPToAddModList_r11_item,
       { "CSI-RS-ConfigNZP-r11", "lte-rrc.CSI_RS_ConfigNZP_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -40612,10 +43787,10 @@ void proto_register_lte_rrc(void) {
       { "ackNackRepetition", "lte-rrc.ackNackRepetition",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ackNackRepetition_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_18,
+    { &hf_lte_rrc_setup_25,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_18", HFILL }},
+        "T_setup_25", HFILL }},
     { &hf_lte_rrc_repetitionFactor,
       { "repetitionFactor", "lte-rrc.repetitionFactor",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_repetitionFactor_vals), 0,
@@ -40648,10 +43823,10 @@ void proto_register_lte_rrc(void) {
       { "twoAntennaPortActivatedPUCCH-Format3-r10", "lte-rrc.twoAntennaPortActivatedPUCCH_Format3_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_twoAntennaPortActivatedPUCCH_Format3_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_19,
+    { &hf_lte_rrc_setup_26,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_19", HFILL }},
+        "T_setup_26", HFILL }},
     { &hf_lte_rrc_n3PUCCH_AN_ListP1_r10,
       { "n3PUCCH-AN-ListP1-r10", "lte-rrc.n3PUCCH_AN_ListP1_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40668,10 +43843,10 @@ void proto_register_lte_rrc(void) {
       { "n1PUCCH-AN-CS-r10", "lte-rrc.n1PUCCH_AN_CS_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n1PUCCH_AN_CS_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_20,
+    { &hf_lte_rrc_setup_27,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_20", HFILL }},
+        "T_setup_27", HFILL }},
     { &hf_lte_rrc_n1PUCCH_AN_CS_List_r10,
       { "n1PUCCH-AN-CS-List-r10", "lte-rrc.n1PUCCH_AN_CS_List_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40696,10 +43871,10 @@ void proto_register_lte_rrc(void) {
       { "n1PUCCH-AN-CS-v1130", "lte-rrc.n1PUCCH_AN_CS_v1130",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n1PUCCH_AN_CS_v1130_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_21,
+    { &hf_lte_rrc_setup_28,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_21", HFILL }},
+        "T_setup_28", HFILL }},
     { &hf_lte_rrc_n1PUCCH_AN_CS_ListP1_r11,
       { "n1PUCCH-AN-CS-ListP1-r11", "lte-rrc.n1PUCCH_AN_CS_ListP1_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40712,16 +43887,28 @@ void proto_register_lte_rrc(void) {
       { "nPUCCH-Param-r11", "lte-rrc.nPUCCH_Param_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_nPUCCH_Param_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_22,
+    { &hf_lte_rrc_setup_29,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_22", HFILL }},
+        "T_setup_29", HFILL }},
     { &hf_lte_rrc_nPUCCH_Identity_r11,
       { "nPUCCH-Identity-r11", "lte-rrc.nPUCCH_Identity_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_503", HFILL }},
     { &hf_lte_rrc_n1PUCCH_AN_r11,
       { "n1PUCCH-AN-r11", "lte-rrc.n1PUCCH_AN_r11",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_2047", HFILL }},
+    { &hf_lte_rrc_n1PUCCH_Param_r12,
+      { "n1PUCCH-Param-r12", "lte-rrc.n1PUCCH_Param_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n1PUCCH_Param_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup_30,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_30", HFILL }},
+    { &hf_lte_rrc_n1PUCCH_AN_r12,
+      { "n1PUCCH-AN-r12", "lte-rrc.n1PUCCH_AN_r12",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_2047", HFILL }},
     { &hf_lte_rrc_N1PUCCH_AN_CS_r10_item,
@@ -40792,10 +43979,10 @@ void proto_register_lte_rrc(void) {
       { "pusch-DMRS-r11", "lte-rrc.pusch_DMRS_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_pusch_DMRS_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_23,
+    { &hf_lte_rrc_setup_31,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_23", HFILL }},
+        "T_setup_31", HFILL }},
     { &hf_lte_rrc_nPUSCH_Identity_r11,
       { "nPUSCH-Identity-r11", "lte-rrc.nPUSCH_Identity_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -40804,6 +43991,42 @@ void proto_register_lte_rrc(void) {
       { "nDMRS-CSH-Identity-r11", "lte-rrc.nDMRS_CSH_Identity_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_509", HFILL }},
+    { &hf_lte_rrc_uciOnPUSCH,
+      { "uciOnPUSCH", "lte-rrc.uciOnPUSCH",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_uciOnPUSCH_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup_32,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_32", HFILL }},
+    { &hf_lte_rrc_betaOffset_ACK_Index_SubframeSet2_r12,
+      { "betaOffset-ACK-Index-SubframeSet2-r12", "lte-rrc.betaOffset_ACK_Index_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_lte_rrc_betaOffset_RI_Index_SubframeSet2_r12,
+      { "betaOffset-RI-Index-SubframeSet2-r12", "lte-rrc.betaOffset_RI_Index_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_lte_rrc_betaOffset_CQI_Index_SubframeSet2_r12,
+      { "betaOffset-CQI-Index-SubframeSet2-r12", "lte-rrc.betaOffset_CQI_Index_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_lte_rrc_betaOffsetMC_r12,
+      { "betaOffsetMC-r12", "lte-rrc.betaOffsetMC_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_betaOffset_ACK_Index_MC_SubframeSet2_r12,
+      { "betaOffset-ACK-Index-MC-SubframeSet2-r12", "lte-rrc.betaOffset_ACK_Index_MC_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_lte_rrc_betaOffset_RI_Index_MC_SubframeSet2_r12,
+      { "betaOffset-RI-Index-MC-SubframeSet2-r12", "lte-rrc.betaOffset_RI_Index_MC_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_lte_rrc_betaOffset_CQI_Index_MC_SubframeSet2_r12,
+      { "betaOffset-CQI-Index-MC-SubframeSet2-r12", "lte-rrc.betaOffset_CQI_Index_MC_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
     { &hf_lte_rrc_groupHoppingDisabled_r10_01,
       { "groupHoppingDisabled-r10", "lte-rrc.groupHoppingDisabled_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_groupHoppingDisabled_r10_01_vals), 0,
@@ -40876,6 +44099,22 @@ void proto_register_lte_rrc(void) {
       { "maxHARQ-Msg3Tx", "lte-rrc.maxHARQ_Msg3Tx",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_8", HFILL }},
+    { &hf_lte_rrc_txFailParams_r12,
+      { "txFailParams-r12", "lte-rrc.txFailParams_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_connEstFailCount_r12,
+      { "connEstFailCount-r12", "lte-rrc.connEstFailCount_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailCount_r12_vals), 0,
+        "T_connEstFailCount_r12", HFILL }},
+    { &hf_lte_rrc_connEstFailOffsetValidity_r12,
+      { "connEstFailOffsetValidity-r12", "lte-rrc.connEstFailOffsetValidity_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_connEstFailOffsetValidity_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_connEstFailOffset_r12,
+      { "connEstFailOffset-r12", "lte-rrc.connEstFailOffset_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "T_connEstFailOffset_r12", HFILL }},
     { &hf_lte_rrc_powerRampingParameters_r11,
       { "powerRampingParameters-r11", "lte-rrc.powerRampingParameters_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -40946,6 +44185,10 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_uplinkPowerControlCommon_v1020,
       { "uplinkPowerControlCommon-v1020", "lte-rrc.uplinkPowerControlCommon_v1020_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_rach_ConfigCommon_v12xy,
+      { "rach-ConfigCommon-v12xy", "lte-rrc.rach_ConfigCommon_v12xy_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_prach_Config_01,
@@ -41156,11 +44399,11 @@ void proto_register_lte_rrc(void) {
       { "DRB-Identity", "lte-rrc.DRB_Identity",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_24,
+    { &hf_lte_rrc_setup_33,
       { "setup", "lte-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_MeasSubframePattern_r10_vals), 0,
         "MeasSubframePattern_r10", HFILL }},
-    { &hf_lte_rrc_setup_25,
+    { &hf_lte_rrc_setup_34,
       { "setup", "lte-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CRS_AssistanceInfoList_r11", HFILL }},
@@ -41212,6 +44455,18 @@ void proto_register_lte_rrc(void) {
       { "um-Uni-Directional-DL", "lte-rrc.um_Uni_Directional_DL_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_am_v12xy,
+      { "am-v12xy", "lte-rrc.am_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ul_AM_RLC_r12,
+      { "ul-AM-RLC-r12", "lte-rrc.ul_AM_RLC_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_dl_AM_RLC_r12,
+      { "dl-AM-RLC-r12", "lte-rrc.dl_AM_RLC_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_t_PollRetransmit,
       { "t-PollRetransmit", "lte-rrc.t_PollRetransmit",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_PollRetransmit_vals_ext, 0,
@@ -41228,6 +44483,14 @@ void proto_register_lte_rrc(void) {
       { "maxRetxThreshold", "lte-rrc.maxRetxThreshold",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_maxRetxThreshold_vals), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_ul_AM_RLC_r12_01,
+      { "ul-AM-RLC-r12", "lte-rrc.ul_AM_RLC_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UL_AM_RLC", HFILL }},
+    { &hf_lte_rrc_extended_RLC_LI_Field_r12,
+      { "extended-RLC-LI-Field-r12", "lte-rrc.extended_RLC_LI_Field_r12",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_t_Reordering,
       { "t-Reordering", "lte-rrc.t_Reordering",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_Reordering_vals_ext, 0,
@@ -41236,14 +44499,22 @@ void proto_register_lte_rrc(void) {
       { "t-StatusProhibit", "lte-rrc.t_StatusProhibit",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_StatusProhibit_vals_ext, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_dl_AM_RLC_r12_01,
+      { "dl-AM-RLC-r12", "lte-rrc.dl_AM_RLC_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DL_AM_RLC", HFILL }},
+    { &hf_lte_rrc_extended_RLC_LI_Field_r12_01,
+      { "extended-RLC-LI-Field-r12", "lte-rrc.extended_RLC_LI_Field_r12",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "T_extended_RLC_LI_Field_r12_01", HFILL }},
     { &hf_lte_rrc_sn_FieldLength,
       { "sn-FieldLength", "lte-rrc.sn_FieldLength",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_SN_FieldLength_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_26,
+    { &hf_lte_rrc_setup_35,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_24", HFILL }},
+        "T_setup_33", HFILL }},
     { &hf_lte_rrc_t301_r9,
       { "t301-r9", "lte-rrc.t301_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_t301_r9_vals), 0,
@@ -41396,10 +44667,10 @@ void proto_register_lte_rrc(void) {
       { "fdd", "lte-rrc.fdd_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_27,
+    { &hf_lte_rrc_setup_36,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_25", HFILL }},
+        "T_setup_34", HFILL }},
     { &hf_lte_rrc_sr_PUCCH_ResourceIndex,
       { "sr-PUCCH-ResourceIndex", "lte-rrc.sr_PUCCH_ResourceIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -41416,10 +44687,10 @@ void proto_register_lte_rrc(void) {
       { "sr-PUCCH-ResourceIndexP1-r10", "lte-rrc.sr_PUCCH_ResourceIndexP1_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_2047", HFILL }},
-    { &hf_lte_rrc_setup_28,
+    { &hf_lte_rrc_setup_37,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_26", HFILL }},
+        "T_setup_35", HFILL }},
     { &hf_lte_rrc_srs_BandwidthConfig,
       { "srs-BandwidthConfig", "lte-rrc.srs_BandwidthConfig",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_srs_BandwidthConfig_vals), 0,
@@ -41436,10 +44707,10 @@ void proto_register_lte_rrc(void) {
       { "srs-MaxUpPts", "lte-rrc.srs_MaxUpPts",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_srs_MaxUpPts_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_29,
+    { &hf_lte_rrc_setup_38,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_27", HFILL }},
+        "T_setup_36", HFILL }},
     { &hf_lte_rrc_srs_Bandwidth,
       { "srs-Bandwidth", "lte-rrc.srs_Bandwidth",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_srs_Bandwidth_vals), 0,
@@ -41472,10 +44743,10 @@ void proto_register_lte_rrc(void) {
       { "srs-AntennaPort-r10", "lte-rrc.srs_AntennaPort_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_SRS_AntennaPort_vals), 0,
         "SRS_AntennaPort", HFILL }},
-    { &hf_lte_rrc_setup_30,
+    { &hf_lte_rrc_setup_39,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_28", HFILL }},
+        "T_setup_37", HFILL }},
     { &hf_lte_rrc_srs_ConfigIndexAp_r10,
       { "srs-ConfigIndexAp-r10", "lte-rrc.srs_ConfigIndexAp_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -41492,10 +44763,10 @@ void proto_register_lte_rrc(void) {
       { "srs-ActivateAp-r10", "lte-rrc.srs_ActivateAp_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_srs_ActivateAp_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_31,
+    { &hf_lte_rrc_setup_40,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_29", HFILL }},
+        "T_setup_38", HFILL }},
     { &hf_lte_rrc_srs_ConfigApDCI_Format0_r10,
       { "srs-ConfigApDCI-Format0-r10", "lte-rrc.srs_ConfigApDCI_Format0_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41536,10 +44807,10 @@ void proto_register_lte_rrc(void) {
       { "sps-ConfigUL", "lte-rrc.sps_ConfigUL",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_SPS_ConfigUL_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_32,
+    { &hf_lte_rrc_setup_41,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_30", HFILL }},
+        "T_setup_39", HFILL }},
     { &hf_lte_rrc_semiPersistSchedIntervalDL,
       { "semiPersistSchedIntervalDL", "lte-rrc.semiPersistSchedIntervalDL",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_semiPersistSchedIntervalDL_vals), 0,
@@ -41556,18 +44827,18 @@ void proto_register_lte_rrc(void) {
       { "twoAntennaPortActivated-r10", "lte-rrc.twoAntennaPortActivated_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_twoAntennaPortActivated_r10_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_33,
+    { &hf_lte_rrc_setup_42,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_31", HFILL }},
+        "T_setup_40", HFILL }},
     { &hf_lte_rrc_n1PUCCH_AN_PersistentListP1_r10,
       { "n1PUCCH-AN-PersistentListP1-r10", "lte-rrc.n1PUCCH_AN_PersistentListP1_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
         "N1PUCCH_AN_PersistentList", HFILL }},
-    { &hf_lte_rrc_setup_34,
+    { &hf_lte_rrc_setup_43,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_32", HFILL }},
+        "T_setup_41", HFILL }},
     { &hf_lte_rrc_semiPersistSchedIntervalUL,
       { "semiPersistSchedIntervalUL", "lte-rrc.semiPersistSchedIntervalUL",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_semiPersistSchedIntervalUL_vals), 0,
@@ -41592,6 +44863,18 @@ void proto_register_lte_rrc(void) {
       { "twoIntervalsConfig", "lte-rrc.twoIntervalsConfig",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_twoIntervalsConfig_vals), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_p0_Persistent_SubframeSet2_r12,
+      { "p0-Persistent-SubframeSet2-r12", "lte-rrc.p0_Persistent_SubframeSet2_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_p0_Persistent_SubframeSet2_r12", HFILL }},
+    { &hf_lte_rrc_p0_NominalPUSCH_Persistent_SubframeSet2_r12,
+      { "p0-NominalPUSCH-Persistent-SubframeSet2-r12", "lte-rrc.p0_NominalPUSCH_Persistent_SubframeSet2_r12",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "T_p0_NominalPUSCH_Persistent_SubframeSet2_r12", HFILL }},
+    { &hf_lte_rrc_p0_UE_PUSCH_Persistent_SubframeSet2_r12,
+      { "p0-UE-PUSCH-Persistent-SubframeSet2-r12", "lte-rrc.p0_UE_PUSCH_Persistent_SubframeSet2_r12",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "T_p0_UE_PUSCH_Persistent_SubframeSet2_r12", HFILL }},
     { &hf_lte_rrc_N1PUCCH_AN_PersistentList_item,
       { "N1PUCCH-AN-PersistentList item", "lte-rrc.N1PUCCH_AN_PersistentList_item",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -41608,10 +44891,10 @@ void proto_register_lte_rrc(void) {
       { "specialSubframePatterns-v1130", "lte-rrc.specialSubframePatterns_v1130",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_specialSubframePatterns_v1130_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_35,
+    { &hf_lte_rrc_setup_44,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_33", HFILL }},
+        "T_setup_42", HFILL }},
     { &hf_lte_rrc_tpc_RNTI,
       { "tpc-RNTI", "lte-rrc.tpc_RNTI",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -41711,6 +44994,30 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_deltaTxD_OffsetListPUCCH_v1130,
       { "deltaTxD-OffsetListPUCCH-v1130", "lte-rrc.deltaTxD_OffsetListPUCCH_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_set2PowerControlParameter,
+      { "set2PowerControlParameter", "lte-rrc.set2PowerControlParameter",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_set2PowerControlParameter_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_setup_45,
+      { "setup", "lte-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_setup_43", HFILL }},
+    { &hf_lte_rrc_tpc_SubframeSet_r12,
+      { "tpc-SubframeSet-r12", "lte-rrc.tpc_SubframeSet_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_10", HFILL }},
+    { &hf_lte_rrc_p0_NominalPUSCH_SubframeSet2_r12,
+      { "p0-NominalPUSCH-SubframeSet2-r12", "lte-rrc.p0_NominalPUSCH_SubframeSet2_r12",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_alpha_SubframeSet2_r12,
+      { "alpha-SubframeSet2-r12", "lte-rrc.alpha_SubframeSet2_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_alpha_SubframeSet2_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_p0_UE_PUSCH_SubframeSet2_r12,
+      { "p0-UE-PUSCH-SubframeSet2-r12", "lte-rrc.p0_UE_PUSCH_SubframeSet2_r12",
+        FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_p0_UE_PUSCH_r10,
       { "p0-UE-PUSCH-r10", "lte-rrc.p0_UE_PUSCH_r10",
@@ -42156,10 +45463,10 @@ void proto_register_lte_rrc(void) {
       { "speedStatePars", "lte-rrc.speedStatePars",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_speedStatePars_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_36,
+    { &hf_lte_rrc_setup_46,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_34", HFILL }},
+        "T_setup_44", HFILL }},
     { &hf_lte_rrc_timeToTrigger_SF,
       { "timeToTrigger-SF", "lte-rrc.timeToTrigger_SF_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42180,10 +45487,10 @@ void proto_register_lte_rrc(void) {
       { "ReportConfigId", "lte-rrc.ReportConfigId",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_37,
+    { &hf_lte_rrc_setup_47,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_35", HFILL }},
+        "T_setup_45", HFILL }},
     { &hf_lte_rrc_gapOffset,
       { "gapOffset", "lte-rrc.gapOffset",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_gapOffset_vals), 0,
@@ -42276,6 +45583,18 @@ void proto_register_lte_rrc(void) {
       { "widebandRSRQ-Meas-r11", "lte-rrc.widebandRSRQ_Meas_r11",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_lte_rrc_altTTT_CellsToRemoveList_r12,
+      { "altTTT-CellsToRemoveList-r12", "lte-rrc.altTTT_CellsToRemoveList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CellIndexList", HFILL }},
+    { &hf_lte_rrc_altTTT_CellsToAddModList_r12,
+      { "altTTT-CellsToAddModList-r12", "lte-rrc.altTTT_CellsToAddModList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_t312_r12,
+      { "t312-r12", "lte-rrc.t312_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_t312_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_CellsToAddModList_item,
       { "CellsToAddMod", "lte-rrc.CellsToAddMod_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42292,10 +45611,10 @@ void proto_register_lte_rrc(void) {
       { "physCellIdRange", "lte-rrc.physCellIdRange_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_38,
+    { &hf_lte_rrc_setup_48,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_36", HFILL }},
+        "T_setup_46", HFILL }},
     { &hf_lte_rrc_measSubframePatternNeigh_r10,
       { "measSubframePatternNeigh-r10", "lte-rrc.measSubframePatternNeigh_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_MeasSubframePattern_r10_vals), 0,
@@ -42306,6 +45625,10 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_MeasSubframeCellList_r10_item,
       { "PhysCellIdRange", "lte-rrc.PhysCellIdRange_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_AltTTT_CellsToAddModList_r12_item,
+      { "AltTTT-CellsToAddMod-r12", "lte-rrc.AltTTT_CellsToAddMod_r12_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_cellForWhichToReportCGI_02,
@@ -42456,6 +45779,10 @@ void proto_register_lte_rrc(void) {
       { "additionalSI-Info-r9", "lte-rrc.additionalSI_Info_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_primaryPLMN_Suitable_r12,
+      { "primaryPLMN-Suitable-r12", "lte-rrc.primaryPLMN_Suitable_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_primaryPLMN_Suitable_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_MeasResultServFreqList_r10_item,
       { "MeasResultServFreq-r10", "lte-rrc.MeasResultServFreq_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42528,6 +45855,10 @@ void proto_register_lte_rrc(void) {
       { "utra-EcN0", "lte-rrc.utra_EcN0",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_utra_EcN0_vals_ext, 0,
         "INTEGER_0_49", HFILL }},
+    { &hf_lte_rrc_primaryPLMN_Suitable_r12_01,
+      { "primaryPLMN-Suitable-r12", "lte-rrc.primaryPLMN_Suitable_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_primaryPLMN_Suitable_r12_01_vals), 0,
+        "T_primaryPLMN_Suitable_r12_01", HFILL }},
     { &hf_lte_rrc_MeasResultListGERAN_item,
       { "MeasResultGERAN", "lte-rrc.MeasResultGERAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42768,6 +46099,14 @@ void proto_register_lte_rrc(void) {
       { "reportAddNeighMeas-r10", "lte-rrc.reportAddNeighMeas_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_reportAddNeighMeas_r10_vals), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_alternativeTimeToTrigger_r12,
+      { "alternativeTimeToTrigger-r12", "lte-rrc.alternativeTimeToTrigger_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_TimeToTrigger_vals), 0,
+        "TimeToTrigger", HFILL }},
+    { &hf_lte_rrc_useT312_r12,
+      { "useT312-r12", "lte-rrc.useT312_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_useT312_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_threshold_RSRP,
       { "threshold-RSRP", "lte-rrc.threshold_RSRP",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_threshold_RSRP_vals_ext, 0,
@@ -42964,10 +46303,10 @@ void proto_register_lte_rrc(void) {
       { "obtainLocation-r11", "lte-rrc.obtainLocation_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_obtainLocation_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_setup_39,
+    { &hf_lte_rrc_setup_49,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_setup_37", HFILL }},
+        "T_setup_47", HFILL }},
     { &hf_lte_rrc_powerPrefIndicationTimer_r11,
       { "powerPrefIndicationTimer-r11", "lte-rrc.powerPrefIndicationTimer_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_powerPrefIndicationTimer_r11_vals), 0,
@@ -43064,7 +46403,7 @@ void proto_register_lte_rrc(void) {
       { "cdma2000-1xRTT", "lte-rrc.cdma2000_1xRTT_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IRAT_ParametersCDMA2000_1XRTT", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_111,
+    { &hf_lte_rrc_nonCriticalExtension_121,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v920_IEs", HFILL }},
@@ -43080,7 +46419,7 @@ void proto_register_lte_rrc(void) {
       { "tdd-Add-UE-EUTRA-Capabilities-r9", "lte-rrc.tdd_Add_UE_EUTRA_Capabilities_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_CapabilityAddXDD_Mode_r9", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_112,
+    { &hf_lte_rrc_nonCriticalExtension_122,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v9c0_IEs", HFILL }},
@@ -43088,7 +46427,7 @@ void proto_register_lte_rrc(void) {
       { "interRAT-ParametersUTRA-v9c0", "lte-rrc.interRAT_ParametersUTRA_v9c0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IRAT_ParametersUTRA_v9c0", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_113,
+    { &hf_lte_rrc_nonCriticalExtension_123,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v9d0_IEs", HFILL }},
@@ -43096,7 +46435,7 @@ void proto_register_lte_rrc(void) {
       { "phyLayerParameters-v9d0", "lte-rrc.phyLayerParameters_v9d0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_114,
+    { &hf_lte_rrc_nonCriticalExtension_124,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v9e0_IEs", HFILL }},
@@ -43104,7 +46443,7 @@ void proto_register_lte_rrc(void) {
       { "rf-Parameters-v9e0", "lte-rrc.rf_Parameters_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_115,
+    { &hf_lte_rrc_nonCriticalExtension_125,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v9h0_IEs", HFILL }},
@@ -43112,7 +46451,7 @@ void proto_register_lte_rrc(void) {
       { "interRAT-ParametersUTRA-v9h0", "lte-rrc.interRAT_ParametersUTRA_v9h0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IRAT_ParametersUTRA_v9h0", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_116,
+    { &hf_lte_rrc_nonCriticalExtension_126,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v10c0_IEs", HFILL }},
@@ -43120,7 +46459,7 @@ void proto_register_lte_rrc(void) {
       { "otdoa-PositioningCapabilities-r10", "lte-rrc.otdoa_PositioningCapabilities_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_117,
+    { &hf_lte_rrc_nonCriticalExtension_127,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_47", HFILL }},
@@ -43156,7 +46495,7 @@ void proto_register_lte_rrc(void) {
       { "son-Parameters-r9", "lte-rrc.son_Parameters_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_118,
+    { &hf_lte_rrc_nonCriticalExtension_128,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v940_IEs", HFILL }},
@@ -43164,7 +46503,7 @@ void proto_register_lte_rrc(void) {
       { "lateNonCriticalExtension", "lte-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_lateNonCriticalExtension_06", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_119,
+    { &hf_lte_rrc_nonCriticalExtension_129,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1020_IEs", HFILL }},
@@ -43200,7 +46539,7 @@ void proto_register_lte_rrc(void) {
       { "interRAT-ParametersUTRA-TDD-v1020", "lte-rrc.interRAT_ParametersUTRA_TDD_v1020_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IRAT_ParametersUTRA_TDD_v1020", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_120,
+    { &hf_lte_rrc_nonCriticalExtension_130,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1060_IEs", HFILL }},
@@ -43216,7 +46555,7 @@ void proto_register_lte_rrc(void) {
       { "rf-Parameters-v1060", "lte-rrc.rf_Parameters_v1060_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_121,
+    { &hf_lte_rrc_nonCriticalExtension_131,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1090_IEs", HFILL }},
@@ -43224,7 +46563,7 @@ void proto_register_lte_rrc(void) {
       { "rf-Parameters-v1090", "lte-rrc.rf_Parameters_v1090_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_122,
+    { &hf_lte_rrc_nonCriticalExtension_132,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1130_IEs", HFILL }},
@@ -43260,7 +46599,7 @@ void proto_register_lte_rrc(void) {
       { "tdd-Add-UE-EUTRA-Capabilities-v1130", "lte-rrc.tdd_Add_UE_EUTRA_Capabilities_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_CapabilityAddXDD_Mode_v1130", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_123,
+    { &hf_lte_rrc_nonCriticalExtension_133,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1170_IEs", HFILL }},
@@ -43272,7 +46611,7 @@ void proto_register_lte_rrc(void) {
       { "ue-Category-v1170", "lte-rrc.ue_Category_v1170",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_9_10", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_124,
+    { &hf_lte_rrc_nonCriticalExtension_134,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_Capability_v1180_IEs", HFILL }},
@@ -43292,7 +46631,31 @@ void proto_register_lte_rrc(void) {
       { "tdd-Add-UE-EUTRA-Capabilities-v1180", "lte-rrc.tdd_Add_UE_EUTRA_Capabilities_v1180_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_EUTRA_CapabilityAddXDD_Mode_v1180", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_125,
+    { &hf_lte_rrc_nonCriticalExtension_135,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_EUTRA_Capability_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_phyLayerParameters_v12xy,
+      { "phyLayerParameters-v12xy", "lte-rrc.phyLayerParameters_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_rlc_Parameters_r12,
+      { "rlc-Parameters-r12", "lte-rrc.rlc_Parameters_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ue_BasedNetwPerfMeasParameters_v12xy,
+      { "ue-BasedNetwPerfMeasParameters-v12xy", "lte-rrc.ue_BasedNetwPerfMeasParameters_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_ue_Category_v12xy,
+      { "ue-Category-v12xy", "lte-rrc.ue_Category_v12xy",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0", HFILL }},
+    { &hf_lte_rrc_measParameters_v12xy,
+      { "measParameters-v12xy", "lte-rrc.measParameters_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_136,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_48", HFILL }},
@@ -43336,6 +46699,10 @@ void proto_register_lte_rrc(void) {
       { "interRAT-ParametersUTRA-TDD-v1060", "lte-rrc.interRAT_ParametersUTRA_TDD_v1060_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "IRAT_ParametersUTRA_TDD_v1020", HFILL }},
+    { &hf_lte_rrc_extended_RLC_LI_Field_r12_02,
+      { "extended-RLC-LI-Field-r12", "lte-rrc.extended_RLC_LI_Field_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_extended_RLC_LI_Field_r12_02_vals), 0,
+        "T_extended_RLC_LI_Field_r12_02", HFILL }},
     { &hf_lte_rrc_supportedROHC_Profiles,
       { "supportedROHC-Profiles", "lte-rrc.supportedROHC_Profiles_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43436,6 +46803,30 @@ void proto_register_lte_rrc(void) {
       { "interBandTDD-CA-WithDifferentConfig-r11", "lte-rrc.interBandTDD_CA_WithDifferentConfig_r11",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_e_HARQ_Pattern_FDD_r12,
+      { "e-HARQ-Pattern-FDD-r12", "lte-rrc.e_HARQ_Pattern_FDD_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_e_HARQ_Pattern_FDD_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12,
+      { "tdd-FDD-CA-PCellDuplex-r12", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_phy_TDD_ReConfig_TDDPCell_r12,
+      { "phy-TDD-ReConfig-TDDPCell-r12", "lte-rrc.phy_TDD_ReConfig_TDDPCell_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_phy_TDD_ReConfig_TDDPCell_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_phy_TDD_ReConfig_FDDPCell_r12,
+      { "phy-TDD-ReConfig-FDDPCell-r12", "lte-rrc.phy_TDD_ReConfig_FDDPCell_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_phy_TDD_ReConfig_FDDPCell_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_pusch_SRS_PowerControl_SubframeSet_r12,
+      { "pusch-SRS-PowerControl-SubframeSet-r12", "lte-rrc.pusch_SRS_PowerControl_SubframeSet_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_pusch_SRS_PowerControl_SubframeSet_r12_vals), 0,
+        "T_pusch_SRS_PowerControl_SubframeSet_r12", HFILL }},
+    { &hf_lte_rrc_csi_SubframeSet_r12,
+      { "csi-SubframeSet-r12", "lte-rrc.csi_SubframeSet_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_csi_SubframeSet_r12_vals), 0,
+        "T_csi_SubframeSet_r12", HFILL }},
     { &hf_lte_rrc_NonContiguousUL_RA_WithinCC_List_r10_item,
       { "NonContiguousUL-RA-WithinCC-r10", "lte-rrc.NonContiguousUL_RA_WithinCC_r10_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43472,11 +46863,11 @@ void proto_register_lte_rrc(void) {
       { "freqBandRetrieval-r11", "lte-rrc.freqBandRetrieval_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_freqBandRetrieval_r11_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_reportedFrequencyBands_r11,
-      { "reportedFrequencyBands-r11", "lte-rrc.reportedFrequencyBands_r11",
+    { &hf_lte_rrc_requestedBands_r11,
+      { "requestedBands-r11", "lte-rrc.requestedBands_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicator_r11", HFILL }},
-    { &hf_lte_rrc_reportedFrequencyBands_r11_item,
+    { &hf_lte_rrc_requestedBands_r11_item,
       { "FreqBandIndicator-r11", "lte-rrc.FreqBandIndicator_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
@@ -43647,6 +47038,14 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_rsrqMeasWideband_r11,
       { "rsrqMeasWideband-r11", "lte-rrc.rsrqMeasWideband_r11",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_rsrqMeasWideband_r11_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_timerT312_r12,
+      { "timerT312-r12", "lte-rrc.timerT312_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_timerT312_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_alternativeTimeToTrigger_r12_01,
+      { "alternativeTimeToTrigger-r12", "lte-rrc.alternativeTimeToTrigger_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_alternativeTimeToTrigger_r12_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_BandListEUTRA_item,
       { "BandInfoEUTRA", "lte-rrc.BandInfoEUTRA_element",
@@ -43852,6 +47251,10 @@ void proto_register_lte_rrc(void) {
       { "standaloneGNSS-Location-r10", "lte-rrc.standaloneGNSS_Location_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_standaloneGNSS_Location_r10_vals), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_loggedMBSFNMeasurements_r12,
+      { "loggedMBSFNMeasurements-r12", "lte-rrc.loggedMBSFNMeasurements_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_loggedMBSFNMeasurements_r12_vals), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_otdoa_UE_Assisted_r10,
       { "otdoa-UE-Assisted-r10", "lte-rrc.otdoa_UE_Assisted_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_otdoa_UE_Assisted_r10_vals), 0,
@@ -43904,6 +47307,106 @@ void proto_register_lte_rrc(void) {
       { "n311", "lte-rrc.n311",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_n311_vals), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_VisitedCellInfoList_r12_item,
+      { "VisitedCellInfo-r12", "lte-rrc.VisitedCellInfo_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_visitedCellId_r12,
+      { "visitedCellId-r12", "lte-rrc.visitedCellId_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_visitedCellId_r12_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_cellGlobalId_r12,
+      { "cellGlobalId-r12", "lte-rrc.cellGlobalId_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellGlobalIdEUTRA", HFILL }},
+    { &hf_lte_rrc_pci_arfcn_r12,
+      { "pci-arfcn-r12", "lte-rrc.pci_arfcn_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_physCellId_r12,
+      { "physCellId-r12", "lte-rrc.physCellId_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PhysCellId", HFILL }},
+    { &hf_lte_rrc_timeSpent_r12,
+      { "timeSpent-r12", "lte-rrc.timeSpent_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "T_timeSpent_r12", HFILL }},
+    { &hf_lte_rrc_thresholdRSRP_r12,
+      { "thresholdRSRP-r12", "lte-rrc.thresholdRSRP_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdRSRP_Low_r12,
+      { "thresholdRSRP-Low-r12", "lte-rrc.thresholdRSRP_Low_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRP_Range_vals_ext, 0,
+        "RSRP_Range", HFILL }},
+    { &hf_lte_rrc_thresholdRSRP_High_r12,
+      { "thresholdRSRP-High-r12", "lte-rrc.thresholdRSRP_High_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRP_Range_vals_ext, 0,
+        "RSRP_Range", HFILL }},
+    { &hf_lte_rrc_thresholdRSRQ_r12,
+      { "thresholdRSRQ-r12", "lte-rrc.thresholdRSRQ_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdRSRQ_Low_r12,
+      { "thresholdRSRQ-Low-r12", "lte-rrc.thresholdRSRQ_Low_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRQ_Range_vals_ext, 0,
+        "RSRQ_Range", HFILL }},
+    { &hf_lte_rrc_thresholdRSRQ_High_r12,
+      { "thresholdRSRQ-High-r12", "lte-rrc.thresholdRSRQ_High_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_RSRQ_Range_vals_ext, 0,
+        "RSRQ_Range", HFILL }},
+    { &hf_lte_rrc_thresholdChannelUtilization_r12,
+      { "thresholdChannelUtilization-r12", "lte-rrc.thresholdChannelUtilization_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdChannelUtilizationLow_r12,
+      { "thresholdChannelUtilizationLow-r12", "lte-rrc.thresholdChannelUtilizationLow_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdChannelUtilizationHigh_r12,
+      { "thresholdChannelUtilizationHigh-r12", "lte-rrc.thresholdChannelUtilizationHigh_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdBackhaul_Bandwidth_r12,
+      { "thresholdBackhaul-Bandwidth-r12", "lte-rrc.thresholdBackhaul_Bandwidth_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdBackhaulDL_BandwidthLow_r12,
+      { "thresholdBackhaulDL-BandwidthLow-r12", "lte-rrc.thresholdBackhaulDL_BandwidthLow_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_WLAN_backhaulRate_vals_ext, 0,
+        "WLAN_backhaulRate", HFILL }},
+    { &hf_lte_rrc_thresholdBackhaulDL_BandwidthHigh_r12,
+      { "thresholdBackhaulDL-BandwidthHigh-r12", "lte-rrc.thresholdBackhaulDL_BandwidthHigh_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_WLAN_backhaulRate_vals_ext, 0,
+        "WLAN_backhaulRate", HFILL }},
+    { &hf_lte_rrc_thresholdBackhaulUL_BandwidthLow_r12,
+      { "thresholdBackhaulUL-BandwidthLow-r12", "lte-rrc.thresholdBackhaulUL_BandwidthLow_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_WLAN_backhaulRate_vals_ext, 0,
+        "WLAN_backhaulRate", HFILL }},
+    { &hf_lte_rrc_thresholdBackhaulUL_BandwidthHigh_r12,
+      { "thresholdBackhaulUL-BandwidthHigh-r12", "lte-rrc.thresholdBackhaulUL_BandwidthHigh_r12",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_WLAN_backhaulRate_vals_ext, 0,
+        "WLAN_backhaulRate", HFILL }},
+    { &hf_lte_rrc_thresholdBeaconRSSI_r12,
+      { "thresholdBeaconRSSI-r12", "lte-rrc.thresholdBeaconRSSI_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_thresholdBeaconRSSI_Low_r12,
+      { "thresholdBeaconRSSI-Low-r12", "lte-rrc.thresholdBeaconRSSI_Low_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lte_rrc_thresholdBeaconRSSI_High_r12,
+      { "thresholdBeaconRSSI-High-r12", "lte-rrc.thresholdBeaconRSSI_High_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lte_rrc_offloadPreferenceIndicator_r12,
+      { "offloadPreferenceIndicator-r12", "lte-rrc.offloadPreferenceIndicator_r12",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
+    { &hf_lte_rrc_t_SteeringWLAN_r12,
+      { "t-SteeringWLAN-r12", "lte-rrc.t_SteeringWLAN_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "T_Reselection", HFILL }},
     { &hf_lte_rrc_notificationRepetitionCoeff_r9,
       { "notificationRepetitionCoeff-r9", "lte-rrc.notificationRepetitionCoeff_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_notificationRepetitionCoeff_r9_vals), 0,
@@ -43980,6 +47483,10 @@ void proto_register_lte_rrc(void) {
       { "PMCH-Info-r9", "lte-rrc.PMCH_Info_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_PMCH_InfoListExt_r12_item,
+      { "PMCH-InfoExt-r12", "lte-rrc.PMCH_InfoExt_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_pmch_Config_r9,
       { "pmch-Config-r9", "lte-rrc.pmch_Config_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43988,6 +47495,14 @@ void proto_register_lte_rrc(void) {
       { "mbms-SessionInfoList-r9", "lte-rrc.mbms_SessionInfoList_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_pmch_Config_r12,
+      { "pmch-Config-r12", "lte-rrc.pmch_Config_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_mbms_SessionInfoList_r12,
+      { "mbms-SessionInfoList-r12", "lte-rrc.mbms_SessionInfoList_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MBMS_SessionInfoList_r9", HFILL }},
     { &hf_lte_rrc_MBMS_SessionInfoList_r9_item,
       { "MBMS-SessionInfo-r9", "lte-rrc.MBMS_SessionInfo_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44015,6 +47530,18 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_mch_SchedulingPeriod_r9,
       { "mch-SchedulingPeriod-r9", "lte-rrc.mch_SchedulingPeriod_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mch_SchedulingPeriod_r9_vals), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sf_AllocEnd_r12,
+      { "sf-AllocEnd-r12", "lte-rrc.sf_AllocEnd_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1535", HFILL }},
+    { &hf_lte_rrc_dataMCS_r12,
+      { "dataMCS-r12", "lte-rrc.dataMCS_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_28", HFILL }},
+    { &hf_lte_rrc_mch_SchedulingPeriod_r12,
+      { "mch-SchedulingPeriod-r12", "lte-rrc.mch_SchedulingPeriod_r12",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_mch_SchedulingPeriod_r12_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_plmn_Id_r9,
       { "plmn-Id-r9", "lte-rrc.plmn_Id_r9",
@@ -44052,7 +47579,7 @@ void proto_register_lte_rrc(void) {
       { "handoverCommandMessage", "lte-rrc.handoverCommandMessage",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_126,
+    { &hf_lte_rrc_nonCriticalExtension_137,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_49", HFILL }},
@@ -44088,7 +47615,7 @@ void proto_register_lte_rrc(void) {
       { "as-Context", "lte-rrc.as_Context_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_127,
+    { &hf_lte_rrc_nonCriticalExtension_138,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HandoverPreparationInformation_v920_IEs", HFILL }},
@@ -44096,11 +47623,11 @@ void proto_register_lte_rrc(void) {
       { "ue-ConfigRelease-r9", "lte-rrc.ue_ConfigRelease_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ue_ConfigRelease_r9_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_128,
+    { &hf_lte_rrc_nonCriticalExtension_139,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HandoverPreparationInformation_v9d0_IEs", HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_129,
+    { &hf_lte_rrc_nonCriticalExtension_140,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HandoverPreparationInformation_v9e0_IEs", HFILL }},
@@ -44108,7 +47635,7 @@ void proto_register_lte_rrc(void) {
       { "as-Config-v9e0", "lte-rrc.as_Config_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_130,
+    { &hf_lte_rrc_nonCriticalExtension_141,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HandoverPreparationInformation_v1130_IEs", HFILL }},
@@ -44116,7 +47643,19 @@ void proto_register_lte_rrc(void) {
       { "as-Context-v1130", "lte-rrc.as_Context_v1130_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_131,
+    { &hf_lte_rrc_nonCriticalExtension_142,
+      { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HandoverPreparationInformation_v12xy_IEs", HFILL }},
+    { &hf_lte_rrc_ue_SupportedEARFCN_r12,
+      { "ue-SupportedEARFCN-r12", "lte-rrc.ue_SupportedEARFCN_r12",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_r9", HFILL }},
+    { &hf_lte_rrc_as_Config_v12xy,
+      { "as-Config-v12xy", "lte-rrc.as_Config_v12xy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_nonCriticalExtension_143,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_50", HFILL }},
@@ -44140,7 +47679,7 @@ void proto_register_lte_rrc(void) {
       { "ue-RadioAccessCapabilityInfo", "lte-rrc.ue_RadioAccessCapabilityInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_nonCriticalExtension_132,
+    { &hf_lte_rrc_nonCriticalExtension_144,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_51", HFILL }},
@@ -44192,6 +47731,10 @@ void proto_register_lte_rrc(void) {
       { "sourceDl-CarrierFreq-v9e0", "lte-rrc.sourceDl_CarrierFreq_v9e0",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueEUTRA_v9e0", HFILL }},
+    { &hf_lte_rrc_sourceWlan_OffloadConfig_r12,
+      { "sourceWlan-OffloadConfig-r12", "lte-rrc.sourceWlan_OffloadConfig_r12_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "WLAN_OffloadConfig_r12", HFILL }},
     { &hf_lte_rrc_reestablishmentInfo,
       { "reestablishmentInfo", "lte-rrc.reestablishmentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44242,7 +47785,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2454 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2467 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44668,6 +48211,14 @@ void proto_register_lte_rrc(void) {
       { "Bit 2", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit2",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1,
+      { "Bit 1", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12.bit1",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2,
+      { "Bit 2", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12.bit2",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_sr_config_periodicity,
       { "Periodicity", "lte-rrc.sr_Periodicity",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -44809,7 +48360,10 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_LoggedMeasurementConfiguration_r10_IEs,
     &ett_lte_rrc_LoggedMeasurementConfiguration_v1080_IEs,
     &ett_lte_rrc_LoggedMeasurementConfiguration_v1130_IEs,
+    &ett_lte_rrc_LoggedMeasurementConfiguration_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_08,
+    &ett_lte_rrc_TargetMBSFN_AreaList_r12,
+    &ett_lte_rrc_TargetMBSFN_Area_r12,
     &ett_lte_rrc_MasterInformationBlock,
     &ett_lte_rrc_MBMSCountingRequest_r10,
     &ett_lte_rrc_T_nonCriticalExtension_09,
@@ -44831,6 +48385,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_nonCriticalExtension_11,
     &ett_lte_rrc_MBSFNAreaConfiguration_r9,
     &ett_lte_rrc_MBSFNAreaConfiguration_v930_IEs,
+    &ett_lte_rrc_MBSFNAreaConfiguration_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_12,
     &ett_lte_rrc_CommonSF_AllocPatternList_r9,
     &ett_lte_rrc_MeasurementReport,
@@ -44900,6 +48455,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRCConnectionReconfiguration_v920_IEs,
     &ett_lte_rrc_RRCConnectionReconfiguration_v1020_IEs,
     &ett_lte_rrc_RRCConnectionReconfiguration_v1130_IEs,
+    &ett_lte_rrc_RRCConnectionReconfiguration_v12xy_IEs,
+    &ett_lte_rrc_T_wlan_OffloadDedicated_r12,
+    &ett_lte_rrc_T_setup,
     &ett_lte_rrc_T_nonCriticalExtension_20,
     &ett_lte_rrc_SCellToAddModList_r10,
     &ett_lte_rrc_SCellToAddMod_r10,
@@ -44916,6 +48474,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRCConnectionReconfigurationComplete_v8a0_IEs,
     &ett_lte_rrc_RRCConnectionReconfigurationComplete_v1020_IEs,
     &ett_lte_rrc_RRCConnectionReconfigurationComplete_v1130_IEs,
+    &ett_lte_rrc_RRCConnectionReconfigurationComplete_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_21,
     &ett_lte_rrc_RRCConnectionReestablishment,
     &ett_lte_rrc_T_criticalExtensions_18,
@@ -44932,6 +48491,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRCConnectionReestablishmentComplete_v8a0_IEs,
     &ett_lte_rrc_RRCConnectionReestablishmentComplete_v1020_IEs,
     &ett_lte_rrc_RRCConnectionReestablishmentComplete_v1130_IEs,
+    &ett_lte_rrc_RRCConnectionReestablishmentComplete_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_23,
     &ett_lte_rrc_RRCConnectionReestablishmentReject,
     &ett_lte_rrc_T_criticalExtensions_20,
@@ -45013,6 +48573,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRCConnectionSetupComplete_v8a0_IEs,
     &ett_lte_rrc_RRCConnectionSetupComplete_v1020_IEs,
     &ett_lte_rrc_RRCConnectionSetupComplete_v1130_IEs,
+    &ett_lte_rrc_RRCConnectionSetupComplete_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_29,
     &ett_lte_rrc_RegisteredMME,
     &ett_lte_rrc_SecurityModeCommand,
@@ -45052,6 +48613,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_nonCriticalExtension_34,
     &ett_lte_rrc_SystemInformationBlockType1_v920_IEs,
     &ett_lte_rrc_SystemInformationBlockType1_v1130_IEs,
+    &ett_lte_rrc_SystemInformationBlockType1_v12xy_IEs,
+    &ett_lte_rrc_T_cellAccessRelatedInfo_v12xy,
     &ett_lte_rrc_T_nonCriticalExtension_35,
     &ett_lte_rrc_PLMN_IdentityList,
     &ett_lte_rrc_PLMN_IdentityInfo,
@@ -45082,6 +48645,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_criticalExtensionsFuture_33,
     &ett_lte_rrc_UECapabilityInformation_r8_IEs,
     &ett_lte_rrc_UECapabilityInformation_v8a0_IEs,
+    &ett_lte_rrc_UECapabilityInformation_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_38,
     &ett_lte_rrc_UEInformationRequest_r9,
     &ett_lte_rrc_T_criticalExtensions_34,
@@ -45091,6 +48655,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UEInformationRequest_v930_IEs,
     &ett_lte_rrc_UEInformationRequest_v1020_IEs,
     &ett_lte_rrc_UEInformationRequest_v1130_IEs,
+    &ett_lte_rrc_UEInformationRequest_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_39,
     &ett_lte_rrc_UEInformationResponse_r9,
     &ett_lte_rrc_T_criticalExtensions_35,
@@ -45103,6 +48668,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UEInformationResponse_v930_IEs,
     &ett_lte_rrc_UEInformationResponse_v1020_IEs,
     &ett_lte_rrc_UEInformationResponse_v1130_IEs,
+    &ett_lte_rrc_UEInformationResponse_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_41,
     &ett_lte_rrc_RLF_Report_r9,
     &ett_lte_rrc_T_measResultLastServCell_r9,
@@ -45115,6 +48681,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_physCellId_r11,
     &ett_lte_rrc_T_selectedUTRA_CellId_r11,
     &ett_lte_rrc_T_physCellId_r11_01,
+    &ett_lte_rrc_T_failedPCellId_v12xy,
     &ett_lte_rrc_RLF_Report_v9e0,
     &ett_lte_rrc_MeasResultList2EUTRA_r9,
     &ett_lte_rrc_MeasResultList2EUTRA_v9e0,
@@ -45129,6 +48696,11 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_LogMeasInfo_r10,
     &ett_lte_rrc_T_measResultServCell_r10,
     &ett_lte_rrc_T_measResultNeighCells_r10,
+    &ett_lte_rrc_MeasResultListMBSFN_r12,
+    &ett_lte_rrc_MeasResultMBSFN_r12,
+    &ett_lte_rrc_T_mbsfn_Area_r12,
+    &ett_lte_rrc_DataBLER_MCH_ResultList_r12,
+    &ett_lte_rrc_DataBLER_MCH_Result_r12,
     &ett_lte_rrc_MeasResultList2GERAN_r10,
     &ett_lte_rrc_ConnEstFailReport_r11,
     &ett_lte_rrc_T_measResultFailedCell_r11,
@@ -45247,6 +48819,12 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MBMS_SAI_InterFreq_v1140,
     &ett_lte_rrc_SystemInformationBlockType16_r11,
     &ett_lte_rrc_T_timeInfo_r11,
+    &ett_lte_rrc_SystemInformationBlockType17_r12,
+    &ett_lte_rrc_SEQUENCE_SIZE_1_maxPLMN_r11_OF_WLAN_OffloadPerPLMN_r12,
+    &ett_lte_rrc_WLAN_OffloadPerPLMN_r12,
+    &ett_lte_rrc_WLAN_Id_List_r12,
+    &ett_lte_rrc_WLAN_Id_r12,
+    &ett_lte_rrc_T_wlan_Identifiers,
     &ett_lte_rrc_AntennaInfoCommon,
     &ett_lte_rrc_AntennaInfoDedicated,
     &ett_lte_rrc_T_codebookSubsetRestriction,
@@ -45255,25 +48833,29 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_codebookSubsetRestriction_v920,
     &ett_lte_rrc_AntennaInfoDedicated_r10,
     &ett_lte_rrc_T_ue_TransmitAntennaSelection_01,
+    &ett_lte_rrc_AntennaInfoDedicated_v12xx,
     &ett_lte_rrc_AntennaInfoUL_r10,
     &ett_lte_rrc_CQI_ReportConfig,
     &ett_lte_rrc_CQI_ReportConfig_v920,
     &ett_lte_rrc_CQI_ReportConfig_r10,
     &ett_lte_rrc_T_csi_SubframePatternConfig_r10,
-    &ett_lte_rrc_T_setup_02,
+    &ett_lte_rrc_T_setup_03,
     &ett_lte_rrc_CQI_ReportConfig_v1130,
+    &ett_lte_rrc_CQI_ReportConfig_v12x0,
+    &ett_lte_rrc_T_csi_SubframePatternConfig_r12,
+    &ett_lte_rrc_T_setup_04,
     &ett_lte_rrc_CQI_ReportConfigSCell_r10,
     &ett_lte_rrc_CQI_ReportPeriodic,
-    &ett_lte_rrc_T_setup_03,
+    &ett_lte_rrc_T_setup_05,
     &ett_lte_rrc_T_cqi_FormatIndicatorPeriodic,
     &ett_lte_rrc_T_subbandCQI,
     &ett_lte_rrc_CQI_ReportPeriodic_r10,
-    &ett_lte_rrc_T_setup_04,
+    &ett_lte_rrc_T_setup_06,
     &ett_lte_rrc_T_cqi_FormatIndicatorPeriodic_r10,
     &ett_lte_rrc_T_widebandCQI_r10,
     &ett_lte_rrc_T_subbandCQI_r10,
     &ett_lte_rrc_T_csi_ConfigIndex_r10,
-    &ett_lte_rrc_T_setup_05,
+    &ett_lte_rrc_T_setup_07,
     &ett_lte_rrc_CQI_ReportPeriodic_v1130,
     &ett_lte_rrc_CQI_ReportPeriodicProcExtToAddModList_r11,
     &ett_lte_rrc_CQI_ReportPeriodicProcExtToReleaseList_r11,
@@ -45282,14 +48864,20 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_widebandCQI_r11,
     &ett_lte_rrc_T_subbandCQI_r11,
     &ett_lte_rrc_T_csi_ConfigIndex_r11,
-    &ett_lte_rrc_T_setup_06,
+    &ett_lte_rrc_T_setup_08,
     &ett_lte_rrc_CQI_ReportAperiodic_r10,
-    &ett_lte_rrc_T_setup_07,
+    &ett_lte_rrc_T_setup_09,
     &ett_lte_rrc_T_aperiodicCSI_Trigger_r10,
+    &ett_lte_rrc_CQI_ReportAperiodic_v12x0,
+    &ett_lte_rrc_T_setup_10,
+    &ett_lte_rrc_T_aperiodicCSI_Trigger_r12,
     &ett_lte_rrc_CQI_ReportAperiodicProc_r11,
     &ett_lte_rrc_CQI_ReportBoth_r11,
+    &ett_lte_rrc_CQI_ReportBoth_r12,
     &ett_lte_rrc_CSI_IM_ConfigToAddModList_r11,
+    &ett_lte_rrc_CSI_IM_ConfigToAddModList_r12,
     &ett_lte_rrc_CSI_IM_ConfigToReleaseList_r11,
+    &ett_lte_rrc_CSI_IM_ConfigToReleaseList_r12,
     &ett_lte_rrc_CSI_ProcessToAddModList_r11,
     &ett_lte_rrc_CSI_ProcessToReleaseList_r11,
     &ett_lte_rrc_CQI_ReportBothProc_r11,
@@ -45298,40 +48886,51 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_own_r10,
     &ett_lte_rrc_T_other_r10,
     &ett_lte_rrc_CSI_IM_Config_r11,
+    &ett_lte_rrc_CSI_IM_Config_r12,
     &ett_lte_rrc_CSI_Process_r11,
     &ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_P_C_AndCBSR_r11,
+    &ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_CSI_IM_ConfigId_r12,
     &ett_lte_rrc_P_C_AndCBSR_r11,
     &ett_lte_rrc_CSI_RS_Config_r10,
     &ett_lte_rrc_T_csi_RS_r10,
-    &ett_lte_rrc_T_setup_08,
+    &ett_lte_rrc_T_setup_11,
     &ett_lte_rrc_T_zeroTxPowerCSI_RS_r10,
-    &ett_lte_rrc_T_setup_09,
+    &ett_lte_rrc_T_setup_12,
+    &ett_lte_rrc_CSI_RS_Config2_r12,
+    &ett_lte_rrc_T_zeroTxPowerCSI_RS_r12,
+    &ett_lte_rrc_T_setup_13,
     &ett_lte_rrc_CSI_RS_ConfigNZP_r11,
     &ett_lte_rrc_T_qcl_CRS_Info_r11,
     &ett_lte_rrc_T_mbsfn_SubframeConfigList_r11,
-    &ett_lte_rrc_T_setup_10,
+    &ett_lte_rrc_T_setup_14,
     &ett_lte_rrc_CSI_RS_ConfigZP_r11,
     &ett_lte_rrc_DMRS_Config_r11,
-    &ett_lte_rrc_T_setup_11,
+    &ett_lte_rrc_T_setup_15,
     &ett_lte_rrc_EPDCCH_Config_r11,
     &ett_lte_rrc_T_config_r11,
-    &ett_lte_rrc_T_setup_12,
+    &ett_lte_rrc_T_setup_16,
     &ett_lte_rrc_T_subframePatternConfig_r11,
-    &ett_lte_rrc_T_setup_13,
+    &ett_lte_rrc_T_setup_17,
     &ett_lte_rrc_EPDCCH_SetConfigToAddModList_r11,
     &ett_lte_rrc_EPDCCH_SetConfigToReleaseList_r11,
     &ett_lte_rrc_EPDCCH_SetConfig_r11,
     &ett_lte_rrc_T_resourceBlockAssignment_r11,
+    &ett_lte_rrc_EIMTA_MainConfig_r12,
+    &ett_lte_rrc_T_setup_18,
+    &ett_lte_rrc_EIMTA_MainConfigServCell_r12,
+    &ett_lte_rrc_T_setup_19,
+    &ett_lte_rrc_T_mbsfn_SubframeConfigList_v12x0,
+    &ett_lte_rrc_T_setup_20,
     &ett_lte_rrc_LogicalChannelConfig,
     &ett_lte_rrc_T_ul_SpecificParameters,
     &ett_lte_rrc_MAC_MainConfig,
     &ett_lte_rrc_T_ul_SCH_Config,
     &ett_lte_rrc_T_phr_Config,
-    &ett_lte_rrc_T_setup_14,
+    &ett_lte_rrc_T_setup_21,
     &ett_lte_rrc_T_mac_MainConfig_v1020,
     &ett_lte_rrc_MAC_MainConfigSCell_r11,
     &ett_lte_rrc_DRX_Config,
-    &ett_lte_rrc_T_setup_15,
+    &ett_lte_rrc_T_setup_22,
     &ett_lte_rrc_T_longDRX_CycleStartOffset,
     &ett_lte_rrc_T_shortDRX,
     &ett_lte_rrc_DRX_Config_v1130,
@@ -45353,13 +48952,13 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_PDSCH_RE_MappingQCL_Config_r11,
     &ett_lte_rrc_T_optionalSetOfFields_r11,
     &ett_lte_rrc_T_mbsfn_SubframeConfigList_r11_01,
-    &ett_lte_rrc_T_setup_16,
+    &ett_lte_rrc_T_setup_23,
     &ett_lte_rrc_PHICH_Config,
     &ett_lte_rrc_PhysicalConfigDedicated,
     &ett_lte_rrc_T_antennaInfo,
     &ett_lte_rrc_T_antennaInfo_r10,
     &ett_lte_rrc_T_additionalSpectrumEmissionCA_r10,
-    &ett_lte_rrc_T_setup_17,
+    &ett_lte_rrc_T_setup_24,
     &ett_lte_rrc_PhysicalConfigDedicatedSCell_r10,
     &ett_lte_rrc_T_nonUL_Configuration_r10,
     &ett_lte_rrc_T_ul_Configuration_r10,
@@ -45374,24 +48973,27 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_PUCCH_ConfigCommon,
     &ett_lte_rrc_PUCCH_ConfigDedicated,
     &ett_lte_rrc_T_ackNackRepetition,
-    &ett_lte_rrc_T_setup_18,
+    &ett_lte_rrc_T_setup_25,
     &ett_lte_rrc_PUCCH_ConfigDedicated_v1020,
     &ett_lte_rrc_T_pucch_Format_r10,
     &ett_lte_rrc_T_format3_r10,
     &ett_lte_rrc_T_n3PUCCH_AN_List_r10,
     &ett_lte_rrc_T_twoAntennaPortActivatedPUCCH_Format3_r10,
-    &ett_lte_rrc_T_setup_19,
+    &ett_lte_rrc_T_setup_26,
     &ett_lte_rrc_T_n3PUCCH_AN_ListP1_r10,
     &ett_lte_rrc_T_channelSelection_r10,
     &ett_lte_rrc_T_n1PUCCH_AN_CS_r10,
-    &ett_lte_rrc_T_setup_20,
+    &ett_lte_rrc_T_setup_27,
     &ett_lte_rrc_SEQUENCE_SIZE_1_2_OF_N1PUCCH_AN_CS_r10,
     &ett_lte_rrc_PUCCH_ConfigDedicated_v1130,
     &ett_lte_rrc_T_n1PUCCH_AN_CS_v1130,
-    &ett_lte_rrc_T_setup_21,
+    &ett_lte_rrc_T_setup_28,
     &ett_lte_rrc_T_n1PUCCH_AN_CS_ListP1_r11,
     &ett_lte_rrc_T_nPUCCH_Param_r11,
-    &ett_lte_rrc_T_setup_22,
+    &ett_lte_rrc_T_setup_29,
+    &ett_lte_rrc_PUCCH_ConfigDedicated_v12x0,
+    &ett_lte_rrc_T_n1PUCCH_Param_r12,
+    &ett_lte_rrc_T_setup_30,
     &ett_lte_rrc_N1PUCCH_AN_CS_r10,
     &ett_lte_rrc_PUSCH_ConfigCommon,
     &ett_lte_rrc_T_pusch_ConfigBasic,
@@ -45400,13 +49002,19 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_betaOffsetMC_r10,
     &ett_lte_rrc_PUSCH_ConfigDedicated_v1130,
     &ett_lte_rrc_T_pusch_DMRS_r11,
-    &ett_lte_rrc_T_setup_23,
+    &ett_lte_rrc_T_setup_31,
+    &ett_lte_rrc_PUSCH_ConfigDedicated_v12x0,
+    &ett_lte_rrc_T_uciOnPUSCH,
+    &ett_lte_rrc_T_setup_32,
+    &ett_lte_rrc_T_betaOffsetMC_r12,
     &ett_lte_rrc_PUSCH_ConfigDedicatedSCell_r10,
     &ett_lte_rrc_UL_ReferenceSignalsPUSCH,
     &ett_lte_rrc_RACH_ConfigCommon,
     &ett_lte_rrc_T_preambleInfo,
     &ett_lte_rrc_T_preamblesGroupAConfig,
     &ett_lte_rrc_T_ra_SupervisionInfo,
+    &ett_lte_rrc_RACH_ConfigCommon_v12xy,
+    &ett_lte_rrc_T_txFailParams_r12,
     &ett_lte_rrc_RACH_ConfigCommonSCell_r11,
     &ett_lte_rrc_T_ra_SupervisionInfo_r11,
     &ett_lte_rrc_PowerRampingParameters,
@@ -45438,12 +49046,15 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_um_Bi_Directional,
     &ett_lte_rrc_T_um_Uni_Directional_UL,
     &ett_lte_rrc_T_um_Uni_Directional_DL,
+    &ett_lte_rrc_T_am_v12xy,
     &ett_lte_rrc_UL_AM_RLC,
+    &ett_lte_rrc_UL_AM_RLC_r12,
     &ett_lte_rrc_DL_AM_RLC,
+    &ett_lte_rrc_DL_AM_RLC_r12,
     &ett_lte_rrc_UL_UM_RLC,
     &ett_lte_rrc_DL_UM_RLC,
     &ett_lte_rrc_RLF_TimersAndConstants_r9,
-    &ett_lte_rrc_T_setup_24,
+    &ett_lte_rrc_T_setup_33,
     &ett_lte_rrc_RN_SubframeConfig_r10,
     &ett_lte_rrc_T_subframeConfigPattern_r10,
     &ett_lte_rrc_T_rpdcch_Config_r10,
@@ -45458,32 +49069,33 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_fallbackForFormat3,
     &ett_lte_rrc_T_fdd,
     &ett_lte_rrc_SchedulingRequestConfig,
-    &ett_lte_rrc_T_setup_25,
+    &ett_lte_rrc_T_setup_34,
     &ett_lte_rrc_SchedulingRequestConfig_v1020,
     &ett_lte_rrc_SoundingRS_UL_ConfigCommon,
-    &ett_lte_rrc_T_setup_26,
+    &ett_lte_rrc_T_setup_35,
     &ett_lte_rrc_SoundingRS_UL_ConfigDedicated,
-    &ett_lte_rrc_T_setup_27,
+    &ett_lte_rrc_T_setup_36,
     &ett_lte_rrc_SoundingRS_UL_ConfigDedicated_v1020,
     &ett_lte_rrc_SoundingRS_UL_ConfigDedicatedAperiodic_r10,
-    &ett_lte_rrc_T_setup_28,
+    &ett_lte_rrc_T_setup_37,
     &ett_lte_rrc_SEQUENCE_SIZE_1_3_OF_SRS_ConfigAp_r10,
     &ett_lte_rrc_T_srs_ActivateAp_r10,
-    &ett_lte_rrc_T_setup_29,
+    &ett_lte_rrc_T_setup_38,
     &ett_lte_rrc_SRS_ConfigAp_r10,
     &ett_lte_rrc_SPS_Config,
     &ett_lte_rrc_SPS_ConfigDL,
-    &ett_lte_rrc_T_setup_30,
+    &ett_lte_rrc_T_setup_39,
     &ett_lte_rrc_T_twoAntennaPortActivated_r10,
-    &ett_lte_rrc_T_setup_31,
+    &ett_lte_rrc_T_setup_40,
     &ett_lte_rrc_SPS_ConfigUL,
-    &ett_lte_rrc_T_setup_32,
+    &ett_lte_rrc_T_setup_41,
     &ett_lte_rrc_T_p0_Persistent,
+    &ett_lte_rrc_T_p0_Persistent_SubframeSet2_r12,
     &ett_lte_rrc_N1PUCCH_AN_PersistentList,
     &ett_lte_rrc_TDD_Config,
     &ett_lte_rrc_TDD_Config_v1130,
     &ett_lte_rrc_TPC_PDCCH_Config,
-    &ett_lte_rrc_T_setup_33,
+    &ett_lte_rrc_T_setup_42,
     &ett_lte_rrc_TPC_Index,
     &ett_lte_rrc_UplinkPowerControlCommon,
     &ett_lte_rrc_UplinkPowerControlCommon_v1020,
@@ -45492,6 +49104,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UplinkPowerControlDedicated,
     &ett_lte_rrc_UplinkPowerControlDedicated_v1020,
     &ett_lte_rrc_UplinkPowerControlDedicated_v1130,
+    &ett_lte_rrc_UplinkPowerControlDedicated_v12x0,
+    &ett_lte_rrc_T_set2PowerControlParameter,
+    &ett_lte_rrc_T_setup_43,
     &ett_lte_rrc_UplinkPowerControlDedicatedSCell_r10,
     &ett_lte_rrc_DeltaFList_PUCCH,
     &ett_lte_rrc_DeltaTxD_OffsetListPUCCH_r10,
@@ -45538,12 +49153,12 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_locationCoordinates_r10,
     &ett_lte_rrc_MeasConfig,
     &ett_lte_rrc_T_speedStatePars,
-    &ett_lte_rrc_T_setup_34,
+    &ett_lte_rrc_T_setup_44,
     &ett_lte_rrc_MeasIdToRemoveList,
     &ett_lte_rrc_MeasObjectToRemoveList,
     &ett_lte_rrc_ReportConfigToRemoveList,
     &ett_lte_rrc_MeasGapConfig,
-    &ett_lte_rrc_T_setup_35,
+    &ett_lte_rrc_T_setup_45,
     &ett_lte_rrc_T_gapOffset,
     &ett_lte_rrc_MeasIdToAddModList,
     &ett_lte_rrc_MeasIdToAddMod,
@@ -45557,8 +49172,10 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_BlackCellsToAddModList,
     &ett_lte_rrc_BlackCellsToAddMod,
     &ett_lte_rrc_MeasSubframePatternConfigNeigh_r10,
-    &ett_lte_rrc_T_setup_36,
+    &ett_lte_rrc_T_setup_46,
     &ett_lte_rrc_MeasSubframeCellList_r10,
+    &ett_lte_rrc_AltTTT_CellsToAddModList_r12,
+    &ett_lte_rrc_AltTTT_CellsToAddMod_r12,
     &ett_lte_rrc_MeasObjectGERAN,
     &ett_lte_rrc_MeasObjectToAddModList,
     &ett_lte_rrc_MeasObjectToAddModList_v9e0,
@@ -45644,7 +49261,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_autonomousDenialParameters_r11,
     &ett_lte_rrc_ObtainLocationConfig_r11,
     &ett_lte_rrc_PowerPrefIndicationConfig_r11,
-    &ett_lte_rrc_T_setup_37,
+    &ett_lte_rrc_T_setup_47,
     &ett_lte_rrc_ReportProximityConfig_r9,
     &ett_lte_rrc_S_TMSI,
     &ett_lte_rrc_TraceReference_r10,
@@ -45667,11 +49284,13 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_EUTRA_Capability_v1130_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v1170_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v1180_IEs,
+    &ett_lte_rrc_UE_EUTRA_Capability_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_48,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1130,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1180,
+    &ett_lte_rrc_RLC_Parameters_r12,
     &ett_lte_rrc_PDCP_Parameters,
     &ett_lte_rrc_T_supportedROHC_Profiles,
     &ett_lte_rrc_PDCP_Parameters_v1130,
@@ -45681,6 +49300,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_PhyLayerParameters_v1020,
     &ett_lte_rrc_PhyLayerParameters_v1130,
     &ett_lte_rrc_PhyLayerParameters_v1170,
+    &ett_lte_rrc_PhyLayerParameters_v12xy,
     &ett_lte_rrc_NonContiguousUL_RA_WithinCC_List_r10,
     &ett_lte_rrc_NonContiguousUL_RA_WithinCC_r10,
     &ett_lte_rrc_RF_Parameters,
@@ -45718,6 +49338,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MeasParameters,
     &ett_lte_rrc_MeasParameters_v1020,
     &ett_lte_rrc_MeasParameters_v1130,
+    &ett_lte_rrc_MeasParameters_v12xy,
     &ett_lte_rrc_BandListEUTRA,
     &ett_lte_rrc_BandCombinationListEUTRA_r10,
     &ett_lte_rrc_BandInfoEUTRA,
@@ -45751,10 +49372,22 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_NeighCellSI_AcquisitionParameters_r9,
     &ett_lte_rrc_SON_Parameters_r9,
     &ett_lte_rrc_UE_BasedNetwPerfMeasParameters_r10,
+    &ett_lte_rrc_UE_BasedNetwPerfMeasParameters_v12xy,
     &ett_lte_rrc_OTDOA_PositioningCapabilities_r10,
     &ett_lte_rrc_Other_Parameters_r11,
     &ett_lte_rrc_MBMS_Parameters_r11,
+    &ett_lte_rrc_UE_RadioPagingInfo_r12,
     &ett_lte_rrc_UE_TimersAndConstants,
+    &ett_lte_rrc_VisitedCellInfoList_r12,
+    &ett_lte_rrc_VisitedCellInfo_r12,
+    &ett_lte_rrc_T_visitedCellId_r12,
+    &ett_lte_rrc_T_pci_arfcn_r12,
+    &ett_lte_rrc_WLAN_OffloadConfig_r12,
+    &ett_lte_rrc_T_thresholdRSRP_r12,
+    &ett_lte_rrc_T_thresholdRSRQ_r12,
+    &ett_lte_rrc_T_thresholdChannelUtilization_r12,
+    &ett_lte_rrc_T_thresholdBackhaul_Bandwidth_r12,
+    &ett_lte_rrc_T_thresholdBeaconRSSI_r12,
     &ett_lte_rrc_MBMS_NotificationConfig_r9,
     &ett_lte_rrc_MBSFN_AreaInfoList_r9,
     &ett_lte_rrc_MBSFN_AreaInfo_r9,
@@ -45762,10 +49395,13 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MBSFN_SubframeConfig,
     &ett_lte_rrc_T_subframeAllocation,
     &ett_lte_rrc_PMCH_InfoList_r9,
+    &ett_lte_rrc_PMCH_InfoListExt_r12,
     &ett_lte_rrc_PMCH_Info_r9,
+    &ett_lte_rrc_PMCH_InfoExt_r12,
     &ett_lte_rrc_MBMS_SessionInfoList_r9,
     &ett_lte_rrc_MBMS_SessionInfo_r9,
     &ett_lte_rrc_PMCH_Config_r9,
+    &ett_lte_rrc_PMCH_Config_r12,
     &ett_lte_rrc_TMGI_r9,
     &ett_lte_rrc_T_plmn_Id_r9,
     &ett_lte_rrc_HandoverCommand,
@@ -45783,6 +49419,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_HandoverPreparationInformation_v9d0_IEs,
     &ett_lte_rrc_HandoverPreparationInformation_v9e0_IEs,
     &ett_lte_rrc_HandoverPreparationInformation_v1130_IEs,
+    &ett_lte_rrc_HandoverPreparationInformation_v12xy_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_50,
     &ett_lte_rrc_UERadioAccessCapabilityInformation,
     &ett_lte_rrc_T_criticalExtensions_40,
@@ -45792,6 +49429,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_T_nonCriticalExtension_51,
     &ett_lte_rrc_AS_Config,
     &ett_lte_rrc_AS_Config_v9e0,
+    &ett_lte_rrc_AS_Config_v12xy,
     &ett_lte_rrc_AS_Context,
     &ett_lte_rrc_AS_Context_v1130,
     &ett_lte_rrc_ReestablishmentInfo,
@@ -45802,7 +49440,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2909 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2930 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45818,6 +49456,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment,
     &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
+    &ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12,
     &ett_lte_rrc_sr_ConfigIndex
   };
 
@@ -45872,7 +49511,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2963 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2985 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

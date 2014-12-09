@@ -16,6 +16,7 @@ SupportedBandUTRA-FDD
 T-PollRetransmit
 T-Reordering
 T-StatusProhibit
+WLAN-backhaulRate
 
 #.EXPORTS
 HandoverCommand
@@ -59,6 +60,10 @@ VarRLF-Report-r10
 VarLogMeasConfig-r11
 VarLogMeasReport-r11
 VarRLF-Report-r11
+VarLogMeasConfig-r12
+VarMobilityHistoryReport-r12
+UERadioPagingInformation
+UERadioPagingInformation-r12-IEs
 
 #.MAKE_ENUM
 RAT-Type TYPE_PREFIX
@@ -230,6 +235,16 @@ if(ue_cap_tvb){
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_interBandTDD_CA_WithDifferentConfig);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1, inter_band_tdd_ca_tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2, inter_band_tdd_ca_tvb, 1, 1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PhyLayerParameters-v12xy/tdd-FDD-CA-PCellDuplex-r12 VAL_PTR = &pcellduplex_tvb
+  tvbuff_t *pcellduplex_tvb=NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (pcellduplex_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1, pcellduplex_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2, pcellduplex_tvb, 1, 1, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY Handover
@@ -691,6 +706,21 @@ SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 TYPE = FT_UINT64
   proto_tree_add_time(subtree, hf_lte_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
   proto_tree_add_time(subtree, hf_lte_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
 
+#.TYPE_ATTR
+WLAN-Id-r12/wlan-Identifiers/ssid TYPE=FT_STRING DISPLAY=STR_ASCII
+
+#.FN_BODY WLAN-Id-r12/wlan-Identifiers/ssid VAL_PTR=&ssid_tvb HF_INDEX=-1
+  tvbuff_t *ssid_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
+
+#.TYPE_ATTR
+WLAN-Id-r12/wlan-Identifiers/bssid TYPE=FT_ETHER
+
+#.TYPE_ATTR
+WLAN-Id-r12/wlan-Identifiers/hessid TYPE=FT_ETHER
+
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
@@ -813,6 +843,14 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
+#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-Persistent-SubframeSet2-r12/p0-NominalPUSCH-Persistent-SubframeSet2-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-Persistent-SubframeSet2-r12/p0-UE-PUSCH-Persistent-SubframeSet2-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
 #.TYPE_ATTR
 UplinkPowerControlCommon/deltaPreambleMsg3 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
@@ -836,6 +874,14 @@ UplinkPowerControlCommonSCell-v11x0/deltaPreambleMsg3-r11 STRINGS=VALS(lte_rrc_d
   proto_item_append_text(actx->created_item, "dB");
 
 #.FN_BODY UplinkPowerControlDedicated/p0-UE-PUCCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY UplinkPowerControlDedicated-v12x0/set2PowerControlParameter/setup/p0-NominalPUSCH-SubframeSet2-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY UplinkPowerControlDedicated-v12x0/set2PowerControlParameter/setup/p0-UE-PUSCH-SubframeSet2-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
@@ -1008,6 +1054,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_HDR SystemInformationBlockType16-r11
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB16 ");
+
+#.FN_HDR SystemInformationBlockType17-r12
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB17 ");
 
 #.FN_HDR MBSFNAreaConfiguration-r9
 
@@ -1250,14 +1300,21 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_channel_mapping(drb_mapping);
   }
 
-  /* Also tell RLC how many PDCP sequence number bits */
-  if (drb_mapping->pdcp_sn_size_present) {
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
-    if (p_rlc_lte_info) {
+  /* Also tell RLC how many PDCP sequence number bits and wether it should use extended LI */
+  p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc_lte, 0);
+  if (p_rlc_lte_info) {
+    if (drb_mapping->pdcp_sn_size_present) {
       set_rlc_lte_drb_pdcp_seqnum_length(actx->pinfo,
                                          p_rlc_lte_info->ueid,
                                          drb_mapping->drbid,
                                          drb_mapping->pdcp_sn_size);
+    }
+    if (drb_mapping->rlcMode_present) {
+      set_rlc_lte_drb_li_field(actx->pinfo,
+                               p_rlc_lte_info->ueid,
+                               drb_mapping->drbid,
+                               drb_mapping->rlc_ul_ext_li_field,
+                               drb_mapping->rlc_dl_ext_li_field);
     }
   }
 
@@ -1285,6 +1342,22 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
         mapping->pdcp_sn_size = 12;
         mapping->pdcp_sn_size_present = TRUE;
     }
+  }
+
+#.FN_BODY UL-AM-RLC-r12/extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
+  gboolean ext_li_field;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlc_ul_ext_li_field = ext_li_field;
+  }
+
+#.FN_BODY DL-AM-RLC-r12/extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
+  gboolean ext_li_field;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlc_dl_ext_li_field = ext_li_field;
   }
 
 #.FN_BODY DRB-ToAddMod/logicalChannelIdentity VAL_PTR=&value
@@ -1361,6 +1434,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   /* Reset again */
   private_data_set_ra_preambles(actx, 0);
 
+#.FN_BODY RACH-ConfigCommon-v12xy/txFailParams-r12/connEstFailOffset-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
 
 #.FN_BODY DRX-Config/setup/onDurationTimer VAL_PTR=&value
   guint32 value;
@@ -1645,3 +1721,18 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [cause=%%s]",
                   val_to_str(value, lte_rrc_ReleaseCause_vals, "Unknown"));
 
+#.FN_BODY VisitedCellInfo-r12/timeSpent-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY WLAN-OffloadConfig-r12/thresholdChannelUtilization-r12/thresholdChannelUtilizationLow-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " (BSS load)");
+
+#.FN_BODY WLAN-OffloadConfig-r12/thresholdChannelUtilization-r12/thresholdChannelUtilizationHigh-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " (BSS load)");
+
+#.FN_BODY WLAN-backhaulRate
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " Kbps");

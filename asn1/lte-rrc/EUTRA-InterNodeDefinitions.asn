@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.8.0 (2014-06)
+-- 3GPP TS 36.331 V12.3.0 (2014-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -8,6 +8,7 @@ IMPORTS
 	AntennaInfoCommon,
 	ARFCN-ValueEUTRA,
 	ARFCN-ValueEUTRA-v9e0,
+	ARFCN-ValueEUTRA-r9,
 	CellIdentity,
 	C-RNTI,
 	DL-DCCH-Message,
@@ -29,7 +30,9 @@ IMPORTS
 	SystemInformationBlockType2,
 	UEAssistanceInformation-r11,
 	UECapabilityInformation,
-	UE-CapabilityRAT-ContainerList
+	UE-CapabilityRAT-ContainerList,
+	UE-RadioPagingInfo-r12,
+    WLAN-OffloadConfig-r12
 FROM EUTRA-RRC-Definitions;
 
 
@@ -90,6 +93,12 @@ HandoverPreparationInformation-v9e0-IEs	::= SEQUENCE {
 
 HandoverPreparationInformation-v1130-IEs	::= SEQUENCE {
 	as-Context-v1130					AS-Context-v1130				OPTIONAL,	-- Cond HO2
+	nonCriticalExtension				HandoverPreparationInformation-v12xy-IEs						OPTIONAL
+}
+
+HandoverPreparationInformation-v12xy-IEs ::= SEQUENCE {
+	ue-SupportedEARFCN-r12 				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
+	as-Config-v12xy					AS-Config-v12xy				OPTIONAL, 	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -109,6 +118,24 @@ UERadioAccessCapabilityInformation ::= SEQUENCE {
 
 UERadioAccessCapabilityInformation-r8-IEs ::= SEQUENCE {
 	ue-RadioAccessCapabilityInfo		OCTET STRING (CONTAINING UECapabilityInformation),
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+}
+
+
+UERadioPagingInformation ::= SEQUENCE {
+	criticalExtensions					CHOICE {
+		c1									CHOICE{
+			ueRadioPagingInformation-r12			UERadioPagingInformation-r12-IEs,
+			spare7 NULL,
+			spare6 NULL, spare5 NULL, spare4 NULL,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture			SEQUENCE {}
+	}
+}
+
+UERadioPagingInformation-r12-IEs ::= SEQUENCE {
+	ue-RadioPagingInfo-r12				OCTET STRING (CONTAINING UE-RadioPagingInfo-r12),
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -138,6 +165,10 @@ AS-Config ::=				SEQUENCE {
 
 AS-Config-v9e0 ::=				SEQUENCE {
 	sourceDl-CarrierFreq-v9e0		ARFCN-ValueEUTRA-v9e0
+}
+
+AS-Config-v12xy ::=				SEQUENCE {
+	sourceWlan-OffloadConfig-r12		WLAN-OffloadConfig-r12				OPTIONAL
 }
 
 

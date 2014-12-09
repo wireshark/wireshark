@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.8.0 (2014-06)
+-- 3GPP TS 36.331 V12.3.0 (2014-09)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -33,7 +33,9 @@ IMPORTS
 	ReportConfigToAddModList,
 	RLF-Report-r9,
 	RSRP-Range,
+	TargetMBSFN-AreaList-r12,
 	TraceReference-r10,
+	VisitedCellInfoList-r12,
 	maxCellMeas,
 	maxMeasId
 FROM EUTRA-RRC-Definitions;
@@ -56,6 +58,14 @@ VarLogMeasConfig-r11 ::=		SEQUENCE {
 	areaConfiguration-v1130			AreaConfiguration-v1130		OPTIONAL,
 	loggingDuration-r10				LoggingDuration-r10,
 	loggingInterval-r10				LoggingInterval-r10
+}
+
+VarLogMeasConfig-r12 ::=		SEQUENCE {
+	areaConfiguration-r10			AreaConfiguration-r10		OPTIONAL,
+	areaConfiguration-v1130			AreaConfiguration-v1130		OPTIONAL,
+	loggingDuration-r10				LoggingDuration-r10,
+	loggingInterval-r10				LoggingInterval-r10,
+	targetMBSFN-AreaList-r12		TargetMBSFN-AreaList-r12	OPTIONAL
 }
 
 
@@ -122,6 +132,8 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
 	},
 	physCellIdCDMA2000						PhysCellIdCDMA2000
 }
+VarMobilityHistoryReport-r12 ::=	VisitedCellInfoList-r12
+
 
 VarRLF-Report-r10 ::=				SEQUENCE {
 	rlf-Report-r10							RLF-Report-r9,
