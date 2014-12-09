@@ -142,6 +142,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_set_time@Base 1.9.1
  col_set_writable@Base 1.9.1
  col_setup@Base 1.9.1
+ color_conv_filter_list@Base 1.99.1
  column_dump_column_formats@Base 1.12.0~rc1
  conversation_add_proto_data@Base 1.9.1
  conversation_delete_proto_data@Base 1.9.1
@@ -900,6 +901,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_initialize_all_prefixes@Base 1.9.1
  proto_is_private@Base 1.9.1
  proto_is_protocol_enabled@Base 1.9.1
+ proto_is_frame_protocol@Base 1.99.1
  proto_item_add_subtree@Base 1.9.1
  proto_item_append_string@Base 1.9.1
  proto_item_append_text@Base 1.9.1
@@ -1053,6 +1055,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_ber_oid_syntax@Base 1.9.1
  register_ber_syntax_dissector@Base 1.9.1
  register_count@Base 1.9.1
+ register_color_conversation_filter@Base 1.99.1
  register_decode_as@Base 1.12.0~rc1
  register_dissector@Base 1.9.1
  register_dissector_filter@Base 1.9.1

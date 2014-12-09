@@ -37,6 +37,7 @@
 #include <epan/ip_opts.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
 #include <epan/greproto.h>
@@ -540,6 +541,20 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     add_hostlist_table_data(hash, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, PT_NONE);
     add_hostlist_table_data(hash, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ip_host_dissector_info, PT_NONE);
     return 1;
+}
+
+static gboolean
+ip_color_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "ip");
+}
+
+static gchar*
+ip_build_color_filter(packet_info *pinfo)
+{
+    return g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data));
 }
 
 /*
@@ -3079,6 +3094,7 @@ proto_register_ip(void)
 
   register_decode_as(&ip_da);
   register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet, NULL);
+  register_color_conversation_filter("IPv4", ip_color_filter_valid, ip_build_color_filter);
 }
 
 void

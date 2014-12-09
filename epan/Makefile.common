@@ -32,6 +32,7 @@ LIBWIRESHARK_SRC =		\
 	atalk-utils.c		\
 	charsets.c		\
 	circuit.c		\
+	color_dissector_filters.c	\
 	column.c		\
 	column-utils.c		\
 	conversation.c		\
@@ -162,6 +163,7 @@ LIBWIRESHARK_INCLUDES =		\
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\
+	color_dissector_filters.h	\
 	column.h		\
 	column-info.h		\
 	column-utils.h		\

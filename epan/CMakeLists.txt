@@ -1549,6 +1549,7 @@ set(LIBWIRESHARK_FILES
 	circuit.c
 	column.c
 	column-utils.c
+	color_dissector_filters.c
 	conversation.c
 	conversation_table.c
 	crc10-tvb.c

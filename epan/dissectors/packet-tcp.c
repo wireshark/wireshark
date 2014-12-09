@@ -38,6 +38,7 @@
 #include <epan/show_exception.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/decode_as.h>
@@ -630,6 +631,34 @@ static const char*
 tcpip_hostlist_prefix(void)
 {
     return "endpoints";
+}
+
+static gboolean
+tcp_color_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "tcp");
+}
+
+static gchar*
+tcp_build_color_filter(packet_info *pinfo)
+{
+    if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
+        /* TCP over IPv4 */
+        return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+            ip_to_str( (const guint8 *)pinfo->net_src.data),
+            ip_to_str( (const guint8 *)pinfo->net_dst.data),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
+        /* TCP over IPv6 */
+        return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+            ip6_to_str((const struct e_in6_addr *)pinfo->net_src.data),
+            ip6_to_str((const struct e_in6_addr *)pinfo->net_dst.data),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    return NULL;
 }
 
 /* TCP structs and definitions */
@@ -5935,6 +5964,7 @@ proto_register_tcp(void)
     register_decode_as(&tcp_da);
 
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet, tcpip_hostlist_prefix);
+    register_color_conversation_filter("TCP", tcp_color_filter_valid, tcp_build_color_filter);
 }
 
 void

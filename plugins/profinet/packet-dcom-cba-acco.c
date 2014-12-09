@@ -29,6 +29,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
@@ -335,6 +336,52 @@ GList *cba_pdevs;
 
 /* as we are a plugin, we cannot get this from libwireshark! */
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
+
+static gboolean
+cba_color_filter_valid(packet_info *pinfo)
+{
+    return ((pinfo->profinet_type != 0) && (pinfo->profinet_type < 10));
+}
+
+static gchar*
+cba_build_color_filter(packet_info *pinfo)
+{
+    gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
+
+    if ((pinfo->net_src.type == AT_IPv4) && (pinfo->net_dst.type == AT_IPv4) && is_tcp) {
+        /* IPv4 */
+        switch(pinfo->profinet_type) {
+        case 1:
+            return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data));
+        case 2:
+            return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data));
+        case 3:
+            return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data));
+        case 4:
+            return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+                ip_to_str( (const guint8 *)pinfo->net_src.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_dst.data),
+                ip_to_str( (const guint8 *)pinfo->net_src.data));
+        default:
+            return NULL;
+        }
+    }
+
+    return NULL;
+}
 
 #if 0
 static void
@@ -5059,6 +5106,8 @@ proto_register_dcom_cba_acco (void)
     ett5[4] = &ett_cba_conn_info;
     proto_ICBAAccoSync = proto_register_protocol ("ICBAAccoSync", "ICBAAccoSync", "cba_acco_sync");
     proto_register_subtree_array (ett5, array_length (ett5));
+
+    register_color_conversation_filter("PN-CBA", cba_color_filter_valid, cba_build_color_filter);
 }
 
 

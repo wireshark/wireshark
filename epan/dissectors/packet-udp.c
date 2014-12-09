@@ -44,6 +44,7 @@
 #include "packet-ip.h"
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/tap.h>
 #include <epan/decode_as.h>
 
@@ -381,6 +382,35 @@ udpip_hostlist_prefix(void)
 {
     return "endpoints";
 }
+
+static gboolean
+udp_color_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "udp");
+}
+
+static gchar*
+udp_build_color_filter(packet_info *pinfo)
+{
+    if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
+        /* UDP over IPv4 */
+        return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+            ip_to_str( (const guint8 *)pinfo->net_src.data),
+            ip_to_str( (const guint8 *)pinfo->net_dst.data),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
+        /* UDP over IPv6 */
+        return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+            ip6_to_str((const struct e_in6_addr *)pinfo->net_src.data),
+            ip6_to_str((const struct e_in6_addr *)pinfo->net_dst.data),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    return NULL;
+}
+
 
 /* Attach process info to a flow */
 /* XXX - We depend on the UDP dissector finding the conversation first */
@@ -990,6 +1020,7 @@ proto_register_udp(void)
 
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet, udpip_hostlist_prefix);
+  register_color_conversation_filter("UDP", udp_color_filter_valid, udp_build_color_filter);
 
   register_init_routine(udp_init);
 

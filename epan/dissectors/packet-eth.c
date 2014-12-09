@@ -31,6 +31,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/conversation_table.h>
+#include <epan/color_dissector_filters.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"
@@ -163,7 +164,19 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
   return 1;
 }
 
+static gboolean
+eth_color_filter_valid(packet_info *pinfo)
+{
+    return (pinfo->dl_src.type == AT_ETHER);
+}
 
+static gchar*
+eth_build_color_filter(packet_info *pinfo)
+{
+    return g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
+                ether_to_str( (const guint8 *)pinfo->dl_src.data),
+                ether_to_str( (const guint8 *)pinfo->dl_dst.data));
+}
 
 
 /* These are the Netware-ish names for the different Ethernet frame types.
@@ -1003,6 +1016,7 @@ proto_register_eth(void)
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet, NULL);
+  register_color_conversation_filter("Ethernet", eth_color_filter_valid, eth_build_color_filter);
 }
 
 void

@@ -34,6 +34,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/ipv6-utils.h>
@@ -424,6 +425,20 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     add_hostlist_table_data(hash, &dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
 
     return 1;
+}
+
+static gboolean
+ipv6_color_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "ipv6");
+}
+
+static gchar*
+ipv6_build_color_filter(packet_info *pinfo)
+{
+    return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
+                ip6_to_str((const struct e_in6_addr *)pinfo->net_src.data),
+                ip6_to_str((const struct e_in6_addr *)pinfo->net_dst.data));
 }
 
 static const fragment_items ipv6_frag_items = {
@@ -3016,6 +3031,7 @@ proto_register_ipv6(void)
     register_decode_as(&ipv6_next_header_da);
 
     register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_hostlist_packet, NULL);
+    register_color_conversation_filter("IPv6", ipv6_color_filter_valid, ipv6_build_color_filter);
 }
 
 void
