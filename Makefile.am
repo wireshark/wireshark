@@ -963,6 +963,9 @@ EXTRA_DIST = \
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in			\
 	image/tfshark.rc.in			\
+	image/toolbar/12x12/media-playback-start.png	\
+	image/toolbar/12x12/media-playback-start.svg	\
+	image/toolbar/12x12/media-playback-start@2x.png	\
 	image/toolbar/16x16/edit-find.png		\
 	image/toolbar/16x16/edit-find.svg		\
 	image/toolbar/16x16/edit-find@2x.png		\
