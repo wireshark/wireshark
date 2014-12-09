@@ -964,16 +964,17 @@ setup: verify_tools clean_setup process_libs
 install_qt:
 	$(SH) $(WIN_SETUP) --download "C:\Qt" \
 		. Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws.zip
-	
+
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. WinPcap_$(WINPCAP_VERSION).exe
-!IFNDEF QT5_BASE_DIR
-!MESSAGE Can't find Qt. This will become a problem at some point.
-!ENDIF
+# Qt GUI is no more bundled by default in master-1.12 branch
+#!IFNDEF QT5_BASE_DIR
+#!MESSAGE Can't find Qt. This will become a problem at some point.
+#!ENDIF
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		"$(GTK_NAME)" gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)$(PKG_SUFIX).zip
