@@ -2694,7 +2694,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
 		proto_item *tmp_item;
 
-		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1, ENC_NA);
+		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
 		ptree = proto_item_add_subtree(pitem, ett);
 
 		tmp_item=proto_tree_add_uint(ptree,
