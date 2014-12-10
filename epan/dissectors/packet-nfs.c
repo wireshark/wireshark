@@ -10737,13 +10737,13 @@ proto_register_nfs(void)
 			TFS(&tfs_endianness), 0x0, "server native endianness", HFILL }},
 		{ &hf_nfs_fh_dc_opaque, {
 			"fh opaque data", "nfs.fh.dc.opaque", FT_BYTES, BASE_NONE,
-			NULL, 0, "fh opaque data", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_fh_dc_exportid, {
 			"export_id", "nfs.fh.dc.exportid", FT_UINT32, BASE_HEX,
-			NULL, 0, "export id", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_fh_dc_handle_type, {
 			"fh type", "nfs.fh.dc.type", FT_UINT32, BASE_DEC,
-			VALS(dcache_handle_types), 0, "export id", HFILL }},
+			VALS(dcache_handle_types), 0, NULL, HFILL }},
 		{ &hf_nfs2_status, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			&names_nfs2_stat_ext, 0, "Reply status", HFILL }},
