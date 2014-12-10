@@ -85,6 +85,7 @@ static gint hf_wai_usk_rekeying_flag = -1;
 static gint hf_wai_negotiation_flag = -1;
 static gint hf_wai_revoking_flag = -1;
 static gint hf_wai_reserved_flag = -1;
+static gint hf_wai_attr_type = -1;
 static gint hf_wai_cert = -1;
 static gint hf_wai_cert_id = -1;
 static gint hf_wai_cert_data = -1;
@@ -162,6 +163,34 @@ static dissector_handle_t data_handle;
 
 static const value_string wai_type_names [] = {
     { 1, "WAI protocol package"},
+    { 0, NULL }
+};
+
+static const value_string wai_attr_type_names [] = {
+    { 1, "Signature"},
+    { 2, "Certificate Authentification Result"},
+    { 3, "Identity List"},
+    { 0, NULL }
+};
+
+static const value_string wai_ver_res_names [] = {
+    { 0, "Certificate is valid" },
+    { 1, "Certificate issuer is unknown"},
+    { 2, "Root certificate is untrusted"},
+    { 3, "Certificate time is invalid"},
+    { 4, "Certificate signature is invalid"},
+    { 5, "Certificate is revoked"},
+    { 6, "Certificate is not valid in its proposed usage"},
+    { 7, "Certificate revocation state is unknown"},
+    { 8, "Certificate has an unknown error"},
+    { 0, NULL }
+};
+
+static const value_string wai_access_res_names [] = {
+    { 0, "Success" },
+    { 1, "Unidentified certificate"},
+    { 2, "Certificate Error"},
+    { 3, "Prohibited by AE"},
     { 0, NULL }
 };
 
@@ -452,7 +481,7 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset+1);
     multicert_item = proto_tree_add_item(tree, hf_wai_cert_ver, tvb, offset, length+3, ENC_NA);
     multicert_tree = proto_item_add_subtree(multicert_item, ett_wai_certificate_verification);
-    proto_tree_add_item(multicert_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(multicert_tree, hf_wai_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(multicert_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -484,7 +513,7 @@ dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset+1);
     id_list_item = proto_tree_add_item(tree, hf_wai_identity_list, tvb, offset, length+3, ENC_NA);
     id_list_tree = proto_item_add_subtree(id_list_item, ett_wai_identity_list);
-    proto_tree_add_item(id_list_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(id_list_tree, hf_wai_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(id_list_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -587,7 +616,7 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
     proto_item_set_text(ss_item, "%s", (label==NULL)?"Signature":label);
     ss_tree = proto_item_add_subtree(ss_item, ett_wai_sign);
 
-    proto_tree_add_item(ss_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ss_tree, hf_wai_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(ss_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -696,7 +725,12 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
             offset += dissect_identity(tvb, offset, data_tree, "STA ASUE ");
 
             if (optional_field) {
+                guint  length = 0;
                 offset += dissect_multiple_certificate(tvb, offset, data_tree);
+                offset += dissect_signature(tvb, offset, data_tree, "Server Signature trusted by ASUE");
+                length  = tvb_get_ntohs(tvb, offset+1);
+                if (length + 3 + offset + 1 < lenx)
+                    offset += dissect_signature(tvb, offset, data_tree, "Server Signature trusted by AE");
             }
 
             dissect_signature(tvb, offset, data_tree, "AE Signature");
@@ -706,6 +740,9 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
         {
             /* Chapter 8.1.4.2.3 Certificate Authentication Request  [ref: 1] */
             guint16 offset = 0;
+            guint8  optional_field;
+
+            optional_field = tvb_get_guint8(tvb, 0) & FLAG_BIT3;
 
             dissect_addid(tvb, offset, data_tree);
             offset += 12;
@@ -713,7 +750,9 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
             offset += dissect_challenge(tvb, offset, data_tree, "ASUE ");
             offset += dissect_certificate(tvb, offset, data_tree, "STE ASUE ");
             offset += dissect_certificate(tvb, offset, data_tree, "STE AE ");
-            dissect_multiple_certificate(tvb, offset, data_tree);
+            if (optional_field) {
+                dissect_identity_list(tvb, offset, data_tree);
+            }
             break;
         }
         case WAI_SUB_CERT_AUTH_RESP:
@@ -725,7 +764,8 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
             offset += 12;
             offset += dissect_multiple_certificate(tvb, offset, data_tree);
             offset += dissect_signature(tvb, offset, data_tree, "Server Signature trusted by ASUE");
-            dissect_signature(tvb, offset, data_tree, "Server Signature trusted by AE");
+            if (offset < lenx)
+                dissect_signature(tvb, offset, data_tree, "Server Signature trusted by AE");
             break;
         }
         case WAI_SUB_UNICAST_KEY_REQ:
@@ -1022,6 +1062,11 @@ proto_register_wai(void)
                     FT_BOOLEAN, 8, TFS (&wai_reserved_flag), FLAG_BIT7,
                     "Reserved flag", HFILL }},
 
+        { &hf_wai_attr_type,
+          { "Type", "wai.attrtype",
+            FT_UINT8, BASE_HEX, VALS(wai_attr_type_names), 0x0,
+            "Attribute type", HFILL }},
+
         { &hf_wai_cert,
             {"Certificate", "wai.cert",
                     FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1179,7 +1224,7 @@ proto_register_wai(void)
 
         { &hf_wai_ver_res,
           {"Verification result", "wai.ver.res",
-           FT_UINT8, BASE_HEX, NULL, 0x0,
+           FT_UINT8, BASE_HEX, VALS(wai_ver_res_names), 0x0,
            NULL, HFILL }},
 
         { &hf_wai_sign_alg,
@@ -1244,7 +1289,7 @@ proto_register_wai(void)
 
         { &hf_wai_access_res,
         {"Access result", "wai.access_result",
-         FT_UINT8, BASE_HEX, NULL, 0x0,
+         FT_UINT8, BASE_HEX, VALS(wai_access_res_names), 0x0,
          NULL, HFILL }},
 
         { &hf_wai_fragments,
