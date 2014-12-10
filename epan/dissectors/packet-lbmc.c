@@ -10398,9 +10398,9 @@ static const gchar * lbmc_determine_msg_type(const guint8 * header_array)
     {
         return ("PSRC-ETOK");
     }
-    else if (header_array[LBMC_NHDR_TOPIC_SOURCE_EXFUNC] != 0)
+    else if (header_array[LBMC_NHDR_TOPIC_SOURCE] != 0)
     {
-        return ("TOPIC-SRC-EX");
+        return ("TOPIC-SRC");
     }
     else if (header_array[LBMC_NHDR_ROUTE_INFO] != 0)
     {
@@ -10411,6 +10411,32 @@ static const gchar * lbmc_determine_msg_type(const guint8 * header_array)
         return ("TCP-SID");
     }
     return (NULL);
+}
+
+static const gchar * lbmc_determine_data_msg_type(gboolean retransmission, const guint8 * header_array)
+{
+    if (retransmission)
+    {
+        if (header_array[LBMC_NHDR_REQUEST] != 0)
+        {
+            return ("RX-DATA[REQ]");
+        }
+        else
+        {
+            return ("RX-DATA");
+        }
+    }
+    else
+    {
+        if (header_array[LBMC_NHDR_REQUEST] != 0)
+        {
+            return ("DATA[REQ]");
+        }
+        else
+        {
+            return ("DATA");
+        }
+    }
 }
 
 static lbm_uim_stream_info_t * lbmc_dup_stream_info(const lbm_uim_stream_info_t * info)
@@ -10615,6 +10641,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     while (tvb_reported_length_remaining(tvb, tvb_lbmc_offset) >= L_LBMC_MINIMAL_HDR_T)
     {
         proto_item * type_item = NULL;
+        const gchar * msg_type = NULL;
 
         /* Get the version and type. */
         ver_type = tvb_get_guint8(tvb, tvb_lbmc_offset + O_LBMC_HDR_T_VER_TYPE);
@@ -11202,6 +11229,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             lbmc_message_entry_t * msg = NULL;
             gboolean dissector_found = FALSE;
             heur_dtbl_entry_t *hdtbl_entry;
+            gboolean retransmission = FALSE;
 
             /* Note on heuristic subdissectors:
                If the preference "lbmc.use_heuristic_subdissectors" is TRUE, and a heuristic subdissector is
@@ -11414,12 +11442,10 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             {
                 if ((!lbm_channel_is_transport(channel)) && (!has_source_index))
                 {
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "RX-DATA");
+                    retransmission = TRUE;
                 }
-                else
-                {
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "DATA");
-                }
+                msg_type = lbmc_determine_data_msg_type(retransmission, found_header);
+                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", msg_type);
                 if (can_call_subdissector)
                 {
                     if (lbmc_use_heuristic_subdissectors)
@@ -11460,14 +11486,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 {
                     lbm_uim_stream_info_t * msg_info;
 
-                    if ((!lbm_channel_is_transport(actual_channel)) && (!has_source_index))
-                    {
-                        puim_stream_info->description = "RX-DATA";
-                    }
-                    else
-                    {
-                        puim_stream_info->description = "DATA";
-                    }
+                    puim_stream_info->description = msg_type;
                     /* The dup is needed since there may be multiple stream infos per packet. */
                     msg_info = lbmc_dup_stream_info(puim_stream_info);
                     tap_queue_packet(lbmc_uim_tap_handle, pinfo, (void *)msg_info);
@@ -11477,7 +11496,6 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         }
         else
         {
-            const gchar * msg_type = NULL;
             msg_type = lbmc_determine_msg_type(found_header);
 
             if (msg_type != NULL)
