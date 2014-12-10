@@ -186,6 +186,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(recentFilesRead()), this, SLOT(loadWindowGeometry()));

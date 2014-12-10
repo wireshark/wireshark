@@ -143,9 +143,7 @@ void MainWindowPreferencesFrame::updateWidgets()
     ui->autoScrollPercentageLineEdit->setText(QString::number(pref_auto_scroll_on_expand_->stashed_val.uint));
 
     ui->mainToolbarComboBox->setCurrentIndex(pref_toolbar_main_style_->stashed_val.enumval);
-    ui->filterToolbarComboBox->setCurrentIndex(pref_toolbar_filter_style_->stashed_val.enumval);
 
-    QStringList filenames = QDir(":/i18n/").entryList(QStringList("wireshark_*.qm"));
     for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
         if (QString(language) == ui->languageComboBox->itemData(i).toString()) {
             ui->languageComboBox->setCurrentIndex(i);
@@ -226,11 +224,6 @@ void MainWindowPreferencesFrame::on_autoScrollPercentageLineEdit_textEdited(cons
 void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int index)
 {
     pref_toolbar_main_style_->stashed_val.enumval = index;
-}
-
-void MainWindowPreferencesFrame::on_filterToolbarComboBox_currentIndexChanged(int index)
-{
-    pref_toolbar_filter_style_->stashed_val.enumval = index;
 }
 
 void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index)

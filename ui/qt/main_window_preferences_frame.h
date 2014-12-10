@@ -70,7 +70,6 @@ private slots:
     void on_autoScrollCheckBox_toggled(bool checked);
     void on_autoScrollPercentageLineEdit_textEdited(const QString &new_pct);
     void on_mainToolbarComboBox_currentIndexChanged(int index);
-    void on_filterToolbarComboBox_currentIndexChanged(int index);
     void on_languageComboBox_currentIndexChanged(int index);
 };
 

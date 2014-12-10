@@ -102,6 +102,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QMetaObject>
+#include <QToolBar>
 
 #include <QDebug>
 
@@ -323,6 +324,20 @@ void MainWindow::layoutPanes()
         }
         widget->setVisible(show);
     }
+}
+
+void MainWindow::layoutToolbars()
+{
+    Qt::ToolButtonStyle tbstyle = Qt::ToolButtonIconOnly;
+    switch (prefs.gui_toolbar_main_style) {
+    case TB_STYLE_TEXT:
+        tbstyle = Qt::ToolButtonTextOnly;
+        break;
+    case TB_STYLE_BOTH:
+        tbstyle = Qt::ToolButtonTextUnderIcon;
+    }
+
+    main_ui_->mainToolBar->setToolButtonStyle(tbstyle);
 }
 
 void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
