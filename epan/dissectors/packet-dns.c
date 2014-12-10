@@ -1313,7 +1313,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   name_out = format_text(name, strlen(name));
 
   if (cinfo != NULL) {
-    col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
+    col_append_fstr(cinfo, COL_INFO, "%s %s", type_name, name_out);
     if (is_mdns) {
       col_append_fstr(cinfo, COL_INFO, ", \"%s\" question", qu ? "QU" : "QM");
     }
@@ -1677,7 +1677,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   cur_offset  += 2;
 
   if (cinfo != NULL) {
-    col_append_fstr(cinfo, COL_INFO, " %s", type_name);
+    col_append_fstr(cinfo, COL_INFO, "%s", type_name);
     if (is_mdns && flush) {
       col_append_str(cinfo, COL_INFO, ", cache flush");
     }
