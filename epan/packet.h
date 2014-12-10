@@ -192,9 +192,14 @@ WS_DLL_PUBLIC void dissector_table_foreach_handle(const char *table_name, DATFun
 WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data, GCompareFunc compare_key_func);
 
-/* a protocol uses the function to register a sub-dissector table */
+/* a protocol uses the function to register a sub-dissector table
+ *
+ * 'param' is the display base for integer tables, and TRUE/FALSE for
+ * string tables (true indicating case-insensitive, false indicating
+ * case-sensitive)
+ */
 WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
-    const char *ui_name, const ftenum_t type, const int base);
+    const char *ui_name, const ftenum_t type, const int param);
 
 /* Find a dissector table by table name. */
 WS_DLL_PUBLIC dissector_table_t find_dissector_table(const char *name);
@@ -206,9 +211,9 @@ WS_DLL_PUBLIC const char *get_dissector_table_ui_name(const char *name);
    given the table's internal name */
 WS_DLL_PUBLIC ftenum_t get_dissector_table_selector_type(const char *name);
 
-/* Get the base to use when displaying values of the selector for a
-   sub-dissector table, given the table's internal name */
-WS_DLL_PUBLIC int get_dissector_table_base(const char *name);
+/* Get the param set for the sub-dissector table,
+   given the table's internal name */
+WS_DLL_PUBLIC int get_dissector_table_param(const char *name);
 
 /* Dump all dissector tables to the standard output (not the entries,
    just the information about the tables) */

@@ -87,15 +87,16 @@ struct data_source {
  * "type" is a field type giving the width of the uint value for that
  * dissector table, if it's a uint dissector table.
  *
- * "base" is the base in which to display the uint value for that
- * dissector table, if it's a uint dissector table.
+ * "param" is the base in which to display the uint value for that
+ * dissector table, if it's a uint dissector table, or if it's a string
+ * table, TRUE/FALSE to indicate case-insensitive or not.
  */
 struct dissector_table {
 	GHashTable	*hash_table;
 	GSList		*dissector_handles;
 	const char	*ui_name;
 	ftenum_t	type;
-	int		base;
+	int		param;
 };
 
 static GHashTable *dissector_tables = NULL;
@@ -1196,6 +1197,9 @@ dissector_get_default_uint_handle(const char *name, const guint32 uint_val)
 static dtbl_entry_t *
 find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *pattern)
 {
+	dtbl_entry_t *ret;
+	char *key;
+
 	switch (sub_dissectors->type) {
 
 	case FT_STRING:
@@ -1214,10 +1218,20 @@ find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *patt
 		g_assert_not_reached();
 	}
 
+	if (sub_dissectors->param == TRUE) {
+		key = g_ascii_strdown(pattern, -1);
+	} else {
+		key = g_strdup(pattern);
+	}
+
 	/*
 	 * Find the entry.
 	 */
-	return (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, pattern);
+	ret = (dtbl_entry_t *)g_hash_table_lookup(sub_dissectors->hash_table, key);
+
+	g_free(key);
+
+	return ret;
 }
 
 /* Add an entry to a string dissector table. */
@@ -1227,6 +1241,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 {
 	dissector_table_t  sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t      *dtbl_entry;
+	char *key;
 
 	/*
 	 * Make sure the dissector table exists.
@@ -1265,8 +1280,14 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
+	if (sub_dissectors->param == TRUE) {
+		key = g_ascii_strdown(pattern, -1);
+	} else {
+		key = g_strdup(pattern);
+	}
+
 	/* do the table insertion */
-	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)g_strdup(pattern),
+	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)key,
 			     (gpointer)dtbl_entry);
 
 	/*
@@ -1781,7 +1802,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 
 dissector_table_t
 register_dissector_table(const char *name, const char *ui_name, const ftenum_t type,
-			 const int base)
+			 const int param)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -1824,7 +1845,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	sub_dissectors->dissector_handles = NULL;
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
-	sub_dissectors->base    = base;
+	sub_dissectors->param   = param;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }
@@ -1848,12 +1869,12 @@ get_dissector_table_selector_type(const char *name)
 }
 
 int
-get_dissector_table_base(const char *name)
+get_dissector_table_param(const char *name)
 {
 	dissector_table_t sub_dissectors = find_dissector_table(name);
 	if (!sub_dissectors) return 0;
 
-	return sub_dissectors->base;
+	return sub_dissectors->param;
 }
 
 /* Finds a heuristic dissector table by table name. */
@@ -2516,7 +2537,7 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-		switch(table->base) {
+		switch(table->param) {
 
 		case BASE_NONE:
 			printf("\tBASE_NONE");
@@ -2539,7 +2560,7 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 			break;
 
 		default:
-			printf("\t%d", table->base);
+			printf("\t%d", table->param);
 			break;
 		}
 		break;

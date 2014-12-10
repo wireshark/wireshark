@@ -282,7 +282,7 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
     case FT_UINT16:
     case FT_UINT24:
     case FT_UINT32:
-        switch (get_dissector_table_base(table_name)) {
+        switch (get_dissector_table_param(table_name)) {
 
         case BASE_DEC:
             g_snprintf(string1, sizeof(string1), "%u", GPOINTER_TO_UINT(key));

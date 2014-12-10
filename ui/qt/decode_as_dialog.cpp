@@ -100,7 +100,7 @@ QString DecodeAsDialog::entryString(const gchar *table_name, gpointer value)
     case FT_UINT32:
     {
         uint num_val = GPOINTER_TO_UINT(value);
-        switch (get_dissector_table_base(table_name)) {
+        switch (get_dissector_table_param(table_name)) {
 
         case BASE_DEC:
             entry_str = QString::number(num_val);
@@ -347,7 +347,7 @@ void DecodeAsDialog::fillTypeColumn(QTreeWidgetItem *item)
         item->setText(type_col_, tr("String"));
     } else {
         QString type_desc = tr("Integer, base ");
-        switch (get_dissector_table_base(table_name)) {
+        switch (get_dissector_table_param(table_name)) {
         case BASE_OCT:
             type_desc.append("8");
             break;

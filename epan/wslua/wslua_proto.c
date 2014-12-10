@@ -2605,7 +2605,7 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
         case FT_UINT24:
         case FT_UINT32:
         {
-            int base = get_dissector_table_base(dt->name);
+            int base = get_dissector_table_param(dt->name);
             g_string_append_printf(s,"%s Integer(%i):\n",dt->name,base);
             break;
         }
