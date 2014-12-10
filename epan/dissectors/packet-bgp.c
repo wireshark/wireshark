@@ -35,6 +35,8 @@
  * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
  * RFC5575 Dissemination of flow specification rules
  * RFC5640 Load-Balancing for Mesh Softwires
+ * RFC6368 Internal BGP as the Provider/Customer Edge Protocol for
+           BGP/MPLS IP Virtual Private Networks (VPNs)
  * RFC6608 Subcodes for BGP Finite State Machine Error
  * RFC6793 BGP Support for Four-Octet Autonomous System (AS) Number Space
  * draft-ietf-idr-dynamic-cap
@@ -198,6 +200,7 @@ void proto_reg_handoff_bgp(void);
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
 #define BGPTYPE_AIGP               26 /* draft-ietf-idr-aigp-18 */
 #define BGPTYPE_LINK_STATE_ATTR    99 /* FIXME: draft-ietf-idr-ls-distribution-03 temp. value no IANA assignee yet */
+#define BGPTYPE_ATTR_SET          128 /* RFC6368           */
 
 /*EVPN Route Types */
 #define EVPN_AD_ROUTE           1
@@ -713,6 +716,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_PMSI_TUNNEL_ATTR,   "PMSI_TUNNEL_ATTRIBUTE" },
     { BGPTYPE_AIGP,               "AIGP"},
     { BGPTYPE_LINK_STATE_ATTR,    "LINK_STATE" },
+    { BGPTYPE_ATTR_SET,           "ATTR_SET" },
     { 0, NULL }
 };
 
@@ -1227,6 +1231,7 @@ static int hf_bgp_update_path_attribute_cluster_list = -1;
 static int hf_bgp_update_path_attribute_cluster_id = -1;
 static int hf_bgp_update_path_attribute_originator_id = -1;
 static int hf_bgp_update_path_attribute_local_pref = -1;
+static int hf_bgp_update_path_attribute_attrset_origin_as = -1;
 static int hf_bgp_update_path_attribute_multi_exit_disc = -1;
 static int hf_bgp_update_path_attribute_aggregator_as = -1;
 static int hf_bgp_update_path_attribute_aggregator_origin = -1;
@@ -5546,6 +5551,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     proto_tree    *subtree4;                  /* subtree for attributes   */
     proto_tree    *subtree5;                  /* subtree for attributes   */
     proto_tree    *subtree6;                  /* subtree for attributes   */
+    proto_tree    *attr_set_subtree;          /* subtree for attr_set     */
     proto_tree    *as_path_segment_tree;      /* subtree for AS_PATH segments */
     gint          number_as_segment=0;        /* Number As segment        */
     proto_tree    *communities_tree;          /* subtree for COMMUNITIES  */
@@ -6210,6 +6216,22 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
             case BGPTYPE_PMSI_TUNNEL_ATTR:
                 dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
+                break;
+
+            case BGPTYPE_ATTR_SET:
+                if (alen >= 4) {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_attrset_origin_as, tvb,
+                                        o + i + aoff, 4, ENC_BIG_ENDIAN);
+                    if (alen > 4) {
+                        ti =  proto_tree_add_item(subtree2, hf_bgp_update_path_attributes, tvb, o+i+aoff+4, alen-4, ENC_NA);
+                        attr_set_subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
+                        dissect_bgp_path_attr(attr_set_subtree, tvb, alen-4, o+i+aoff+4, pinfo);
+                    }
+                } else {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
+                                                 "Attribute set (invalid): %u bytes%s",
+                                                 alen, plurality(alen, "", "s"));
+                }
                 break;
             default:
                 proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
@@ -7044,6 +7066,9 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_local_pref,
         { "Local preference", "bgp.update.path_attribute.local_pref", FT_UINT32, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_attrset_origin_as,
+        { "Origin AS", "bgp.update.path_attribute.attr_set.origin_as", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_multi_exit_disc,
         { "Multiple exit discriminator", "bgp.update.path_attribute.multi_exit_disc", FT_UINT32, BASE_DEC,
