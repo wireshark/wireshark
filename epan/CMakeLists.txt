@@ -284,7 +284,6 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
 	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosnaming.c
-	dissectors/packet-gprscdr.c
 	dissectors/packet-gsm_map.c
 	dissectors/packet-ldap.c
 	dissectors/packet-m3ap.c
@@ -714,6 +713,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gopher.c
 	dissectors/packet-gpef.c
 	dissectors/packet-gprs-llc.c
+	dissectors/packet-gprscdr.c
 	dissectors/packet-gre.c
 	dissectors/packet-gsm_a_bssmap.c
 	dissectors/packet-gsm_a_common.c
