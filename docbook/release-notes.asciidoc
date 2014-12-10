@@ -30,8 +30,8 @@ since version 1.99.0:
 ** You can now set the time display format and precision.
 ** The byte view widget is much faster, particularly when selecting large
 reassembled packets.
-** Hovering over a byte-view field causes the field to be highlighted and a
-description to be shown in the status bar.
+** The byte view is explorable. Hovering over it highlights the corresponding
+field and shows a description in the status bar.
 ** An Italian translation has been added.
 ** The Summary dialog has been updated and renamed to Capture File Properties.
 ** The VoIP Calls and SIP Flows dialogs have been added.

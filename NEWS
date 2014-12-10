@@ -22,9 +22,12 @@ What's New
           + You can now set the time display format and precision.
           + The byte view widget is much faster, particularly when
             selecting large reassembled packets.
-          + Hovering over a byte-view field causes the field to be
-            highlighted and a description to be shown in the status bar.
+          + The byte view is explorable. Hovering over it highlights the
+            corresponding field and shows a description in the status bar.
           + An Italian translation has been added.
+          + The Summary dialog has been updated and renamed to Capture
+            File Properties.
+          + The VoIP Calls and SIP Flows dialogs have been added.
 
    The following features are new (or have been significantly updated)
    since version 1.12.0:
@@ -54,11 +57,11 @@ What's New
 
    (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
    ADB, Android Logcat text, ceph, corosync/totemnet, corosync/totemsrp,
-   Couchbase, CP "Cooper" 2179, Dynamic Source Routing (RFC 4728), Generic
-   Network Virtualization Encapsulation (Geneve), GVSP, IPMI Trace, iSER,
-   KNXnetIP, MCPE (Minecraft Pocket Edition), OptoMMP, RakNet games
-   library, S7 Communication, Stateless Transport Tunneling and Elasticsearch,
-   Shared Memory Communications - RDMA
+   Couchbase, CP "Cooper" 2179, Dynamic Source Routing (RFC 4728),
+   Elasticsearch, Generic Network Virtualization Encapsulation (Geneve),
+   GVSP, HiQnet, IPMI Trace, iSER, KNXnetIP, MCPE (Minecraft Pocket
+   Edition), OptoMMP, RakNet games library, Riemann, S7 Communication,
+   Shared Memory Communications - RDMA, and Stateless Transport Tunneling
 
   Updated Protocol Support
 
@@ -145,7 +148,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [18]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-10-28 15:13:30 UTC
+   Last updated 2014-12-10 17:18:06 UTC
 
 References
 
