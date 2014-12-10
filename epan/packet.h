@@ -381,6 +381,13 @@ WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
 WS_DLL_PUBLIC gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **hdtbl_entry, void *data);
 
+/** Find a heuristic dissector table by table name.
+ *
+ * @param name name of the dissector table
+ * @return pointer to the table on success, NULL if no such table exists
+ */
+WS_DLL_PUBLIC heur_dissector_list_t *find_heur_dissector_list(const char *name);
+
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
  *

@@ -1855,7 +1855,7 @@ get_dissector_table_base(const char *name)
 }
 
 /* Finds a heuristic dissector table by table name. */
-static heur_dissector_list_t *
+heur_dissector_list_t *
 find_heur_dissector_list(const char *name)
 {
 	return (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, name);
