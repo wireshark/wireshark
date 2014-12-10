@@ -5522,56 +5522,721 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
 
     return(0);
 }
+
+/*
+ * Dissect BGP path attributes
+ *
+ */
+static void
+dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len, guint tvb_off, packet_info *pinfo)
+{
+    guint8        bgpa_flags;                 /* path attributes          */
+    guint8        bgpa_type;
+    gint          o;                          /* packet offset            */
+    gint          q=0;                        /* tmp                      */
+    gint          end=0;                      /* message end              */
+    int           advance;                    /* tmp                      */
+    proto_item    *ti;                        /* tree item                */
+    proto_item    *ti_communities;            /* tree communities         */
+    proto_item    *ti_community;              /* tree for each community  */
+    proto_item    *attr_len_item;
+    proto_item    *aigp_type_item;
+    proto_tree    *subtree2;                  /* path attribute subtree   */
+    proto_tree    *subtree3;                  /* subtree for attributes   */
+    proto_tree    *subtree4;                  /* subtree for attributes   */
+    proto_tree    *subtree5;                  /* subtree for attributes   */
+    proto_tree    *subtree6;                  /* subtree for attributes   */
+    proto_tree    *as_path_segment_tree;      /* subtree for AS_PATH segments */
+    gint          number_as_segment=0;        /* Number As segment        */
+    proto_tree    *communities_tree;          /* subtree for COMMUNITIES  */
+    proto_tree    *community_tree;            /* subtree for a community  */
+    proto_tree    *cluster_list_tree;         /* subtree for CLUSTER_LIST */
+    int           i=0, j, k;                  /* tmp                      */
+    guint8        type=0;                     /* AS_PATH segment type     */
+    guint8        length=0;                   /* AS_PATH segment length   */
+    wmem_strbuf_t *junk_emstr;                /* tmp                      */
+    guint32       aggregator_as;
+    guint16       ssa_type;                   /* SSA T + Type */
+    guint16       ssa_len;                    /* SSA TLV Length */
+    guint8        ssa_v3_len;                 /* SSA L2TPv3 Cookie Length */
+    guint16       encaps_tunnel_type;         /* Encapsulation Tunnel Type */
+    guint16       encaps_tunnel_len;          /* Encapsulation TLV Length */
+    guint8        encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
+    guint8        encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
+    guint8        aigp_type;                  /* AIGP TLV type from AIGP attribute */
+
+    o = tvb_off;
+    junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
+
+    while (i < path_attr_len) {
+        proto_item *hidden_item;
+        proto_item *ti_pa, *ti_flags;
+        int     off;
+        guint16 alen, aoff, tlen, aoff_save;
+        guint16 af;
+        guint8  saf, snpa;
+        guint8  nexthop_len;
+        guint8  asn_len = 0;
+
+        static const int * path_flags[] = {
+            &hf_bgp_update_path_attribute_flags_optional,
+            &hf_bgp_update_path_attribute_flags_transitive,
+            &hf_bgp_update_path_attribute_flags_partial,
+            &hf_bgp_update_path_attribute_flags_extended_length,
+            NULL
+        };
+
+        bgpa_flags = tvb_get_guint8(tvb, o + i);
+        bgpa_type = tvb_get_guint8(tvb, o + i+1);
+
+        /* check for the Extended Length bit */
+        if (bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
+            alen = tvb_get_ntohs(tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE);
+            aoff = BGP_SIZE_OF_PATH_ATTRIBUTE+2;
+        } else {
+            alen = tvb_get_guint8(tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE);
+            aoff = BGP_SIZE_OF_PATH_ATTRIBUTE+1;
+        }
+        tlen = alen;
+
+        ti_pa = proto_tree_add_item(subtree, hf_bgp_update_path_attribute, tvb, o + i, tlen + aoff, ENC_NA);
+        proto_item_append_text(ti_pa, " - %s", val_to_str(bgpa_type, bgpattr_type, "Unknown (%u)"));
+
+        subtree2 = proto_item_add_subtree(ti_pa, ett_bgp_attr);
+
+        ti_flags = proto_tree_add_bitmask(subtree2, tvb, o + i, hf_bgp_update_path_attribute_flags, ett_bgp_attr_flags, path_flags, ENC_NA);
+
+        proto_item_append_text(ti_flags,"%s%s%s%s",
+                 ((bgpa_flags & BGP_ATTR_FLAG_OPTIONAL) == 0) ? ": Well-known" : ": Optional",
+                 ((bgpa_flags & BGP_ATTR_FLAG_TRANSITIVE) == 0) ? ", Non-transitive" : ", Transitive",
+                 ((bgpa_flags & BGP_ATTR_FLAG_PARTIAL) == 0) ? ", Complete" : ", Partial",
+                 ((bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) == 0) ? "" : ", Extended Length");
+
+        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_type_code, tvb, o + i + 1, 1, ENC_BIG_ENDIAN);
+
+        attr_len_item = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE,
+                                            aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
+
+        /* Path Attribute Type */
+        switch (bgpa_type) {
+            case BGPTYPE_ORIGIN:
+                if (tlen != 1) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Origin (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_origin, tvb,
+                                        o + i + aoff, 1, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa, ": %s", val_to_str_const(tvb_get_guint8(tvb, o + i + aoff), bgpattr_origin, "Unknown"));
+                }
+                break;
+            case BGPTYPE_AS_PATH:
+            case BGPTYPE_AS4_PATH:
+                /* Apply heuristic to guess if we are facing 2 or 4 bytes ASN
+                   (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple)
+                   heuristic also tell us how many AS segments we have */
+                asn_len = heuristic_as2_or_4_from_as_path(tvb, o+i+aoff, o+i+aoff+tlen,
+                                                          bgpa_type, &number_as_segment);
+                if (asn_len == 255)
+                    {
+                        expert_add_info_format(pinfo, ti_pa, &ei_bgp_attr_as_path_as_len_err,
+                                               "ASN length uncalculated by heuristic : %u", asn_len);
+                        break;
+                    }
+                proto_item_append_text(ti_pa,": ");
+                if(tlen == 0) {
+                    proto_item_append_text(ti_pa,"empty");
+                }
+                q = o + i + aoff;
+                for (k=0; k < number_as_segment; k++)
+                {
+                    type = tvb_get_guint8(tvb, q);
+                    length = tvb_get_guint8(tvb, q+1);
+                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_as_path_segment, tvb,
+                                             q, length * asn_len + 2, ENC_NA);
+                    proto_item_append_text(ti,": ");
+                    as_path_segment_tree = proto_item_add_subtree(ti, ett_bgp_as_path_segment);
+                    proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_type, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_length, tvb,
+                                        q+1, 1, ENC_BIG_ENDIAN);
+                    switch(type)
+                    {
+                        case AS_SET:
+                            proto_item_append_text(ti_pa, "{");
+                            proto_item_append_text(ti, "{");
+                            break;
+                        case AS_CONFED_SET:
+                            proto_item_append_text(ti_pa, "[");
+                            proto_item_append_text(ti, "[");
+                            break;
+                        case AS_CONFED_SEQUENCE:
+                            proto_item_append_text(ti_pa, "(");
+                            proto_item_append_text(ti, "(");
+                            break;
+                    }
+
+                    q = q + 2;
+                    for (j = 0; j < length; j++)
+                    {
+                        if(asn_len == 2) {
+                            proto_tree_add_item(as_path_segment_tree,
+                                                hf_bgp_update_path_attribute_as_path_segment_as2,
+                                                tvb, q, 2, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti_pa, "%u",
+                                                   tvb_get_ntohs(tvb, q));
+                            proto_item_append_text(ti, "%u",
+                                                   tvb_get_ntohs(tvb, q));
+                        }
+                        else if (asn_len == 4) {
+                            proto_tree_add_item(as_path_segment_tree,
+                                                hf_bgp_update_path_attribute_as_path_segment_as4,
+                                                tvb, q, 4, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti_pa, "%u",
+                                                   tvb_get_ntohl(tvb, q));
+                            proto_item_append_text(ti, "%u",
+                                                   tvb_get_ntohl(tvb, q));
+                        }
+                        if (j != length-1)
+                        {
+                            proto_item_append_text(ti_pa, "%s",
+                                                   (type == AS_SET || type == AS_CONFED_SET) ?
+                                                   ", " : " ");
+                            proto_item_append_text(ti, "%s",
+                                                   (type == AS_SET || type == AS_CONFED_SET) ?
+                                                   ", " : " ");
+                        }
+                        q += asn_len;
+                    }
+                    switch(type)
+                    {
+                        case AS_SET:
+                            proto_item_append_text(ti_pa, "} ");
+                            proto_item_append_text(ti, "}");
+                            break;
+                        case AS_CONFED_SET:
+                            proto_item_append_text(ti_pa, "] ");
+                            proto_item_append_text(ti, "]");
+                            break;
+                        case AS_CONFED_SEQUENCE:
+                            proto_item_append_text(ti_pa, ") ");
+                            proto_item_append_text(ti, ")");
+                            break;
+                        default:
+                            proto_item_append_text(ti_pa, " ");
+                            break;
+                    }
+                }
+
+                break;
+            case BGPTYPE_NEXT_HOP:
+                if (tlen != 4) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Next hop (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_next_hop, tvb,
+                                        o + i + aoff, 4, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
+                }
+                break;
+            case BGPTYPE_MULTI_EXIT_DISC:
+                if (tlen != 4) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Multiple exit discriminator (invalid): %u byte%s",
+                                                 tlen, plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_multi_exit_disc, tvb,
+                                        o + i + aoff, tlen, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa,": %u", tvb_get_ntohl(tvb, o + i + aoff));
+                }
+                break;
+            case BGPTYPE_LOCAL_PREF:
+                if (tlen != 4) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Local preference (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_local_pref, tvb,
+                                        o + i + aoff, tlen, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa, ": %u", tvb_get_ntohl(tvb, o + i + aoff));
+                }
+                break;
+            case BGPTYPE_ATOMIC_AGGREGATE:
+                if (tlen != 0) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Atomic aggregate (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                }
+                break;
+            case BGPTYPE_AGGREGATOR:
+                if (tlen != 6 && tlen != 8) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Aggregator (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+            case BGPTYPE_AS4_AGGREGATOR:
+                if (bgpa_type == BGPTYPE_AS4_AGGREGATOR && tlen != 8)
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Aggregator (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                else {
+                    asn_len = tlen - 4;
+                    aggregator_as = (asn_len == 2) ?
+                        tvb_get_ntohs(tvb, o + i + aoff) :
+                        tvb_get_ntohl(tvb, o + i + aoff);
+                    proto_tree_add_uint(subtree2, hf_bgp_update_path_attribute_aggregator_as, tvb,
+                                        o + i + aoff, asn_len, aggregator_as);
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aggregator_origin, tvb,
+                                        o + i + aoff + asn_len, 4, ENC_BIG_ENDIAN);
+
+                    proto_item_append_text(ti_pa, ": AS: %u origin: %s", aggregator_as,
+                                           tvb_ip_to_str(tvb, o + i + aoff + asn_len));
+                }
+                break;
+            case BGPTYPE_COMMUNITIES:
+                if (tlen % 4 != 0) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Communities (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+
+                proto_item_append_text(ti_pa, ": ");
+
+                ti_communities = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_communities,
+                                                     tvb, o + i + aoff, tlen, ENC_NA);
+
+                communities_tree = proto_item_add_subtree(ti_communities,
+                                                          ett_bgp_communities);
+                proto_item_append_text(ti_communities, ": ");
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + tlen;
+
+                /* snarf each community */
+                while (q < end) {
+                    /* check for reserved values */
+                    guint32 community = tvb_get_ntohl(tvb, q);
+                    if ((community & 0xFFFF0000) == FOURHEX0 ||
+                        (community & 0xFFFF0000) == FOURHEXF) {
+                        proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community_well_known,
+                                            tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti_pa, "%s ", val_to_str_const(community, community_vals, "Reserved"));
+                        proto_item_append_text(ti_communities, "%s ", val_to_str_const(community, community_vals, "Reserved"));
+                    }
+                    else {
+                        ti_community = proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community, tvb,
+                                                           q - 3 + aoff, 4, ENC_NA);
+                        community_tree = proto_item_add_subtree(ti_community,
+                                                                ett_bgp_community);
+                        proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_as,
+                                            tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_value,
+                                            tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                               tvb_get_ntohs(tvb, q -1 + aoff));
+                        proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                               tvb_get_ntohs(tvb, q -1 + aoff));
+                        proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
+                                               tvb_get_ntohs(tvb, q -1 + aoff));
+                    }
+
+                    q += 4;
+                }
+
+
+                break;
+            case BGPTYPE_ORIGINATOR_ID:
+                if (tlen != 4) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Originator identifier (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                } else {
+                    proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_originator_id, tvb,
+                                        o + i + aoff, tlen, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
+                }
+                break;
+            case BGPTYPE_MP_REACH_NLRI:
+                /*
+                 * RFC 2545 specifies that there may be more than one
+                 * address in the MP_REACH_NLRI attribute in section
+                 * 3, "Constructing the Next Hop field".
+                 *
+                 * Yes, RFC 2858 says you can't do that, and, yes, RFC
+                 * 2858 obsoletes RFC 2283, which says you can do that,
+                 * but that doesn't mean we shouldn't dissect packets
+                 * that conform to RFC 2283 but not RFC 2858, as some
+                 * device on the network might implement the 2283-style
+                 * BGP extensions rather than RFC 2858-style extensions.
+                 */
+                af = tvb_get_ntohs(tvb, o + i + aoff);
+                proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
+                                    "Address family: %s (%u)",
+                                    val_to_str_const(af, afn_vals, "Unknown"), af);
+                saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
+                proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
+                                    "Subsequent address family identifier: %s (%u)",
+                                    val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
+                                    saf);
+                nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
+                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
+                                                         nexthop_len + 1, ett_bgp_mp_nhna, NULL,
+                                                         "Next hop network address (%d byte%s)",
+                                                         nexthop_len, plurality(nexthop_len, "", "s"));
+
+                /*
+                 * The addresses don't contain lengths, so if we
+                 * don't understand the address family type, we
+                 * cannot parse the subsequent addresses as we
+                 * don't know how long they are.
+                 */
+                switch (af) {
+                    default:
+                    proto_tree_add_text(subtree3, tvb, o + i + aoff + 4,
+                                        nexthop_len, "Unknown Address Family");
+                    break;
+
+                    case AFNUM_INET:
+                    case AFNUM_INET6:
+                    case AFNUM_L2VPN:
+                    case AFNUM_L2VPN_OLD:
+                    case AFNUM_LINK_STATE:
+
+                        j = 0;
+                        while (j < nexthop_len) {
+                            advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
+                                                     junk_emstr, nexthop_len) ;
+                            if (advance == 0) /* catch if this is a unknown AFI type*/
+                                break;
+                            if (j + advance > nexthop_len)
+                                break;
+                            proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
+                                                advance, "Next hop: %s (%u)",
+                                                wmem_strbuf_get_str(junk_emstr), advance);
+                            j += advance;
+                        }
+                        break;
+                } /* switch (af) */
+
+                aoff_save = aoff;
+                tlen -= nexthop_len + 4;
+                aoff += nexthop_len + 4 ;
+
+                off = 0;
+                snpa = tvb_get_guint8(tvb, o + i + aoff);
+                ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, 1,
+                                         "Subnetwork points of attachment: %u", snpa);
+                off++;
+                if (snpa) {
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_snpa);
+                    for (/*nothing*/; snpa > 0; snpa--) {
+                        proto_tree_add_text(subtree3, tvb, o + i + aoff + off, 1,
+                                            "SNPA length: %u", tvb_get_guint8(tvb, o + i + aoff + off));
+                        off++;
+                        proto_tree_add_text(subtree3, tvb, o + i + aoff + off,
+                                            tvb_get_guint8(tvb, o + i + aoff + off - 1),
+                                            "SNPA (%u byte%s)", tvb_get_guint8(tvb, o + i + aoff + off - 1),
+                                            plurality(tvb_get_guint8(tvb, o + i + aoff + off - 1), "", "s"));
+                        off += tvb_get_guint8(tvb, o + i + aoff + off - 1);
+                    }
+                }
+                tlen -= off;
+                aoff += off;
+
+                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff, tlen,
+                                                         ett_bgp_mp_reach_nlri, NULL, "Network layer reachability information (%u byte%s)",
+                                                         tlen, plurality(tlen, "", "s"));
+                if (tlen)  {
+                    if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_LINK_STATE) {
+                        proto_tree_add_text(subtree3, tvb, o + i + aoff,
+                                            tlen, "Unknown Address Family");
+                    } else {
+                        while (tlen > 0) {
+                            advance = decode_prefix_MP(subtree3,
+                                                       hf_bgp_mp_reach_nlri_ipv4_prefix,
+                                                       hf_bgp_mp_reach_nlri_ipv6_prefix,
+                                                       af, saf,
+                                                       tvb, o + i + aoff, "MP Reach NLRI", pinfo);
+                            if (advance < 0)
+                                break;
+                            tlen -= advance;
+                            aoff += advance;
+                        }
+                    }
+                }
+                aoff = aoff_save;
+                break;
+            case BGPTYPE_MP_UNREACH_NLRI:
+                af = tvb_get_ntohs(tvb, o + i + aoff);
+                proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
+                                    "Address family: %s (%u)",
+                                    val_to_str_const(af, afn_vals, "Unknown"), af);
+                saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
+                proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
+                                    "Subsequent address family identifier: %s (%u)",
+                                    val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
+                                    saf);
+                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
+                                                         tlen - 3, ett_bgp_mp_unreach_nlri, NULL, "Withdrawn routes (%u byte%s)", tlen - 3,
+                                                         plurality(tlen - 3, "", "s"));
+
+                aoff_save = aoff;
+                tlen -= 3;
+                aoff += 3;
+                if (tlen > 0) {
+
+                    while (tlen > 0) {
+                        advance = decode_prefix_MP(subtree3,
+                                                   hf_bgp_mp_unreach_nlri_ipv4_prefix,
+                                                   hf_bgp_mp_unreach_nlri_ipv6_prefix,
+                                                   af, saf,
+                                                   tvb, o + i + aoff, "MP Unreach NLRI", pinfo);
+                        if (advance < 0)
+                            break;
+                        tlen -= advance;
+                        aoff += advance;
+                    }
+                }
+                aoff = aoff_save;
+                break;
+            case BGPTYPE_CLUSTER_LIST:
+                if (tlen % 4 != 0) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "Cluster list (invalid): %u byte%s", tlen,
+                                                 plurality(tlen, "", "s"));
+                    break;
+                }
+
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_cluster_list,
+                                         tvb, o + i + aoff, tlen, ENC_NA);
+                cluster_list_tree = proto_item_add_subtree(ti,
+                                                               ett_bgp_cluster_list);
+
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + tlen;
+                proto_item_append_text(ti, ":");
+                proto_item_append_text(ti_pa, ":");
+                /* snarf each cluster identifier */
+                while (q < end) {
+                    proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
+                                        tvb, q - 3 + aoff, 4, ENC_NA);
+                    proto_item_append_text(ti, " %s", tvb_ip_to_str(tvb, q-3+aoff));
+                    proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(tvb, q-3+aoff));
+                    q += 4;
+                }
+
+                break;
+            case BGPTYPE_EXTENDED_COMMUNITY:
+                if (tlen %8 != 0) {
+                    expert_add_info_format(pinfo, attr_len_item, &ei_bgp_ext_com_len_bad,
+                                           "Community length %u wrong, must be modulo 8", tlen);
+                } else {
+                    dissect_bgp_update_ext_com(subtree2, tvb, tlen, o+i+aoff);
+                }
+                break;
+            case BGPTYPE_SAFI_SPECIFIC_ATTR:
+                q = o + i + aoff;
+                end = o + i + aoff + tlen ;
+
+                while(q < end) {
+                    ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
+                    ssa_len = tvb_get_ntohs(tvb, q + 2);
+
+                    subtree3 = proto_tree_add_subtree_format(subtree2, tvb, q, MIN(ssa_len + 4, end - q),
+                                                             ett_bgp_ssa, NULL, "%s Information",
+                                                             val_to_str_const(ssa_type, bgp_ssa_type, "Unknown SSA"));
+
+                    proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
+                                        q, 1, ENC_BIG_ENDIAN);
+                    hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
+                                                      q, 2, ENC_BIG_ENDIAN);
+                    PROTO_ITEM_SET_HIDDEN(hidden_item);
+                    proto_tree_add_text(subtree3, tvb, q, 2,
+                                        "Type: %s", val_to_str_const(ssa_type, bgp_ssa_type, "Unknown"));
+                    if ((ssa_len == 0) || (q + ssa_len > end)) {
+                        proto_tree_add_text(subtree3, tvb, q + 2, end - q - 2,
+                                            "Invalid Length of %u", ssa_len);
+                        break;
+                    }
+                    proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb,
+                                        q + 2, 2, ENC_BIG_ENDIAN);
+
+                    switch (ssa_type) {
+                        case BGP_SSA_L2TPv3:
+                            proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_pref, tvb,
+                                                q + 4, 2, ENC_BIG_ENDIAN);
+
+                            subtree4 = proto_tree_add_subtree(subtree3, tvb, q + 6, 1, ett_bgp_ssa_subtree, NULL, "Flags");
+                            proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_s, tvb,
+                                                q + 6, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_unused, tvb,
+                                                q + 6, 1, ENC_BIG_ENDIAN);
+
+                            ssa_v3_len = tvb_get_guint8(tvb, q + 7);
+                            if (ssa_v3_len + 8 == ssa_len){
+                                proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie_len, tvb,
+                                                    q + 7, 1, ENC_BIG_ENDIAN);
+                            } else {
+                                proto_tree_add_expert_format(subtree3, pinfo, &ei_bgp_length_invalid, tvb, q + 7, 1,
+                                                             "Invalid Cookie Length of %u", ssa_v3_len);
+                                q += ssa_len + 4; /* 4 from type and length */
+                                break;
+                            }
+                            proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_session_id, tvb,
+                                                q + 8, 4, ENC_BIG_ENDIAN);
+                            if (ssa_v3_len)
+                                proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
+                                                    q + 12, ssa_v3_len, ENC_NA);
+                            q += ssa_len + 4; /* 4 from type and length */
+                            break;
+                        case BGP_SSA_mGRE:
+                        case BGP_SSA_IPSec:
+                        case BGP_SSA_MPLS:
+                        default:
+                            proto_tree_add_item(subtree3, hf_bgp_ssa_value, tvb,
+                                                q + 4, ssa_len, ENC_NA);
+                            q += ssa_len + 4; /* 4 from type and length */
+                            break;
+                        case BGP_SSA_L2TPv3_IN_IPSec:
+                        case BGP_SSA_mGRE_IN_IPSec:
+                            /* These contain BGP_SSA_IPSec and BGP_SSA_L2TPv3/BGP_SSA_mGRE */
+                            q += 4; /* 4 from type and length */
+                            break;
+                    } /* switch (bgpa.bgpa_type) */
+                }
+                break;
+            case BGPTYPE_TUNNEL_ENCAPS_ATTR:
+                q = o + i + aoff;
+                end = o + i + aoff + tlen;
+
+                subtree3 = proto_tree_add_subtree(subtree2, tvb, q, tlen, ett_bgp_tunnel_tlv, NULL, "TLV Encodings");
+
+                while (q < end) {
+                    encaps_tunnel_type = tvb_get_ntohs(tvb, q);
+                    encaps_tunnel_len = tvb_get_ntohs(tvb, q + 2);
+
+                    subtree4 = proto_tree_add_subtree_format(subtree3, tvb, q, encaps_tunnel_len + 4,
+                                         ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)",
+                                         val_to_str_const(encaps_tunnel_type, bgp_attr_tunnel_type, "Unknown"), encaps_tunnel_len + 4);
+
+                    proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_BIG_ENDIAN);
+
+                    subtree5 = proto_tree_add_subtree(subtree4, tvb, q + 4, encaps_tunnel_len, ett_bgp_tunnel_subtlv, NULL, "Sub-TLV Encodings");
+
+                    q += 4;
+                    j = q + encaps_tunnel_len;
+                    while ( q < j ) {
+                        encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
+                        encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
+
+                        subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL,
+                                                                 "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
+
+                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_NA);
+                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_NA);
+
+                        switch (encaps_tunnel_subtype) {
+                            case TUNNEL_SUBTLV_ENCAPSULATION:
+                                if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
+                                    proto_tree_add_text(subtree6, tvb, q + 2, 4, "Session ID: %u", tvb_get_letohl(tvb, q + 2));
+                                    proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_ep_str(tvb, q + 6, encaps_tunnel_sublen - 4));
+                                } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
+                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "GRE key: %x", tvb_get_letohl(tvb, q + 2));
+                                }
+                                break;
+                            case TUNNEL_SUBTLV_PROTO_TYPE:
+                                proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Protocol type: %s (0x%x)", val_to_str_const(tvb_get_ntohs(tvb, q + 2), etype_vals, "Unknown"), tvb_get_ntohs(tvb, q + 2));
+                                break;
+                            case TUNNEL_SUBTLV_COLOR:
+                                proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Color value: %u", tvb_get_letohl(tvb, q + 6));
+                                break;
+                            case TUNNEL_SUBTLV_LOAD_BALANCE:
+                                if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
+                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Load-balancing block length: %u", tvb_get_ntohs(tvb, q + 2));
+                                }
+                                break;
+                            default:
+                                break;
+                        } /* switch (encaps_tunnel_subtype) */
+
+                        q += 2 + encaps_tunnel_sublen; /* type and length + length of value */
+                    }
+
+                }
+
+                break;
+            case BGPTYPE_AIGP:
+                q = o + i + aoff;
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aigp, tvb, q, tlen, ENC_NA);
+                subtree3 = proto_item_add_subtree(ti, ett_bgp_aigp_attr);
+                aigp_type_item =  proto_tree_add_item(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                aigp_type = tvb_get_guint8(tvb,q);
+                switch (aigp_type) {
+                    case AIGP_TLV_TYPE :
+                        proto_tree_add_item(subtree3, hf_bgp_aigp_tlv_length, tvb, q+1, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(subtree3, hf_bgp_aigp_accu_igp_metric, tvb, q+3, 8, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
+                        proto_item_append_text(ti_pa, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
+                        break;
+                    default :
+                        expert_add_info_format(pinfo, aigp_type_item, &ei_bgp_attr_aigp_type,
+                                               "AIGP type %u unknown", aigp_type);
+                }
+                break;
+            case BGPTYPE_LINK_STATE_ATTR:
+
+                q = o + i + aoff;
+                end = o + i + aoff + tlen;
+
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_link_state, tvb, q, tlen, ENC_NA);
+                subtree3 = proto_item_add_subtree(ti, ett_bgp_link_state);
+
+                while (q < end) {
+                    advance = decode_link_state_attribute_tlv(subtree3, tvb, q, pinfo);
+                    if (advance < 0)
+                        break;
+
+                    q += advance;
+                }
+                break;
+
+            case BGPTYPE_PMSI_TUNNEL_ATTR:
+                dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
+                break;
+            default:
+                proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
+                                    "Unknown (%u byte%s)", tlen, plurality(tlen, "", "s"));
+                break;
+        } /* switch (bgpa.bgpa_type) */ /* end of second switch */
+
+        i += alen + aoff;
+    }
+}
 /*
  * Dissect a BGP UPDATE message.
  */
 static void
 dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-    guint8          bgpa_flags;                 /* path attributes          */
-    guint8          bgpa_type;
     guint16         hlen;                       /* message length           */
     gint            o;                          /* packet offset            */
-    gint            q=0;                        /* tmp                      */
     gint            end=0;                      /* message end              */
     guint16         len;                        /* tmp                      */
-    int             advance;                    /* tmp                      */
     proto_item      *ti;                        /* tree item                */
-    proto_item      *ti_communities;            /* tree communities         */
-    proto_item      *ti_community;              /* tree for each community  */
-    proto_item      *attr_len_item;
-    proto_item      *aigp_type_item;
     proto_tree      *subtree;                   /* subtree for attributes   */
-    proto_tree      *subtree2;                  /* subtree for attributes   */
-    proto_tree      *subtree3;                  /* subtree for attributes   */
-    proto_tree      *subtree4;                  /* subtree for attributes   */
-    proto_tree      *subtree5;                  /* subtree for attributes   */
-    proto_tree      *subtree6;                  /* subtree for attributes   */
-    proto_tree      *as_path_segment_tree;      /* subtree for AS_PATH segments */
-    gint            number_as_segment=0;        /* Number As segment        */
-    proto_tree      *communities_tree;          /* subtree for COMMUNITIES  */
-    proto_tree      *community_tree;            /* subtree for a community  */
-    proto_tree      *cluster_list_tree;         /* subtree for CLUSTER_LIST */
-    int             i, j, k;                    /* tmp                      */
-    guint8          type=0;                     /* AS_PATH segment type     */
-    guint8          length=0;                   /* AS_PATH segment length   */
-    wmem_strbuf_t   *junk_emstr;                /* tmp                      */
-    guint32         aggregator_as;
-    guint16         ssa_type;                   /* SSA T + Type */
-    guint16         ssa_len;                    /* SSA TLV Length */
-    guint8          ssa_v3_len;                 /* SSA L2TPv3 Cookie Length */
-    guint16         encaps_tunnel_type;         /* Encapsulation Tunnel Type */
-    guint16         encaps_tunnel_len;          /* Encapsulation TLV Length */
-    guint8          encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
-    guint8          encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
-    guint8          aigp_type;                  /* AIGP TLV type from AIGP attribute */
-
-    if (!tree)
-        return;
+    int             i;                          /* tmp                      */
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
-    junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
+
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);
@@ -5582,6 +6247,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     if (len > 0) {
         ti = proto_tree_add_item(tree, hf_bgp_update_withdrawn_routes, tvb, o, len, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_unfeas);
+
         /* parse each prefix */
         end = o + len;
 
@@ -5614,658 +6280,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     if (len > 0) {
         ti =  proto_tree_add_item(tree, hf_bgp_update_path_attributes, tvb, o+2, len, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
-        i = 2;
-        while (i < len) {
-            proto_item *hidden_item;
-            proto_item *ti_pa, *ti_flags;
-            int     off;
-            guint16 alen, tlen, aoff, aoff_save;
-            guint16 af;
-            guint8  saf, snpa;
-            guint8  nexthop_len;
-            guint8  asn_len = 0;
 
-            static const int * path_flags[] = {
-                &hf_bgp_update_path_attribute_flags_optional,
-                &hf_bgp_update_path_attribute_flags_transitive,
-                &hf_bgp_update_path_attribute_flags_partial,
-                &hf_bgp_update_path_attribute_flags_extended_length,
-                NULL
-            };
-
-            bgpa_flags = tvb_get_guint8(tvb, o + i);
-            bgpa_type = tvb_get_guint8(tvb, o + i+1);
-
-            /* check for the Extended Length bit */
-            if (bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
-                alen = tvb_get_ntohs(tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE);
-                aoff = BGP_SIZE_OF_PATH_ATTRIBUTE+2;
-            } else {
-                alen = tvb_get_guint8(tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE);
-                aoff = BGP_SIZE_OF_PATH_ATTRIBUTE+1;
-            }
-            tlen = alen;
-
-            ti_pa = proto_tree_add_item(subtree, hf_bgp_update_path_attribute, tvb, o + i, tlen + aoff, ENC_NA);
-            proto_item_append_text(ti_pa, " - %s", val_to_str(bgpa_type, bgpattr_type, "Unknown (%u)"));
-
-            subtree2 = proto_item_add_subtree(ti_pa, ett_bgp_attr);
-
-            ti_flags = proto_tree_add_bitmask(subtree2, tvb, o + i, hf_bgp_update_path_attribute_flags, ett_bgp_attr_flags, path_flags, ENC_NA);
-
-            proto_item_append_text(ti_flags,"%s%s%s%s",
-                 ((bgpa_flags & BGP_ATTR_FLAG_OPTIONAL) == 0) ? ": Well-known" : ": Optional",
-                 ((bgpa_flags & BGP_ATTR_FLAG_TRANSITIVE) == 0) ? ", Non-transitive" : ", Transitive",
-                 ((bgpa_flags & BGP_ATTR_FLAG_PARTIAL) == 0) ? ", Complete" : ", Partial",
-                 ((bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) == 0) ? "" : ", Extended Length");
-
-            proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_type_code, tvb, o + i + 1, 1, ENC_BIG_ENDIAN);
-
-            attr_len_item = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE,
-                                                aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
-
-            /* Path Attribute Type */
-            switch (bgpa_type) {
-                case BGPTYPE_ORIGIN:
-                    if (tlen != 1) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Origin (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    } else {
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_origin, tvb,
-                                            o + i + aoff, 1, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa, ": %s", val_to_str_const(tvb_get_guint8(tvb, o + i + aoff), bgpattr_origin, "Unknown"));
-                    }
-                    break;
-                case BGPTYPE_AS_PATH:
-                case BGPTYPE_AS4_PATH:
-                    /* Apply heuristic to guess if we are facing 2 or 4 bytes ASN
-                    (o + i + aoff) =
-                    (o + current attribute + aoff bytes to first tuple)
-                    heuristic also tell us how many AS segments we have */
-                    asn_len = heuristic_as2_or_4_from_as_path(tvb, o+i+aoff, o+i+aoff+tlen,
-                                                            bgpa_type, &number_as_segment);
-                    if (asn_len == 255)
-                    {
-                        expert_add_info_format(pinfo, ti_pa, &ei_bgp_attr_as_path_as_len_err,
-                            "ASN length uncalculated by heuristic : %u", asn_len);
-                        break;
-                    }
-                    proto_item_append_text(ti_pa,": ");
-                    if(tlen == 0) {
-                        proto_item_append_text(ti_pa,"empty");
-                    }
-                    q = o + i + aoff;
-                    for (k=0; k < number_as_segment; k++)
-                    {
-                        type = tvb_get_guint8(tvb, q);
-                        length = tvb_get_guint8(tvb, q+1);
-                        ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_as_path_segment, tvb,
-                                            q, length * asn_len + 2, ENC_NA);
-                        proto_item_append_text(ti,": ");
-                        as_path_segment_tree = proto_item_add_subtree(ti, ett_bgp_as_path_segment);
-                        proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_type, tvb,
-                                            q, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(as_path_segment_tree, hf_bgp_update_path_attribute_as_path_segment_length, tvb,
-                                            q+1, 1, ENC_BIG_ENDIAN);
-                        switch(type)
-                        {
-                            case AS_SET:
-                                proto_item_append_text(ti_pa, "{");
-                                proto_item_append_text(ti, "{");
-                                break;
-                            case AS_CONFED_SET:
-                                proto_item_append_text(ti_pa, "[");
-                                proto_item_append_text(ti, "[");
-                                break;
-                            case AS_CONFED_SEQUENCE:
-                                proto_item_append_text(ti_pa, "(");
-                                proto_item_append_text(ti, "(");
-                                break;
-                        }
-
-                        q = q + 2;
-                        for (j = 0; j < length; j++)
-                        {
-                            if(asn_len == 2) {
-                                proto_tree_add_item(as_path_segment_tree,
-                                                    hf_bgp_update_path_attribute_as_path_segment_as2,
-                                                    tvb, q, 2, ENC_BIG_ENDIAN);
-                                proto_item_append_text(ti_pa, "%u",
-                                                     tvb_get_ntohs(tvb, q));
-                                proto_item_append_text(ti, "%u",
-                                                     tvb_get_ntohs(tvb, q));
-                            }
-                            else if (asn_len == 4) {
-                                proto_tree_add_item(as_path_segment_tree,
-                                                hf_bgp_update_path_attribute_as_path_segment_as4,
-                                                tvb, q, 4, ENC_BIG_ENDIAN);
-                                proto_item_append_text(ti_pa, "%u",
-                                                     tvb_get_ntohl(tvb, q));
-                                proto_item_append_text(ti, "%u",
-                                                     tvb_get_ntohl(tvb, q));
-                            }
-                            if (j != length-1)
-                            {
-                                proto_item_append_text(ti_pa, "%s",
-                                                    (type == AS_SET || type == AS_CONFED_SET) ?
-                                                    ", " : " ");
-                                proto_item_append_text(ti, "%s",
-                                                    (type == AS_SET || type == AS_CONFED_SET) ?
-                                                    ", " : " ");
-                            }
-                            q += asn_len;
-                        }
-                        switch(type)
-                        {
-                            case AS_SET:
-                                proto_item_append_text(ti_pa, "} ");
-                                proto_item_append_text(ti, "}");
-                                break;
-                            case AS_CONFED_SET:
-                                proto_item_append_text(ti_pa, "] ");
-                                proto_item_append_text(ti, "]");
-                                break;
-                            case AS_CONFED_SEQUENCE:
-                                proto_item_append_text(ti_pa, ") ");
-                                proto_item_append_text(ti, ")");
-                                break;
-                            default:
-                                proto_item_append_text(ti_pa, " ");
-                                break;
-                        }
-                    }
-
-                    break;
-                case BGPTYPE_NEXT_HOP:
-                    if (tlen != 4) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Next hop (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    } else {
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_next_hop, tvb,
-                                            o + i + aoff, 4, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
-                    }
-                    break;
-                case BGPTYPE_MULTI_EXIT_DISC:
-                    if (tlen != 4) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Multiple exit discriminator (invalid): %u byte%s",
-                                            tlen, plurality(tlen, "", "s"));
-                    } else {
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_multi_exit_disc, tvb,
-                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa,": %u", tvb_get_ntohl(tvb, o + i + aoff));
-                    }
-                    break;
-                case BGPTYPE_LOCAL_PREF:
-                    if (tlen != 4) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Local preference (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    } else {
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_local_pref, tvb,
-                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa, ": %u", tvb_get_ntohl(tvb, o + i + aoff));
-                    }
-                    break;
-                case BGPTYPE_ATOMIC_AGGREGATE:
-                    if (tlen != 0) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Atomic aggregate (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    }
-                    break;
-                case BGPTYPE_AGGREGATOR:
-                    if (tlen != 6 && tlen != 8) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Aggregator (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                        break;
-                    }
-                case BGPTYPE_AS4_AGGREGATOR:
-                    if (bgpa_type == BGPTYPE_AS4_AGGREGATOR && tlen != 8)
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Aggregator (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    else {
-                        asn_len = tlen - 4;
-                        aggregator_as = (asn_len == 2) ?
-                            tvb_get_ntohs(tvb, o + i + aoff) :
-                            tvb_get_ntohl(tvb, o + i + aoff);
-                        proto_tree_add_uint(subtree2, hf_bgp_update_path_attribute_aggregator_as, tvb,
-                                            o + i + aoff, asn_len, aggregator_as);
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aggregator_origin, tvb,
-                                            o + i + aoff + asn_len, 4, ENC_BIG_ENDIAN);
-
-                        proto_item_append_text(ti_pa, ": AS: %u origin: %s", aggregator_as,
-                                             tvb_ip_to_str(tvb, o + i + aoff + asn_len));
-                    }
-                    break;
-                case BGPTYPE_COMMUNITIES:
-                    if (tlen % 4 != 0) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Communities (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                        break;
-                    }
-
-                    proto_item_append_text(ti_pa, ": ");
-
-                    ti_communities = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_communities,
-                                            tvb, o + i + aoff, tlen, ENC_NA);
-
-                    communities_tree = proto_item_add_subtree(ti_communities,
-                                                              ett_bgp_communities);
-                    proto_item_append_text(ti_communities, ": ");
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
-                    q = o + i + aoff;
-                    end = q + tlen;
-
-                    /* snarf each community */
-                    while (q < end) {
-                        /* check for reserved values */
-                        guint32 community = tvb_get_ntohl(tvb, q);
-                        if ((community & 0xFFFF0000) == FOURHEX0 ||
-                            (community & 0xFFFF0000) == FOURHEXF) {
-                            proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community_well_known,
-                                tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
-                            proto_item_append_text(ti_pa, "%s ", val_to_str_const(community, community_vals, "Reserved"));
-                            proto_item_append_text(ti_communities, "%s ", val_to_str_const(community, community_vals, "Reserved"));
-                        }
-                        else {
-                            ti_community = proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community, tvb,
-                                                     q - 3 + aoff, 4, ENC_NA);
-                            community_tree = proto_item_add_subtree(ti_community,
-                                                                    ett_bgp_community);
-                            proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_as,
-                                                tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
-                            proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_value,
-                                                tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
-                            proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                                      tvb_get_ntohs(tvb, q -1 + aoff));
-                            proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                                      tvb_get_ntohs(tvb, q -1 + aoff));
-                            proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                                      tvb_get_ntohs(tvb, q -1 + aoff));
-                        }
-
-                        q += 4;
-                    }
-
-
-                    break;
-                case BGPTYPE_ORIGINATOR_ID:
-                    if (tlen != 4) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Originator identifier (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                    } else {
-                        proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_originator_id, tvb,
-                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa, ": %s ", tvb_ip_to_str(tvb, o + i + aoff));
-                    }
-                    break;
-                case BGPTYPE_MP_REACH_NLRI:
-                    /*
-                     * RFC 2545 specifies that there may be more than one
-                     * address in the MP_REACH_NLRI attribute in section
-                     * 3, "Constructing the Next Hop field".
-                     *
-                     * Yes, RFC 2858 says you can't do that, and, yes, RFC
-                     * 2858 obsoletes RFC 2283, which says you can do that,
-                     * but that doesn't mean we shouldn't dissect packets
-                     * that conform to RFC 2283 but not RFC 2858, as some
-                     * device on the network might implement the 2283-style
-                     * BGP extensions rather than RFC 2858-style extensions.
-                     */
-                    af = tvb_get_ntohs(tvb, o + i + aoff);
-                    proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
-                                        "Address family: %s (%u)",
-                                        val_to_str_const(af, afn_vals, "Unknown"), af);
-                    saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
-                    proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
-                                        "Subsequent address family identifier: %s (%u)",
-                                        val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
-                                        saf);
-                    nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
-                    subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
-                                             nexthop_len + 1, ett_bgp_mp_nhna, NULL,
-                                             "Next hop network address (%d byte%s)",
-                                             nexthop_len, plurality(nexthop_len, "", "s"));
-
-                    /*
-                     * The addresses don't contain lengths, so if we
-                     * don't understand the address family type, we
-                     * cannot parse the subsequent addresses as we
-                     * don't know how long they are.
-                     */
-                    switch (af) {
-                        default:
-                            proto_tree_add_text(subtree3, tvb, o + i + aoff + 4,
-                                                nexthop_len, "Unknown Address Family");
-                            break;
-
-                        case AFNUM_INET:
-                        case AFNUM_INET6:
-                        case AFNUM_L2VPN:
-                        case AFNUM_L2VPN_OLD:
-                        case AFNUM_LINK_STATE:
-
-                            j = 0;
-                            while (j < nexthop_len) {
-                                advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-                                                         junk_emstr, nexthop_len) ;
-                                if (advance == 0) /* catch if this is a unknown AFI type*/
-                                    break;
-                                if (j + advance > nexthop_len)
-                                    break;
-                                proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-                                                    advance, "Next hop: %s (%u)",
-                                                    wmem_strbuf_get_str(junk_emstr), advance);
-                                j += advance;
-                            }
-                            break;
-                    } /* switch (af) */
-
-                    aoff_save = aoff;
-                    tlen -= nexthop_len + 4;
-                    aoff += nexthop_len + 4 ;
-
-                    off = 0;
-                    snpa = tvb_get_guint8(tvb, o + i + aoff);
-                    ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, 1,
-                                             "Subnetwork points of attachment: %u", snpa);
-                    off++;
-                    if (snpa) {
-                        subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_snpa);
-                        for (/*nothing*/; snpa > 0; snpa--) {
-                            proto_tree_add_text(subtree3, tvb, o + i + aoff + off, 1,
-                                                "SNPA length: %u", tvb_get_guint8(tvb, o + i + aoff + off));
-                            off++;
-                            proto_tree_add_text(subtree3, tvb, o + i + aoff + off,
-                                                tvb_get_guint8(tvb, o + i + aoff + off - 1),
-                                                "SNPA (%u byte%s)", tvb_get_guint8(tvb, o + i + aoff + off - 1),
-                                                plurality(tvb_get_guint8(tvb, o + i + aoff + off - 1), "", "s"));
-                            off += tvb_get_guint8(tvb, o + i + aoff + off - 1);
-                        }
-                    }
-                    tlen -= off;
-                    aoff += off;
-
-                    subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff, tlen,
-                                             ett_bgp_mp_reach_nlri, NULL, "Network layer reachability information (%u byte%s)",
-                                             tlen, plurality(tlen, "", "s"));
-                    if (tlen)  {
-                        if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_LINK_STATE) {
-                            proto_tree_add_text(subtree3, tvb, o + i + aoff,
-                                                tlen, "Unknown Address Family");
-                        } else {
-                            while (tlen > 0) {
-                                advance = decode_prefix_MP(subtree3,
-                                                           hf_bgp_mp_reach_nlri_ipv4_prefix,
-                                                           hf_bgp_mp_reach_nlri_ipv6_prefix,
-                                                           af, saf,
-                                                           tvb, o + i + aoff, "MP Reach NLRI", pinfo);
-                                if (advance < 0)
-                                    break;
-                                tlen -= advance;
-                                aoff += advance;
-                            }
-                        }
-                    }
-                    aoff = aoff_save;
-                    break;
-                case BGPTYPE_MP_UNREACH_NLRI:
-                    af = tvb_get_ntohs(tvb, o + i + aoff);
-                    proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
-                                        "Address family: %s (%u)",
-                                        val_to_str_const(af, afn_vals, "Unknown"), af);
-                    saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
-                    proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
-                                        "Subsequent address family identifier: %s (%u)",
-                                        val_to_str_const(saf, bgpattr_nlri_safi, saf >= 134 ? "Vendor specific" : "Unknown"),
-                                        saf);
-                    subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
-                                             tlen - 3, ett_bgp_mp_unreach_nlri, NULL, "Withdrawn routes (%u byte%s)", tlen - 3,
-                                             plurality(tlen - 3, "", "s"));
-
-                    aoff_save = aoff;
-                    tlen -= 3;
-                    aoff += 3;
-                    if (tlen > 0) {
-
-                        while (tlen > 0) {
-                            advance = decode_prefix_MP(subtree3,
-                                                       hf_bgp_mp_unreach_nlri_ipv4_prefix,
-                                                       hf_bgp_mp_unreach_nlri_ipv6_prefix,
-                                                       af, saf,
-                                                       tvb, o + i + aoff, "MP Unreach NLRI", pinfo);
-                            if (advance < 0)
-                                break;
-                            tlen -= advance;
-                            aoff += advance;
-                        }
-                    }
-                    aoff = aoff_save;
-                    break;
-                case BGPTYPE_CLUSTER_LIST:
-                    if (tlen % 4 != 0) {
-                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
-                                            "Cluster list (invalid): %u byte%s", tlen,
-                                            plurality(tlen, "", "s"));
-                        break;
-                    }
-
-                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_cluster_list,
-                                             tvb, o + i + aoff, tlen, ENC_NA);
-                    cluster_list_tree = proto_item_add_subtree(ti,
-                                                               ett_bgp_cluster_list);
-
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
-                    q = o + i + aoff;
-                    end = q + tlen;
-                    proto_item_append_text(ti, ":");
-                    proto_item_append_text(ti_pa, ":");
-                    /* snarf each cluster identifier */
-                    while (q < end) {
-                        proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
-                                            tvb, q - 3 + aoff, 4, ENC_NA);
-                        proto_item_append_text(ti, " %s", tvb_ip_to_str(tvb, q-3+aoff));
-                        proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(tvb, q-3+aoff));
-                        q += 4;
-                    }
-
-                    break;
-                case BGPTYPE_EXTENDED_COMMUNITY:
-                    if (tlen %8 != 0) {
-                        expert_add_info_format(pinfo, attr_len_item, &ei_bgp_ext_com_len_bad,
-                                            "Community length %u wrong, must be modulo 8", tlen);
-                    } else {
-                        dissect_bgp_update_ext_com(subtree2, tvb, tlen, o+i+aoff);
-                    }
-                    break;
-                case BGPTYPE_SAFI_SPECIFIC_ATTR:
-                    q = o + i + aoff;
-                    end = o + i + aoff + tlen ;
-
-                    while(q < end) {
-                        ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
-                        ssa_len = tvb_get_ntohs(tvb, q + 2);
-
-                        subtree3 = proto_tree_add_subtree_format(subtree2, tvb, q, MIN(ssa_len + 4, end - q),
-                                                 ett_bgp_ssa, NULL, "%s Information",
-                                                 val_to_str_const(ssa_type, bgp_ssa_type, "Unknown SSA"));
-
-                        proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
-                                            q, 1, ENC_BIG_ENDIAN);
-                        hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
-                                                          q, 2, ENC_BIG_ENDIAN);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
-                        proto_tree_add_text(subtree3, tvb, q, 2,
-                                            "Type: %s", val_to_str_const(ssa_type, bgp_ssa_type, "Unknown"));
-                        if ((ssa_len == 0) || (q + ssa_len > end)) {
-                            proto_tree_add_text(subtree3, tvb, q + 2, end - q - 2,
-                                                "Invalid Length of %u", ssa_len);
-                            break;
-                        }
-                        proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb,
-                                            q + 2, 2, ENC_BIG_ENDIAN);
-
-                        switch (ssa_type) {
-                            case BGP_SSA_L2TPv3:
-                                proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_pref, tvb,
-                                                    q + 4, 2, ENC_BIG_ENDIAN);
-
-                                subtree4 = proto_tree_add_subtree(subtree3, tvb, q + 6, 1, ett_bgp_ssa_subtree, NULL, "Flags");
-                                proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_s, tvb,
-                                                    q + 6, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_unused, tvb,
-                                                    q + 6, 1, ENC_BIG_ENDIAN);
-
-                                ssa_v3_len = tvb_get_guint8(tvb, q + 7);
-                                if (ssa_v3_len + 8 == ssa_len){
-                                    proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie_len, tvb,
-                                                        q + 7, 1, ENC_BIG_ENDIAN);
-                                } else {
-                                    proto_tree_add_expert_format(subtree3, pinfo, &ei_bgp_length_invalid, tvb, q + 7, 1,
-                                                        "Invalid Cookie Length of %u", ssa_v3_len);
-                                    q += ssa_len + 4; /* 4 from type and length */
-                                    break;
-                                }
-                                proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_session_id, tvb,
-                                                    q + 8, 4, ENC_BIG_ENDIAN);
-                                if (ssa_v3_len)
-                                    proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
-                                                        q + 12, ssa_v3_len, ENC_NA);
-                                q += ssa_len + 4; /* 4 from type and length */
-                                break;
-                            case BGP_SSA_mGRE:
-                            case BGP_SSA_IPSec:
-                            case BGP_SSA_MPLS:
-                            default:
-                                proto_tree_add_item(subtree3, hf_bgp_ssa_value, tvb,
-                                                    q + 4, ssa_len, ENC_NA);
-                                q += ssa_len + 4; /* 4 from type and length */
-                                break;
-                            case BGP_SSA_L2TPv3_IN_IPSec:
-                            case BGP_SSA_mGRE_IN_IPSec:
-                                /* These contain BGP_SSA_IPSec and BGP_SSA_L2TPv3/BGP_SSA_mGRE */
-                                q += 4; /* 4 from type and length */
-                                break;
-                        } /* switch (bgpa.bgpa_type) */
-                    }
-                    break;
-                case BGPTYPE_TUNNEL_ENCAPS_ATTR:
-                    q = o + i + aoff;
-                    end = o + i + aoff + tlen;
-
-                    subtree3 = proto_tree_add_subtree(subtree2, tvb, q, tlen, ett_bgp_tunnel_tlv, NULL, "TLV Encodings");
-
-                     while (q < end) {
-                        encaps_tunnel_type = tvb_get_ntohs(tvb, q);
-                        encaps_tunnel_len = tvb_get_ntohs(tvb, q + 2);
-
-                        subtree4 = proto_tree_add_subtree_format(subtree3, tvb, q, encaps_tunnel_len + 4,
-                             ett_bgp_tunnel_tlv_subtree, NULL, "%s (%u bytes)",
-                             val_to_str_const(encaps_tunnel_type, bgp_attr_tunnel_type, "Unknown"), encaps_tunnel_len + 4);
-
-                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_BIG_ENDIAN);
-
-                        subtree5 = proto_tree_add_subtree(subtree4, tvb, q + 4, encaps_tunnel_len, ett_bgp_tunnel_subtlv, NULL, "Sub-TLV Encodings");
-
-                        q += 4;
-                        j = q + encaps_tunnel_len;
-                        while ( q < j ) {
-                            encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
-                            encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
-
-                            subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL,
-                                "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
-
-                            proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_NA);
-                            proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_NA);
-
-                            switch (encaps_tunnel_subtype) {
-                                case TUNNEL_SUBTLV_ENCAPSULATION:
-                                    if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
-                                        proto_tree_add_text(subtree6, tvb, q + 2, 4, "Session ID: %u", tvb_get_letohl(tvb, q + 2));
-                                        proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_ep_str(tvb, q + 6, encaps_tunnel_sublen - 4));
-                                    } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                        proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "GRE key: %x", tvb_get_letohl(tvb, q + 2));
-                                    }
-                                    break;
-                                case TUNNEL_SUBTLV_PROTO_TYPE:
-                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Protocol type: %s (0x%x)", val_to_str_const(tvb_get_ntohs(tvb, q + 2), etype_vals, "Unknown"), tvb_get_ntohs(tvb, q + 2));
-                                    break;
-                                case TUNNEL_SUBTLV_COLOR:
-                                    proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Color value: %u", tvb_get_letohl(tvb, q + 6));
-                                    break;
-                                case TUNNEL_SUBTLV_LOAD_BALANCE:
-                                    if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
-                                        proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Load-balancing block length: %u", tvb_get_ntohs(tvb, q + 2));
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            } /* switch (encaps_tunnel_subtype) */
-
-                            q += 2 + encaps_tunnel_sublen; /* type and length + length of value */
-                        }
-
-                    }
-
-                    break;
-                case BGPTYPE_AIGP:
-                    q = o + i + aoff;
-                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_aigp, tvb, q, tlen, ENC_NA);
-                    subtree3 = proto_item_add_subtree(ti, ett_bgp_aigp_attr);
-                    aigp_type_item =  proto_tree_add_item(subtree3, hf_bgp_aigp_type, tvb, q, 1, ENC_BIG_ENDIAN);
-                    aigp_type = tvb_get_guint8(tvb,q);
-                    switch (aigp_type) {
-                        case AIGP_TLV_TYPE :
-                            proto_tree_add_item(subtree3, hf_bgp_aigp_tlv_length, tvb, q+1, 2, ENC_BIG_ENDIAN);
-                            proto_tree_add_item(subtree3, hf_bgp_aigp_accu_igp_metric, tvb, q+3, 8, ENC_BIG_ENDIAN);
-                            proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
-                            proto_item_append_text(ti_pa, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
-                            break;
-                        default :
-                            expert_add_info_format(pinfo, aigp_type_item, &ei_bgp_attr_aigp_type,
-                                            "AIGP type %u unknown", aigp_type);
-                    }
-                    break;
-                case BGPTYPE_LINK_STATE_ATTR:
-
-                    q = o + i + aoff;
-                    end = o + i + aoff + tlen;
-
-                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_link_state, tvb, q, tlen, ENC_NA);
-                    subtree3 = proto_item_add_subtree(ti, ett_bgp_link_state);
-
-                    while (q < end) {
-                        advance = decode_link_state_attribute_tlv(subtree3, tvb, q, pinfo);
-                        if (advance < 0)
-                            break;
-
-                        q += advance;
-                    }
-                    break;
-
-                case BGPTYPE_PMSI_TUNNEL_ATTR:
-                    dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
-                    break;
-                default:
-                    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                        "Unknown (%u byte%s)", tlen, plurality(tlen, "", "s"));
-                    break;
-            } /* switch (bgpa.bgpa_type) */ /* end of second switch */
-
-            i += alen + aoff;
-        }
+        dissect_bgp_path_attr(subtree, tvb, len-4, o+2, pinfo);
 
         o += 2 + len;
 
