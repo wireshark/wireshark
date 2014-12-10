@@ -35,6 +35,7 @@ field and shows a description in the status bar.
 ** An Italian translation has been added.
 ** The Summary dialog has been updated and renamed to Capture File Properties.
 ** The VoIP Calls and SIP Flows dialogs have been added.
+** Support for HiDPI / Retina displays has been improved in the official packages.
 
 The following features are new (or have been significantly updated)
 since version 1.12.0:
@@ -147,9 +148,6 @@ Capture filters aren't applied when capturing from named pipes.
 
 Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
-
-The 64-bit Windows installer does not support Kerberos decryption.
-(http://wiki.wireshark.org/Development/Win64[Win64 development page])
 
 Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
 no longer automatically decodes gzip data when following a TCP stream.
