@@ -2243,9 +2243,6 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 	guint32	obj_id;
 	guint32	ro_node;
 
-	if (!tree)
-		return;
-
 	fhlen = tvb_reported_length(tvb);
 
 	/* Display the entire file handle */
@@ -2257,6 +2254,10 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		{
 		proto_item *obj_item;
 		proto_tree *obj_tree;
+
+		if (!tree)
+			return;
+
 		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+0, 16, ENC_NA );
 		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
 
@@ -2297,6 +2298,9 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		handles where the file/dir info precedes the export info, the next 16 bytes contain
 		the *export* info followed by 16 bytes containing the *file/dir* info.
 		*/
+
+		if (!tree)
+			return;
 
 		/* "Named Attribute ID" or "Object ID" (bytes 0 thru 3) */
 		obj_id = tvb_get_letohl(tvb, offset+0);
