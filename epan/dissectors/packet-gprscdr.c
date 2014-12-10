@@ -555,22 +555,6 @@ dissect_gprscdr_CellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const value_string gprscdr_CNIPMulticastDistribution_vals[] = {
-  {   0, "nO-IP-MULTICAST" },
-  {   1, "iP-MULTICAST" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_CNIPMulticastDistribution(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_gprscdr_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -602,7 +586,7 @@ dissect_gprscdr_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "../../asn1/gprscdr/gprscdr.cnf"
+#line 67 "../../asn1/gprscdr/gprscdr.cnf"
 
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
@@ -892,75 +876,6 @@ dissect_gprscdr_ManagementExtensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const value_string gprscdr_MBMS2G3GIndicator_vals[] = {
-  {   0, "twoG" },
-  {   1, "threeG" },
-  {   2, "twoG-AND-threeG" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_MBMS2G3GIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_TMGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_MBMSSessionIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const value_string gprscdr_MBMSServiceType_vals[] = {
-  {   0, "mULTICAST" },
-  {   1, "bROADCAST" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_MBMSServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string gprscdr_MBMSUserServiceType_vals[] = {
-  {   0, "dOWNLOAD" },
-  {   1, "sTREAMING" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_MBMSUserServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_gprscdr_RoutingAreaCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -970,49 +885,6 @@ dissect_gprscdr_RoutingAreaCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   return offset;
 }
 
-
-
-static int
-dissect_gprscdr_MBMSServiceArea(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_RequiredMBMSBearerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t MBMSInformation_set[] = {
-  { &hf_gprscdr_tMGI        , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TMGI },
-  { &hf_gprscdr_mBMSSessionIdentity, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSSessionIdentity },
-  { &hf_gprscdr_mBMSServiceType, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSServiceType },
-  { &hf_gprscdr_mBMSUserServiceType, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSUserServiceType },
-  { &hf_gprscdr_mBMS2G3GIndicator, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMS2G3GIndicator },
-  { &hf_gprscdr_fileRepairSupported, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_BOOLEAN },
-  { &hf_gprscdr_rAI         , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RoutingAreaCode },
-  { &hf_gprscdr_mBMSServiceArea, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MBMSServiceArea },
-  { &hf_gprscdr_requiredMBMSBearerCaps, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RequiredMBMSBearerCapabilities },
-  { &hf_gprscdr_mBMSGWAddress, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
-  { &hf_gprscdr_cNIPMulticastDistribution, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CNIPMulticastDistribution },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_MBMSInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              MBMSInformation_set, hf_index, ett_gprscdr_MBMSInformation);
-
-  return offset;
-}
 
 
 
@@ -1037,7 +909,7 @@ dissect_gprscdr_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "../../asn1/gprscdr/gprscdr.cnf"
+#line 116 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
@@ -1278,7 +1150,7 @@ dissect_gprscdr_SubscriptionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "../../asn1/gprscdr/gprscdr.cnf"
+#line 77 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * The contents of this field are a compact form of the UTCTime format
@@ -1754,7 +1626,7 @@ dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 132 "../../asn1/gprscdr/gprscdr.cnf"
+#line 143 "../../asn1/gprscdr/gprscdr.cnf"
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
 
@@ -3043,24 +2915,24 @@ proto_register_gprscdr(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_tMGI,
-      { "tMGI", "gprscdr.tMGI",
-        FT_BYTES, BASE_NONE, NULL, 0,
+      { "tMGI", "gprscdr.tMGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSSessionIdentity,
-      { "mBMSSessionIdentity", "gprscdr.mBMSSessionIdentity",
-        FT_BYTES, BASE_NONE, NULL, 0,
+      { "mBMSSessionIdentity", "gprscdr.mBMSSessionIdentity_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSServiceType,
-      { "mBMSServiceType", "gprscdr.mBMSServiceType",
-        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMSServiceType_vals), 0,
+      { "mBMSServiceType", "gprscdr.mBMSServiceType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMSUserServiceType,
-      { "mBMSUserServiceType", "gprscdr.mBMSUserServiceType",
-        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMSUserServiceType_vals), 0,
+      { "mBMSUserServiceType", "gprscdr.mBMSUserServiceType_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_mBMS2G3GIndicator,
-      { "mBMS2G3GIndicator", "gprscdr.mBMS2G3GIndicator",
-        FT_UINT32, BASE_DEC, VALS(gprscdr_MBMS2G3GIndicator_vals), 0,
+      { "mBMS2G3GIndicator", "gprscdr.mBMS2G3GIndicator_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_fileRepairSupported,
       { "fileRepairSupported", "gprscdr.fileRepairSupported",
@@ -3071,20 +2943,20 @@ proto_register_gprscdr(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         "RoutingAreaCode", HFILL }},
     { &hf_gprscdr_mBMSServiceArea,
-      { "mBMSServiceArea", "gprscdr.mBMSServiceArea",
-        FT_BYTES, BASE_NONE, NULL, 0,
+      { "mBMSServiceArea", "gprscdr.mBMSServiceArea_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_requiredMBMSBearerCaps,
-      { "requiredMBMSBearerCaps", "gprscdr.requiredMBMSBearerCaps",
-        FT_BYTES, BASE_NONE, NULL, 0,
+      { "requiredMBMSBearerCaps", "gprscdr.requiredMBMSBearerCaps_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "RequiredMBMSBearerCapabilities", HFILL }},
     { &hf_gprscdr_mBMSGWAddress,
       { "mBMSGWAddress", "gprscdr.mBMSGWAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
         "GSNAddress", HFILL }},
     { &hf_gprscdr_cNIPMulticastDistribution,
-      { "cNIPMulticastDistribution", "gprscdr.cNIPMulticastDistribution",
-        FT_UINT32, BASE_DEC, VALS(gprscdr_CNIPMulticastDistribution_vals), 0,
+      { "cNIPMulticastDistribution", "gprscdr.cNIPMulticastDistribution_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_serviceSpecificData,
       { "serviceSpecificData", "gprscdr.serviceSpecificData",
