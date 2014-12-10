@@ -1341,7 +1341,7 @@ proto_register_icq(void)
         { &hf_icq_multi_num_packets, { "Number of pkts", "icq.multi.num_packets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_result, { "Result", "icq.meta_user.result", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_length, { "Length", "icq.meta_user.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_meta_user_found_authorization, { "Authorization", "icq.meta_user.found_authorization", FT_UINT8, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_found_authorization, { "Authorization", "icq.meta_user.found_authorization", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_x2, { "x2", "icq.meta_user.x2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_x3, { "x3", "icq.meta_user.x3", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_about, { "About", "icq.meta_user.about", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
