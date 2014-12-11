@@ -4770,7 +4770,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_stop_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
       break;
    case SC_CREATE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_LITTLE_ENDIAN);
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_data, tvb, offset+4+add_stat_size+2, tvb_reported_length_remaining(tvb, offset+4+add_stat_size+2), ENC_NA);
       break;
    case SC_DELETE:
