@@ -4007,7 +4007,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                 proto_tree_add_item(aecp_tree, hf_acmp_stream_dest_mac, tvb,
                      AECP_OFFSET_STREAM_INFO_STREAM_DEST_MAC, 6, ENC_NA);
                 proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_code, tvb,
-                     AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE, 1, ENC_NA);
+                     AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_bridge_id, tvb,
                      AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID, 8, ENC_NA);
             }

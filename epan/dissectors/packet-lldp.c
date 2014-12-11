@@ -2109,7 +2109,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0xA:	/* ETS Recommendation */
 	{
-		proto_tree_add_item(tree, hf_dcbx_feature_pgid_reserved, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dcbx_feature_pgid_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
 
@@ -2219,7 +2219,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0xC:	/* Application Priority */
 	{
-		proto_tree_add_item(tree, hf_ieee_8021az_app_reserved, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ieee_8021az_app_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
 
@@ -2252,7 +2252,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
-	proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, (offset+1), -1, ENC_NA);
 }
 
@@ -3131,7 +3131,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__SINGLE_MODE:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_single_mode, tvb, offset, msg_len, ENC_NA);
+					tlm = proto_tree_add_item(tree, hf_hytec_single_mode, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlm, " m");
 				}
 				else
@@ -3143,7 +3143,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__MULTI_MODE_50:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_50, tvb, offset, msg_len, ENC_NA);
+					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_50, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlm, " m");
 				}
 				else
@@ -3155,7 +3155,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__MULTI_MODE_62_5:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_62_5, tvb, offset, msg_len, ENC_NA);
+					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_62_5, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlm, " m");
 				}
 				else
@@ -3262,7 +3262,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					offset += 6;
 					proto_tree_add_item(hytec_data, hf_hytec_request_mac_address, tvb, offset, 6, ENC_NA);
 					offset += 6;
-					proto_tree_add_item(hytec_data, hf_hytec_maximum_depth, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(hytec_data, hf_hytec_maximum_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/*offset += 1;*/
 				}
 				else
@@ -3281,7 +3281,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					offset += 6;
 					proto_tree_add_item(hytec_data, hf_hytec_answering_mac_address, tvb, offset, 6, ENC_NA);
 					offset += 6;
-					proto_tree_add_item(hytec_data, hf_hytec_actual_depth, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(hytec_data, hf_hytec_actual_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/*offset += 1;*/
 				}
 				else
@@ -3319,7 +3319,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				break;
 			case HYTEC_MC__END_OF_TRACE:
 				expected_data_length = 1;
-				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_end_of_trace, tvb, offset, msg_len, ENC_NA);
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_end_of_trace, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 				else
 				{ /* unexpected length */
 					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);
@@ -3346,7 +3346,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				break;
 			case HYTEC_MC__TRACE_IDENTIFIER:
 				expected_data_length = 4;
-				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_trace_identifier, tvb, offset, msg_len, ENC_NA);
+				if(msg_len == expected_data_length) proto_tree_add_item(tree, hf_hytec_trace_identifier, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 				else
 				{ /* unexpected length */
 					expert_add_info_format(pinfo, tree, &ei_lldp_bad_length, "%s length (%d) != expected length (%d)", val_to_str_const(identifier, hytec_mc, ""), msg_len, expected_data_length);

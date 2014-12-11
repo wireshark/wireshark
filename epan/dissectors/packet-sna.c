@@ -1230,7 +1230,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if ((nhdr_1 & 0xf0) == 0x10) {
 			proto_tree_add_item(tree, hf_sna_nlp_frh,
-				    tvb, indx, 1, ENC_NA);
+				    tvb, indx, 1, ENC_BIG_ENDIAN);
 			indx ++;
 
 			if (tvb_offset_exists(tvb, indx))
@@ -1713,20 +1713,20 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 
 		/* Byte 0 */
-		bf_item = proto_tree_add_item(tree, hf_sna_th_0, tvb, 0, 1, ENC_NA);
+		bf_item = proto_tree_add_item(tree, hf_sna_th_0, tvb, 0, 1, ENC_BIG_ENDIAN);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
-		proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(bf_tree, hf_sna_th_mpf, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(bf_tree, hf_sna_th_odai,tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(bf_tree, hf_sna_th_efi, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bf_tree, hf_sna_th_mpf, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bf_tree, hf_sna_th_odai,tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bf_tree, hf_sna_th_efi, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 
 		/* Byte 1 */
 		proto_tree_add_item(tree, hf_sna_reserved, tvb, 1, 1, ENC_NA);
 
 		/* Byte 2 */
-		proto_tree_add_item(tree, hf_sna_th_daf, tvb, 2, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_sna_th_daf, tvb, 2, 1, ENC_BIG_ENDIAN);
 	}
 
 	/* Set DST addr */
@@ -1735,7 +1735,7 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 
 	/* Byte 3 */
-	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
 	ptr = tvb_get_ptr(tvb, 3, SNA_FID2_ADDR_LEN);
@@ -2190,7 +2190,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		proto_tree_add_bitmask(tree, tvb, offset, hf_sna_rh_2,
 			       ett_sna_rh_2, sna_rh_2_req_fields, ENC_BIG_ENDIAN);
 	} else {
-		proto_tree_add_item(tree, hf_sna_rh_2, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_sna_rh_2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 
 	/* XXX - check for sdi. If TRUE, the next 4 bytes will be sense data */

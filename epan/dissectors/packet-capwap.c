@@ -1002,9 +1002,9 @@ dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_cap
     encryption_capabilities_item = proto_tree_add_item(encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt, tvb, offset, 3, ENC_NA);
     sub_encryption_capabilities_tree = proto_item_add_subtree(encryption_capabilities_item, ett_capwap_encryption_capability);
 
-    proto_tree_add_item(sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_reserved, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item (sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_wbid, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item (sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_wbid, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(encryption_capabilities_item, ": (WBID %d)",tvb_get_guint8(tvb, offset) & 0x1F);
 
 
@@ -1740,7 +1740,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         offset += 1;
 
         while (offset < offset_end) {
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_rate_set_rate_set, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_rate_set_rate_set, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
         }
 
@@ -1753,9 +1753,9 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         break;
         }
         offset_end = offset + 4 + optlen;
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_radio_id, tvb, offset+4, 1, ENC_NA);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_association_id, tvb, offset+5, 2, ENC_NA);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_flags, tvb, offset+7, 1, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_association_id, tvb, offset+5, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_flags, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_mac_address, tvb, offset+8, 6, ENC_NA);
        msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ieee80211_station_capabilities);
@@ -1775,11 +1775,11 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_o, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_k, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_l, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_wlan_id, tvb, offset+16, 1, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_wlan_id, tvb, offset+16, 1, ENC_BIG_ENDIAN);
 
         offset += 17;
         while (offset < offset_end) {
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_supported_rates, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_supported_rates, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
         }
 
@@ -1809,11 +1809,11 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         offset += 4;
         offset_end = offset + optlen;
 
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_rates_radio_id, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_rates_radio_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         while (offset < offset_end) {
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_rates_rate, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_rates_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
         }
         break;
@@ -1824,9 +1824,9 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "IEEE80211 Tx Power length %u wrong, must be = 4", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_radio_id, tvb, offset+4, 1, ENC_NA);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_reserved, tvb, offset+5, 1, ENC_NA);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_current_tx_power, tvb, offset+6, 2, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_current_tx_power, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         break;
 
     case IEEE80211_TX_POWER_LEVEL:{ /* ieee80211 Tx Power Level (1042) */
@@ -2106,8 +2106,8 @@ dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint of
     ti = proto_tree_add_item(capwap_control_tree, hf_capwap_preamble, tvb, offset+plen, -1, ENC_NA);
     capwap_preamble_tree = proto_item_add_subtree(ti, ett_capwap_preamble);
 
-    proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_version, tvb, offset+plen, 1, ENC_NA);
-    proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_type, tvb, offset+plen, 1, ENC_NA);
+    proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_version, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_type, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
     *type_header = tvb_get_guint8(tvb, offset+plen) & 0x0F;
     plen++;
     /* DTLS Header ? */

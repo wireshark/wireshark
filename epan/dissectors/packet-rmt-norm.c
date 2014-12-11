@@ -262,7 +262,7 @@ static guint dissect_feccode(proto_tree *tree, tvbuff_t *tvb, guint offset,
 
     proto_tree_add_item(tree, hf_fec_encoding_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     if (reserved) {
-        proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA); offset += 1;
+        proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     }
     proto_tree_add_item(tree, hf_object_transport_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
@@ -416,7 +416,7 @@ static guint dissect_norm_cmd_repairadv(proto_tree *tree, packet_info *pinfo,
                                         tvbuff_t *tvb, guint offset, guint8 hlen)
 {
     proto_tree_add_item(tree, hf_flags,    tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-    proto_tree_add_item(tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
+    proto_tree_add_item(tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
     if (offset < hdrlen2bytes(hlen)) {
         offset = dissect_norm_hdrext(tree, pinfo, tvb, offset, hlen);
@@ -431,7 +431,7 @@ static guint dissect_norm_cmd_repairadv(proto_tree *tree, packet_info *pinfo,
 static guint dissect_norm_cmd_cc(proto_tree *tree, packet_info *pinfo,
                                  tvbuff_t *tvb, guint offset, guint8 hlen)
 {
-    proto_tree_add_item(tree, hf_reserved,    tvb, offset, 1, ENC_NA);         offset += 1;
+    proto_tree_add_item(tree, hf_reserved,    tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_cc_sequence, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
     proto_tree_add_item(tree, hf_cc_sts, tvb, offset, 4,  ENC_BIG_ENDIAN); offset += 4;
@@ -477,7 +477,7 @@ static guint dissect_norm_cmd_squelch(proto_tree *tree, packet_info *pinfo,
 static guint dissect_norm_cmd_ackreq(proto_tree *tree, packet_info *pinfo _U_,
                                      tvbuff_t *tvb, guint offset)
 {
-    proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);         offset += 1;
+    proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_ack_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_ack_id,   tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     return offset;

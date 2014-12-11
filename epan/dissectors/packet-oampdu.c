@@ -1244,12 +1244,12 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             };
 
             proto_tree_add_item(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
             proto_tree_add_item(info_tree, hf_oampdu_info_version,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
             offset += OAMPDU_INFO_VERSION_SZ;
 
@@ -1300,7 +1300,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             /* see IEEE802.3, section 57.5.2.3 for more details */
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
@@ -1820,7 +1820,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
             offset += 3;
 
             oampdu_vendor_specific_tree = proto_item_add_subtree(oui_item, ett_oampdu_vendor_specific);
-            dpoe_opcode_item = proto_tree_add_item(oampdu_vendor_specific_tree, hf_oampdu_vendor_specific_dpoe_opcode, tvb, offset, 1, ENC_NA);
+            dpoe_opcode_item = proto_tree_add_item(oampdu_vendor_specific_tree, hf_oampdu_vendor_specific_dpoe_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
             dpoe_opcode_tree = proto_item_add_subtree(dpoe_opcode_item, ett_dpoe_opcode);
             dpoe_opcode = tvb_get_guint8(tvb, offset);
             offset +=1;
@@ -1831,7 +1831,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                 case DPOE_OPCODE_GET_REQUEST:
                     leaf_branch = tvb_get_ntoh24(tvb, offset);
                     if (leaf_branch == DPOE_LB_ONU_OBJ) {
-                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
                         variable_length = tvb_get_guint8(tvb, offset);
                         offset += 1;
@@ -1839,7 +1839,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                     }
                     next_byte = tvb_get_guint8(tvb, offset);
                     while (next_byte != 0x00) {
-                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
                         next_byte = tvb_get_guint8(tvb, offset);
                     }
@@ -1848,13 +1848,13 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                 case DPOE_OPCODE_SET_REQUEST: /* Set-Request */
                 case DPOE_OPCODE_SET_RESPONSE: /* Set-Response */
                     while (next_byte != 0x00) {
-                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_NA);
+                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_tree, hf_dpoe_variable_descriptor, tvb, offset, 3, ENC_BIG_ENDIAN);
                         leaf_branch = tvb_get_ntoh24(tvb, offset);
                         offset += 3;
                         variable_length = tvb_get_guint8(tvb, offset);
                         dpoe_opcode_response_tree = proto_item_add_subtree(dpoe_opcode_response, ett_dpoe_opcode_response);
                         if (variable_length >= 0x80) {
-                            proto_tree_add_item(dpoe_opcode_response_tree, hf_dpoe_variable_response_code, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(dpoe_opcode_response_tree, hf_dpoe_variable_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                             variable_length = 0;
                             offset += 1;
                         } else if (variable_length == 0) {
@@ -1866,16 +1866,16 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                             if (leaf_branch == (DPOE_LB_ONU_ID)) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_eth, tvb, offset, variable_length, ENC_NA);
                             } else if (leaf_branch == DPOE_LB_MAX_LL) {
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_b, tvb, offset, 2, ENC_NA);
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_do, tvb, offset+2, 2, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mll_do, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_MAX_NET_PORTS) {
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_NUM_S1_INT) {
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_OAM_FR) {
-                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_NA);
+                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 proto_item_append_text(dpoe_opcode_response, " (PDUs/100ms)");
-                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_NA);
+                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                                 proto_item_append_text(dpoe_opcode_response, " (Number of 100ms)");
                             } else if (leaf_branch == DPOE_LB_REP_THRESH) {
                                 guint8 nqs;
@@ -1883,14 +1883,14 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                                 guint8 nqs_i;
                                 guint8 rvpqs_i;
 
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 nqs = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                                 rvpqs = tvb_get_guint8(tvb, offset+1);
 
                                 for (nqs_i = 0; nqs_i < nqs; nqs_i++) {
                                     for (rvpqs_i = 0; rvpqs_i < rvpqs; rvpqs_i++) {
-                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*(nqs_i+rvpqs_i)), 2, ENC_NA);
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*(nqs_i+rvpqs_i)), 2, ENC_BIG_ENDIAN);
                                         proto_item_append_text(dpoe_opcode_response, " (Report Threshold %i for Queue Set %i)",  nqs_i, rvpqs_i);
                                     }
                                 }
@@ -1898,11 +1898,11 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                             } else if (leaf_branch == DPOE_LB_S1_INT_PORT_AUTONEG) {
                                 proto_tree_add_bitmask(dpoe_opcode_response_tree, tvb, offset, hf_oam_dpoe_s1_autoneg, ett_oam_dpoe_s1_autoneg, s1_autoneg_mode_bits, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_USER_PORT_OBJ) {
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object, tvb, offset, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_PORT_INGRESS_RULE) {
                                 guint8 pir_mvl;
                                 pir_subtype = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_subtype, tvb, offset, 1, ENC_NA);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 switch (pir_subtype) {
                                     /* Terminator */
                                     case 0:
@@ -1910,22 +1910,22 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                                         break;
                                         /* Header */
                                     case 1:
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_header_precedence, tvb, offset+1, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_header_precedence, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                                         break;
                                         /* Clause */
                                     case 2:
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fc, tvb, offset+1, 1, ENC_NA);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fi, tvb, offset+2, 1, ENC_NA);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_msbm, tvb, offset+3, 1, ENC_NA);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_lsbm, tvb, offset+4, 1, ENC_NA);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_operator, tvb, offset+5, 1, ENC_NA);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fc, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_fi, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_msbm, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_lsbm, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_operator, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_BIG_ENDIAN);
                                         pir_mvl = tvb_get_guint8(tvb, offset+6);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_NA);
+                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_BIG_ENDIAN);
                                         break;
                                         /* Result */
                                     case 3:
-                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr, tvb, offset+1, 1, ENC_NA);
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                                         rr_byte = tvb_get_guint8(tvb, offset+1);
                                         switch (rr_byte) {
                                             case 0x00:
@@ -1939,36 +1939,36 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                                                 break;
                                             case 0x03:
                                                 proto_item_append_text(dpoe_opcode_response, " Set destination queue for frame");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue, tvb, offset+2, 3, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_queue, tvb, offset+2, 3, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x04:
                                                 proto_item_append_text(dpoe_opcode_response, " Set output field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fc, tvb, offset+2, 1, ENC_NA);
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fi, tvb, offset+3, 1, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fc, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_set_fi, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x05:
                                                 proto_item_append_text(dpoe_opcode_response, " Copy output field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_copy, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x06:
                                                 proto_item_append_text(dpoe_opcode_response, " Delete field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_delete, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_delete, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x07:
                                                 proto_item_append_text(dpoe_opcode_response, " Insert field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_insert, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_insert, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x08:
                                                 proto_item_append_text(dpoe_opcode_response, " Delete field and Insert current output field");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_replace, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_replace, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x09:
                                                 proto_item_append_text(dpoe_opcode_response, " Do not delete field (override other Delete result)");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_cd, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_cd, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             case 0x0A:
                                                 proto_item_append_text(dpoe_opcode_response, " Do not insert field (override other Insert result)");
-                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_ci, tvb, offset+2, 2, ENC_NA);
+                                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_result_rr_ci, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                                 break;
                                             default:
                                                 break;
@@ -1996,34 +1996,34 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                                 proto_tree *dpoe_oam_qc_nq_subtree;
 
                                 qc_n = tvb_get_guint8(tvb, offset);
-                                dpoe_oam_qc_upstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ll_u, tvb, offset, 1, ENC_NA);
+                                dpoe_oam_qc_upstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ll_u, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 dpoe_oam_qc_upstream_subtree = proto_item_add_subtree(dpoe_oam_qc_upstream, ett_oam_dpoe_qc_u);
                                 for (qc_n_i = 0; qc_n_i < qc_n; qc_n_i++) {
 
                                     offset++;
                                     qc_m = tvb_get_guint8(tvb, offset);
-                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_upstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
+                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_upstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_BIG_ENDIAN);
                                     proto_item_append_text(dpoe_oam_qc_nq, " (Upstream link %i)", qc_n_i);
                                     dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
                                     for (qc_m_i = 0; qc_m_i < qc_m; qc_m_i++) {
                                         offset++;
-                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_BIG_ENDIAN);
                                         proto_item_append_text(dpoe_opcode_response, " (Upstream link %i queue %i size)",  qc_n_i, qc_m_i);
                                     }
                                 }
                                 offset++;
                                 qc_p = tvb_get_guint8(tvb, offset);
-                                dpoe_oam_qc_downstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ports_d, tvb, offset, 1, ENC_NA);
+                                dpoe_oam_qc_downstream = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_qc_ports_d, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 dpoe_oam_qc_downstream_subtree = proto_item_add_subtree(dpoe_oam_qc_downstream, ett_oam_dpoe_qc_d);
                                 for (qc_p_i = 0; qc_p_i < qc_p; qc_p_i++) {
                                     offset++;
                                     qc_j = tvb_get_guint8(tvb, offset);
-                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_downstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_NA);
+                                    dpoe_oam_qc_nq = proto_tree_add_item(dpoe_oam_qc_downstream_subtree, hf_oam_dpoe_qc_nq, tvb, offset, 1, ENC_BIG_ENDIAN);
                                     proto_item_append_text(dpoe_oam_qc_nq, " (Downstream port %i)", qc_p_i);
                                     dpoe_oam_qc_nq_subtree = proto_item_add_subtree(dpoe_oam_qc_nq, ett_oam_dpoe_qc_nq);
                                     for (qc_j_i = 0; qc_j_i < qc_j; qc_j_i++) {
                                         offset++;
-                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_NA);
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_oam_qc_nq_subtree, hf_oam_dpoe_qc_queue_size, tvb, offset, 1, ENC_BIG_ENDIAN);
                                         proto_item_append_text(dpoe_opcode_response, " (Downstream port %i queue %i size)",  qc_p_i, qc_j_i);
                                     }
                                 }

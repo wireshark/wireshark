@@ -2215,10 +2215,10 @@ dissect_fhandle_data_DCACHE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 
 	obj_len = tvb_get_guint8(tvb, offset + 16);
 
-	proto_tree_add_item(tree, hf_nfs_fh_version, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_nfs_fh_generation, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_nfs_fh_dc_exportid, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_nfs_fh_dc_handle_type, tvb, offset+15, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_dc_handle_type, tvb, offset+15, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_nfs_fh_dc_opaque, tvb, offset + 17, obj_len, ENC_NA);
 out:
 	;
@@ -10742,7 +10742,7 @@ proto_register_nfs(void)
 			"export_id", "nfs.fh.dc.exportid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_fh_dc_handle_type, {
-			"fh type", "nfs.fh.dc.type", FT_UINT32, BASE_DEC,
+			"fh type", "nfs.fh.dc.type", FT_UINT8, BASE_DEC,
 			VALS(dcache_handle_types), 0, NULL, HFILL }},
 		{ &hf_nfs2_status, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
