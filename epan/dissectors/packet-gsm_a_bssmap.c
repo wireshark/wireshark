@@ -7056,7 +7056,7 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 };
 #define NUM_BSSMAP_MSG_FCNS     (int)(sizeof(bssmap_msg_fcn)/sizeof(bssmap_msg_fcn[0]))
 
-int
+static int
 dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     static gsm_a_tap_rec_t  tap_rec[4];
