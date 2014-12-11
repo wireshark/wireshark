@@ -1177,11 +1177,11 @@ proto_register_gsm_bssmap_le(void)
 		},
 	};
 
-    expert_module_t* expert_gsm_a_bssmap_le;
+	expert_module_t* expert_gsm_a_bssmap_le;
 
-    static ei_register_info ei[] = {
-        { &ei_gsm_a_bssmap_le_not_decoded_yet, { "gsm_bssmap_le.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
-    };
+	static ei_register_info ei[] = {
+		{ &ei_gsm_a_bssmap_le_not_decoded_yet, { "gsm_bssmap_le.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
+	};
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
@@ -1211,8 +1211,8 @@ proto_register_gsm_bssmap_le(void)
 
 	proto_register_field_array(proto_bssmap_le, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-    expert_gsm_a_bssmap_le = expert_register_protocol(proto_bssmap_le);
-    expert_register_field_array(expert_gsm_a_bssmap_le, ei, array_length(ei));
+	expert_gsm_a_bssmap_le = expert_register_protocol(proto_bssmap_le);
+	expert_register_field_array(expert_gsm_a_bssmap_le, ei, array_length(ei));
 
 	new_register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
 }
