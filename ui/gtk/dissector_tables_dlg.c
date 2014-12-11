@@ -373,7 +373,7 @@ dissector_tables_dlg_init(void)
     /* Fill the table with data */
     dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
 
-    dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees);
+    dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
 
     sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.str_tree_wgt)));
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);

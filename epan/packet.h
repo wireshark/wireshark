@@ -183,12 +183,12 @@ WS_DLL_PUBLIC void dissector_table_foreach_handle(const char *table_name, DATFun
 
 /** Iterate over all dissector tables.
  *
- * Walk all dissector tables calling a user supplied function on each
+ * Walk the set of dissector tables calling a user supplied function on each
  * table.
  * @param[in] func The function to call for each table.
  * @param[in] user_data User data to pass to the function.
- * @param[in] compare_key_func Function used to sort tables before calling
- * the function.  No sorting is done if NULL. */
+ * @param[in] compare_key_func Function used to sort the set of tables before
+ * calling the function.  No sorting is done if NULL. */
 WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data, GCompareFunc compare_key_func);
 
@@ -359,8 +359,16 @@ WS_DLL_PUBLIC void register_heur_dissector_list(const char *name,
 typedef void (*DATFunc_heur_table) (const gchar *table_name,
     heur_dissector_list_t *table, gpointer user_data);
 
+/** Iterate over all heuristic dissector tables.
+ *
+ * Walk the set of heuristic dissector tables calling a user supplied function
+ * on each table.
+ * @param[in] func The function to call for each table.
+ * @param[in] user_data User data to pass to the function.
+ * @param[in] compare_key_func Function used to sort the set of tables before
+ * calling the function.  No sorting is done if NULL. */
 WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
-    gpointer user_data);
+    gpointer user_data, GCompareFunc compare_key_func);
 
 /* true if a heur_dissector list of that anme exists to be registered into */
 WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);

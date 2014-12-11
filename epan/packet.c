@@ -1724,6 +1724,7 @@ typedef struct dissector_foreach_table_info {
 
 /*
  * Called for each entry in the table of all dissector tables.
+ * This is used if we directly process the hash table.
  */
 static void
 dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
@@ -1738,6 +1739,7 @@ dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, con
 
 /*
  * Called for each key in the table of all dissector tables.
+ * This is used if we get a list of table names, sort it, and process the list.
  */
 static void
 dissector_all_tables_foreach_list_func (gpointer key, gpointer user_data)
@@ -1756,8 +1758,8 @@ dissector_all_tables_foreach_list_func (gpointer key, gpointer user_data)
  */
 void
 dissector_all_tables_foreach_table (DATFunc_table func,
-					gpointer      user_data,
-					GCompareFunc compare_key_func)
+				    gpointer      user_data,
+				    GCompareFunc  compare_key_func)
 {
 	dissector_foreach_table_info_t info;
 	GList *list;
@@ -2072,6 +2074,10 @@ dissector_dump_heur_decodes_display(const gchar *table_name, heur_dissector_list
 }
 
 
+/*
+ * Called for each entry in the table of all heuristic dissector tables.
+ * This is used if we directly process the hash table.
+ */
 static void
 dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
 {
@@ -2082,18 +2088,45 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value
 }
 
 /*
+ * Called for each key in the table of all dissector tables.
+ * This is used if we get a list of table names, sort it, and process the list.
+ */
+static void
+dissector_all_heur_tables_foreach_list_func (gpointer key, gpointer user_data)
+{
+	heur_dissector_list_t               *list;
+	heur_dissector_foreach_table_info_t *info;
+
+	list = (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, key);
+	info = (heur_dissector_foreach_table_info_t *)user_data;
+	(*info->caller_func)((gchar*)key, list, info->caller_data);
+}
+
+/*
  * Walk all heuristic dissector tables calling a user supplied function on each
  * table.
  */
 void
 dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
-					 gpointer user_data)
+					 gpointer           user_data,
+					 GCompareFunc       compare_key_func)
 {
 	heur_dissector_foreach_table_info_t info;
+	GList *list;
 
 	info.caller_data = user_data;
 	info.caller_func = func;
-	g_hash_table_foreach(heur_dissector_lists, dissector_all_heur_tables_foreach_table_func, &info);
+	if (compare_key_func != NULL)
+	{
+		list = g_hash_table_get_keys(dissector_tables);
+		list = g_list_sort(list, compare_key_func);
+		g_list_foreach(list, dissector_all_heur_tables_foreach_list_func, &info);
+		g_list_free(list);
+	}
+	else
+	{
+		g_hash_table_foreach(heur_dissector_lists, dissector_all_heur_tables_foreach_table_func, &info);
+	}
 }
 
 /*
@@ -2102,7 +2135,7 @@ dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
 void
 dissector_dump_heur_decodes(void)
 {
-	dissector_all_heur_tables_foreach_table(dissector_dump_heur_decodes_display, NULL);
+	dissector_all_heur_tables_foreach_table(dissector_dump_heur_decodes_display, NULL, NULL);
 }
 
 

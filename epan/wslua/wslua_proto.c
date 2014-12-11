@@ -2262,7 +2262,7 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_list (lua_State *L) {
 
     lua_newtable(L);
 
-    dissector_all_heur_tables_foreach_table(heur_dissector_tables_list_func, (gpointer)&data);
+    dissector_all_heur_tables_foreach_table(heur_dissector_tables_list_func, (gpointer)&data, NULL);
 
     WSLUA_RETURN(1); /* The array table of registered heuristic list names */
 }
