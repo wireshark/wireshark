@@ -370,6 +370,7 @@ static int hf_rsvp_template_filter_source_address_ipv6 = -1;
 static int hf_rsvp_message_id_ack_flags = -1;
 static int hf_rsvp_flowspec_multiplier = -1;
 static int hf_rsvp_tspec_token_bucket_size = -1;
+static int hf_rsvp_admin_status_bits = -1;
 static int hf_rsvp_admin_status_data = -1;
 static int hf_rsvp_tspec_peak_data_rate = -1;
 static int hf_rsvp_flowspec_number_of_virtual_components = -1;
@@ -467,7 +468,6 @@ static int hf_rsvp_dclass_data = -1;
 static int hf_rsvp_lsp_tunnel_if_id_interface_id = -1;
 static int hf_rsvp_lsp_tunnel_if_id_sc_pc_id = -1;
 static int hf_rsvp_error_error_code = -1;
-static int hf_rsvp_admin_status = -1;
 static int hf_rsvp_lsp_tunnel_if_id_ipv4_interface_address = -1;
 static int hf_rsvp_session_attribute_exclude_any = -1;
 static int hf_rsvp_sending_ttl = -1;
@@ -5114,7 +5114,7 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_uint(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, type);
         status = tvb_get_ntohl(tvb, offset2);
 
-        proto_tree_add_bitmask(rsvp_object_tree, tvb, offset2, hf_rsvp_admin_status, TREE(TT_ADMIN_STATUS_FLAGS), status_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(rsvp_object_tree, tvb, offset2, hf_rsvp_admin_status_bits, TREE(TT_ADMIN_STATUS_FLAGS), status_flags, ENC_BIG_ENDIAN);
 
         proto_item_set_text(ti, "ADMIN-STATUS: %s%s%s%s%s%s%s%s",
                             (status & (1<<31)) ? "Reflect " : "",
@@ -9122,7 +9122,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_hello_destination_instance, { "Destination Instance", "rsvp.hello.destination_instance", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_dclass_dscp, { "DSCP", "rsvp.dclass.dscp", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dscp_vals_ext, 0x0, NULL, HFILL }},
       { &hf_rsvp_dclass_data, { "Data", "rsvp.dclass.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_admin_status, { "Admin Status", "rsvp.admin_status", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_admin_status_bits, { "Admin Status", "rsvp.admin_status.bits", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_admin_status_data, { "Data", "rsvp.admin_status.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_lsp_attributes_tlv, { "LSP attributes TLV", "rsvp.lsp_attributes_tlv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_lsp_attributes_tlv_data, { "Data", "rsvp.lsp_attributes_tlv.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
