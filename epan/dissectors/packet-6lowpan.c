@@ -661,7 +661,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
  *      void            ;
  *---------------------------------------------------------------
  */
-void
+static void
 lowpan_context_free(gpointer data)
 {
     wmem_free(NULL, data);
