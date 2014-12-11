@@ -852,7 +852,7 @@ proto_register_eth(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_eth_invalid_lentype, { "eth.invalid_lentype", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
+    { &ei_eth_invalid_lentype, { "eth.invalid_lentype.expert", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
         { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
         { &ei_eth_fcs_bad, { "eth.fcs_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
