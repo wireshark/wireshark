@@ -2054,9 +2054,9 @@ typedef struct heur_dissector_foreach_table_info {
 
 
 static void
-dissector_dump_heur_decodes_display(const gchar *table_name, const gpointer value, const gpointer user_data _U_)
+dissector_dump_heur_decodes_display(const gchar *table_name, heur_dissector_list_t *listptr, const gpointer user_data _U_)
 {
-	heur_dissector_list_t  sub_dissectors = *(heur_dissector_list_t *)value;
+	heur_dissector_list_t  sub_dissectors = *listptr;
 	GSList                *entry;
 	heur_dtbl_entry_t     *hdtbl_entry;
 
@@ -2078,7 +2078,7 @@ dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value
 	heur_dissector_foreach_table_info_t *info;
 
 	info = (heur_dissector_foreach_table_info_t *)user_data;
-	(*info->caller_func)((gchar*)key, value, info->caller_data);
+	(*info->caller_func)((gchar*)key, (heur_dissector_list_t *)value, info->caller_data);
 }
 
 /*

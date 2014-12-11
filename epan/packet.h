@@ -128,9 +128,6 @@ typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
 typedef void (*DATFunc_table) (const gchar *table_name, const gchar *ui_name,
     gpointer user_data);
 
-typedef void (*DATFunc_heur_table) (const gchar *table_name,gpointer table,
-    gpointer user_data);
-
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
 
@@ -358,6 +355,9 @@ typedef struct {
  */
 WS_DLL_PUBLIC void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
+
+typedef void (*DATFunc_heur_table) (const gchar *table_name,
+    heur_dissector_list_t *table, gpointer user_data);
 
 WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
     gpointer user_data);
