@@ -3,6 +3,13 @@
 # This module looks for some usual Unix commands.
 #
 
+# XXX Trying to get this to work with Cygwin is going to be problematic.
+# /usr/bin/a2x is a symlink to /usr/bin/a2x.py. I.e. we can't just call
+# directly from Windows.
+# Possible solutions:
+# - Call a2x.py instead.
+# - Wait for someone to create Chocolatey AsciiDoc + DocBook packages
+
 INCLUDE(FindCygwin)
 
 FIND_PROGRAM(A2X_EXECUTABLE
@@ -44,9 +51,9 @@ MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
     ENDFOREACH()
 
     ADD_CUSTOM_COMMAND(
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT
             ${_output}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${A2X_EXECUTABLE}
             --format=xhtml
             --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
@@ -55,7 +62,7 @@ MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
             ${A2X_HTML_OPTS}
             ${_asciidocsource}
         # Replacing file with itself will fail
-        # COMMAND mv
+        # COMMAND ${CMAKE_COMMAND} -E rename
         #     ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.html
         #     ${CMAKE_CURRENT_BINARY_DIR}/${_output}
         DEPENDS
@@ -87,9 +94,9 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
     ENDFOREACH()
 
     ADD_CUSTOM_COMMAND(
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT
             ${_output}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND TZ=UTC ${A2X_EXECUTABLE}
             --format=text
             --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
@@ -98,7 +105,7 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
             ${A2X_TEXT_OPTS}
             --xsltproc-opts '--stringparam generate.toc "article nop"'
             ${_asciidocsource}
-        COMMAND mv
+        COMMAND ${CMAKE_COMMAND} -E rename
             ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.text
             ${CMAKE_CURRENT_BINARY_DIR}/${_output}
         DEPENDS
@@ -108,7 +115,7 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
 ENDMACRO()
 
 # news: release-notes.txt
-#         cp release-notes.txt ../NEWS
+#         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
 
 MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
     GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
@@ -127,9 +134,9 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
     ENDFOREACH()
 
     ADD_CUSTOM_COMMAND(
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT
             ${_output}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND ${A2X_EXECUTABLE}
             --format=pdf
             --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
@@ -139,7 +146,7 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
             --xsltproc-opts "--stringparam paper.type ${_paper} --nonet"
             --xsl-file=custom_layer_pdf.xsl
             ${_asciidocsource}
-        COMMAND mv
+        COMMAND ${CMAKE_COMMAND} -E rename
             ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.pdf
             ${CMAKE_CURRENT_BINARY_DIR}/${_output}
         DEPENDS

@@ -784,7 +784,6 @@ EXTRA_DIST = \
 	debian/libwsutil0.install	\
 	debian/libwsutil0.symbols	\
 	debian/license-text-about-dialog	\
-	debian/patches/01_Disable-building-documentation-in-PDF-and-release-no.patch	\
 	debian/patches/04_asn2wrs_ply.patch	\
 	debian/patches/05_note-README-when-running-as-root.patch	\
 	debian/patches/06_release-version.patch	\

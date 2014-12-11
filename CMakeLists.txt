@@ -619,7 +619,7 @@ set(PACKAGELIST ${PACKAGELIST} YAPP)
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
-if(ENABLE_GUIDES)
+if(ENABLE_HTML_GUIDES)
 	set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
 endif()
 
@@ -849,6 +849,11 @@ add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
+if (NOT WIN32)
+	# Some work will be required for Windows. See the notes at the top
+	# of FindASCIIDOC.cmake.
+	add_subdirectory( docbook )
+endif()
 add_subdirectory( epan )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )
@@ -875,10 +880,6 @@ endif()
 # Basedir where to install guides
 set(DOC_DIR "$ENV{docdir}" CACHE FILEPATH "Installation directory for ug and dg pdfs.")
 message(STATUS "docdir: ${DOC_DIR}")
-
-if(ENABLE_GUIDES)
-	add_subdirectory( docbook )
-endif()
 
 if(ENABLE_PCAP_NG_DEFAULT)
 	set(PCAP_NG_DEFAULT 1)

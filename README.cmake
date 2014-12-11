@@ -48,7 +48,8 @@ Note 1:
   -DENABLE_GTK3=OFF
 
   # Build documentation
-  -DENABLE_GUIDES=ON
+  -DENABLE_HTML_GUIDES=ON
+  -DENABLE_PDF_GUIDES=ON
 
   # Make ccache and clang work together
   -DCMAKE_C_FLAGS='-Qunused-arguments'

@@ -215,6 +215,13 @@ set(WSUG_SOURCE
 
 set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
 
+add_custom_command(
+	OUTPUT ws.css
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${CMAKE_CURRENT_SOURCE_DIR}/ws.css
+		${CMAKE_CURRENT_BINARY_DIR}/ws.css
+)
+
 MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
 	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
@@ -288,13 +295,19 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
 )
 
+if(ENABLE_HTML_GUIDES)
+	set(WSUG_HTML_OUTPUT wsug_html_chunked/index.html wsug_html/index.html)
+endif()
+
+if(ENABLE_PDF_GUIDES)
+	set(WSUG_PDF_OUTPUT user-guide-a4.pdf user-guide-us.pdf)
+endif()
+
 add_custom_target(
-	user_guides ALL
+	user_guides
 	DEPENDS
-		wsug_html_chunked/index.html
-		wsug_html/index.html
-		user-guide-a4.pdf
-		user-guide-us.pdf
+		${WSUG_HTML_OUTPUT}
+		${WSUG_PDF_OUTPUT}
 )
 
 VALIDATE_XML(
@@ -334,14 +347,20 @@ XML2PDF(
 	letter
 )
 
+if(ENABLE_HTML_GUIDES)
+	set(WSDG_HTML_OUTPUT wsdg_html_chunked/index.html wsdg_html/index.html)
+endif()
+
+if(ENABLE_PDF_GUIDES)
+	set(WSDG_PDF_OUTPUT developer-guide-a4.pdf developer-guide-us.pdf)
+endif()
+
 add_custom_target(
-	developer_guides ALL
+	developer_guides
 	DEPENDS
 		wsluarm
-		wsdg_html_chunked/index.html
-		wsdg_html/index.html
-		developer-guide-a4.pdf
-		developer-guide-us.pdf
+		${WSDG_HTML_OUTPUT}
+		${WSDG_PDF_OUTPUT}
 )
 
 VALIDATE_XML(
@@ -377,22 +396,25 @@ XML2PDF(
 	letter
 )
 
+if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES)
+	add_custom_target( all_guides ALL )
+	add_dependencies ( all_guides user_guides developer_guides )
+endif()
+
 # release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
 
-add_custom_target(
-	release_notes ALL
-	DEPENDS
-		release-notes.html
-		release-notes.txt
-		release-notes-a4.pdf
-		release-notes-us.pdf
-		${CMAKE_SOURCE_DIR}/NEWS
-)
+add_custom_target( release_notes_html DEPENDS ws.css release-notes.html )
+add_custom_target( release_notes_txt DEPENDS release-notes.txt )
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT
-		${CMAKE_SOURCE_DIR}/NEWS
-	COMMAND cp
+# Force serial execution so that separate a2x instances don't trip on each other
+add_dependencies ( release_notes_txt release_notes_html )
+
+add_custom_target( release_notes )
+add_dependencies ( release_notes release_notes_txt release_notes_html )
+
+add_custom_target(
+	news
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
 		${CMAKE_SOURCE_DIR}/NEWS
 	DEPENDS
@@ -411,19 +433,19 @@ ASCIIDOC2TXT(
 	"${ASCIIDOC_CONF_FILES}"
 )
 
-ASCIIDOC2PDF(
-	release-notes-a4.pdf
-	release-notes.asciidoc
-	"${ASCIIDOC_CONF_FILES}"
-	A4
-)
+#ASCIIDOC2PDF(
+#	release-notes-a4.pdf
+#	release-notes.asciidoc
+#	"${ASCIIDOC_CONF_FILES}"
+#	A4
+#)
 
-ASCIIDOC2PDF(
-	release-notes-us.pdf
-	release-notes.asciidoc
-	"${ASCIIDOC_CONF_FILES}"
-	letter
-)
+#ASCIIDOC2PDF(
+#	release-notes-us.pdf
+#	release-notes.asciidoc
+#	"${ASCIIDOC_CONF_FILES}"
+#	letter
+#)
 
 # wsluarm
 ADD_CUSTOM_COMMAND(

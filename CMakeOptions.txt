@@ -46,7 +46,8 @@ option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)"
 option(ENABLE_ECHLD      "Enable echld support" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 option(ENABLE_EXTCAP     "Build with extcap hooks" ON)
-option(ENABLE_GUIDES     "Build Guides" OFF)
+option(ENABLE_HTML_GUIDES       "Build HTML User & Developer Guides" OFF)
+option(ENABLE_PDF_GUIDES        "Build PDF User & Developer Guides" OFF)
 option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
 
 option(ENABLE_ADNS       "Build with adns support" ON)

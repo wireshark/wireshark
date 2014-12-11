@@ -1,4 +1,4 @@
-                         Wireshark 1.99.1 Release Notes
+                         Wireshark 1.99.2 Release Notes
 
    This is an experimental release intended to test new features for
    Wireshark 2.0.
@@ -28,6 +28,8 @@ What's New
           + The Summary dialog has been updated and renamed to Capture
             File Properties.
           + The VoIP Calls and SIP Flows dialogs have been added.
+          + Support for HiDPI / Retina displays has been improved in the
+            official packages.
 
    The following features are new (or have been significantly updated)
    since version 1.12.0:
@@ -114,41 +116,38 @@ Known Problems
    Filtering tshark captures with read filters (-R) no longer works.
    ([6]Bug 2234)
 
-   The 64-bit Windows installer does not support Kerberos decryption.
-   ([7]Win64 development page)
-
-   Resolving ([8]Bug 9044) reopens ([9]Bug 3528) so that Wireshark no
+   Resolving ([7]Bug 9044) reopens ([8]Bug 3528) so that Wireshark no
    longer automatically decodes gzip data when following a TCP stream.
 
-   Application crash when changing real-time option. ([10]Bug 4035)
+   Application crash when changing real-time option. ([9]Bug 4035)
 
-   Hex pane display issue after startup. ([11]Bug 4056)
+   Hex pane display issue after startup. ([10]Bug 4056)
 
-   Packet list rows are oversized. ([12]Bug 4357)
+   Packet list rows are oversized. ([11]Bug 4357)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([13]Bug 4985)
+   ([12]Bug 4985)
 
    The 64-bit version of Wireshark will leak memory on Windows when the
-   display depth is set to 16 bits ([14]Bug 9914)
+   display depth is set to 16 bits ([13]Bug 9914)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [15]Wireshark's Q&A site and on the
+   Community support is available on [14]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [16]the web site.
+   all of Wireshark's mailing lists can be found on [15]the web site.
 
    Official Wireshark training and certification are available from
-   [17]Wireshark University.
+   [16]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [18]Wireshark web site.
+   A complete FAQ is available on the [17]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-12-10 17:18:06 UTC
+   Last updated 2014-12-10 19:56:16 UTC
 
 References
 
@@ -158,15 +157,14 @@ References
    4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
    5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
    6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   7. http://wiki.wireshark.org/Development/Win64
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9914
-  15. http://ask.wireshark.org/
-  16. https://www.wireshark.org/lists/
-  17. http://www.wiresharktraining.com/
-  18. https://www.wireshark.org/faq.html
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9914
+  14. http://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. http://www.wiresharktraining.com/
+  17. https://www.wireshark.org/faq.html
