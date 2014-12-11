@@ -356,8 +356,22 @@ typedef struct {
 WS_DLL_PUBLIC void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
 
+typedef void (*DATFunc_heur) (const gchar *table_name,
+    heur_dtbl_entry_t *entry, gpointer user_data);
 typedef void (*DATFunc_heur_table) (const gchar *table_name,
     heur_dissector_list_t *table, gpointer user_data);
+
+/** Iterate over heuristic dissectors in a table.
+ *
+ * Walk one heuristic dissector table's list calling a user supplied function
+ * on each entry.
+ *
+ * @param[in] table_name The name of the dissector table, e.g. "tcp".
+ * @param[in] func The function to call for each dissector.
+ * @param[in] user_data User data to pass to the function.
+ */
+WS_DLL_PUBLIC void heur_dissector_table_foreach(const char *table_name,
+    DATFunc_heur func, gpointer user_data);
 
 /** Iterate over all heuristic dissector tables.
  *

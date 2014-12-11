@@ -175,9 +175,9 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
 }
 
 static void
-display_heur_dissector_table_entries(gpointer data, gpointer user_data)
+display_heur_dissector_table_entries(const char *table_name _U_,
+    heur_dtbl_entry_t *dtbl_entry, gpointer user_data)
 {
-    heur_dtbl_entry_t            *dtbl_entry = (heur_dtbl_entry_t *)data;
     dissector_tables_tree_info_t *tree_info  = (dissector_tables_tree_info_t*)user_data;
     GtkTreeStore                 *store;
 
@@ -206,7 +206,7 @@ display_heur_dissector_table_names(const char *table_name, heur_dissector_list_t
     table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
 
     if (list) {
-        g_slist_foreach (*list, display_heur_dissector_table_entries, tree_info);
+        heur_dissector_table_foreach(table_name, display_heur_dissector_table_entries, tree_info);
     }
 
 }

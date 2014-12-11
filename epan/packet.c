@@ -2046,6 +2046,47 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	return status;
 }
 
+typedef struct heur_dissector_foreach_info {
+	gpointer      caller_data;
+	DATFunc_heur  caller_func;
+	GHFunc        next_func;
+	const gchar  *table_name;
+} heur_dissector_foreach_info_t;
+
+/*
+ * Called for each entry in a heuristic dissector table.
+ */
+static void
+heur_dissector_table_foreach_func (gpointer data, gpointer user_data)
+{
+	heur_dissector_foreach_info_t *info;
+
+	g_assert(data);
+	g_assert(user_data);
+
+	info = (heur_dissector_foreach_info_t *)user_data;
+	info->caller_func(info->table_name, (heur_dtbl_entry_t *)data,
+			  info->caller_data);
+}
+
+/*
+ * Walk one heuristic dissector table's list calling a user supplied function
+ * on each entry.
+ */
+void
+heur_dissector_table_foreach (const char  *table_name,
+			      DATFunc_heur func,
+			      gpointer     user_data)
+{
+	heur_dissector_foreach_info_t info;
+	heur_dissector_list_t        *list = find_heur_dissector_list(table_name);
+
+	info.table_name    = table_name;
+	info.caller_func   = func;
+	info.caller_data   = user_data;
+        g_slist_foreach (*list, heur_dissector_table_foreach_func, &info);
+}
+
 /*
  * Called for each entry in the table of all heuristic dissector tables.
  */
@@ -2053,26 +2094,6 @@ typedef struct heur_dissector_foreach_table_info {
 	gpointer           caller_data;
 	DATFunc_heur_table caller_func;
 } heur_dissector_foreach_table_info_t;
-
-
-static void
-dissector_dump_heur_decodes_display(const gchar *table_name, heur_dissector_list_t *listptr, const gpointer user_data _U_)
-{
-	heur_dissector_list_t  sub_dissectors = *listptr;
-	GSList                *entry;
-	heur_dtbl_entry_t     *hdtbl_entry;
-
-	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
-		hdtbl_entry = (heur_dtbl_entry_t *)entry->data;
-		if (hdtbl_entry->protocol != NULL) {
-			printf("%s\t%s\t%c\n",
-			       table_name,
-			       proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)),
-			       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F');
-		}
-	}
-}
-
 
 /*
  * Called for each entry in the table of all heuristic dissector tables.
@@ -2127,6 +2148,24 @@ dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
 	{
 		g_hash_table_foreach(heur_dissector_lists, dissector_all_heur_tables_foreach_table_func, &info);
 	}
+}
+
+static void
+display_heur_dissector_table_entries(const char *table_name,
+    heur_dtbl_entry_t *hdtbl_entry, gpointer user_data _U_)
+{
+	if (hdtbl_entry->protocol != NULL) {
+		printf("%s\t%s\t%c\n",
+		       table_name,
+		       proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol)),
+		       (proto_is_protocol_enabled(hdtbl_entry->protocol) && hdtbl_entry->enabled) ? 'T' : 'F');
+	}
+}
+
+static void
+dissector_dump_heur_decodes_display(const gchar *table_name, heur_dissector_list_t *listptr _U_, const gpointer user_data _U_)
+{
+	heur_dissector_table_foreach(table_name, display_heur_dissector_table_entries, NULL);
 }
 
 /*
