@@ -184,15 +184,14 @@ WS_DLL_PUBLIC void dissector_all_tables_foreach_changed (DATFunc func,
 WS_DLL_PUBLIC void dissector_table_foreach_handle(const char *table_name, DATFunc_handle func,
     gpointer user_data);
 
-/** Iterate over dissectors in a table matching against a given function.
+/** Iterate over all dissector tables.
  *
  * Walk all dissector tables calling a user supplied function on each
  * table.
- * @param[in] func The function to call for each dissector.
+ * @param[in] func The function to call for each table.
  * @param[in] user_data User data to pass to the function.
- * @param[in] compare_key_func Hash table key comparison function. All entries
- * are matched if NULL.
- */
+ * @param[in] compare_key_func Function used to sort tables before calling
+ * the function.  No sorting is done if NULL. */
 WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data, GCompareFunc compare_key_func);
 
