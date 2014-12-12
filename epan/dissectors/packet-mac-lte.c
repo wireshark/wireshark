@@ -1155,18 +1155,6 @@ typedef struct Msg3Data {
    Msg3 frames are first read.  */
 static GHashTable *mac_lte_msg3_hash = NULL;
 
-/* Hash table functions for mac_lte_msg3_hash.  Hash is just the (RNTI) key */
-static gint mac_lte_rnti_hash_equal(gconstpointer v, gconstpointer v2)
-{
-    return (v == v2);
-}
-
-static guint mac_lte_rnti_hash_func(gconstpointer v)
-{
-    return GPOINTER_TO_UINT(v);
-}
-
-
 typedef enum ContentionResolutionStatus {
     NoMsg3,
     Msg3Match,
@@ -1183,17 +1171,6 @@ typedef struct ContentionResolutionResult {
 /* This table stores (CRFrameNum -> CRResult).  It is assigned during the first
    pass and used thereafter */
 static GHashTable *mac_lte_cr_result_hash = NULL;
-
-/* Hash table functions for mac_lte_cr_result_hash.  Hash is just the (framenum) key */
-static gint mac_lte_framenum_hash_equal(gconstpointer v, gconstpointer v2)
-{
-    return (v == v2);
-}
-
-static guint mac_lte_framenum_hash_func(gconstpointer v)
-{
-    return GPOINTER_TO_UINT(v);
-}
 
 /**************************************************************************/
 
@@ -4431,6 +4408,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                         tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     break;
+                /* TODO: treat separately */
                 case TRUNCATED_BSR_LCID:
                 case SHORT_BSR_LCID:
                     {
@@ -5807,23 +5785,23 @@ static void mac_lte_init_protocol(void)
     DL_tti_info.subframe = 0xff;  /* Invalid value */
 
     /* Now create them over */
-    mac_lte_msg3_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
-    mac_lte_cr_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_msg3_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mac_lte_cr_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_dl_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
-    mac_lte_dl_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_dl_harq_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mac_lte_dl_harq_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_ul_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
-    mac_lte_ul_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_ul_harq_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mac_lte_ul_harq_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_ue_sr_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
-    mac_lte_sr_request_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_ue_sr_state = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mac_lte_sr_request_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_tti_info_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+    mac_lte_tti_info_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_ue_channels_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_ue_channels_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    mac_lte_drx_ue_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_drx_ue_state = g_hash_table_new(g_direct_hash, g_direct_equal);
     mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
 
     mac_lte_ue_ext_bsr_sizes_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -7068,28 +7046,12 @@ void proto_register_mac_lte(void)
               0, 0x0, NULL, HFILL
             }
         },
-#if 0
-        { &hf_mac_lte_drx_state_long_cycle_on,
-            { "Long cycle current on",
-              "mac-lte.drx-state.long-cycle-on", FT_BOOLEAN, BASE_NONE,
-              0, 0x0, NULL, HFILL
-            }
-        },
-#endif
         { &hf_mac_lte_drx_state_short_cycle_offset,
             { "Short cycle offset",
               "mac-lte.drx-state.short-cycle-offset", FT_UINT16, BASE_DEC,
               0, 0x0, NULL, HFILL
             }
         },
-#if 0
-        { &hf_mac_lte_drx_state_short_cycle_on,
-            { "Short cycle current on",
-              "mac-lte.drx-state.short-cycle-on", FT_BOOLEAN, BASE_NONE,
-              0, 0x0, NULL, HFILL
-            }
-        },
-#endif
         { &hf_mac_lte_drx_state_inactivity_remaining,
             { "Inactivity remaining",
               "mac-lte.drx-state.inactivity-remaining", FT_UINT16, BASE_DEC,

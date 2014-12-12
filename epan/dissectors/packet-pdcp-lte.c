@@ -480,20 +480,6 @@ typedef struct
    Maps key -> status */
 static GHashTable *pdcp_sequence_analysis_channel_hash = NULL;
 
-/* Equal keys */
-static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
-{
-    /* Key fits in 4 bytes, so just compare pointers! */
-    return (v == v2);
-}
-
-/* Compute a hash value for a given key. */
-static guint pdcp_channel_hash_func(gconstpointer v)
-{
-    /* Just use pointer, as the fields are all in this value */
-    return GPOINTER_TO_UINT(v);
-}
-
 
 /* Hash table types & functions for frame reports */
 
@@ -2263,7 +2249,7 @@ static void pdcp_lte_init_protocol(void)
 
 
     /* Now create them over */
-    pdcp_sequence_analysis_channel_hash = g_hash_table_new(pdcp_channel_hash_func, pdcp_channel_equal);
+    pdcp_sequence_analysis_channel_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
     pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
     pdcp_security_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
     pdcp_security_result_hash = g_hash_table_new(pdcp_lte_ueid_frame_hash_func, pdcp_lte_ueid_frame_hash_equal);
