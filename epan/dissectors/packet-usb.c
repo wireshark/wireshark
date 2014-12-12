@@ -2665,7 +2665,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     /* try dissect by "usb.device" */
     ret = dissector_try_uint_new(device_to_dissector,
             (guint32)(usb_conv_info->bus_id<<16 | usb_conv_info->device_address),
-            next_tvb, pinfo, parent, FALSE, usb_conv_info);
+            next_tvb, pinfo, parent, TRUE, usb_conv_info);
     if (ret)
         return tvb_captured_length(next_tvb);
 
@@ -2690,7 +2690,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             device_protocol_data->device_address == usb_conv_info->device_address) {
                 ret = dissector_try_uint_new(protocol_to_dissector,
                         (guint32)device_protocol_data->protocol,
-                        next_tvb, pinfo, parent, FALSE, usb_conv_info);
+                        next_tvb, pinfo, parent, TRUE, usb_conv_info);
                 if (ret)
                     return tvb_captured_length(next_tvb);
     }
@@ -2701,7 +2701,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             device_product_data->device_address == usb_conv_info->device_address) {
                 ret = dissector_try_uint_new(product_to_dissector,
                         (guint32)(device_product_data->vendor<<16 | device_product_data->product),
-                        next_tvb, pinfo, parent, FALSE, usb_conv_info);
+                        next_tvb, pinfo, parent, TRUE, usb_conv_info);
                 if (ret)
                     return tvb_captured_length(next_tvb);
     }

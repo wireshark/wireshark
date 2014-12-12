@@ -24,6 +24,8 @@
 #ifndef __PACKET_BTLE_H__
 #define __PACKET_BTLE_H__
 
+#include "packet-bluetooth.h"
+
 /*
  * These structures are meant to support the provision of contextual
  * metadata to the BTLE dissector.
@@ -58,6 +60,11 @@ typedef struct {
     gint crc_valid_at_capture: 1;
     gint mic_checked_at_capture: 1;
     gint mic_valid_at_capture: 1;
+
+    union {
+        void              *data;
+        bluetooth_data_t  *bluetooth_data;
+    } previous_protocol_data;
 } btle_context_t;
 
 #endif /* __PACKET_BTLE_H__ */

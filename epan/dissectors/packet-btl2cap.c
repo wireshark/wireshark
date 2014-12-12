@@ -34,7 +34,7 @@
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-bthci_acl.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
@@ -157,8 +157,6 @@ static dissector_table_t l2cap_service_dissector_table;
  * we 'or' the CID with 0x80000000 in this table
  */
 static wmem_tree_t *cid_to_psm_table  = NULL;
-
-static guint32 max_disconnect_in_frame = G_MAXUINT32;
 
 typedef struct _config_data_t {
     guint8      mode;
@@ -620,7 +618,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE);
         if (uuid) {
-            psm_str = val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown PSM");
+            psm_str = val_to_str_ext_const(uuid, &bluetooth_uuid_vals_ext, "Unknown PSM");
             proto_item_append_text(item, " (%s)", psm_str);
         }
     }
@@ -681,7 +679,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id   = k_adapter_id;
         psm_data->chandle      = k_chandle;
-        psm_data->disconnect_in_frame = G_MAXUINT32;
+        psm_data->disconnect_in_frame = max_disconnect_in_frame;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1415,7 +1413,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
                 psm_data->remote_cid == key_dcid &&
-                psm_data->disconnect_in_frame == G_MAXUINT32) {
+                psm_data->disconnect_in_frame == max_disconnect_in_frame) {
             psm_data->disconnect_in_frame = pinfo->fd->num;
         }
 
@@ -1443,7 +1441,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
                 psm_data->local_cid == key_scid &&
-                psm_data->disconnect_in_frame == G_MAXUINT32) {
+                psm_data->disconnect_in_frame == max_disconnect_in_frame) {
             psm_data->disconnect_in_frame = pinfo->fd->num;
         }
     }
@@ -1494,7 +1492,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
             if (uuid)
                 proto_item_append_text(psm_item, ": %s",
-                                       val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown service"));
+                                       val_to_str_ext_const(uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
         }
         PROTO_ITEM_SET_GENERATED(psm_item);
 
@@ -1668,7 +1666,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
                 if (uuid)
                     proto_item_append_text(psm_item, " (%s)",
-                                           val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown service"));
+                                           val_to_str_ext_const(uuid, &bluetooth_uuid_vals_ext, "Unknown service"));
             }
             PROTO_ITEM_SET_GENERATED(psm_item);
 

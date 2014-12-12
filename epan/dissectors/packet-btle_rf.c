@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+#include "packet-bluetooth.h"
 #include "packet-btle.h"
 
 #define LE_DEWHITENED        0x0001
@@ -117,8 +118,10 @@ btle_rf_channel_index(guint8 rf_channel)
 }
 
 static gint
-dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    bluetooth_data_t  *bluetooth_data = (bluetooth_data_t *) data;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BTLE RF");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -132,6 +135,7 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         guint8 aa_offenses = tvb_get_guint8(tvb, 3);
         guint16 flags      = tvb_get_letohs(tvb, 8);
 
+        context.previous_protocol_data.bluetooth_data = bluetooth_data;
         context.aa_category            = E_AA_NO_COMMENT;
         context.connection_info_valid  = 0; /* TODO */
         context.crc_checked_at_capture = !!(flags & LE_CRC_CHECKED);
@@ -358,7 +362,7 @@ proto_register_btle_rf(void)
 void
 proto_reg_handoff_btle_rf(void)
 {
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR, btle_rf_handle);
+    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR, btle_rf_handle);
     btle_handle = find_dissector("btle");
 }
 

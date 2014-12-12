@@ -32,14 +32,17 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
+#include "packet-bluetooth.h"
 #include "packet-btle.h"
-#include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
+#include "packet-ubertooth.h"
 
 static int proto_btle = -1;
 
 static int hf_access_address = -1;
 static int hf_crc = -1;
+static int hf_master_bd_addr = -1;
+static int hf_slave_bd_addr = -1;
 static int hf_advertising_header = -1;
 static int hf_advertising_header_pdu_type = -1;
 static int hf_advertising_header_rfu_1 = -1;
@@ -131,6 +134,17 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
+static wmem_tree_t *connection_addresses = NULL;
+
+typedef struct _connection_address_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint32  access_address;
+
+    guint8   master_bd_addr[6];
+    guint8   slave_bd_addr[6];
+} connection_address_t;
+
 static const value_string pdu_type_vals[] = {
     { 0x00, "ADV_IND" },
     { 0x01, "ADV_DIRECT_IND" },
@@ -199,28 +213,6 @@ static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_ve
 
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
-
-
-gint
-dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 *bdaddr)
-{
-    guint8 bd_addr[6];
-
-    bd_addr[5] = tvb_get_guint8(tvb, offset);
-    bd_addr[4] = tvb_get_guint8(tvb, offset + 1);
-    bd_addr[3] = tvb_get_guint8(tvb, offset + 2);
-    bd_addr[2] = tvb_get_guint8(tvb, offset + 3);
-    bd_addr[1] = tvb_get_guint8(tvb, offset + 4);
-    bd_addr[0] = tvb_get_guint8(tvb, offset + 5);
-
-    proto_tree_add_ether(tree, hf_bd_addr, tvb, offset, 6, bd_addr);
-    offset += 6;
-
-    if (bdaddr)
-        memcpy(bdaddr, bd_addr, 6);
-
-    return offset;
-}
 
 /*
  * Implements Bluetooth Vol 6, Part B, Section 3.1.1 (ref Figure 3.2)
@@ -312,24 +304,37 @@ reverse_bits_per_byte(const guint32 val)
 static gint
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item  *btle_item;
-    proto_tree  *btle_tree;
-    proto_item  *sub_item;
-    proto_tree  *sub_tree;
-    gint         offset = 0;
-    guint32      access_address;
-    guint8       length;
-    guint32      interface_id;
-    tvbuff_t    *next_tvb;
-    guint8      *dst_bd_addr;
-    guint8      *src_bd_addr;
+    proto_item           *btle_item;
+    proto_tree           *btle_tree;
+    proto_item           *sub_item;
+    proto_tree           *sub_tree;
+    gint                  offset = 0;
+    guint32               access_address;
+    guint8                length;
+    tvbuff_t              *next_tvb;
+    guint8                *dst_bd_addr;
+    guint8                *src_bd_addr;
+    connection_address_t  *connection_address = NULL;
+    wmem_tree_t           *wmem_tree;
+    wmem_tree_key_t        key[5];
+    guint32                interface_id;
+    guint32                adapter_id;
+    guint32                connection_access_address;
+    guint32                frame_number;
     enum {CRC_INDETERMINATE,
           CRC_CAN_BE_CALCULATED,
           CRC_INCORRECT,
           CRC_CORRECT} crc_status = CRC_INDETERMINATE;
     guint32      crc_init = 0x555555; /* default to advertising channel's value */
     guint32      packet_crc;
-    const btle_context_t * btle_context = (const btle_context_t *) data;
+    const btle_context_t  *btle_context = (const btle_context_t *) data;
+    bluetooth_data_t      *bluetooth_data = NULL;
+    ubertooth_data_t      *ubertooth_data = NULL;
+
+    if (btle_context)
+        bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
+        if (bluetooth_data)
+            ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
 
     src_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
     dst_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
@@ -362,10 +367,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
     offset += 4;
 
-    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+    if (bluetooth_data)
+        interface_id = bluetooth_data->interface_id;
+    else if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
         interface_id = pinfo->phdr->interface_id;
     else
         interface_id = HCI_INTERFACE_DEFAULT;
+
+    if (bluetooth_data)
+        adapter_id = bluetooth_data->adapter_id;
+    else if (ubertooth_data)
+        adapter_id = ubertooth_data->bus_id << 8 | ubertooth_data->device_address;
+    else
+        adapter_id = HCI_ADAPTER_DEFAULT;
+
+    frame_number = pinfo->fd->num;
 
     if (access_address == ACCESS_ADDRESS_ADVERTISING) {
         proto_item  *advertising_header_item;
@@ -423,6 +439,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
             SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
 
+            if (!pinfo->fd->flags.visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+            }
+
             if (tvb_length_remaining(tvb, offset) > 3) {
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
                 call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
@@ -443,6 +471,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
             SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
 
+            if (!pinfo->fd->flags.visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+            }
+
             break;
         case 0x03: /* SCAN_REQ */
             offset = dissect_bd_addr(hf_scanning_address, btle_tree, tvb, offset, src_bd_addr);
@@ -456,6 +496,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
             SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
 
+            if (!pinfo->fd->flags.visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+            }
+
             break;
         case 0x04: /* SCAN_RSP */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
@@ -467,6 +519,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
             SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
             SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
+
+            if (!pinfo->fd->flags.visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+            }
 
             sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
@@ -480,13 +544,34 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         case 0x05: /* CONNECT_REQ */
-            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, NULL);
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, src_bd_addr);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, dst_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+
+            if (!pinfo->fd->flags.visited) {
+                address *addr;
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+            }
 
             link_layer_data_item = proto_tree_add_item(btle_tree, hf_link_layer_data, tvb, offset, 22, ENC_NA);
             link_layer_data_tree = proto_item_add_subtree(link_layer_data_item, ett_link_layer_data);
 
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            connection_access_address = tvb_get_letohl(tvb, offset);
             offset += 4;
 
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -517,6 +602,29 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
+            if (!pinfo->fd->flags.visited) {
+                key[0].length = 1;
+                key[0].key = &interface_id;
+                key[1].length = 1;
+                key[1].key = &adapter_id;
+                key[2].length = 1;
+                key[2].key = &connection_access_address;
+                key[3].length = 1;
+                key[3].key = &frame_number;
+                key[4].length = 0;
+                key[4].key = NULL;
+
+                connection_address = wmem_new(wmem_file_scope(), connection_address_t);
+                connection_address->interface_id   = interface_id;
+                connection_address->adapter_id     = adapter_id;
+                connection_address->access_address = connection_access_address;
+
+                memcpy(connection_address->master_bd_addr, src_bd_addr, 6);
+                memcpy(connection_address->slave_bd_addr,  dst_bd_addr, 6);
+
+                wmem_tree_insert32_array(connection_addresses, key, connection_address);
+            }
+
             break;
         default:
             if (tvb_length_remaining(tvb, offset) > 3) {
@@ -529,6 +637,54 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree  *data_header_tree;
         guint8       llid;
         guint8       control_opcode;
+
+        key[0].length = 1;
+        key[0].key = &interface_id;
+        key[1].length = 1;
+        key[1].key = &adapter_id;
+        key[2].length = 1;
+        key[2].key = &access_address;
+        key[3].length = 0;
+        key[3].key = NULL;
+
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_addresses, key);
+        if (wmem_tree) {
+            connection_address = (connection_address_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->fd->num);
+            if (connection_address) {
+                gchar  *str_addr;
+                int     str_addr_len = 18 + 1;
+
+                str_addr = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
+
+                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, connection_address->master_bd_addr);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+
+                sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_address->slave_bd_addr);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+
+                g_snprintf(str_addr, str_addr_len, "unknown_0x%08x", connection_address->access_address);
+
+                SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr);
+                SET_ADDRESS(&pinfo->dl_src,  AT_STRINGZ, str_addr_len, str_addr);
+                SET_ADDRESS(&pinfo->src,     AT_STRINGZ, str_addr_len, str_addr);
+
+                SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr);
+                SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, str_addr_len, str_addr);
+                SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, str_addr_len, str_addr);
+
+                if (!pinfo->fd->flags.visited) {
+                    address *addr;
+
+                    addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                    addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+                    addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+                    addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+                }
+            }
+        }
 
         data_header_item = proto_tree_add_item(btle_tree, hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
@@ -567,19 +723,25 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += length;
                 } else {
                     bthci_acl_data_t  *acl_data;
+                    gint               saved_p2p_dir;
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
-/* TODO: Temporary solution while chandle source/bd_addrs is unknown  */
+
                     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
                     acl_data->interface_id = interface_id;
-                    acl_data->adapter_id   = 0;
-                    acl_data->chandle      = 0;
+                    acl_data->adapter_id   = adapter_id;
+                    acl_data->chandle      = 0; /* No connection handle at this layer */
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id  = 0;
+
+                    saved_p2p_dir = pinfo->p2p_dir;
+                    pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                     offset += length;
+
+                    pinfo->p2p_dir = saved_p2p_dir;
                 }
             }
             break;
@@ -804,6 +966,16 @@ proto_register_btle(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_master_bd_addr,
+            { "Master Address",                  "btle.master_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_slave_bd_addr,
+            { "Slave Address",                   "btle.slave_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_advertising_header,
             { "Packet Header",                   "btle.advertising_header",
             FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -981,7 +1153,7 @@ proto_register_btle(void)
         },
         { &hf_control_company_id,
             { "Company Id",                      "btle.control.company_id",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_control_subversion_number,
@@ -1183,6 +1355,8 @@ proto_register_btle(void)
         &ett_scan_response_data
     };
 
+    connection_addresses = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",
             "BT LE LL", "btle");
     btle_handle = new_register_dissector("btle", dissect_btle, proto_btle);
@@ -1206,7 +1380,7 @@ proto_reg_handoff_btle(void)
     btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
     btl2cap_handle = find_dissector("btl2cap");
 
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
+    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);
 }
 
 /*

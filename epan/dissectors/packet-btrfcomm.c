@@ -38,7 +38,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"
@@ -695,7 +695,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(service_directions, key);
             service_direction = (subtree) ? (service_direction_t *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
-            if (service_direction && service_direction->end_in == G_MAXUINT32) {
+            if (service_direction && service_direction->end_in == max_disconnect_in_frame) {
                 service_direction->end_in = k_frame_number;
             }
 
@@ -706,7 +706,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             service_direction = wmem_new(wmem_file_scope(), service_direction_t);
             service_direction->direction = (pinfo->p2p_dir == P2P_DIR_RECV) ? P2P_DIR_SENT : P2P_DIR_RECV;
-            service_direction->end_in = G_MAXUINT32;
+            service_direction->end_in = max_disconnect_in_frame;
 
             wmem_tree_insert32_array(service_directions, key, service_direction);
         }
@@ -775,7 +775,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == FRAME_TYPE_SABM))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                        val_to_str_ext_const(service_info->uuid.bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
+                        val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
 
     /* UID frame */
     if ((frame_type == FRAME_TYPE_UIH) && dlci && pf_flag) {

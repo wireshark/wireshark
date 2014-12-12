@@ -31,7 +31,7 @@
 #include <epan/wmem/wmem.h>
 #include <wiretap/wtap.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_sco = -1;
@@ -51,12 +51,12 @@ void proto_reg_handoff_bthci_sco(void);
 static gint
 dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-    proto_item *ti;
-    proto_tree *bthci_sco_tree;
-    gint        offset = 0;
-    guint16     flags;
-    hci_data_t *hci_data;
-    wmem_tree_key_t           key[5];
+    proto_item               *ti;
+    proto_tree               *bthci_sco_tree;
+    gint                      offset = 0;
+    guint16                   flags;
+    bluetooth_data_t         *bluetooth_data;
+    wmem_tree_key_t           key[6];
     guint32                   k_connection_handle;
     guint32                   k_frame_number;
     guint32                   k_interface_id;
@@ -93,11 +93,11 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    hci_data = (hci_data_t *) data;
-    DISSECTOR_ASSERT(hci_data);
+    bluetooth_data = (bluetooth_data_t *) data;
+    DISSECTOR_ASSERT(bluetooth_data);
 
-    k_interface_id      = hci_data->interface_id;
-    k_adapter_id        = hci_data->adapter_id;
+    k_interface_id      = bluetooth_data->interface_id;
+    k_adapter_id        = bluetooth_data->adapter_id;
     k_connection_handle = flags & 0x0fff;
     k_frame_number      = pinfo->fd->num;
 
@@ -113,9 +113,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[4].key    = NULL;
 
     /* remote bdaddr and name */
-    remote_bdaddr = (remote_bdaddr_t *)wmem_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
-    if (remote_bdaddr && remote_bdaddr->interface_id == hci_data->interface_id &&
-            remote_bdaddr->adapter_id == hci_data->adapter_id &&
+    remote_bdaddr = (remote_bdaddr_t *)wmem_tree_lookup32_array_le(bluetooth_data->chandle_to_bdaddr, key);
+    if (remote_bdaddr && remote_bdaddr->interface_id == bluetooth_data->interface_id &&
+            remote_bdaddr->adapter_id == bluetooth_data->adapter_id &&
             remote_bdaddr->chandle == (flags & 0x0fff)) {
         guint32         k_bd_addr_oui;
         guint32         k_bd_addr_id;
@@ -135,15 +135,19 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         k_frame_number = pinfo->fd->num;
 
         key[0].length = 1;
-        key[0].key    = &k_bd_addr_id;
+        key[0].key    = &k_interface_id;
         key[1].length = 1;
-        key[1].key    = &k_bd_addr_oui;
+        key[1].key    = &k_adapter_id;
         key[2].length = 1;
-        key[2].key    = &k_frame_number;
-        key[3].length = 0;
-        key[3].key    = NULL;
+        key[2].key    = &k_bd_addr_id;
+        key[3].length = 1;
+        key[3].key    = &k_bd_addr_oui;
+        key[4].length = 1;
+        key[4].key    = &k_frame_number;
+        key[5].length = 0;
+        key[5].key    = NULL;
 
-        device_name = (device_name_t *)wmem_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
+        device_name = (device_name_t *)wmem_tree_lookup32_array_le(bluetooth_data->bdaddr_to_name, key);
         if (device_name && device_name->bd_addr_oui == bd_addr_oui && device_name->bd_addr_id == bd_addr_id)
             remote_name = device_name->name;
         else
@@ -176,8 +180,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         }
     }
 
-    k_interface_id      = hci_data->interface_id;
-    k_adapter_id        = hci_data->adapter_id;
+    k_interface_id      = bluetooth_data->interface_id;
+    k_adapter_id        = bluetooth_data->adapter_id;
     k_frame_number      = pinfo->fd->num;
 
     /* localhost bdaddr and name */
@@ -191,9 +195,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[3].key    = NULL;
 
 
-    localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
-    if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == hci_data->interface_id &&
-        localhost_bdaddr_entry->adapter_id == hci_data->adapter_id) {
+    localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_bdaddr, key);
+    if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == bluetooth_data->interface_id &&
+        localhost_bdaddr_entry->adapter_id == bluetooth_data->adapter_id) {
 
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
         memcpy(localhost_bdaddr, localhost_bdaddr_entry->bd_addr, 6);
@@ -203,9 +207,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         memset(localhost_bdaddr, 0, 6);
     }
 
-    localhost_name_entry = (localhost_name_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_name, key);
-    if (localhost_name_entry && localhost_name_entry->interface_id == hci_data->interface_id &&
-            localhost_name_entry->adapter_id == hci_data->adapter_id)
+    localhost_name_entry = (localhost_name_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_name, key);
+    if (localhost_name_entry && localhost_name_entry->interface_id == bluetooth_data->interface_id &&
+            localhost_name_entry->adapter_id == bluetooth_data->adapter_id)
         localhost_name = localhost_name_entry->name;
     else
         localhost_name = "";

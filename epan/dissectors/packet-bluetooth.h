@@ -1,4 +1,4 @@
-/* packet-bluetooth-hci.h
+/* packet-bluetooth.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,10 +19,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PACKET_BLUETOOTH_HCI_H__
-#define __PACKET_BLUETOOTH_HCI_H__
+#ifndef __PACKET_BLUETOOTH_H__
+#define __PACKET_BLUETOOTH_H__
 
 #include <epan/wmem/wmem.h>
+
+#include <packet-usb.h>
+#include <packet-ubertooth.h>
+
+#define BLUETOOTH_DATA_SRC 0
+#define BLUETOOTH_DATA_DST 1
 
 #define HCI_H4_TYPE_CMD   0x01
 #define HCI_H4_TYPE_ACL   0x02
@@ -46,6 +52,8 @@
 
 #define ACCESS_ADDRESS_ADVERTISING 0x8e89bed6
 
+extern int proto_bluetooth;
+
 extern value_string_ext bthci_cmd_opcode_vals_ext;
 extern value_string_ext bthci_ogf_vals_ext;
 extern value_string_ext bthci_cmd_ocf_link_control_vals_ext;
@@ -64,9 +72,6 @@ extern value_string_ext bthci_cmd_status_vals_ext;
 extern value_string_ext bthci_cmd_eir_data_type_vals_ext;
 extern value_string_ext bthci_cmd_auth_req_vals_ext;
 extern value_string_ext bthci_cmd_appearance_vals_ext;
-extern value_string_ext bthci_evt_comp_id_ext;
-
-extern value_string_ext bt_sig_uuid_vals_ext;
 
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];
@@ -97,20 +102,32 @@ extern const value_string bthci_cmd_notification_types[];
 #define HCI_INTERFACE_DEFAULT  0
 #define HCI_ADAPTER_DEFAULT    0
 
-/* chandle_to_bdaddr_table:  interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
-/* bdaddr_to_name_table:     bd_addr[6] + frame_number -> name */
+/* chandle_sessions:         interface_id + adapter_id + connection_handle + frame_number -> connect_in_frame, disconnect_in_frame */
+/* chandle_to_bdaddr:        interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
+/* chandle_to_mode:          interface_id + adapter_id + connection_handle + frame_number -> mode */
+/* bdaddr_to_name:           bd_addr[6] + frame_number -> name */
+/* bdaddr_to_role:           bd_addr[6] + frame_number -> role */
 /* localhost_bdaddr:         interface_id + adapter_id + frame_number -> bd_addr[6] */
 /* localhost_name:           interface_id + adapter_id + frame_number -> name */
-typedef struct _hci_data_t {
+typedef struct _bluetooth_data_t {
     guint32      interface_id;
     guint32      adapter_id;
     guint32     *adapter_disconnect_in_frame;
     wmem_tree_t *chandle_sessions;
-    wmem_tree_t *chandle_to_bdaddr_table;
-    wmem_tree_t *bdaddr_to_name_table;
+    wmem_tree_t *chandle_to_bdaddr;
+    wmem_tree_t *chandle_to_mode;
+    wmem_tree_t *bdaddr_to_name;
+    wmem_tree_t *bdaddr_to_role;
     wmem_tree_t *localhost_bdaddr;
     wmem_tree_t *localhost_name;
-} hci_data_t;
+
+    union {
+        void              *data;
+        usb_conv_info_t   *usb_conv_info;
+        ubertooth_data_t  *ubertooth_data;
+    } previous_protocol_data;
+
+} bluetooth_data_t;
 
 typedef struct _chandle_session_t {
     guint32  connect_in_frame;
@@ -130,6 +147,20 @@ typedef struct _device_name_t {
     gchar    *name;
 } device_name_t;
 
+typedef struct _device_role_t {
+    guint32  role;
+    guint32  change_in_frame;
+} device_role_t;
+
+typedef struct _connection_mode_t {
+    gint32   mode;
+    guint32  change_in_frame;
+} connection_mode_t;
+
+#define ROLE_UNKNOWN  0
+#define ROLE_MASTER   1
+#define ROLE_SLAVE    2
+
 typedef struct _localhost_bdaddr_entry_t {
     guint32  interface_id;
     guint32  adapter_id;
@@ -142,7 +173,16 @@ typedef struct _localhost_name_entry_t {
     gchar    *name;
 } localhost_name_entry_t;
 
-/* In "packet-btle.c" */
+typedef struct _bluetooth_tap_data_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+} bluetooth_tap_data_t;
+
+
+extern value_string_ext  bluetooth_uuid_vals_ext;
+extern value_string_ext  bluetooth_company_id_vals_ext;
+extern guint32           max_disconnect_in_frame;
+
 extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
         gint offset, guint8 *bdaddr);
 

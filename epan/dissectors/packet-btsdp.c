@@ -39,7 +39,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 
@@ -895,7 +895,7 @@ static gchar *
 print_uuid(uuid_t *uuid)
 {
     if (uuid->bt_uuid) {
-        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
+        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
     } else {
         guint i_uuid;
 
@@ -1146,7 +1146,7 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uu
     } else if (size == 16 && tvb_get_ntohs(tvb, offset) == 0x0000 && tvb_get_ntohl(tvb, offset + 4) == 0x1000 && tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
         item = proto_tree_add_item(tree, hf_data_element_value_uuid_128, tvb, offset, size, ENC_NA);
         uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
-        proto_item_append_text(item, " (%s)", val_to_str_ext_const(uuid->bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
+        proto_item_append_text(item, " (%s)", val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
     } else {
         guint i_uuid;
         item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
@@ -1975,7 +1975,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     vendor_id = tvb_get_ntohs(tvb, offset);
                     if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG) {
                         proto_tree_add_item(next_tree, hf_did_vendor_id_bluetooth_sig, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        str_val = val_to_str_ext_const(vendor_id, &bthci_evt_comp_id_ext, "Unknown");
+                        str_val = val_to_str_ext_const(vendor_id, &bluetooth_company_id_vals_ext, "Unknown");
                     } else if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
                         proto_tree_add_item(next_tree, hf_did_vendor_id_usb_forum, tvb, offset, 2, ENC_BIG_ENDIAN);
                         str_val = val_to_str_ext_const(vendor_id, &ext_usb_vendors_vals, "Unknown");
@@ -4400,12 +4400,12 @@ proto_register_btsdp(void)
         },
         { &hf_data_element_value_uuid_16,
             { "Value: UUID",                     "btsdp.data_element.value.uuid_16",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_uuid_32,
             { "Value: UUID",                     "btsdp.data_element.value.uuid_32",
-            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_uuid_128,
@@ -4600,7 +4600,7 @@ proto_register_btsdp(void)
         },
         { &hf_did_vendor_id_bluetooth_sig,
             { "Vendor ID",                       "btsdp.service.did.vendor_id",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_did_vendor_id_usb_forum,

@@ -408,6 +408,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bitcoin.c
 	dissectors/packet-bittorrent.c
 	dissectors/packet-bjnp.c
+	dissectors/packet-bluetooth.c
 	dissectors/packet-bmc.c
 	dissectors/packet-bofl.c
 	dissectors/packet-bootp.c

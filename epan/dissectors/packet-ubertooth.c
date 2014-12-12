@@ -30,7 +30,8 @@
 #include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
+#include "packet-ubertooth.h"
 #include "packet-usb.h"
 
 static int proto_ubertooth = -1;
@@ -333,7 +334,7 @@ static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_unexpected_data = EI_INIT;
 
 static dissector_handle_t ubertooth_handle;
-static dissector_handle_t btle_handle;
+static dissector_handle_t bluetooth_handle;
 
 static wmem_tree_t *command_info = NULL;
 
@@ -1182,7 +1183,8 @@ dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 reg
 }
 
 static gint
-dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint16 command)
+dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo,
+        tvbuff_t *tvb, gint offset, gint16 command, usb_conv_info_t *usb_conv_info)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
@@ -1196,6 +1198,9 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     tvbuff_t    *next_tvb;
     guint8       packet_type;
     guint32      start_offset;
+    guint32      clock_100ns;
+    guint8       channel;
+    ubertooth_data_t  *ubertooth_data;
 
     sub_item = proto_tree_add_item(tree, hf_usb_rx_packet, tvb, offset, 64, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_usb_rx_packet);
@@ -1253,12 +1258,14 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_usb_rx_packet_channel, tvb, offset, 1, ENC_NA);
+    channel = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_clock_ns, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_clock_100ns, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    clock_100ns = tvb_get_letohl(tvb, offset);
     offset += 4;
 
     proto_tree_add_item(sub_tree, hf_rssi_max, tvb, offset, 1, ENC_NA);
@@ -1305,8 +1312,14 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
         else
             length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
 
+        ubertooth_data = wmem_new(wmem_packet_scope(), ubertooth_data_t);
+        ubertooth_data->bus_id = usb_conv_info->bus_id;
+        ubertooth_data->device_address = usb_conv_info->device_address;
+        ubertooth_data->clock_100ns = clock_100ns;
+        ubertooth_data->channel = channel;
+
         next_tvb = tvb_new_subset_length(tvb, offset, length);
-        call_dissector(btle_handle, next_tvb, pinfo, main_tree);
+        call_dissector_with_data(bluetooth_handle, next_tvb, pinfo, main_tree, ubertooth_data);
         offset += length;
 
         if (tvb_length_remaining(tvb, offset) > 0) {
@@ -1354,7 +1367,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBERTOOTH");
 
-    DISSECTOR_ASSERT(usb_conv_info);
+    if (!usb_conv_info) return offset;
 
     p2p_dir_save = pinfo->p2p_dir;
     pinfo->p2p_dir = (usb_conv_info->is_request) ? P2P_DIR_SENT : P2P_DIR_RECV;
@@ -1681,7 +1694,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (usb_conv_info->transfer_type == URB_BULK) {
 
             while (tvb_length_remaining(tvb, offset) > 0) {
-                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response);
+                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, usb_conv_info);
             }
             break;
         }
@@ -1883,7 +1896,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         }
 
-        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response);
+        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response, usb_conv_info);
 
         break;
     case 53: /* Read Register */
@@ -3391,7 +3404,7 @@ proto_register_ubertooth(void)
 void
 proto_reg_handoff_ubertooth(void)
 {
-    btle_handle = find_dissector("btle");
+    bluetooth_handle = find_dissector("bluetooth");
 
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6000, ubertooth_handle); /* Ubertooth Zero */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6002, ubertooth_handle); /* Ubertooth One */

@@ -38,7 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-btsdp.h"
 
 static int proto_bthci_cmd = -1;
@@ -481,369 +481,6 @@ static dissector_handle_t bthci_cmd_handle;
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext did_vendor_id_source_vals_ext;
-
-static const value_string bt_sig_uuid_vals[] = {
-    /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
-    { 0x0001,   "SDP" },
-    { 0x0002,   "UDP" },
-    { 0x0003,   "RFCOMM" },
-    { 0x0004,   "TCP" },
-    { 0x0005,   "TCS-BIN" },
-    { 0x0006,   "TCS-AT" },
-    { 0x0007,   "ATT" },
-    { 0x0008,   "OBEX" },
-    { 0x0009,   "IP" },
-    { 0x000A,   "FTP" },
-    { 0x000C,   "HTTP" },
-    { 0x000E,   "WSP" },
-    { 0x000F,   "BNEP" },
-    { 0x0010,   "UPNP" },
-    { 0x0011,   "HIDP" },
-    { 0x0012,   "Hardcopy Control Channel" },
-    { 0x0014,   "Hardcopy Data Channel" },
-    { 0x0016,   "Hardcopy Notification" },
-    { 0x0017,   "AVCTP" },
-    { 0x0019,   "AVDTP" },
-    { 0x001B,   "CMPT" },
-    { 0x001D,   "UDI C-Plane" }, /* unofficial */
-    { 0x001E,   "MCAP Control Channel" },
-    { 0x001F,   "MCAP Data Channel" },
-    { 0x0100,   "L2CAP" },
-    /* Traditional Services - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
-    { 0x1000,   "Service Discovery Server Service Class ID" },
-    { 0x1001,   "Browse Group Descriptor Service Class ID" },
-    { 0x1002,   "Public Browse Group" },
-    { 0x1101,   "Serial Port" },
-    { 0x1102,   "LAN Access Using PPP" },
-    { 0x1103,   "Dialup Networking" },
-    { 0x1104,   "IrMC Sync" },
-    { 0x1105,   "OBEX Object Push" },
-    { 0x1106,   "OBEX File Transfer" },
-    { 0x1107,   "IrMC Sync Command" },
-    { 0x1108,   "Headset" },
-    { 0x1109,   "Cordless Telephony" },
-    { 0x110A,   "Audio Source" },
-    { 0x110B,   "Audio Sink" },
-    { 0x110C,   "A/V Remote Control Target" },
-    { 0x110D,   "Advanced Audio Distribution" },
-    { 0x110E,   "A/V Remote Control" },
-    { 0x110F,   "A/V Remote Control Controller" },
-    { 0x1110,   "Intercom" },
-    { 0x1111,   "Fax" },
-    { 0x1112,   "Headset Audio Gateway" },
-    { 0x1113,   "WAP" },
-    { 0x1114,   "WAP Client" },
-    { 0x1115,   "PANU" },
-    { 0x1116,   "NAP" },
-    { 0x1117,   "GN" },
-    { 0x1118,   "Direct Printing" },
-    { 0x1119,   "Reference Printing" },
-    { 0x111A,   "Imaging" },
-    { 0x111B,   "Imaging Responder" },
-    { 0x111C,   "Imaging Automatic Archive" },
-    { 0x111D,   "Imaging Referenced Objects" },
-    { 0x111E,   "Handsfree" },
-    { 0x111F,   "Handsfree Audio Gateway" },
-    { 0x1120,   "Direct Printing Reference Objects Service" },
-    { 0x1121,   "Reflected UI" },
-    { 0x1122,   "Basic Printing" },
-    { 0x1123,   "Printing Status" },
-    { 0x1124,   "Human Interface Device Service" },
-    { 0x1125,   "Hardcopy Cable Replacement" },
-    { 0x1126,   "HCR Print" },
-    { 0x1127,   "HCR Scan" },
-    { 0x1128,   "Common ISDN Access" },
-    { 0x1129,   "Video Conferencing GW" },
-    { 0x112A,   "UDI MT" },
-    { 0x112B,   "UDI TA" },
-    { 0x112C,   "Audio/Video" },
-    { 0x112D,   "SIM Access" },
-    { 0x112E,   "Phonebook Access Client" },
-    { 0x112F,   "Phonebook Access Server" },
-    { 0x1130,   "Phonebook Access Profile" },
-    { 0x1131,   "Headset HS" },
-    { 0x1132,   "Message Access Server" },
-    { 0x1133,   "Message Notification Server" },
-    { 0x1134,   "Message Access Profile" },
-    { 0x1135,   "Global Navigation Satellite System" },
-    { 0x1136,   "Global Navigation Satellite System Server" },
-    { 0x1137,   "3D Display" },
-    { 0x1138,   "3D Glasses" },
-    { 0x1139,   "3D Synchronization Profile" },
-    { 0x113A,   "Multi-Profile" },
-    { 0x113B,   "Multi-Profile SC" },
-    { 0x1200,   "PnP Information" },
-    { 0x1201,   "Generic Networking" },
-    { 0x1202,   "Generic File Transfer" },
-    { 0x1203,   "Generic Audio" },
-    { 0x1204,   "Generic Telephony" },
-    { 0x1205,   "UPNP Service" },
-    { 0x1206,   "UPNP IP Service" },
-    { 0x1300,   "ESDP UPNP_IP PAN" },
-    { 0x1301,   "ESDP UPNP IP LAP" },
-    { 0x1302,   "ESDP UPNP L2CAP" },
-    { 0x1303,   "Video Source" },
-    { 0x1304,   "Video Sink" },
-    { 0x1305,   "Video Distribution" },
-    { 0x1400,   "Health Device Profile" },
-    { 0x1401,   "Health Device Source" },
-    { 0x1402,   "Health Device Sink" },
-    /* LE Services -  https://developer.bluetooth.org/gatt/services/Pages/ServicesHome.aspx */
-    { 0x1800,   "Generic Access Profile" },
-    { 0x1801,   "Generic Attribute Profile" },
-    { 0x1802,   "Immediate Alert" },
-    { 0x1803,   "Link Loss" },
-    { 0x1804,   "Tx Power" },
-    { 0x1805,   "Current Time Service" },
-    { 0x1806,   "Reference Time Update Service" },
-    { 0x1807,   "Next DST Change Service" },
-    { 0x1808,   "Glucose" },
-    { 0x1809,   "Health Thermometer" },
-    { 0x180A,   "Device Information" },
-    { 0x180D,   "Heart Rate" },
-    { 0x180E,   "Phone Alert Status Service" },
-    { 0x180F,   "Battery Service" },
-    { 0x1810,   "Blood Pressure" },
-    { 0x1811,   "Alert Notification Service" },
-    { 0x1812,   "Human Interface Device" },
-    { 0x1813,   "Scan Parameters" },
-    { 0x1814,   "Running Speed and Cadence" },
-    { 0x1816,   "Cycling Speed and Cadence" },
-    { 0x1818,   "Cycling Power" },
-    { 0x1819,   "Location and Navigation" },
-    /* Units - http://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx */
-    { 0x2700,   "unitless" },
-    { 0x2701,   "length (metre)" },
-    { 0x2702,   "mass (kilogram)" },
-    { 0x2703,   "time (second)" },
-    { 0x2704,   "electric current (ampere)" },
-    { 0x2705,   "thermodynamic temperature (kelvin)" },
-    { 0x2706,   "amount of substance (mole)" },
-    { 0x2707,   "luminous intensity (candela)" },
-    { 0x2710,   "area (square metres)" },
-    { 0x2711,   "volume (cubic metres)" },
-    { 0x2712,   "velocity (metres per second)" },
-    { 0x2713,   "acceleration (metres per second squared)" },
-    { 0x2714,   "wavenumber (reciprocal metre)" },
-    { 0x2715,   "density (kilogram per cubic metre)" },
-    { 0x2716,   "surface density (kilogram per square metre)" },
-    { 0x2717,   "specific volume (cubic metre per kilogram)" },
-    { 0x2718,   "current density (ampere per square metre)" },
-    { 0x2719,   "magnetic field strength (ampere per metre)" },
-    { 0x271A,   "amount concentration (mole per cubic metre)" },
-    { 0x271B,   "mass concentration (kilogram per cubic metre)" },
-    { 0x271C,   "luminance (candela per square metre)" },
-    { 0x271D,   "refractive index" },
-    { 0x271E,   "relative permeability" },
-    { 0x2720,   "plane angle (radian)" },
-    { 0x2721,   "solid angle (steradian)" },
-    { 0x2722,   "frequency (hertz)" },
-    { 0x2723,   "force (newton)" },
-    { 0x2724,   "pressure (pascal)" },
-    { 0x2725,   "energy (joule)" },
-    { 0x2726,   "power (watt)" },
-    { 0x2727,   "electric charge (coulomb)" },
-    { 0x2728,   "electric potential difference (volt)" },
-    { 0x2729,   "capacitance (farad)" },
-    { 0x272A,   "electric resistance (ohm)" },
-    { 0x272B,   "electric conductance (siemens)" },
-    { 0x272C,   "magnetic flex (weber)" },
-    { 0x272D,   "magnetic flex density (tesla)" },
-    { 0x272E,   "inductance (henry)" },
-    { 0x272F,   "Celsius temperature (degree Celsius)" },
-    { 0x2730,   "luminous flux (lumen)" },
-    { 0x2731,   "illuminance (lux)" },
-    { 0x2732,   "activity referred to a radionuclide (becquerel)" },
-    { 0x2733,   "absorbed dose (gray)" },
-    { 0x2734,   "dose equivalent (sievert)" },
-    { 0x2735,   "catalytic activity (katal)" },
-    { 0x2740,   "dynamic viscosity (pascal second)" },
-    { 0x2741,   "moment of force (newton metre)" },
-    { 0x2742,   "surface tension (newton per metre)" },
-    { 0x2743,   "angular velocity (radian per second)" },
-    { 0x2744,   "angular acceleration (radian per second squared)" },
-    { 0x2745,   "heat flux density (watt per square metre)" },
-    { 0x2746,   "heat capacity (joule per kelvin)" },
-    { 0x2747,   "specific heat capacity (joule per kilogram kelvin)" },
-    { 0x2748,   "specific energy (joule per kilogram)" },
-    { 0x2749,   "thermal conductivity (watt per metre kelvin)" },
-    { 0x274A,   "energy density (joule per cubic metre)" },
-    { 0x274B,   "electric field strength (volt per metre)" },
-    { 0x274C,   "electric charge density (coulomb per cubic metre)" },
-    { 0x274D,   "surface charge density (coulomb per square metre)" },
-    { 0x274E,   "electric flux density (coulomb per square metre)" },
-    { 0x274F,   "permittivity (farad per metre)" },
-    { 0x2750,   "permeability (henry per metre)" },
-    { 0x2751,   "molar energy (joule per mole)" },
-    { 0x2752,   "molar entropy (joule per mole kelvin)" },
-    { 0x2753,   "exposure (coulomb per kilogram)" },
-    { 0x2754,   "absorbed dose rate (gray per second)" },
-    { 0x2755,   "radiant intensity (watt per steradian)" },
-    { 0x2756,   "radiance (watt per square metre steradian)" },
-    { 0x2757,   "catalytic activity concentration (katal per cubic metre)" },
-    { 0x2760,   "time (minute)" },
-    { 0x2761,   "time (hour)" },
-    { 0x2762,   "time (day)" },
-    { 0x2763,   "plane angle (degree)" },
-    { 0x2764,   "plane angle (minute)" },
-    { 0x2765,   "plane angle (second)" },
-    { 0x2766,   "area (hectare)" },
-    { 0x2767,   "volume (litre)" },
-    { 0x2768,   "mass (tonne)" },
-    { 0x2780,   "pressure (bar)" },
-    { 0x2781,   "pressure (millimetre of mercury)" },
-    { 0x2782,   "length (angstrom)" },
-    { 0x2783,   "length (nautical mile)" },
-    { 0x2784,   "area (barn)" },
-    { 0x2785,   "velocity (knot)" },
-    { 0x2786,   "logarithmic radio quantity (neper)" },
-    { 0x2787,   "logarithmic radio quantity (bel)" },
-    { 0x27A0,   "length (yard)" },
-    { 0x27A1,   "length (parsec)" },
-    { 0x27A2,   "length (inch)" },
-    { 0x27A3,   "length (foot)" },
-    { 0x27A4,   "length (mile)" },
-    { 0x27A5,   "pressure (pound-force per square inch)" },
-    { 0x27A6,   "velocity (kilometre per hour)" },
-    { 0x27A7,   "velocity (mile per hour)" },
-    { 0x27A8,   "angular velocity (revolution per minute)" },
-    { 0x27A9,   "energy (gram calorie)" },
-    { 0x27AA,   "energy (kilogram calorie)" },
-    { 0x27AB,   "energy (kilowatt hour)" },
-    { 0x27AC,   "thermodynamic temperature (degree Fahrenheit)" },
-    { 0x27AD,   "percentage" },
-    { 0x27AE,   "per mille" },
-    { 0x27AF,   "period (beats per minute)" },
-    { 0x27B0,   "electric charge (ampere hours)" },
-    { 0x27B1,   "mass density (milligram per decilitre)" },
-    { 0x27B2,   "mass density (millimole per litre)" },
-    { 0x27B3,   "time (year)" },
-    { 0x27B4,   "time (month)" },
-    { 0x27B5,   "concentration (count per cubic metre)" },
-    { 0x27B6,   "irradiance (watt per square metre)" },
-    { 0x27B7,   "milliliter (per kilogram per minute)" },
-    { 0x27B8,   "mass (pound)" },
-    /* Declarations - http://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx */
-    { 0x2800,   "GATT Primary Service Declaration" },
-    { 0x2801,   "GATT Secondary Service Declaration" },
-    { 0x2802,   "GATT Include Declaration" },
-    { 0x2803,   "GATT Characteristic Declaration" },
-    /* Descriptors - http://developer.bluetooth.org/gatt/descriptors/Pages/DescriptorsHomePage.aspx */
-    { 0x2900,   "Characteristic Extended Properties" },
-    { 0x2901,   "Characteristic User Description" },
-    { 0x2902,   "Client Characteristic Configuration" },
-    { 0x2903,   "Server Characteristic Configuration" },
-    { 0x2904,   "Characteristic Presentation Format" },
-    { 0x2905,   "Characteristic Aggregate Format" },
-    { 0x2906,   "Valid Range" },
-    { 0x2907,   "External Report Reference" },
-    { 0x2908,   "Report Reference" },
-    /* Characteristics - http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx */
-    { 0x2A00,   "Device Name" },
-    { 0x2A01,   "Appearance" },
-    { 0x2A02,   "Peripheral Privacy Flag" },
-    { 0x2A03,   "Reconnection Address" },
-    { 0x2A04,   "Peripheral Preferred Connection Parameters" },
-    { 0x2A05,   "Service Changed" },
-    { 0x2A06,   "Alert Level" },
-    { 0x2A07,   "Tx Power Level" },
-    { 0x2A08,   "Date Time" },
-    { 0x2A09,   "Day of Week" },
-    { 0x2A0A,   "Day Date Time" },
-    { 0x2A0C,   "Exact Time 256" },
-    { 0x2A0D,   "DST Offset" },
-    { 0x2A0E,   "Time Zone" },
-    { 0x2A0F,   "Local Time Information" },
-    { 0x2A11,   "Time with DST" },
-    { 0x2A12,   "Time Accuracy" },
-    { 0x2A13,   "Time Source" },
-    { 0x2A14,   "Reference Time Information" },
-    { 0x2A16,   "Time Update Control Point" },
-    { 0x2A17,   "Time Update State" },
-    { 0x2A18,   "Glucose Measurement" },
-    { 0x2A19,   "Battery Level" },
-    { 0x2A1C,   "Temperature Measurement" },
-    { 0x2A1D,   "Temperature Type" },
-    { 0x2A1E,   "Intermediate Temperature" },
-    { 0x2A21,   "Measurement Interval" },
-    { 0x2A22,   "Boot Keyboard Input Report" },
-    { 0x2A23,   "System ID" },
-    { 0x2A24,   "Model Number String" },
-    { 0x2A25,   "Serial Number String" },
-    { 0x2A26,   "Firmware Revision String" },
-    { 0x2A27,   "Hardware Revision String" },
-    { 0x2A28,   "Software Revision String" },
-    { 0x2A29,   "Manufacturer Name String" },
-    { 0x2A2A,   "IEEE 11073-20601 Regulatory Certification Data List" },
-    { 0x2A2B,   "Current Time" },
-    { 0x2A31,   "Scan Refresh" },
-    { 0x2A32,   "Boot Keyboard Output Report" },
-    { 0x2A33,   "Boot Mouse Input Report" },
-    { 0x2A34,   "Glucose Measurement Context" },
-    { 0x2A35,   "Blood Pressure Measurement" },
-    { 0x2A36,   "Intermediate Cuff Pressure" },
-    { 0x2A37,   "Heart Rate Measurement" },
-    { 0x2A38,   "Body Sensor Location" },
-    { 0x2A39,   "Heart Rate Control Point" },
-    { 0x2A3F,   "Alert Status" },
-    { 0x2A40,   "Ringer Control Point" },
-    { 0x2A41,   "Ringer Setting" },
-    { 0x2A42,   "Alert Category ID Bit Mask" },
-    { 0x2A43,   "Alert Category ID" },
-    { 0x2A44,   "Alert Notification Control Point" },
-    { 0x2A45,   "Unread Alert Status" },
-    { 0x2A46,   "New Alert" },
-    { 0x2A47,   "Supported New Alert Category" },
-    { 0x2A48,   "Supported Unread Alert Category" },
-    { 0x2A49,   "Blood Pressure Feature" },
-    { 0x2A4A,   "HID Information" },
-    { 0x2A4B,   "Report Map" },
-    { 0x2A4C,   "HID Control Point" },
-    { 0x2A4D,   "Report" },
-    { 0x2A4E,   "Protocol Mode" },
-    { 0x2A4F,   "Scan Interval Window" },
-    { 0x2A50,   "PnP ID" },
-    { 0x2A51,   "Glucose Feature" },
-    { 0x2A52,   "Record Access Control Point" },
-    { 0x2A53,   "RSC Measurement" },
-    { 0x2A54,   "RSC Feature" },
-    { 0x2A55,   "SC Control Point" },
-    { 0x2A5B,   "CSC Measurement" },
-    { 0x2A5C,   "CSC Feature" },
-    { 0x2A5D,   "Sensor Location" },
-    { 0x2A63,   "Cycling Power Measurement" },
-    { 0x2A64,   "Cycling Power Vector" },
-    { 0x2A65,   "Cycling Power Feature" },
-    { 0x2A66,   "Cycling Power Control Point" },
-    { 0x2A67,   "Location and Speed" },
-    { 0x2A68,   "Navigation" },
-    { 0x2A69,   "Position Quality" },
-    { 0x2A6A,   "LN Feature" },
-    { 0x2A6B,   "LN Control Point" },
-    /*  16-bit UUID for Members - https://www.bluetooth.org/en-us/Pages/LoginRestrictedAll/16-bit-UUIDs-member.aspx */
-    { 0xFEEE,   "Company UUID #2: Polar Electro Oy"}, /* Allocated 06-Mar-14 */
-    { 0xFEEF,   "Company UUID #1: Polar Electro Oy"}, /* Allocated 06-Mar-14 */
-    { 0xFEF0,   "Company UUID: Intel"}, /* Allocated 06-Mar-14 */
-    { 0xFEF1,   "Company UUID #2: CSR"}, /* Allocated 13-Feb-14 */
-    { 0xFEF2,   "Company UUID #1: CSR"}, /* Allocated 13-Feb-14 */
-    { 0xFEF3,   "Company UUID #2: Google"}, /* Allocated 13-Feb-14 */
-    { 0xFEF4,   "Company UUID #1: Google"}, /* Allocated 13-Feb-14 */
-    { 0xFEF5,   "Company UUID: Dialog Semiconductor GmbH"}, /* Allocated 13-Feb-14 */
-    { 0xFEF6,   "Company UUID: Wicentric, Inc."}, /* Allocated 13-Feb-14 */
-    { 0xFEF7,   "Company UUID #2: Aplix Corporation"}, /* Allocated 13-Feb-14 */
-    { 0xFEF8,   "Company UUID #1: Aplix Corporation"}, /* Allocated 13-Feb-14 */
-    { 0xFEF9,   "Company UUID #2: PayPal, Inc."}, /* Allocated 13-Jan-14 */
-    { 0xFEFA,   "Company UUID #1: PayPal, Inc."}, /* Allocated 13-Jan-14 */
-    { 0xFEFB,   "Company UUID: Stollmann E+V GmbH"}, /* Allocated 06-Jan-14 */
-    { 0xFEFC,   "Company UUID #2: Qualcomm Retail Solutions, Inc."}, /* Allocated 20-Dec-13 */
-    { 0xFEFD,   "Company UUID #1: Qualcomm Retail Solutions, Inc."}, /* Allocated 20-Dec-13 */
-    { 0xFEFE,   "Company UUID: GN ReSound A/S"}, /* Allocated 17-Dec-13 */
-    { 0xFEFF,   "Company UUID: GN Netcom"}, /* Allocated 12-Dec-13 */
-    /* SDO Uuids - https://www.bluetooth.org/en-us/specification/assigned-numbers/sdo-16-bit-uuids */
-    { 0xFFFE,   "Alliance for Wireless Power" },
-    { 0, NULL }
-};
-value_string_ext bt_sig_uuid_vals_ext = VALUE_STRING_EXT_INIT(bt_sig_uuid_vals);
 
 static const value_string bthci_ogf_vals[] = {
     { 0x01,  "Link Control Commands" },
@@ -1803,7 +1440,7 @@ static gpointer bthci_cmd_vendor_value(packet_info *pinfo _U_)
 
 static void
 save_local_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        guint8 size, hci_data_t *hci_data)
+        guint8 size, bluetooth_data_t *bluetooth_data)
 {
     gint                    i = 0;
     guint8                  length;
@@ -1814,7 +1451,7 @@ save_local_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     gchar                   *name;
     localhost_name_entry_t  *localhost_name_entry;
 
-    if (!(!pinfo->fd->flags.visited && hci_data)) return;
+    if (!(!pinfo->fd->flags.visited && bluetooth_data)) return;
 
     while (i < size) {
         length = tvb_get_guint8(tvb, offset + i);
@@ -1825,8 +1462,8 @@ save_local_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         case 0x09: /* Device Name, full */
             name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_ASCII);
 
-            k_interface_id = hci_data->interface_id;
-            k_adapter_id = hci_data->adapter_id;
+            k_interface_id = bluetooth_data->interface_id;
+            k_adapter_id = bluetooth_data->adapter_id;
             k_frame_number = pinfo->fd->num;
 
             key[0].length = 1;
@@ -1843,7 +1480,7 @@ save_local_device_name(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             localhost_name_entry->adapter_id = k_adapter_id;
             localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
 
-            wmem_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
+            wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
 
             break;
         }
@@ -1908,7 +1545,8 @@ dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
+dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item *item;
     guint32     clock_value;
@@ -1941,7 +1579,10 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x0005: /* Create Connection */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            {
+            guint8  bd_addr[6];
+
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, bd_addr);
 
             proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1971,6 +1612,42 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
             proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
+
+            if (!pinfo->fd->flags.visited && bluetooth_data) {
+                guint32           interface_id;
+                guint32           adapter_id;
+                guint32           bd_addr_oui;
+                guint32           bd_addr_id;
+                guint32           frame_number;
+                wmem_tree_key_t   key[6];
+                device_role_t    *device_role;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+                frame_number = pinfo->fd->num;
+                bd_addr_oui  = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                bd_addr_id   = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &bd_addr_id;
+                key[3].length = 1;
+                key[3].key    = &bd_addr_oui;
+                key[4].length = 1;
+                key[4].key    = &frame_number;
+                key[5].length = 0;
+                key[5].key    = NULL;
+
+                device_role = (device_role_t *) wmem_new(wmem_file_scope(), device_role_t);
+                device_role->change_in_frame = frame_number;
+                device_role->role = ROLE_SLAVE;
+
+                wmem_tree_insert32_array(bluetooth_data->bdaddr_to_role, key, device_role);
+            }
+            }
             break;
 
         case 0x0006: /* Disconnect */
@@ -1993,11 +1670,56 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
             break;
 
-        case 0x0009: /* Accept Connection Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+        case 0x0009: /* Accept Connection Request */ {
+            guint8  bd_addr[6];
+            guint8  role;
+
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, bd_addr);
 
             proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset++;
+            role = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            if (!pinfo->fd->flags.visited && bluetooth_data) {
+                guint32           interface_id;
+                guint32           adapter_id;
+                guint32           bd_addr_oui;
+                guint32           bd_addr_id;
+                guint32           frame_number;
+                wmem_tree_key_t   key[6];
+                device_role_t    *device_role;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+                frame_number = pinfo->fd->num;
+                bd_addr_oui  = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                bd_addr_id   = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &bd_addr_id;
+                key[3].length = 1;
+                key[3].key    = &bd_addr_oui;
+                key[4].length = 1;
+                key[4].key    = &frame_number;
+                key[5].length = 0;
+                key[5].key    = NULL;
+
+                device_role = (device_role_t *) wmem_new(wmem_file_scope(), device_role_t);
+                device_role->change_in_frame = frame_number;
+                if (role == 0)
+                    device_role->role = ROLE_SLAVE;
+                else if (role == 1)
+                    device_role->role = ROLE_MASTER;
+                else
+                    device_role->role = ROLE_UNKNOWN;
+
+                wmem_tree_insert32_array(bluetooth_data->bdaddr_to_role, key, device_role);
+            }
+            }
             break;
 
         case 0x000a: /* Reject Connection Request */
@@ -2401,7 +2123,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 
 static int
 dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
-        proto_tree *tree, guint16 cmd_ocf, hci_data_t *hci_data)
+        proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item *item;
     guint16     timeout;
@@ -2584,8 +2306,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                 gchar                   *name;
                 localhost_name_entry_t  *localhost_name_entry;
 
-                k_interface_id = hci_data->interface_id;
-                k_adapter_id = hci_data->adapter_id;
+                k_interface_id = bluetooth_data->interface_id;
+                k_adapter_id = bluetooth_data->adapter_id;
                 k_frame_number = pinfo->fd->num;
 
                 name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 248, ENC_ASCII);
@@ -2604,7 +2326,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                 localhost_name_entry->adapter_id = k_adapter_id;
                 localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
 
-                wmem_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
+                wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
             }
             offset += 248;
             break;
@@ -2827,7 +2549,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             offset++;
 
             call_dissector(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, tree);
-            save_local_device_name(tvb, offset, pinfo, 240, hci_data);
+            save_local_device_name(tvb, offset, pinfo, 240, bluetooth_data);
             offset += 240;
             break;
 
@@ -3121,7 +2843,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static gint
-dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf, hci_data_t *hci_data)
+dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item  *item;
     proto_item  *sub_item;
@@ -3170,7 +2892,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
 
             call_dissector(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, 31), pinfo, tree);
-            save_local_device_name(tvb, offset, pinfo, 31, hci_data);
+            save_local_device_name(tvb, offset, pinfo, 31, bluetooth_data);
             offset += 31;
             break;
 
@@ -3341,22 +3063,22 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 static gint
 dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item  *ti_cmd;
-    proto_tree  *bthci_cmd_tree;
-    guint16      opcode;
-    guint16      ocf;
-    guint8       param_length;
-    guint8       ogf;
-    gint         offset = 0;
-    proto_item  *ti_opcode;
-    proto_tree  *opcode_tree;
-    gint         hfx;
-    hci_data_t  *hci_data;
+    proto_item        *ti_cmd;
+    proto_tree        *bthci_cmd_tree;
+    guint16            opcode;
+    guint16            ocf;
+    guint8             param_length;
+    guint8             ogf;
+    gint               offset = 0;
+    proto_item        *ti_opcode;
+    proto_tree        *opcode_tree;
+    gint               hfx;
+    bluetooth_data_t  *bluetooth_data;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
-    hci_data = (hci_data_t *) data;
+    bluetooth_data = (bluetooth_data_t *) data;
 
     ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
     bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
@@ -3374,8 +3096,23 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
     }
 
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, 5, "host");
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 11, "controller");
+    SET_ADDRESS(&pinfo->src,     AT_STRINGZ,  5, "host");
+    SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 11, "controller");
+    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ,  5, "host");
+    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 11, "controller");
+    SET_ADDRESS(&pinfo->dl_src,  AT_STRINGZ,  5, "host");
+    SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 11, "controller");
+    if (!pinfo->fd->flags.visited) {
+        address *addr;
+
+        addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+        addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+        addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+        addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+    }
 
     opcode = tvb_get_letohs(tvb, offset);
     ocf = opcode & 0x03ff;
@@ -3418,7 +3155,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
-        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, hci_data);
+        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data);
 
         proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_parameter, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
 
@@ -3430,7 +3167,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (param_length > 0) {
         switch (ogf) {
             case HCI_OGF_LINK_CONTROL:
-                offset = dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+                offset = dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
                 break;
 
             case HCI_OGF_LINK_POLICY:
@@ -3438,7 +3175,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             case HCI_OGF_HOST_CONTROLLER:
-                offset = dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, hci_data);
+                offset = dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
                 break;
 
             case HCI_OGF_INFORMATIONAL:
@@ -3454,7 +3191,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             case HCI_OGF_LOW_ENERGY:
-                offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, hci_data);
+                offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
                 break;
 
             default:
@@ -5040,7 +4777,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             while (offset < end_offset) {
                 if (tvb_get_ntohs(tvb, offset) == 0x0000) {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bt_sig_uuid_vals_ext, "Unknown"));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
                 } else {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
 
@@ -5074,7 +4811,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
                         tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bt_sig_uuid_vals_ext, "Unknown"));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
                 } else {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
 
@@ -5521,7 +5258,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_company_id,
           { "Company ID",                        "btcommon.eir_ad.entry.company_id",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_flags_reserved,
@@ -5556,12 +5293,12 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_uuid_16,
             { "UUID 16",                         "btcommon.eir_ad.entry.uuid_16",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_uuid_32,
             { "UUID 32",                         "btcommon.eir_ad.entry.uuid_32",
-            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_uuid_128,
@@ -5621,7 +5358,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_did_vendor_id_bluetooth_sig,
             { "Vendor ID",                       "btcommon.eir_ad.entry.did.vendor_id",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_did_vendor_id_usb_forum,

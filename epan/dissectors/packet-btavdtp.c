@@ -30,11 +30,12 @@
 #include <epan/wmem/wmem.h>
 #include <wiretap/wtap.h>
 
+#include "packet-bluetooth.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 #include "packet-btavdtp.h"
-#include "packet-rtp.h"
 #include "packet-btavrcp.h"
+#include "packet-rtp.h"
 
 #define AVDTP_MESSAGE_TYPE_MASK  0x03
 #define AVDTP_PACKET_TYPE_MASK   0x0C
@@ -499,8 +500,6 @@ static const value_string vendor_apt_codec_vals[] = {
     { 0x0001,  "APT-X" },
     { 0, NULL }
 };
-
-extern value_string_ext bthci_evt_comp_id_ext;
 
 enum sep_state {
     SEP_STATE_FREE,
@@ -1320,7 +1319,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         channels_info->control_remote_cid = l2cap_data->remote_cid;
         channels_info->media_local_cid = BTL2CAP_UNKNOWN_CID;
         channels_info->media_remote_cid = BTL2CAP_UNKNOWN_CID;
-        channels_info->disconnect_in_frame = G_MAXUINT32;
+        channels_info->disconnect_in_frame = max_disconnect_in_frame;
         channels_info->l2cap_disconnect_in_frame   = l2cap_data->disconnect_in_frame;
         channels_info->hci_disconnect_in_frame     = l2cap_data->hci_disconnect_in_frame;
         channels_info->adapter_disconnect_in_frame = l2cap_data->adapter_disconnect_in_frame;
@@ -2510,7 +2509,7 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_vendor_id,
             { "Vendor ID",                      "btavdtp.codec.vendor.vendor_id",
-            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x00,
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_codec_id,
@@ -2932,7 +2931,7 @@ proto_register_bta2dp(void)
         },
         { &hf_bta2dp_vendor_id,
             { "Vendor ID",                       "bta2dp.codec.vendor.vendor_id",
-            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x00,
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_bta2dp_vendor_codec_id,

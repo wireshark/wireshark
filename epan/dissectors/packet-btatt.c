@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
@@ -243,7 +243,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     case 0x06: /* Find By Type Value Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Handles: 0x%04x..0x%04x",
-                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bt_sig_uuid_vals_ext, "<unknown>"),
+                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bluetooth_uuid_vals_ext, "<unknown>"),
                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
         proto_tree_add_item(st, hf_btatt_starting_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -274,7 +274,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     case 0x08: /* Read By Type Request */
     case 0x10: /* Read By Group Type Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Handles: 0x%04x..0x%04x",
-                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bt_sig_uuid_vals_ext, "<unknown>"),
+                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bluetooth_uuid_vals_ext, "<unknown>"),
                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
         proto_tree_add_item(st, hf_btatt_starting_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -289,7 +289,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         else if (tvb_length_remaining(tvb, offset) == 16) {
             item = proto_tree_add_item(st, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
             proto_item_append_text(item, " (%s)", val_to_str_ext_const(tvb_get_letohs(tvb, offset),
-                                            &bt_sig_uuid_vals_ext, "<unknown>"));
+                                            &bluetooth_uuid_vals_ext, "<unknown>"));
             offset += 16;
         }
         break;
@@ -504,7 +504,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_uuid16,
             {"UUID", "btatt.uuid16",
-            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
+            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_uuid128,

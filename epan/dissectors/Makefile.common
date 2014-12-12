@@ -323,6 +323,7 @@ DISSECTOR_SRC = \
 	packet-bitcoin.c	\
 	packet-bittorrent.c	\
 	packet-bjnp.c		\
+	packet-bluetooth.c	\
 	packet-bmc.c		\
 	packet-bofl.c		\
 	packet-bootp.c		\
@@ -1380,7 +1381,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
-	packet-bluetooth-hci.h	\
+	packet-bluetooth.h	\
 	packet-bpq.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
@@ -1682,6 +1683,7 @@ DISSECTOR_INCLUDES =	\
 	packet-tte.h	\
 	packet-ua.h	\
 	packet-uaudp.h	\
+	packet-ubertooth.h	\
 	packet-udp.h	\
 	packet-umts_fp.h	\
 	packet-umts_mac.h	\

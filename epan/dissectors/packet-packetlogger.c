@@ -27,6 +27,8 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
+#include <packet-bluetooth.h>
+
 void proto_register_packetlogger(void);
 void proto_reg_handoff_packetlogger(void);
 
@@ -69,13 +71,17 @@ static const value_string type_vals[] = {
   { 0, NULL }
 };
 
-static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-  proto_tree *packetlogger_tree = NULL;
-  tvbuff_t   *next_tvb;
-  proto_item *ti = NULL;
-  guint8      pl_type;
-  gint        len;
+  proto_tree        *packetlogger_tree = NULL;
+  tvbuff_t          *next_tvb;
+  proto_item        *ti = NULL;
+  guint8             pl_type;
+  gint               len;
+  bluetooth_data_t  *bluetooth_data;
+
+  bluetooth_data = (bluetooth_data_t *) data;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
@@ -122,7 +128,8 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item_set_len (ti, 1);
 
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-    if (!dissector_try_uint (hci_h1_table, pinfo->pseudo_header->bthci.channel, next_tvb, pinfo, tree)) {
+    if (!dissector_try_uint_new(hci_h1_table, pinfo->pseudo_header->bthci.channel,
+            next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
       call_dissector (data_handle, next_tvb, pinfo, tree);
     }
   } else {
@@ -140,6 +147,8 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       break;
     }
   }
+
+  return tvb_captured_length(tvb);
 }
 
 void proto_register_packetlogger (void)
@@ -157,7 +166,7 @@ void proto_register_packetlogger (void)
 
   proto_packetlogger = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  packetlogger_handle = register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
+  packetlogger_handle = new_register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
 
   proto_register_field_array (proto_packetlogger, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -167,7 +176,7 @@ void proto_reg_handoff_packetlogger (void)
 {
   hci_h1_table = find_dissector_table("hci_h1.type");
   data_handle = find_dissector("data");
-  dissector_add_uint ("wtap_encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);
+  dissector_add_uint ("bluetooth.encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);
 }
 
 /*

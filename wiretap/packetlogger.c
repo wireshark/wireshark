@@ -51,7 +51,7 @@ static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
 				       Buffer *buf, int *err, gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, int *err, gchar **err_info);
-static gboolean packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
@@ -97,7 +97,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return packetlogger_read_packet(wth->fh, &wth->phdr,
+	return packetlogger_read_packet(wth, wth->fh, &wth->phdr,
 	    wth->frame_buffer, err, err_info);
 }
 
@@ -108,7 +108,7 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!packetlogger_read_packet(wth->random_fh, phdr, buf, err, err_info)) {
+	if(!packetlogger_read_packet(wth, wth->random_fh, phdr, buf, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -134,7 +134,7 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err,
 }
 
 static gboolean
-packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			 int *err, gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;
@@ -159,6 +159,7 @@ packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	}
 
 	phdr->rec_type = REC_TYPE_PACKET;
+	phdr->pkt_encap = wth->file_encap;
 	phdr->presence_flags = WTAP_HAS_TS;
 
 	phdr->len = pl_hdr.len - 8;

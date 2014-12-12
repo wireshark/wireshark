@@ -33,7 +33,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
-#include "packet-bluetooth-hci.h"
+#include "packet-bluetooth.h"
 #include "packet-bthci_acl.h"
 
 /* Initialize the protocol and registered fields */
@@ -49,8 +49,13 @@ static int hf_bthci_acl_connect_in = -1;
 static int hf_bthci_acl_disconnect_in = -1;
 static int hf_bthci_acl_src_bd_addr = -1;
 static int hf_bthci_acl_src_name = -1;
+static int hf_bthci_acl_src_role = -1;
 static int hf_bthci_acl_dst_bd_addr = -1;
 static int hf_bthci_acl_dst_name = -1;
+static int hf_bthci_acl_dst_role = -1;
+static int hf_bthci_acl_role_last_change_in_frame = -1;
+static int hf_bthci_acl_mode = -1;
+static int hf_bthci_acl_mode_last_change_in_frame = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_acl = -1;
@@ -75,6 +80,22 @@ typedef struct _chandle_data_t {
 } chandle_data_t;
 
 static wmem_tree_t *chandle_tree = NULL;
+
+static const value_string role_vals[] = {
+    { 0, "Unknown" },
+    { 1, "Master" },
+    { 2, "Slave" },
+    { 0, NULL }
+};
+
+static const value_string mode_vals[] = {
+    { 0, "Active Mode" },
+    { 1, "Hold Mode" },
+    { 2, "Sniff Mode" },
+    { 3, "Park Mode" },
+    {-1, "Unknown" },
+    { 0, NULL }
+};
 
 static const value_string pb_flag_vals[] = {
     { 0, "First Non-automatically Flushable Packet" },
@@ -111,7 +132,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     tvbuff_t                 *next_tvb;
     bthci_acl_data_t         *acl_data;
     chandle_data_t           *chandle_data;
-    hci_data_t               *hci_data;
+    bluetooth_data_t         *bluetooth_data;
     wmem_tree_t              *subtree;
     wmem_tree_key_t           key[6];
     guint32                   interface_id;
@@ -135,11 +156,17 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     const gchar              *dst_name = "";
     const gchar              *dst_addr_name = "";
     chandle_session_t        *chandle_session;
+    guint32                   src_role = ROLE_UNKNOWN;
+    guint32                   dst_role = ROLE_UNKNOWN;
+    guint32                   role_last_change_in_frame = 0;
+    connection_mode_t        *connection_mode;
+    gint32                    mode = -1;
+    guint32                   mode_last_change_in_frame = 0;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
-    hci_data = (hci_data_t *) data;
+    bluetooth_data = (bluetooth_data_t *) data;
 
     bthci_acl_itam = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
     bthci_acl_tree = proto_item_add_subtree(bthci_acl_itam, ett_bthci_acl);
@@ -166,8 +193,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    interface_id      = hci_data->interface_id;
-    adapter_id        = hci_data->adapter_id;
+    interface_id      = bluetooth_data->interface_id;
+    adapter_id        = bluetooth_data->adapter_id;
     connection_handle = flags & 0x0fff;
     direction         = pinfo->p2p_dir;
     frame_number      = pinfo->fd->num;
@@ -175,7 +202,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
     acl_data->interface_id                = interface_id;
     acl_data->adapter_id                  = adapter_id;
-    acl_data->adapter_disconnect_in_frame = hci_data->adapter_disconnect_in_frame;
+    acl_data->adapter_disconnect_in_frame = bluetooth_data->adapter_disconnect_in_frame;
     acl_data->chandle                     = connection_handle;
 
     key[0].length = 1;
@@ -187,7 +214,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     key[3].length = 0;
     key[3].key    = NULL;
 
-    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->chandle_sessions, key);
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_sessions, key);
     chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
     if (chandle_session &&
             chandle_session->connect_in_frame < pinfo->fd->num &&
@@ -201,8 +228,15 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     acl_data->remote_bd_addr_oui         = 0;
     acl_data->remote_bd_addr_id          = 0;
 
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_to_mode, key);
+    connection_mode = (subtree) ? (connection_mode_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    if (connection_mode) {
+        mode = connection_mode->mode;
+        mode_last_change_in_frame = connection_mode->change_in_frame;
+    }
+
     /* remote bdaddr and name */
-    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->chandle_to_bdaddr_table, key);
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_to_bdaddr, key);
     remote_bdaddr = (subtree) ? (remote_bdaddr_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
     if (remote_bdaddr) {
         guint32         k_bd_addr_oui;
@@ -210,6 +244,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         guint32         bd_addr_oui;
         guint32         bd_addr_id;
         device_name_t  *device_name;
+        device_role_t  *device_role;
         const gchar    *remote_name;
         const gchar    *remote_ether_addr;
         gchar          *remote_addr_name;
@@ -225,13 +260,32 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         k_bd_addr_id   = bd_addr_id;
 
         key[0].length = 1;
-        key[0].key    = &k_bd_addr_id;
+        key[0].key    = &interface_id;
         key[1].length = 1;
-        key[1].key    = &k_bd_addr_oui;
-        key[2].length = 0;
-        key[2].key    = NULL;
+        key[1].key    = &adapter_id;
+        key[2].length = 1;
+        key[2].key    = &k_bd_addr_id;
+        key[3].length = 1;
+        key[3].key    = &k_bd_addr_oui;
+        key[4].length = 0;
+        key[4].key    = NULL;
 
-        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->bdaddr_to_name_table, key);
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->bdaddr_to_role, key);
+        device_role = (subtree) ? (device_role_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+        if (device_role) {
+            if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_MASTER) ||
+                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_SLAVE)) {
+                src_role = ROLE_SLAVE;
+                dst_role = ROLE_MASTER;
+            } else if ((pinfo->p2p_dir == P2P_DIR_SENT && device_role->role == ROLE_SLAVE) ||
+                    (pinfo->p2p_dir == P2P_DIR_RECV && device_role->role == ROLE_MASTER)) {
+                src_role = ROLE_MASTER;
+                dst_role = ROLE_SLAVE;
+            }
+            role_last_change_in_frame = device_role->change_in_frame;
+        }
+
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->bdaddr_to_name, key);
         device_name = (subtree) ? (device_name_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
         if (device_name)
             remote_name = device_name->name;
@@ -269,7 +323,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     key[2].key    = NULL;
 
 
-    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->localhost_bdaddr, key);
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->localhost_bdaddr, key);
     localhost_bdaddr_entry = (subtree) ? (localhost_bdaddr_entry_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
     if (localhost_bdaddr_entry) {
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
@@ -279,8 +333,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         memcpy(localhost_bdaddr, unknown_bd_addr, 6);
     }
 
-
-    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->localhost_name, key);
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->localhost_name, key);
     localhost_name_entry = (subtree) ? (localhost_name_entry_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
     if (localhost_name_entry)
         localhost_name = localhost_name_entry->name;
@@ -445,10 +498,25 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst_bd_addr);
     SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_name) + 1, dst_addr_name);
 
+    if (!pinfo->fd->flags.visited) {
+        address *addr;
+
+        addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+        addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+        addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+        addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+    }
+
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_src_bd_addr, tvb, 0, 0, src_bd_addr);
     PROTO_ITEM_SET_GENERATED(sub_item);
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_src_name, tvb, 0, 0, src_name);
+    PROTO_ITEM_SET_GENERATED(sub_item);
+
+    sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_src_role, tvb, 0, 0, src_role);
     PROTO_ITEM_SET_GENERATED(sub_item);
 
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_dst_bd_addr, tvb, 0, 0, dst_bd_addr);
@@ -456,6 +524,22 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_dst_name, tvb, 0, 0, dst_name);
     PROTO_ITEM_SET_GENERATED(sub_item);
+
+    sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_dst_role, tvb, 0, 0, dst_role);
+    PROTO_ITEM_SET_GENERATED(sub_item);
+
+    if (role_last_change_in_frame > 0) {
+        sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_role_last_change_in_frame, tvb, 0, 0, role_last_change_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+    }
+
+    sub_item = proto_tree_add_int(bthci_acl_tree, hf_bthci_acl_mode, tvb, 0, 0, mode);
+    PROTO_ITEM_SET_GENERATED(sub_item);
+
+    if (mode_last_change_in_frame > 0) {
+        sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_mode_last_change_in_frame, tvb, 0, 0, mode_last_change_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -523,6 +607,11 @@ proto_register_bthci_acl(void)
             FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_acl_src_role,
+            { "Source Role",                                "bthci_acl.src.role",
+            FT_UINT32, BASE_DEC, VALS(role_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_acl_dst_bd_addr,
             { "Destination BD_ADDR",                         "bthci_acl.dst.bd_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0,
@@ -531,6 +620,26 @@ proto_register_bthci_acl(void)
         { &hf_bthci_acl_dst_name,
             { "Destination Device Name",                     "bthci_acl.dst.name",
             FT_STRINGZ, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_acl_dst_role,
+            { "Destination Role",                            "bthci_acl.dst.role",
+            FT_UINT32, BASE_DEC, VALS(role_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_acl_role_last_change_in_frame,
+            { "Last Role Change in Frame",                   "bthci_acl.last_change_in_frame.role",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_acl_mode,
+            { "Current Mode",                                "bthci_acl.mode",
+            FT_INT32, BASE_DEC, VALS(mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_acl_mode_last_change_in_frame,
+            { "Last Mode Change in Frame",                   "bthci_acl.last_change_in_frame.mode",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };
