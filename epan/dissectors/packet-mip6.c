@@ -3105,21 +3105,47 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
     {  2,    "Realm of the operator"},
     {  0,    NULL}
 };
-
-
-static void
-degrees_base_custom(gchar *result, guint32 degrees)
+static float degrees_covert_fixed_to_float(guint value)
 {
+    guint mantissa=0,exponent=0, sign=0, position=0, mask = 1,*ptrNumber = NULL, i ;
+    float floatNumber =0;
+    ptrNumber = (guint *) &floatNumber;
 
-  if (degrees & 0x800000) {
-    /* Negative Number. */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "-%u.%u", (degrees & 0x7F8000)>>15, degrees & 0x007FFF);
-  }
-  else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", (degrees & 0x7F8000)>>15, degrees & 0x007FFF);
-  }
+    if(!value)
+        return 0;
+
+    /* If negative number save sign bit and take 2' complement*/
+    if(value & 0x800000) /* Input value is 24 bit number*/
+    {
+        value -= 1;
+        value ^= -1;
+        sign = 1;
+    }
+
+    /* Find position of left most 1*/
+    for(i=0;i<24;i++)
+    {
+        if(value & mask )
+            position = i;
+        mask = (mask << 1);
+    }
+
+    mantissa = (value << (32 - position - 8 -1));
+    mantissa &= 0x007FFFFF;
+
+    if(sign)
+        mantissa = (mantissa | 0x80000000);
+
+    exponent = (position - 15 +127) << 23;
+
+    *ptrNumber = (mantissa | exponent);/* club mantissa, exponent and sign*/
+    return floatNumber;
 }
 
+static void degrees_base_custom(gchar *str, guint degrees)
+{
+    g_snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_covert_fixed_to_float(degrees) );
+}
 
 static void
 dissect_pmip6_opt_acc_net_id(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
