@@ -48,6 +48,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
 
+#include "epan/addr_resolv.h"
 #include "epan/column.h"
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
@@ -338,6 +339,13 @@ void MainWindow::layoutToolbars()
     }
 
     main_ui_->mainToolBar->setToolButtonStyle(tbstyle);
+}
+
+void MainWindow::updateNameResolutionActions()
+{
+    main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
+    main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
+    main_ui_->actionViewNameResolutionTransport->setChecked(gbl_resolv_flags.transport_name);
 }
 
 void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
@@ -1850,6 +1858,32 @@ void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bo
     if (packet_list_) {
         packet_list_->redrawVisiblePackets();
     }
+}
+
+void MainWindow::setNameResolution()
+{
+    gbl_resolv_flags.mac_name = main_ui_->actionViewNameResolutionPhysical->isChecked() ? TRUE : FALSE;
+    gbl_resolv_flags.network_name = main_ui_->actionViewNameResolutionNetwork->isChecked() ? TRUE : FALSE;
+    gbl_resolv_flags.transport_name = main_ui_->actionViewNameResolutionTransport->isChecked() ? TRUE : FALSE;
+
+    if (packet_list_) {
+        packet_list_->redrawVisiblePackets();
+    }
+}
+
+void MainWindow::on_actionViewNameResolutionPhysical_triggered()
+{
+    setNameResolution();
+}
+
+void MainWindow::on_actionViewNameResolutionNetwork_triggered()
+{
+    setNameResolution();
+}
+
+void MainWindow::on_actionViewNameResolutionTransport_triggered()
+{
+    setNameResolution();
 }
 
 void MainWindow::zoomText()

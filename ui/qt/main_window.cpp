@@ -24,6 +24,7 @@
 
 #include "globals.h"
 
+#include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
@@ -187,6 +188,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateNameResolutionActions()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(recentFilesRead()), this, SLOT(loadWindowGeometry()));
@@ -273,6 +275,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initShowHideMainWidgets();
     initTimeDisplayFormatMenu();
     initTimePrecisionFormatMenu();
+    updateNameResolutionActions();
 
     connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));

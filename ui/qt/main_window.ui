@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>29</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -265,6 +265,14 @@
      <addaction name="separator"/>
      <addaction name="actionViewTimeDisplaySecondsWithHoursAndMinutes"/>
     </widget>
+    <widget class="QMenu" name="menuName_Resolution">
+     <property name="title">
+      <string>Name Resolution</string>
+     </property>
+     <addaction name="actionViewNameResolutionPhysical"/>
+     <addaction name="actionViewNameResolutionNetwork"/>
+     <addaction name="actionViewNameResolutionTransport"/>
+    </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
@@ -275,6 +283,7 @@
     <addaction name="actionViewPacketBytes"/>
     <addaction name="separator"/>
     <addaction name="menuTime_Display_Format"/>
+    <addaction name="menuName_Resolution"/>
     <addaction name="separator"/>
     <addaction name="menuZoom"/>
     <addaction name="separator"/>
@@ -2039,6 +2048,39 @@
    </property>
    <property name="toolTip">
     <string>Display seconds with hours and minutes</string>
+   </property>
+  </action>
+  <action name="actionViewNameResolutionPhysical">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Resolve &amp;Physical Addresses</string>
+   </property>
+   <property name="toolTip">
+    <string>Show names for known MAC addresses. Lookups use a local database.</string>
+   </property>
+  </action>
+  <action name="actionViewNameResolutionNetwork">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Resolve &amp;Network Addresses</string>
+   </property>
+   <property name="toolTip">
+    <string>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</string>
+   </property>
+  </action>
+  <action name="actionViewNameResolutionTransport">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Resolve &amp;Transport Addresses</string>
+   </property>
+   <property name="toolTip">
+    <string>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</string>
    </property>
   </action>
   <action name="actionViewWirelessToolbar">

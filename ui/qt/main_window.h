@@ -184,6 +184,7 @@ public slots:
     void updateForUnsavedChanges();
     void layoutPanes();
     void layoutToolbars();
+    void updateNameResolutionActions();
 
     void captureCapturePrepared(capture_session *cap_session);
     void captureCaptureUpdateStarted(capture_session *cap_session);
@@ -296,6 +297,11 @@ private slots:
     void setTimestampFormat(QAction *action);
     void setTimestampPrecision(QAction *action);
     void on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked);
+    void setNameResolution();
+    void on_actionViewNameResolutionPhysical_triggered();
+    void on_actionViewNameResolutionNetwork_triggered();
+    void on_actionViewNameResolutionTransport_triggered();
+    // XXX We're not porting the concurrency action from GTK+ on purpose.
     void zoomText();
     void on_actionViewZoomIn_triggered();
     void on_actionViewZoomOut_triggered();
