@@ -143,7 +143,8 @@ typedef struct _localhost_name_entry_t {
 } localhost_name_entry_t;
 
 /* In "packet-btle.c" */
-extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset);
+extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
+        gint offset, guint8 *bdaddr);
 
 #endif
 

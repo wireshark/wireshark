@@ -202,7 +202,7 @@ void proto_reg_handoff_btle(void);
 
 
 gint
-dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset)
+dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 *bdaddr)
 {
     guint8 bd_addr[6];
 
@@ -215,6 +215,9 @@ dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset)
 
     proto_tree_add_ether(tree, hf_bd_addr, tvb, offset, 6, bd_addr);
     offset += 6;
+
+    if (bdaddr)
+        memcpy(bdaddr, bd_addr, 6);
 
     return offset;
 }
@@ -318,6 +321,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint8       length;
     guint32      interface_id;
     tvbuff_t    *next_tvb;
+    guint8      *dst_bd_addr;
+    guint8      *src_bd_addr;
     enum {CRC_INDETERMINATE,
           CRC_CAN_BE_CALCULATED,
           CRC_INCORRECT,
@@ -325,6 +330,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32      crc_init = 0x555555; /* default to advertising channel's value */
     guint32      packet_crc;
     const btle_context_t * btle_context = (const btle_context_t *) data;
+
+    src_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
+    dst_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
 
     if (btle_context && btle_context->crc_checked_at_capture) {
         crc_status = btle_context->crc_valid_at_capture ? CRC_CORRECT : CRC_INCORRECT;
@@ -405,7 +413,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x00: /* ADV_IND */
         case 0x02: /* ADV_NONCONN_IND */
         case 0x06: /* ADV_SCAN_IND */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
+            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
 
             if (tvb_length_remaining(tvb, offset) > 3) {
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
@@ -416,17 +432,41 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         case 0x01: /* ADV_DIRECT_IND */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
-            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
+            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, dst_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
 
             break;
         case 0x03: /* SCAN_REQ */
-            offset = dissect_bd_addr(hf_scanning_address, btle_tree, tvb, offset);
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_scanning_address, btle_tree, tvb, offset, src_bd_addr);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, dst_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
+            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
 
             break;
         case 0x04: /* SCAN_RSP */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
+            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+
+            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
+            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
 
             sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
@@ -440,8 +480,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         case 0x05: /* CONNECT_REQ */
-            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset);
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, NULL);
 
             link_layer_data_item = proto_tree_add_item(btle_tree, hf_link_layer_data, tvb, offset, 22, ENC_NA);
             link_layer_data_tree = proto_item_add_subtree(link_layer_data_item, ett_link_layer_data);
