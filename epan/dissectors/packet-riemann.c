@@ -601,7 +601,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
 }
 
 static gboolean
-is_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+is_riemann(tvbuff_t *tvb)
 {
     guint32 reported_length = tvb_reported_length(tvb);
     guint32 captured_length = tvb_captured_length(tvb);
@@ -631,7 +631,7 @@ dissect_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_item *pi;
     proto_tree *riemann_tree;
 
-    if (!is_riemann(tvb, pinfo, tree, data))
+    if (!is_riemann(tvb))
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "riemann");
