@@ -92,6 +92,7 @@
    http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-242
  */
 #define ISIS_TE_NODE_CAP_DESC     1
+#define SEGMENT_ROUTING_CAP       2            /* draft-ietf-isis-segment-routing-extensions-03 */
 #define NICKNAME                  6
 #define TREES                     7
 #define TREE_IDENTIFIER           8
@@ -105,6 +106,9 @@
 #define GRP_MAC_ADDRESS 1
 #define GRP_IPV4_ADDRESS 2
 #define GRP_IPV6_ADDRESS 3
+
+/* Segment Routing Sub-TLV */
+#define ISIS_SR_SID_LABEL           1
 
 const range_string mtid_strings[] = {
   {    0,    0, "Standard topology" },
@@ -266,6 +270,11 @@ static int hf_isis_lsp_clv_te_node_cap_e_bit = -1;
 static int hf_isis_lsp_clv_te_node_cap_m_bit = -1;
 static int hf_isis_lsp_clv_te_node_cap_g_bit = -1;
 static int hf_isis_lsp_clv_te_node_cap_p_bit = -1;
+static int hf_isis_lsp_clv_sr_cap_i_flag = -1;
+static int hf_isis_lsp_clv_sr_cap_v_flag = -1;
+static int hf_isis_lsp_clv_sr_cap_range = -1;
+static int hf_isis_lsp_clv_sr_cap_sid = -1;
+static int hf_isis_lsp_clv_sr_cap_label = -1;
 static int hf_isis_lsp_area_address = -1;
 static int hf_isis_lsp_clv_nlpid = -1;
 static int hf_isis_lsp_ip_authentication = -1;
@@ -309,6 +318,8 @@ static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
 static gint ett_isis_lsp_clv_rt_capable = -1;   /* CLV 242 */
 static gint ett_isis_lsp_clv_te_node_cap_desc = -1;
+static gint ett_isis_lsp_clv_sr_cap = -1;
+static gint ett_isis_lsp_clv_sr_sid_label = -1;
 static gint ett_isis_lsp_clv_trill_version = -1;
 static gint ett_isis_lsp_clv_trees = -1;
 static gint ett_isis_lsp_clv_root_id = -1;
@@ -873,14 +884,50 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
     }
 }
 
+/**
+ * Decode the Segment Routing "SID/Label" Sub-TLV
+ *
+ * This Sub-TLV is used in the Segment Routing Capability TLV (2)
+ * It's called by the TLV 242 dissector (dissect_isis_trill_clv)
+ *
+ * @param tvb the buffer of the current data
+ * @param pinfo the packet info of the current data
+ * @param tree the tree to append this item
+ * @param offset the offset in the tvb
+ * @param tlv_len the length of tlv
+ * @return void
+ */
+static void
+dissect_lsp_sr_sid_label_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+                             proto_tree *tree, int offset, guint8 tlv_len)
+{
+    proto_tree *subtree;
+
+    subtree = proto_tree_add_subtree_format(tree, tvb, offset-2, tlv_len+2, ett_isis_lsp_clv_sr_sid_label,
+                                         NULL, "SID/Label (t=1, l=%u)", tlv_len);
+
+    switch (tlv_len) { /* The length determines the type of info */
+    case 4:     /* Then it's a SID */
+            proto_tree_add_item(subtree, hf_isis_lsp_clv_sr_cap_sid, tvb, offset+6, tlv_len, ENC_BIG_ENDIAN);
+            break;
+        case 3: /* Then it's a Label */
+            proto_tree_add_item(subtree, hf_isis_lsp_clv_sr_cap_label, tvb, offset+6, tlv_len, ENC_BIG_ENDIAN);
+            break;
+    default:
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_subtlv, tvb, offset+4, tlv_len+2,
+                                         "SID/Label SubTlv - Bad length: Type: %d, Length: %d", ISIS_SR_SID_LABEL, tlv_len);
+            break;
+    }
+}
+
 static int
 dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
     guint16 rt_block;
     proto_tree *rt_tree, *cap_tree;
-
     guint16 root_id;
+    guint8 tlv_type, tlv_len;
 
     switch (subtype) {
 
@@ -903,6 +950,31 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_g_bit, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(cap_tree, hf_isis_lsp_clv_te_node_cap_p_bit, tvb, offset, 1, ENC_NA);
         return(0);
+
+    case SEGMENT_ROUTING_CAP:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2, ett_isis_lsp_clv_sr_cap,
+                                                NULL, "Segment Routing - Capability (t=%u, l=%u)", subtype, sublen);
+
+        /*
+         *    0        I-Flag: IPv4 flag                [draft-ietf-isis-segment-routing-extensions]
+         *    1        V-Flag: IPv6 flag                [draft-ietf-isis-segment-routing-extensions]
+         *    2-7      Unassigned
+         */
+
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_cap_i_flag, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_cap_v_flag, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_cap_range, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+
+        tlv_type = tvb_get_guint8(tvb, offset+4);
+        tlv_len = tvb_get_guint8(tvb, offset+5);
+        if (tlv_type == ISIS_SR_SID_LABEL) {
+            dissect_lsp_sr_sid_label_clv(tvb, pinfo, rt_tree, offset, tlv_len);
+        } else
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset+4, tlv_len+2,
+                                         "Unknown SubTlv: Type: %d, Length: %d", tlv_type, tlv_len);
+
+        return(0);
+
     case TRILL_VERSION:
         rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
                     ett_isis_lsp_clv_trill_version, NULL, "TRILL version (t=%u, l=%u)", subtype, sublen);
@@ -1096,9 +1168,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         offset += subtlvlen;
     }
 }
-
-
-
 
 /*
  * Name: dissect_lsp_ipv6_reachability_clv()
@@ -3563,6 +3632,31 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 8, NULL, 0x08,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_clv_sr_cap_i_flag,
+            { "I flag: IPv4 support", "isis.lsp.sr_cap.i_flag",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_sr_cap_v_flag,
+          { "V flag: IPv6 support", "isis.lsp.sr_cap.v_flag",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_sr_cap_range,
+          { "Range", "isis.lsp.sr_cap.range",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_sr_cap_sid,
+          { "SID", "isis.lsp.sr_cap.sid",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_sr_cap_label,
+          { "Label", "isis.lsp.sr_cap.label",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_isis_lsp_area_address,
             { "Area address", "isis.lsp.area_address",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3634,7 +3728,9 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_grp_ipv6addr,
         &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
-        &ett_isis_lsp_clv_originating_buff_size /* CLV 14 */
+        &ett_isis_lsp_clv_originating_buff_size, /* CLV 14 */
+        &ett_isis_lsp_clv_sr_cap,
+        &ett_isis_lsp_clv_sr_sid_label
     };
 
     static ei_register_info ei[] = {
