@@ -268,7 +268,9 @@ PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=&lpp_degreesLongitude
 %(DEFAULT_BODY)s
 
 #.FN_FTR PeriodicalReportingCriteria/reportingInterval
-  proto_item_append_text(actx->created_item, "%s", interval[idx]);
+  if (idx < 10) {
+    proto_item_append_text(actx->created_item, "%s", interval[idx]);
+  }
 
 #.FN_BODY ReportingDuration VAL_PTR = &duration
   guint32 duration;
