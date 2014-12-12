@@ -608,8 +608,7 @@ is_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
     guint64 tag, field_number, wire_format;
     guint len;
 
-    if ((pinfo->destport != udp_port_pref) ||
-        (reported_length < riemann_MIN_LENGTH) ||
+    if ((reported_length < riemann_MIN_LENGTH) ||
         (captured_length < MAX_NEEDED_FOR_HEURISTICS)) {
         return FALSE;
     }
