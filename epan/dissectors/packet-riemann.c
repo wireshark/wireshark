@@ -79,6 +79,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/dissectors/packet-tcp.h>
 
 void proto_reg_handoff_riemann(void);
 void proto_register_riemann(void);
@@ -113,6 +114,7 @@ static int hf_riemann_state_state = -1;
 static int hf_riemann_state_once = -1;
 
 static guint udp_port_pref = 0;
+static guint tcp_port_pref = 0;
 
 static gint ett_riemann = -1;
 static gint ett_query = -1;
@@ -542,7 +544,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
                     tvbuff_t *tvb, guint offset)
 {
     guint64 tag, fn;
-    gint64 size = (gint64)tvb_reported_length(tvb);
+    gint64 size = (gint64)tvb_reported_length_remaining(tvb, offset);
     guint8 wire;
     guint len, orig_offset = offset;
     gboolean cinfo_set = FALSE;
@@ -601,10 +603,10 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
 }
 
 static gboolean
-is_riemann(tvbuff_t *tvb)
+is_riemann(tvbuff_t *tvb, guint offset)
 {
-    guint32 reported_length = tvb_reported_length(tvb);
-    guint32 captured_length = tvb_captured_length(tvb);
+    guint32 reported_length = tvb_reported_length_remaining(tvb, offset);
+    guint32 captured_length = tvb_captured_length_remaining(tvb, offset);
     guint64 tag, field_number, wire_format;
     guint len;
 
@@ -612,7 +614,7 @@ is_riemann(tvbuff_t *tvb)
         (captured_length < MAX_NEEDED_FOR_HEURISTICS)) {
         return FALSE;
     }
-    tag = riemann_get_guint64(tvb, 0, &len);
+    tag = riemann_get_guint64(tvb, offset, &len);
     field_number = tag >> 3;
     wire_format = tag & 0x7;
     if ((field_number == FN_MSG_OK && wire_format == WIRE_INTEGER) ||
@@ -626,21 +628,47 @@ is_riemann(tvbuff_t *tvb)
 }
 
 static int
-dissect_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     proto_item *pi;
     proto_tree *riemann_tree;
 
-    if (!is_riemann(tvb))
+    if (!is_riemann(tvb, offset))
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "riemann");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pi = proto_tree_add_item(tree, proto_riemann, tvb, 0, -1, ENC_NA);
+    pi = proto_tree_add_item(tree, proto_riemann, tvb, offset, -1, ENC_NA);
     riemann_tree = proto_item_add_subtree(pi, ett_riemann);
 
-    return riemann_dissect_msg(pinfo, pi, riemann_tree, tvb, 0);
+    return riemann_dissect_msg(pinfo, pi, riemann_tree, tvb, offset);
+}
+
+static int
+dissect_riemann_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_riemann(tvb, pinfo, tree, 0);
+}
+
+static int
+dissect_riemann_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_riemann(tvb, pinfo, tree, 4);
+}
+
+static guint
+get_riemann_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    return (tvb_get_ntohl(tvb, offset) + 4);
+}
+
+static int
+dissect_riemann_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_riemann_tcp_pdu_len, dissect_riemann_tcp_pdu, data);
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -793,23 +821,31 @@ proto_register_riemann(void)
     prefs_register_uint_preference(riemann_module, "udp.port", "Riemann UDP Port",
             " riemann UDP port if other than the default",
             10, &udp_port_pref);
+
+    prefs_register_uint_preference(riemann_module, "tcp.port", "Riemann TCP Port",
+            " riemann TCP port if other than the default",
+            10, &tcp_port_pref);
 }
 
 void
 proto_reg_handoff_riemann(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t riemann_handle;
-    static int current_port;
+    static dissector_handle_t riemann_udp_handle, riemann_tcp_handle;
+    static int current_udp_port, current_tcp_port;
 
     if (!initialized) {
-        riemann_handle = new_create_dissector_handle(dissect_riemann, proto_riemann);
+        riemann_udp_handle = new_create_dissector_handle(dissect_riemann_udp, proto_riemann);
+        riemann_tcp_handle = new_create_dissector_handle(dissect_riemann_tcp, proto_riemann);
         initialized = TRUE;
     } else {
-        dissector_delete_uint("udp.port", current_port, riemann_handle);
+        dissector_delete_uint("udp.port", current_udp_port, riemann_udp_handle);
+        dissector_delete_uint("tcp.port", current_tcp_port, riemann_tcp_handle);
     }
-    current_port = udp_port_pref;
-    dissector_add_uint("udp.port", current_port, riemann_handle);
+    current_udp_port = udp_port_pref;
+    dissector_add_uint("udp.port", current_udp_port, riemann_udp_handle);
+    current_tcp_port = tcp_port_pref;
+    dissector_add_uint("tcp.port", current_tcp_port, riemann_tcp_handle);
 }
 
 /*
