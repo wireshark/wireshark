@@ -691,7 +691,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     gboolean     default_5_bits;
     gboolean     default_3_bits;
     gboolean     default_data;
-    guint8       msg_class;
+    guint8       msg_class = 0xff;
 
     *seven_bit  = FALSE;
     *eight_bit  = FALSE;
