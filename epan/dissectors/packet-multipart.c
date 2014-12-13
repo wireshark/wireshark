@@ -347,6 +347,9 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
         p++; /* Skip semicolon */
 
     }
+    if (*p == 0x0)
+        return NULL;  /* key wasn't found */
+
     start = p + keylen;
     if (start[0] == 0) {
         return NULL;
