@@ -404,6 +404,7 @@ voip_calls_mark_selected(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter
 
 	gtk_tree_model_get(model, iter, CALL_COL_DATA, &strinfo, -1);
 	strinfo->selected = gtk_tree_selection_iter_is_selected(selection, iter);
+	/* VOIP_CALLS_DEBUG("selected call %u (%s), frame %u: %d", strinfo->call_num, strinfo->call_id, strinfo->start_fd->num, strinfo->selected); */
 
 	return FALSE;
 }

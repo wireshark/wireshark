@@ -189,7 +189,7 @@ typedef struct _rtp_channel_info {
 } rtp_channel_info_t;
 
 /* defines the two RTP channels to be played */
-typedef struct _rtp_play_channles {
+typedef struct _rtp_play_channels {
 	rtp_channel_info_t* rci[2]; /* Channels to be played */
 	guint32 start_index[2];
 	guint32 end_index[2];
@@ -392,6 +392,8 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	 */
 	rsi->decode = FALSE;
 
+	/* RTP_STREAM_DEBUG("call num: %u, start frame: %u, ssrc: 0x%x, packets: %u, %d voip calls", rsi->call_num, rsi->start_fd->num, rsi->ssrc, rsi->packet_count, voip_calls->ncalls); */
+
 	/* and associate the RTP stream with a call using the first RTP packet in the stream */
 	graph_list = g_queue_peek_nth_link(voip_calls->graph_analysis->items, 0);
 	while (graph_list)
@@ -405,6 +407,7 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 			{
 				tmp_voip_call = (voip_calls_info_t *)voip_calls_list->data;
 				if ( (tmp_voip_call->call_num == rsi->call_num) && (tmp_voip_call->selected == TRUE) ) {
+					/* RTP_STREAM_DEBUG("decoding call %u", rsi->call_num); */
 					rsi->decode = TRUE;
 					total_packets += rsi->packet_count;
 					break;
@@ -510,6 +513,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 		rsi->dest_port, rsi->call_num, info->current_channel);
 	wmem_free(NULL, src_addr);
 	wmem_free(NULL, dst_addr);
+	/* RTP_STREAM_DEBUG("decoding stream %s, ssrc 0x%x, %d packets", key_str->str, rsi->ssrc, rsi->packet_count); */
 
 	/* create the rtp_channels_hash table if it doesn't exist */
 	if (!rtp_channels_hash) {
@@ -2148,6 +2152,7 @@ decode_streams(void)
 		g_list_foreach(rtp_streams_list, (GFunc) decode_rtp_stream, &info);
 	}
 
+	/* RTP_STREAM_DEBUG("decoded %d streams", g_list_length(rtp_streams_list)); */
 	/* reset the number of frames to be displayed, this is used for the progress bar */
 	total_frames = 0;
 	/* Count the frames in all the RTP channels */

@@ -52,6 +52,8 @@ seq_analysis_info_t *
 sequence_analysis_info_new(void)
 {
     seq_analysis_info_t *sainfo = g_new0(seq_analysis_info_t, 1);
+
+    /* SEQ_ANALYSIS_DEBUG("adding new item"); */
     sainfo->items = g_queue_new();
     sainfo->ht= g_hash_table_new(g_int_hash, g_int_equal);
     return sainfo;
@@ -61,6 +63,7 @@ void sequence_analysis_info_free(seq_analysis_info_t *sainfo)
 {
     if (!sainfo) return;
 
+    /* SEQ_ANALYSIS_DEBUG("%d items", g_queue_get_length(sainfo->items)); */
     sequence_analysis_list_free(sainfo);
 
     g_queue_free(sainfo->items);
@@ -282,6 +285,7 @@ sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo)
     cf_retap_packets(cf);
     remove_tap_listener(sainfo);
 
+    /* SEQ_ANALYSIS_DEBUG("%d items", g_queue_get_length(sainfo->items)); */
     /* Fill in the timestamps */
     g_queue_foreach(sainfo->items, sequence_analysis_item_set_timestamp, cf->epan);
 }
@@ -329,6 +333,7 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     int i;
 
     if (!sainfo) return;
+    /* SEQ_ANALYSIS_DEBUG("%d items", g_queue_get_length(sainfo->items)); */
 
     /* free the graph data items */
 

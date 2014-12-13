@@ -89,8 +89,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     }
     byte_view_tab_->setCurrentIndex(0);
 
-    ui->packetSplitter->setStretchFactor(0, 5);
-    ui->packetSplitter->setStretchFactor(1, 1);
+    ui->packetSplitter->setStretchFactor(1, 0);
 
     QStringList col_parts;
     for (int i = 0; i < cap_file_.capFile()->cinfo.num_cols; ++i) {

@@ -26,7 +26,7 @@
 isEqual(QT_MAJOR_VERSION, 4) {
     QT += core gui
 } else {
-    QT += core widgets printsupport multimediawidgets
+    QT += core widgets printsupport multimedia
 }
 
 isEqual(QT_MAJOR_VERSION, 5): greaterThan(QT_MINOR_VERSION, 1): win32 {
@@ -265,6 +265,7 @@ FORMS += \
     remote_settings_dialog.ui  \
     resolved_addresses_dialog.ui \
     rtp_analysis_dialog.ui   \
+    rtp_player_dialog.ui \
     rtp_stream_dialog.ui   \
     sctp_all_assocs_dialog.ui   \
     sctp_assoc_analyse_dialog.ui \
@@ -350,6 +351,8 @@ HEADERS += $$HEADERS_WS_C \
     remote_settings_dialog.h    \
     resolved_addresses_dialog.h \
     rtp_analysis_dialog.h  \
+    rtp_audio_stream.h \
+    rtp_player_dialog.h \
     rtp_stream_dialog.h  \
     sctp_all_assocs_dialog.h  \
     sctp_assoc_analyse_dialog.h \
@@ -490,7 +493,7 @@ win32 {
             EXTRA_DLLS = QtCored4 QtGuid4
         } else: lessThan(QT_MINOR_VERSION, 3) {
             # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd Qt5MultimediaWidgetsd
+            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd Qt5Multimediad
             EXTRA_PLATFORM_DLLS = qwindowsd
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
@@ -500,7 +503,7 @@ win32 {
             EXTRA_DLLS = QtCore4 QtGui4
         } else: lessThan(QT_MINOR_VERSION, 3) {
             # The QT lib parts are copied by windeployqt post 5.3
-            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5MultimediaWidgets
+            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5Multimedia
             EXTRA_PLATFORM_DLLS = qwindows
             QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
@@ -756,6 +759,8 @@ SOURCES += \
     resolved_addresses_dialog.cpp \
     rpc_service_response_time_dialog.cpp \
     rtp_analysis_dialog.cpp  \
+    rtp_audio_stream.cpp \
+    rtp_player_dialog.cpp \
     rtp_stream_dialog.cpp  \
     sctp_all_assocs_dialog.cpp  \
     sctp_assoc_analyse_dialog.cpp \

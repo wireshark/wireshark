@@ -27,7 +27,8 @@ LIBCODEC_SRC = \
 	G711u/G711udecode.c \
 	G722/G722decode.c \
 	G726/G726decode.c \
-	sbc/sbc.c
+	sbc/sbc.c \
+	speex/resample.c
 
 noinst_HEADERS = \
 	codecs.h \
@@ -35,5 +36,8 @@ noinst_HEADERS = \
 	G711u/G711udecode.h G711u/G711utable.h	\
 	G722/G722decode.h \
 	G726/G726decode.h \
-	sbc/sbc_private.h
+	sbc/sbc_private.h \
+	speex/arch.h \
+	speex/speex_resampler.h \
+	speex/stack_alloc.h
 

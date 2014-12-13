@@ -56,6 +56,7 @@ static void rtpstream_draw(void *ti_ptr)
     g_signal_emit_by_name(top_level, "signal_rtpstream_update");
 */
     if (tapinfo && tapinfo->tap_draw) {
+        /* RTP_STREAM_DEBUG("streams: %d packets: %d", tapinfo->nstreams, tapinfo->npackets); */
         tapinfo->tap_draw(tapinfo);
     }
     return;
@@ -76,6 +77,7 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
     if (!tapinfo->is_registered)
         register_tap_listener_rtp_stream(tapinfo, fstring);
 
+    /* RTP_STREAM_DEBUG("scanning %s, filter: %s", cap_file->filename, fstring); */
     tapinfo->mode = TAP_ANALYSE;
     cf_retap_packets(cap_file);
 

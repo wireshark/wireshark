@@ -661,7 +661,7 @@ if(BUILD_wireshark)
 		set(PACKAGELIST ${PACKAGELIST}
 			Qt5Core
 			Qt5LinguistTools
-			Qt5MultimediaWidgets
+			Qt5Multimedia
 			Qt5PrintSupport
 			Qt5Widgets
 		)
@@ -699,7 +699,7 @@ if(ENABLE_KERBEROS)
 	set(PACKAGELIST ${PACKAGELIST} KERBEROS)
 endif()
 
-# Portable audio
+# Portable audio (GTK+ only)
 if(ENABLE_PORTAUDIO AND BUILD_wireshark_gtk)
 	set(PACKAGELIST ${PACKAGELIST} PORTAUDIO)
 endif()
@@ -879,10 +879,10 @@ if (Qt5Widgets_FOUND)
 	endif()
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
-	if(Qt5MultimediaWidgets_FOUND)
-		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MultimediaWidgets_LIBRARIES})
+	if(Qt5Multimedia_FOUND)
+		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
 		# That's the name autofoo uses
-		set(QT_MULTIMEDIAWIDGETS_LIB 1)
+		set(QT_MULTIMEDIA_LIB 1)
 	endif()
 	if(Qt5MacExtras_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})

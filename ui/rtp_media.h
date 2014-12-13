@@ -43,6 +43,8 @@ extern "C" {
 /****************************************************************************/
 
 typedef gint16 SAMPLE;
+#define SAMPLE_MAX G_MAXINT16
+#define SAMPLE_MIN G_MININT16
 
 /* Defines an RTP packet */
 typedef struct _rtp_packet {

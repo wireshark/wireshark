@@ -2133,11 +2133,13 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1, $qt_version_to_check)
 
 		#
-		# Qt 5.0 added multimedia widgets in the Qt
-		# MultimediaWidgets module.
+		# Qt 5.0 added multimedia in the Qt
+		# Multimedia module.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1, $qt_version_to_check,
-			AC_DEFINE(QT_MULTIMEDIAWIDGETS_LIB, 1, [Define if we have QtMultimediaWidgets]))
+		have_qt_multimedia_lib=no
+		AC_WIRESHARK_QT_MODULE_CHECK(Multimedia, $1, $qt_version_to_check,
+			have_qt_multimedia_lib=yes
+			AC_DEFINE(QT_MULTIMEDIA_LIB, 1, [Define if we have QtMultimedia]))
 
 		#
 		# While we're at it, look for QtMacExtras.  (Presumably

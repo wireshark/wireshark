@@ -189,8 +189,8 @@ typedef struct _voip_calls_tapinfo {
     tap_draw_cb           tap_draw; /**< tap draw callback */
     void                 *tap_data; /**< data for tap callbacks */
     int                   ncalls; /**< number of call */
-    GQueue*               callsinfos; /**< queue with all calls */
-    GHashTable*           callsinfo_hashtable[1]; /**< array of hashes per voip protocol; currently only the one for SIP is used */
+    GQueue*               callsinfos; /**< queue with all calls (voip_calls_info_t) */
+    GHashTable*           callsinfo_hashtable[1]; /**< array of hashes per voip protocol (voip_calls_info_t); currently only the one for SIP is used */
     int                   npackets; /**< total number of packets of all calls */
     voip_calls_info_t    *filter_calls_fwd; /**< used as filter in some tap modes */
     int                   start_packets;
@@ -226,6 +226,21 @@ typedef struct _voip_calls_tapinfo {
     flow_show_options     fs_option;
     gboolean              redraw;
 } voip_calls_tapinfo_t;
+
+#if 0
+#ifdef _MSC_VER
+#define _ws_func_ __FUNCTION__
+#else
+#define _ws_func_ __func__
+#endif
+#define VOIP_CALLS_DEBUG(...) { \
+    char *VOIP_CALLS_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
+    g_warning("voip_calls: %s:%d %s", _ws_func_, __LINE__, VOIP_CALLS_DEBUG_MSG); \
+    g_free(VOIP_CALLS_DEBUG_MSG); \
+}
+#else
+#define VOIP_CALLS_DEBUG()
+#endif
 
 /****************************************************************************/
 /* INTERFACE */
@@ -268,4 +283,3 @@ void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

@@ -82,6 +82,7 @@ private:
     void updateWidgets();
     void prepareFilter();
     void showSequence();
+    void showPlayer();
 
 private slots:
     void captureFileClosing();

@@ -247,6 +247,8 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     rtp_stream_info_t *strinfo;
     GList *list = NULL;
 
+    /* VOIP_CALLS_DEBUG("reset packets: %d streams: %d", tapinfo->npackets, tapinfo->nrtp_streams); */
+
     /* free the data items first */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list)
@@ -610,15 +612,13 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* not in the list? then create a new entry */
     if (strinfo==NULL) {
-        strinfo = (rtp_stream_info_t *)g_malloc(sizeof(rtp_stream_info_t));
+        strinfo = (rtp_stream_info_t *)g_malloc0(sizeof(rtp_stream_info_t));
         COPY_ADDRESS(&(strinfo->src_addr), &(pinfo->src));
         strinfo->src_port = pinfo->srcport;
         COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
         strinfo->dest_port = pinfo->destport;
         strinfo->ssrc = rtp_info->info_sync_src;
-        strinfo->end_stream = FALSE;
         strinfo->payload_type = rtp_info->info_payload_type;
-        strinfo->payload_type_name = NULL;
         strinfo->is_srtp = rtp_info->info_is_srtp;
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ( (strinfo->payload_type >= PT_UNDF_96) && (strinfo->payload_type <= PT_UNDF_127) ) {
@@ -632,10 +632,10 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             }
         }
         if (!strinfo->payload_type_name) strinfo->payload_type_name = (gchar*)val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_short_vals_ext, "%u");
-        strinfo->packet_count = 0;
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
+        strinfo->call_num = -1;
         strinfo->rtp_event = -1;
         tapinfo->rtp_stream_list = g_list_prepend(tapinfo->rtp_stream_list, strinfo);
     }
@@ -3899,6 +3899,7 @@ remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 /* ***************************TAP for OTHER PROTOCOL **********************************/
 /****************************************************************************/
 
+/* voip_calls_packet and voip_calls_init_tap appear to be dead code. We don't have a "voip" tap. */
 static gboolean
 voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *VoIPinfo)
 {
@@ -3908,6 +3909,7 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     GList *list = NULL;
     const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
 
+    /* VOIP_CALLS_DEBUG("num %u", pinfo->fd->num); */
     if (pi->call_id)
         list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list) {
@@ -3965,6 +3967,7 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     return TRUE;
 }
+
 /****************************************************************************/
 
 void

@@ -72,11 +72,26 @@ typedef struct _seq_analysis_info {
     gboolean    all_packets; /**< all packets vs only displayed */
     gboolean    any_addr;    /**< any addr (DL+net) vs net-only */
     int         nconv;       /**< number of conversations in the list */
-    GQueue*     items;       /**< list with the graph analysis items */
-    GHashTable *ht;          /**< hash table for retrieving graph analysis items */
+    GQueue*     items;       /**< list of seq_analysis_info_t */
+    GHashTable *ht;          /**< hash table of seq_analysis_info_t */
     address nodes[MAX_NUM_NODES]; /**< horizontal node list */
     guint32 num_nodes;       /**< actual number of nodes */
 } seq_analysis_info_t;
+
+#if 0
+#ifdef _MSC_VER
+#define _ws_func_ __FUNCTION__
+#else
+#define _ws_func_ __func__
+#endif
+#define SEQ_ANALYSIS_DEBUG(...) { \
+    char *SEQ_ANALYSIS_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
+    g_warning("sequence analysis: %s:%d %s", _ws_func_, __LINE__, SEQ_ANALYSIS_DEBUG_MSG); \
+    g_free(SEQ_ANALYSIS_DEBUG_MSG); \
+}
+#else
+#define SEQ_ANALYSIS_DEBUG()
+#endif
 
 /** Create and initialize a seq_analysis_info_t struct
  * @return A pointer to a newly allocated seq_analysis_info_t struct.

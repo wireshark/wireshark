@@ -52,7 +52,16 @@ streams of a selected IAX2 call along with a graph.
 The VoIP Calls window shows a list of all detected VoIP calls in the captured
 traffic. It finds calls by their signaling.
 
-More details are described at the
+More details can be found on the
+link:wireshark-wiki-site:[]VoIP_calls[wireshark-wiki-site:[]VoIP_calls] page.
+
+[[ChTelRtpPlayer]]
+
+The RTP Player window lets you play back RTP audio data. In order to use
+this feature your version of Wireshark must support audio and the codecs
+used by each RTP stream.
+
+More details can be found on the
 link:wireshark-wiki-site:[]VoIP_calls[wireshark-wiki-site:[]VoIP_calls] page.
 
 [[ChTelLTEMACTraffic]]

@@ -27,6 +27,17 @@ set(CODECS_FILES
   # handle or define.
   # G722/G722decode.c
   # G726/G726decode.c
+  speex/resample.c
+)
+
+# Enables visibility in IDEs
+file(GLOB EXTRA_CODEC_HEADERS
+  codecs.h
+  G711a/G711adecode.h G711a/G711atable.h
+  G711u/G711udecode.h G711u/G711utable.h
+  speex/arch.h
+  speex/speex_resampler.h
+  speex/stack_alloc.h
 )
 
 if(SBC_FOUND)

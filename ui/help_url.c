@@ -351,6 +351,10 @@ topic_action_url(topic_action_e action)
     case(HELP_IAX2_ANALYSIS_DIALOG):
         url = user_guide_url("ChTelIAX2Analysis.html");
         break;
+    case(HELP_TELEPHONY_RTP_PLAYER_DIALOG):
+        url = user_guide_url("ChTelRtpPlayer.html");
+        break;
+
     case(TOPIC_ACTION_NONE):
     default:
         g_assert_not_reached();

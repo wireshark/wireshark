@@ -118,7 +118,8 @@ typedef enum {
     HELP_TELEPHONY_VOIP_CALLS_DIALOG,
     HELP_RTP_ANALYSIS_DIALOG,
     HELP_NEW_PACKET_DIALOG,
-    HELP_IAX2_ANALYSIS_DIALOG
+    HELP_IAX2_ANALYSIS_DIALOG,
+    HELP_TELEPHONY_RTP_PLAYER_DIALOG
 } topic_action_e;
 
 /** Given a filename return a filesystem URL. Relative paths are prefixed with

@@ -325,7 +325,7 @@ $(PROGRAM_NAME_GTK).exe	: $(LIBS_CHECK) config.h $(wireshark_gtk_OBJECTS) capchi
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
-$(PROGRAM_NAME).exe	: install-generated-files $(LIBS_CHECK) config.h capchild caputils epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+$(PROGRAM_NAME).exe	: install-generated-files $(LIBS_CHECK) config.h capchild caputils codecs epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) capchild caputils epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@

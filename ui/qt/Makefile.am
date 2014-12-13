@@ -244,6 +244,8 @@ resolved_addresses_dialog.$(OBJEXT): ui_resolved_addresses_dialog.h
 
 rtp_analysis_dialog.$(OBJEXT): ui_rtp_analysis_dialog.h
 
+rtp_player_dialog.$(OBJEXT): ui_rtp_player_dialog.h
+
 rtp_stream_dialog.$(OBJEXT): ui_rtp_stream_dialog.h
 
 search_frame.$(OBJEXT): ui_search_frame.h

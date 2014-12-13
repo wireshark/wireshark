@@ -2462,11 +2462,11 @@ AC_SUBST(LUA_CFLAGS)
 
 
 dnl portaudio check
-AC_MSG_CHECKING(whether to use libportaudio for the rtp_player)
+AC_MSG_CHECKING(whether to use libportaudio for the GTK+ RTP player)
 
 AC_ARG_WITH(portaudio,
   AC_HELP_STRING( [--with-portaudio@<:@=DIR@:>@],
-		  [use libportaudio (located in directory DIR, if supplied) for the rtp_player @<:@default=yes, if available@:>@]),
+		  [use libportaudio (located in directory DIR, if supplied) for the GTK+ RTP player @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -2491,7 +2491,7 @@ else
 	AC_MSG_RESULT(yes)
 	AC_WIRESHARK_LIBPORTAUDIO_CHECK
 	if test "x$want_portaudio" = "xno" ; then
-		AC_MSG_RESULT(libportaudio not found - disabling support for the rtp_player)
+		AC_MSG_RESULT(libportaudio not found - disabling support for the GTK+ RTP player)
 	fi
 fi
 AM_CONDITIONAL(HAVE_LIBPORTAUDIO, test x$want_portaudio = xyes)
@@ -3310,6 +3310,12 @@ else
 	lua_message="no"
 fi
 
+if test "x$have_qt_multimedia_lib" = "xyes" ; then
+	qt_multimedia_message="yes"
+else
+	qt_multimedia_message="no"
+fi
+
 if test "x$want_portaudio" = "xyes" ; then
 	portaudio_message="yes"
 else
@@ -3382,7 +3388,8 @@ echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
 echo "       Use external capture sources : $have_extcap"
 echo "                    Use Lua library : $lua_message"
-echo "                   Build rtp_player : $portaudio_message"
+echo "                Build Qt RTP player : $qt_multimedia_message"
+echo "              Build GTK+ RTP player : $portaudio_message"
 echo "             Build profile binaries : $enable_profile_build"
 echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"

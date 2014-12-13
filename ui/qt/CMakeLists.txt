@@ -114,6 +114,8 @@ set(WIRESHARK_QT_HEADERS
 	response_time_delay_dialog.h
 	rpc_service_response_time_dialog.h
 	rtp_analysis_dialog.h
+	rtp_audio_stream.h
+	rtp_player_dialog.h
 	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
@@ -256,6 +258,11 @@ set(WIRESHARK_QT_SRC
 	response_time_delay_dialog.cpp
 	rpc_service_response_time_dialog.cpp
 	rtp_analysis_dialog.cpp
+	rtp_audio_stream.cpp
+	rtp_player_dialog.cpp
+	rtp_stream_dialog.cpp
+	sctp_all_assocs_dialog.cpp
+	sctp_assoc_analyse_dialog.cpp
 	sctp_chunk_statistics_dialog.cpp
 	sctp_graph_dialog.cpp
 	sctp_graph_arwnd_dialog.cpp
@@ -376,6 +383,7 @@ set(WIRESHARK_QT_UI
 	protocol_hierarchy_dialog.ui
 	resolved_addresses_dialog.ui
 	rtp_analysis_dialog.ui
+	rtp_player_dialog.ui
 	rtp_stream_dialog.ui
 	sctp_all_assocs_dialog.ui
 	sctp_assoc_analyse_dialog.ui
