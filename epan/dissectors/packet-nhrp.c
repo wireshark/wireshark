@@ -730,7 +730,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         gboolean    save_in_error_pkt;
         gint        pkt_len       = mandEnd - offset;
         proto_tree *ind_tree      = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_nhrp_indication, NULL, "Packet Causing Indication");
-        gboolean    dissected;
+        int         dissected;
         tvbuff_t   *sub_tvb;
 
         save_in_error_pkt = pinfo->flags.in_error_pkt;
@@ -770,7 +770,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
                                 sub_tvb, pinfo,
                                 ind_tree);
                         } else
-                            dissected = FALSE;
+                            dissected = 0;
                     }
                 } else {
                     /*
@@ -787,13 +787,13 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
                 }
             } else if (hdr->ar_pro_type <= 0x3FF) {
                 /* Reserved for future use by the IETF */
-                dissected = FALSE;
+                dissected = 0;
             } else if (hdr->ar_pro_type <= 0x04FF) {
                 /* Allocated for use by the ATM Forum */
-                dissected = FALSE;
+                dissected = 0;
             } else if (hdr->ar_pro_type <= 0x05FF) {
                 /* Experimental/Local use */
-                dissected = FALSE;
+                dissected = 0;
             } else {
                 dissected = dissector_try_uint(
                     ethertype_subdissector_table,

@@ -4770,7 +4770,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       contentType      = 0;
     const char *contentTypeStr;
     tvbuff_t   *tmp_tvb;
-    gboolean    found_match;
+    int         found_match;
     heur_dtbl_entry_t *hdtbl_entry;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
@@ -5001,7 +5001,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * Try finding a dissector for the content
                  * first, then fallback.
                  */
-                found_match = FALSE;
+                found_match = 0;
                 if (contentTypeStr) {
                     /*
                      * Content type is a string.
@@ -5091,7 +5091,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * Try finding a dissector for the content
                  * first, then fallback.
                  */
-                found_match = FALSE;
+                found_match = 0;
                 if (contentTypeStr) {
                     /*
                      * Content type is a string.
@@ -5167,7 +5167,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * Try finding a dissector for the content
                  * first, then fallback.
                  */
-                found_match = FALSE;
+                found_match = 0;
                 if (contentTypeStr) {
                     /*
                      * Content type is a string.
@@ -5702,7 +5702,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     tvbuff_t   *tmp_tvb;
     int         partnr      = 1;
     int         part_start;
-    gboolean    found_match = FALSE;
+    int         found_match = 0;
 
     proto_item *sub_tree   = NULL;
     proto_item *ti         = NULL;
@@ -5766,7 +5766,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
          * Try finding a dissector for the content
          * first, then fallback.
          */
-        found_match = FALSE;
+        found_match = 0;
         if (contentTypeStr) {
             /*
              * Content type is a string.

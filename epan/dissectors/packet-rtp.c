@@ -1442,7 +1442,8 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         if (p_conv_data && p_conv_data->rtp_dyn_payload) {
             const gchar *payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, payload_type);
             if (payload_type_str) {
-                found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
+                int len;
+                len = dissector_try_string(rtp_dyn_pt_dissector_table,
                                    payload_type_str, newtvb, pinfo, tree, NULL);
                 /* If payload type string set from conversation and
                  * no matching dissector found it's probably because no subdissector
@@ -1450,7 +1451,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
                  * as that'd probably be the wrong dissector in this case.
                  * Just add it as data.
                  */
-                if(found_match==FALSE)
+                if(len==0)
                     proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
                 return;
             }

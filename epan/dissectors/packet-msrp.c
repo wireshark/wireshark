@@ -469,7 +469,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     gint value_len;
     char *value;
     gboolean have_body = FALSE;
-    gboolean found_match = FALSE;
+    int found_match = 0;
     gint content_type_len, content_type_parameter_str_len;
     gchar *media_type_str_lower_case = NULL;
     char *content_type_parameter_str = NULL;
@@ -695,7 +695,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                msrp_data_tree, content_type_parameter_str);
                 /* If no match dump as text */
             }
-            if ( found_match != TRUE )
+            if ( found_match == 0 )
             {
                 offset = 0;
                 while (tvb_offset_exists(next_tvb, offset)) {

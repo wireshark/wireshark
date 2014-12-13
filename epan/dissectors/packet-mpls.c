@@ -480,7 +480,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8    bos;
     guint8    ttl;
     tvbuff_t *next_tvb;
-    gboolean  found;
+    int       found;
     guint8    first_nibble;
     struct mplsinfo mplsinfo;
 

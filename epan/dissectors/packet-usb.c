@@ -2639,7 +2639,7 @@ static gint
 try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, guint8 urb_type)
 {
-    gboolean                 ret;
+    int                      ret;
     wmem_tree_key_t          key[4];
     guint32                  k_frame_number;
     guint32                  k_device_address;

@@ -2516,7 +2516,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     line_type_t line_type;
     tvbuff_t *next_tvb;
     gboolean is_known_request;
-    gboolean found_match = FALSE;
+    int found_match = 0;
     const char *descr;
     guint token_1_len = 0;
     guint current_method_idx = SIP_METHOD_INVALID;
@@ -3808,8 +3808,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                next_tvb, pinfo,
                                                message_body_tree, content_type_parameter_str);
             DENDENT();
-            DPRINT(("done calling dissector_try_string() with found_match=%s",
-                    found_match?"TRUE":"FALSE"));
+            DPRINT(("done calling dissector_try_string() with found_match=%u", found_match));
 
             if (!found_match &&
                 !strncmp(media_type_str_lower_case, "multipart/", sizeof("multipart/")-1)) {
@@ -3821,15 +3820,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                    next_tvb, pinfo,
                                                    message_body_tree, content_type_parameter_str);
                 DENDENT();
-                DPRINT(("done calling dissector_try_string() with found_match=%s",
-                        found_match?"TRUE":"FALSE"));
+                DPRINT(("done calling dissector_try_string() with found_match=%u", found_match));
             }
             /* If no match dump as text */
         }
-        if ( found_match != TRUE )
+        if ( found_match == 0 )
         {
-            DPRINT(("calling dissector_try_heuristic() with found_match=%s",
-                    found_match?"TRUE":"FALSE"));
+            DPRINT(("calling dissector_try_heuristic() with found_match=0"));
             DINDENT();
             if (!(dissector_try_heuristic(heur_subdissector_list,
                               next_tvb, pinfo, message_body_tree, &hdtbl_entry, NULL))) {

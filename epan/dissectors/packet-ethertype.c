@@ -251,7 +251,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	tvbuff_t	  *volatile next_tvb;
 	guint		   length_before;
 	gint		   captured_length, reported_length;
-	volatile gboolean  dissector_found = FALSE;
+	volatile int  dissector_found = 0;
 	const char	  *volatile saved_proto;
 	ethertype_data_t  *ethertype_data;
 
@@ -314,7 +314,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		   before we called the subdissector. */
 		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
-		dissector_found = TRUE;
+		dissector_found = 1;
 		pinfo->current_proto = saved_proto;
 	}
 	ENDTRY;
