@@ -106,10 +106,10 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     version = (ver_and_opcode&0xf0)>>4 ; /* version is the fist half of the byte */
     opcode = ver_and_opcode&0x0f ;       /* opcode is the last half of the byte */
 
-    ti = proto_tree_add_item(igrp_tree, hf_igrp_version, tvb, 0, 1, ENC_NA);
+    ti = proto_tree_add_item(igrp_tree, hf_igrp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
     if (version != 1)
         expert_add_info(pinfo, ti, &ei_igrp_version);
-    ti = proto_tree_add_item(igrp_tree, hf_igrp_command, tvb, 0, 1, ENC_NA);
+    ti = proto_tree_add_item(igrp_tree, hf_igrp_command, tvb, 0, 1, ENC_BIG_ENDIAN);
     if (opcode==1)
         proto_item_append_text(ti, " (Response)");
     else
@@ -175,9 +175,9 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_delay, tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_bandwidth, tvb, 6, 3, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format_value(igrp_vektor_tree, hf_igrp_mtu, tvb, 9, 2, tvb_get_ntohs(tvb,9), "%d  bytes", tvb_get_ntohs(tvb,9));
-  proto_tree_add_item(igrp_vektor_tree, hf_igrp_reliability, tvb, 11, 1, ENC_NA);
-  proto_tree_add_item(igrp_vektor_tree, hf_igrp_load, tvb, 12, 1, ENC_NA);
-  proto_tree_add_item(igrp_vektor_tree, hf_igrp_hop_count, tvb, 13, 1, ENC_NA);
+  proto_tree_add_item(igrp_vektor_tree, hf_igrp_reliability, tvb, 11, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(igrp_vektor_tree, hf_igrp_load, tvb, 12, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(igrp_vektor_tree, hf_igrp_hop_count, tvb, 13, 1, ENC_BIG_ENDIAN);
 }
 
 

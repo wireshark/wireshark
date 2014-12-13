@@ -444,7 +444,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	aal_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_q2931_aal_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_aal_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -747,22 +747,22 @@ dissect_q2931_bband_bearer_cap_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_q2931_bearer_class, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_bearer_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
 	if (!(octet & Q2931_IE_EXTENSION)) {
-		proto_tree_add_item(tree, hf_q2931_atm_transfer_capability, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_atm_transfer_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 	}
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hf_q2931_susceptibility_to_clipping, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_q2931_user_plane_connection_configuration, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_susceptibility_to_clipping, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q2931_user_plane_connection_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -783,7 +783,7 @@ dissect_q2931_bband_hi_layer_info_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_high_layer_information_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_high_layer_information_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/*offset += 1; */
 	/* len -= 1; */
 }
@@ -862,7 +862,7 @@ dissect_q2931_bband_low_layer_info_ie(tvbuff_t *tvb, int offset, int len,
 		/*
 		 * Layer 1 information.
 		 */
-		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l1_proto, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l1_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 	}
@@ -875,7 +875,7 @@ dissect_q2931_bband_low_layer_info_ie(tvbuff_t *tvb, int offset, int len,
 		 * Layer 2 information.
 		 */
 		uil2_protocol = octet & 0x1F;
-		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l2_proto, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l2_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 
@@ -885,9 +885,9 @@ dissect_q2931_bband_low_layer_info_ie(tvbuff_t *tvb, int offset, int len,
 			return;
 		octet = tvb_get_guint8(tvb, offset);
 		if (uil2_protocol == Q2931_UIL2_USER_SPEC) {
-			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_specified_l2_proto, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_specified_l2_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		} else {
-			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_mode, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		offset += 1;
 		len -= 1;
@@ -913,7 +913,7 @@ l2_done:
 		 * Layer 3 information.
 		 */
 		uil3_protocol = octet & 0x1F;
-		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l3_proto, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_user_info_l3_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 
@@ -931,7 +931,7 @@ l2_done:
 		case Q2931_UIL3_X25_PL:
 		case Q2931_UIL3_ISO_8208:
 		case Q2931_UIL3_X223:
-			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_mode, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
 
@@ -940,7 +940,7 @@ l2_done:
 			if (len == 0)
 				return;
 			octet = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_default_packet_size, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_default_packet_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
 
@@ -948,7 +948,7 @@ l2_done:
 				goto l3_done;
 			if (len == 0)
 				return;
-			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_packet_window_size, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_packet_window_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/*offset += 1;*/
 			/*len -= 1;*/
 			break;
@@ -1152,7 +1152,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hf_q2931_cause_location, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_cause_location, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1160,7 +1160,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	cause_value = octet & 0x7F;
-	proto_tree_add_item(tree, hf_q2931_cause_value, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1186,8 +1186,8 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 
 	case Q2931_CAUSE_CALL_REJECTED:
 		rejection_reason = octet & 0x7C;
-		proto_tree_add_item(tree, hf_q2931_cause_rejection_reason, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_q2931_cause_rejection_condition, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_cause_rejection_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_q2931_cause_rejection_condition, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 
@@ -1200,11 +1200,11 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			break;
 
 		case Q2931_REJ_IE_MISSING:
-			proto_tree_add_item(tree, hf_q2931_cause_rejection_missing_information_element, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_cause_rejection_missing_information_element, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 
 		case Q2931_REJ_IE_INSUFFICIENT:
-			proto_tree_add_item(tree, hf_q2931_cause_rejection_insufficient_information_element, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_cause_rejection_insufficient_information_element, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 
 		default:
@@ -1232,7 +1232,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	case Q2931_CAUSE_IE_NONEX_OR_UNIMPL:
 	case Q2931_CAUSE_INVALID_IE_CONTENTS:
 		do {
-			proto_tree_add_item(tree, hf_q2931_cause_information_element, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_cause_information_element, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
 		} while (len >= 0);
@@ -1240,7 +1240,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 
 	case Q2931_CAUSE_CELL_RATE_UNAVAIL:
 		do {
-			proto_tree_add_item(tree, hf_q2931_cause_cell_rate_subfield_identifier, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_q2931_cause_cell_rate_subfield_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
 		} while (len >= 0);
@@ -1260,7 +1260,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 
 	case Q2931_CAUSE_MT_NONEX_OR_UNIMPL:
 	case Q2931_CAUSE_MSG_INCOMPAT_W_CS:
-		proto_tree_add_item(tree, hf_q2931_cause_message_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_cause_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 
 	case Q2931_CAUSE_REC_TIMER_EXP:
@@ -1306,7 +1306,7 @@ dissect_q2931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_call_state, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_call_state, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1359,9 +1359,9 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_q2931_number_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_number_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	numbering_plan = octet & 0x0F;
-	proto_tree_add_item(tree, hf_q2931_number_plan, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_number_plan, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1369,8 +1369,8 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		if (len == 0)
 			return;
 
-		proto_tree_add_item(tree, hf_q2931_number_presentation_indicator, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_q2931_number_screening_indicator, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_number_presentation_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_q2931_number_screening_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		len -= 1;
 	}
@@ -1423,8 +1423,8 @@ dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_party_subaddr_type_of_subaddress, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_q2931_party_subaddr_odd_even_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_party_subaddr_type_of_subaddress, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q2931_party_subaddr_odd_even_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1456,8 +1456,8 @@ dissect_q2931_connection_identifier_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_conn_id_vp_associated_signalling, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_q2931_conn_id_preferred_exclusive, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_conn_id_vp_associated_signalling, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q2931_conn_id_preferred_exclusive, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1527,13 +1527,13 @@ dissect_q2931_qos_parameter_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_qos_class_forward, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_qos_class_forward, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hf_q2931_qos_class_backward, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_qos_class_backward, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1551,7 +1551,7 @@ dissect_q2931_bband_rpt_indicator(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_broadband_repeat_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_broadband_repeat_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1571,7 +1571,7 @@ dissect_q2931_restart_indicator(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_restart_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_restart_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1627,8 +1627,8 @@ dissect_q2931_transit_network_sel_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_transit_network_sel_type, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_q2931_transit_network_sel_plan, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_transit_network_sel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q2931_transit_network_sel_plan, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1675,19 +1675,19 @@ dissect_q2931_oam_traffic_descriptor_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_shaping_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_shaping_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Use of end-to-end OAM F5 flow is %s",
 	    (octet & 0x10) ? "mandatory" : "optional");
-	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_management_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_management_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_forward_f5_flow_indicator, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_backward_f5_flow_indicator, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_forward_f5_flow_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q2931_oam_traffic_descriptor_backward_f5_flow_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1707,7 +1707,7 @@ dissect_q2931_endpoint_reference_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_endpoint_reference_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_endpoint_reference_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len -= 1;
 
@@ -1741,7 +1741,7 @@ dissect_q2931_endpoint_state_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 
-	proto_tree_add_item(tree, hf_q2931_endpoint_state, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q2931_endpoint_state, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void

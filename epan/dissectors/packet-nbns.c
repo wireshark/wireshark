@@ -752,7 +752,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
         }
 
         num_names = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_item(rr_tree, hf_nbns_number_of_names, tvb, cur_offset, 1, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_nbns_number_of_names, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
 
         while (num_names != 0) {
@@ -800,7 +800,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
             break;
         }
 
-        proto_tree_add_item(rr_tree, hf_nbns_jumpers, tvb, cur_offset, 1, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_nbns_jumpers, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
         data_len   -= 1;
 
@@ -809,7 +809,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
             break;
         }
 
-        proto_tree_add_item(rr_tree, hf_nbns_test_result, tvb, cur_offset, 1, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_nbns_test_result, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
         data_len   -= 1;
 
@@ -1291,7 +1291,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case NBDS_ERROR:
         if (tree) {
             proto_tree_add_item(nbdgm_tree, hf_nbdgm_error_code, tvb, offset,
-                                1, ENC_NA);
+                                1, ENC_BIG_ENDIAN);
         }
         offset += 1;
         if (ti != NULL)
@@ -1393,7 +1393,7 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, -1, ENC_NA);
     nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 
-    proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
 

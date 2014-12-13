@@ -197,7 +197,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
     case HPFOO_FIELD_12:
         if (length == 1) {
-            proto_tree_add_item(tree, hf_hpsw_field_12, tvb, offset, length, ENC_NA);
+            proto_tree_add_item(tree, hf_hpsw_field_12, tvb, offset, length, ENC_BIG_ENDIAN);
         } else {
             expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 12: Bad length %u", length);
         }

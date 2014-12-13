@@ -378,12 +378,12 @@ for_req_time_off_meas(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 
 	if (oct & 0x80)
 	{
-		proto_tree_add_item(tree, hf_ansi_801_action_time, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_action_time, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	else
 	{
-		proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset++;
 
@@ -407,7 +407,7 @@ for_req_cancel(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_cancellation_type, tvb, offset, 1,
 			    oct, "(%u) %s", (oct & 0xf0) >> 4, str);
 
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_0F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_0F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -438,7 +438,7 @@ for_reject(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_reject_reason, tvb, offset, 1, oct, "%s", str);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -454,9 +454,9 @@ for_pr_bs_cap(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	SHORT_DATA_CHECK(len, 2);
 
-	proto_tree_add_item(tree, hf_ansi_801_bs_ls_rev, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_gps_capability_indicator, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_afltc_id, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_bs_ls_rev, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_ansi_801_gps_capability_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_ansi_801_afltc_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	oct = tvb_get_guint8(tvb, offset);
@@ -467,7 +467,7 @@ for_pr_bs_cap(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	}
 	else
 	{
-		proto_tree_add_item(tree, hf_ansi_801_apdc_id, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_apdc_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 
 	offset++;
@@ -810,7 +810,7 @@ rev_req_gps_loc_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	saved_offset = offset;
 
 	proto_tree_add_item(tree, hf_ansi_801_coordinate_type_requested, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -826,7 +826,7 @@ rev_req_bs_alm(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	saved_offset = offset;
 
 	proto_tree_add_item(tree, hf_ansi_801_extended_base_station_almanac, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -842,7 +842,7 @@ rev_req_gps_ephemeris(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	saved_offset = offset;
 
 	proto_tree_add_item(tree, hf_ansi_801_alpha_and_beta_parameters, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -858,7 +858,7 @@ rev_req_gps_nav_msg_bits(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
 	saved_offset = offset;
 
 	proto_tree_add_item(tree, hf_ansi_801_subframes_4_and_5, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_7F, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
 
@@ -877,7 +877,7 @@ rev_req_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	proto_tree_add_item(tree, hf_ansi_801_rev_req_loc_height_information, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_rev_req_loc_clock_correction_for_gps_time, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_rev_req_loc_velocity_information, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_1F, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_1F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -932,7 +932,7 @@ rev_reject(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_reject_reason, tvb, offset, 1,
 			    oct, "%s", str);
 
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_01, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -1046,7 +1046,7 @@ rev_pr_can_ack(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 			    "(%u) %s", (oct & 0xf0) >> 4, str);
 
 	proto_tree_add_item(tree, hf_ansi_801_no_outstanding_request_element, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_07, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_07, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
@@ -1125,7 +1125,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 
 	if (pd_msg_type == 0x00)
 	{
-		proto_tree_add_item(tree, hf_ansi_801_reserved8_F0, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_reserved8_F0, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		str = try_val_to_str_idx(oct & 0x0f, for_req_type_strings, &idx);
 		if (str == NULL)
@@ -1151,7 +1151,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 	offset++;
 	oct = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(subtree, hf_ansi_801_for_request_length, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(subtree, hf_ansi_801_for_request_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	if (oct > 0)
@@ -1182,7 +1182,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	offset = *offset_p;
 	oct    = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_unsolicited_response_indicator, tvb, offset, 1, ENC_NA);
 
 	str = try_val_to_str_idx(oct & 0x0f, for_rsp_type_strings, &idx);
@@ -1199,7 +1199,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	offset++;
 	oct = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(subtree, hf_ansi_801_for_response_length, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(subtree, hf_ansi_801_for_response_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
 
@@ -1231,7 +1231,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 
 	if (pd_msg_type == 0x00)
 	{
-		proto_tree_add_item(tree, hf_ansi_801_reserved8_F0, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_reserved8_F0, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		str = try_val_to_str_idx(oct & 0x0f, rev_req_type_strings, &idx);
 		if (str == NULL)
@@ -1257,7 +1257,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 	offset++;
 	oct = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(subtree, hf_ansi_801_rev_request_length, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(subtree, hf_ansi_801_rev_request_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
 
@@ -1287,7 +1287,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	offset = *offset_p;
 	oct    = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_unsolicited_response_indicator, tvb, offset, 1, ENC_NA);
 
 	str = try_val_to_str_idx(oct & 0x0f, rev_rsp_type_strings, &idx);
@@ -1304,7 +1304,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 
 	oct = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(subtree, hf_ansi_801_rev_response_length, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(subtree, hf_ansi_801_rev_response_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
 
@@ -1336,9 +1336,9 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ansi_801_session_start, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_session_end, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_session_source, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_for_sess_tag, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_for_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_NA);
+	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	offset++;
@@ -1390,7 +1390,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 		oct = tvb_get_guint8(tvb, offset);
 		num_rsp = oct & 0xf0;
 
-		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responsesF0, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 	else
@@ -1400,8 +1400,8 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 		num_req = (oct & 0xf0) >> 4;
 		num_rsp = oct & 0x0f;
 
-		proto_tree_add_item(tree, hf_ansi_801_for_message_number_requests8, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responses0F, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_for_message_number_requests8, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responses0F, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 
 	offset++;
@@ -1461,9 +1461,9 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ansi_801_session_start, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_session_end, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_ansi_801_session_source, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_ansi_801_rev_sess_tag, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ansi_801_rev_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_NA);
+	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	offset++;
@@ -1514,7 +1514,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 		oct = tvb_get_guint8(tvb, offset);
 		num_rsp = oct & 0xf0;
 
-		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responsesF0, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 	else
@@ -1524,8 +1524,8 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 		num_req = (oct & 0xf0) >> 4;
 		num_rsp = oct & 0x0f;
 
-		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_requests8, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responses0F, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_requests8, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responses0F, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 

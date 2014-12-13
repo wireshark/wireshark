@@ -4297,7 +4297,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   response_expected = tvb_get_guint8( tvb, offset );
   col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                     response_expected ? "two-way" : "one-way");
-  proto_tree_add_item(request_tree, hf_giop_rsp_expected, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(request_tree, hf_giop_rsp_expected, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   if ( header->GIOP_version.minor > 0)
@@ -4454,7 +4454,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree_add_uint (request_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
 
   proto_tree_add_item(request_tree, hf_giop_response_flag, tvb,
-                             offset, 1, ENC_NA);
+                             offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   get_CDR_octet_seq( tvb, &reserved, &offset, 3);
@@ -4679,8 +4679,8 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   header_version_tree = proto_tree_add_subtree_format(header_tree, tvb, 4, 2, ett_giop_header_version, &version_item,
                      "Version: %u.%u", header.GIOP_version.major, header.GIOP_version.minor);
-  proto_tree_add_item(header_version_tree, hf_giop_message_major_version, tvb, 4, 1, ENC_NA);
-  proto_tree_add_item(header_version_tree, hf_giop_message_minor_version, tvb, 5, 1, ENC_NA);
+  proto_tree_add_item(header_version_tree, hf_giop_message_major_version, tvb, 4, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(header_version_tree, hf_giop_message_minor_version, tvb, 5, 1, ENC_BIG_ENDIAN);
 
   if ((header.GIOP_version.major != GIOP_MAJOR) ||
       (header.GIOP_version.minor > GIOP_MINOR))
@@ -4720,7 +4720,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
       break;
   }
 
-  proto_tree_add_item(header_tree, hf_giop_message_type, tvb, 7, 1, ENC_NA);
+  proto_tree_add_item(header_tree, hf_giop_message_type, tvb, 7, 1, ENC_BIG_ENDIAN);
 
   if (stream_is_big_endian)
   {

@@ -230,7 +230,7 @@ GMR1_IE_FUNC(gmr1_ie_com_cm2)
 /* [1] 11.5.1.8 - Spare Half Octet */
 GMR1_IE_FUNC(gmr1_ie_com_spare_nibble)
 {
-	proto_tree_add_item(tree, hf_com_spare_nibble, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_com_spare_nibble, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return 1;
 }

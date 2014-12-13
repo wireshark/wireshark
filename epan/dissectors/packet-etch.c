@@ -381,7 +381,7 @@ read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   guint32      type_code;
 
   type_code = tvb_get_guint8(tvb, *offset);
-  proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_NA);
+  proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_BIG_ENDIAN);
   (*offset)++;
   return type_code;
 }
@@ -470,7 +470,7 @@ read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   read_array_type(offset, tvb, etch_tree);
 
   /*  Array dim */
-  proto_tree_add_item(etch_tree, hf_etch_dim, tvb, *offset, 1, ENC_NA);
+  proto_tree_add_item(etch_tree, hf_etch_dim, tvb, *offset, 1, ENC_BIG_ENDIAN);
   (*offset)++;
 
   /*  Array length */
@@ -752,7 +752,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     etch_tree = proto_item_add_subtree(ti, ett_etch);
     proto_tree_add_item(etch_tree, hf_etch_sig, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(etch_tree, hf_etch_length, tvb, 4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(etch_tree, hf_etch_version, tvb, 8, 1, ENC_NA);
+    proto_tree_add_item(etch_tree, hf_etch_version, tvb, 8, 1, ENC_BIG_ENDIAN);
     read_struct(&offset, tvb, etch_tree, 0);
   }
 

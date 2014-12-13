@@ -487,7 +487,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Code=%s",
                     val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
             }
-            proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset += 1;
 

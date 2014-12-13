@@ -1293,7 +1293,7 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             return;
         }
 
-        proto_tree_add_item(abtx_tree, hf_fcels_recovery_qualifier_status, tvb, offset+4, 1, ENC_NA);
+        proto_tree_add_item(abtx_tree, hf_fcels_recovery_qualifier_status, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_string (abtx_tree, hf_fcels_nportid, tvb, offset+5, 3,
                                tvb_fc_to_str (tvb, offset+5));
         proto_tree_add_item (abtx_tree, hf_fcels_oxid, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1517,7 +1517,7 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (flag & 0x01) {
                 /* Next 6 fields are from L_Port Extension field */
                 proto_tree_add_item(rps_tree, hf_fcels_l_port_status, tvb, offset+31, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rps_tree, hf_fcels_lip_al_ps, tvb, offset+36, 1, ENC_NA);
+                proto_tree_add_item(rps_tree, hf_fcels_lip_al_ps, tvb, offset+36, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rps_tree, hf_fcels_lip_f7_initiated_count, tvb, offset+37, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rps_tree, hf_fcels_lip_f7_received_count, tvb, offset+41, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rps_tree, hf_fcels_lip_f8_initiated_count, tvb, offset+45, 4, ENC_BIG_ENDIAN);
@@ -1605,7 +1605,7 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         if (!isreq)
             return;
 
-        proto_tree_add_item(rscn_tree, hf_fcels_rscn_page_len, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(rscn_tree, hf_fcels_rscn_page_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         plen = tvb_get_ntohs (tvb, offset+1);
         proto_tree_add_item(rscn_tree, hf_fcels_rscn_payload_len, tvb, offset+1, 2, ENC_BIG_ENDIAN);
         numrec = (plen - 4)/4;
@@ -1661,13 +1661,13 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         if (isreq) {
             proto_tree_add_item(rnft_tree, hf_fcels_rnft_max_size, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rnft_tree, hf_fcels_rnft_index, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(rnft_tree, hf_fcels_rnft_index, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
         else {
             proto_tree_add_item(rnft_tree, hf_fcels_rnft_payload_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             numrec = tvb_get_guint8 (tvb, offset+5);
-            proto_tree_add_item(rnft_tree, hf_fcels_rnft_list_length, tvb, offset+5, 1, ENC_NA);
-            proto_tree_add_item(rnft_tree, hf_fcels_rnft_index_of_first_rec_in_list, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(rnft_tree, hf_fcels_rnft_list_length, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rnft_tree, hf_fcels_rnft_index_of_first_rec_in_list, tvb, offset+7, 1, ENC_BIG_ENDIAN);
             offset = 8;
             for (i = 0; i < numrec; i++) {
                 fc4_tree = proto_tree_add_subtree_format(rnft_tree, tvb, offset, 4,
@@ -1731,7 +1731,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item (prli_tree, hf_fcels_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(prli_tree, hf_fcels_prlilo_page_length, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(prli_tree, hf_fcels_prlilo_page_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     payload_len = tvb_get_ntohs (tvb, offset+2);
     proto_tree_add_item(prli_tree, hf_fcels_prlilo_payload_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     num_svcpg = payload_len/16;
@@ -1742,15 +1742,15 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
                                      ett_fcels_prli_svcpg, NULL, "Service Parameter Page %u", i);
 
         type = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type_code_extension, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type_code_extension, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         flag = tvb_get_guint8 (tvb, offset+2);
         dissect_prlilo_flags (svcpg_tree, tvb, offset+2, flag, opcode);
 
         if (!isreq && (opcode != FC_ELS_TPRLO)) {
             /* This is valid only for ACC */
-            proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_response_code, tvb, offset+2, 1, ENC_NA);
+            proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_response_code, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         }
         if (opcode != FC_ELS_TPRLO) {
             proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_originator_pa, tvb, offset+4, 4, ENC_BIG_ENDIAN);
@@ -1817,7 +1817,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (lirr_tree, hf_fcels_opcode, tvb, offset-4, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_function, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_function, tvb, offset, 1, ENC_BIG_ENDIAN);
         lirr_fmt = tvb_get_guint8 (tvb, offset+1);
         if (!lirr_fmt) {
             /* This scheme is resorted to because the value 0 has a string in
@@ -1826,7 +1826,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_uint_format_value(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset, 1, 0, "Common Format");
         }
         else {
-            proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1971,7 +1971,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (rnid_tree, hf_fcels_nodeidfmt, tvb, offset+4,
                                  1, ENC_BIG_ENDIAN);
             clen = tvb_get_guint8 (tvb, offset+5);
-            proto_tree_add_item(rnid_tree, hf_fcels_common_identification_data_length, tvb, offset+5, 1, ENC_NA);
+            proto_tree_add_item(rnid_tree, hf_fcels_common_identification_data_length, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (rnid_tree, hf_fcels_spidlen, tvb, offset+7,
                                  1, ENC_BIG_ENDIAN);
             if (clen) {

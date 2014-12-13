@@ -273,7 +273,7 @@ static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset
 
 	proto_tree_add_item(tree, hf_packetcable_bcid_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_bcid_element_id, tvb, offset + 4, 8, ENC_ASCII|ENC_NA);
-	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_dst, tvb, offset + 12, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_dst, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_offset, tvb, offset + 13, 7, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_packetcable_bcid_event_counter, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
 }
@@ -289,7 +289,7 @@ static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, 
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_message_type, tvb,  26, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_em_header_element_type, tvb,  28, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_em_header_element_id, tvb, 30, 8, ENC_ASCII|ENC_NA);
-	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_dst, tvb, 38, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_dst, tvb, 38, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_offset, tvb, 39, 7, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_packetcable_em_header_sequence_number, tvb,  46, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_time, tvb, 50, 18, ENC_ASCII|ENC_NA);

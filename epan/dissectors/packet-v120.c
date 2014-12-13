@@ -187,12 +187,12 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 	byte0 = tvb_get_guint8(tvb, offset);
 	if (byte0 & 0x80) {
 		header_len = 1;
-		tc = proto_tree_add_item(tree, hf_v120_header8, tvb, 0, 1, ENC_NA);
+		tc = proto_tree_add_item(tree, hf_v120_header8, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		h_tree = proto_item_add_subtree(tc, ett_v120_header);
 		proto_tree_add_item(h_tree, hf_v120_header_ext8, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(h_tree, hf_v120_header_break8, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(h_tree, hf_v120_header_error_control8, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(h_tree, hf_v120_header_error_control8, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(h_tree, hf_v120_header_segb8, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(h_tree, hf_v120_header_segf8, tvb, 0, 1, ENC_NA);
 	} else {

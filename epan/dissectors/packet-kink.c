@@ -225,7 +225,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   proto_tree_add_uint(kink_tree, hf_kink_type, tvb, offset, 1, type);
   offset++;
 
-  proto_tree_add_item(kink_tree, hf_kink_version, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(kink_tree, hf_kink_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   proto_tree_add_item(kink_tree, hf_kink_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -616,7 +616,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_inner_next_pload, tvb, offset, 1, inner_next_pload);
   offset += 1;
 
-  proto_tree_add_item(payload_kink_isakmp_tree, hf_kink_qmversion, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(payload_kink_isakmp_tree, hf_kink_qmversion, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(payload_kink_isakmp_tree, hf_kink_reserved16, tvb, offset, 2, ENC_BIG_ENDIAN);

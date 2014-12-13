@@ -73,10 +73,10 @@ dissect_swipe(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
         swipe_tree = proto_item_add_subtree(ti, ett_swipe);
 
         /* Packet Type */
-        proto_tree_add_item(swipe_tree, hf_swipe_packet_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(swipe_tree, hf_swipe_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Header Length */
-        proto_tree_add_item(swipe_tree, hf_swipe_len, tvb, offset + 1, 1, ENC_NA);
+        proto_tree_add_item(swipe_tree, hf_swipe_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
         /* Policy ID */
         proto_tree_add_item(swipe_tree, hf_swipe_policy_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN);

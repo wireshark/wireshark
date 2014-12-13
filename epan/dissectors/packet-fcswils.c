@@ -975,10 +975,10 @@ dissect_swils_rdi(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rdi_tree, g
         offset = 12;
         for (i = 0; i < numrec; i++) {
             if (isreq) {
-                proto_tree_add_item(rdi_tree, hf_swils_requested_domain_id, tvb, offset+3, 1, ENC_NA);
+                proto_tree_add_item(rdi_tree, hf_swils_requested_domain_id, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             }
             else {
-                proto_tree_add_item(rdi_tree, hf_swils_granted_domain_id, tvb, offset+3, 1, ENC_NA);
+                proto_tree_add_item(rdi_tree, hf_swils_granted_domain_id, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             }
             offset += 4;
         }
@@ -1092,7 +1092,7 @@ dissect_swils_lsupdate(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *lsu_tr
     if (lsu_tree) {
         dissect_swils_fspf_hdr(tvb, lsu_tree, offset);
 
-        proto_tree_add_item(lsu_tree, hf_swils_lsupdate_flags, tvb, offset+23, 1, ENC_NA);
+        proto_tree_add_item(lsu_tree, hf_swils_lsupdate_flags, tvb, offset+23, 1, ENC_BIG_ENDIAN);
         num_lsrec = tvb_get_ntohl(tvb, offset+24);
 
         proto_tree_add_item(lsu_tree, hf_swils_lsupdate_num_of_lsrs, tvb, offset+24, 4, ENC_BIG_ENDIAN);
@@ -1113,7 +1113,7 @@ dissect_swils_lsack(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *lsa_tree,
     if (lsa_tree) {
         dissect_swils_fspf_hdr(tvb, lsa_tree, offset);
 
-        proto_tree_add_item(lsa_tree, hf_swils_lsack_flags, tvb, offset+23, 1, ENC_NA);
+        proto_tree_add_item(lsa_tree, hf_swils_lsack_flags, tvb, offset+23, 1, ENC_BIG_ENDIAN);
         num_lsrechdr = tvb_get_ntohl(tvb, offset+24);
 
         proto_tree_add_item(lsa_tree, hf_swils_lsack_num_of_lsr_headers, tvb, offset+24, 4, ENC_BIG_ENDIAN);
@@ -1201,9 +1201,9 @@ dissect_swils_zone_mbr(tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     mbrtype = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(zmbr_tree, hf_swils_zone_mbrtype, tvb,
                         offset, 1, mbrtype);
-    proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrflags, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrflags, tvb, offset+2, 1, ENC_BIG_ENDIAN);
     idlen = tvb_get_guint8(tvb, offset+3);
-    proto_tree_add_item(zmbr_tree, hf_swils_zone_mbr_identifier_length, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(zmbr_tree, hf_swils_zone_mbr_identifier_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1363,7 +1363,7 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tre
                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mr_tree, hf_swils_zone_reason, tvb,
                                 offset+6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(mr_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(mr_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1396,7 +1396,7 @@ dissect_swils_aca(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *aca_tree, g
                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(aca_tree, hf_swils_zone_reason, tvb,
                                 offset+6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aca_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(aca_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1413,7 +1413,7 @@ dissect_swils_rca(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rca_tree, g
                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rca_tree, hf_swils_zone_reason, tvb,
                                 offset+6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rca_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(rca_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1492,7 +1492,7 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, g
                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sfc_tree, hf_swils_zone_reason, tvb,
                                 offset+6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sfc_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(sfc_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1509,7 +1509,7 @@ dissect_swils_ufc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *ufc_tree, g
                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(ufc_tree, hf_swils_zone_reason, tvb,
                                 offset+6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ufc_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_NA);
+            proto_tree_add_item(ufc_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }

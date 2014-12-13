@@ -165,7 +165,7 @@ again:
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + len, ett_aodv_extensions, NULL, "Extensions");
 
-    proto_tree_add_item(ext_tree, hf_aodv_ext_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_aodv_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     len_item = proto_tree_add_uint_format_value(ext_tree, hf_aodv_ext_length, tvb, offset + 1, 1,
                                                 len, "%u bytes", len);

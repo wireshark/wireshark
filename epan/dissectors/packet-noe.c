@@ -915,7 +915,7 @@ static void decode_evt_error(proto_tree *tree,
     offset  += 1;
     length  -= 1;
 
-    proto_tree_add_item(tree, hf_noe_aindx, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_noe_aindx, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset  += 1;
     length  -= 1;
 
@@ -961,7 +961,7 @@ static void decode_tlv(proto_tree *tree,
 
         if (property_type >= P_ARRAY)
         {
-            proto_tree_add_item(property_tree, hf_noe_aindx, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(property_tree, hf_noe_aindx, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             length -= 1;
         }
@@ -1050,7 +1050,7 @@ static void decode_getproperty_tlv(proto_tree *tree,
 
         if (body_type >= P_ARRAY)
         {
-            proto_tree_add_item(body_tree, hf_noe_aindx, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(body_tree, hf_noe_aindx, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             length -= 1;
         }
@@ -1162,7 +1162,7 @@ static void decode_evt(proto_tree  *tree,
             offset += 2;
             /*length -= 2;*/
 
-            proto_tree_add_item(tree, hf_noe_bonded, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_noe_bonded, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             /*length -= 1;*/
 

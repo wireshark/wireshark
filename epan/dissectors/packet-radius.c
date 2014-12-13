@@ -344,7 +344,7 @@ static const gchar *dissect_chap_password(proto_tree* tree, tvbuff_t* tvb, packe
 
 	ti = proto_tree_add_item(tree, hf_radius_chap_password, tvb, 0, len, ENC_NA);
 		chap_tree = proto_item_add_subtree(ti, ett_chap);
-		proto_tree_add_item(chap_tree, hf_radius_chap_ident, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(chap_tree, hf_radius_chap_ident, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(chap_tree, hf_radius_chap_string, tvb, 1, 16, ENC_NA);
 	return (tvb_bytes_to_ep_str(tvb, 0, len));
 }

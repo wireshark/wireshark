@@ -5349,7 +5349,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_address, tvb, curr_offset, 16, ENC_NA);
 					curr_offset += 16;
 					curr_len    -= 16;
-					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_NA);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					curr_offset += 1;
 					curr_len    -= 1;
 					pf_length   -= 17;
@@ -5360,7 +5360,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_address, tvb, curr_offset, 16, ENC_NA);
 					curr_offset += 16;
 					curr_len    -= 16;
-					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_NA);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					curr_offset += 1;
 					curr_len    -= 1;
 					pf_length   -= 17;

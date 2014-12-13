@@ -2825,7 +2825,7 @@ vnc_fence(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	proto_tree_add_item(tree, hf_vnc_fence_payload_length,
-			    tvb, *offset, 1, ENC_NA);
+			    tvb, *offset, 1, ENC_BIG_ENDIAN);
 
 	*offset += 1;
 

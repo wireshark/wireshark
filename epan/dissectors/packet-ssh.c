@@ -563,7 +563,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
         ((peer_data->frame_key_start >= pinfo->fd->num) && (pinfo->fd->num <= peer_data->frame_key_end))) {
         msg_code = tvb_get_guint8(tvb, offset);
 
-        proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
         offset += 1;
@@ -703,7 +703,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     if (msg_code >= 30 && msg_code < 40) {
         offset = global_data->kex_specific_dissector(msg_code, tvb, pinfo, offset, key_ex_tree);
     } else {
-        proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
@@ -767,7 +767,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_ssh2_kex_dh_msg_code, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ssh2_kex_dh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
@@ -791,7 +791,7 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_ssh2_kex_dh_gex_msg_code, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ssh2_kex_dh_gex_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,

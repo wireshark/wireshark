@@ -2283,7 +2283,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     {
         filter_item = proto_tree_add_item(nlri_tree, hf_bgp_flowspec_nlri_filter, tvb, offset+cursor_fspec, 1, ENC_NA);
         filter_tree = proto_item_add_subtree(filter_item, ett_bgp_flow_spec_nlri_filter);
-        proto_tree_add_item(filter_tree, hf_bgp_flowspec_nlri_filter_type, tvb, offset+cursor_fspec, 1, ENC_NA);
+        proto_tree_add_item(filter_tree, hf_bgp_flowspec_nlri_filter_type, tvb, offset+cursor_fspec, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(filter_item, ": %s", val_to_str(tvb_get_guint8(tvb,offset+cursor_fspec), flowspec_nlri_opvaluepair_type, "Unknown filter %d"));
         switch (tvb_get_guint8(tvb,offset+cursor_fspec)) {
         case BGPNLRI_FSPEC_DST_PFIX:
@@ -3655,11 +3655,11 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     prefix_tree = proto_item_add_subtree(ti, ett_bgp_evpn_nlri);
 
     proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rt, tvb, start_offset,
-                        1, ENC_NA);
+                        1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, ": %s", val_to_str(tvb_get_guint8(tvb, offset), evpnrtypevals, "Unknown capability %d"));
 
     proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_len, tvb, start_offset+1,
-                        1, ENC_NA);
+                        1, ENC_BIG_ENDIAN);
 
     if (route_type == EVPN_ETH_SEGMENT_ROUTE && nlri_len < 21) {
         if (nlri_len < 21) {
@@ -3733,14 +3733,14 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                             4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_maclen, tvb, start_offset+24,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mac_addr, tvb, start_offset+25,
                             6, ENC_NA);
 
         ip_len = tvb_get_guint8(tvb, offset + 31) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+31,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
 
         total_length = 31;
 
@@ -3789,7 +3789,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         ip_len = tvb_get_guint8(tvb, offset + 14) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+14,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
 
         total_length = 15;
 
@@ -3831,7 +3831,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         ip_len = tvb_get_guint8(tvb, offset + 14) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+14,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
 
         total_length = 21;
 
@@ -4779,7 +4779,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 offset += 1;
 
                 /* SAFI */
-                proto_tree_add_item(cap_tree, hf_bgp_cap_mp_safi, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(cap_tree, hf_bgp_cap_mp_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
             }
@@ -5435,10 +5435,10 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
     tunnel_id_len = tlen - 5;
 
     proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_flags, tvb, offset,
-                        1, ENC_NA);
+                        1, ENC_BIG_ENDIAN);
 
     pmsi_tunnel_type_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_type, tvb, offset+1,
-                                                1, ENC_NA);
+                                                1, ENC_BIG_ENDIAN);
     decode_MPLS_stack_tree(tvb, offset+2, parent_tree);
 
     tunnel_id_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_id, tvb, offset+5,
@@ -6146,8 +6146,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                         subtree6 = proto_tree_add_subtree_format(subtree5, tvb, q, encaps_tunnel_sublen + 2, ett_bgp_tunnel_tlv_subtree, NULL,
                                                                  "%s (%u bytes)", val_to_str_const(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
 
-                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_NA);
-                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_NA);
+                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_BIG_ENDIAN);
 
                         switch (encaps_tunnel_subtype) {
                             case TUNNEL_SUBTLV_ENCAPSULATION:
@@ -6355,34 +6355,34 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
 
     /* print error code */
-    proto_tree_add_item(tree, hf_bgp_notify_major_error, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_bgp_notify_major_error, tvb, offset, 1, ENC_BIG_ENDIAN);
     major_error = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     switch(major_error){
         case BGP_MAJOR_ERROR_MSG_HDR:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_msg_hdr, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_msg_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_OPEN_MSG:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_open_msg, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_open_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_UPDATE_MSG:
-            proto_tree_add_item(tree,hf_bgp_notify_minor_update_msg, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree,hf_bgp_notify_minor_update_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_HT_EXPIRED:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_ht_expired, tvb, offset,  1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_ht_expired, tvb, offset,  1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_STATE_MACHINE:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_state_machine, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_state_machine, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_CEASE:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_cease, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_cease, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         case BGP_MAJOR_ERROR_CAP_MSG:
-            proto_tree_add_item(tree, hf_bgp_notify_minor_cap_msg, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_minor_cap_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
         default:
-            ti = proto_tree_add_item(tree, hf_bgp_notify_minor_unknown, tvb, offset, 1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_bgp_notify_minor_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
             expert_add_info_format(pinfo, ti, &ei_bgp_notify_minor_unknown, "Unknown notification error (%d)",major_error);
         break;
     }

@@ -671,7 +671,7 @@ PICS.    */
 			break;
 		}
 
-		proto_tree_add_item(param_tree, hf_ses_reason_code, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(param_tree, hf_ses_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		param_len--;
 		if (param_len != 0)
@@ -761,7 +761,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			ett_ses_param, &ti,
 			val_to_str_ext(param_type, &param_vals_ext, "Unknown parameter type (0x%02x)"));
 		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
-		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		pg_len--;
 		param_len = get_item_len(tvb, offset, &len_len);
@@ -831,7 +831,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 		    val_to_str_ext(param_type, &param_vals_ext,
 		      "Unknown parameter type (0x%02x)"));
 		param_str = val_to_str_ext_const(param_type, &param_vals_ext, "Unknown");
-		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(param_tree, hf_ses_parameter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		len--;
 		param_len = get_item_len(tvb, offset, &len_len);

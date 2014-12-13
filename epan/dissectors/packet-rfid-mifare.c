@@ -91,7 +91,7 @@ dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         item = proto_tree_add_item(tree, proto_mifare, tvb, 0, -1, ENC_NA);
         mifare_tree = proto_item_add_subtree(item, ett_mifare);
 
-        proto_tree_add_item(mifare_tree, hf_mifare_command, tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(mifare_tree, hf_mifare_command, tvb, 0, 1, ENC_BIG_ENDIAN);
         cmd = tvb_get_guint8(tvb, 0);
 
         switch (cmd) {

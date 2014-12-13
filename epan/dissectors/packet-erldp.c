@@ -186,7 +186,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
   const gchar *str;
 
   num = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_erldp_num_atom_cache_refs, tvb, offset, 1, ENC_NA );
+  proto_tree_add_item(tree, hf_erldp_num_atom_cache_refs, tvb, offset, 1, ENC_BIG_ENDIAN );
   offset++;
 
   if (num == 0)
@@ -359,7 +359,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   etf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_etf, &ti, (label) ? label : "External Term Format");
 
-  proto_tree_add_item(etf_tree, hf_etf_version_magic, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(etf_tree, hf_etf_version_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   tag = tvb_get_guint8(tvb, offset);

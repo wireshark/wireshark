@@ -283,7 +283,7 @@ disect_smcr_proposal(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *proposal_flag_tree;
 
 	offset = CLC_MSG_START_OFFSET;
-	proposal_flag_item = proto_tree_add_item(tree, hf_smcr_proposal_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	proposal_flag_item = proto_tree_add_item(tree, hf_smcr_proposal_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proposal_flag_tree = proto_item_add_subtree(proposal_flag_item, ett_proposal_flag);
 	proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
@@ -330,7 +330,7 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *accept_flag2_tree;
 
 	offset = CLC_MSG_START_OFFSET;
-	accept_flag_item = proto_tree_add_item(tree, hf_smcr_accept_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	accept_flag_item = proto_tree_add_item(tree, hf_smcr_accept_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_accept_flag);
 	proto_tree_add_item(accept_flag_tree, hf_accept_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(accept_flag_tree, hf_accept_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -356,7 +356,7 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_accept_server_rmb_element_alert_token, tvb,
 			    offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
-	accept_flag2_item = proto_tree_add_item(tree, hf_smcr_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	accept_flag2_item = proto_tree_add_item(tree, hf_smcr_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_accept_flag2);
 	proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -382,7 +382,7 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *confirm_flag2_tree;
 
 	offset = CLC_MSG_START_OFFSET;
-	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_confirm_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
@@ -407,7 +407,7 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_confirm_client_rmb_element_alert_token, tvb,
 			offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
-	confirm_flag2_item = proto_tree_add_item(tree, hf_smcr_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	confirm_flag2_item = proto_tree_add_item(tree, hf_smcr_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_confirm_flag2);
 	proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -447,7 +447,7 @@ disect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *confirm_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_confirm_link_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_smcr_confirm_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 
@@ -481,7 +481,7 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *add_link_flag2_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_add_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_add_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	add_link_flag_tree = proto_item_add_subtree(add_link_flag_item, ett_add_link_flag);
 	proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_response_rejected, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -500,7 +500,7 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_add_link_number, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	add_link_flag2_item = proto_tree_add_item(tree, hf_smcr_add_link_flags2, tvb, offset, 1, ENC_NA);
+	add_link_flag2_item = proto_tree_add_item(tree, hf_smcr_add_link_flags2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	add_link_flag2_tree = proto_item_add_subtree(add_link_flag2_item, ett_add_link_flag2);
 	proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -517,7 +517,7 @@ disect_smcr_add_continuation(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *add_link_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_add_link_cont_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_add_link_cont_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	add_link_flag_tree = proto_item_add_subtree(add_link_flag_item, ett_add_link_cont_flag);
 	proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_cont_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
@@ -561,7 +561,7 @@ disect_smcr_delete_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *delete_link_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	delete_link_flag_item = proto_tree_add_item(tree, hf_smcr_delete_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	delete_link_flag_item = proto_tree_add_item(tree, hf_smcr_delete_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	delete_link_flag_tree = proto_item_add_subtree(delete_link_flag_item, ett_delete_link_flag);
 	proto_tree_add_item(delete_link_flag_tree, hf_smcr_delete_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(delete_link_flag_tree, hf_smcr_delete_link_all, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -583,7 +583,7 @@ disect_smcr_confirm_rkey(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *confirm_rkey_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	confirm_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	confirm_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_rkey_flag_tree = proto_item_add_subtree(confirm_rkey_flag_item, ett_confirm_rkey_flag);
 	proto_tree_add_item(confirm_rkey_flag_tree, hf_smcr_confirm_rkey_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_rkey_flag_tree, hf_smcr_confirm_rkey_negative_response,
@@ -627,7 +627,7 @@ disect_smcr_confirm_rkey_cont(tvbuff_t *tvb, proto_tree *tree)
 	guint8 num_entries;
 
 	offset = LLC_MSG_START_OFFSET;
-	confirm_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	confirm_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_rkey_flag_tree = proto_item_add_subtree(confirm_rkey_flag_item, ett_confirm_rkey_flag);
 	proto_tree_add_item(confirm_rkey_flag_tree, hf_smcr_confirm_rkey_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_rkey_flag_tree, hf_smcr_confirm_rkey_negative_response,
@@ -664,7 +664,7 @@ disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *delete_rkey_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	delete_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_delete_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	delete_rkey_flag_item = proto_tree_add_item(tree, hf_smcr_delete_rkey_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	delete_rkey_flag_tree = proto_item_add_subtree(delete_rkey_flag_item, ett_delete_rkey_flag);
 	proto_tree_add_item(delete_rkey_flag_tree, hf_smcr_delete_rkey_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(delete_rkey_flag_tree, hf_smcr_delete_rkey_negative_response,
@@ -688,7 +688,7 @@ disect_smcr_test_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *test_link_flag_tree;
 
 	offset = LLC_MSG_START_OFFSET;
-	test_link_flag_item = proto_tree_add_item(tree, hf_smcr_test_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+	test_link_flag_item = proto_tree_add_item(tree, hf_smcr_test_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	test_link_flag_tree = proto_item_add_subtree(test_link_flag_item, ett_test_link_flag);
 	proto_tree_add_item(test_link_flag_tree, hf_smcr_test_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 }
@@ -719,7 +719,7 @@ disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_cons_curs, tvb, offset, CURSOR_LEN, ENC_BIG_ENDIAN);
 	offset += CURSOR_LEN;
 	rmbe_ctrl_rw_status_flag_item =
-		proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_conn_rw_status_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+		proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_conn_rw_status_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	rmbe_ctrl_rw_status_flag_tree =
 		proto_item_add_subtree(rmbe_ctrl_rw_status_flag_item, ett_rmbe_ctrl_rw_status_flag);
 	proto_tree_add_item(rmbe_ctrl_rw_status_flag_tree, hf_smcr_rmbe_ctrl_write_blocked,
@@ -732,7 +732,7 @@ disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 			tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
 	rmbe_ctrl_peer_conn_state_flag_item =
-		proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_conn_state_flags, tvb, offset, FLAG_BYTE_LEN, ENC_NA);
+		proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_conn_state_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	rmbe_ctrl_peer_conn_state_flag_tree =
 		proto_item_add_subtree(rmbe_ctrl_peer_conn_state_flag_item, ett_rmbe_ctrl_peer_conn_state_flag);
 	proto_tree_add_item(rmbe_ctrl_peer_conn_state_flag_tree, hf_smcr_rmbe_ctrl_peer_sending_done,

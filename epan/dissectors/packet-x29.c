@@ -137,9 +137,9 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			 * XXX - dissect the references as per X.3.
 			 */
 			while (tvb_reported_length_remaining(tvb, offset) > 0) {
-				proto_tree_add_item(x29_tree, hf_x29_parameter, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(x29_tree, hf_x29_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
-				proto_tree_add_item(x29_tree, hf_x29_value, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(x29_tree, hf_x29_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 			}
 			break;
@@ -164,7 +164,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		case BREAK_IND_MSG:
 			if (tvb_reported_length_remaining(tvb, offset) > 0) {
 				type_ref = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				switch (type_ref) {
 
@@ -172,17 +172,17 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 					/*
 					 * XXX - dissect as per X.28.
 					 */
-					proto_tree_add_item(x29_tree, hf_x29_type_of_aspect, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(x29_tree, hf_x29_type_of_aspect, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 					break;
 
 				case 0x08:	/* break */
-					proto_tree_add_item(x29_tree, hf_x29_break_value, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(x29_tree, hf_x29_break_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 					break;
 
 				default:
-					proto_tree_add_item(x29_tree, hf_x29_type_reference_value, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(x29_tree, hf_x29_type_reference_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 					break;
 				}

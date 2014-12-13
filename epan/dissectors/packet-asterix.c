@@ -7090,7 +7090,7 @@ static gint dissect_asterix_fields (tvbuff_t *tvb, guint offset, proto_tree *tre
             else if (current_uap[i]->type & RE) {
                 asterix_field_item = proto_tree_add_item (tree, *current_uap[i]->hf, tvb, offset + start, len, ENC_NA);
                 asterix_field_tree = proto_item_add_subtree (asterix_field_item, ett_asterix_subtree);
-                proto_tree_add_item (asterix_field_tree, hf_re_field_len, tvb, offset + start, 1, ENC_NA);
+                proto_tree_add_item (asterix_field_tree, hf_re_field_len, tvb, offset + start, 1, ENC_BIG_ENDIAN);
                 start++;
                 fspec_len = asterix_fspec_len (tvb, offset + start);
                 proto_tree_add_item (asterix_field_tree, hf_asterix_fspec, tvb, offset + start, fspec_len, ENC_NA);

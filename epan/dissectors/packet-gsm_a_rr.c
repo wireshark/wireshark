@@ -2032,13 +2032,13 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32
         proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
     }
 
-    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset +=1;
 
     /* Octet 3 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
-    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_hopping_channel, tvb, curr_offset, 1, ENC_NA);
     if ((oct8 & 0x10) == 0x10)
@@ -2128,13 +2128,13 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
         proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
     }
 
-    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset +=1;
 
     /* Octet 3 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
-    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_hopping_channel, tvb, curr_offset, 1, ENC_NA);
     if ((oct8 & 0x10) == 0x10)
@@ -2174,7 +2174,7 @@ de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 
     /* Octet 2 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
-    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_hopping_channel, tvb, curr_offset, 1, ENC_NA);
     if ((oct8 & 0x10) == 0x10)
@@ -4421,13 +4421,13 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
     ti = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_spare, tvb, (curr_offset<<3)+3, 5, ENC_NA);
     proto_item_append_text(ti, "(ignored by receiver)");
     /* TN */
-    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_timeslot, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset +=1;
 
     /* Octet 3 */
     oct8 = tvb_get_guint8(tvb, curr_offset);
-    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_training_sequence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_hopping_channel, tvb, curr_offset, 1, ENC_NA);
     if ((oct8 & 0x10) == 0x10)
@@ -10793,7 +10793,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ((ti != -1) && (ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK){
         proto_tree_add_item(tree, hf_gsm_a_extension, tvb, 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pd_tree, hf_gsm_a_rr_tie, tvb, 2, 1, ENC_NA);
+        proto_tree_add_item(pd_tree, hf_gsm_a_rr_tie, tvb, 2, 1, ENC_BIG_ENDIAN);
     }
 
     /*

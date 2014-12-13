@@ -256,7 +256,7 @@ static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
     int a_type = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item( tree, hf_socks_address_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item( tree, hf_socks_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     switch (a_type)
@@ -357,7 +357,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(socks_tree, hf_socks_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(socks_tree, hf_socks_fragment_number, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(socks_tree, hf_socks_fragment_number, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         offset = display_address( tvb, offset, socks_tree);
@@ -445,7 +445,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item( tree, hf_socks_cmd, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item( tree, hf_socks_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             /* Do remote port */
@@ -528,7 +528,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
         num_auth_methods = tvb_get_guint8(tvb, offset);
         proto_item_set_len(ti, num_auth_methods+1);
 
-        proto_tree_add_item( AuthTree, hf_client_auth_method_count, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( AuthTree, hf_client_auth_method_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         for( i = 0; i  < num_auth_methods; ++i) {
@@ -550,10 +550,10 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     else if (state_info->client == clientV5Command) {
 
-        proto_tree_add_item( tree, hf_socks_cmd, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( tree, hf_socks_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item( tree, hf_socks_reserved, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( tree, hf_socks_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         offset = display_address(tvb, offset, tree);
@@ -627,7 +627,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     case serverUserReply:
         auth_status = tvb_get_guint8(tvb, offset);
-        ti = proto_tree_add_item(tree, hf_server_auth_status, tvb, offset, 1, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_server_auth_status, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(auth_status != 0)
             proto_item_append_text(ti, " (failure)");
         else

@@ -1402,7 +1402,7 @@ static int dissect_spdy_settings_payload(
 
     /* Set flags. */
     if (setting_tree) {
-      ti = proto_tree_add_item(setting_tree, hf_spdy_flags, tvb, offset, 1, ENC_NA);
+      ti = proto_tree_add_item(setting_tree, hf_spdy_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 
       /* TODO(hkhalil): Prettier output for flags sub-tree description. */
       flags_tree = proto_item_add_subtree(ti, ett_spdy_flags);

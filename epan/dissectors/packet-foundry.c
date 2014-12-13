@@ -284,9 +284,9 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_fdp, tvb, offset, -1, ENC_NA);
 		fdp_tree = proto_item_add_subtree(ti, ett_fdp);
 
-		proto_tree_add_item(fdp_tree, hf_fdp_version, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(fdp_tree, hf_fdp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(fdp_tree, hf_fdp_holdtime, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(fdp_tree, hf_fdp_holdtime, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(fdp_tree, hf_fdp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;

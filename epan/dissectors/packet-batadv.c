@@ -2191,7 +2191,7 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 
 	field_tree = proto_tree_add_subtree(batadv_icmp_tree, tvb, offset, 1+ 6 * BAT_RR_LEN,
 										ett_batadv_icmp_rr, NULL, "ICMP RR");
-	proto_tree_add_item(field_tree, hf_batadv_icmp_rr_pointer, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_batadv_icmp_rr_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	ptr--;
 	offset++;
@@ -2489,7 +2489,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	icmp_packeth->rr_ptr = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_rr_pointer, tvb,
-			    offset, 1, ENC_NA);
+			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, offset);

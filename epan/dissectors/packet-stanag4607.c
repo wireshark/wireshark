@@ -504,15 +504,15 @@ dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 12;
 	proto_tree_add_item(seg_tree, hf_4607_mission_flight_plan, tvb, offset, 12, ENC_ASCII|ENC_NA);
 	offset += 12;
-	proto_tree_add_item(seg_tree, hf_4607_mission_platform, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_platform, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(seg_tree, hf_4607_mission_platform_config, tvb, offset, 10, ENC_ASCII|ENC_NA);
 	offset += 10;
 	proto_tree_add_item(seg_tree, hf_4607_mission_time_year, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(seg_tree, hf_4607_mission_time_month, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_time_month, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_mission_time_day, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_time_day, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	return offset;
@@ -585,15 +585,15 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 		offset += 2;
 	}
 	if (SET(mask, D32_9)) {
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_snr, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_snr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	if (SET(mask, D32_10)) {
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_class, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	if (SET(mask, D32_11)) {
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_prob, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_prob, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	if (SET(mask, D32_12)) {
@@ -601,19 +601,19 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 		offset += 2;
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_cross, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_height, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_height, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_unc_radial, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 	if (SET(mask, D32_16)) {
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_tag_app, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_tag_app, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_tag_entity, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	if (SET(mask, D32_18)) {
-		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_section, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(rpt_tree, hf_4607_dwell_report_section, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 
@@ -635,7 +635,7 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 2;
 	proto_tree_add_item(seg_tree, hf_4607_dwell_dwell_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(seg_tree, hf_4607_dwell_last_dwell, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_dwell_last_dwell, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* count of target reports */
@@ -670,11 +670,11 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 		offset += 2;
 		proto_tree_add_item(seg_tree, hf_4607_dwell_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(seg_tree, hf_4607_dwell_vert_velocity, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(seg_tree, hf_4607_dwell_vert_velocity, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	if (SET(mask, D18)) {
-		proto_tree_add_item(seg_tree, hf_4607_dwell_track_unc, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(seg_tree, hf_4607_dwell_track_unc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(seg_tree, hf_4607_dwell_speed_unc, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
@@ -709,7 +709,7 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 		offset += 2;
 	}
 	if (SET(mask, D31)) {
-		proto_tree_add_item(seg_tree, hf_4607_dwell_mdv, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(seg_tree, hf_4607_dwell_mdv, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 
@@ -726,13 +726,13 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 {
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_job_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_model, tvb, offset, 6, ENC_ASCII|ENC_NA);
 	offset += 6;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_filter, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_filter, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_priority, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_ba_lat_a, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -750,7 +750,7 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 4;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_ba_lon_d, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_radar_mode, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_radar_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_revisit_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -760,7 +760,7 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 2;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_unc_alt, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_unc_heading, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_unc_heading, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_unc_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -770,15 +770,15 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 2;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_vlos, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_mdv, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_mdv, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_prob, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_prob, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_alarm, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sense_alarm, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_terrain_model, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_terrain_model, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_geoid_model, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_geoid_model, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	return offset;
@@ -799,7 +799,7 @@ dissect_platform_location(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 2;
 	proto_tree_add_item(seg_tree, hf_4607_platloc_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(seg_tree, hf_4607_platloc_vertical_velocity, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_platloc_vertical_velocity, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	return offset;
 }
@@ -864,10 +864,10 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII|ENC_NA);
 		ti = proto_tree_add_item(hdr_tree, hf_4607_packet_size, tvb, 2, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII|ENC_NA);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII|ENC_NA);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_code, tvb, 11, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII|ENC_NA);
 		proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
@@ -889,7 +889,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_item * pi;
 		/* Segment header */
-		seg_type = proto_tree_add_item(hdr_tree, hf_4607_segment_type, tvb, offset, 1, ENC_NA);
+		seg_type = proto_tree_add_item(hdr_tree, hf_4607_segment_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		seg_id = tvb_get_guint8(tvb, offset);
 		offset += 1;
 

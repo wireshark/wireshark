@@ -180,10 +180,10 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             length = 0;
         }
 
-        proto_tree_add_item(tag_tree, hf_option_tag, tvb, pos, 1, ENC_NA);
+        proto_tree_add_item(tag_tree, hf_option_tag, tvb, pos, 1, ENC_BIG_ENDIAN);
         pos++;
         if ((tag != TZSP_HDR_PAD) && (tag != TZSP_HDR_END)) {
-            proto_tree_add_item(tag_tree, hf_option_length, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_option_length, tvb, pos, 1, ENC_BIG_ENDIAN);
             pos++;
         }
 
@@ -203,15 +203,15 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             break;
 
         case WLAN_RADIO_HDR_SIGNAL:
-            proto_tree_add_item(tag_tree, hf_signal, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_signal, tvb, pos, 1, ENC_BIG_ENDIAN);
             break;
 
         case WLAN_RADIO_HDR_NOISE:
-            proto_tree_add_item(tag_tree, hf_silence, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_silence, tvb, pos, 1, ENC_BIG_ENDIAN);
             break;
 
         case WLAN_RADIO_HDR_RATE:
-            proto_tree_add_item(tag_tree, hf_rate, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_rate, tvb, pos, 1, ENC_BIG_ENDIAN);
             break;
 
         case WLAN_RADIO_HDR_TIMESTAMP:
@@ -219,7 +219,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             break;
 
         case WLAN_RADIO_HDR_MSG_TYPE:
-            proto_tree_add_item(tag_tree, hf_status_msg_type, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_status_msg_type, tvb, pos, 1, ENC_BIG_ENDIAN);
             break;
 
         case WLAN_RADIO_HDR_CF:
@@ -238,7 +238,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             break;
 
         case WLAN_RADIO_HDR_CHANNEL:
-            proto_tree_add_item(tag_tree, hf_channel, tvb, pos, 1, ENC_NA);
+            proto_tree_add_item(tag_tree, hf_channel, tvb, pos, 1, ENC_BIG_ENDIAN);
             break;
 
         case TZSP_HDR_SENSOR:

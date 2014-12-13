@@ -176,11 +176,11 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case MACCTRL_REGISTER_REQ:
       /* Flags */
       proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
-                          6, 1, ENC_NA);
+                          6, 1, ENC_BIG_ENDIAN);
 
       /* Pending Grants */
       proto_tree_add_item(macctrl_tree, hf_reg_req_grants, tvb,
-                          7, 1, ENC_NA);
+                          7, 1, ENC_BIG_ENDIAN);
       break;
 
     case MACCTRL_REGISTER:
@@ -191,21 +191,21 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Flags */
       proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
-                          8, 1, ENC_NA);
+                          8, 1, ENC_BIG_ENDIAN);
       /* Synch Time */
       proto_tree_add_item(macctrl_tree, hf_reg_time, tvb,
                           9, 2, ENC_BIG_ENDIAN);
 
       /* Echoed Pending Grants */
       proto_tree_add_item(macctrl_tree, hf_reg_grants, tvb,
-                          11, 1, ENC_NA);
+                          11, 1, ENC_BIG_ENDIAN);
       break;
 
     case MACCTRL_REGISTER_ACK:
 
       /* Flags */
       proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
-                          6, 1, ENC_NA);
+                          6, 1, ENC_BIG_ENDIAN);
 
       /* Echoed Assigned Port */
       proto_tree_add_item(macctrl_tree, hf_reg_ack_port, tvb,

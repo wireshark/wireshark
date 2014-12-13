@@ -964,7 +964,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     bi.ti = proto_tree_add_item(tree, proto_nsip, tvb, 0, -1,
                              ENC_NA);
     nsip_tree = proto_item_add_subtree(bi.ti, ett_nsip);
-    proto_tree_add_item(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(bi.ti, ", PDU type: %s",
                                val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown"));
     bi.nsip_tree = nsip_tree;

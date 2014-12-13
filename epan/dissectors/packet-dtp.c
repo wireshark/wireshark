@@ -239,8 +239,8 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 				val_to_str_const(DTP_TOSVALUE(trunk_status), dtp_tos_vals, "Unknown operating status"),
 				val_to_str_const(DTP_TASVALUE(trunk_status), dtp_tas_vals, "Unknown administrative status"),
 				trunk_status);
-			proto_tree_add_item(field_tree, hf_dtp_tos, tvb, offset, length, ENC_NA);
-			proto_tree_add_item(field_tree, hf_dtp_tas, tvb, offset, length, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dtp_tos, tvb, offset, length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(field_tree, hf_dtp_tas, tvb, offset, length, ENC_BIG_ENDIAN);
 			}
 			else
 				expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
@@ -260,8 +260,8 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),
 				val_to_str_const(DTP_TATVALUE(trunk_type), dtp_tat_vals, "Unknown administrative type"),
 				trunk_type);
-			proto_tree_add_item(field_tree, hf_dtp_tot, tvb, offset, length, ENC_NA);
-			proto_tree_add_item(field_tree, hf_dtp_tat, tvb, offset, length, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dtp_tot, tvb, offset, length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(field_tree, hf_dtp_tat, tvb, offset, length, ENC_BIG_ENDIAN);
 			}
 			else
 				expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);

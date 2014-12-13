@@ -140,10 +140,10 @@ dissect_aruba_erm_pcap_radio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     PROTO_ITEM_SET_GENERATED(ti_data_rate);
     offset += 2;
 
-    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     return offset;

@@ -116,14 +116,14 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 (TCI_AN_MASK &   tci_an_field));
         tci_tree = proto_item_add_subtree(tci_item, ett_macsec_tci);
 
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_V, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_ES, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_SC, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_SCB, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_E, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_C, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(tci_tree, hf_macsec_AN, tvb, sectag_offset, 1, ENC_NA);
-        proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, sectag_offset + 1, 1, ENC_NA);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_V, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_ES, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_SC, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_SCB, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_E, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_TCI_C, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tci_tree, hf_macsec_AN, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, sectag_offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, sectag_offset + 2, 4, ENC_BIG_ENDIAN);
 
         if (sectag_length == 14) {

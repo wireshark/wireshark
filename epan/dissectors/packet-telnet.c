@@ -398,7 +398,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 
   while (len > 0) {
     cmd = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item( tree, hf_tn3270_subopt, tvb, offset, 1, ENC_NA );
+    proto_tree_add_item( tree, hf_tn3270_subopt, tvb, offset, 1, ENC_BIG_ENDIAN );
     switch (cmd) {
       case TN3270_CONNECT:
             proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len, ENC_NA|ENC_ASCII );
@@ -424,7 +424,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
       case TN3270_REASON:
             offset++;
             len--;
-            proto_tree_add_item( tree, hf_tn3270_reason, tvb, offset, 1, ENC_NA );
+            proto_tree_add_item( tree, hf_tn3270_reason, tvb, offset, 1, ENC_BIG_ENDIAN );
             break;
       case TN3270_REQUEST:
             add_tn3270_conversation(pinfo, 1, 0);
@@ -436,7 +436,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             }else if (device_type == TN3270_FUNCTIONS) {
               while (len > 0) {
                 rsn = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item( tree, hf_tn3270_request, tvb, offset, 1, ENC_NA );
+                proto_tree_add_item( tree, hf_tn3270_request, tvb, offset, 1, ENC_BIG_ENDIAN );
                 if (try_val_to_str(rsn, tn3270_request_vals) == NULL)
                     break;
 
@@ -470,7 +470,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
   int    gs_offset, datalen;
 
   while (len > 0) {
-    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     len--;
@@ -985,7 +985,7 @@ dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 {
   guint8 mod;
 
-  proto_tree_add_item(tree, hf_telnet_auth_type, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_telnet_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   mod=tvb_get_guint8(tvb, offset+1);
   proto_tree_add_uint(tree, hf_telnet_auth_mod_enc, tvb, offset+1, 1, mod);
@@ -1678,7 +1678,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
   optcode = tvb_get_guint8(tvb, offset);
 
   cmd_tree = proto_tree_add_subtree(telnet_tree, tvb, start_offset, 2, ett_telnet_cmd, &cmd_item, "Command header");
-  proto_tree_add_item(cmd_tree, hf_telnet_cmd, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cmd_tree, hf_telnet_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   switch(optcode) {

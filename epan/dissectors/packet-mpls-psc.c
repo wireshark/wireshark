@@ -142,21 +142,21 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_mpls_psc,    tvb, 0, -1, ENC_NA);
     psc_tree = proto_item_add_subtree(ti, ett_mpls_psc);
     /* version */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_ver,    tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_ver,    tvb, offset, 1, ENC_BIG_ENDIAN);
     /* request */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_req,    tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_req,    tvb, offset, 1, ENC_BIG_ENDIAN);
     /* prot type */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_pt,     tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_pt,     tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* prot type */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_rev,    tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_rev,    tvb, offset, 1, ENC_BIG_ENDIAN);
     /* skip reserved1 */
     offset += 1;
     /* fpath */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_fpath,  tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_fpath,  tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* path */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_dpath,  tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(psc_tree, hf_mpls_psc_dpath,  tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* tlv len */
     proto_tree_add_item(psc_tree, hf_mpls_psc_tlvlen, tvb, offset, 1, ENC_BIG_ENDIAN);

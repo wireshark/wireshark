@@ -2600,14 +2600,14 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     wscale_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 3, ett_tcp_option_wscale, &wscale_pi, "Window scale: ");
 
-    proto_tree_add_item(wscale_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(wscale_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(wscale_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(wscale_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     shift_pi = proto_tree_add_item(wscale_tree, hf_tcp_option_wscale_shift, tvb,
-                                   offset, 1, ENC_NA);
+                                   offset, 1, ENC_BIG_ENDIAN);
     shift = tvb_get_guint8(tvb, offset);
     if (shift > 14) {
         /* RFC 1323: "If a Window Scale option is received with a shift.cnt
@@ -2748,10 +2748,10 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     ts_tree = proto_tree_add_subtree(opt_tree, tvb, offset, 10, ett_tcp_option_timestamp, &ti, "Timestamps: ");
 
-    proto_tree_add_item(ts_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ts_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(ts_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ts_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(ts_tree,  hf_tcp_option_timestamp_tsval, tvb, offset,
@@ -3520,7 +3520,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         if (type == PROBE_INTERNAL)
             return;
 
-        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_reserved, tvb, offset + PROBE_V1_RESERVED_OFFSET, 1, ENC_NA);
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_reserved, tvb, offset + PROBE_V1_RESERVED_OFFSET, 1, ENC_BIG_ENDIAN);
 
         ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROBER_OFFSET);
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_prober, tvb,

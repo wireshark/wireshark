@@ -248,7 +248,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       val_to_str_const(opcode, felica_opcodes, "Unknown"));
 
     if (tree) {
-        proto_tree_add_item(felica_tree, hf_felica_opcode,  tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(felica_tree, hf_felica_opcode,  tvb, 0, 1, ENC_BIG_ENDIAN);
     }
 
     switch (opcode) {

@@ -555,7 +555,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
   proto_item* ti;
 
   afi = tvb_get_guint8(tvb, offset);
-  ti = proto_tree_add_item(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_BIG_ENDIAN);
   switch (afi) {
 
     case 0x39:  /* DCC ATM format */
@@ -564,7 +564,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
                           tvb, offset + 1, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 3, 10, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
-      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
     case 0x47:  /* ICD ATM format */
@@ -573,7 +573,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
                           tvb, offset + 1, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 3, 10, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
-      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
     case 0x45:  /* E.164 ATM format */
@@ -582,7 +582,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
                           tvb, offset + 1, 8, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 9, 4, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
-      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
     default:

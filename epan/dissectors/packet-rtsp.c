@@ -357,11 +357,11 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         rf_chan, rf_len);
     rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
 
-    proto_tree_add_item(rtspframe_tree, hf_rtsp_magic, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(rtspframe_tree, hf_rtsp_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
 
-    proto_tree_add_item(rtspframe_tree, hf_rtsp_channel, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(rtspframe_tree, hf_rtsp_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
 

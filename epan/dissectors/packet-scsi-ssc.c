@@ -619,8 +619,8 @@ dissect_ssc_erase6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         if (!tree)
             return;
 
-        proto_tree_add_item(tree, hf_scsi_ssc_erase6_immed, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_scsi_ssc_erase6_long, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_ssc_erase6_immed, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_ssc_erase6_long, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
@@ -751,7 +751,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     if (isreq && iscdb) {
         service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
-        proto_tree_add_item(tree, hf_scsi_ssc_readposition_service_action, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_ssc_readposition_service_action, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* Remember the service action so we can decode the reply */
         if (cdata != NULL) {
             cdata->itlq->flags = service_action;

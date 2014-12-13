@@ -601,8 +601,8 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     version=tvb_get_guint8(tvb, offset);
     version_tree = proto_tree_add_subtree_format(pktc_tree, tvb, offset, 1, ett_pktc_version, NULL,
                 "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
-    proto_tree_add_item(version_tree, hf_pktc_version_major, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(version_tree, hf_pktc_version_minor, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_pktc_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(version_tree, hf_pktc_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* fill COL_INFO */

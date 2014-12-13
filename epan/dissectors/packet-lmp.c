@@ -741,7 +741,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             lmp_tree, tvb, offset, 12,
             lmp_subtree[LMP_TREE_HEADER], NULL, "LMP Header. %s",
             val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
-        proto_tree_add_item(lmp_header_tree, hf_lmp_version, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lmp_header_tree, hf_lmp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(lmp_header_tree, tvb, offset+2, hf_lmp_header_flags, lmp_subtree[LMP_TREE_HEADER_FLAGS], header_flags, ENC_NA);
         msg_item = proto_tree_add_uint(lmp_header_tree, hf_lmp_filter[LMPF_MSG], tvb,
@@ -820,7 +820,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         proto_tree_add_item(lmp_object_header_tree, hf_lmp_negotiable, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(lmp_object_header_tree, hf_lmp_object_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lmp_object_header_tree, hf_lmp_object_class, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(lmp_object_header_tree, hf_lmp_object_class, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_uint(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
                             tvb, offset, 1, type);
         offset2 = offset+4;
@@ -1221,9 +1221,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                           tvb, offset2+l, mylen, ENC_NA);
                 lmp_subobj_tree = proto_item_add_subtree(ti2,
                                                          lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
-                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_NA);
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_NA);
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_BIG_ENDIAN);
                 switch(tvb_get_guint8(tvb, offset2+l)) {
 
                 case 1:
@@ -1566,7 +1566,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        (l & 0x02) ? "LDP-based UNI signaling supported " : "");
 
                 /* UNI version */
-                proto_tree_add_item(lmp_object_tree, hf_lmp_uni_version, tvb, offset2+1, 1, ENC_NA);
+                proto_tree_add_item(lmp_object_tree, hf_lmp_uni_version, tvb, offset2+1, 1, ENC_BIG_ENDIAN);
                 }
                 break;
 
@@ -1587,7 +1587,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 /* Client Port-Level Service Attributes Object */
 
                 /* Link Type */
-                proto_tree_add_item(lmp_object_tree, hf_lmp_link_type, tvb, offset2, 1, ENC_NA);
+                proto_tree_add_item(lmp_object_tree, hf_lmp_link_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
 
                 proto_item_append_text(lmp_object_tree, "%s",
                                        val_to_str(tvb_get_guint8(tvb, offset2),
@@ -1598,7 +1598,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 /* Signal type for SDH */
                 if (l == LMP_CLASS_SERVICE_CONFIG_CPSA_SIGNAL_TYPES_SDH) {
                     /* Signal types for an SDH link */
-                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sdh, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sdh, tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(lmp_object_tree, "%s",
                                            val_to_str(tvb_get_guint8(tvb, offset2+1),
@@ -1608,7 +1608,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 if (l == LMP_CLASS_SERVICE_CONFIG_CPSA_SIGNAL_TYPES_SONET) {
                     /* Signal types for a SONET link */
-                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sonet, tvb, offset2+1, 1, ENC_NA);
+                    proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sonet, tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(lmp_object_tree, "%s",
                                            val_to_str(tvb_get_guint8(tvb, offset2+1),
@@ -1775,7 +1775,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                               tvb, offset2+l, mylen, ENC_NA);
                     lmp_subobj_tree = proto_item_add_subtree(ti2,
                                                              lmp_subtree[LMP_TREE_LAD_INFO_SUBOBJ]);
-                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_NA);
+                    proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_type, tvb, offset2+l, 1, ENC_BIG_ENDIAN);
 
                     if (mylen == 0 || l + mylen > obj_length - 4) {
                         proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1,
@@ -1783,7 +1783,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         break;
                     }
                     else
-                        proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_NA);
+                        proto_tree_add_item(lmp_subobj_tree, hf_lmp_subobject_length, tvb, offset2+l+1, 1, ENC_BIG_ENDIAN);
 
                     switch(tvb_get_guint8(tvb, offset2+l)) {
 

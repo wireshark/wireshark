@@ -324,19 +324,19 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Command: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
-        proto_tree_add_item(main_tree, hf_class, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_class, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_ins, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_ins, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        p1_item = proto_tree_add_item(main_tree, hf_p1, tvb, offset, 1, ENC_NA);
+        p1_item = proto_tree_add_item(main_tree, hf_p1, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        p2_item = proto_tree_add_item(main_tree, hf_p2, tvb, offset, 1, ENC_NA);
+        p2_item = proto_tree_add_item(main_tree, hf_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         switch (command) {

@@ -704,7 +704,7 @@ dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 3;
 
     /* Level Value (1 byte) */
-    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_level, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_level, tvb, offset, 1, ENC_BIG_ENDIAN);
     level = tvb_get_guint8(tvb, offset);
     offset += 1;
 
@@ -1003,7 +1003,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 2;
 
     /* Minutes (1 byte) */
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_min, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_min, tvb, offset, 1, ENC_BIG_ENDIAN);
     min = tvb_get_guint8(tvb, offset);
     if (min > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
@@ -1011,7 +1011,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 1;
 
     /* Seconds (1 byte) */
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_sec, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
     sec = tvb_get_guint8(tvb, offset);
     if (sec > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
@@ -1040,7 +1040,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 2;
 
     /* Minutes (1 byte) */
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_min, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_min, tvb, offset, 1, ENC_BIG_ENDIAN);
     min = tvb_get_guint8(tvb, offset);
     if (min > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
@@ -1048,7 +1048,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 1;
 
     /* Seconds (1 byte) */
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_sec, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
     sec = tvb_get_guint8(tvb, offset);
     if (sec > 60)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
@@ -1207,7 +1207,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     guint16 afi, addr_len = 0;
 
     /* Reserved (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_res, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
     offset += 1;
 
@@ -1297,12 +1297,12 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_src_masklen, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     src_masklen = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     /* Group Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_grp_masklen, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_grp_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     grp_masklen = tvb_get_guint8(tvb, offset);
     offset += 1;
 
@@ -1452,12 +1452,12 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Source Prefix Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src_masklen, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     src_masklen = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     /* Destination Prefix Mask Length (1 byte) */
-    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst_masklen, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     dst_masklen = tvb_get_guint8(tvb, offset);
     offset += 1;
 
@@ -1749,11 +1749,11 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
     offset += 1;
 
     if (lcaf_type == LCAF_MCAST_INFO) {
-        ti_flags = proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_mcinfo_flags, tvb, offset, 1, ENC_NA);
+        ti_flags = proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_mcinfo_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(ti_flags, ett_lisp_lcaf_mcinfo_flags);
 
         /* Reserved (5 bits) */
-        proto_tree_add_item(flags_tree, hf_lisp_lcaf_mcinfo_flags_res, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(flags_tree, hf_lisp_lcaf_mcinfo_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Flags (3 bits) */
         proto_tree_add_item(flags_tree, hf_lisp_lcaf_mcinfo_flags_rp, tvb, offset, 1, ENC_NA);
@@ -1761,7 +1761,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
         proto_tree_add_item(flags_tree, hf_lisp_lcaf_mcinfo_flags_join, tvb, offset, 1, ENC_NA);
     } else {
         /* Reserved (8 bits) */
-        proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_res2, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;
 
@@ -2263,10 +2263,10 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             col_append_fstr(pinfo->cinfo, COL_INFO, " for %s/%d", prefix, prefix_mask);
 
         lisp_record_tree = proto_item_add_subtree(tir, ett_lisp_record);
-        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_res, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_res, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_length, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2779,7 +2779,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     ti_prefix = proto_tree_add_item(lisp_tree, hf_lisp_info_prefix, tvb, offset, 3, ENC_ASCII|ENC_NA);
     prefix_tree = proto_item_add_subtree(ti_prefix, ett_lisp_info_prefix);
 
-    proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_masklen, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_masklen, tvb, offset, 1, ENC_BIG_ENDIAN);
     prefix_mask = tvb_get_guint8(tvb, offset); offset += 1;
 
     proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_afi, tvb, offset, 2, ENC_BIG_ENDIAN);

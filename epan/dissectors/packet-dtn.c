@@ -1180,7 +1180,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
                         ett_admin_record, &admin_record_item, "Administrative Record");
     record_type = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     switch ((record_type >> 4) & 0xf)
     {
@@ -1823,7 +1823,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     conv_tree = proto_tree_add_subtree(conv_proto_tree, tvb, 0, -1, ett_tcp_conv_hdr, NULL, "TCP Convergence Header");
 
     conv_hdr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(conv_tree, hf_tcp_convergence_pkt_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(conv_tree, hf_tcp_convergence_pkt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const((conv_hdr>>4)&0xF, packet_type_vals, "Unknown"));
 
     switch (conv_hdr & TCP_CONVERGENCE_TYPE_MASK)

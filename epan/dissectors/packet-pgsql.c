@@ -448,7 +448,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Ready */
     case 'Z':
-        proto_tree_add_item(tree, hf_status, tvb, n, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_status, tvb, n, 1, ENC_BIG_ENDIAN);
         break;
 
     /* Error, Notice */

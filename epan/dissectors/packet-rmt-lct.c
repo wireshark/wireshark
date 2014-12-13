@@ -217,8 +217,8 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
 
             case 3: /* EXT_CC RATE */
                 proto_tree_add_item(ext_tree, hf_cc_sequence, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ext_tree, hf_cc_flags, tvb, offset+4, 1, ENC_NA);
-                proto_tree_add_item(ext_tree, hf_cc_rtt, tvb, offset+5, 1, ENC_NA);
+                proto_tree_add_item(ext_tree, hf_cc_flags, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_cc_rtt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_double(ext_tree, hf_cc_loss, tvb, offset+6, 2, tvb_get_ntohs(tvb, offset+6)/65535.0);
                 proto_tree_add_item(ext_tree, hf_cc_rate, tvb, offset+8, 2, ENC_BIG_ENDIAN);
                 break;

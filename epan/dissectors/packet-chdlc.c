@@ -142,7 +142,7 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
        padbyte == NLPID_ISO9542_ESIS ||
        padbyte == NLPID_ISO10589_ISIS)) {
     /* There is a Padding Byte for CLNS protocols over Cisco HDLC */
-    proto_tree_add_item(fh_tree, hf_chdlc_clns_padding, tvb, offset_after_chdlctype, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_chdlc_clns_padding, tvb, offset_after_chdlctype, 1, ENC_BIG_ENDIAN);
     next_tvb = tvb_new_subset_remaining(tvb, offset_after_chdlctype + 1);
   } else {
     next_tvb = tvb_new_subset_remaining(tvb, offset_after_chdlctype);

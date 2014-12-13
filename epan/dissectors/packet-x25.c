@@ -706,7 +706,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
     if (len && tree) {
         facilities_tree = proto_tree_add_subtree(tree, tvb, *offset, len + 1,
                                                  ett_x25_facilities, NULL, "Facilities");
-        proto_tree_add_item(facilities_tree, hf_x25_facilities_length, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(facilities_tree, hf_x25_facilities_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
     }
     (*offset)++;
 
@@ -719,44 +719,44 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             proto_item_append_text(ti, ": %s",
                                    val_to_str(fac, x25_facilities_classA_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
-            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(facility_tree, hf_x25_facility_classA, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(facility_tree, hf_x25_facility_classA, tvb, *offset, 1, ENC_BIG_ENDIAN);
             if (facility_tree) {
                 switch (fac) {
                 case X25_FAC_COMP_MARK:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_comp_mark, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_comp_mark, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_REVERSE:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_reverse, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_reverse, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(facility_tree, hf_x25_fast_select, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(facility_tree, hf_x25_icrd, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(facility_tree, hf_x25_facility_reverse_charging, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_CHARGING_INFO:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_charging_info, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_charging_info, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(facility_tree, hf_x25_facility_charging_info, tvb, *offset+1, 1, ENC_NA);
                     break;
                 case X25_FAC_THROUGHPUT:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_throughput_called_dte, tvb, *offset+1, 1, ENC_NA);
-                    proto_tree_add_item(facility_tree, hf_x25_throughput_called_dte, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_throughput_called_dte, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(facility_tree, hf_x25_throughput_called_dte, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_CUG:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_cug, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_cug, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_CALLED_MODIF:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_called_motif, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_called_motif, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_CUG_OUTGOING_ACC:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_cug_outgoing_acc, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_cug_outgoing_acc, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_THROUGHPUT_MIN:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_throughput_min, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_throughput_min, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_EXPRESS_DATA:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_express_data, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_express_data, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 default:
-                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_unknown, tvb, *offset+1, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_facility_classA_unknown, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
                     break;
                 }
             }
@@ -768,8 +768,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             proto_item_append_text(ti, ": %s",
                                    val_to_str(fac, x25_facilities_classB_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
-            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(facility_tree, hf_x25_facility_classB, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(facility_tree, hf_x25_facility_classB, tvb, *offset, 1, ENC_BIG_ENDIAN);
             if (facility_tree) {
                 switch (fac) {
                 case X25_FAC_BILATERAL_CUG:
@@ -780,8 +780,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     proto_tree_add_item(facility_tree, hf_x25_facility_packet_size_calling_dte, tvb, *offset+2, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_WINDOW_SIZE:
-                    proto_tree_add_item(facility_tree, hf_x25_window_size_called_dte, tvb, *offset+1, 1, ENC_NA);
-                    proto_tree_add_item(facility_tree, hf_x25_window_size_calling_dte, tvb, *offset+2, 1, ENC_NA);
+                    proto_tree_add_item(facility_tree, hf_x25_window_size_called_dte, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(facility_tree, hf_x25_window_size_calling_dte, tvb, *offset+2, 1, ENC_BIG_ENDIAN);
                     break;
                 case X25_FAC_RPOA_SELECTION:
                     proto_tree_add_item(facility_tree, hf_x25_facility_data_network_id_code, tvb, *offset+1, 2, ENC_BIG_ENDIAN);
@@ -808,8 +808,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             proto_item_append_text(ti, ": %s",
                                    val_to_str(fac, x25_facilities_classC_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
-            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(facility_tree, hf_x25_facility_classC, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(facility_tree, hf_x25_facility_classC, tvb, *offset, 1, ENC_BIG_ENDIAN);
             if (facility_tree) {
                 proto_tree_add_item(facility_tree, hf_x25_facility_classC_unknown, tvb, *offset+1, 2, ENC_BIG_ENDIAN);
             }
@@ -820,11 +820,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             proto_item_append_text(ti, ": %s",
                                    val_to_str(fac, x25_facilities_classD_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
-            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
             byte1 = tvb_get_guint8(tvb, *offset+1);
             proto_item_set_len(ti, byte1+2);
-            proto_tree_add_item(facility_tree, hf_x25_facility_classD, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(facility_tree, hf_x25_facility_length, tvb, *offset+1, 1, ENC_NA);
+            proto_tree_add_item(facility_tree, hf_x25_facility_classD, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(facility_tree, hf_x25_facility_length, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
             if (facility_tree) {
                 switch (fac) {
                 case X25_FAC_CALL_DURATION:
@@ -1031,12 +1031,12 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 
     if (tree) {
         if (is_registration) {
-            proto_tree_add_item(tree, hf_x25_dte_address_length, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(tree, hf_x25_dce_address_length, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_x25_dte_address_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_x25_dce_address_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
         }
         else {
-            proto_tree_add_item(tree, hf_x25_calling_address_length, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(tree, hf_x25_called_address_length, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_x25_calling_address_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_x25_called_address_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
         }
     }
     (*offset)++;
@@ -1536,13 +1536,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else if (is_x_264) {
                 /* It looks like an X.264 UN TPDU, so show it as such. */
                 if (userdata_tree) {
-                        proto_tree_add_item( userdata_tree, hf_x264_length_indicator, tvb, localoffset, 1, ENC_NA);
-                        proto_tree_add_item( userdata_tree, hf_x264_un_tpdu_id, tvb, localoffset+1, 1, ENC_NA);
+                        proto_tree_add_item( userdata_tree, hf_x264_length_indicator, tvb, localoffset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item( userdata_tree, hf_x264_un_tpdu_id, tvb, localoffset+1, 1, ENC_BIG_ENDIAN);
                 }
                 prt_id = tvb_get_guint8(tvb, localoffset+2);
                 if (userdata_tree) {
-                        proto_tree_add_item( userdata_tree, hf_x264_protocol_id, tvb, localoffset+2, 1, ENC_NA);
-                        proto_tree_add_item( userdata_tree, hf_x264_sharing_strategy, tvb, localoffset+3, 1, ENC_NA);
+                        proto_tree_add_item( userdata_tree, hf_x264_protocol_id, tvb, localoffset+2, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item( userdata_tree, hf_x264_sharing_strategy, tvb, localoffset+3, 1, ENC_BIG_ENDIAN);
                 }
 
                 /* XXX - dissect the variable part? */
@@ -1572,7 +1572,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    ISO 9577 NLPIDs, as per Annex A of X.263/ISO 9577. */
 
                 if (userdata_tree) {
-                        proto_tree_add_item( userdata_tree, hf_x263_sec_protocol_id, tvb, localoffset, 1, ENC_NA);
+                        proto_tree_add_item( userdata_tree, hf_x263_sec_protocol_id, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 }
 
                 if (!pinfo->fd->flags.visited) {
@@ -1702,7 +1702,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     long_name);
             proto_tree_add_text(x25_tree, tvb, 3, 1,
                     "Cause: %s", clear_code(tvb_get_guint8(tvb, 3)));
-            proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 4, 1, ENC_NA);
+            proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 4, 1, ENC_BIG_ENDIAN);
         }
         localoffset = x25_pkt_len;
         break;
@@ -1846,7 +1846,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (x25_tree) {
                 if (localoffset < x25_pkt_len)
-                        proto_tree_add_item( x25_tree, hf_x25_reg_request_length, tvb, localoffset, 1, ENC_NA);
+                        proto_tree_add_item( x25_tree, hf_x25_reg_request_length, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 if (localoffset+1 < x25_pkt_len)
                         proto_tree_add_text(x25_tree, tvb, localoffset+1,
                                 tvb_get_guint8(tvb, localoffset) & 0x7F,
@@ -1859,8 +1859,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (x25_tree) {
             proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
                     X25_REGISTRATION_CONFIRMATION);
-            proto_tree_add_item(x25_tree, hf_x25_reg_confirm_cause, tvb, 3, 1, ENC_NA);
-            proto_tree_add_item(x25_tree, hf_x25_reg_confirm_diagnostic, tvb, 4, 1, ENC_NA);
+            proto_tree_add_item(x25_tree, hf_x25_reg_confirm_cause, tvb, 3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(x25_tree, hf_x25_reg_confirm_diagnostic, tvb, 4, 1, ENC_BIG_ENDIAN);
         }
         localoffset = 5;
         if (localoffset < x25_pkt_len)
@@ -1868,7 +1868,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (x25_tree) {
                 if (localoffset < x25_pkt_len)
-                        proto_tree_add_item( x25_tree, hf_x25_reg_confirm_length, tvb, localoffset, 1, ENC_NA);
+                        proto_tree_add_item( x25_tree, hf_x25_reg_confirm_length, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 if (localoffset+1 < x25_pkt_len)
                         proto_tree_add_text(x25_tree, tvb, localoffset+1,
                                 tvb_get_guint8(tvb, localoffset) & 0x7F,
@@ -1989,7 +1989,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
                             localoffset, 1, pkt_type);
                     proto_tree_add_item(x25_tree, hf_x25_type_fc_mod8, tvb,
-                                        localoffset, 1, ENC_NA);
+                                        localoffset, 1, ENC_BIG_ENDIAN);
                 }
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d P(R):%d",
                              val_to_str(PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),
@@ -1998,9 +1998,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 if (x25_tree) {
                     proto_tree_add_item(x25_tree, hf_x25_type, tvb,
-                                        localoffset, 1, ENC_NA);
+                                        localoffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(x25_tree, hf_x25_p_r_mod128, tvb,
-                                        localoffset+1, 1, ENC_NA);
+                                        localoffset+1, 1, ENC_BIG_ENDIAN);
                 }
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d P(R):%d",
                              val_to_str(PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),

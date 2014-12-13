@@ -140,7 +140,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if (type == MEMBERSHIP_BASE + 2) {
             /* Error code (1 byte) */
             err = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(message_tree, hf_lisp_tcp_message_err, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(message_tree, hf_lisp_tcp_message_err, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             data_len -= 1;
             proto_item_append_text(tim, ", Error code: %s",

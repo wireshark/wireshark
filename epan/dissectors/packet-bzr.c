@@ -178,7 +178,7 @@ dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         switch (cmd) {
@@ -190,7 +190,7 @@ dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
             break;
         case 'o':
             proto_tree_add_item(tree, hf_bzr_result, tvb, offset, 1,
-                                ENC_NA);
+                                ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case 'e':

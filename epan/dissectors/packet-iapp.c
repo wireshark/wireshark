@@ -376,8 +376,8 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* common header for all IAPP frames */
 
-        proto_tree_add_item(iapp_tree, hf_iapp_version, tvb, 0, 1, ENC_NA);
-        proto_tree_add_item(iapp_tree, hf_iapp_type, tvb, 1, 1, ENC_NA);
+        proto_tree_add_item(iapp_tree, hf_iapp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(iapp_tree, hf_iapp_type, tvb, 1, 1, ENC_BIG_ENDIAN);
 
         pdutree = proto_tree_add_subtree(iapp_tree, tvb, 2, -1,
                 ett_iapp_pdu, &pduitem, "Protocol data units");

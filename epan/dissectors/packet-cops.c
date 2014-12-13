@@ -4351,7 +4351,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -4393,7 +4393,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -4435,7 +4435,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -4494,7 +4494,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -4544,7 +4544,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -4594,7 +4594,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5263,7 +5263,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5291,7 +5291,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5319,7 +5319,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5364,7 +5364,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5400,7 +5400,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */
@@ -5436,7 +5436,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      info_to_display(tvb,object_tree,offset,1,"Grants Per Interval",NULL,FMT_DEC,&hf_cops_pcmm_grants_per_interval);
      offset += 1;
 
-     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_NA);
+     proto_tree_add_item(object_tree, hf_cops_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Nominal Grant Interval */

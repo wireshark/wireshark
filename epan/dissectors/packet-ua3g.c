@@ -664,8 +664,8 @@ static void
 decode_subdevice_escape(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
             guint offset, guint length)
 {
-    proto_tree_add_item(tree, hf_ua3g_subdevice_address, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_subdevice_opcode, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_address, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_opcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     if (length > 2) {
         proto_tree_add_item(tree, hf_ua3g_subdevice_parameter_bytes, tvb, offset+2, length-2, ENC_NA);
     }
@@ -688,7 +688,7 @@ decode_software_reset(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     if (length == 0)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_software_reset, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_software_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -708,7 +708,7 @@ decode_ip_phone_warmstart(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
     if (length == 0)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_ip_phone_warmstart, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_ip_phone_warmstart, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -766,7 +766,7 @@ decode_segment_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 
     val = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ua3g_segment_msg_segment, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_segment_msg_num_remaining, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_segment_msg_num_remaining, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
@@ -1004,7 +1004,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (!ua3g_body_tree)
         return;
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
@@ -1020,11 +1020,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     val_to_str_const(parameter_id, ip_device_routing_cmd_reset_vals, "Unknown"));
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_length, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -1035,7 +1035,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                         param = tvb_get_guint8(tvb, offset);
                         if ((param & 0x80) == 0x00) {
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_noe_update, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_noe_update, tvb, offset, 1, ENC_BIG_ENDIAN);
                             ua3g_param_subtree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param_sub);
 
                             proto_tree_add_item(ua3g_param_subtree, hf_ua3g_ip_device_routing_reset_parameter_noe_update_bootloader, tvb, offset, 1, ENC_NA);
@@ -1051,7 +1051,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                         break;
                     case 0x01: /* Bad_Sec_Mode */
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_bad_sec_mode, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_bad_sec_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
                     case 0x02: /* Cust_Name */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_cust_name, tvb, offset, parameter_length, ENC_NA|ENC_ASCII);
@@ -1072,7 +1072,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x01: /* START RTP */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_rtp_direction, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_rtp_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1085,11 +1085,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_start_rtp_vals_ext, "Unknown"));
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_length, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -1193,11 +1193,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 val_to_str_const(parameter_id, ip_device_routing_cmd_stop_rtp_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1223,11 +1223,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_redirect_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1260,7 +1260,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
             tone_nb_entries = tvb_get_guint8(tvb, offset);
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_def_tones_num_entries, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_def_tones_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1304,8 +1304,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
             tone_nb_entries = tvb_get_guint8(tvb, offset);
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1326,7 +1326,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms",
                         ii+1, tone_id, tone_duration);
 
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_identification, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_identification, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
 
@@ -1360,11 +1360,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 val_to_str_const(parameter_id, ip_device_routing_cmd_listen_rtp_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1393,7 +1393,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         break;
     case 0x09: /* GET_PARAM_REQ */
         while (length > 0) {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_get_param_req_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_get_param_req_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
         }
@@ -1410,18 +1410,18 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_set_param_req_vals_ext, "Unknown"));
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_length, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
                 if (parameter_length > 0) {
                     switch (parameter_id) {
                     case 0x06: /* Compressor */
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_compressor, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_compressor, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
                     case 0x07: /* ERR STRING NET DOWN */
                     case 0x08: /* ERR STRING CABLE PB */
@@ -1435,10 +1435,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_tftp_backup_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                         break;
                     case 0x11: /* Set PC Port status */
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_set_pc_port_status, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_set_pc_port_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
                     case 0x12: /* Record RTP Authorization */
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_record_rtp_auth, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_record_rtp_auth, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
                     case 0x13: /* Security Flags */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_security_flag_filter, tvb, offset, 1, ENC_NA);
@@ -1471,7 +1471,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
     case 0x0B: /* SEND_DIGIT */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_digit_value, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_digit_value, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
 
     case 0x0C: /* PAUSE_RTP */
@@ -1485,11 +1485,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 val_to_str_const(parameter_id, ip_device_routing_cmd_pause_restart_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_pause_restart_rtp_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_pause_restart_rtp_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_pause_restart_rtp_parameter_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_pause_restart_rtp_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1517,11 +1517,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 val_to_str_const(parameter_id, ip_device_routing_cmd_record_rtp_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_length, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -1603,10 +1603,10 @@ decode_led_command(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (!tree)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_command_led, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_command_led, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if ((command >= 0) && (command < 7)) {
-        proto_tree_add_item(tree, hf_ua3g_command_led_number, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_command_led_number, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1658,11 +1658,11 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         length, ett_ua3g_param, NULL, "%s %d: %s",
         command_str, column_n, wmem_strbuf_get_str(strbuf));
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_lcd_line, tvb, offset, 1, ENC_NA);
-    ua3g_option_item = proto_tree_add_item(ua3g_param_tree, hf_ua3g_lcd_line_cmd_lcd_options, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_lcd_line, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ua3g_option_item = proto_tree_add_item(ua3g_param_tree, hf_ua3g_lcd_line_cmd_lcd_options, tvb, offset, 1, ENC_BIG_ENDIAN);
     ua3g_option_tree = proto_item_add_subtree(ua3g_option_item, ett_ua3g_option);
 
-    proto_tree_add_item(ua3g_option_tree, hf_ua3g_lcd_line_cmd_lcd_options_call_timer, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_option_tree, hf_ua3g_lcd_line_cmd_lcd_options_call_timer, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ua3g_option_tree, hf_ua3g_lcd_line_cmd_lcd_options_blink, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(ua3g_option_tree, hf_ua3g_lcd_line_cmd_lcd_options_call_timer_control, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(ua3g_option_tree, hf_ua3g_lcd_line_cmd_lcd_options_call_timer_display, tvb, offset, 1, ENC_NA);
@@ -1673,7 +1673,7 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     length--;
 
     if (command != 3)
-        proto_tree_add_item(ua3g_param_tree, hf_ua3g_lcd_line_cmd_starting_column, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_param_tree, hf_ua3g_lcd_line_cmd_starting_column, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
         proto_tree_add_text(ua3g_param_tree, tvb, offset, 1, "Unused");
 
@@ -1728,18 +1728,18 @@ decode_main_voice_mode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (!ua3g_body_tree)
         return;
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
     switch (mode) {
     case 0x06: /* Ringing */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_tune, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_tune, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_cadence, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_cadence, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
         }
@@ -1749,12 +1749,12 @@ decode_main_voice_mode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     case 0x04: /* Handsfree */
     case 0x05: /* Announce Loudspeaker */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_speaker_volume, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_speaker_volume, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
             if (length > 0) {
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_microphone_volume, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode_microphone_volume, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
         }
@@ -1816,8 +1816,8 @@ static void
 decode_subdevice_metastate(proto_tree *tree, tvbuff_t *tvb,
                packet_info *pinfo _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_ua3g_subdevice_metastate_subchannel_address, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_subdevice_metastate_new_metastate, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_metastate_subchannel_address, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_metastate_new_metastate, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -1834,12 +1834,12 @@ static void
 decode_dwl_dtmf_clck_format(proto_tree *tree, tvbuff_t *tvb,
                 packet_info *pinfo _U_, guint offset, guint length)
 {
-    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_minimum_on_time, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_inter_digit_pause_time, tvb, offset+1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_clock_time_format, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_minimum_on_time, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_inter_digit_pause_time, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_clock_time_format, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
     if (length > 2)
-        proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_dtmf_country_adaptation, tvb, offset+3, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_dwl_dtmf_clck_format_dtmf_country_adaptation, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -1870,7 +1870,7 @@ decode_set_clck(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     /* add text to the frame "INFO" column */
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(command, str_command_set_clck, "Unknown"));
 
-    proto_tree_add_item(tree, hf_ua3g_command_set_clck, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_command_set_clck, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
     call_timer = 0;
@@ -1931,13 +1931,13 @@ decode_voice_channel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_item(tree, hf_ua3g_voice_channel_codec, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_ua3g_voice_channel_voice_channel, tvb, offset, 1, ENC_NA);
     } else if (length == 2) {
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_main_voice, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_announce, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_main_voice, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_announce, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     } else if (length == 4) {
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_general, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_loud_speaker, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_ear_piece, tvb, offset+2, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_microphones, tvb, offset+3, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_general, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_loud_speaker, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_ear_piece, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_voice_channel_b_microphones, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1963,7 +1963,7 @@ decode_external_ringing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     /* add text to the frame "INFO" column */
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
 
-    proto_tree_add_item(tree, hf_ua3g_external_ringing_command, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_external_ringing_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -1978,7 +1978,7 @@ decode_lcd_cursor(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo, guint
     /* add text to the frame "INFO" column */
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", str_on_off_val);
 
-    proto_tree_add_item(tree, hf_ua3g_lcd_cursor_line_number, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_lcd_cursor_line_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ua3g_lcd_cursor, tvb, offset+1, 1, ENC_NA);
 }
 
@@ -1993,11 +1993,11 @@ decode_dwl_special_char(proto_tree *tree, tvbuff_t *tvb,
     int            i;
 
     while (length > 0) {
-        proto_tree_add_item(tree, hf_ua3g_dwl_special_char_character_number, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_dwl_special_char_character_number, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         length--;
         for (i = 1; i <= 8; i++) {
-            proto_tree_add_item(tree, hf_ua3g_dwl_special_char_byte, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_ua3g_dwl_special_char_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
         }
@@ -2015,10 +2015,10 @@ decode_set_clck_timer_pos(proto_tree *tree, tvbuff_t *tvb,
     if (!tree)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_clock_line_number, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_clock_column_number, tvb, offset+1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_call_timer_line_number, tvb, offset+2, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_call_timer_column_number, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_clock_line_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_clock_column_number, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_call_timer_line_number, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_set_clck_timer_pos_call_timer_column_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2035,8 +2035,8 @@ static void
 decode_set_lcd_contrast(proto_tree *tree, tvbuff_t *tvb,
             packet_info *pinfo _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_ua3g_set_lcd_contrast_driver_number, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_set_lcd_contrast_contrast_value, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_set_lcd_contrast_driver_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_set_lcd_contrast_contrast_value, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2098,7 +2098,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         /* add text to the frame "INFO" column */
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(command, str_command_beep, "Unknown"));
 
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_beep, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_beep, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         length--;
 
@@ -2108,7 +2108,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             {
                 int i =  0;
 
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_destination, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_destination, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -2144,7 +2144,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     "Destination: %s", wmem_strbuf_get_str(strbuf));
                 offset++;
 
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_beep_number, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_beep_number, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             }
         case 0x05:
@@ -2152,7 +2152,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 int i, nb_of_notes, beep_number;
 
                 beep_number = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_beep_number, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_beep_number, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -2162,7 +2162,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     beep_number = 0xFF;
 
                 nb_of_notes = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_number_of_notes, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_number_of_notes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -2183,7 +2183,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
                     }
-                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_terminator, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_terminator, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
                 }
@@ -2239,7 +2239,7 @@ decode_ringing_cadence(proto_tree *tree, tvbuff_t *tvb,
     if (!tree)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_ringing_cadence_cadence, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_ringing_cadence_cadence, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
@@ -2327,7 +2327,7 @@ decode_r_w_peripheral(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_ua3g_r_w_peripheral_address, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     if (length > 2) {
-        proto_tree_add_item(tree, hf_ua3g_r_w_peripheral_content, tvb, offset+2, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_r_w_peripheral_content, tvb, offset+2, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -2352,7 +2352,7 @@ decode_icon_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint o
     if (!tree)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_icon_cmd_icon_number, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_icon_cmd_icon_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     byte0 = tvb_get_guint8(tvb, offset+1);
     byte1 = tvb_get_guint8(tvb, offset+2);
@@ -2414,22 +2414,22 @@ decode_audio_config(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (!ua3g_body_tree)
         return;
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_audio_config, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_audio_config, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
     switch (command) {
     case 0x00: /* Audio Coding */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_ignored, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_law, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_ignored, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_law, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         break;
     case 0x01: /* DPI Channel Allocations */
 
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_ua_tx1, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_ua_tx2, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_gci_tx1, tvb, offset+2, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_gci_tx2, tvb, offset+3, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_cod_tx, tvb, offset+4, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_ua_tx1, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_ua_tx2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_gci_tx1, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_gci_tx2, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_dpi_chan_cod_tx, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         break;
     case 0x02: /* Loudspeaker Volume Adjust */
         {
@@ -2445,33 +2445,33 @@ decode_audio_config(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x03: /* Audio Circuit Configuration */
 
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dth, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dtr, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dtf, tvb, offset+2, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_str, tvb, offset+3, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ahp1, tvb, offset+4, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ahp2, tvb, offset+5, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ath, tvb, offset+6, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_atr, tvb, offset+7, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_atf, tvb, offset+8, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_alm, tvb, offset+9, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dth, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dtr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_dtf, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_str, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ahp1, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ahp2, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_ath, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_atr, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_atf, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_audio_circuit_alm, tvb, offset+9, 1, ENC_BIG_ENDIAN);
         break;
     case 0x04: /* Handsfree Parameters */
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_handsfree_return, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_handsfree_handsfree, tvb, offset, 1, ENC_NA);
         break;
     case 0x05: /* Loudspeaker Acoustic Parameters */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_group_listen, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_attenuation, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_stay_in_send, tvb, offset+2, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_shift_right_mtx, tvb, offset+3, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_shift_right_mrc, tvb, offset+4, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_idle_trans_threshold, tvb, offset+5, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_low_trans_threshold, tvb, offset+6, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_idle_recv_threshold, tvb, offset+7, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_low_recv_threshold, tvb, offset+8, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_med_recv_threshold, tvb, offset+9, 1, ENC_NA);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_high_recv_threshold, tvb, offset+10, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_group_listen, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_attenuation, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_stay_in_send, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_shift_right_mtx, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_shift_right_mrc, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_idle_trans_threshold, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_low_trans_threshold, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_idle_recv_threshold, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_low_recv_threshold, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_med_recv_threshold, tvb, offset+9, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_audio_config_loudspeaker_aco_param_handsfree_high_recv_threshold, tvb, offset+10, 1, ENC_BIG_ENDIAN);
         break;
     case 0x06: /* Device Configuration */
         {
@@ -2530,8 +2530,8 @@ static void
 decode_audio_padded_path(proto_tree *tree, tvbuff_t *tvb,
              packet_info *pinfo _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_ua3g_audio_padded_path_emission_padded_level, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_audio_padded_path_reception_padded_level, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_audio_padded_path_emission_padded_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_audio_padded_path_reception_padded_level, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2558,7 +2558,7 @@ decode_on_off_level(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (length > 1) {
         if (command == 0x01) {
-            proto_tree_add_item(tree, hf_ua3g_on_off_level_level_on_loudspeaker, tvb, offset+1, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_ua3g_on_off_level_level_on_loudspeaker, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -2585,12 +2585,12 @@ decode_ring(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset)
     proto_tree_add_item(tree, hf_ua3g_command_ring, tvb, offset, 1, ENC_NA);
 
     if (command == 0x01) {
-        proto_tree_add_item(tree, hf_ua3g_ring_melody, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_ring_cadence, tvb, offset+2, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_ring_speaker_level, tvb, offset+3, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_ring_beep_number, tvb, offset+4, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_ring_melody, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_ring_cadence, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_ring_speaker_level, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ua3g_ring_beep_number, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ua3g_ring_silent, tvb, offset+5, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_ua3g_ring_progressive, tvb, offset+5, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_ua3g_ring_progressive, tvb, offset+5, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -2695,15 +2695,15 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     /* add text to the frame "INFO" column */
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(command, str_command_ua_dwl_protocol, "Unknown"));
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_ua_dwl_protocol, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_ua_dwl_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
     switch (command) {
     case 0x00:  /* Downloading Suggest (MESSAGE FROM THE TERMINAL) */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_item_identifier, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_item_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_item_version_nc, tvb, offset+1, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_cause, tvb, offset+3, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_cause, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         break;
     case 0x01:  /* Downloading Request (MESSAGE FROM THE SYSTEM) */
         {
@@ -2713,12 +2713,12 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             };
 
             if (length > 7) { /* Not R1 */
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_force_mode, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_force_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
             }
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_item_identifier, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_item_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -2747,7 +2747,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_model_selection_c,
                         tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_model_selection_country_ver,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
                 ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Selection");
@@ -2760,9 +2760,9 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
                 ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Memory Sizes Required");
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_memory_sizes_flash,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_ua_dwl_protocol_memory_sizes_ext_ram,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
             } else { /* R1 */
@@ -2778,7 +2778,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x02:  /* Downloading Acknowledge (MESSAGE FROM THE TERMINAL) */
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_packet_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_download_ack_status, tvb, offset+2, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_download_ack_status, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         break;
     case 0x03:  /* Downloading Data (MESSAGE FROM THE SYSTEM) */
         {
@@ -2798,13 +2798,13 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
     case 0x05:  /* Downloading End Acknowledge (MESSAGE FROM THE TERMINAL) */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_packet_download_end_ack_ok_status, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_packet_download_end_ack_ok_status, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 0x06:  /* Downloading Iso Checksum (MESSAGE FROM THE SYSTEM) */
         proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_checksum, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case 0x07:  /* Downloading ISO Checksum Acknowledge (MESSAGE FROM THE TERMINAL) */
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_acknowledge, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_ua_dwl_protocol_acknowledge, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 0x04:  /* Downloading End (MESSAGE FROM THE SYSTEM) */
     default:
@@ -2819,7 +2819,7 @@ decode_ua_dwl_protocol(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 static void
 decode_digit_dialed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_ua3g_digit_dialed_digit_value, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_digit_dialed_digit_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2833,10 +2833,10 @@ decode_subdevice_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     if (!tree)
         return;
 
-    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdev_type, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdev_address, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdev_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdev_address, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdevice_opcode, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_subdevice_msg_subdevice_opcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     if (length > 2) {
         proto_tree_add_item(tree, hf_ua3g_subdevice_msg_parameter_bytes, tvb, offset+2, length-2, ENC_NA);
@@ -3033,20 +3033,20 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
     if (!ua3g_body_tree)
         return;
 
-    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_cs, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_cs, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
     switch (command) {
         case 0x00:
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd00_vta_type, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd00_characteristic_number, tvb, offset+1, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd00_vta_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd00_characteristic_number, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             break;
         case 0x01:
             {
                 int j = 0;
                 if (length == 1) {
-                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd01_incident_0, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd01_incident_0, tvb, offset, 1, ENC_BIG_ENDIAN);
                 } else {
                     while (length >0) {
                         j++;
@@ -3069,11 +3069,11 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                     "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_get_param_req_vals, "Unknown"));
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
-                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_length, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
 
@@ -3103,13 +3103,13 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                     case 0x09: /* Ethernet Drivers Config */
                         {
                             if (parameter_length == 2) {
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_NA);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                             } else if (parameter_length == 4) {
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_NA);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, tvb, offset+2, 1, ENC_NA);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_NA);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                             } else {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_value, tvb, offset, parameter_length, ENC_NA);
                             }
@@ -3145,7 +3145,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                         val_to_str_const(parameter_id, cs_ip_device_routing_03_parameter_id_tab_vals, "Unknown"));
                     ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
 
@@ -3156,7 +3156,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                     if (parameter_length > 0) {
                         switch (parameter_id) {
                         case 0x06: /* Type Of Equipment */
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_type_of_equip1, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_type_of_equip1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_type_of_equip2, tvb, offset, 2, ENC_BIG_ENDIAN);
                             break;
                         case 0x08: /* Local IP Address */
@@ -3216,13 +3216,13 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_8021Q_used, tvb, offset, 1, ENC_NA);
                             break;
                         case 0x2F: /* 802.1p Priority */
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_8021P_priority, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_8021P_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                             break;
                         case 0x30: /* VLAN Id */
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_vlan_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                             break;
                         case 0x31: /* DiffServ */
-                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_diffserv, tvb, offset, 1, ENC_NA);
+                            proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_diffserv, tvb, offset, 1, ENC_BIG_ENDIAN);
                             break;
                         case 0x3D: /* 200 ms BFI Distribution */
                             for (i = 0; i < parameter_length; i += 2) {
@@ -3388,7 +3388,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         /* add text to the frame "INFO" column */
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(command, str_command_unsolicited_msg, "Unknown"));
 
-        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_unsolicited_msg, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_unsolicited_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         length--;
     } else {
@@ -3403,7 +3403,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         {
             int link, vta_type;
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_device_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_device_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -3412,14 +3412,14 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             length -= 2;
 
             if (opcode != 0x21) {
-                proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_self_test_result, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_self_test_result, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 length--;
             }
 
             vta_type = tvb_get_guint8(tvb, offset);
 
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_vta_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_vta_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
@@ -3431,24 +3431,24 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 {
                     ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Characteristic Number");
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_char_num_vta_subtype,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_char_num_generation,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_char_num_design,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
-                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
 
                     ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Configuration");
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_vta_type,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_design,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_subtype,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
 
@@ -3469,31 +3469,31 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             default:
                 {
                     link = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information_1, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information_1, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     length--;
 
                     if (link == 0x00) {
-                        proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_hardware_version, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_hardware_version, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         length--;
 
                         ua3g_param_tree = proto_tree_add_subtree(ua3g_body_tree, tvb, offset, 1, ett_ua3g_param, NULL, "Hardware Configuration");
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_chip,
-                                tvb, offset, 1, ENC_NA);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_flash,
-                                tvb, offset, 1, ENC_NA);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_unsolicited_msg_hardware_config_config_ram,
-                                tvb, offset, 1, ENC_NA);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         length--;
                     } else {
-                        proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information_2, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information_2, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         length--;
 
                         proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_ip,
-                                tvb, offset, 1, ENC_NA);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         length--;
                     }
@@ -3529,7 +3529,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x02: /* Illegal Command Received */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_opcode_of_bad_command, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_opcode_of_bad_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             if (length > 1) {
                 proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_next_byte_of_bad_command, tvb, offset+1, length-1, ENC_NA);
@@ -3538,7 +3538,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x05: /* Subdevice Down */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_subdevice_address, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_subdevice_address, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         }
     case 0x06: /* Segment Failure */
@@ -3547,13 +3547,13 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_segment_failure_num, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_segment_failure_s, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_segment_failure_l, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_opcode_bad_segment, tvb, offset+1, 1, ENC_NA);
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_next_byte_of_bad_segment, tvb, offset+2, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_opcode_bad_segment, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_next_byte_of_bad_segment, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             break;
         }
     case 0x07: /* UA Device Event */
         {
-            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_device_event, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_device_event, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         }
     default:
@@ -3602,7 +3602,7 @@ decode_key_number(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 decode_i_m_here(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint offset)
 {
-    proto_tree_add_item(tree, hf_ua3g_i_m_here_id_code, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ua3g_i_m_here_id_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 

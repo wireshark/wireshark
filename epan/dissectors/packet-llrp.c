@@ -2332,7 +2332,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             param_tree = proto_item_add_subtree(ti, ett_llrp_param);
 
             proto_tree_add_item(param_tree, hf_llrp_tv_type, tvb,
-                    offset, 1, ENC_NA);
+                    offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             suboffset = offset;
@@ -2416,7 +2416,7 @@ dissect_llrp_impinj_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (Impinj - %s)",
             val_to_str_ext(subtype, &impinj_msg_subtype_ext, "Unknown Type: %d"));
-    proto_tree_add_item(tree, hf_llrp_impinj_msg_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_llrp_impinj_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     switch(subtype) {
@@ -2513,7 +2513,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 4;
             break;
         case LLRP_TYPE_GET_READER_CAPABILITIES:
-            proto_tree_add_item(tree, hf_llrp_req_cap, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_llrp_req_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             ends_with_parameters = TRUE;
             break;
@@ -2530,7 +2530,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             requested_data = tvb_get_guint8(tvb, offset);
             request_item = proto_tree_add_item(tree, hf_llrp_req_conf, tvb,
-                    offset, 1, ENC_NA);
+                    offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             gpi_port = tvb_get_ntohs(tvb, offset);
@@ -2608,12 +2608,12 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ends_with_parameters = TRUE;
             break;
         case LLRP_TYPE_SET_PROTOCOL_VERSION:
-            proto_tree_add_item(tree, hf_llrp_version, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_llrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case LLRP_TYPE_GET_SUPPORTED_VERSION_RESPONSE:
-            proto_tree_add_item(tree, hf_llrp_cur_ver, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_llrp_cur_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_llrp_sup_ver, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_llrp_sup_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             ends_with_parameters = TRUE;
             break;
@@ -2679,7 +2679,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     ti = proto_tree_add_item(tree, proto_llrp, tvb, offset, -1, ENC_NA);
     llrp_tree = proto_item_add_subtree(ti, ett_llrp);
 
-    proto_tree_add_item(llrp_tree, hf_llrp_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(llrp_tree, hf_llrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(llrp_tree, hf_llrp_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 

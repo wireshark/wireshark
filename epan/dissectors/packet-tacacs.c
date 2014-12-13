@@ -424,15 +424,15 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 {
 	int val;
 	/* priv_lvl */
-	proto_tree_add_item(tree, hf_tacplus_privilege_level, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_privilege_level, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* authen_type */
-	proto_tree_add_item(tree, hf_tacplus_authentication_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_authentication_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* service */
-	proto_tree_add_item(tree, hf_tacplus_service, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_service, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* user_len && user */
@@ -474,25 +474,25 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 	switch ( tvb_get_guint8(tvb, AUTHEN_S_AUTHEN_TYPE_OFF ) ) { /* authen_type */
 
 		case TAC_PLUS_AUTHEN_TYPE_ASCII:
-			proto_tree_add_item(tree, hf_tacplus_ascii_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_ascii_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val )
 				proto_tree_add_item( tree, hf_tacplus_data, tvb, var_off, val, ENC_NA);
 			break;
 
 		case TAC_PLUS_AUTHEN_TYPE_PAP:
-			proto_tree_add_item(tree, hf_tacplus_password_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_password_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree_add_item(tree, hf_tacplus_auth_password, tvb, var_off, val, ENC_ASCII|ENC_NA);
 			}
 			break;
 
 		case TAC_PLUS_AUTHEN_TYPE_CHAP:
-			proto_tree_add_item(tree, hf_tacplus_chap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_chap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
 				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "CHAP Data" );
-				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
 				proto_tree_add_item(pt, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
@@ -500,12 +500,12 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
-			proto_tree_add_item(tree, hf_tacplus_mschap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_mschap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
 				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "MSCHAP Data" );
-				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
 				proto_tree_add_item(pt, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
@@ -513,7 +513,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
-			proto_tree_add_item(tree, hf_tacplus_arap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_arap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "ARAP Data" );
@@ -526,7 +526,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			break;
 
 		default: /* Should not be reached */
-			proto_tree_add_item(tree, hf_tacplus_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_tacplus_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ){
 				proto_tree_add_item( tree, hf_tacplus_data, tvb, var_off, val, ENC_NA);
 			}
@@ -541,7 +541,7 @@ dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 
 	/* Action */
 	val=tvb_get_guint8( tvb, AUTHEN_S_ACTION_OFF );
-	proto_tree_add_item(tree, hf_tacplus_authen_action, tvb, AUTHEN_S_ACTION_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_authen_action, tvb, AUTHEN_S_ACTION_OFF, 1, ENC_BIG_ENDIAN);
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
 
 	switch( val ) {
@@ -561,7 +561,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	proto_item* ti;
 
 	val=tvb_get_guint8( tvb, AUTHEN_C_FLAGS_OFF );
-	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_flags, tvb, AUTHEN_C_FLAGS_OFF, 1, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_flags, tvb, AUTHEN_C_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 	if (val&TAC_PLUS_CONTINUE_FLAG_ABORT)
 		proto_item_append_text(ti, "(Abort)");
 
@@ -588,10 +588,10 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	int var_off=AUTHEN_R_VARDATA_OFF;
 	proto_item* ti;
 
-	proto_tree_add_item(tree, hf_tacplus_body_authen_rep_status, tvb, AUTHEN_R_STATUS_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_body_authen_rep_status, tvb, AUTHEN_R_STATUS_OFF, 1, ENC_BIG_ENDIAN);
 
 	val=tvb_get_guint8( tvb, AUTHEN_R_FLAGS_OFF );
-	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_rep_flags, tvb, AUTHEN_R_FLAGS_OFF, 1, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_rep_flags, tvb, AUTHEN_R_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 	if (val&TAC_PLUS_REPLY_FLAG_NOECHO)
 		proto_item_append_text(ti, "(NoEcho)");
 
@@ -616,14 +616,14 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 	int val;
 	int var_off;
 
-	proto_tree_add_item(tree, hf_tacplus_body_author_req_auth_method, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_body_author_req_auth_method, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, ENC_BIG_ENDIAN);
 
 	val = tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
 			AUTHOR_Q_PRIV_LVL_OFF,
 			AUTHOR_Q_VARDATA_OFF + val);
 
-	proto_tree_add_item(tree, hf_tacplus_body_author_req_arg_count, tvb, AUTHOR_Q_ARGC_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_body_author_req_arg_count, tvb, AUTHOR_Q_ARGC_OFF, 1, ENC_BIG_ENDIAN);
 
 /* var_off points after rem_addr */
 
@@ -636,7 +636,7 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 	int offset=AUTHOR_R_VARDATA_OFF;
 	int val;
 
-	proto_tree_add_item(tree, hf_tacplus_body_author_rep_auth_status, tvb, AUTHOR_R_STATUS_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_auth_status, tvb, AUTHOR_R_STATUS_OFF, 1, ENC_BIG_ENDIAN);
 
 	val=tvb_get_ntohs( tvb, AUTHOR_R_SRV_MSG_LEN_OFF );
 	offset+=val;
@@ -648,7 +648,7 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 
 	val=tvb_get_guint8( tvb, AUTHOR_R_ARGC_OFF);
 	offset+=val;
-	proto_tree_add_item(tree, hf_tacplus_body_author_rep_arg_count, tvb, AUTHOR_R_ARGC_OFF, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_arg_count, tvb, AUTHOR_R_ARGC_OFF, 1, ENC_BIG_ENDIAN);
 
 	dissect_tacplus_args_list( tvb, tree, offset, AUTHOR_R_VARDATA_OFF, val );
 }

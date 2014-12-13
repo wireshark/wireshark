@@ -208,9 +208,9 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(skype_tree, hf_skype_som_unk, tvb, offset, 1,
-			ENC_NA);
+			ENC_BIG_ENDIAN);
 		proto_tree_add_item(skype_tree, hf_skype_som_type, tvb, offset, 1,
-			ENC_NA);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		/* Body dissection */
@@ -234,7 +234,7 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case SKYPE_TYPE_FFR:
 			proto_tree_add_item(skype_tree, hf_skype_ffr_num, tvb, offset, 1,
-				ENC_NA);
+				ENC_BIG_ENDIAN);
 			offset += 1;
 			proto_tree_add_item(skype_tree, hf_skype_ffr_unk1, tvb, offset, 4,
 				ENC_BIG_ENDIAN);

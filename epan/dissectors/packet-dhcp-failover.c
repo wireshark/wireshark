@@ -589,7 +589,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    htype_str);
 
 			proto_tree_add_item(option_tree, hf_dhcpfo_client_hw_type, tvb,
-				offset, 1, ENC_NA);
+				offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_string(option_tree, hf_dhcpfo_client_hardware_address, tvb,
 				offset+1, option_length-1, htype_str);
 			break;

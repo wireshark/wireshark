@@ -791,10 +791,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_nxt, tvb,
-                            offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1, ENC_NA);
+                            offset + (int)offsetof(struct ip6_rthdr, ip6r_nxt), 1, ENC_BIG_ENDIAN);
 
         ti_len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_length, tvb,
-                                     offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1, ENC_NA);
+                                     offset + (int)offsetof(struct ip6_rthdr, ip6r_len), 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_type, tvb,
@@ -1048,10 +1048,10 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 
         unkopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_item(unkopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(unkopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_len = proto_tree_add_item(unkopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_NA);
+        ti_len = proto_tree_add_item(unkopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
         /* offset += 1; */
     }
@@ -1076,10 +1076,10 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
         dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_item(dstopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(dstopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_len = proto_tree_add_item(dstopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_NA);
+        ti_len = proto_tree_add_item(dstopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
         offset += 1;
 
@@ -1195,12 +1195,12 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 guint8 rate = command & QS_RATE_MASK;
                 guint8 ttl_diff;
 
-                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 if (function == QS_RATE_REQUEST) {
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
                     ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
                     ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff,
                                                           tvb, offset, 1, ttl_diff);
@@ -1213,11 +1213,11 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                     proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 } else if (function == QS_RATE_REPORT) {
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                     proto_item_append_text(ti_opt, ", %s",
                                            val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
-                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                     proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);

@@ -2194,7 +2194,7 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
         nal_unit_size = tvb_get_ntohs(tvb, offset);
         size_offset = offset;
         offset += 2;
-        proto_tree_add_item(tree, hf_h264_dond, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_h264_dond, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         if (nal_type == H264_MTAP16)
@@ -2249,7 +2249,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     j_flag  = tvb_get_bits8(tvb, bit_offset+5, 1);
 
     /* NAL Header Extension Decoding */
-    proto_tree_add_item(tree, hf_h264_nal_extension_subtype, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_h264_nal_extension_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_h264_nal_extension_j, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_h264_nal_extension_k, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_h264_nal_extension_l, tvb, offset, 1, ENC_NA);

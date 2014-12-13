@@ -375,10 +375,10 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   /* Flags */
   proto_tree_add_item(ws_tree, hf_ws_fin, tvb, 0, 1, ENC_NA);
   fin = (tvb_get_guint8(tvb, 0) & MASK_WS_FIN) >> 4;
-  proto_tree_add_item(ws_tree, hf_ws_reserved, tvb, 0, 1, ENC_NA);
+  proto_tree_add_item(ws_tree, hf_ws_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 
   /* Opcode */
-  proto_tree_add_item(ws_tree, hf_ws_opcode, tvb, 0, 1, ENC_NA);
+  proto_tree_add_item(ws_tree, hf_ws_opcode, tvb, 0, 1, ENC_BIG_ENDIAN);
   opcode = tvb_get_guint8(tvb, 0) & MASK_WS_OPCODE;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(opcode, ws_opcode_vals, "Unknown Opcode"));
   col_append_str(pinfo->cinfo, COL_INFO, fin ? " [FIN]" : " ");
@@ -388,7 +388,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   col_append_str(pinfo->cinfo, COL_INFO, mask ? " [MASKED]" : " ");
 
   /* (Extended) Payload Length */
-  ti_len = proto_tree_add_item(ws_tree, hf_ws_payload_length, tvb, 1, 1, ENC_NA);
+  ti_len = proto_tree_add_item(ws_tree, hf_ws_payload_length, tvb, 1, 1, ENC_BIG_ENDIAN);
   if (short_length == 126) {
     proto_item_append_text(ti_len, " Extended Payload Length (16 bits)");
     proto_tree_add_item(ws_tree, hf_ws_payload_length_ext_16, tvb, 2, 2, ENC_BIG_ENDIAN);

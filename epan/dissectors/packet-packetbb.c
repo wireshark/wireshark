@@ -672,7 +672,7 @@ static int dissect_pbb_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   proto_tree_add_uint(header_tree, hf_packetbb_version, tvb, 0, 1, packet_flags >> 4);
 
   /* flags */
-  headerFlags_item = proto_tree_add_item(header_tree, hf_packetbb_header_flags, tvb, 0, 1, ENC_NA);
+  headerFlags_item = proto_tree_add_item(header_tree, hf_packetbb_header_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
 
   headerFlags_tree = proto_item_add_subtree(headerFlags_item, ett_packetbb_header_flags);
   proto_tree_add_item(headerFlags_tree, hf_packetbb_header_flags_phasseqnum, tvb, 0, 1, ENC_NA);

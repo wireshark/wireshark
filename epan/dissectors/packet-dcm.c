@@ -4992,7 +4992,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     proto_item_set_text(assoc_item_extneg_item, "Ext. Neg.: ");
     assoc_item_extneg_tree = proto_item_add_subtree(assoc_item_extneg_item, ett_assoc_info_extneg);
 
-    proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
@@ -5031,7 +5031,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
         }
 
         /* Support for Relational queries. */
-        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_relational_query, tvb, offset+6+sop_class_uid_len, 1, ENC_NA);
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_relational_query, tvb, offset+6+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
         --cnt;
     }
 
@@ -5046,7 +5046,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
         }
 
         /* Combined Date-Time matching. */
-        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_date_time_matching, tvb, offset+7+sop_class_uid_len, 1, ENC_NA);
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_date_time_matching, tvb, offset+7+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
         --cnt;
 
         if (cnt<=0)
@@ -5055,7 +5055,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
         }
 
         /* Fuzzy semantic matching of person names. */
-        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_fuzzy_semantic_matching, tvb, offset+8+sop_class_uid_len, 1, ENC_NA);
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_fuzzy_semantic_matching, tvb, offset+8+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
         --cnt;
 
         if (cnt<=0)
@@ -5064,7 +5064,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
         }
 
         /* Timezone query adjustment. */
-        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_timezone_query_adjustment, tvb, offset+9+sop_class_uid_len, 1, ENC_NA);
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_timezone_query_adjustment, tvb, offset+9+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
         --cnt;
     }
 }
@@ -5094,7 +5094,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_item_set_text(assoc_item_rolesel_item, "Role Selection: ");
     assoc_item_rolesel_tree = proto_item_add_subtree(assoc_item_rolesel_item, ett_assoc_info_rolesel);
 
-    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
@@ -5127,8 +5127,8 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
     proto_tree_add_string(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid, tvb, offset+6, sop_class_uid_len, buf_desc);
 
-    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scurole, tvb, offset+6+sop_class_uid_len, 1, ENC_NA);
-    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scprole, tvb, offset+7+sop_class_uid_len, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scurole, tvb, offset+6+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scprole, tvb, offset+7+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -5149,7 +5149,7 @@ dissect_dcm_assoc_async_negotiation(tvbuff_t *tvb, proto_tree *tree, guint32 off
     proto_item_set_text(assoc_item_asyncneg_item, "Async Negotiation: ");
     assoc_item_asyncneg_tree = proto_item_add_subtree(assoc_item_asyncneg_item, ett_assoc_info_async_neg);
 
-    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_info_async_neg_max_num_ops_inv, tvb, offset+4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_info_async_neg_max_num_ops_per, tvb, offset+6, 2, ENC_BIG_ENDIAN);

@@ -184,7 +184,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
 
         proto_tree_add_item(map_tree, hf_auto_rp_rp_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_uint(map_tree, hf_auto_rp_group_num, tvb, offset, 1, group_count);
         offset++;

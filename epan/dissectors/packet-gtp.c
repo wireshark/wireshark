@@ -4001,7 +4001,7 @@ decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
         proto_tree_add_item(ext_tree_quint, hf_gtp_rand, tvb, offset + q_offset, 16, ENC_NA);
         q_offset = q_offset + 16;
         xres_len = tvb_get_guint8(tvb, offset + q_offset);
-        proto_tree_add_item(ext_tree_quint, hf_gtp_xres_length, tvb, offset + q_offset, 1, ENC_NA);
+        proto_tree_add_item(ext_tree_quint, hf_gtp_xres_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN);
         q_offset++;
         proto_tree_add_item(ext_tree_quint, hf_gtp_xres, tvb, offset + q_offset, xres_len, ENC_NA);
         q_offset = q_offset + xres_len;
@@ -4010,7 +4010,7 @@ decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
         proto_tree_add_item(ext_tree_quint, hf_gtp_quintuplet_integrity_key, tvb, offset + q_offset, 16, ENC_NA);
         q_offset = q_offset + 16;
         auth_len = tvb_get_guint8(tvb, offset + q_offset);
-        proto_tree_add_item(ext_tree_quint, hf_gtp_authentication_length, tvb, offset + q_offset, 1, ENC_NA);
+        proto_tree_add_item(ext_tree_quint, hf_gtp_authentication_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN);
         q_offset++;
         proto_tree_add_item(ext_tree_quint, hf_gtp_auth, tvb, offset + q_offset, auth_len, ENC_NA);
 
@@ -4808,8 +4808,8 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     proto_tree_add_item(ext_tree_pdp, hf_gtp_vplmn_address_allowed, tvb, offset + 3, 1, ENC_NA);
     proto_tree_add_item(ext_tree_pdp, hf_gtp_activity_status_indicator, tvb, offset + 3, 1, ENC_NA);
     proto_tree_add_item(ext_tree_pdp, hf_gtp_reordering_required, tvb, offset + 3, 1, ENC_NA);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_nsapi, tvb, offset + 3, 1, ENC_NA);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_cntxt_sapi, tvb, offset + 4, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_nsapi, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_cntxt_sapi, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
     switch (gtp_version) {
     case 0:
@@ -4830,8 +4830,8 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     proto_tree_add_item(ext_tree_pdp, hf_gtp_sequence_number_down, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree_pdp, hf_gtp_sequence_number_up, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_send_n_pdu_number, tvb, offset + 4, 1, ENC_NA);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_receive_n_pdu_number, tvb, offset + 5, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_send_n_pdu_number, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_receive_n_pdu_number, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
 
     switch (gtp_version) {
     case 0:
@@ -4841,7 +4841,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     case 1:
         proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_cp,   tvb, offset + 6, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_data, tvb, offset + 10, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_context_identifier, tvb, offset + 14, 1, ENC_NA);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_context_identifier, tvb, offset + 14, 1, ENC_BIG_ENDIAN);
         offset = offset + 15;
         break;
     default:
@@ -4851,9 +4851,9 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     pdp_type_num = tvb_get_guint8(tvb, offset + 1);
     pdp_addr_len = tvb_get_guint8(tvb, offset + 2);
 
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_organization, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_type, tvb, offset + 1, 1, ENC_NA);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_address_length, tvb, offset + 2, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_organization, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_address_length, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
     if (pdp_addr_len > 0) {
         switch (pdp_type_num) {
@@ -4871,7 +4871,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     offset = offset + 3 + pdp_addr_len;
 
     ggsn_addr_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     switch (ggsn_addr_len) {
     case 4:
@@ -4889,7 +4889,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     if (gtp_version == 1) {
 
         ggsn_addr_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_length, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_2_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch (ggsn_addr_len) {
         case 4:
@@ -4906,7 +4906,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     }
 
     apn_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_apn_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_pdp, hf_gtp_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     decode_apn(tvb, offset + 1, apn_len, ext_tree_pdp, NULL);
 
     offset = offset + 1 + apn_len;
@@ -4926,8 +4926,8 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         pdp_type_num = tvb_get_guint8(tvb, offset);
         pdp_addr_len = tvb_get_guint8(tvb, offset + 1);
 
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_type, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_address_length, tvb, offset + 1, 1, ENC_NA);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_pdp_address_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
         if (pdp_addr_len > 0) {
             switch (pdp_type_num) {
@@ -4962,7 +4962,7 @@ decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     ext_tree_apn = proto_tree_add_subtree(tree, tvb, offset, length + 3, ett_gtp_ies[GTP_EXT_APN], &te,
                                 val_to_str_ext_const(GTP_EXT_APN, &gtp_val_ext, "Unknown field"));
 
-    proto_tree_add_item(ext_tree_apn, hf_gtp_apn_length, tvb, offset + 1, 2, ENC_NA);
+    proto_tree_add_item(ext_tree_apn, hf_gtp_apn_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
     decode_apn(tvb, offset + 3, length, ext_tree_apn, te);
 
     return 3 + length;
@@ -5122,7 +5122,7 @@ decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_rand, tvb, offset, 16, ENC_NA);
     offset = offset + 16;
     xres_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_xres_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_gtp_xres_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_xres, tvb, offset, xres_len, ENC_NA);
     offset = offset + xres_len;
@@ -5131,7 +5131,7 @@ decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_quintuplet_integrity_key, tvb, offset, 16, ENC_NA);
     offset = offset + 16;
     auth_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_authentication_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_gtp_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_auth, tvb, offset, auth_len, ENC_NA);
 
@@ -5174,7 +5174,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
 
     for (i = 0; i < no_packet_filters; i++) {
 
-        tee = proto_tree_add_item(ext_tree_tft, hf_gtp_tft_packet_filter_id, tvb, offset, 1, ENC_NA);
+        tee = proto_tree_add_item(ext_tree_tft, hf_gtp_tft_packet_filter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         ext_tree_tft_pf = proto_item_add_subtree(tee, ett_gtp_tft_pf);
         offset++;
 
@@ -5184,7 +5184,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
             pf_len = tvb_get_guint8(tvb, offset + 1);
 
             proto_tree_add_uint(ext_tree_tft_pf, hf_gtp_tft_eval, tvb, offset, 1, pf_eval);
-            proto_tree_add_item(ext_tree_tft_pf, hf_gtp_tft_content_length, tvb, offset + 1, 1, ENC_NA);
+            proto_tree_add_item(ext_tree_tft_pf, hf_gtp_tft_content_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
             offset = offset + 2;
             pf_offset = 0;
@@ -5192,7 +5192,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
             while (pf_offset < pf_len) {
 
                 pf_content_id = tvb_get_guint8(tvb, offset + pf_offset);
-                pf_item = proto_tree_add_item(ext_tree_tft_pf, hf_gtp_tft_content_id, tvb, offset + pf_offset, 1, ENC_NA);
+                pf_item = proto_tree_add_item(ext_tree_tft_pf, hf_gtp_tft_content_id, tvb, offset + pf_offset, 1, ENC_BIG_ENDIAN);
 
                 switch (pf_content_id) {
                     /* address IPv4 and mask = 8 bytes */
@@ -7684,12 +7684,12 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 
     /* Octet 4 Number of Data Records */
     no = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_number_of_data_records, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_gtp_number_of_data_records, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Octet 5 Data Record Format */
     format   = tvb_get_guint8(tvb, offset);
-    fmt_item = proto_tree_add_item(ext_tree, hf_gtp_data_record_format, tvb, offset, 1, ENC_NA);
+    fmt_item = proto_tree_add_item(ext_tree, hf_gtp_data_record_format, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* The value range is 1-255 in decimal. The value '0' should not be used.
      * Only the values 1-10 and 51-255 can be used for standards purposes.
@@ -9362,7 +9362,7 @@ proto_register_gtp(void)
       { &hf_gtp_ggsn_2_address_length, { "GGSN 2 address length", "gtp.ggsn_2_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ggsn_2_address_ipv4, { "GGSN 2 address", "gtp.ggsn_2_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_ggsn_2_address_ipv6, { "GGSN 2 address", "gtp.ggsn_2_address.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_apn_length, { "APN length", "gtp.apn_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_apn_length, { "APN length", "gtp.apn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_transaction_identifier, { "Transaction identifier", "gtp.transaction_identifier", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_gsn_address_length, { "GSN address length", "gtp.gsn_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_gsn_address_information_element_length, { "GSN address Information Element length", "gtp.gsn_address_information_element_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

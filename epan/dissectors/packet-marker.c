@@ -99,7 +99,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Version Number */
         proto_tree_add_item(marker_tree, hf_marker_version_number, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         while (1)
@@ -116,7 +116,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* TLV Length */
             proto_tree_add_item(marker_tree, hf_marker_tlv_length, tvb,
-                    offset, 1, ENC_NA);
+                    offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             /* Requester Port */

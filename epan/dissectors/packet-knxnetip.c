@@ -990,7 +990,7 @@ static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
                         break;
                     case(A_AUTHORIZE_RES):
                     case(A_KEY_RES):
-                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_level, tvb, *offset, 1, ENC_NA);
+                        proto_tree_add_item(insert_tree, hf_knxnetip_cemi_apci_level, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset+=1;
                         break;
                     case(A_PROPVALUE_RED):

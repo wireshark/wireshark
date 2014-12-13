@@ -1017,65 +1017,65 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x01:	/* command details */
 			if (len < 3)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_cmd_nr, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_cmd_nr, tvb, pos, 1, ENC_BIG_ENDIAN);
 			if (tvb_get_guint8(tvb, pos) == 0x40) {
 				ims_event = TRUE;
 				dns_server = TRUE;
 			}
-			proto_tree_add_item(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			/* append command type to INFO column */
 			g8 = tvb_get_guint8(tvb, pos+1);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str_ext(g8, &cmd_type_vals_ext, "%02x "));
 			switch (g8) {
 			case 0x01:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x13:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_NA);
 				sms_data.stk_packing_required = tvb_get_guint8(tvb, pos+2) & 0x01 ? TRUE : FALSE;
 				break;
 			case 0x26:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x27:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x43:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_NA);
 				break;
 			default:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_BIG_ENDIAN);
 				break;
 			}
 			break;
 		case 0x02:	/* device identity */
 			if (len < 2)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_devid_src, tvb, pos, 1, ENC_NA);
-			proto_tree_add_item(elem_tree, hf_ctlv_devid_dst, tvb, pos+1, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_devid_src, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(elem_tree, hf_ctlv_devid_dst, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x03:	/* Result */
 			g8 = tvb_get_guint8(tvb, pos);
-			proto_tree_add_item(elem_tree, hf_ctlv_result_gen, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_result_gen, tvb, pos, 1, ENC_BIG_ENDIAN);
 			switch (g8) {
 			case 0x20:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_term, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_term, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x26:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_launch_browser, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_launch_browser, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x38:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_multiplecard, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_multiplecard, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x39:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_cc_ctrl_mo_sm_ctrl, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_cc_ctrl_mo_sm_ctrl, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x3a:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_bip, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_bip, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x3c:
-				proto_tree_add_item(elem_tree, hf_ctlv_result_frames_cmd, tvb, pos+1, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_result_frames_cmd, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 				break;
 			default:
 				break;
@@ -1084,8 +1084,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x04:	/* Duration */
 			if (len < 2)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_intv, tvb, pos+1, 1, ENC_NA);
-			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_unit, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_intv, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_unit, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x05:	/* alpha identifier */
 			break;
@@ -1112,7 +1112,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			if (len == 0)
 				break;
 			/* 1st byte: encoding */
-			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_BIG_ENDIAN);
 			g8 = tvb_get_guint8(tvb, pos);
 			switch (g8 & 0xf0) {
 			case 0x00:
@@ -1142,7 +1142,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x0e:	/* tone */
 			if (len < 1)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_tone, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_tone, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x13:	/* location information */
 			/* MCC/MNC / LAC / CellID */
@@ -1172,7 +1172,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x1b:	/* location status */
 			for (i = 0; i < len; i++)
-				proto_tree_add_item(elem_tree, hf_ctlv_loc_status, tvb, pos+i, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_loc_status, tvb, pos+i, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x25:	/* timer value */
 			{
@@ -1220,8 +1220,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII|ENC_NA);
 			break;
 		case 0x2e:	/* Timing Advance */
-			proto_tree_add_item(elem_tree, hf_ctlv_me_status, tvb, pos, 1, ENC_NA);
-			proto_tree_add_item(elem_tree, hf_ctlv_timing_adv, tvb, pos+1, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_me_status, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(elem_tree, hf_ctlv_timing_adv, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x2f:	/* AID */
 			{
@@ -1246,7 +1246,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x32:	/* bearer */
 			for (i = 0; i < len; i++)
-				proto_tree_add_item(elem_tree, hf_ctlv_bearer, tvb, pos+i, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer, tvb, pos+i, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x35:	/* bearer description */
 			g8 = tvb_get_guint8(tvb, pos);
@@ -1299,7 +1299,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x3c:	/* UICC/terminal interface transport level */
 			if (len < 3)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_transport_ptype, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_transport_ptype, tvb, pos, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(elem_tree, hf_ctlv_transport_port, tvb, pos+1, 2, ENC_BIG_ENDIAN);
 			break;
 		case 0x3e:	/* other address */
@@ -1318,7 +1318,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x3f:	/* access technology */
 			for (i = 0; i < len; i++)
-				proto_tree_add_item(elem_tree, hf_ctlv_access_tech, tvb, pos+i, 1, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_access_tech, tvb, pos+i, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x40:	/* Display parameters / DNS server address */
 			if (dns_server) {
@@ -1340,13 +1340,13 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			de_sm_apn(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
-			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x73:	/* Routing Area Information */
 			de_gmm_rai(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
 		case 0x74:	/* Update/Attach Type */
-			proto_tree_add_item(elem_tree, hf_ctlv_upd_attach_type, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_upd_attach_type, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x76:	/* Geographical Location Parameters / IARI */
 			if (ims_event) {
@@ -1380,7 +1380,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			break;
 		case 0x7a:/* Broadcast Network Information */
-			proto_tree_add_item(elem_tree, hf_ctlv_broadcast_nw_tech, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_broadcast_nw_tech, tvb, pos, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(elem_tree, hf_ctlv_broadcast_nw_loc_info, tvb, pos+1, len-1, ENC_NA);
 			break;
 		case 0x7c:	/* EPS PDN connection activation parameters */

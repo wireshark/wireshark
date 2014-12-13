@@ -157,7 +157,7 @@ static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
     proto_tree_add_item(class_tree, hf_generic_rateinfo_currentlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
     proto_tree_add_item(class_tree, hf_generic_rateinfo_maxlevel, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
     proto_tree_add_item(class_tree, hf_generic_rateinfo_lasttime, tvb, offset, 4, ENC_BIG_ENDIAN);offset+=4;
-    proto_tree_add_item(class_tree, hf_generic_rateinfo_curstate, tvb, offset, 1, ENC_NA);offset+=1;
+    proto_tree_add_item(class_tree, hf_generic_rateinfo_curstate, tvb, offset, 1, ENC_BIG_ENDIAN);offset+=1;
     return offset;
 }
 

@@ -551,13 +551,13 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case TYPE_HELLO_CLUSTER_MGMT:
                     proto_tree_add_item(tlv_tree, hf_cdp_cluster_master_ip, tvb, offset+9, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_cdp_cluster_ip, tvb, offset+13, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_version, tvb, offset+17, 1, ENC_NA);
-                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_sub_version, tvb, offset+18, 1, ENC_NA);
-                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_status, tvb, offset+19, 1, ENC_NA);
-                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_unknown, tvb, offset+20, 1, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_version, tvb, offset+17, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_sub_version, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_status, tvb, offset+19, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_unknown, tvb, offset+20, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_cdp_cluster_commander_mac, tvb, offset+21, 6, ENC_NA);
                     proto_tree_add_item(tlv_tree, hf_cdp_cluster_switch_mac, tvb, offset+27, 6, ENC_NA);
-                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_unknown, tvb, offset+33, 1, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_cdp_cluster_unknown, tvb, offset+33, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_cdp_cluster_management_vlan, tvb, offset+34, 2, ENC_BIG_ENDIAN);
                     break;
                 default:
@@ -689,7 +689,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            tvb_get_guint8(tvb, offset + 4));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cdp_trust_bitmap, tvb, offset + 4, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_cdp_trust_bitmap, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             }
             offset += length;
             break;
@@ -701,7 +701,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            tvb_get_guint8(tvb, offset + 4));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cdp_untrusted_port_cos, tvb, offset + 4, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_cdp_untrusted_port_cos, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             }
             offset += length;
             break;
@@ -764,7 +764,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            tvb_format_text(tvb, offset + 5, length - 5));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cdp_location_unknown, tvb, offset + 4, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_cdp_location_unknown, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_location, tvb, offset + 5, length - 5, ENC_NA|ENC_ASCII);
             }
             offset += length;
@@ -1075,14 +1075,14 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
         return -1;
     address_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_cdp_address, &ti, "Truncated address");
     protocol_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(address_tree, hf_cdp_protocol_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(address_tree, hf_cdp_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
     if (length < 1)
         return -1;
     protocol_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(address_tree, hf_cdp_protocol_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(address_tree, hf_cdp_protocol_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 

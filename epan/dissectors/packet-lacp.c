@@ -163,13 +163,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Actor Type */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_actor_type, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Actor Info Length */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_actor_info_len, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Actor System Priority */
@@ -285,13 +285,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Partner Type */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_partner_type, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Partner Info Length */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_partner_info_len, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Partner System Priority */
@@ -407,13 +407,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Collector Type */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_coll_type, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Collector Info Length */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_coll_info_len, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Collector Max Delay */
@@ -431,13 +431,13 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Terminator Type */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_term_type, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Terminator Info Length */
 
         proto_tree_add_item(lacpdu_tree, hf_lacp_term_len, tvb,
-                offset, 1, ENC_NA);
+                offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* Terminator Reserved */

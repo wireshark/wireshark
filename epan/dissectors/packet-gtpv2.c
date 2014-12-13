@@ -2488,7 +2488,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 
     /* (m+10) EPS Bearer ID Number = k */
     k = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_eps_bearer_id_number, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_eps_bearer_id_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* (m+11) to (m+10+k)
@@ -2516,7 +2516,7 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     offset += 1;
     /* 6 Serving GW Address Length = m */
     m = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_serving_gw_address_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_serving_gw_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* 7 to (m+6) Serving GW Address [4..16] */
     switch (m) {
@@ -3679,7 +3679,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_item(tree, hf_gtpv2_mm_context_nh, tvb, offset, 32, ENC_NA);
         offset += 32;
 
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_ncc, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_ncc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
@@ -3836,7 +3836,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int         offset = 0;
 
     nsapi = (tvb_get_guint8(tvb, offset) & 0x08);
-    nsapi_ti = proto_tree_add_item(tree, hf_gtpv2_nsapi08, tvb, offset, 1, ENC_NA);
+    nsapi_ti = proto_tree_add_item(tree, hf_gtpv2_nsapi08, tvb, offset, 1, ENC_BIG_ENDIAN);
     nsapi_tree = proto_item_add_subtree(nsapi_ti, ett_gtpv2_pdn_numbers_nsapi);
     proto_tree_add_bits_item(nsapi_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(nsapi_tree, hf_gtpv2_pdn_numbers_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3893,7 +3893,7 @@ dissect_gtpv2_hop_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     hop_counter = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(tree, hf_gtpv2_hop_counter, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_hop_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%d", hop_counter);
 }
 

@@ -278,7 +278,7 @@ dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset
   proto_item *ti;
   proto_tree *osi_qos_tree;
 
-  ti = proto_tree_add_item(tree, hf_osi_options_qos_maintenance, tvb, offset, 1, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_osi_options_qos_maintenance, tvb, offset, 1, ENC_BIG_ENDIAN);
   osi_qos_tree = proto_item_add_subtree(ti, ott_osi_qos);
 
   if ( ((qos & OSI_OPT_QOS_MASK) >> 6) == OSI_OPT_QOS_GLOBAL_UNIQUE) { /* Analye BIT field to get all Values */
@@ -364,34 +364,34 @@ static void
 dissect_option_rfd(const guchar error, const guchar field, int offset,
                    guchar len, tvbuff_t *tvb, proto_tree *tree )
 {
-  proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_osi_options_rfd_error_class, tvb, offset + field, 1, ENC_BIG_ENDIAN);
 
   switch ((error & OSI_OPT_RFD_MASK) >> 4)
   {
   case OSI_OPT_RFD_GENERAL:
-    proto_tree_add_item(tree, hf_osi_options_rtd_general, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_general, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_ADDRESS:
-    proto_tree_add_item(tree, hf_osi_options_rtd_address, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_address, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_SOURCE_ROUTING:
-    proto_tree_add_item(tree, hf_osi_options_rtd_source_routing, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_source_routing, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_LIFETIME:
-    proto_tree_add_item(tree, hf_osi_options_rtd_lifetime, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_lifetime, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_PDU_DISCARDED:
-    proto_tree_add_item(tree, hf_osi_options_rtd_pdu_discarded, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_pdu_discarded, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   case OSI_OPT_RFD_REASSEMBLY:
-    proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset + field, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_osi_options_rtd_reassembly, tvb, offset + field, 1, ENC_BIG_ENDIAN);
   break;
   default:
     proto_tree_add_text(tree, tvb, offset, len,
                         "Reason for discard: UNKNOWN Error Class");
   }
 
-  proto_tree_add_item(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
 /* dissect ATN security label used for policy based interdomain routing.*/
@@ -533,7 +533,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
             dissect_option_atn_security_label(octet,parm_len,tvb, offset,
                                               osi_option_tree);
           } else {
-            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_security_type, tvb, offset, 1, ENC_NA);
+            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_security_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_set_len(ti, parm_len);
           }
           break;
@@ -541,7 +541,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
         case OSI_OPT_PRIORITY:
           octet = tvb_get_guint8(tvb, offset);
           if ( OSI_OPT_MAX_PRIORITY >= octet ) {
-            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_priority, tvb, offset, 1, ENC_NA);
+            ti = proto_tree_add_item(osi_option_tree, hf_osi_options_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
           } else {
             ti = proto_tree_add_uint_format_value(osi_option_tree, hf_osi_options_priority, tvb, offset, 1,
                                 octet, "%u ( Invalid )", octet);

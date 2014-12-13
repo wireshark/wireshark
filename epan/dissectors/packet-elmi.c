@@ -289,7 +289,7 @@ dissect_elmi_info_elem(
             offset++;
             break;
         case TAG_DATA_INST:
-            proto_tree_add_item(info_elem_tree, hf_elmi_reserved, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(info_elem_tree, hf_elmi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(info_elem_tree, hf_elmi_dat_inst,
                     tvb, offset, 4, ENC_BIG_ENDIAN);

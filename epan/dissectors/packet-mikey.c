@@ -935,8 +935,8 @@ dissect_payload_idr(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 	type = tvb_get_guint8(tvb, offset+2);
 	length = tvb_get_ntohs(tvb, offset+3);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_ID_ROLE], tvb, 1, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_mikey[POS_ID_TYPE], tvb, 2, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_ROLE], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_TYPE], tvb, 2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_mikey[POS_ID_LEN],  tvb, 3, 2, ENC_BIG_ENDIAN);
 	}
 

@@ -745,14 +745,14 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 {    if (tree && isreq && iscdb) {
         proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_address, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_layer_number, tvb, offset+5, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_layer_number, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 
         cdata->itlq->flags=tvb_get_guint8 (tvb, offset+6);
         proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, offset+6, 1, cdata->itlq->flags);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_agid, tvb, offset+9, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_agid, tvb, offset+9, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
@@ -845,11 +845,11 @@ proto_tree *tree,
 
 {
     if (tree && isreq && iscdb) {
-        proto_tree_add_item(tree, hf_scsi_mmc_getperformance_data_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_mmc_getperformance_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_mmc_getperformance_starting_lba, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_mmc_getperformance_max_num_descriptors, tvb, offset+7, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(tree, hf_scsi_mmc_getperformance_type, tvb, offset+9, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_mmc_getperformance_type, tvb, offset+9, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);

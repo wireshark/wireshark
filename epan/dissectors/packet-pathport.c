@@ -442,7 +442,7 @@ dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
         offset += 2;
         proto_tree_add_item(data_tree, hf_pp_reserved, tvb, offset++, 1, ENC_NA);
         stc = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(data_tree, hf_pp_data_start_code, tvb, offset++, 1, ENC_NA);
+        proto_tree_add_item(data_tree, hf_pp_data_start_code, tvb, offset++, 1, ENC_BIG_ENDIAN);
         xdmx = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(data_tree, hf_pp_data_dst, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -460,10 +460,10 @@ dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, guint offset, guint len)
     offset += 4;
     proto_tree_add_item(tree, hf_pp_arp_ip,     tvb, offset,   4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_arp_manuf,  tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_pp_arp_class,  tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_pp_arp_type,   tvb, offset++, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_pp_arp_numdmx, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_manuf,  tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pp_arp_class,  tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pp_arp_type,   tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pp_arp_numdmx, tvb, offset++, 1, ENC_BIG_ENDIAN);
     return len;
 }
 

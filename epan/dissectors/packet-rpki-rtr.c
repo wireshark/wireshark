@@ -196,7 +196,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TODO: Add check length ? */
                 offset += 4;
-                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
+                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
                 flags_tree = proto_item_add_subtree(ti_flags, ett_flags);
                 proto_tree_add_item(flags_tree, hf_rpkirtr_flags_aw,           tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -217,7 +217,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                 /* TODO: Add check length ? */
                 offset += 4;
-                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
+                ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
                 flags_tree = proto_item_add_subtree(ti_flags, ett_flags);
                 proto_tree_add_item(flags_tree, hf_rpkirtr_flags_aw,           tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -260,7 +260,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 } else {
                     asn1_ctx_t asn1_ctx;
 
-                    ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_NA);
+                    ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
                     flags_tree = proto_item_add_subtree(ti_flags, ett_flags_nd);
                     proto_tree_add_item(flags_tree, hf_rpkirtr_flags_rk,           tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;

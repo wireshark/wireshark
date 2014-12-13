@@ -232,9 +232,9 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
   if (tree) {
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
-    proto_tree_add_item(fh_tree, hf_isl_dsap, payload_tvb, 0, 1, ENC_NA);
-    proto_tree_add_item(fh_tree, hf_isl_ssap, payload_tvb, 1, 1, ENC_NA);
-    proto_tree_add_item(fh_tree, hf_isl_control, payload_tvb, 2, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_isl_dsap, payload_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fh_tree, hf_isl_ssap, payload_tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fh_tree, hf_isl_control, payload_tvb, 2, 1, ENC_BIG_ENDIAN);
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */

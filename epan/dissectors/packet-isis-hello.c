@@ -233,9 +233,9 @@ dissect_hello_mt_port_cap_spb_digest_clv(tvbuff_t *tvb, packet_info* pinfo,
         subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_spb_digest, NULL,
                                   "SPB Digest: Type: 0x%02x, Length: %d", subtype, sublen);
 
-        proto_tree_add_item( subtree, hf_isis_hello_digest_v, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item( subtree, hf_isis_hello_digest_a, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item( subtree, hf_isis_hello_digest_d, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_v, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item( subtree, hf_isis_hello_digest_d, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
         /* Digest: */
@@ -389,7 +389,7 @@ dissect_hello_mt_port_cap_port_trill_ver_clv(tvbuff_t *tvb, packet_info* pinfo _
     subtree = proto_tree_add_subtree_format( tree, tvb, offset-2, sublen+2, ett_isis_hello_clv_mt_port_cap_port_trill_ver, NULL,
                                 "Port TRILL Version (t=%u, l=%u)", subtype, sublen);
 
-    proto_tree_add_item(subtree, hf_isis_hello_trill_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_isis_hello_trill_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -730,7 +730,7 @@ dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
     proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_sf, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_lf, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_size, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     length--;
@@ -738,7 +738,7 @@ dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     while(length>=(size+3)) {
         proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_ff, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_of, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_reserved, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         offset++;
         length--;
@@ -857,19 +857,19 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb, packet_info* pinfo,
     switch(length)
     {
     case 1:
-        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 5:
-        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         break;
     case 11:
-        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
     break;
     case 15:
-        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_adjacency_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_extended_local_circuit_id, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_isis_hello_neighbor_systemid, tvb, offset+5, id_length, ENC_NA);
         proto_tree_add_item(tree, hf_isis_hello_neighbor_extended_local_circuit_id, tvb, offset+5+id_length, 4, ENC_BIG_ENDIAN);
@@ -1205,8 +1205,8 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     ti = proto_tree_add_item(tree, proto_isis_hello, tvb, offset, -1, ENC_NA);
     hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 
-    proto_tree_add_item(hello_tree, hf_isis_hello_circuit, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(hello_tree, hf_isis_hello_circuit_reserved, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(hello_tree, hf_isis_hello_circuit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(hello_tree, hf_isis_hello_circuit_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, id_length, ENC_NA);
@@ -1228,8 +1228,8 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                          offset, 1, ENC_BIG_ENDIAN );
         offset += 1;
     } else {
-        proto_tree_add_item(hello_tree, hf_isis_hello_priority, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(hello_tree, hf_isis_hello_priority_reserved, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(hello_tree, hf_isis_hello_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(hello_tree, hf_isis_hello_priority_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(hello_tree, hf_isis_hello_lan_id, tvb, offset, id_length + 1, ENC_NA);

@@ -1644,11 +1644,11 @@ static void process_control_avps(tvbuff_t *tvb,
         case PROTOCOL_VERSION:
             if (avp_len < 1)
                 break;
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_version, tvb, idx, 1, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_version, tvb, idx, 1, ENC_BIG_ENDIAN);
             idx += 1;
             avp_len -= 1;
 
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_revision, tvb, idx, 1, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_revision, tvb, idx, 1, ENC_BIG_ENDIAN);
             break;
 
         case FRAMING_CAPABILITIES:
@@ -1703,7 +1703,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len < 1)
                 break;
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_msg, tvb, idx, 1, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_msg, tvb, idx, 1, ENC_BIG_ENDIAN);
             idx += 1;
             avp_len -= 1;
 
@@ -1807,7 +1807,7 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
 
         case PROXY_AUTHEN_ID:
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_id, tvb, idx + 1, 1, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_id, tvb, idx + 1, 1, ENC_BIG_ENDIAN);
             break;
 
         case PROXY_AUTHEN_RESPONSE:
@@ -1903,7 +1903,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len < 1)
                 break;
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_code_direction, tvb, idx, 1, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_code_direction, tvb, idx, 1, ENC_BIG_ENDIAN);
             idx += 1;
             avp_len -= 1;
 

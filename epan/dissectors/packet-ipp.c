@@ -571,7 +571,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 
     case TAG_BOOLEAN:
         if (value_length == 1) {
-            proto_tree_add_item(tree, hf_ipp_bool_value, tvb, offset, value_length, ENC_NA);
+            proto_tree_add_item(tree, hf_ipp_bool_value, tvb, offset, value_length, ENC_BIG_ENDIAN);
         }
         break;
 

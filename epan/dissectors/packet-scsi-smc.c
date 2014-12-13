@@ -342,7 +342,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     case DT_ELEM:
         flags = tvb_get_guint8 (tvb, offset);
         if (flags & LU_VALID) {
-            proto_tree_add_item(tree, hf_scsi_smc_lun, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_smc_lun, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         proto_tree_add_item(tree, hf_scsi_smc_not_bus, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_scsi_smc_id_valid, tvb, offset, 1, ENC_NA);
@@ -350,7 +350,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
         offset += 1;
         if (flags & ID_VALID) {
-            proto_tree_add_item(tree, hf_scsi_smc_scsi_bus_address, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_smc_scsi_bus_address, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset += 1;
         offset += 1; /* reserved */
@@ -396,13 +396,13 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (elem_bytecnt < 1)
         return;
-    proto_tree_add_item(tree, hf_scsi_smc_code_set, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_scsi_smc_code_set, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     elem_bytecnt -= 1;
 
     if (elem_bytecnt < 1)
         return;
-    proto_tree_add_item(tree, hf_scsi_smc_identifier_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_scsi_smc_identifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     elem_bytecnt -= 1;
 
@@ -414,7 +414,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (elem_bytecnt < 1)
         return;
     ident_len = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_item(tree, hf_scsi_smc_identifier_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_scsi_smc_identifier_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     elem_bytecnt -= 1;
 
@@ -472,7 +472,7 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
     if (isreq && iscdb) {
         proto_tree_add_item(tree, hf_scsi_smc_voltag, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_scsi_smc_element_type_code_0F, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_element_type_code_0F, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_smc_starting_element_address, tvb, offset+1, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_smc_number_of_elements, tvb, offset+3, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_smc_curdata, tvb, offset+4, 1, ENC_NA);
@@ -494,7 +494,7 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
             if (bytecnt < 1)
                 break;
             elem_type = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item(tree, hf_scsi_smc_element_type_code, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_smc_element_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             bytecnt -= 1;
 

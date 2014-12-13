@@ -1464,7 +1464,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (msg_str) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }else{
-        proto_tree_add_item(tree, hf_sgsap_unknown_msg, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_sgsap_unknown_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
         return;
     }
 

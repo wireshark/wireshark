@@ -114,7 +114,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       dpoe_reserved;
 
     item = proto_tree_add_item(epon_tree, hf_epon_dpoe_security,
-                               tvb, 2+offset, 1, ENC_NA);
+                               tvb, 2+offset, 1, ENC_BIG_ENDIAN);
     sec_tree = proto_item_add_subtree(item, ett_epon_sec);
 
     /* The DPoE security byte is split into three fields:

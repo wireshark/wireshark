@@ -830,7 +830,7 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     proto_tree *flags_tree;
     guint8 flags;
 
-    ti_flags = proto_tree_add_item(http2_tree, hf_http2_flags, tvb, offset, 1, ENC_NA);
+    ti_flags = proto_tree_add_item(http2_tree, hf_http2_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags_tree = proto_item_add_subtree(ti_flags, ett_http2_flags);
     flags = tvb_get_guint8(tvb, offset);
 
@@ -838,31 +838,31 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         case HTTP2_DATA:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_data, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_data, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_HEADERS:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_priority, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_headers, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_headers, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_SETTINGS:
             proto_tree_add_item(flags_tree, hf_http2_flags_settings_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_settings, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_PUSH_PROMISE:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_padded, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_push_promise, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_push_promise, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_CONTINUATION:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_continuation, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_continuation, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_PING:
             proto_tree_add_item(flags_tree, hf_http2_flags_ping_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused_ping, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_ping, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case HTTP2_PRIORITY:
         case HTTP2_RST_STREAM:
@@ -872,7 +872,7 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         case HTTP2_BLOCKED:
         default:
             /* Does not define any flags */
-            proto_tree_add_item(flags_tree, hf_http2_flags_unused, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
     }
 
@@ -893,7 +893,7 @@ dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
     if(flags & HTTP2_FLAGS_PADDED)
     {
         *padding = tvb_get_guint8(tvb, offset); /* read a single octet */
-        proto_tree_add_item(http2_tree, hf_http2_padding, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(http2_tree, hf_http2_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         pad_len ++;
     }
@@ -916,7 +916,7 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 f
         proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 4, ENC_NA);
         proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
         weight = tvb_get_guint8(tvb, offset);
         /* 6.2: Weight:  An 8-bit weight for the stream; Add one to the value to obtain a weight between 1 and 256 */
         ti = proto_tree_add_uint(http2_tree, hf_http2_weight_real, tvb, offset, 1, weight+1);
@@ -1017,7 +1017,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
         ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 5, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http2_settings);
-        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
         settingsid = tvb_get_ntohs(tvb, offset);
         proto_item_append_text(ti_settings, " - %s",
                                val_to_str( settingsid, http2_settings_vals, "Unknown (%u)") );
@@ -1203,14 +1203,14 @@ dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
     proto_tree_add_item(http2_tree, hf_http2_altsvc_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_proto_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_proto_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     pidlen = tvb_get_guint8(tvb, offset);
     offset ++;
 
     proto_tree_add_item(http2_tree, hf_http2_altsvc_protocol, tvb, offset, pidlen, ENC_ASCII|ENC_NA);
     offset += pidlen;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_host_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_host_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     hostlen = tvb_get_guint8(tvb, offset);
     offset ++;
 
@@ -1293,7 +1293,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     length = tvb_get_ntoh24(tvb, offset);
     offset += 3;
 
-    proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, offset);
     col_append_sep_fstr( pinfo->cinfo, COL_INFO, ", ", "%s", val_to_str(type, http2_type_vals, "Unknown type (%d)"));
 
@@ -1657,7 +1657,7 @@ proto_register_http2(void)
         },
         { &hf_http2_settings_identifier,
             { "Settings Identifier", "http2.settings.id",
-               FT_UINT8, BASE_DEC, VALS(http2_settings_vals), 0x0,
+               FT_UINT16, BASE_DEC, VALS(http2_settings_vals), 0x0,
               NULL, HFILL }
         },
         { &hf_http2_settings_header_table_size,
