@@ -1977,7 +1977,7 @@ static guint dissect_wimaxmacphy_ul_subframe_descriptor(tvbuff_t *tvb, guint off
     proto_tree_add_item(tree, hf_wimaxmacphy_subframe_frame_number,           tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_subframe_downlink_reserved1,     tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_subframe_downlink_reserved1,     tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_subframe_phy_sap_version_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2041,7 +2041,7 @@ static guint dissect_wimaxmacphy_phy_txstart_confirmation(tvbuff_t *tvb, guint o
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,         tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,         tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_next_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* offset += 1; */
 
@@ -2057,7 +2057,7 @@ static guint dissect_wimaxmacphy_phy_txstart_indication(tvbuff_t *tvb, guint off
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_current_frame_number_lsn,  tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_initial_frame_number,      tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -2088,13 +2088,13 @@ static guint dissect_wimaxmacphy_phy_txsdu_confirmation(tvbuff_t *tvb, guint off
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_dl_sub_burst_burst_number,   tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved5,                   tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved5,                   tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,                      tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,                   tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,                   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_next_frame_number,           tvb, offset, 1, ENC_BIG_ENDIAN);
     /* offset += 1; */
 
@@ -2117,7 +2117,7 @@ static guint dissect_wimaxmacphy_phy_txend_indication(tvbuff_t *tvb, guint offse
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_number_of_consecutive_frames_with_aas, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved5,                             tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved5,                             tvb, offset, 2, ENC_BIG_ENDIAN);
     /* offset += 2; */
 
     return 6;
@@ -2149,7 +2149,7 @@ static guint dissect_wimaxmacphy_phy_rxstart_confirmation(tvbuff_t *tvb, guint o
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,       tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,    tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* offset += 1; */
 
@@ -2161,7 +2161,7 @@ static guint dissect_wimaxmacphy_phy_rxstart_indication(tvbuff_t *tvb, guint off
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_status,                   tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,                tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved2,                tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_current_frame_number_lsn, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* offset += 1; */
 
@@ -2188,7 +2188,7 @@ static guint dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, guint offse
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_cinr,                      tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_power_offset,              tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2230,7 +2230,7 @@ static guint dissect_wimaxmacphy_phy_rxsdu_indication(tvbuff_t *tvb, guint offse
         offset += 2;
 
         proto_tree_add_item(subtree, hf_wimaxmacphy_prim_harq_ack_acid,      tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_wimaxmacphy_prim_harq_ack_reserved1, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_wimaxmacphy_prim_harq_ack_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_wimaxmacphy_prim_harq_ack_ack_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_wimaxmacphy_prim_harq_ack_unnamed,   tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -2291,7 +2291,7 @@ static guint dissect_wimaxmacphy_phy_rxend_indication(tvbuff_t *tvb, guint offse
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_number_of_affected_ss,    tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     do
@@ -2318,7 +2318,7 @@ static guint dissect_wimaxmacphy_phy_rxcdma_indication(tvbuff_t *tvb, guint offs
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_cdma_symbol,               tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved1,                 tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_cdma_subchannel,           tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2337,7 +2337,7 @@ static guint dissect_wimaxmacphy_phy_rxcdma_indication(tvbuff_t *tvb, guint offs
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_current_frame_number_msn,  tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved4,                 tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_wimaxmacphy_prim_reserved4,                 tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_prim_aas_handle,                tvb, offset, 2, ENC_BIG_ENDIAN);

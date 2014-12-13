@@ -1206,7 +1206,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset+=(int)sizeof(hdr.Address);
 
             /* Add priority information to the mailbox header */
-            proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxpriority, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxpriority, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset+=(int)sizeof(guint8);
 
             /* Add type information to the mailbox header */
