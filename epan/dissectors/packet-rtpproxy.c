@@ -314,7 +314,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
     rawstr = tvb_get_string_enc(wmem_packet_scope(), tvb, begin, realsize, ENC_ASCII);
 
     while(offset < realsize){
-        ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command_parameter, tvb, begin + offset, 1, ENC_NA);
+        ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command_parameter, tvb, begin + offset, 1, ENC_BIG_ENDIAN);
         offset++; /* Skip 1-byte parameter's type */
         switch (g_ascii_tolower(tvb_get_guint8(tvb, begin+offset-1)))
         {
@@ -381,7 +381,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 break;
             case 'p':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_proto);
-                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, begin+offset, 1, ENC_NA);
+                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, begin+offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 break;
             case 't':
@@ -394,7 +394,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 break;
             case 'v':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_acc);
-                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, begin+offset, 1, ENC_NA);
+                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, begin+offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 break;
             default:
@@ -614,7 +614,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
 
             /* All other commands */
-            ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command, tvb, offset, 1, ENC_NA);
+            ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* A specific case - handshake/ping */
             if (tmp == 'v')

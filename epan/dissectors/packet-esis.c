@@ -260,8 +260,8 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, -1, ENC_NA);
     esis_tree = proto_item_add_subtree(ti, ett_esis);
 
-    proto_tree_add_item( esis_tree, hf_esis_nlpi, tvb, 0, 1, ENC_NA);
-    ti = proto_tree_add_item( esis_tree, hf_esis_length, tvb, 1, 1, ENC_NA );
+    proto_tree_add_item( esis_tree, hf_esis_nlpi, tvb, 0, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item( esis_tree, hf_esis_length, tvb, 1, 1, ENC_BIG_ENDIAN );
     length = tvb_get_guint8(tvb, 1);
     if (length < ESIS_HDR_FIXED_LENGTH) {
       expert_add_info_format(pinfo, ti, &ei_esis_length,
@@ -271,16 +271,16 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     version = tvb_get_guint8(tvb, 2);
-    ti = proto_tree_add_item( esis_tree, hf_esis_version, tvb, 2, 1, ENC_NA);
+    ti = proto_tree_add_item( esis_tree, hf_esis_version, tvb, 2, 1, ENC_BIG_ENDIAN);
     if (version != ESIS_REQUIRED_VERSION){
       expert_add_info_format(pinfo, ti, &ei_esis_version,
                            "Unknown ESIS version (%u vs %u)",
                            version, ESIS_REQUIRED_VERSION );
     }
 
-    proto_tree_add_item( esis_tree, hf_esis_reserved, tvb, 3, 1, ENC_NA);
+    proto_tree_add_item( esis_tree, hf_esis_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-    type_item = proto_tree_add_item( esis_tree, hf_esis_type, tvb, 4, 1, ENC_NA);
+    type_item = proto_tree_add_item( esis_tree, hf_esis_type, tvb, 4, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, 4) & OSI_PDU_TYPE_MASK;
 
     holdtime = tvb_get_ntohs(tvb, 5);

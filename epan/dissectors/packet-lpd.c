@@ -128,7 +128,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else if (lpr_packet_type == response) {
 			if (code <= 3) {
-				proto_tree_add_item(lpd_tree, hf_lpd_response_code, tvb, 0, 1, ENC_NA);
+				proto_tree_add_item(lpd_tree, hf_lpd_response_code, tvb, 0, 1, ENC_BIG_ENDIAN);
 			}
 			else {
 				call_dissector(data_handle,tvb, pinfo, lpd_tree);

@@ -95,7 +95,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pdu_tree = proto_item_add_subtree(pdu_item, ett_slow);
 
         /* Subtype */
-        proto_tree_add_item(pdu_tree, hf_slow_subtype, tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(pdu_tree, hf_slow_subtype, tvb, 0, 1, ENC_BIG_ENDIAN);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);

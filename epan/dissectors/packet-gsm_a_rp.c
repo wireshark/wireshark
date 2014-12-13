@@ -113,7 +113,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_rp_rp_message_reference, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_a_rp_rp_message_reference, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -213,7 +213,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_rp_extension, tvb, curr_offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_gsm_a_rp_cause, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_a_rp_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 

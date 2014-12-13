@@ -108,8 +108,8 @@ static int dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, p
 
 		tr = proto_item_add_subtree( item, ett_pw_hdlc );
 
-		item_address = proto_tree_add_item( tr, hf_pw_hdlc_address_field, tvb, 0, 1, ENC_NA );
-		item_control = proto_tree_add_item( tr, hf_pw_hdlc_control_field, tvb, 1, 1, ENC_NA );
+		item_address = proto_tree_add_item( tr, hf_pw_hdlc_address_field, tvb, 0, 1, ENC_BIG_ENDIAN );
+		item_control = proto_tree_add_item( tr, hf_pw_hdlc_control_field, tvb, 1, 1, ENC_BIG_ENDIAN );
 
 		tr = proto_item_add_subtree( item_address, ett_pw_hdlc );
 

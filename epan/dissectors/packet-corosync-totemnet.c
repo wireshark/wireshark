@@ -109,7 +109,7 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
 
           proto_tree_add_item(tree,
                               hf_corosync_totemnet_security_crypto_type,
-                              tvb, io_len - 1, 1, ENC_NA);
+                              tvb, io_len - 1, 1, ENC_BIG_ENDIAN);
           key_item = proto_tree_add_string(tree,
                                            hf_corosync_totemnet_security_crypto_key,
                                            tvb, 0, 0, key);

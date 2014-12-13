@@ -221,7 +221,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int ret = 0;
   guint8 more = tvb_get_guint8(tvb, offset);
 
-  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_NA);
+  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_BIG_ENDIAN);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   switch(more) {
@@ -247,7 +247,7 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
 
   /* FIXME: We should return a value to indicate all OK. */
 
-  proto_tree_add_item(item_tree, hf_beep_status, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(item_tree, hf_beep_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 #endif
 

@@ -448,15 +448,15 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 	llc_tree = proto_item_add_subtree(ti, ett_llc);
-	sap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_NA);
+	sap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_BIG_ENDIAN);
 	field_tree = proto_item_add_subtree(sap_item, ett_llc_dsap);
-	proto_tree_add_item(field_tree, hf_llc_dsap_sap, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_llc_dsap_sap, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_llc_dsap_ig, tvb, 0, 1, ENC_NA);
 
 	ssap = tvb_get_guint8(tvb, 1);
-	sap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_NA);
+	sap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_BIG_ENDIAN);
 	field_tree = proto_item_add_subtree(sap_item, ett_llc_ssap);
-	proto_tree_add_item(field_tree, hf_llc_ssap_sap, tvb, 1, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_llc_ssap_sap, tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_llc_ssap_cr, tvb, 1, 1, ENC_NA);
 
 	is_snap = (dsap == SAP_SNAP) && (ssap == SAP_SNAP);

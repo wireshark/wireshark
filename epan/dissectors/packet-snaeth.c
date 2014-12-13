@@ -61,7 +61,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ENC_NA);
 		snaeth_tree = proto_item_add_subtree(snaeth_ti, ett_snaeth);
 		proto_tree_add_uint(snaeth_tree, hf_snaeth_len, tvb, 0, 2, len);
-		proto_tree_add_item(snaeth_tree, hf_snaeth_padding, tvb, 2, 1, ENC_NA);
+		proto_tree_add_item(snaeth_tree, hf_snaeth_padding, tvb, 2, 1, ENC_BIG_ENDIAN);
 	}
 
 	/*

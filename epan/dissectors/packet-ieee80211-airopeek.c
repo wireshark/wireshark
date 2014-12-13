@@ -72,7 +72,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree)
-    proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_BIG_ENDIAN);
 
   signal_level = tvb_get_guint8(tvb, 2);
   /*

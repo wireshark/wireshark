@@ -211,10 +211,10 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     switch(opcode) {
     case 0x00: /* New Index */
-        proto_tree_add_item(hci_mon_tree, hf_bus, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(hci_mon_tree, hf_bus, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(hci_mon_tree, hf_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(hci_mon_tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         offset = dissect_bd_addr(hf_bd_addr, hci_mon_tree, tvb, offset);
