@@ -712,7 +712,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         proto_tree_add_item(subtree, hf_gsm_sms_gsm_7_bit_default_alphabet, tvb, offset, 1, ENC_NA);
 
         *seven_bit = TRUE;
-        return 0xff;
+        return msg_class;
     }
 
     default_5_bits = FALSE;
@@ -730,7 +730,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         break;
 
     case 2:
-        return 0xff;
+        return msg_class;
 
     case 3:
         switch ((oct & 0x30) >> 4)
@@ -783,7 +783,6 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_indication_sense, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved04, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_waiting, tvb, offset, 1, ENC_NA);
-        msg_class = 0xff;
     }
     else if (default_data)
     {
