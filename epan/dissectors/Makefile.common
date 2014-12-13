@@ -878,6 +878,7 @@ DISSECTOR_SRC = \
 	packet-miop.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
+	packet-mka.c		\
 	packet-mmse.c		\
 	packet-mndp.c		\
 	packet-mojito.c		\

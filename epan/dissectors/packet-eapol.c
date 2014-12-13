@@ -58,6 +58,7 @@ static dissector_table_t eapol_keydes_type_dissector_table;
 static dissector_handle_t eapol_handle;
 
 static dissector_handle_t eap_handle;
+static dissector_handle_t mka_handle;
 static dissector_handle_t data_handle;
 
 #define EAPOL_HDR_LEN   4
@@ -71,6 +72,7 @@ static dissector_handle_t data_handle;
 #define EAPOL_LOGOFF            2
 #define EAPOL_KEY               3
 #define EAPOL_ENCAP_ASF_ALERT   4
+#define EAPOL_MKA               5
 
 static const value_string eapol_version_vals[] = {
   { EAPOL_2001,   "802.1X-2001" },
@@ -85,6 +87,7 @@ static const value_string eapol_type_vals[] = {
   { EAPOL_LOGOFF,          "Logoff" },
   { EAPOL_KEY,             "Key" },
   { EAPOL_ENCAP_ASF_ALERT, "Encapsulated ASF Alert" },
+  { EAPOL_MKA,             "MKA" },
   { 0, NULL }
 };
 
@@ -152,6 +155,11 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 keydesc_type, next_tvb, pinfo, eapol_tree,
                                 FALSE, NULL))
       proto_tree_add_item(eapol_tree, hf_eapol_keydes_body, tvb, offset, -1, ENC_NA);
+    break;
+
+  case EAPOL_MKA:
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    call_dissector(mka_handle, next_tvb, pinfo, eapol_tree);
     break;
 
   case EAPOL_ENCAP_ASF_ALERT:   /* XXX - is this an SNMP trap? */
@@ -314,6 +322,7 @@ proto_reg_handoff_eapol(void)
    * Get handles for the EAP and raw data dissectors.
    */
   eap_handle  = find_dissector("eap");
+  mka_handle  = find_dissector("mka");
   data_handle = find_dissector("data");
 
   dissector_add_uint("ethertype", ETHERTYPE_EAPOL, eapol_handle);

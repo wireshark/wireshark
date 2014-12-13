@@ -92,6 +92,7 @@ HiQnet
 Elasticsearch
 Shared Memory Communications - RDMA
 Riemann
+MACsec Key Agreement - EAPoL-MKA
 --sort-and-group--
 
 === Updated Protocol Support

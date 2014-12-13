@@ -965,6 +965,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-miop.c
 	dissectors/packet-mip.c
 	dissectors/packet-mip6.c
+	dissectors/packet-mka.c
 	dissectors/packet-mmse.c
 	dissectors/packet-mndp.c
 	dissectors/packet-mojito.c
