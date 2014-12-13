@@ -511,8 +511,8 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_extension, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_type, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_plan, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_plan, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     j = 0;
@@ -620,33 +620,33 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     switch ((oct & 0xc0) >> 6)
     {
     case 0:
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_format_subsequent_bits, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_format_subsequent_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_telematic_interworking, tvb, offset, 1, ENC_NA);
 
         if (oct & 0x20)
         {
-            proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_device_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_device_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         else
         {
-            proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sm_al_proto, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sm_al_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         break;
 
     case 1:
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_format_subsequent_bits, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_message_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_format_subsequent_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         msg_type = tvb_get_guint8(tvb, offset) & 0x3f;
         break;
 
     case 2:
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_reserved, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_undefined, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_undefined, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
 
     case 3:
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sc_specific_use, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sc_specific, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sc_specific_use, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sc_specific, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     }
     return msg_type;
@@ -774,22 +774,22 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
             break;
         }
 
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_character_set, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_BIG_ENDIAN);
         msg_class = tvb_get_guint8(tvb, offset) & 0x03;
     }
     else if (default_3_bits)
     {
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_indication_sense, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved04, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_waiting, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved04, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_waiting, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     else if (default_data)
     {
         *seven_bit = !(*eight_bit = (oct & 0x04) ? TRUE : FALSE);
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved08, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved08, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_coding, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_BIG_ENDIAN);
         msg_class = tvb_get_guint8(tvb, offset) & 0x03;
     }
     return msg_class;
@@ -931,8 +931,8 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
             }
 
             proto_tree_add_item(subtree, hf_gsm_sms_vp_single_shot_sm, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(subtree, hf_gsm_sms_vp_reserved, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(subtree, hf_gsm_sms_vp_validity_period_format, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(subtree, hf_gsm_sms_vp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_gsm_sms_vp_validity_period_format, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             loc_form = oct & 0x7;
             switch (loc_form)
@@ -1150,8 +1150,8 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
             offset, 1, ett_st, NULL, "TP-Status");
 
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_definition, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_error, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_reason, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_sms_dis_field_st_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.16 */
@@ -1165,7 +1165,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
 /* 9.2.3.18 */
 #define DIS_FIELD_MN(m_tree, m_offset) \
-    proto_tree_add_item(m_tree, hf_gsm_sms_tp_message_number, tvb, m_offset, 1, ENC_NA);
+    proto_tree_add_item(m_tree, hf_gsm_sms_tp_message_number, tvb, m_offset, 1, ENC_BIG_ENDIAN);
 
 /* 9.2.3.19 */
 static const range_string tp_command_type_rvals[] = {
@@ -1180,12 +1180,12 @@ static const range_string tp_command_type_rvals[] = {
 };
 
 #define DIS_FIELD_CT(m_tree, m_offset) \
-    proto_tree_add_item(m_tree, hf_gsm_sms_tp_command_type, tvb, m_offset, 1, ENC_NA);
+    proto_tree_add_item(m_tree, hf_gsm_sms_tp_command_type, tvb, m_offset, 1, ENC_BIG_ENDIAN);
 
 /* 9.2.3.20 */
 #define DIS_FIELD_CDL(m_tree, m_offset) \
     if (oct) \
-        proto_tree_add_item(m_tree, hf_gsm_sms_tp_command_data_length, tvb, m_offset, 1, ENC_NA); \
+        proto_tree_add_item(m_tree, hf_gsm_sms_tp_command_data_length, tvb, m_offset, 1, ENC_BIG_ENDIAN); \
     else    \
         proto_tree_add_uint_format_value(m_tree, hf_gsm_sms_tp_command_data_length, tvb, m_offset, 1, 0, "(0) no Command-Data"); \
 
@@ -1296,10 +1296,10 @@ dis_iei_apa_8bit(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 of
     EXACT_DATA_CHECK(length, 2);
 
     p_udh_fields->port_dst = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gsm_sms_destination_port8, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_destination_port8, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     p_udh_fields->port_src = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gsm_sms_originator_port8, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_originator_port8, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.24.4 */
@@ -1357,7 +1357,7 @@ dis_iei_udh_si(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offs
 {
     EXACT_DATA_CHECK(length, 1);
 
-    proto_tree_add_item(tree, hf_gsm_sms_udh_created, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_udh_created, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.24.8 */
@@ -1443,10 +1443,10 @@ dis_iei_tf(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 
     SHORT_DATA_CHECK(length, 3);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_tf_start_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_tf_start_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_tf_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_tf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_gsm_sms_formatting_mode, ett_udh_tfm, format_flags, ENC_NA);
@@ -1456,9 +1456,9 @@ dis_iei_tf(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
     {
         subtree_colour = proto_tree_add_subtree(tree, tvb, offset, 1, ett_udh_tfc, NULL, "Text Colour");
 
-        proto_tree_add_item(subtree_colour, hf_gsm_sms_dis_iei_tf_foreground_colour, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree_colour, hf_gsm_sms_dis_iei_tf_foreground_colour, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(subtree_colour, hf_gsm_sms_dis_iei_tf_background_colour, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree_colour, hf_gsm_sms_dis_iei_tf_background_colour, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1468,10 +1468,10 @@ dis_iei_ps(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     EXACT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_ps_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_ps_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_ps_sound_number, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_ps_sound_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.24.10.1.3 */
@@ -1480,7 +1480,7 @@ dis_iei_uds(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset,
 {
     SHORT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_uds_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_uds_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_uds_user_defined_sound, tvb, offset, length - 1, ENC_NA);
@@ -1493,10 +1493,10 @@ dis_iei_pa(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     EXACT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_pa_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_pa_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_pa_animation_number, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_pa_animation_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -1506,7 +1506,7 @@ dis_iei_la(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     SHORT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_la_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_la_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_la_large_animation, tvb, offset, length - 1, ENC_NA);
@@ -1518,7 +1518,7 @@ dis_iei_sa(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     SHORT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sa_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sa_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sa_small_animation, tvb, offset, length - 1, ENC_NA);
@@ -1531,7 +1531,7 @@ dis_iei_lp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     SHORT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_lp_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_lp_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_lp_large_picture, tvb, offset, length - 1, ENC_NA);
@@ -1543,7 +1543,7 @@ dis_iei_sp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     SHORT_DATA_CHECK(length, 2);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sp_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sp_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_sp_small_picture, tvb, offset, length - 1, ENC_NA);
@@ -1556,13 +1556,13 @@ dis_iei_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, 
 {
     SHORT_DATA_CHECK(length, 4);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_position, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_position, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_horizontal_dimension, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_horizontal_dimension, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_vertical_dimension, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_vertical_dimension, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_gsm_sms_dis_iei_vp_variable_picture, tvb, offset, length - 3, ENC_NA);
@@ -1574,7 +1574,7 @@ dis_iei_upi(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset,
 {
     EXACT_DATA_CHECK(length, 1);
 
-    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_upi_num_corresponding_objects, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_upi_num_corresponding_objects, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 }
 
@@ -1699,10 +1699,10 @@ dis_field_ud_iei(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 of
                                 ett_udh_ieis[oct], NULL, "IE: %s",
                                 rval_to_str_const(oct, gsm_sms_tp_ud_ie_id_rvals, "Reserved"));
 
-        proto_tree_add_item(subtree, hf_gsm_sms_ie_identifier, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_ie_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        proto_tree_add_item(subtree, hf_gsm_sms_dis_field_ud_iei_length, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gsm_sms_dis_field_ud_iei_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if (iei_len > 0)
@@ -1744,7 +1744,7 @@ dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offs
                             *offset, oct + 1,
                             ett_udh, NULL, "User-Data Header");
 
-    proto_tree_add_item(udh_subtree, hf_gsm_sms_dis_field_udh_user_data_header_length, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(udh_subtree, hf_gsm_sms_dis_field_udh_user_data_header_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
     (*offset)++;
     (*length)--;
