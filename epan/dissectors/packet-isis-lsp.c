@@ -100,6 +100,7 @@
 #define INTERESTED_VLANS         10
 #define TRILL_VERSION            13
 #define VLAN_GROUP               14
+#define SEGMENT_ROUTING_ALG      19
 
 
 /*Sub-TLVs under Group Address TLV*/
@@ -109,6 +110,9 @@
 
 /* Segment Routing Sub-TLV */
 #define ISIS_SR_SID_LABEL           1
+
+/* Segment routing Algorithm */
+#define ISIS_SR_ALG_SPF             0
 
 const range_string mtid_strings[] = {
   {    0,    0, "Standard topology" },
@@ -275,6 +279,7 @@ static int hf_isis_lsp_clv_sr_cap_v_flag = -1;
 static int hf_isis_lsp_clv_sr_cap_range = -1;
 static int hf_isis_lsp_clv_sr_cap_sid = -1;
 static int hf_isis_lsp_clv_sr_cap_label = -1;
+static int hf_isis_lsp_clv_sr_alg = -1;
 static int hf_isis_lsp_area_address = -1;
 static int hf_isis_lsp_clv_nlpid = -1;
 static int hf_isis_lsp_ip_authentication = -1;
@@ -320,6 +325,7 @@ static gint ett_isis_lsp_clv_rt_capable = -1;   /* CLV 242 */
 static gint ett_isis_lsp_clv_te_node_cap_desc = -1;
 static gint ett_isis_lsp_clv_sr_cap = -1;
 static gint ett_isis_lsp_clv_sr_sid_label = -1;
+static gint ett_isis_lsp_clv_sr_alg = -1;
 static gint ett_isis_lsp_clv_trill_version = -1;
 static gint ett_isis_lsp_clv_trees = -1;
 static gint ett_isis_lsp_clv_root_id = -1;
@@ -353,6 +359,10 @@ static const true_false_string tfs_notsupported_supported = { "Not Supported", "
 static const true_false_string tfs_internal_external = { "Internal", "External" };
 static const true_false_string tfs_external_internal = { "External", "Internal" };
 
+static const value_string isis_lsp_sr_alg_vals[] = {
+    { ISIS_SR_ALG_SPF, "Shortest Path First (SPF)" },
+    { 0, NULL }
+};
 /*
  * Name: dissect_lsp_mt_id()
  *
@@ -928,6 +938,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *rt_tree, *cap_tree;
     guint16 root_id;
     guint8 tlv_type, tlv_len;
+    int i;
 
     switch (subtype) {
 
@@ -1103,6 +1114,17 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             offset += 2;
         }
 
+        return(0);
+
+    case SEGMENT_ROUTING_ALG:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                                         ett_isis_lsp_clv_sr_alg, NULL, "Segment Routing - Algorithms (t=%u, l=%u)",
+                                         subtype, sublen);
+        i = 0;
+        while (i < sublen) {
+            proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_alg, tvb, offset+i, 1, ENC_NA);
+            i++;
+        }
         return(0);
 
     default:
@@ -3657,6 +3679,11 @@ proto_register_isis_lsp(void)
             FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_isis_lsp_clv_sr_alg,
+          { "Algorithm", "isis.lsp.sr_alg",
+            FT_UINT8, BASE_DEC, VALS(isis_lsp_sr_alg_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_isis_lsp_area_address,
             { "Area address", "isis.lsp.area_address",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3730,7 +3757,8 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
         &ett_isis_lsp_clv_originating_buff_size, /* CLV 14 */
         &ett_isis_lsp_clv_sr_cap,
-        &ett_isis_lsp_clv_sr_sid_label
+        &ett_isis_lsp_clv_sr_sid_label,
+        &ett_isis_lsp_clv_sr_alg
     };
 
     static ei_register_info ei[] = {
