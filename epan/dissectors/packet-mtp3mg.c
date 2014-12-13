@@ -453,12 +453,12 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mtp3_standard == ANSI_STANDARD)
         {
             proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_slc, tvb, 0,
-                                ANSI_COO_LENGTH, ENC_NA);
+                                ANSI_COO_LENGTH, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_fsn, tvb, 0,
-                                ANSI_COO_LENGTH, ENC_NA);
+                                ANSI_COO_LENGTH, ENC_LITTLE_ENDIAN);
         } else /* ITU_STANDARD, CHINESE_ITU_STANDARD, and JAPAN_STANDARD */ {
             proto_tree_add_item(tree, hf_mtp3mg_coo_itu_fsn, tvb, 0,
-                                ITU_COO_LENGTH, ENC_NA);
+                                ITU_COO_LENGTH, ENC_LITTLE_ENDIAN);
         }
         break;
 
@@ -486,10 +486,10 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 ANSI_CBD_LENGTH, ENC_LITTLE_ENDIAN);
         } else if (mtp3_standard == JAPAN_STANDARD) {
             proto_tree_add_item(tree, hf_mtp3mg_cbd_japan_cbc, tvb, 0,
-                                ITU_CBD_LENGTH, ENC_NA);
+                                ITU_CBD_LENGTH, ENC_LITTLE_ENDIAN);
         } else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
             proto_tree_add_item(tree, hf_mtp3mg_cbd_itu_cbc, tvb, 0,
-                                ITU_CBD_LENGTH, ENC_NA);
+                                ITU_CBD_LENGTH, ENC_LITTLE_ENDIAN);
         }
         break;
 
@@ -513,7 +513,7 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mtp3_standard == ANSI_STANDARD)
         {
             proto_tree_add_item(tree, hf_mtp3mg_eco_ansi_slc, tvb, 0,
-                                ANSI_ECO_LENGTH, ENC_NA);
+                                ANSI_ECO_LENGTH, ENC_LITTLE_ENDIAN);
         }
         /* else: nothing to dissect */
         break;
@@ -554,7 +554,7 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Congestion level is a national option */
             proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_status, tvb, 0,
-                                ITU_TFC_STATUS_LENGTH, ENC_NA);
+                                ITU_TFC_STATUS_LENGTH, ENC_LITTLE_ENDIAN);
 
 
 
@@ -562,7 +562,7 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_spare, tvb,
                                 JAPAN_TFC_SPARE_OFFSET,
-                                JAPAN_TFC_SPARE_LENGTH, ENC_NA);
+                                JAPAN_TFC_SPARE_LENGTH, ENC_LITTLE_ENDIAN);
 
             apc_item = proto_tree_add_item(tree, hf_mtp3mg_japan_apc, tvb,
                                            JAPAN_TFC_APC_OFFSET,
@@ -576,10 +576,10 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_status, tvb,
                                 JAPAN_TFC_STATUS_OFFSET,
-                                JAPAN_TFC_STATUS_LENGTH, ENC_NA);
+                                JAPAN_TFC_STATUS_LENGTH, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_mtp3mg_tfc_japan_status_spare, tvb,
                                 JAPAN_TFC_STATUS_OFFSET,
-                                JAPAN_TFC_STATUS_LENGTH, ENC_NA);
+                                JAPAN_TFC_STATUS_LENGTH, ENC_LITTLE_ENDIAN);
 
         } else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
 
@@ -601,7 +601,7 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_mtp3mg_tfc_ansi_status, tvb,
                                 ANSI_TFC_STATUS_OFFSET, ANSI_TFC_STATUS_LENGTH,
-                                ENC_NA);
+                                ENC_LITTLE_ENDIAN);
 
         }
         break;
@@ -645,7 +645,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_item(tree, hf_mtp3mg_tfm_japan_count, tvb,
                                 JAPAN_TFM_COUNT_OFFSET,
-                                JAPAN_TFM_COUNT_LENGTH, ENC_NA);
+                                JAPAN_TFM_COUNT_LENGTH, ENC_LITTLE_ENDIAN);
 
             count = tvb_get_guint8(tvb, JAPAN_TFM_COUNT_OFFSET);
             offset = JAPAN_TFM_COUNT_LENGTH;
@@ -725,7 +725,7 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(tree, hf_mtp3mg_rsm_japan_count, tvb,
                                     JAPAN_TFM_COUNT_OFFSET,
-                                    JAPAN_TFM_COUNT_LENGTH, ENC_NA);
+                                    JAPAN_TFM_COUNT_LENGTH, ENC_LITTLE_ENDIAN);
 
                 count = tvb_get_guint8(tvb, JAPAN_TFM_COUNT_OFFSET);
                 offset = JAPAN_TFM_COUNT_LENGTH;
@@ -801,7 +801,7 @@ dissect_mtp3mg_mim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mtp3_standard == ANSI_STANDARD)
         {
             proto_tree_add_item(tree, hf_mtp3mg_mim_ansi_slc, tvb, 0,
-                                ANSI_MIM_LENGTH, ENC_NA);
+                                ANSI_MIM_LENGTH, ENC_LITTLE_ENDIAN);
         }
         /* else: nothing to dissect */
         break;
@@ -893,9 +893,9 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                   hf_mtp3mg_apc_member, 0, 0);
 
             proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
-                                ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
-                                ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
         } else if (mtp3_standard == ITU_STANDARD) {
 
             apc_item = proto_tree_add_item(tree, hf_mtp3mg_itu_apc, tvb, 0,
@@ -908,9 +908,9 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
-                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
-                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
         } else { /* JAPAN_STANDARD */
 
             apc_item = proto_tree_add_item(tree, hf_mtp3mg_japan_apc, tvb,
@@ -924,9 +924,9 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
-                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
-                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_NA);
+                                ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, ENC_LITTLE_ENDIAN);
         }
         break;
 
@@ -951,11 +951,11 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (mtp3_standard == ANSI_STANDARD)
         {
             proto_tree_add_item(tree, hf_mtp3mg_test_ansi_slc, tvb, 0,
-                                TEST_LENGTH, ENC_NA);
+                                TEST_LENGTH, ENC_LITTLE_ENDIAN);
         }
 
         proto_tree_add_item(tree, hf_mtp3mg_test_length, tvb, 0, TEST_LENGTH,
-                            ENC_NA);
+                            ENC_LITTLE_ENDIAN);
 
         length = tvb_get_guint8(tvb, 0) >> TEST_LENGTH_SHIFT;
         proto_tree_add_item(tree, hf_mtp3mg_test_pattern, tvb, TEST_PATTERN_OFFSET, length, ENC_NA);
@@ -1011,12 +1011,12 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item *pattern_item;
 
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_spare, tvb, 0,
-                                JAPAN_SPARE_LENGTH, ENC_NA);
+                                JAPAN_SPARE_LENGTH, ENC_LITTLE_ENDIAN);
 
             h0h1 = tvb_get_guint8(tvb, JAPAN_H0H1_OFFSET);
 
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_test, tvb,
-                                JAPAN_SPARE_LENGTH, H0H1_LENGTH, ENC_NA);
+                                JAPAN_SPARE_LENGTH, H0H1_LENGTH, ENC_LITTLE_ENDIAN);
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
                          val_to_str_const(h0h1, japan_test_message_type_acro_values, "Unknown"));
@@ -1027,7 +1027,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case JAPAN_TEST_SRA:
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_test_spare,
                                     tvb, JAPAN_TEST_SPARE_OFFSET,
-                                    JAPAN_TEST_SPARE_LENGTH, ENC_NA);
+                                    JAPAN_TEST_SPARE_LENGTH, ENC_LITTLE_ENDIAN);
 
                 test_pattern = tvb_get_letohs(tvb, JAPAN_TEST_PATTERN_OFFSET);
                 pattern_item = proto_tree_add_item(mtp3mg_tree,
@@ -1046,7 +1046,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
         } else { /* not JAPAN */
-            proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH, ENC_NA);
+            proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             /* H1 is added below */
 
             h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
@@ -1058,7 +1058,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
             case TEST_H0_SLT:
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_test_h1, tvb, 0,
-                                    H0H1_LENGTH, ENC_NA);
+                                    H0H1_LENGTH, ENC_LITTLE_ENDIAN);
                 dissect_mtp3mg_test(payload_tvb, pinfo, mtp3mg_tree, h1);
                 break;
 
@@ -1076,14 +1076,14 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (mtp3_standard == JAPAN_STANDARD)
         {
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_spare, tvb, 0,
-                                JAPAN_SPARE_LENGTH, ENC_NA);
+                                JAPAN_SPARE_LENGTH, ENC_LITTLE_ENDIAN);
 
             /*  Get a tvb w/o the spare byte--it makes for less code below */
             tvb = tvb_new_subset_remaining(tvb, JAPAN_SPARE_LENGTH);
         }
 
         proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_h0, tvb, 0, H0H1_LENGTH,
-                            ENC_NA);
+                            ENC_LITTLE_ENDIAN);
         /* H1 is added below */
 
         h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
@@ -1095,34 +1095,34 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
         case H0_CHM:
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_chm_h1, tvb, 0,
-                                H0H1_LENGTH, ENC_NA);
+                                H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             dissect_mtp3mg_chm(payload_tvb, pinfo, mtp3mg_tree, h1);
             break;
         case H0_ECM:
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ecm_h1, tvb, 0,
-                                H0H1_LENGTH, ENC_NA);
+                                H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             dissect_mtp3mg_ecm(payload_tvb, pinfo, mtp3mg_tree, h1);
             break;
         case H0_FCM:
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_fcm_h1, tvb, 0,
-                                H0H1_LENGTH, ENC_NA);
+                                H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             dissect_mtp3mg_fcm(payload_tvb, pinfo, mtp3mg_tree, h1);
             break;
         case H0_TFM:
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_tfm_h1, tvb, 0,
-                                H0H1_LENGTH, ENC_NA);
+                                H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             dissect_mtp3mg_tfm(payload_tvb, pinfo, mtp3mg_tree, h1);
             break;
         case H0_RSM:
             proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_rsm_h1, tvb, 0,
-                                H0H1_LENGTH, ENC_NA);
+                                H0H1_LENGTH, ENC_LITTLE_ENDIAN);
             dissect_mtp3mg_rsm(payload_tvb, pinfo, mtp3mg_tree, h1);
             break;
         case H0_MIM:
             if (mtp3_standard != JAPAN_STANDARD)
             {
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_mim_h1, tvb, 0,
-                                    H0H1_LENGTH, ENC_NA);
+                                    H0H1_LENGTH, ENC_LITTLE_ENDIAN);
                 dissect_mtp3mg_mim(payload_tvb, pinfo, mtp3mg_tree, h1);
             } else
                 dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
@@ -1131,7 +1131,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (mtp3_standard != JAPAN_STANDARD)
             {
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_trm_h1, tvb, 0,
-                                    H0H1_LENGTH, ENC_NA);
+                                    H0H1_LENGTH, ENC_LITTLE_ENDIAN);
                 dissect_mtp3mg_trm(payload_tvb, pinfo, mtp3mg_tree, h1);
             } else
                 dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
@@ -1140,7 +1140,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (mtp3_standard != JAPAN_STANDARD)
             {
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_dlm_h1, tvb, 0,
-                                    H0H1_LENGTH, ENC_NA);
+                                    H0H1_LENGTH, ENC_LITTLE_ENDIAN);
                 dissect_mtp3mg_dlm(payload_tvb, pinfo, mtp3mg_tree, h1);
             } else
                 dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);
@@ -1149,7 +1149,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (mtp3_standard != JAPAN_STANDARD)
             {
                 proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ufc_h1, tvb, 0,
-                                    H0H1_LENGTH, ENC_NA);
+                                    H0H1_LENGTH, ENC_LITTLE_ENDIAN);
                 dissect_mtp3mg_ufc(payload_tvb, pinfo, mtp3mg_tree, h1);
             } else
                 dissect_mtp3mg_unknown_message(tvb, pinfo, mtp3mg_tree);

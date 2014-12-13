@@ -1079,10 +1079,10 @@ dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
                                     tvb_get_letohs(tvb, offset+2),
                                     tvb_get_guint8(tvb, offset+7));
     version_tree = proto_item_add_subtree (tf, ett_ntlmssp_version);
-    proto_tree_add_item(version_tree, hf_ntlmssp_version_major                , tvb, offset  , 1, ENC_NA);
-    proto_tree_add_item(version_tree, hf_ntlmssp_version_minor                , tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_major                , tvb, offset  , 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_minor                , tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(version_tree, hf_ntlmssp_version_build_number         , tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(version_tree, hf_ntlmssp_version_ntlm_current_revision, tvb, offset+7, 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_ntlm_current_revision, tvb, offset+7, 1, ENC_LITTLE_ENDIAN);
   }
   return offset+8;
 }
@@ -1282,10 +1282,10 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     offset, 16, ENC_NA);
   offset += 16;
 
-  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_rversion, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_rversion, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hirversion, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hirversion, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 6, ENC_NA);

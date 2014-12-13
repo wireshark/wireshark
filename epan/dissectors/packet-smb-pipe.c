@@ -311,7 +311,7 @@ add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 		}
 	} else {
 		if (count == 1) {
-			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, offset, count, ENC_NA);
+			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, offset, count, ENC_LITTLE_ENDIAN);
 		} else {
 			proto_tree_add_item(tree, hf_smb_pipe_bytes_param, tvb, offset, count, ENC_NA);
 		}

@@ -287,7 +287,7 @@ dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
     /* Retrieve "Message Length" field */
     msg_len = tvb_get_guint8(tvb, *offset); /* string length */
-    proto_tree_add_item(tree, hf_zbee_zcl_msg_message_length, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_msg_message_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Retrieve "Message" field */
@@ -423,9 +423,9 @@ static void
 dissect_zcl_msg_cmd_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 cmd_dir)
 {
     if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
-        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_rx_cmd_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     else
-        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_tx_cmd_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
 } /*dissect_zcl_msg_cmd_id*/
 

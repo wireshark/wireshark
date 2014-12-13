@@ -589,7 +589,7 @@ eti_thr_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	proto_item* ti;
 
 	if (b == 0x1) {
-		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_trigger_reading, tvb, 0, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_trigger_reading, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		if (d == 0xff)
 			proto_item_append_text(ti, " (unspecified)");
 		return TRUE;
@@ -604,7 +604,7 @@ eti_thr_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	proto_item* ti;
 
 	if (b == 0x1) {
-		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_trigger_threshold, tvb, 0, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_trigger_threshold, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		if (d == 0xff)
 			proto_item_append_text(ti, " (unspecified)");
 		return TRUE;
@@ -622,7 +622,7 @@ eti_2_pst_sev(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 
 	if (b == 0x1) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/severity");
-		proto_tree_add_item(s_tree, hf_ipmi_se_pst_severity, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_pst_severity, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		tmp = d & 0xf;
 		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str_const(tmp, si->offsets, "Unknown");
 		proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_pst_previous_state, tvb, 0, 1,
@@ -1047,7 +1047,7 @@ ssi_05_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 	if (b == 0x3 && offs == 0x04) {
 		/* LAN Leash Lost */
-		proto_tree_add_item(tree, hf_ipmi_se_05_network_controller, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_05_network_controller, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1066,7 +1066,7 @@ ssi_08_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 	if (b == 0x3 && offs == 0x06) {
 		/* Configuration error */
-		proto_tree_add_item(tree, hf_ipmi_se_08_error_type, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_08_error_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1077,7 +1077,7 @@ ssi_0c_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x3) {
-		proto_tree_add_item(tree, hf_ipmi_se_0c_memory_module, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_0c_memory_module, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1135,11 +1135,11 @@ ssi_0f_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 
 	if (b == 0x3 && offs == 0x00) {
-		proto_tree_add_item(tree, hf_ipmi_se_0f_extension_code_err, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_0f_extension_code_err, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	if (b == 0x3 && (offs == 0x01 || offs == 0x02)) {
-		proto_tree_add_item(tree, hf_ipmi_se_0f_extension_code_progress, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_0f_extension_code_progress, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1152,7 +1152,7 @@ ssi_10_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d)
 {
 	if (b == 0x3 && offs == 0x00) {
-		proto_tree_add_item(tree, hf_ipmi_se_10_memory_module, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_10_memory_module, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x01) {
@@ -1189,7 +1189,7 @@ ssi_10_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x05) {
-		proto_tree_add_item(tree, hf_ipmi_se_10_sel_filled, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_10_sel_filled, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1229,8 +1229,8 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3 && offs == 0x03) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Log action/type");
-		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_entry_action, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_type, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_entry_action, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(s_tree, hf_ipmi_se_12_log_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x04) {
@@ -1246,7 +1246,7 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	if (b == 0x3 && offs == 0x05) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Details");
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_event, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_12_timestamp_clock_type, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_12_timestamp_clock_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 	return FALSE;
 }
@@ -1256,7 +1256,7 @@ ssi_19_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d _U_)
 {
 	if (b == 0x3 && offs == 0x00) {
-		proto_tree_add_item(tree, hf_ipmi_se_19_requested_power_state, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_19_requested_power_state, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1267,7 +1267,7 @@ ssi_19_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d _U_)
 {
 	if (b == 0x3 && offs == 0x00) {
-		proto_tree_add_item(tree, hf_ipmi_se_19_power_state, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_19_power_state, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1295,7 +1295,7 @@ ssi_1d_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs, guint32 d _U_)
 {
 	if (b == 0x3 && offs == 0x07) {
-		proto_tree_add_item(tree, hf_ipmi_se_1d_restart_cause, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_1d_restart_cause, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1309,7 +1309,7 @@ ssi_1d_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	ipmi_fmt_channel(s, d);
 	if (b == 0x3 && offs == 0x07) {
-		proto_tree_add_item(tree, hf_ipmi_se_1d_channel, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_1d_channel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1336,7 +1336,7 @@ ssi_21_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x3) {
-		proto_tree_add_item(tree, hf_ipmi_se_21_slot_connector_type, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_21_slot_connector_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1347,7 +1347,7 @@ ssi_21_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x3) {
-		proto_tree_add_item(tree, hf_ipmi_se_21_slot_connector, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_21_slot_connector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1379,8 +1379,8 @@ ssi_23_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Timer use/interrupt");
-		proto_tree_add_item(s_tree, hf_ipmi_se_23_interrupt_type, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_23_timer_use_at_expiration, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_23_interrupt_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(s_tree, hf_ipmi_se_23_timer_use_at_expiration, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
 		return TRUE;
 	}
@@ -1396,15 +1396,15 @@ ssi_28_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	proto_tree *s_tree;
 
 	if (b == 0x3 && (offs == 0x00 || offs == 0x04)) {
-		proto_tree_add_item(tree, hf_ipmi_se_28_sensor_number, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_28_sensor_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x05) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "FRU details");
 		ssi28_is_logical_fru = (d & 0x80) ? 1 : 0;
 		proto_tree_add_item(s_tree, hf_ipmi_se_28_logical_fru_device, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_28_lun_for_master_read_write_command, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_28_private_bus_id, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_28_lun_for_master_read_write_command, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(s_tree, hf_ipmi_se_28_private_bus_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1419,9 +1419,9 @@ ssi_28_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 			return FALSE; /* something went wrong */
 		}
 		if (ssi28_is_logical_fru) {
-			proto_tree_add_item(tree, hf_ipmi_se_28_fru_device_id_within_controller, tvb, 0, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_ipmi_se_28_fru_device_id_within_controller, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		} else {
-			proto_tree_add_item(tree, hf_ipmi_se_28_i2c_slave_address, tvb, 0, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_ipmi_se_28_i2c_slave_address, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		}
 		return TRUE;
 	}
@@ -1435,7 +1435,7 @@ ssi_2a_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	proto_item *ti;
 
 	if (b == 0x3) {
-		ti = proto_tree_add_item(tree, hf_ipmi_se_2a_user_id, tvb, 0, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_2a_user_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		if ((d & 0x3f) == 0)
 			proto_item_append_text(ti, " (unspecified)");
 	}
@@ -1458,8 +1458,8 @@ ssi_2a_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte3, NULL, "Deactivation cause/Channel #");
-		proto_tree_add_item(s_tree, hf_ipmi_se_2a_session_deactivated_by, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_2a_channel, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_2a_session_deactivated_by, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(s_tree, hf_ipmi_se_2a_channel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1498,7 +1498,7 @@ ssi_2b_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x3) {
-		proto_tree_add_item(tree, hf_ipmi_se_2b_version_change_type, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_2b_version_change_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1528,7 +1528,7 @@ ssi_2c_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 
 	if (b == 0x3) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/Cause");
-		proto_tree_add_item(s_tree, hf_ipmi_se_2c_cause, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_2c_cause, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		d &= 0xf;
 		proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_2c_previous_state, tvb, 0, 1,
 				d, "%s (0x%02x)", val_to_str_const(d, si->offsets, "Reserved"), d);
@@ -1560,7 +1560,7 @@ ssi_f0_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 
 	if (b == 0x2) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Previous state/Cause");
-		proto_tree_add_item(s_tree, hf_ipmi_se_f0_cause, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_f0_cause, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		d &= 0xf;
 		proto_tree_add_uint_format_value(s_tree, hf_ipmi_se_f0_previous_state, tvb, 0, 1,
 				d, "%s (0x%02x)", val_to_str_const(d, si->offsets, "Reserved"), d);
@@ -1574,7 +1574,7 @@ ssi_f0_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x2) {
-		proto_tree_add_item(tree, hf_ipmi_se_f0_fru_id, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_f0_fru_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1585,7 +1585,7 @@ ssi_f1_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		guint32 b, guint32 offs _U_, guint32 d _U_)
 {
 	if (b == 0x02) {
-		proto_tree_add_item(tree, hf_ipmi_se_f1_channel, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_f1_channel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1617,9 +1617,9 @@ ssi_f1_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 	if (b == 0x02) {
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte3, NULL, "Override state / Local status");
 		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_b_override_state, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_b_local_status, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_b_local_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_a_override_state, tvb, 0, 1, ENC_NA);
-		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_a_local_status, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_ipmi_se_f1_ipmb_a_local_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 	return FALSE;
@@ -1654,7 +1654,7 @@ ssi_f3_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x02 && offs == 0x00) {
 		/* Global status change */
-		ti = proto_tree_add_item(tree, hf_ipmi_se_f3_global_status, tvb, 0, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_f3_global_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f3_redundant_pm, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f3_gs_payload_power, tvb, 0, 1, ENC_NA);
@@ -1663,7 +1663,7 @@ ssi_f3_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		return TRUE;
 	} else if (b == 0x02 && offs == 0x01) {
 		/* Channel status change */
-		ti = proto_tree_add_item(tree, hf_ipmi_se_f3_channel_status, tvb, 0, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_f3_channel_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f3_pwr_on, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_f3_payload_power_overcurrent, tvb, 0, 1, ENC_NA);
@@ -1684,7 +1684,7 @@ ssi_f3_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 	if (b == 0x02 && offs == 0x01) {
 		/* Channel status change */
-		proto_tree_add_item(tree, hf_ipmi_se_f3_power_channel_number, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_ipmi_se_f3_power_channel_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return TRUE;
 	}
 
@@ -1951,14 +1951,14 @@ cfgparam_05(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 static void
 cfgparam_06(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp06_filter, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_se_cp06_filter, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp06_data, tvb, 1, 20, ENC_NA);
 }
 
 static void
 cfgparam_07(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp07_filter, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_se_cp07_filter, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp06_data, tvb, 1, 1, ENC_NA);
 }
 
@@ -2582,9 +2582,9 @@ rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(s_tree, hf_ipmi_se_23_tolerance, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(s_tree, hf_ipmi_se_23_b, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(s_tree, hf_ipmi_se_23_accuracy, tvb, 4, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(s_tree, hf_ipmi_se_23_accuracy_exponent, tvb, 5, 1, ENC_NA);
-	proto_tree_add_item(s_tree, hf_ipmi_se_23_r_exponent, tvb, 6, 1, ENC_NA);
-	proto_tree_add_item(s_tree, hf_ipmi_se_23_b_exponent, tvb, 6, 1, ENC_NA);
+	proto_tree_add_item(s_tree, hf_ipmi_se_23_accuracy_exponent, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(s_tree, hf_ipmi_se_23_r_exponent, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(s_tree, hf_ipmi_se_23_b_exponent, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set Sensor Hysteresis.

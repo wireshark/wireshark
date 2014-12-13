@@ -544,7 +544,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             break;
         case 0x03: /* Control PDU */
-            proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             control_opcode = tvb_get_guint8(tvb, offset);
             offset += 1;
 
@@ -565,7 +565,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             case 0x00: /* LL_CONNECTION_UPDATE_REQ */
-                proto_tree_add_item(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 proto_tree_add_item(btle_tree, hf_control_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -597,7 +597,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x02: /* LL_TERMINATE_IND */
             case 0x0D: /* LL_REJECT_IND */
-                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 break;
@@ -624,7 +624,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             case 0x07: /* LL_UNKNOWN_RSP */
-                proto_tree_add_item(btle_tree, hf_control_unknown_type, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_unknown_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 break;
@@ -647,7 +647,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             case 0x0C: /* LL_VERSION_IND */
-                proto_tree_add_item(btle_tree, hf_control_version_number, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_version_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 proto_tree_add_item(btle_tree, hf_control_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -671,7 +671,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_preffered_periodicity, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_preffered_periodicity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 proto_tree_add_item(btle_tree, hf_control_reference_connection_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -697,10 +697,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 break;
             case 0x11: /* LL_REJECT_IND_EXT */
-                proto_tree_add_item(btle_tree, hf_control_reject_opcode, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_reject_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
                 break;

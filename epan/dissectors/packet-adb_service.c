@@ -373,15 +373,15 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             pixel_item = proto_tree_add_item(sub_tree, hf_framebuffer_pixel, tvb, offset, 3, ENC_NA);
                             pixel_tree = proto_item_add_subtree(pixel_item, ett_pixel);
 
-                            proto_tree_add_item(pixel_tree, hf_framebuffer_red, tvb, offset + framebuffer_data->red_offset / 8, 1, ENC_NA);
-                            proto_tree_add_item(pixel_tree, hf_framebuffer_green, tvb, offset + framebuffer_data->green_offset / 8, 1, ENC_NA);
-                            proto_tree_add_item(pixel_tree, hf_framebuffer_blue, tvb, offset + framebuffer_data->blue_offset / 8, 1, ENC_NA);
+                            proto_tree_add_item(pixel_tree, hf_framebuffer_red, tvb, offset + framebuffer_data->red_offset / 8, 1, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(pixel_tree, hf_framebuffer_green, tvb, offset + framebuffer_data->green_offset / 8, 1, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(pixel_tree, hf_framebuffer_blue, tvb, offset + framebuffer_data->blue_offset / 8, 1, ENC_LITTLE_ENDIAN);
 
                             if (framebuffer_data->alpha_offset > 0) {
                                 if (framebuffer_data->alpha_length == 0)
-                                    proto_tree_add_item(pixel_tree, hf_framebuffer_unused, tvb, offset + framebuffer_data->alpha_offset / 8, 1, ENC_NA);
+                                    proto_tree_add_item(pixel_tree, hf_framebuffer_unused, tvb, offset + framebuffer_data->alpha_offset / 8, 1, ENC_LITTLE_ENDIAN);
                                 else
-                                    proto_tree_add_item(pixel_tree, hf_framebuffer_alpha, tvb, offset + framebuffer_data->alpha_offset / 8, 1, ENC_NA);
+                                    proto_tree_add_item(pixel_tree, hf_framebuffer_alpha, tvb, offset + framebuffer_data->alpha_offset / 8, 1, ENC_LITTLE_ENDIAN);
                                 offset += 1;
                                 proto_item_set_len(pixel_item, 4);
                             }

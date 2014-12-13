@@ -171,7 +171,7 @@ dissect_usb_dfu_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             expert_add_info(pinfo, length_item, &ei_descriptor_invalid_length);
         offset += 2;
 
-        proto_tree_add_item(main_tree, hf_usb_dfu_descriptor_bmAttributes_reserved, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_usb_dfu_descriptor_bmAttributes_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(main_tree, hf_usb_dfu_descriptor_bmAttributes_WillDetach, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(main_tree, hf_usb_dfu_descriptor_bmAttributes_ManifestationTolerant, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(main_tree, hf_usb_dfu_descriptor_bmAttributes_CanUpload, tvb, offset, 1, ENC_NA);
@@ -258,7 +258,7 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (usb_conv_info->is_setup) {
         guint16  interface;
 
-        command_item = proto_tree_add_item(main_tree, hf_setup_command, tvb, offset, 1, ENC_NA);
+        command_item = proto_tree_add_item(main_tree, hf_setup_command, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         command = tvb_get_guint8(tvb, offset);
 
         if (!((usb_conv_info->setup_requesttype == 0x21 && (command == 0x00 || command == 0x01 || command == 0x04 || command == 0x06)) ||
@@ -378,21 +378,21 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvb_get_letoh24(tvb, offset + 1),
                 val_to_str_ext_const(tvb_get_guint8(tvb, offset + 4), &state_vals_ext, "Unknown"));
 
-        proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(main_tree, hf_poll_timeout, tvb, offset, 3, ENC_LITTLE_ENDIAN);
         offset += 3;
 
-        proto_tree_add_item(main_tree, hf_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_iString, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_iString, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         break;
     case 0x05: /* Get State */
-        proto_tree_add_item(main_tree, hf_state, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s",
                 val_to_str_ext_const(tvb_get_guint8(tvb, offset), &state_vals_ext, "Unknown"));

@@ -2994,7 +2994,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
         urb_type, "%s ('%c')", val_to_str(urb_type, usb_urb_type_vals, "Unknown %d"),
         g_ascii_isprint(urb_type) ? urb_type : '.');
-    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_guint8(tvb, 9);
     usb_conv_info->transfer_type = transfer_type;
@@ -3011,7 +3011,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
     proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_LITTLE_ENDIAN);
     usb_conv_info->device_address = (guint16)tvb_get_guint8(tvb, 11);
 
     proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);

@@ -189,7 +189,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         gps_line = ti; /*we will make this more useful if we hit lon/lat later */
         ppi_gps_tree= proto_item_add_subtree(ti, ett_ppi_gps);
         proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_version, tvb, offset, 1, version);
-        proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, ENC_NA);
+        proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_length, tvb, offset + 2, 2, length);
     }
 

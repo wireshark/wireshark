@@ -167,7 +167,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_version,
                             tvb, offset, 1, version);
         proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_pad,
-                            tvb, offset + 1, 1, ENC_NA);
+                            tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_length,
                                  tvb, offset + 2, 2, length);
     }

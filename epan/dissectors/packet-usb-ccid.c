@@ -394,7 +394,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     item = proto_tree_add_item(tree, proto_ccid, tvb, 0, 10, ENC_NA);
     ccid_tree = proto_item_add_subtree(item, ett_ccid);
 
-    proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_LITTLE_ENDIAN);
     cmd = tvb_get_guint8(tvb, 0);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(cmd, ccid_messagetypes_vals, "Unknown"));

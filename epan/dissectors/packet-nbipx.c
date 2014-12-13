@@ -812,8 +812,8 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		proto_tree_add_item(nmpi_tree, hf_nbipx_opcode, tvb, offset, 1, ENC_NA);
-		proto_tree_add_item(nmpi_tree, hf_nbipx_name_type, tvb, offset+1, 1, ENC_NA);
+		proto_tree_add_item(nmpi_tree, hf_nbipx_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(nmpi_tree, hf_nbipx_name_type, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(nmpi_tree, hf_nbipx_messageid, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
 		netbios_add_name("Requested name", tvb, offset+4, nmpi_tree);
 		netbios_add_name("Source name", tvb, offset+20, nmpi_tree);

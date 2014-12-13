@@ -728,10 +728,10 @@ dissect_lss(tvbuff_t *tvb, proto_tree *canopen_type_tree, guint msg_type_id)
                 break;
             case LSS_CS_CONF_BIT_TIMING:
                 proto_tree_add_item(canopen_type_tree,
-                        hf_canopen_lss_bt_tbl_selector, tvb, offset, 1, ENC_NA);
+                        hf_canopen_lss_bt_tbl_selector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
                 proto_tree_add_item(canopen_type_tree,
-                        hf_canopen_lss_bt_tbl_index, tvb, offset, 1, ENC_NA);
+                        hf_canopen_lss_bt_tbl_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
                 reserved = 5;
                 break;

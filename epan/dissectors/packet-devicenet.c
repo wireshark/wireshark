@@ -501,8 +501,8 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             break;
 
         case 0x7:
-            proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_rr_bit, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_physical_port_number, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_physical_port_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset ++;
 
             proto_tree_add_item(content_tree, hf_devicenet_dup_mac_id_vendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -534,7 +534,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_frag, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_xid, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_dest_mac_id, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_dest_mac_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         byte1 = tvb_get_guint8(tvb, offset);
         source_mac = byte1 & MESSAGE_GROUP_3_MAC_ID_MASK;
 
@@ -551,8 +551,8 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             content_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL, "Fragmentation");
 
-            proto_tree_add_item(content_tree, hf_devicenet_fragment_type, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(content_tree, hf_devicenet_fragment_count, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(content_tree, hf_devicenet_fragment_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(content_tree, hf_devicenet_fragment_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             /* TODO: Handle fragmentation */
             proto_tree_add_expert(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset, -1);
@@ -567,8 +567,8 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         "Service: %s (%s)", val_to_str_const(service_rr & CIP_SC_MASK, devicenet_service_code_vals, "Unknown"),
                         service_rr & CIP_SC_RESPONSE_MASK ? "Response" : "Request");
 
-            proto_tree_add_item(content_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_NA);
-            service_item = proto_tree_add_item(content_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(content_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            service_item = proto_tree_add_item(content_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(service_rr & CIP_SC_MASK, devicenet_service_code_vals, "Unknown Service Code"));
@@ -622,21 +622,21 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* XXX - Create conversation to track connections */
                 if (service_rr & CIP_SC_RESPONSE_MASK)
                 {
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_reserved, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_actual_body_format, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_actual_body_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_dest_message_id, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_src_message_id, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_dest_message_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_src_message_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
                     proto_tree_add_item(content_tree, hf_devicenet_connection_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 }
                 else
                 {
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_reserved, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_req_body_format, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_msg_req_body_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_group_select, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_src_message_id, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_group_select, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(content_tree, hf_devicenet_open_exp_src_message_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 }
                 break;
             case SC_CLOSE_EXPLICIT_MESSAGE:
@@ -707,13 +707,13 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         case GRP4_COMM_FAULT_REQUEST:
             if(data_length == 2)
             {
-                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_rsv, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_match, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_value, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_match, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_value, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
 
-                proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
                 if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
                 {
@@ -726,11 +726,11 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
             else if(data_length == 8)
             {
-                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_rsv, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_comm_fault_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
 
-                proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
                 if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
                 {
@@ -749,11 +749,11 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             break;
         case GRP4_OFFLINE_OWNER_REQUEST:
         case GRP4_OFFLINE_OWNER_RESPONSE:
-            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_reserved,  tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_client_mac_id, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_reserved,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_client_mac_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
             {
@@ -764,7 +764,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 col_append_str(pinfo->cinfo, COL_INFO, " - Request");
             }
 
-            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_allocate, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(devicenet_tree, hf_devicenet_offline_ownership_allocate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(devicenet_tree, hf_devicenet_vendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset +=2;

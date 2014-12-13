@@ -692,7 +692,7 @@ dissect_bmControl(proto_tree *tree, tvbuff_t *tvb, int offset,
     guint8 bm_size = 0;
 
     bm_size = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     if (bm_size > 0)
@@ -782,13 +782,13 @@ dissect_usb_video_processing_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
 
     DISSECTOR_ASSERT(array_length(control_bits) == (1+array_length(hf_usb_vid_proc_control_D)));
 
-    proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_src_id, tvb, offset,   1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_src_id, tvb, offset,   1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_max_multiplier,        tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
     offset += 3;
 
     offset = dissect_bmControl(tree, tvb, offset, ett_processing_controls, control_bits);
 
-    proto_tree_add_item(tree, hf_usb_vid_iProcessing, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_iProcessing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     /* UVC 1.1 added bmVideoStandards */
@@ -821,7 +821,7 @@ dissect_usb_video_selector_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
     guint8 num_inputs;
 
     num_inputs = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_num_inputs, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_num_inputs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     if (num_inputs > 0)
@@ -830,7 +830,7 @@ dissect_usb_video_selector_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
         offset += num_inputs;
     }
 
-    proto_tree_add_item(tree, hf_usb_vid_iSelector, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_iSelector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     return offset;
@@ -844,11 +844,11 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
     guint8 control_size;
 
     proto_tree_add_item(tree, hf_usb_vid_exten_guid,         tvb, offset,    16, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_vid_exten_num_controls, tvb, offset+16,  1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_exten_num_controls, tvb, offset+16,  1, ENC_LITTLE_ENDIAN);
     offset += 17;
 
     num_inputs = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_num_inputs,   tvb, offset,  1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_num_inputs,   tvb, offset,  1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     if (num_inputs > 0)
@@ -858,7 +858,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
     }
 
     control_size = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     if (control_size > 0)
@@ -879,7 +879,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
         offset += control_size;
     }
 
-    proto_tree_add_item(tree, hf_usb_vid_iExtension, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_iExtension, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     return offset;
@@ -925,7 +925,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
 
     /* Common fields */
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
-    subtype_item = proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
+    subtype_item = proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_subtype, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset += 3;
 
     if (subtype == VC_HEADER)
@@ -952,18 +952,18 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
         entity_id     = tvb_get_guint8(tvb, offset);
         terminal_type = tvb_get_letohs(tvb, offset+1);
 
-        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_terminal_id,    tvb, offset,   1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_terminal_id,    tvb, offset,   1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_terminal_type,  tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_assoc_terminal, tvb, offset+3, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_assoc_terminal, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         if (subtype == VC_OUTPUT_TERMINAL)
         {
-            proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_src_id, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_src_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
         }
 
-        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_iTerminal, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_iTerminal, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
 
         if (subtype == VC_INPUT_TERMINAL)
@@ -990,7 +990,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     {
         /* Field common to extension / processing / selector / encoding units */
         entity_id = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_unit_id, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_unit_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
 
         if (subtype == VC_PROCESSING_UNIT)
@@ -1082,7 +1082,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
     DISSECTOR_ASSERT(array_length(control_bits) == (1+array_length(hf_usb_vid_streaming_control_D)));
 
     num_formats = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_bNumFormats, tvb, offset,   1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_bNumFormats, tvb, offset,   1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_ifdesc_wTotalLength,          tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
     offset += 3;
 
@@ -1092,14 +1092,14 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
     proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_streaming_bmInfo,
                            ett_streaming_info, info_bits, ENC_NA);
 
-    proto_tree_add_item(tree, hf_usb_vid_streaming_terminal_link,        tvb, offset+1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_streaming_still_capture_method, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_streaming_terminal_link,        tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_streaming_still_capture_method, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_usb_vid_streaming_trigger_support,      tvb, offset,   1, ENC_NA);
     if (tvb_get_guint8(tvb, offset) > 0)
     {
-        proto_tree_add_item(tree, hf_usb_vid_streaming_trigger_usage,    tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_streaming_trigger_usage,    tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
     }
     else
     {
@@ -1112,7 +1112,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
      *       field for (potentially) multiple bmControl fields
      */
     bm_size = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ++offset;
 
     if (bm_size > 0)
@@ -1162,8 +1162,8 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
     desc_item = proto_tree_get_parent(tree);
     proto_item_append_text(desc_item, "  (Format %u)", format_index);
 
-    proto_tree_add_item(tree, hf_usb_vid_format_index,                  tvb, offset,    1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_format_num_frame_descriptors,  tvb, offset+1,  1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_format_index,                  tvb, offset,    1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_format_num_frame_descriptors,  tvb, offset+1,  1, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     if ((subtype == VS_FORMAT_UNCOMPRESSED) || (subtype == VS_FORMAT_FRAME_BASED))
@@ -1175,7 +1175,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
         proto_item_append_text(desc_item, ": %s", fourcc);
 
         proto_tree_add_item(tree, hf_usb_vid_format_guid, tvb, offset,   16, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tree, hf_usb_vid_format_bits_per_pixel,        tvb, offset+16, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_format_bits_per_pixel,        tvb, offset+16, 1, ENC_LITTLE_ENDIAN);
         offset += 17;
     }
     else if (subtype == VS_FORMAT_MJPEG)
@@ -1194,9 +1194,9 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
         DISSECTOR_ASSERT_NOT_REACHED();
     }
 
-    proto_tree_add_item(tree, hf_usb_vid_default_frame_index, tvb, offset,   1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_aspect_ratio_x,      tvb, offset+1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_aspect_ratio_y,      tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_default_frame_index, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_aspect_ratio_x,      tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_aspect_ratio_y,      tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset += 3;
 
 #if 0
@@ -1209,7 +1209,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
                                 ett_interlace_flags, interlace_bits, ENC_NA);
     offset++;
 
-    proto_tree_add_item(tree, hf_usb_vid_copy_protect, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_copy_protect, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     if (subtype == VS_FORMAT_FRAME_BASED)
@@ -1249,7 +1249,7 @@ dissect_usb_video_frame(proto_tree *tree, tvbuff_t *tvb, int offset,
     guint16     frame_height;
 
     frame_index = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_frame_index, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_frame_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_frame_capabilities,
@@ -1324,9 +1324,9 @@ dissect_usb_video_frame(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int
 dissect_usb_video_colorformat(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    proto_tree_add_item(tree, hf_usb_vid_color_primaries,          tvb, offset,   1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_transfer_characteristics, tvb, offset+1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_matrix_coefficients,      tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_color_primaries,          tvb, offset,   1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_transfer_characteristics, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_matrix_coefficients,      tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset +=3;
 
     return offset;
@@ -1359,7 +1359,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
             subtype_str);
 
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
-    proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset += 3;
 
     switch (subtype)
@@ -1431,7 +1431,7 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
     }
 
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
-    proto_tree_add_item(tree, hf_usb_vid_epdesc_subtype, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_epdesc_subtype, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
     offset += 3;
 
     if (subtype == EP_INTERRUPT)
@@ -1536,8 +1536,8 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_probe_hint,
                            ett_probe_hint, hint_bits, ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_item(tree, hf_usb_vid_format_index,         tvb, offset+2,  1, ENC_NA);
-    proto_tree_add_item(tree, hf_usb_vid_frame_index,          tvb, offset+3,  1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_vid_format_index,         tvb, offset+2,  1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_vid_frame_index,          tvb, offset+3,  1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_frame_interval,       tvb, offset+4,  4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_probe_key_frame_rate, tvb, offset+8,  2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_probe_p_frame_rate,   tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
@@ -1566,9 +1566,9 @@ dissect_usb_vid_probe(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
                                ett_probe_framing, framing_bits, ENC_NA);
         offset++;
 
-        proto_tree_add_item(tree, hf_usb_vid_probe_preferred_ver, tvb, offset,   1, ENC_NA);
-        proto_tree_add_item(tree, hf_usb_vid_probe_min_ver,       tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_usb_vid_probe_max_ver,       tvb, offset+2, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_probe_preferred_ver, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_usb_vid_probe_min_ver,       tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_usb_vid_probe_max_ver,       tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
         offset += 3;
     }
 
@@ -1831,10 +1831,10 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                      offset, 1, control_sel, "%s (0x%02x)", short_name, control_sel);
         offset++;
 
-        proto_tree_add_item(tree, hf_usb_vid_control_interface, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
-        proto_tree_add_item(tree, hf_usb_vid_control_entity, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_control_entity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         proto_tree_add_item(tree, hf_usb_vid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1894,7 +1894,7 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                          && (usb_conv_info->interfaceSubclass == SC_VIDEOCONTROL)
                          && (control_sel == VC_REQUEST_ERROR_CODE_CONTROL))
                 {
-                    proto_tree_add_item(tree, hf_usb_vid_request_error, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_usb_vid_request_error, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
                     value_size--;
                 }
@@ -2019,7 +2019,7 @@ dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     if (is_request)
     {
-        proto_tree_add_item(tree, hf_usb_vid_request, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
 
@@ -2056,11 +2056,11 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         guint8 originating_entity;
 
         originating_interface = tvb_get_guint8(tvb, offset) & INT_ORIGINATOR_MASK;
-        proto_tree_add_item(tree, hf_usb_vid_interrupt_bStatusType, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_interrupt_bStatusType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         originating_entity = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_usb_vid_interrupt_bOriginator, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_usb_vid_interrupt_bOriginator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         if (originating_interface == INT_VIDEOCONTROL)
@@ -2069,7 +2069,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             guint8 attribute;
             const gchar *control_name;
 
-            proto_tree_add_item(tree, hf_usb_vid_control_interrupt_bEvent, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_usb_vid_control_interrupt_bEvent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             control_sel = tvb_get_guint8(tvb, offset);
@@ -2083,13 +2083,13 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset++;
 
             attribute = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_usb_vid_interrupt_bAttribute, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_usb_vid_interrupt_bAttribute, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             switch (attribute)
             {
                 case CONTROL_CHANGE_FAILURE:
-                    proto_tree_add_item(tree, hf_usb_vid_request_error, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_usb_vid_request_error, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
                     break;
 

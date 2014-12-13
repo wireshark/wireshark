@@ -1746,7 +1746,7 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	offset += 2;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(epl_tree, hf_epl_preq_pdov, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_preq_pdov, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* get size of payload */
@@ -1849,7 +1849,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 						target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
 	}
 
-	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	if (svid == EPL_SOA_SYNCREQUEST)
@@ -2008,9 +2008,9 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 			break;
 
 		case EPL_SOA_UNSPECIFIEDINVITE:
-			proto_tree_add_item(epl_tree, hf_epl_asnd_svtg, tvb, offset, 1, ENC_NA );
+			proto_tree_add_item(epl_tree, hf_epl_asnd_svtg, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 			offset += 1;
-			proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			break;
 
 		case EPL_ASND_SDO:
@@ -2108,7 +2108,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	}
 	offset += 2;
 
-	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ever, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ever, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* decode FeatureFlags */

@@ -735,7 +735,7 @@ dissect_netb_name_query( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, prot
 		proto_tree_add_uint_format_value( tree, hf_netb_local_session_no, tvb, offset + NB_DATA2, 1,
 		    local_session_number, "0 (FIND.NAME request)");
 	} else {
-		proto_tree_add_item( tree, hf_netb_local_session_no, tvb, offset + NB_DATA2, 1, ENC_NA);
+		proto_tree_add_item( tree, hf_netb_local_session_no, tvb, offset + NB_DATA2, 1, ENC_LITTLE_ENDIAN);
 	}
 	nb_call_name_type( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
@@ -785,7 +785,7 @@ dissect_netb_name_resp( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto
 		break;
 
 	default:
-		proto_tree_add_item( tree, hf_netb_local_session_no, tvb, offset + NB_DATA2, 1, ENC_NA);
+		proto_tree_add_item( tree, hf_netb_local_session_no, tvb, offset + NB_DATA2, 1, ENC_LITTLE_ENDIAN);
 		break;
 	}
 	nb_call_name_type( tvb, offset, tree);
